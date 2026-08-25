@@ -67,10 +67,11 @@ pnpm typecheck
 pnpm build
 ```
 
-The current golden tests verify stable ordering, duplicate tolerance, and an
-identical canonical hash after input shuffling. No performance or detection
-accuracy claim is made yet. The versioned measurement plan lives in
-[Evaluation](docs/EVALUATION.md).
+The current invariant tests verify fixed-precision time normalization,
+locale-independent ordering, duplicate tolerance, and an identical canonical
+hash after input shuffling. A cross-commit literal golden hash is still planned.
+No performance or detection accuracy claim is made yet. The versioned
+measurement plan lives in [Evaluation](docs/EVALUATION.md).
 
 ## Documentation
 

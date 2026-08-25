@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 
+import { compareUtf16CodeUnits } from "./canonical-order";
+
 type JsonPrimitive = boolean | null | number | string;
 export type JsonValue =
   JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -12,7 +14,7 @@ function sortValue(value: JsonValue): JsonValue {
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value)
-        .sort(([left], [right]) => left.localeCompare(right))
+        .sort(([left], [right]) => compareUtf16CodeUnits(left, right))
         .map(([key, child]) => [key, sortValue(child)]),
     );
   }
