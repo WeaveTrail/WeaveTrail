@@ -2,6 +2,7 @@
   "name": "weave-trail",
   "version": "0.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "AI-assisted deterministic verification harness for heterogeneous event data",
   "packageManager": "pnpm@10.33.2",
   "engines": {

@@ -28,3 +28,10 @@ customer, venue, or production implementation.
 
 See [AGENTS.md](AGENTS.md) for the trust, determinism, evidence, and language
 invariants that apply to every change.
+
+## License of contributions
+
+Unless you state otherwise when submitting a contribution, you agree that it
+is licensed under the repository's [Apache License 2.0](LICENSE). Do not submit
+code, data, documentation, or assets that you do not have the right to license
+on those terms.

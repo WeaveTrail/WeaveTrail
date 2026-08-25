@@ -80,3 +80,10 @@ accuracy claim is made yet. The versioned measurement plan lives in
   unmeasured targets presented as results
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations
+
+## License
+
+WeaveTrail's original source code and documentation are licensed under the
+[Apache License 2.0](LICENSE). Third-party packages retain their own licenses;
+see [Licensing and distribution](docs/LICENSING.md) and
+[Third-party notices](THIRD_PARTY_NOTICES.md).
