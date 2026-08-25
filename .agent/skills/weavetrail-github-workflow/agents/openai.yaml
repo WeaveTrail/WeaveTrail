@@ -1,0 +1,4 @@
+interface:
+  display_name: "WeaveTrail GitHub Workflow"
+  short_description: "Run bounded GitHub stages with evidence"
+  default_prompt: "Use $weavetrail-github-workflow to handle the requested GitHub stage for this change."

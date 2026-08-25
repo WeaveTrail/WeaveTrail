@@ -1,0 +1,23 @@
+node_modules/
+.next/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Private planning material. Translate decisions into public docs; never commit
+# the workbench itself.
+_workbench/
+.agent/skills/weavetrail-create-issue/
+.agent/skills/weavetrail-impl-spec/
+.agent/skills/weavetrail-workbench-refine/
+
+# Editor and OS state
+.DS_Store
+.idea/
+.vscode/
