@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import type { TradeEvent } from "@weavetrail/contracts";
+import { TradeEventSchema, type TradeEvent } from "@weavetrail/contracts";
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
-import { canonicalJson } from "./canonical-json";
+import { canonicalJson, sha256Canonical } from "./canonical-json";
 import {
   CanonicalizationError,
   compareCanonicalEventTimes,
   normalizeEventTime,
 } from "./canonical-order";
+import {
+  CANONICAL_EVENT_FIELDS,
+  COLLECTION_METADATA_FIELDS,
+  projectCanonicalEvent,
+} from "./canonicalize";
 import { replayFoundation } from "./replay-foundation";
 
 function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
@@ -15,6 +20,12 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
 }
 
 describe("replayFoundation", () => {
+  it("pins the concentrated-buy canonical result hash", () => {
+    expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
+      "7a14a9e22df02b09baa37c1c34c41319d2c00763eed8fcadfd7b258e50613c36",
+    );
+  });
+
   it("produces the same canonical result after row shuffling", () => {
     const baseline = replayFoundation(concentratedBuyEvents);
     const shuffled = replayFoundation([
@@ -39,6 +50,53 @@ describe("replayFoundation", () => {
     expect(withDuplicate.events).toEqual(baseline.events);
     expect(withDuplicate.canonicalResultHash).toBe(
       baseline.canonicalResultHash,
+    );
+  });
+
+  it("excludes receivedAt from the canonical result hash", () => {
+    const baseline = replayFoundation(concentratedBuyEvents);
+    const changedReceivedAt = replayFoundation(
+      concentratedBuyEvents.map((event, index) =>
+        index === 0
+          ? { ...event, receivedAt: "2026-08-25T12:34:56.789Z" }
+          : event,
+      ),
+    );
+
+    expect(changedReceivedAt.canonicalResultHash).toBe(
+      baseline.canonicalResultHash,
+    );
+  });
+
+  it("rejects conflicting reuse of a source identity independent of input order", () => {
+    const original = concentratedBuyEvents[0]!;
+    const conflicting = {
+      ...original,
+      eventId: "evt-conflicting",
+      price: "999.99",
+      rawRowHash:
+        "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    };
+    const attempts = [
+      [original, conflicting],
+      [conflicting, original],
+    ];
+    const failures = attempts.map((events) => {
+      let replayHash: string | undefined;
+      try {
+        replayHash = replayFoundation(events).canonicalResultHash;
+        throw new Error("expected conflicting identity to fail");
+      } catch (error) {
+        expect(replayHash).toBeUndefined();
+        expect(error).toBeInstanceOf(CanonicalizationError);
+        expect(error).toMatchObject({ code: "CONFLICTING_SOURCE_IDENTITY" });
+        return (error as Error).message;
+      }
+    });
+
+    expect(failures[0]).toBe(failures[1]);
+    expect(failures[0]).toContain(
+      'datasetId="synthetic-concentrated-buy-v1", venueId="SYNTH-X", sourceEventId="source-003"',
     );
   });
 
@@ -208,12 +266,57 @@ describe("canonicalJson", () => {
       Number.POSITIVE_INFINITY,
       Number.NEGATIVE_INFINITY,
     ]) {
-      expect(() => canonicalJson(value)).toThrowError(
-        /does not support non-finite numbers/,
-      );
+      expect(() => canonicalJson(value)).toThrowError(CanonicalizationError);
+      try {
+        canonicalJson(value);
+      } catch (error) {
+        expect(error).toMatchObject({ code: "NON_FINITE_NUMBER" });
+        expect(error).toHaveProperty(
+          "message",
+          expect.stringContaining("does not support non-finite numbers"),
+        );
+      }
     }
     expect(canonicalJson(-0)).toBe("0");
   });
+});
+
+describe("canonical event projection", () => {
+  it("classifies every TradeEvent field as protected or collection metadata", () => {
+    const classifiedFields = [
+      ...CANONICAL_EVENT_FIELDS,
+      ...COLLECTION_METADATA_FIELDS,
+    ].sort();
+
+    expect(classifiedFields).toEqual(
+      [...TradeEventSchema.keyof().options].sort(),
+    );
+    expect(new Set(classifiedFields).size).toBe(classifiedFields.length);
+  });
+
+  it.each(CANONICAL_EVENT_FIELDS)(
+    "changes the projection hash when protected field %s changes",
+    (field) => {
+      const projection = projectCanonicalEvent(concentratedBuyEvents[0]!);
+      const changedProjection = {
+        ...projection,
+        [field]: `${String(projection[field])}-changed`,
+      };
+
+      expect(sha256Canonical(changedProjection)).not.toBe(
+        sha256Canonical(projection),
+      );
+    },
+  );
+
+  it.each(COLLECTION_METADATA_FIELDS)(
+    "excludes collection metadata field %s from the projection",
+    (field) => {
+      expect(
+        projectCanonicalEvent(concentratedBuyEvents[0]!),
+      ).not.toHaveProperty(field);
+    },
+  );
 });
 
 describe("canonical event time validation", () => {

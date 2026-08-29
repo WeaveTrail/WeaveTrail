@@ -77,16 +77,19 @@ For one validated dataset and approved manifest:
   replay;
 - exact duplicates do not alter the result;
 - conflicting duplicates fail closed rather than being silently selected;
+- canonical hashes cover an explicit semantic event projection and exclude
+  collection metadata (`receivedAt` and `rawRowHash`);
 - decimal values are never calculated with JavaScript floating point;
 - reruns produce the same `canonicalResultHash`.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
-rejection, row shuffling, and exact-duplicate tolerance have foundation
-invariant tests today. Manifest-aware replay, conflicting-duplicate handling,
-canonical hash projection, a committed literal golden hash, and financial
-arithmetic remain planned. See
+rejection, row shuffling, conflict-safe duplicate handling, the canonical event
+projection, and a committed literal golden hash have tests today.
+Manifest-aware replay and financial arithmetic remain planned. See
 [ADR 0003](adr/0003-use-nanosecond-utc-and-code-unit-ordering.md) for the exact
-representation and input limits.
+time representation and input limits, and
+[ADR 0004](adr/0004-protect-semantic-events-and-reject-identity-conflicts.md) for
+identity and projection scope.
 
 ## Deployment boundary
 

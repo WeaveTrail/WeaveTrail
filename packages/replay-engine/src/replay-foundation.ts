@@ -1,7 +1,7 @@
 import type { TradeEvent } from "@weavetrail/contracts";
 
-import { sha256Canonical, type JsonValue } from "./canonical-json";
-import { canonicalizeEvents } from "./canonicalize";
+import { sha256Canonical } from "./canonical-json";
+import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 
 export const ENGINE_VERSION = "0.1.0-foundation";
 
@@ -19,8 +19,8 @@ export function replayFoundation(input: readonly unknown[]): FoundationReplay {
   const { events, duplicateCount } = canonicalizeEvents(input);
   const stablePayload = {
     engineVersion: ENGINE_VERSION,
-    events,
-  } as unknown as JsonValue;
+    events: events.map(projectCanonicalEvent),
+  };
 
   return {
     engineVersion: ENGINE_VERSION,

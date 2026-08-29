@@ -49,6 +49,26 @@ must either provide `sequence` or omit it; mixed presence stops replay with
 through to `eventId`. WeaveTrail does not infer a missing sequence or
 Unicode-normalize identifiers.
 
+## Source identity, duplicates, and hash scope
+
+The implemented source identity is the tuple `datasetId`, `venueId`, and
+`sourceEventId`. After validation and time normalization, the engine groups
+events by that identity before sorting. Repeated records collapse only when
+their canonical projections are equal; `duplicateCount` records how many were
+removed. If one identity has different canonical projections, canonicalization
+fails with `CONFLICTING_SOURCE_IDENTITY` before replay and no result hash is
+produced. This ambiguity requires review; it is not an `INCONCLUSIVE` rule
+result.
+
+The canonical event projection is an explicit allowlist of semantic fields:
+`schemaVersion`, `eventId`, `sourceEventId`, `datasetId`, `venueId`,
+`eventTime`, `sequence`, `instrumentId`, `eventType`, `side`, `actorId`,
+`counterpartyId`, `orderId`, `price`, and `quantity`. Collection metadata
+`receivedAt` and `rawRowHash` remains on returned events for investigation but
+is outside record equality and the canonical result hash. A schema-coverage
+test requires every `TradeEvent` field to be classified explicitly, preventing
+a schema addition from silently expanding or bypassing the protected scope.
+
 ## Planned `RAPID_PRICE_LIFT` rule
 
 The first rule version will evaluate a fixed time window using decimal-safe
