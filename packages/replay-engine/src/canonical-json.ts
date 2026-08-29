@@ -6,24 +6,27 @@ type JsonPrimitive = boolean | null | number | string;
 export type JsonValue =
   JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
-function sortValue(value: JsonValue): JsonValue {
+function serializeValue(value: JsonValue): string {
   if (Array.isArray(value)) {
-    return value.map(sortValue);
+    return `[${value.map(serializeValue).join(",")}]`;
   }
 
   if (value !== null && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value)
-        .sort(([left], [right]) => compareUtf16CodeUnits(left, right))
-        .map(([key, child]) => [key, sortValue(child)]),
-    );
+    return `{${Object.entries(value)
+      .sort(([left], [right]) => compareUtf16CodeUnits(left, right))
+      .map(([key, child]) => `${JSON.stringify(key)}:${serializeValue(child)}`)
+      .join(",")}}`;
   }
 
-  return value;
+  if (typeof value === "number" && !Number.isFinite(value)) {
+    throw new TypeError("canonical JSON does not support non-finite numbers");
+  }
+
+  return JSON.stringify(value);
 }
 
 export function canonicalJson(value: JsonValue): string {
-  return JSON.stringify(sortValue(value));
+  return serializeValue(value);
 }
 
 export function sha256Canonical(value: JsonValue): string {

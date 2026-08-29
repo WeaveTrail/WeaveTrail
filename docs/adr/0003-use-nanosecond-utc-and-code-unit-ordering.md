@@ -18,12 +18,21 @@ The replay engine normalizes every supported `eventTime` to
 pads the fraction to nine digits, and compares signed epoch nanoseconds with
 `BigInt`. Supported inputs use a four-digit ISO calendar year, uppercase `T`,
 `Z` or an explicit `±HH:MM` offset, and zero to nine fractional digits. Offset
-normalization must remain inside UTC years `0000` through `9999`.
+normalization must remain inside UTC years `0000` through `9999`. Calendar
+components use the proleptic Gregorian calendar: months are `01` through `12`,
+days must exist in their month under the Gregorian leap-year rule, hours are
+`00` through `23`, and minutes and seconds are `00` through `59`. Offset hours
+are `00` through `23` and offset minutes are `00` through `59`. Leap seconds
+are unsupported and fail closed.
 
 Canonical JSON keys, numeric sequence tie-breakers, and event IDs use
 lexicographic UTF-16 code-unit order through JavaScript relational string
 comparison. They do not use host collation. Strings are not Unicode-normalized,
-so distinct code-unit sequences remain distinct identifiers.
+so distinct code-unit sequences remain distinct identifiers. Canonical key
+order is produced directly by serialization; it does not rely on JavaScript
+object property insertion or enumeration order. Canonical JSON rejects
+non-finite numbers instead of allowing JSON serialization to convert them to
+`null`; protected decimal payloads remain strings.
 
 The current canonical dataset is one ordered source stream. Its events must
 either all declare `sequence` or all omit it. Mixed presence raises

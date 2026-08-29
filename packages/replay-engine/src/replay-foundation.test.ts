@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { TradeEvent } from "@weavetrail/contracts";
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
 import { canonicalJson } from "./canonical-json";
-import { CanonicalizationError, normalizeEventTime } from "./canonical-order";
+import {
+  CanonicalizationError,
+  compareCanonicalEventTimes,
+  normalizeEventTime,
+} from "./canonical-order";
 import { replayFoundation } from "./replay-foundation";
 
 function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
@@ -175,6 +179,12 @@ describe("replayFoundation", () => {
 });
 
 describe("canonicalJson", () => {
+  it("preserves UTF-16 key order for integer-index keys", () => {
+    expect(canonicalJson({ "10": 1, "2": 2, a: 3 })).toBe(
+      '{"10":1,"2":2,"a":3}',
+    );
+  });
+
   it("orders non-ASCII keys by UTF-16 code units without locale data", () => {
     expect(
       canonicalJson({
@@ -184,5 +194,72 @@ describe("canonicalJson", () => {
         "evt-B": 4,
       }),
     ).toBe('{"evt-B":4,"evt_a":3,"zebra":2,"ödipus":1}');
+  });
+
+  it("orders nested keys while preserving array index order", () => {
+    expect(
+      canonicalJson({ ö: { "2": 2, "10": 1 }, z: [{ ö: 1, z: 2 }, 3] }),
+    ).toBe('{"z":[{"z":2,"ö":1},3],"ö":{"10":1,"2":2}}');
+  });
+
+  it("rejects non-finite numbers instead of converting them to null", () => {
+    for (const value of [
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ]) {
+      expect(() => canonicalJson(value)).toThrowError(
+        /does not support non-finite numbers/,
+      );
+    }
+    expect(canonicalJson(-0)).toBe("0");
+  });
+});
+
+describe("canonical event time validation", () => {
+  const invalidEventTimes = [
+    ["month", "2026-00-01T00:00:00Z"],
+    ["month", "2026-13-01T00:00:00Z"],
+    ["day", "2026-02-29T00:00:00Z"],
+    ["day", "2026-04-31T00:00:00Z"],
+    ["hour", "2026-01-01T24:00:00Z"],
+    ["minute", "2026-01-01T00:60:00Z"],
+    ["second", "2026-01-01T00:00:60Z"],
+    ["offset hour", "2026-01-01T00:00:00+24:00"],
+    ["offset minute", "2026-01-01T00:00:00+00:60"],
+  ] as const;
+
+  it.each(invalidEventTimes)(
+    "rejects an invalid %s",
+    (component, eventTime) => {
+      for (const call of [
+        () => normalizeEventTime(eventTime),
+        () => compareCanonicalEventTimes(eventTime, "2026-01-01T00:00:00Z"),
+      ]) {
+        try {
+          call();
+          throw new Error("expected canonicalization to fail");
+        } catch (error) {
+          expect(error).toBeInstanceOf(CanonicalizationError);
+          expect(error).toMatchObject({ code: "UNSUPPORTED_EVENT_TIME" });
+          expect(error).toHaveProperty(
+            "message",
+            expect.stringContaining(component),
+          );
+        }
+      }
+    },
+  );
+
+  it.each([
+    "2024-02-29T00:00:00Z",
+    "2026-06-01T00:00:00+23:59",
+    "2026-06-01T00:00:00-23:59",
+    "0000-01-01T00:00:00Z",
+    "9999-12-31T23:59:59.999999999Z",
+  ])("normalizes supported boundary value %s", (eventTime) => {
+    expect(normalizeEventTime(eventTime)).toMatch(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z$/,
+    );
   });
 });

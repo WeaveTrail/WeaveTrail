@@ -44,6 +44,35 @@ function daysFromCivil(year: number, month: number, day: number): number {
   return era * 146_097 + dayOfEra - 719_468;
 }
 
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+function daysInMonth(year: number, month: number): number {
+  const monthLengths = [
+    31,
+    isLeapYear(year) ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+  return monthLengths[month - 1] ?? 0;
+}
+
+function rejectUnsupportedComponent(component: string, value: number): never {
+  throw new CanonicalizationError(
+    "UNSUPPORTED_EVENT_TIME",
+    `eventTime has an unsupported ${component}: ${value}`,
+  );
+}
+
 function civilFromDays(daysSinceEpoch: number): {
   year: number;
   month: number;
@@ -86,12 +115,29 @@ function parseEventTimeToEpochNanoseconds(eventTime: string): bigint {
   const hour = Number(match[4]);
   const minute = Number(match[5]);
   const second = Number(match[6]);
+  const offsetHour = match[8] === "Z" ? 0 : Number(match[10]);
+  const offsetMinute = match[8] === "Z" ? 0 : Number(match[11]);
+
+  if (month < 1 || month > 12) rejectUnsupportedComponent("month", month);
+  if (day < 1 || day > daysInMonth(year, month)) {
+    rejectUnsupportedComponent("day", day);
+  }
+  if (hour < 0 || hour > 23) rejectUnsupportedComponent("hour", hour);
+  if (minute < 0 || minute > 59) rejectUnsupportedComponent("minute", minute);
+  if (second < 0 || second > 59) rejectUnsupportedComponent("second", second);
+  if (offsetHour < 0 || offsetHour > 23) {
+    rejectUnsupportedComponent("offset hour", offsetHour);
+  }
+  if (offsetMinute < 0 || offsetMinute > 59) {
+    rejectUnsupportedComponent("offset minute", offsetMinute);
+  }
+
   const fractionalNanoseconds = BigInt((match[7] ?? "").padEnd(9, "0"));
   const offsetSign = match[9] === "-" ? -1 : 1;
   const offsetSeconds =
     match[8] === "Z"
       ? 0
-      : offsetSign * (Number(match[10]) * 3_600 + Number(match[11]) * 60);
+      : offsetSign * (offsetHour * 3_600 + offsetMinute * 60);
 
   const localSeconds =
     BigInt(daysFromCivil(year, month, day)) * SECONDS_PER_DAY +
