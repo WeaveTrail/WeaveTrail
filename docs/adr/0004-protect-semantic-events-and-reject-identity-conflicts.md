@@ -41,3 +41,12 @@ metadata remains available to trace a retained event to `rawRowHash`, but it
 does not affect semantic equality or the canonical result hash. Changes to any
 protected field affect the projection hash. The concentrated-buy fixture pins
 a literal result hash after these ordering, identity, and scope rules.
+
+## Contract migration
+
+The hash definition changes from the entire validated event to the semantic
+projection, and conflict handling changes which datasets can reach replay.
+`ENGINE_VERSION` therefore advances from `0.1.0-foundation` to
+`0.2.0-foundation`. Evidence produced under the earlier version must retain its
+original version label and hash; consumers must not compare hashes across these
+versions as though the protected payload were unchanged.

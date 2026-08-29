@@ -13,16 +13,20 @@ import {
   COLLECTION_METADATA_FIELDS,
   projectCanonicalEvent,
 } from "./canonicalize";
-import { replayFoundation } from "./replay-foundation";
+import { ENGINE_VERSION, replayFoundation } from "./replay-foundation";
 
 function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
   return { ...concentratedBuyEvents[0]!, ...overrides };
 }
 
 describe("replayFoundation", () => {
+  it("versions the conflict-safe canonical hash definition", () => {
+    expect(ENGINE_VERSION).toBe("0.2.0-foundation");
+  });
+
   it("pins the concentrated-buy canonical result hash", () => {
     expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
-      "7a14a9e22df02b09baa37c1c34c41319d2c00763eed8fcadfd7b258e50613c36",
+      "0e0692ac2f464192f72d917782dcec33f659a5f2a01e4cac5b2c4bc5999dddd4",
     );
   });
 
