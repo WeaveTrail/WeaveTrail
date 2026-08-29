@@ -4,6 +4,16 @@ const DecimalStringSchema = z
   .string()
   .regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/, "Expected a canonical decimal string");
 
+const EventTimeSchema = z.iso
+  .datetime({ offset: true })
+  .refine(
+    (value) =>
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(
+        value,
+      ),
+    "Expected an ISO datetime with an explicit offset and at most nanosecond precision",
+  );
+
 export const TradeEventSchema = z
   .object({
     schemaVersion: z.literal("1.0"),
@@ -11,7 +21,7 @@ export const TradeEventSchema = z
     sourceEventId: z.string().min(1),
     datasetId: z.string().min(1),
     venueId: z.string().min(1),
-    eventTime: z.iso.datetime({ offset: true }),
+    eventTime: EventTimeSchema,
     receivedAt: z.iso.datetime({ offset: true }).optional(),
     sequence: z.string().regex(/^\d+$/).optional(),
     instrumentId: z.string().min(1),

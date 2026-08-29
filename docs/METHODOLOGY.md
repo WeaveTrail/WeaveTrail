@@ -20,6 +20,35 @@ The replay result is intentionally closed:
 These states concern a technical pattern hypothesis. They are not legal or
 causal conclusions.
 
+## Canonical time and ordering
+
+The implemented foundation accepts `eventTime` values with a four-digit ISO
+calendar year, uppercase `T`, `Z` or an explicit `±HH:MM` offset, and at most
+nine fractional digits. Months are `01` through `12`; days must exist in their
+month under the proleptic Gregorian leap-year rule; hours are `00` through `23`;
+and minutes and seconds are `00` through `59`. Offset hours are `00` through
+`23`, and offset minutes are `00` through `59`. Leap seconds are unsupported.
+Before ordering or hashing, the engine converts each accepted value to
+fixed-width UTC nanoseconds:
+
+```text
+YYYY-MM-DDTHH:mm:ss.sssssssssZ
+```
+
+The UTC result must remain in years `0000` through `9999`. Event time is
+compared as a signed nanosecond integer, not through millisecond date parsing.
+Equal-time events use an unsigned numeric `sequence` comparison and then
+lexicographic UTF-16 code-unit `eventId` order. Canonical JSON keys use the same
+code-unit order and do not depend on host locale data or object property
+enumeration order. Canonical JSON rejects non-finite numbers; protected
+decimal values are represented as strings.
+
+The current dataset contract represents one ordered source stream. Every event
+must either provide `sequence` or omit it; mixed presence stops replay with
+`MIXED_SEQUENCE_PRESENCE`. If all events omit sequence, equal-time events fall
+through to `eventId`. WeaveTrail does not infer a missing sequence or
+Unicode-normalize identifiers.
+
 ## Planned `RAPID_PRICE_LIFT` rule
 
 The first rule version will evaluate a fixed time window using decimal-safe

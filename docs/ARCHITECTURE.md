@@ -67,15 +67,26 @@ reviewer can reach the source row.
 
 For one validated dataset and approved manifest:
 
-- canonical event order is `eventTime -> sequence -> eventId`;
-- equivalent time representations normalize to the same instant;
+- source times normalize to fixed-width UTC nanoseconds before comparison and
+  hashing;
+- canonical event order is normalized `eventTime -> sequence -> eventId` using
+  locale-independent UTF-16 code-unit ordering for string tie-breakers;
+- equivalent `Z` and explicit-offset representations normalize to the same
+  event time;
+- a dataset that mixes present and absent sequence values fails closed before
+  replay;
 - exact duplicates do not alter the result;
 - conflicting duplicates fail closed rather than being silently selected;
 - decimal values are never calculated with JavaScript floating point;
 - reruns produce the same `canonicalResultHash`.
 
-The first three properties have foundation tests today. Manifest-aware replay,
-conflicting-duplicate handling, and financial arithmetic remain planned.
+Fixed-precision time normalization, locale-independent ordering, mixed-sequence
+rejection, row shuffling, and exact-duplicate tolerance have foundation
+invariant tests today. Manifest-aware replay, conflicting-duplicate handling,
+canonical hash projection, a committed literal golden hash, and financial
+arithmetic remain planned. See
+[ADR 0003](adr/0003-use-nanosecond-utc-and-code-unit-ordering.md) for the exact
+representation and input limits.
 
 ## Deployment boundary
 
