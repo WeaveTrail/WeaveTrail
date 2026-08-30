@@ -66,6 +66,9 @@ importers:
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@weavetrail/scenarios':
+        specifier: workspace:*
+        version: link:../scenarios
 
   packages/contracts:
     dependencies:
