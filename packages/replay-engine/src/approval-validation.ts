@@ -4,13 +4,15 @@ import type {
   CaseManifestProposal,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
+import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 
 import { sha256Canonical, type JsonValue } from "./canonical-json";
 
 export type ApprovalIssueCode =
   | "APPROVAL_RECORD_REQUIRED"
   | "APPROVED_ARTIFACT_HASH_MISMATCH"
-  | "APPROVAL_REJECTED";
+  | "APPROVAL_REJECTED"
+  | "MAPPING_OVERRIDE_REQUIRED";
 
 export type ApprovalValidation =
   | { accepted: true }
@@ -82,6 +84,20 @@ export function validateReplayApprovals(
     mappingApproval,
     "mappingApproval",
   );
+  if (mappingApproval !== undefined) {
+    const overridePaths = new Set(
+      mappingApproval.overrides.map(({ fieldPath }) => fieldPath),
+    );
+    for (const [index, field] of mapping.fields.entries()) {
+      const requiresOverride =
+        field.status === "REVIEW_REQUIRED" ||
+        field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD;
+      const fieldPath = `fields.${index}`;
+      if (requiresOverride && !overridePaths.has(fieldPath)) {
+        issues.push({ code: "MAPPING_OVERRIDE_REQUIRED", path: fieldPath });
+      }
+    }
+  }
 
   if (manifest === undefined) {
     issues.push({ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" });

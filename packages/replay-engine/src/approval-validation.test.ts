@@ -95,4 +95,55 @@ describe("replay approval gate", () => {
       ],
     });
   });
+
+  it.each([
+    ["low-confidence", { confidence: 0.999, status: "PROPOSED" as const }],
+    ["review-required", { confidence: 1, status: "REVIEW_REQUIRED" as const }],
+  ])(
+    "requires a justified override for a %s mapping field",
+    (_, fieldState) => {
+      const flaggedMapping = SchemaMappingProposalSchema.parse({
+        ...mapping,
+        fields: [
+          {
+            sourceColumn: "source-text",
+            targetField: null,
+            confidence: fieldState.confidence,
+            evidence: "No exact fixture mapping exists.",
+            status: fieldState.status,
+          },
+        ],
+      });
+      const approval = {
+        ...mappingApproval,
+        approvedArtifactHash: sha256Canonical(
+          mappingApprovalArtifact(flaggedMapping),
+        ),
+      };
+
+      expect(
+        validateReplayApprovals(flaggedMapping, approval, manifest),
+      ).toMatchObject({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [{ code: "MAPPING_OVERRIDE_REQUIRED", path: "fields.0" }],
+      });
+
+      expect(
+        validateReplayApprovals(
+          flaggedMapping,
+          {
+            ...approval,
+            overrides: [
+              {
+                fieldPath: "fields.0",
+                reason: "Reviewed as intentionally unmapped synthetic text.",
+              },
+            ],
+          },
+          manifest,
+        ),
+      ).toEqual({ accepted: true });
+    },
+  );
 });
