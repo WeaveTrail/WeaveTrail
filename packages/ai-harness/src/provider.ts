@@ -1,7 +1,7 @@
 import type { SchemaMappingProposal } from "@weavetrail/contracts";
 
 export type MappingInput = {
-  datasetHash: string;
+  sourceArtifactHash: string;
   columns: string[];
   sampleRows: Array<Record<string, unknown>>;
 };

@@ -17,8 +17,8 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
 
   async propose(input: MappingInput): Promise<SchemaMappingProposal> {
     return {
-      mappingVersion: "1.0",
-      datasetHash: input.datasetHash,
+      mappingVersion: "1.1",
+      sourceArtifactHash: input.sourceArtifactHash,
       fields: input.columns.map((sourceColumn) => {
         const targetField = knownTargets[sourceColumn] ?? null;
         return {

@@ -21,12 +21,12 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
 
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
-    expect(ENGINE_VERSION).toBe("0.2.0-foundation");
+    expect(ENGINE_VERSION).toBe("0.3.0-foundation");
   });
 
   it("pins the concentrated-buy canonical result hash", () => {
     expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
-      "0e0692ac2f464192f72d917782dcec33f659a5f2a01e4cac5b2c4bc5999dddd4",
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
     );
   });
 
@@ -107,10 +107,10 @@ describe("replayFoundation", () => {
   it("uses sequence and event ID as deterministic timestamp tie-breakers", () => {
     const result = replayFoundation(concentratedBuyEvents);
     expect(result.orderedEventIds).toEqual([
-      "evt-001",
-      "evt-002",
-      "evt-003",
-      "evt-004",
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source-001",
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source-002",
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source-003",
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source-004",
     ]);
   });
 

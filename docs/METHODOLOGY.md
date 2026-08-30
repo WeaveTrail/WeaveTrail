@@ -69,6 +69,31 @@ is outside record equality and the canonical result hash. A schema-coverage
 test requires every `TradeEvent` field to be classified explicitly, preventing
 a schema addition from silently expanding or bypassing the protected scope.
 
+## Source provenance and approved mapping
+
+The implemented synthetic ingest path hashes exact artifact bytes as
+`sourceArtifactHash`. Each raw row is serialized as canonical JSON containing
+its artifact-hash/row-number coordinate and verbatim string values, then hashed
+as `rawRowHash`. Approved mappings apply only closed transforms; unapproved
+columns, duplicate source or target mappings, unknown transforms, rejected
+values, missing required targets, duplicate coordinates, and artifact
+mismatches stop before canonical dataset or result hashing.
+
+Canonical `eventId` is derived as the percent-encoded composite
+`event:<datasetId>:<venueId>:<sourceEventId>`. The engine orders normalized
+canonical projections and hashes them as `canonicalDatasetHash`. Thus two
+source dialects may retain different `sourceArtifactHash` and `rawRowHash`
+values while converging to one semantic dataset and replay result.
+
+The committed four-row CSV and JSON Lines fixtures report `APPROVED` for both
+mappings and 4 of 4 agreements for each of the 15 protected event fields. This
+is a field-level fixture check, not an accuracy estimate. Reproduce it with
+`pnpm test -- packages/replay-engine/src/source-ingest.test.ts` at the commit
+that contains this document. The recorded environment is Node 22.18.0, pnpm
+10.33.2, Vitest 4.1.11, and Linux WSL2 x86_64. The sample is two authored,
+fully synthetic dialects encoding the same four events; it does not measure
+performance on independent or production data.
+
 ## Planned `RAPID_PRICE_LIFT` rule
 
 The first rule version will evaluate a fixed time window using decimal-safe

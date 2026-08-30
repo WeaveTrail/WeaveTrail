@@ -15,6 +15,7 @@ test-results/
 _workbench/
 .agent/skills/weavetrail-create-issue/
 .agent/skills/weavetrail-impl-spec/
+.agent/skills/weavetrail-work-intake/
 .agent/skills/weavetrail-workbench-refine/
 
 # Editor and OS state
