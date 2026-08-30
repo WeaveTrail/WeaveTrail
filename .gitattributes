@@ -1,0 +1,2 @@
+packages/scenarios/src/sources/*.csv text eol=lf
+packages/scenarios/src/sources/*.jsonl text eol=lf

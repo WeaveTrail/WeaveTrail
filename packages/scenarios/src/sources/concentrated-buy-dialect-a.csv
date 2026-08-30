@@ -1,0 +1,5 @@
+source_id,ts,received,seq,symbol,kind,side_code,actor,counterparty,order_ref,px,qty
+source-003,2026-08-25T09:00:02.000+09:00,2026-08-25T00:00:02.080Z,3,WT-DEMO,T,B,actor-c,liquidity-3,order-003,101.25,4.00
+source-001,2026-08-25T09:00:00.000+09:00,2026-08-25T00:00:00.040Z,1,WT-DEMO,T,B,actor-a,liquidity-1,order-001,100.00,2.00
+source-004,2026-08-25T09:00:02.000+09:00,2026-08-25T00:00:02.110Z,4,WT-DEMO,T,S,actor-d,liquidity-4,order-004,101.20,1.25
+source-002,2026-08-25T09:00:01.000+09:00,2026-08-25T00:00:01.050Z,2,WT-DEMO,T,B,actor-b,liquidity-2,order-002,100.80,3.50
