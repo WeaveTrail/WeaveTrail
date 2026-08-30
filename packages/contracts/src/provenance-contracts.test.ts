@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ApprovalRecordSchema } from "./approval-record";
 import { CaseManifestSchema } from "./case-manifest";
 import { EvidenceBundleSchema } from "./evidence-bundle";
 import { SchemaMappingProposalSchema } from "./schema-mapping";
@@ -26,7 +27,7 @@ describe("provenance contract migration", () => {
 
   it("binds case manifests to canonical dataset meaning", () => {
     const manifest = {
-      manifestVersion: "1.1",
+      manifestVersion: "1.2",
       caseId: "synthetic-case",
       canonicalDatasetHash: HASH,
       hypothesis: {
@@ -44,14 +45,20 @@ describe("provenance contract migration", () => {
         confidence: 1,
         referencedEventIds: [],
       },
-      status: "PROPOSED",
+      approval: ApprovalRecordSchema.parse({
+        approvedArtifactHash: HASH,
+        reviewerRef: "reviewer-fixture",
+        decision: "APPROVED",
+        overrides: [],
+        approvedAt: "2026-08-30T00:00:00Z",
+      }),
     };
 
     expect(CaseManifestSchema.parse(manifest)).toEqual(manifest);
     expect(
       CaseManifestSchema.safeParse({
         ...manifest,
-        manifestVersion: "1.0",
+        manifestVersion: "1.1",
         canonicalDatasetHash: undefined,
         datasetHash: HASH,
       }).success,

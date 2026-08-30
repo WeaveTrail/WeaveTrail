@@ -1,14 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { CaseManifestSchema } from "@weavetrail/contracts";
+import {
+  CaseManifestSchema,
+  type CaseManifestProposal,
+} from "@weavetrail/contracts";
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
 
 import { validateCaseAgainstProfile } from "./case-validation";
 import { computeDatasetProfile } from "./dataset-profile";
 
 const profile = computeDatasetProfile(concentratedBuyEvents);
-const validManifest = CaseManifestSchema.parse({
-  manifestVersion: "1.1",
+const validProposal: CaseManifestProposal = {
+  manifestVersion: "1.2",
   caseId: "synthetic-case",
   canonicalDatasetHash: profile.canonicalDatasetHash,
   hypothesis: {
@@ -26,7 +29,16 @@ const validManifest = CaseManifestSchema.parse({
     confidence: 1,
     referencedEventIds: [],
   },
-  status: "PROPOSED",
+};
+const validManifest = CaseManifestSchema.parse({
+  ...validProposal,
+  approval: {
+    approvedArtifactHash: "a".repeat(64),
+    reviewerRef: "reviewer-fixture",
+    decision: "APPROVED",
+    overrides: [],
+    approvedAt: "2026-08-30T00:00:00Z",
+  },
 });
 
 describe("case validation against a dataset profile", () => {

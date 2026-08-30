@@ -1,3 +1,4 @@
+export * from "./approval-record";
 export * from "./case-manifest";
 export * from "./dataset-profile";
 export * from "./evidence-bundle";
