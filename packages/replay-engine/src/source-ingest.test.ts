@@ -20,6 +20,7 @@ import {
   parseCsvSourceArtifact,
   parseJsonLinesSourceArtifact,
   requireUniqueSourceCoordinates,
+  sourceArtifactHash,
   SourceIngestError,
 } from "./source-ingest";
 
@@ -37,6 +38,11 @@ function artifactBytes(name: string): Buffer {
 describe("source provenance", () => {
   const dialectABytes = artifactBytes("concentrated-buy-dialect-a.csv");
   const dialectBBytes = artifactBytes("concentrated-buy-dialect-b.jsonl");
+
+  it("derives the pinned source artifact hashes from exact bytes", () => {
+    expect(sourceArtifactHash(dialectABytes)).toBe(DIALECT_A_HASH);
+    expect(sourceArtifactHash(dialectBBytes)).toBe(DIALECT_B_HASH);
+  });
 
   it("serializes raw columns in canonical key order without coercion", () => {
     const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
@@ -212,6 +218,8 @@ describe("source provenance", () => {
     ["unknown source column", "UNKNOWN_SOURCE_COLUMN"],
     ["unknown transform", "UNKNOWN_TRANSFORM"],
     ["transform-rejected value", "TRANSFORM_REJECTED_VALUE"],
+    ["missing required target", "REQUIRED_TARGET_FIELD_MISSING"],
+    ["mapping artifact mismatch", "SOURCE_ARTIFACT_HASH_MISMATCH"],
   ] as const)(
     "routes %s to review without events",
     (mutation, expectedCode) => {
@@ -231,8 +239,15 @@ describe("source provenance", () => {
               : field,
           ),
         };
-      } else {
+      } else if (mutation === "transform-rejected value") {
         rows[0]!.values.side_code = "UNKNOWN_SIDE";
+      } else if (mutation === "missing required target") {
+        delete rows[0]!.values.source_id;
+      } else {
+        rows[0]!.coordinate = {
+          ...rows[0]!.coordinate,
+          sourceArtifactHash: DIALECT_B_HASH,
+        };
       }
 
       const result = applyApprovedMapping(

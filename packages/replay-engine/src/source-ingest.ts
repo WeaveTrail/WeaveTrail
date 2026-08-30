@@ -66,6 +66,7 @@ export type ApprovedSourceMapping = {
 
 export type MappingReviewCode =
   | "REQUIRED_TARGET_FIELD_MISSING"
+  | "SOURCE_ARTIFACT_HASH_MISMATCH"
   | "TRANSFORM_REJECTED_VALUE"
   | "UNKNOWN_SOURCE_COLUMN"
   | "UNKNOWN_TRANSFORM";
@@ -141,6 +142,14 @@ export function applyApprovedMapping(
   );
 
   for (const row of rows) {
+    if (row.coordinate.sourceArtifactHash !== mapping.sourceArtifactHash) {
+      issues.push({
+        code: "SOURCE_ARTIFACT_HASH_MISMATCH",
+        rowNumber: row.coordinate.rowNumber,
+        message: `Row sourceArtifactHash ${row.coordinate.sourceArtifactHash} does not match approved mapping ${mapping.sourceArtifactHash}`,
+      });
+      continue;
+    }
     const candidate: Record<string, string> = { ...mapping.constants };
     for (const [sourceColumn, value] of Object.entries(row.values)) {
       const fieldMapping = fieldMappings.get(sourceColumn);
