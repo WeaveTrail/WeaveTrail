@@ -135,18 +135,25 @@ export function canonicalizeEvents(
   const events: TradeEvent[] = [];
   let duplicateCount = 0;
 
-  for (const group of groups.values()) {
-    const projectionHashes = new Set(
-      group.map((event) => sha256Canonical(projectCanonicalEvent(event))),
-    );
-    if (projectionHashes.size !== 1) {
-      const [datasetId, venueId, sourceEventId] = sourceIdentity(group[0]!);
-      throw new CanonicalizationError(
-        "CONFLICTING_SOURCE_IDENTITY",
-        `Conflicting canonical records for source identity datasetId=${JSON.stringify(datasetId)}, venueId=${JSON.stringify(venueId)}, sourceEventId=${JSON.stringify(sourceEventId)}`,
+  const conflictingSourceGroups = [...groups.entries()]
+    .filter(([, group]) => {
+      const projectionHashes = new Set(
+        group.map((event) => sha256Canonical(projectCanonicalEvent(event))),
       );
-    }
+      return projectionHashes.size !== 1;
+    })
+    .sort(([leftKey], [rightKey]) => compareUtf16CodeUnits(leftKey, rightKey));
 
+  if (conflictingSourceGroups.length > 0) {
+    const group = conflictingSourceGroups[0]![1];
+    const [datasetId, venueId, sourceEventId] = sourceIdentity(group[0]!);
+    throw new CanonicalizationError(
+      "CONFLICTING_SOURCE_IDENTITY",
+      `Conflicting canonical records for source identity datasetId=${JSON.stringify(datasetId)}, venueId=${JSON.stringify(venueId)}, sourceEventId=${JSON.stringify(sourceEventId)}`,
+    );
+  }
+
+  for (const group of groups.values()) {
     group.sort(compareDuplicateRepresentatives);
     events.push(group[0]!);
     duplicateCount += group.length - 1;

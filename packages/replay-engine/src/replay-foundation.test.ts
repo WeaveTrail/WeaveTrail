@@ -104,6 +104,51 @@ describe("replayFoundation", () => {
     );
   });
 
+  it("reports the first conflicting source identity independent of input order", () => {
+    const sourceA = syntheticEvent({
+      eventId: "evt-source-a",
+      sourceEventId: "source-a",
+      rawRowHash:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    const sourceAConflict = {
+      ...sourceA,
+      price: "101.00",
+      rawRowHash:
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    };
+    const sourceB = syntheticEvent({
+      eventId: "evt-source-b",
+      sourceEventId: "source-b",
+      rawRowHash:
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    });
+    const sourceBConflict = {
+      ...sourceB,
+      price: "102.00",
+      rawRowHash:
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    };
+    const attempts = [
+      [sourceB, sourceBConflict, sourceA, sourceAConflict],
+      [sourceAConflict, sourceA, sourceBConflict, sourceB],
+    ];
+
+    const failures = attempts.map((events) => {
+      try {
+        replayFoundation(events);
+        throw new Error("expected conflicting identities to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(CanonicalizationError);
+        expect(error).toMatchObject({ code: "CONFLICTING_SOURCE_IDENTITY" });
+        return (error as Error).message;
+      }
+    });
+
+    expect(failures[0]).toBe(failures[1]);
+    expect(failures[0]).toContain('sourceEventId="source-a"');
+  });
+
   it("uses sequence and event ID as deterministic timestamp tie-breakers", () => {
     const result = replayFoundation(concentratedBuyEvents);
     expect(result.orderedEventIds).toEqual([
