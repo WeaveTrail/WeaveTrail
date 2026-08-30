@@ -9,7 +9,7 @@ export const CaseManifestSchema = z
       .object({
         pattern: z.literal("RAPID_PRICE_LIFT"),
         instrumentId: z.string().min(1),
-        actorIds: z.array(z.string().min(1)),
+        actorIds: z.array(z.string().min(1)).min(1),
         startTime: z.iso.datetime({ offset: true }),
         endTime: z.iso.datetime({ offset: true }),
       })
