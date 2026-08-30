@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canonicalRawRow,
+  deriveEventId,
   deriveRawRowHash,
   parseCsvSourceArtifact,
   parseJsonLinesSourceArtifact,
@@ -45,6 +46,29 @@ describe("source provenance", () => {
     expect(deriveRawRowHash(dialectARow!)).not.toBe(
       deriveRawRowHash(dialectBRow!),
     );
+  });
+
+  it("derives readable event IDs from source identity independent of row position", () => {
+    const identities = [
+      {
+        datasetId: "synthetic-concentrated-buy-v1",
+        venueId: "SYNTH-X",
+        sourceEventId: "source-001",
+      },
+      {
+        datasetId: "synthetic-concentrated-buy-v1",
+        venueId: "SYNTH-X",
+        sourceEventId: "source:002",
+      },
+    ];
+    const baseline = identities.map(deriveEventId).sort();
+    const shuffled = [...identities].reverse().map(deriveEventId).sort();
+
+    expect(baseline).toEqual(shuffled);
+    expect(baseline).toEqual([
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source%3A002",
+      "event:synthetic-concentrated-buy-v1:SYNTH-X:source-001",
+    ]);
   });
 
   it("fails closed when artifact bytes do not match the declared hash", () => {

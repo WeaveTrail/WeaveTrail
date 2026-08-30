@@ -27,6 +27,16 @@ export type SourceRow = {
   values: Record<string, string>;
 };
 
+export type EventSourceIdentity = {
+  datasetId: string;
+  venueId: string;
+  sourceEventId: string;
+};
+
+export function deriveEventId(identity: EventSourceIdentity): string {
+  return `event:${encodeURIComponent(identity.datasetId)}:${encodeURIComponent(identity.venueId)}:${encodeURIComponent(identity.sourceEventId)}`;
+}
+
 export function sourceArtifactHash(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
