@@ -10,7 +10,7 @@ import {
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
 
-import { sha256Canonical, type JsonValue } from "./canonical-json";
+import { sha256Canonical, type CanonicalJsonInput } from "./canonical-json";
 import {
   validateCaseAgainstProfile,
   type CaseProfileValidation,
@@ -42,29 +42,12 @@ export function caseManifestProposal(
 
 export function mappingApprovalArtifact(
   mapping: SchemaMappingProposal,
-): JsonValue {
-  const parsed = SchemaMappingProposalSchema.parse(mapping);
-  return {
-    mappingVersion: parsed.mappingVersion,
-    sourceArtifactHash: parsed.sourceArtifactHash,
-    fields: parsed.fields.map((field): JsonValue => {
-      const artifactField: { [key: string]: JsonValue } = {
-        sourceColumn: field.sourceColumn,
-        targetField: field.targetField,
-        confidence: field.confidence,
-        evidence: field.evidence,
-        status: field.status,
-      };
-      if (field.transform !== undefined) {
-        artifactField.transform = field.transform;
-      }
-      return artifactField;
-    }),
-  };
+): CanonicalJsonInput {
+  return SchemaMappingProposalSchema.parse(mapping);
 }
 
 function validateApprovalRecord(
-  artifact: JsonValue,
+  artifact: CanonicalJsonInput,
   approval: ApprovalRecord | undefined,
   path: string,
 ): { code: ApprovalIssueCode; path: string }[] {

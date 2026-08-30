@@ -6,7 +6,7 @@ import { CanonicalizationError } from "./canonical-order";
 type JsonPrimitive = boolean | null | number | string;
 export type JsonValue =
   JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
-type CanonicalJsonInput =
+export type CanonicalJsonInput =
   | JsonPrimitive
   | undefined
   | CanonicalJsonInput[]
@@ -50,6 +50,6 @@ export function canonicalJson(value: CanonicalJsonInput): string {
   return serializeValue(value);
 }
 
-export function sha256Canonical(value: JsonValue): string {
+export function sha256Canonical(value: CanonicalJsonInput): string {
   return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }

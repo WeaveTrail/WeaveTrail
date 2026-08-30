@@ -65,8 +65,17 @@ const manifest = CaseManifestSchema.parse({
 
 describe("replay approval gate", () => {
   it("derives approved artifacts from their proposal schemas", () => {
-    expect(mappingApprovalArtifact(mapping)).toEqual(
-      SchemaMappingProposalSchema.parse(mapping),
+    const mappingArtifact = mappingApprovalArtifact(mapping);
+    expect(mappingArtifact).toEqual(SchemaMappingProposalSchema.parse(mapping));
+    if (
+      mappingArtifact === null ||
+      typeof mappingArtifact !== "object" ||
+      Array.isArray(mappingArtifact)
+    ) {
+      throw new Error("mapping approval artifact must be an object");
+    }
+    expect(Object.keys(mappingArtifact).sort()).toEqual(
+      [...SchemaMappingProposalSchema.keyof().options].sort(),
     );
     expect(caseManifestProposal(manifest)).toEqual(
       CaseManifestProposalSchema.parse(caseProposal),
