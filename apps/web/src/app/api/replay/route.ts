@@ -47,15 +47,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const { mutation, scenario } = parsed.data;
-  let events = [...concentratedBuyEvents];
+  const { events: requestedEvents, mutation, scenario } = parsed.data;
+  let events = [...(requestedEvents ?? concentratedBuyEvents)];
 
   if (mutation === "shuffle") {
-    events = [events[2]!, events[0]!, events[3]!, events[1]!];
+    const last = events.at(-1)!;
+    events = [last, ...events.slice(0, -1)];
   }
 
   if (mutation === "duplicate") {
-    events = [...events, events[1]!];
+    events = [...events, events[0]!];
   }
 
   try {
