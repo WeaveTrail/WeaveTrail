@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@weavetrail/ai-harness": "workspace:*",
     "@weavetrail/contracts": "workspace:*",
     "@weavetrail/replay-engine": "workspace:*",
     "@weavetrail/scenarios": "workspace:*",

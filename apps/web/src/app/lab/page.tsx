@@ -1,6 +1,30 @@
+import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
+import {
+  concentratedBuyDialectAMapping,
+  concentratedBuyDialectBMapping,
+} from "@weavetrail/scenarios";
+
 import { Lab } from "./lab";
 
-export default function LabPage() {
+export default async function LabPage() {
+  const provider = new FixtureSchemaMappingProvider();
+  const mappings = [
+    concentratedBuyDialectAMapping,
+    concentratedBuyDialectBMapping,
+  ] as const;
+  const proposals = Object.fromEntries(
+    await Promise.all(
+      mappings.map(async (mapping) => [
+        mapping.sourceArtifactHash,
+        await provider.propose({
+          sourceArtifactHash: mapping.sourceArtifactHash,
+          columns: mapping.fields.map(([sourceColumn]) => sourceColumn),
+          sampleRows: [],
+        }),
+      ]),
+    ),
+  );
+
   return (
     <main className="shell page-shell">
       <div className="page-heading">
@@ -11,7 +35,7 @@ export default function LabPage() {
           The canonical event order and result hash should remain identical.
         </p>
       </div>
-      <Lab />
+      <Lab proposals={proposals} providerMode={provider.mode} />
     </main>
   );
 }

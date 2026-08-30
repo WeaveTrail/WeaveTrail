@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 
+import type {
+  ReplayReviewResponse,
+  ReplayScenario,
+  SchemaMappingProposal,
+} from "@weavetrail/contracts";
+import {
+  concentratedBuyDialectAMapping,
+  concentratedBuyDialectBMapping,
+} from "@weavetrail/scenarios";
+
 type Mutation = "baseline" | "shuffle" | "duplicate";
 type ReplayResponse = {
   mode: string;
@@ -18,6 +28,28 @@ type ReplayResponse = {
   };
 };
 
+type LabProps = {
+  providerMode: "fixture";
+  proposals: Record<string, SchemaMappingProposal>;
+};
+
+const scenarios: Array<{
+  value: ReplayScenario;
+  label: string;
+  sourceArtifactHash: string;
+}> = [
+  {
+    value: "concentrated-buy-dialect-a.csv",
+    label: "Dialect A · CSV",
+    sourceArtifactHash: concentratedBuyDialectAMapping.sourceArtifactHash,
+  },
+  {
+    value: "concentrated-buy-dialect-b.jsonl",
+    label: "Dialect B · JSON Lines",
+    sourceArtifactHash: concentratedBuyDialectBMapping.sourceArtifactHash,
+  },
+];
+
 const options: Array<{ value: Mutation; label: string; detail: string }> = [
   { value: "baseline", label: "Baseline", detail: "Original fixture order" },
   {
@@ -32,11 +64,17 @@ const options: Array<{ value: Mutation; label: string; detail: string }> = [
   },
 ];
 
-export function Lab() {
+export function Lab({ proposals, providerMode }: LabProps) {
+  const [scenario, setScenario] = useState<ReplayScenario>(scenarios[0]!.value);
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
+  const proposal = proposals[selectedScenario.sourceArtifactHash]!;
+  const reviewRequired = proposal.fields.some(
+    ({ status }) => status === "REVIEW_REQUIRED",
+  );
 
   async function runReplay() {
     setRunning(true);
@@ -45,10 +83,12 @@ export function Lab() {
       const response = await fetch("/api/replay", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ mutation }),
+        body: JSON.stringify({ scenario, mutation }),
       });
-      if (!response.ok)
-        throw new Error(`Replay failed with HTTP ${response.status}`);
+      if (!response.ok) {
+        const review = (await response.json()) as ReplayReviewResponse;
+        throw new Error(review.issues.map(({ message }) => message).join(" "));
+      }
       setResult((await response.json()) as ReplayResponse);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Replay failed");
@@ -61,6 +101,21 @@ export function Lab() {
     <section className="lab-grid">
       <div className="lab-control panel">
         <span className="panel-label">01 · Input mutation</span>
+        <label className="scenario-select">
+          <span>Committed source artifact</span>
+          <select
+            onChange={(event) =>
+              setScenario(event.target.value as ReplayScenario)
+            }
+            value={scenario}
+          >
+            {scenarios.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="option-list">
           {options.map((option) => (
             <label
@@ -84,29 +139,29 @@ export function Lab() {
           ))}
         </div>
         <div className="mapping-preview">
-          <span className="panel-label">02 · Fixture mapping</span>
-          <div className="mapping-row">
-            <code>timestamp</code>
-            <span>→</span>
-            <code>eventTime</code>
-            <b>APPROVED</b>
-          </div>
-          <div className="mapping-row">
-            <code>account</code>
-            <span>→</span>
-            <code>actorId</code>
-            <b>APPROVED</b>
-          </div>
-          <div className="mapping-row">
-            <code>px / qty</code>
-            <span>→</span>
-            <code>price / quantity</code>
-            <b>APPROVED</b>
-          </div>
+          <span className="panel-label">
+            02 · Executed mapping proposal · {providerMode}
+          </span>
+          {proposal.fields.map((field) => (
+            <div className="mapping-row" key={field.sourceColumn}>
+              <code>{field.sourceColumn}</code>
+              <span>→</span>
+              <code>{field.targetField ?? "unmapped"}</code>
+              <code>{field.transform ?? "none"}</code>
+              <span>{field.confidence.toFixed(2)}</span>
+              <span>{field.evidence}</span>
+              <b data-status={field.status}>{field.status}</b>
+            </div>
+          ))}
+          {reviewRequired ? (
+            <p className="error-message">
+              Replay is blocked until every field has a reviewable mapping.
+            </p>
+          ) : null}
         </div>
         <button
           className="button primary run-button"
-          disabled={running}
+          disabled={running || reviewRequired}
           onClick={runReplay}
           type="button"
         >
