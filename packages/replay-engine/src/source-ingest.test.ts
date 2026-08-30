@@ -3,6 +3,12 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  concentratedBuyDialectAMapping,
+  concentratedBuyDialectBMapping,
+} from "@weavetrail/scenarios";
+
+import {
+  applyApprovedMapping,
   canonicalRawRow,
   deriveEventId,
   deriveRawRowHash,
@@ -89,4 +95,60 @@ describe("source provenance", () => {
       SourceIngestError,
     );
   });
+
+  it("applies both committed approved mappings", () => {
+    const dialectA = applyApprovedMapping(
+      parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
+      concentratedBuyDialectAMapping,
+    );
+    const dialectB = applyApprovedMapping(
+      parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
+      concentratedBuyDialectBMapping,
+    );
+
+    expect(dialectA).toMatchObject({ status: "APPROVED", issues: [] });
+    expect(dialectB).toMatchObject({ status: "APPROVED", issues: [] });
+  });
+
+  it.each([
+    ["unknown source column", "UNKNOWN_SOURCE_COLUMN"],
+    ["unknown transform", "UNKNOWN_TRANSFORM"],
+    ["transform-rejected value", "TRANSFORM_REJECTED_VALUE"],
+  ] as const)(
+    "routes %s to review without events",
+    (mutation, expectedCode) => {
+      const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+      const rows = [{ ...row!, values: { ...row!.values } }];
+      let mapping: typeof concentratedBuyDialectAMapping | unknown =
+        concentratedBuyDialectAMapping;
+
+      if (mutation === "unknown source column") {
+        rows[0]!.values.unapproved = "source-text";
+      } else if (mutation === "unknown transform") {
+        mapping = {
+          ...concentratedBuyDialectAMapping,
+          fields: concentratedBuyDialectAMapping.fields.map((field) =>
+            field[0] === "side_code"
+              ? [field[0], field[1], "MODEL_GENERATED_CODE"]
+              : field,
+          ),
+        };
+      } else {
+        rows[0]!.values.side_code = "UNKNOWN_SIDE";
+      }
+
+      const result = applyApprovedMapping(
+        rows,
+        mapping as typeof concentratedBuyDialectAMapping,
+      );
+      expect(result.status).toBe("REVIEW_REQUIRED");
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ code: expectedCode }),
+        ]),
+      );
+      expect(result).not.toHaveProperty("events");
+      expect(result).not.toHaveProperty("canonicalDatasetHash");
+    },
+  );
 });
