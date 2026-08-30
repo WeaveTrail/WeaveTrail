@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RuleConfigurationSchema } from "./rule-parameters";
+
 export const CaseManifestSchema = z
   .object({
     manifestVersion: z.literal("1.1"),
@@ -14,15 +16,7 @@ export const CaseManifestSchema = z
         endTime: z.iso.datetime({ offset: true }),
       })
       .strict(),
-    rules: z.array(
-      z
-        .object({
-          ruleId: z.string().min(1),
-          ruleVersion: z.string().min(1),
-          parameters: z.record(z.string(), z.string()),
-        })
-        .strict(),
-    ),
+    rules: z.array(RuleConfigurationSchema),
     aiTrace: z
       .object({
         provider: z.string().min(1),
