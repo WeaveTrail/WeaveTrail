@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const CaseManifestSchema = z
   .object({
-    manifestVersion: z.literal("1.0"),
+    manifestVersion: z.literal("1.1"),
     caseId: z.string().min(1),
-    datasetHash: z.string().regex(/^[a-f0-9]{64}$/),
+    canonicalDatasetHash: z.string().regex(/^[a-f0-9]{64}$/),
     hypothesis: z
       .object({
         pattern: z.literal("RAPID_PRICE_LIFT"),

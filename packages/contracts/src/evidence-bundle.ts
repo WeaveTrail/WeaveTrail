@@ -4,9 +4,18 @@ const HashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
 export const EvidenceBundleSchema = z
   .object({
-    bundleVersion: z.literal("1.0"),
+    bundleVersion: z.literal("1.1"),
     caseId: z.string().min(1),
-    datasetHash: HashSchema,
+    canonicalDatasetHash: HashSchema,
+    sourceArtifacts: z
+      .array(
+        z
+          .object({
+            sourceArtifactHash: HashSchema,
+          })
+          .strict(),
+      )
+      .min(1),
     manifestHash: HashSchema,
     engineVersion: z.string().min(1),
     ruleVersion: z.string().min(1),

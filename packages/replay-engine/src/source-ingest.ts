@@ -50,7 +50,7 @@ type MappedTargetField = Exclude<
 >;
 
 export type ApprovedSourceMapping = {
-  mappingVersion: "1.0";
+  mappingVersion: "1.1";
   sourceArtifactHash: string;
   constants: {
     schemaVersion: "1.0";

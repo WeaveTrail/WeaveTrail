@@ -12,8 +12,8 @@ export const AllowedTransformSchema = z.enum([
 
 export const SchemaMappingProposalSchema = z
   .object({
-    mappingVersion: z.literal("1.0"),
-    datasetHash: z.string().regex(/^[a-f0-9]{64}$/),
+    mappingVersion: z.literal("1.1"),
+    sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
     fields: z.array(
       z
         .object({

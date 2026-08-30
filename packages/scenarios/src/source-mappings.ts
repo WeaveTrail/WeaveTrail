@@ -5,7 +5,7 @@ const SHARED_CONSTANTS = {
 } as const;
 
 export const concentratedBuyDialectAMapping = {
-  mappingVersion: "1.0",
+  mappingVersion: "1.1",
   sourceArtifactHash:
     "d4bd80adf6a853adcf98f9ee08092f786b9b9276b349ad11fef6d0af078b867e",
   constants: SHARED_CONSTANTS,
@@ -26,7 +26,7 @@ export const concentratedBuyDialectAMapping = {
 } as const;
 
 export const concentratedBuyDialectBMapping = {
-  mappingVersion: "1.0",
+  mappingVersion: "1.1",
   sourceArtifactHash:
     "71a367b78a9bfefa685b9f40414b778712860b358882537b7f87127ab1584cff",
   constants: SHARED_CONSTANTS,
