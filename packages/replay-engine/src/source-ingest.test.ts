@@ -9,6 +9,7 @@ import {
 } from "@weavetrail/scenarios";
 import { canonicalDatasetHash } from "./canonical-dataset";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
+import { evaluateMappingAgreement } from "./mapping-evaluation";
 import { replayFoundation } from "./replay-foundation";
 
 import {
@@ -178,6 +179,33 @@ describe("source provenance", () => {
         deriveRawRowHash(dialectBRow!),
       );
     }
+  });
+
+  it("reports field-level mapping agreement counts and review outcomes", () => {
+    const dialectA = applyApprovedMapping(
+      parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
+      concentratedBuyDialectAMapping,
+    );
+    const dialectB = applyApprovedMapping(
+      parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
+      concentratedBuyDialectBMapping,
+    );
+    const report = evaluateMappingAgreement(dialectA, dialectB);
+
+    expect(report.reviewOutcomes).toEqual({
+      left: "APPROVED",
+      right: "APPROVED",
+    });
+    expect(report.comparedEventCount).toBe(4);
+    expect(report.fieldAgreement).toHaveLength(15);
+    expect(report.fieldAgreement).toEqual(
+      expect.arrayContaining([
+        { field: "eventTime", agreements: 4, comparisons: 4 },
+        { field: "price", agreements: 4, comparisons: 4 },
+        { field: "quantity", agreements: 4, comparisons: 4 },
+      ]),
+    );
+    expect(JSON.stringify(report)).not.toMatch(/percentage|accuracy/i);
   });
 
   it.each([
