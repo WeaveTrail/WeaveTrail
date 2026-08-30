@@ -7,6 +7,7 @@ import type {
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 
 import { sha256Canonical, type JsonValue } from "./canonical-json";
+import { replayFoundation, type FoundationReplay } from "./replay-foundation";
 
 export type ApprovalIssueCode =
   | "APPROVAL_RECORD_REQUIRED"
@@ -114,4 +115,15 @@ export function validateReplayApprovals(
   return issues.length === 0
     ? { accepted: true }
     : { accepted: false, status: "REVIEW_REQUIRED", issues };
+}
+
+export function replayApproved(
+  events: readonly unknown[],
+  mapping: SchemaMappingProposal,
+  mappingApproval: ApprovalRecord | undefined,
+  manifest: CaseManifest | undefined,
+): FoundationReplay | Exclude<ApprovalValidation, { accepted: true }> {
+  const approval = validateReplayApprovals(mapping, mappingApproval, manifest);
+  if (!approval.accepted) return approval;
+  return replayFoundation(events);
 }

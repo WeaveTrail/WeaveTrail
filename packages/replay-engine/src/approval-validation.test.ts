@@ -6,10 +6,12 @@ import {
   type CaseManifestProposal,
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
+import { concentratedBuyEvents } from "@weavetrail/scenarios";
 
 import { sha256Canonical } from "./canonical-json";
 import {
   mappingApprovalArtifact,
+  replayApproved,
   validateReplayApprovals,
 } from "./approval-validation";
 
@@ -76,6 +78,9 @@ describe("replay approval gate", () => {
       ],
     });
     expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
+    expect(
+      replayApproved(concentratedBuyEvents, mapping, undefined, undefined),
+    ).not.toHaveProperty("canonicalResultHash");
   });
 
   it("rejects an approval bound to a different artifact", () => {
@@ -146,4 +151,55 @@ describe("replay approval gate", () => {
       ).toEqual({ accepted: true });
     },
   );
+
+  it("keeps approval audit metadata outside the canonical result hash", () => {
+    const alternateMappingApproval = {
+      ...mappingApproval,
+      reviewerRef: "reviewer-fixture-alternate",
+      approvedAt: "2026-08-30T01:00:00Z",
+    };
+    const alternateManifest = {
+      ...manifest,
+      approval: {
+        ...manifest.approval,
+        reviewerRef: "reviewer-fixture-alternate",
+        approvedAt: "2026-08-30T01:01:00Z",
+      },
+    };
+
+    expect(
+      validateReplayApprovals(
+        mapping,
+        alternateMappingApproval,
+        alternateManifest,
+      ),
+    ).toEqual({ accepted: true });
+
+    const baseline = replayApproved(
+      concentratedBuyEvents,
+      mapping,
+      mappingApproval,
+      manifest,
+    );
+    const alternate = replayApproved(
+      concentratedBuyEvents,
+      mapping,
+      alternateMappingApproval,
+      alternateManifest,
+    );
+    expect(baseline).toHaveProperty("canonicalResultHash");
+    expect(alternate).toHaveProperty("canonicalResultHash");
+    if (
+      !("canonicalResultHash" in baseline) ||
+      !("canonicalResultHash" in alternate)
+    ) {
+      throw new Error("matching approval records must permit replay");
+    }
+    const baselineHash = baseline.canonicalResultHash;
+    const alternateApprovalHash = alternate.canonicalResultHash;
+    expect(alternateApprovalHash).toBe(baselineHash);
+    expect(alternateApprovalHash).toBe(
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+    );
+  });
 });
