@@ -19,6 +19,16 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
   return { ...concentratedBuyEvents[0]!, ...overrides };
 }
 
+function permutations<T>(values: readonly T[]): T[][] {
+  if (values.length === 0) return [[]];
+
+  return values.flatMap((value, index) =>
+    permutations(
+      values.filter((_, candidateIndex) => candidateIndex !== index),
+    ).map((remainder) => [value, ...remainder]),
+  );
+}
+
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
     expect(ENGINE_VERSION).toBe("0.3.0-foundation");
@@ -41,6 +51,21 @@ describe("replayFoundation", () => {
 
     expect(shuffled.orderedEventIds).toEqual(baseline.orderedEventIds);
     expect(shuffled.canonicalResultHash).toBe(baseline.canonicalResultHash);
+  });
+
+  it("pins every committed four-event fixture permutation to the golden hash", () => {
+    const hashes = new Set(
+      permutations(concentratedBuyEvents).map(
+        (events) => replayFoundation(events).canonicalResultHash,
+      ),
+    );
+
+    expect(permutations(concentratedBuyEvents)).toHaveLength(24);
+    expect(hashes).toEqual(
+      new Set([
+        "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      ]),
+    );
   });
 
   it("collapses an exact source-identity duplicate without an event identifier conflict", () => {
