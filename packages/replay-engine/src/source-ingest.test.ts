@@ -131,10 +131,9 @@ describe("source provenance", () => {
     const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
     const mapping = {
       ...concentratedBuyDialectAMapping,
-      fields: [
-        ...concentratedBuyDialectAMapping.fields,
-        ["qty", "price", "DECIMAL_STRING"],
-      ],
+      fields: concentratedBuyDialectAMapping.fields.map((field) =>
+        field[0] === "qty" ? ([field[0], "price", field[2]] as const) : field,
+      ),
     } as const;
 
     const result = applyApprovedMapping([row!], mapping);
@@ -144,6 +143,76 @@ describe("source provenance", () => {
     });
     expect(result).not.toHaveProperty("events");
   });
+
+  it("rejects duplicate source-column mappings identically in both listing orders", () => {
+    const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const fieldsWithoutQuantityOrOrder =
+      concentratedBuyDialectAMapping.fields.filter(
+        ([sourceColumn]) =>
+          sourceColumn !== "qty" && sourceColumn !== "order_ref",
+      );
+    const quantityMapping = ["qty", "quantity", "DECIMAL_STRING"] as const;
+    const orderMapping = ["qty", "orderId", "DECIMAL_STRING"] as const;
+    const ignoredOrder = ["order_ref", null, null] as const;
+    const mappings = [
+      {
+        ...concentratedBuyDialectAMapping,
+        fields: [
+          ...fieldsWithoutQuantityOrOrder,
+          ignoredOrder,
+          quantityMapping,
+          orderMapping,
+        ],
+      },
+      {
+        ...concentratedBuyDialectAMapping,
+        fields: [
+          ...fieldsWithoutQuantityOrOrder,
+          ignoredOrder,
+          orderMapping,
+          quantityMapping,
+        ],
+      },
+    ] as const;
+
+    const results = mappings.map((mapping) =>
+      applyApprovedMapping([row!], mapping),
+    );
+    for (const result of results) {
+      expect(result).toMatchObject({
+        status: "REVIEW_REQUIRED",
+        issues: [expect.objectContaining({ code: "DUPLICATE_SOURCE_COLUMN" })],
+      });
+      expect(result).not.toHaveProperty("events");
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    }
+    expect(results[0]!.issues).toEqual(results[1]!.issues);
+  });
+
+  it.each([
+    ["missing", null],
+    ["unknown", "MODEL_GENERATED_CODE"],
+  ] as const)(
+    "reports a %s transform once for a multi-row artifact",
+    (_, invalidTransform) => {
+      const rows = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+      const mapping = {
+        ...concentratedBuyDialectAMapping,
+        fields: concentratedBuyDialectAMapping.fields.map((field) =>
+          field[0] === "side_code"
+            ? [field[0], field[1], invalidTransform]
+            : field,
+        ),
+      } as unknown as typeof concentratedBuyDialectAMapping;
+
+      const result = applyApprovedMapping(rows, mapping);
+      expect(result.status).toBe("REVIEW_REQUIRED");
+      expect(
+        result.issues.filter(({ code }) => code === "UNKNOWN_TRANSFORM"),
+      ).toHaveLength(1);
+      expect(result).not.toHaveProperty("events");
+    },
+  );
 
   it("applies both committed approved mappings", () => {
     const dialectA = applyApprovedMapping(

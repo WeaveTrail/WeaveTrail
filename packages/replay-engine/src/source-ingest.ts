@@ -66,6 +66,7 @@ export type ApprovedSourceMapping = {
 
 export type MappingReviewCode =
   | "DUPLICATE_SOURCE_COORDINATE"
+  | "DUPLICATE_SOURCE_COLUMN"
   | "DUPLICATE_TARGET_FIELD"
   | "REQUIRED_TARGET_FIELD_MISSING"
   | "SOURCE_ARTIFACT_HASH_MISMATCH"
@@ -83,6 +84,50 @@ export type MappingReviewIssue = {
 export type MappingApplicationResult =
   | { status: "APPROVED"; events: TradeEvent[]; issues: [] }
   | { status: "REVIEW_REQUIRED"; issues: MappingReviewIssue[] };
+
+export function validateApprovedMapping(
+  mapping: ApprovedSourceMapping,
+): MappingReviewIssue[] {
+  const issues: MappingReviewIssue[] = [];
+  const seenSources = new Set<string>();
+  const seenTargets = new Set<MappedTargetField>();
+
+  for (const [sourceColumn, targetField, transform] of mapping.fields) {
+    if (seenSources.has(sourceColumn)) {
+      issues.push({
+        code: "DUPLICATE_SOURCE_COLUMN",
+        sourceColumn,
+        message: `Approved mapping assigns source column ${JSON.stringify(sourceColumn)} more than once`,
+      });
+    }
+    seenSources.add(sourceColumn);
+
+    if (targetField === null) continue;
+    if (seenTargets.has(targetField)) {
+      issues.push({
+        code: "DUPLICATE_TARGET_FIELD",
+        message: `Approved mapping assigns target field ${JSON.stringify(targetField)} more than once`,
+      });
+    }
+    seenTargets.add(targetField);
+
+    if (!AllowedTransformSchema.safeParse(transform).success) {
+      issues.push({
+        code: "UNKNOWN_TRANSFORM",
+        sourceColumn,
+        message: `Source column ${JSON.stringify(sourceColumn)} names a missing or unknown transform`,
+      });
+    }
+  }
+
+  return issues.sort((left, right) => {
+    if (left.code < right.code) return -1;
+    if (left.code > right.code) return 1;
+    if (left.message < right.message) return -1;
+    if (left.message > right.message) return 1;
+    return 0;
+  });
+}
 
 function applyTransform(
   value: string,
@@ -136,38 +181,23 @@ export function applyApprovedMapping(
 ): MappingApplicationResult {
   const issues: MappingReviewIssue[] = [];
   const events: TradeEvent[] = [];
-  try {
-    requireUniqueSourceCoordinates(rows);
-  } catch (error) {
-    if (
-      error instanceof SourceIngestError &&
-      error.code === "DUPLICATE_SOURCE_COORDINATE"
-    ) {
-      return {
-        status: "REVIEW_REQUIRED",
-        issues: [{ code: error.code, message: error.message }],
-      };
-    }
-    throw error;
+  const duplicateCoordinate = findDuplicateSourceCoordinate(rows);
+  if (duplicateCoordinate) {
+    return {
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "DUPLICATE_SOURCE_COORDINATE",
+          message: duplicateSourceCoordinateMessage(duplicateCoordinate),
+        },
+      ],
+    };
   }
 
-  const seenTargets = new Set<MappedTargetField>();
-  for (const [, targetField] of mapping.fields) {
-    if (targetField === null) continue;
-    if (seenTargets.has(targetField)) {
-      return {
-        status: "REVIEW_REQUIRED",
-        issues: [
-          {
-            code: "DUPLICATE_TARGET_FIELD",
-            message: `Approved mapping assigns target field ${JSON.stringify(targetField)} more than once`,
-          },
-        ],
-      };
-    }
-    seenTargets.add(targetField);
+  const structuralIssues = validateApprovedMapping(mapping);
+  if (structuralIssues.length > 0) {
+    return { status: "REVIEW_REQUIRED", issues: structuralIssues };
   }
-
   const fieldMappings = new Map(
     mapping.fields.map(([sourceColumn, targetField, transform]) => [
       sourceColumn,
@@ -197,25 +227,14 @@ export function applyApprovedMapping(
         continue;
       }
       if (fieldMapping.targetField === null) continue;
-      const transformResult = AllowedTransformSchema.safeParse(
-        fieldMapping.transform,
-      );
-      if (!transformResult.success) {
-        issues.push({
-          code: "UNKNOWN_TRANSFORM",
-          rowNumber: row.coordinate.rowNumber,
-          sourceColumn,
-          message: `Source column ${JSON.stringify(sourceColumn)} names an unknown transform`,
-        });
-        continue;
-      }
-      const transformed = applyTransform(value, transformResult.data);
+      const transform = fieldMapping.transform as AllowedTransform;
+      const transformed = applyTransform(value, transform);
       if (transformed === undefined) {
         issues.push({
           code: "TRANSFORM_REJECTED_VALUE",
           rowNumber: row.coordinate.rowNumber,
           sourceColumn,
-          message: `Transform ${transformResult.data} rejected source column ${JSON.stringify(sourceColumn)}`,
+          message: `Transform ${transform} rejected source column ${JSON.stringify(sourceColumn)}`,
         });
         continue;
       }
@@ -300,19 +319,33 @@ export function deriveRawRowHash(row: SourceRow): string {
   return createHash("sha256").update(canonicalRawRow(row)).digest("hex");
 }
 
-export function requireUniqueSourceCoordinates(
+function findDuplicateSourceCoordinate(
   rows: readonly SourceRow[],
-): void {
+): SourceCoordinate | undefined {
   const seen = new Set<string>();
   for (const row of rows) {
     const key = canonicalJson(row.coordinate);
-    if (seen.has(key)) {
-      throw new SourceIngestError(
-        "DUPLICATE_SOURCE_COORDINATE",
-        `Duplicate source coordinate sourceArtifactHash=${row.coordinate.sourceArtifactHash}, rowNumber=${row.coordinate.rowNumber}`,
-      );
-    }
+    if (seen.has(key)) return row.coordinate;
     seen.add(key);
+  }
+  return undefined;
+}
+
+function duplicateSourceCoordinateMessage(
+  coordinate: SourceCoordinate,
+): string {
+  return `Duplicate source coordinate sourceArtifactHash=${coordinate.sourceArtifactHash}, rowNumber=${coordinate.rowNumber}`;
+}
+
+export function requireUniqueSourceCoordinates(
+  rows: readonly SourceRow[],
+): void {
+  const duplicateCoordinate = findDuplicateSourceCoordinate(rows);
+  if (duplicateCoordinate) {
+    throw new SourceIngestError(
+      "DUPLICATE_SOURCE_COORDINATE",
+      duplicateSourceCoordinateMessage(duplicateCoordinate),
+    );
   }
 }
 

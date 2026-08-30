@@ -75,9 +75,9 @@ The implemented synthetic ingest path hashes exact artifact bytes as
 `sourceArtifactHash`. Each raw row is serialized as canonical JSON containing
 its artifact-hash/row-number coordinate and verbatim string values, then hashed
 as `rawRowHash`. Approved mappings apply only closed transforms; unapproved
-columns, unknown transforms, rejected values, missing required targets,
-duplicate coordinates, and artifact mismatches stop before canonical dataset or
-result hashing.
+columns, duplicate source or target mappings, unknown transforms, rejected
+values, missing required targets, duplicate coordinates, and artifact
+mismatches stop before canonical dataset or result hashing.
 
 Canonical `eventId` is derived as the percent-encoded composite
 `event:<datasetId>:<venueId>:<sourceEventId>`. The engine orders normalized

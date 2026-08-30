@@ -30,10 +30,10 @@ Source ingestion keeps four hash or identifier roles distinct:
    when their artifact and row hashes differ.
 
 Approved mappings alone select transforms from the closed transform allowlist.
-A source column absent from that mapping, an unknown transform, a rejected
-value, a missing required target, a duplicate coordinate, or an artifact hash
-mismatch stops with a structured review outcome or ingest error before a
-dataset or replay hash exists.
+A source column absent from that mapping, a duplicate source or target mapping,
+an unknown transform, a rejected value, a missing required target, a duplicate
+coordinate, or an artifact hash mismatch stops with a structured review
+outcome or ingest error before a dataset or replay hash exists.
 
 `eventId` remains in the protected semantic projection because it is the stable
 identity used for ordering and evidence references. `rawRowHash` remains on the
