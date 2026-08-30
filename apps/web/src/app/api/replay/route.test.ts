@@ -26,9 +26,7 @@ describe("POST /api/replay request boundary", () => {
       mutations.map((mutation) => [scenarioName, mutation] as const),
     ),
   )("replays scenario %s with mutation %s", async (scenarioName, mutation) => {
-    const response = await POST(
-      request({ scenario: scenarioName, mutation }),
-    );
+    const response = await POST(request({ scenario: scenarioName, mutation }));
     const result = await response.json();
 
     expect(response.status).toBe(200);

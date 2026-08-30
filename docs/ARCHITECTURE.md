@@ -28,6 +28,28 @@ Provider output is untrusted data. The mapper may select only source columns
 that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
+The guided lab executes the server-only fixture provider against a table keyed
+by the committed `sourceArtifactHash`. It returns a structured `1.1` proposal
+containing each source column, target field, closed transform, confidence,
+evidence, and either `PROPOSED` or `REVIEW_REQUIRED`. This proposal is not an
+approval. The JSON Lines fixture deliberately leaves `source_note` unmapped,
+which demonstrates the review-required path and blocks the lab replay control.
+
+### Replay HTTP boundary
+
+`POST /api/replay` accepts a strict object with a committed source-artifact
+scenario, one of `baseline`, `shuffle`, or `duplicate`, and an optional non-empty
+array of `TradeEvent 1.0` values. When events are absent, the named committed
+scenario supplies them. Mutations operate on the validated array; ordering,
+duplicate counts, engine version, and result hashes are always derived on the
+server.
+
+Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
+`422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`
+array whose entries carry `code`, `path`, and `message`. Review responses never
+contain a replay result or canonical result hash. HTTP `500` remains reserved
+for defects outside these declared input failures.
+
 ### Approval boundary
 
 The state machine prevents unapproved output from reaching replay:

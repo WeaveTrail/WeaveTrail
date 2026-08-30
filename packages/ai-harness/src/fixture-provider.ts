@@ -16,17 +16,17 @@ type DeclaredField = {
 };
 
 function declaredFields(
-  fields: readonly (
-    readonly [string, string | null, AllowedTransform | null]
-  )[],
+  fields: readonly (readonly [
+    string,
+    string | null,
+    AllowedTransform | null,
+  ])[],
 ): ReadonlyMap<string, DeclaredField> {
   return new Map(
     fields.flatMap(([sourceColumn, targetField, transform]) =>
       targetField === null || transform === null
         ? []
-        : [
-            [sourceColumn, { targetField, transform }] as const,
-          ],
+        : [[sourceColumn, { targetField, transform }] as const],
     ),
   );
 }

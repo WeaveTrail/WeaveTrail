@@ -43,8 +43,6 @@ describe("ReplayReviewResponseSchema", () => {
           },
         ],
       }),
-    ).toEqual(
-      expect.objectContaining({ status: "REVIEW_REQUIRED" }),
-    );
+    ).toEqual(expect.objectContaining({ status: "REVIEW_REQUIRED" }));
   });
 });

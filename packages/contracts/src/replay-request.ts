@@ -52,6 +52,4 @@ export const ReplayReviewResponseSchema = z
 export type ReplayScenario = z.infer<typeof ReplayScenarioSchema>;
 export type ReplayMutation = z.infer<typeof ReplayMutationSchema>;
 export type ReplayRequest = z.infer<typeof ReplayRequestSchema>;
-export type ReplayReviewResponse = z.infer<
-  typeof ReplayReviewResponseSchema
->;
+export type ReplayReviewResponse = z.infer<typeof ReplayReviewResponseSchema>;

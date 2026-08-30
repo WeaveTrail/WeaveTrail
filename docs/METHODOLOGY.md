@@ -25,6 +25,14 @@ before replay is `REVIEW_REQUIRED`, never `INCONCLUSIVE`. The code-owned state
 table rejects illegal transitions, and the approval gate produces no replay
 hash unless mapping and case approval records match their artifact hashes.
 
+The fixture replay HTTP boundary applies the same distinction. It validates a
+named committed CSV or JSON Lines scenario, a closed mutation, and any supplied
+events before replay. Invalid JSON, invalid event fields, mixed sequence
+presence, unsupported normalized time, conflicting source identity, or a
+canonical event identifier shared by distinct source identities returns a
+structured `REVIEW_REQUIRED` response with HTTP `422`. Each issue includes a
+code and actionable request path; no replay hash is returned.
+
 ## Dataset profile and approval scope
 
 Canonical events deterministically produce the canonical dataset hash, sorted
@@ -126,6 +134,15 @@ that contains this document. The recorded environment is Node 22.18.0, pnpm
 10.33.2, Vitest 4.1.11, and Linux WSL2 x86_64. The sample is two authored,
 fully synthetic dialects encoding the same four events; it does not measure
 performance on independent or production data.
+
+Separately, the guided lab executes a deterministic fixture mapping provider on
+the server. Its proposal is keyed by the exact source artifact hash and exposes
+source column, target field, transform, confidence, evidence, and proposal
+status. The fixture provider performs no network call and uses no credentials.
+Dialect A produces declared `PROPOSED` fields; dialect B also produces an
+unmapped `source_note` with `REVIEW_REQUIRED`, which blocks replay. Neither
+status is an approval. Binding an approved mapping to execution remains a
+separate approval step.
 
 ## Planned `RAPID_PRICE_LIFT` rule
 

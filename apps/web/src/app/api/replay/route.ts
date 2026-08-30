@@ -40,7 +40,9 @@ export async function POST(request: Request) {
       parsed.error.issues.map((issue) => ({
         code: "INVALID_REQUEST",
         path: issue.path.map((segment) =>
-          typeof segment === "symbol" ? segment.description ?? "symbol" : segment,
+          typeof segment === "symbol"
+            ? (segment.description ?? "symbol")
+            : segment,
         ),
         message: issue.message,
       })),
