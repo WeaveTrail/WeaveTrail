@@ -74,8 +74,10 @@ converting them to `null`.
 The current dataset contract represents one ordered source stream. Every event
 must either provide `sequence` or omit it; mixed presence stops replay with
 `MIXED_SEQUENCE_PRESENCE`. If all events omit sequence, equal-time events fall
-through to `eventId`. WeaveTrail does not infer a missing sequence or
-Unicode-normalize identifiers.
+through to `eventId`. After exact duplicate collapse, canonical `eventId` must
+be unique across source identities so that it defines a total-order
+tie-breaker. WeaveTrail does not infer a missing sequence, derive a replacement
+identifier during canonicalization, or Unicode-normalize identifiers.
 
 ## Source identity, duplicates, and hash scope
 
@@ -85,8 +87,11 @@ events by that identity before sorting. Repeated records collapse only when
 their canonical projections are equal; `duplicateCount` records how many were
 removed. If one identity has different canonical projections, canonicalization
 fails with `CONFLICTING_SOURCE_IDENTITY` before replay and no result hash is
-produced. This ambiguity requires review; it is not an `INCONCLUSIVE` rule
-result.
+produced. If distinct source identities carry the same canonical `eventId`, it
+fails with `CONFLICTING_EVENT_IDENTIFIER` after duplicate collapse and before
+ordering or hashing. Both failures select the first conflict by canonical key
+order, independent of input order, and require review rather than producing an
+`INCONCLUSIVE` rule result.
 
 The canonical event projection is an explicit allowlist of semantic fields:
 `schemaVersion`, `eventId`, `sourceEventId`, `datasetId`, `venueId`,

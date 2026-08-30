@@ -19,6 +19,16 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
   return { ...concentratedBuyEvents[0]!, ...overrides };
 }
 
+function permutations<T>(values: readonly T[]): T[][] {
+  if (values.length === 0) return [[]];
+
+  return values.flatMap((value, index) =>
+    permutations(
+      values.filter((_, candidateIndex) => candidateIndex !== index),
+    ).map((remainder) => [value, ...remainder]),
+  );
+}
+
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
     expect(ENGINE_VERSION).toBe("0.3.0-foundation");
@@ -43,7 +53,22 @@ describe("replayFoundation", () => {
     expect(shuffled.canonicalResultHash).toBe(baseline.canonicalResultHash);
   });
 
-  it("ignores an exact source-row duplicate", () => {
+  it("pins every committed four-event fixture permutation to the golden hash", () => {
+    const hashes = new Set(
+      permutations(concentratedBuyEvents).map(
+        (events) => replayFoundation(events).canonicalResultHash,
+      ),
+    );
+
+    expect(permutations(concentratedBuyEvents)).toHaveLength(24);
+    expect(hashes).toEqual(
+      new Set([
+        "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      ]),
+    );
+  });
+
+  it("collapses an exact source-identity duplicate without an event identifier conflict", () => {
     const baseline = replayFoundation(concentratedBuyEvents);
     const withDuplicate = replayFoundation([
       ...concentratedBuyEvents,
@@ -55,6 +80,120 @@ describe("replayFoundation", () => {
     expect(withDuplicate.canonicalResultHash).toBe(
       baseline.canonicalResultHash,
     );
+  });
+
+  it("rejects a shared event identifier independent of input order", () => {
+    const first = syntheticEvent({
+      eventId: "SAME",
+      sourceEventId: "source-event-id-a",
+      eventTime: "2026-08-25T00:00:00Z",
+      price: "1",
+      rawRowHash:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    const second = syntheticEvent({
+      eventId: "SAME",
+      sourceEventId: "source-event-id-b",
+      eventTime: "2026-08-25T00:00:00Z",
+      price: "2",
+      rawRowHash:
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    });
+    delete first.sequence;
+    delete second.sequence;
+
+    const failures = [
+      [first, second],
+      [second, first],
+    ].map((events) => {
+      let replayHash: string | undefined;
+      try {
+        replayHash = replayFoundation(events).canonicalResultHash;
+        throw new Error("expected conflicting event identifier to fail");
+      } catch (error) {
+        expect(replayHash).toBeUndefined();
+        expect(error).toBeInstanceOf(CanonicalizationError);
+        expect(error).toMatchObject({ code: "CONFLICTING_EVENT_IDENTIFIER" });
+        return (error as Error).message;
+      }
+    });
+
+    expect(failures[0]).toBe(failures[1]);
+    expect(failures[0]).toContain('eventId="SAME"');
+    expect(failures[0]).toContain(
+      'datasetId="synthetic-concentrated-buy-v1", venueId="SYNTH-X", sourceEventId="source-event-id-a"',
+    );
+    expect(failures[0]).toContain(
+      'datasetId="synthetic-concentrated-buy-v1", venueId="SYNTH-X", sourceEventId="source-event-id-b"',
+    );
+  });
+
+  it.each([
+    ["event time", { eventTime: "2026-08-25T00:00:01Z" }],
+    ["sequence", { sequence: "999" }],
+  ])("rejects a shared event identifier separated by %s", (_, separation) => {
+    const first = syntheticEvent({
+      eventId: "shared-separated-id",
+      sourceEventId: "source-separated-a",
+      rawRowHash:
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    });
+    const second = syntheticEvent({
+      ...separation,
+      eventId: "shared-separated-id",
+      sourceEventId: "source-separated-b",
+      rawRowHash:
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    });
+
+    expect(() => replayFoundation([first, second])).toThrowError(
+      expect.objectContaining({ code: "CONFLICTING_EVENT_IDENTIFIER" }),
+    );
+  });
+
+  it("reports the first conflicting event identifier independent of input order", () => {
+    const eventA1 = syntheticEvent({
+      eventId: "event-a",
+      sourceEventId: "source-a-1",
+      rawRowHash:
+        "1111111111111111111111111111111111111111111111111111111111111111",
+    });
+    const eventA2 = syntheticEvent({
+      eventId: "event-a",
+      sourceEventId: "source-a-2",
+      rawRowHash:
+        "2222222222222222222222222222222222222222222222222222222222222222",
+    });
+    const eventB1 = syntheticEvent({
+      eventId: "event-b",
+      sourceEventId: "source-b-1",
+      rawRowHash:
+        "3333333333333333333333333333333333333333333333333333333333333333",
+    });
+    const eventB2 = syntheticEvent({
+      eventId: "event-b",
+      sourceEventId: "source-b-2",
+      rawRowHash:
+        "4444444444444444444444444444444444444444444444444444444444444444",
+    });
+    const attempts = [
+      [eventB2, eventB1, eventA2, eventA1],
+      [eventA1, eventA2, eventB1, eventB2],
+    ];
+
+    const failures = attempts.map((events) => {
+      try {
+        replayFoundation(events);
+        throw new Error("expected conflicting event identifiers to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(CanonicalizationError);
+        expect(error).toMatchObject({ code: "CONFLICTING_EVENT_IDENTIFIER" });
+        return (error as Error).message;
+      }
+    });
+
+    expect(failures[0]).toBe(failures[1]);
+    expect(failures[0]).toContain('eventId="event-a"');
   });
 
   it("excludes receivedAt from the canonical result hash", () => {
@@ -102,6 +241,51 @@ describe("replayFoundation", () => {
     expect(failures[0]).toContain(
       'datasetId="synthetic-concentrated-buy-v1", venueId="SYNTH-X", sourceEventId="source-003"',
     );
+  });
+
+  it("reports the first conflicting source identity independent of input order", () => {
+    const sourceA = syntheticEvent({
+      eventId: "evt-source-a",
+      sourceEventId: "source-a",
+      rawRowHash:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    });
+    const sourceAConflict = {
+      ...sourceA,
+      price: "101.00",
+      rawRowHash:
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    };
+    const sourceB = syntheticEvent({
+      eventId: "evt-source-b",
+      sourceEventId: "source-b",
+      rawRowHash:
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    });
+    const sourceBConflict = {
+      ...sourceB,
+      price: "102.00",
+      rawRowHash:
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    };
+    const attempts = [
+      [sourceB, sourceBConflict, sourceA, sourceAConflict],
+      [sourceAConflict, sourceA, sourceBConflict, sourceB],
+    ];
+
+    const failures = attempts.map((events) => {
+      try {
+        replayFoundation(events);
+        throw new Error("expected conflicting identities to fail");
+      } catch (error) {
+        expect(error).toBeInstanceOf(CanonicalizationError);
+        expect(error).toMatchObject({ code: "CONFLICTING_SOURCE_IDENTITY" });
+        return (error as Error).message;
+      }
+    });
+
+    expect(failures[0]).toBe(failures[1]);
+    expect(failures[0]).toContain('sourceEventId="source-a"');
   });
 
   it("uses sequence and event ID as deterministic timestamp tie-breakers", () => {
