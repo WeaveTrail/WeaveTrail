@@ -107,6 +107,44 @@ describe("source provenance", () => {
     );
   });
 
+  it("routes duplicate source coordinates to review before mapping", () => {
+    const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const conflictingRow = {
+      ...row!,
+      values: { ...row!.values, source_id: "source-conflict" },
+    };
+
+    const result = applyApprovedMapping(
+      [row!, conflictingRow],
+      concentratedBuyDialectAMapping,
+    );
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({ code: "DUPLICATE_SOURCE_COORDINATE" }),
+      ],
+    });
+    expect(result).not.toHaveProperty("events");
+  });
+
+  it("routes duplicate target-field mappings to review before overwrite", () => {
+    const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const mapping = {
+      ...concentratedBuyDialectAMapping,
+      fields: [
+        ...concentratedBuyDialectAMapping.fields,
+        ["qty", "price", "DECIMAL_STRING"],
+      ],
+    } as const;
+
+    const result = applyApprovedMapping([row!], mapping);
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [expect.objectContaining({ code: "DUPLICATE_TARGET_FIELD" })],
+    });
+    expect(result).not.toHaveProperty("events");
+  });
+
   it("applies both committed approved mappings", () => {
     const dialectA = applyApprovedMapping(
       parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),

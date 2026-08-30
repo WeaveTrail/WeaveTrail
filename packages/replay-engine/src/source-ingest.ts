@@ -65,6 +65,8 @@ export type ApprovedSourceMapping = {
 };
 
 export type MappingReviewCode =
+  | "DUPLICATE_SOURCE_COORDINATE"
+  | "DUPLICATE_TARGET_FIELD"
   | "REQUIRED_TARGET_FIELD_MISSING"
   | "SOURCE_ARTIFACT_HASH_MISMATCH"
   | "TRANSFORM_REJECTED_VALUE"
@@ -73,7 +75,7 @@ export type MappingReviewCode =
 
 export type MappingReviewIssue = {
   code: MappingReviewCode;
-  rowNumber: string;
+  rowNumber?: string;
   sourceColumn?: string;
   message: string;
 };
@@ -134,6 +136,38 @@ export function applyApprovedMapping(
 ): MappingApplicationResult {
   const issues: MappingReviewIssue[] = [];
   const events: TradeEvent[] = [];
+  try {
+    requireUniqueSourceCoordinates(rows);
+  } catch (error) {
+    if (
+      error instanceof SourceIngestError &&
+      error.code === "DUPLICATE_SOURCE_COORDINATE"
+    ) {
+      return {
+        status: "REVIEW_REQUIRED",
+        issues: [{ code: error.code, message: error.message }],
+      };
+    }
+    throw error;
+  }
+
+  const seenTargets = new Set<MappedTargetField>();
+  for (const [, targetField] of mapping.fields) {
+    if (targetField === null) continue;
+    if (seenTargets.has(targetField)) {
+      return {
+        status: "REVIEW_REQUIRED",
+        issues: [
+          {
+            code: "DUPLICATE_TARGET_FIELD",
+            message: `Approved mapping assigns target field ${JSON.stringify(targetField)} more than once`,
+          },
+        ],
+      };
+    }
+    seenTargets.add(targetField);
+  }
+
   const fieldMappings = new Map(
     mapping.fields.map(([sourceColumn, targetField, transform]) => [
       sourceColumn,
