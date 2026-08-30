@@ -29,6 +29,10 @@ non-secret reviewer reference, approval time, and justified field overrides.
 Case Manifest `1.2` therefore replaces its bare `status` with a required
 approval record and rejects empty actor sets. Mapping proposals keep their
 `1.1` shape, but replay requires a separate matching mapping approval record.
+Approved artifacts are produced by parsing against their proposal schemas, so
+every schema-owned proposal field is covered by `approvedArtifactHash`; the
+case approval record itself remains outside that artifact to avoid a hash
+cycle.
 
 The fixture confidence review threshold is declared as `1.0`. A mapping field
 below that threshold or marked `REVIEW_REQUIRED` needs an override naming its
@@ -56,6 +60,6 @@ bundle remains separate work.
   a non-empty actor set, a registered rule configuration, and an approval record
   whose `approvedArtifactHash` covers the proposal fields without the approval
   record itself.
-- Mapping approval consumers hash the explicit Mapping Proposal `1.1`
-  projection and supply a separate matching approval record. Flagged or
+- Mapping approval consumers hash the schema-validated Mapping Proposal `1.1`
+  artifact and supply a separate matching approval record. Flagged or
   non-exact fields require justified override paths.

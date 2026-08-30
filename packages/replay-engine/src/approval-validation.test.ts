@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ApprovalRecordSchema,
+  CaseManifestProposalSchema,
   CaseManifestSchema,
   type CaseManifestProposal,
   SchemaMappingProposalSchema,
@@ -12,6 +13,7 @@ import { sha256Canonical } from "./canonical-json";
 import { computeDatasetProfile } from "./dataset-profile";
 import {
   mappingApprovalArtifact,
+  caseManifestProposal,
   replayApproved,
   validateReplayApprovals,
 } from "./approval-validation";
@@ -62,6 +64,15 @@ const manifest = CaseManifestSchema.parse({
 });
 
 describe("replay approval gate", () => {
+  it("derives approved artifacts from their proposal schemas", () => {
+    expect(mappingApprovalArtifact(mapping)).toEqual(
+      SchemaMappingProposalSchema.parse(mapping),
+    );
+    expect(caseManifestProposal(manifest)).toEqual(
+      CaseManifestProposalSchema.parse(caseProposal),
+    );
+  });
+
   it("accepts matching immutable mapping and case approval records", () => {
     expect(validateReplayApprovals(mapping, mappingApproval, manifest)).toEqual(
       { accepted: true },

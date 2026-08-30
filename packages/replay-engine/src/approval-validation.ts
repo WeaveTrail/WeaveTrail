@@ -4,7 +4,11 @@ import type {
   CaseManifestProposal,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
+import {
+  CaseManifestProposalSchema,
+  MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
+  SchemaMappingProposalSchema,
+} from "@weavetrail/contracts";
 
 import { sha256Canonical, type JsonValue } from "./canonical-json";
 import {
@@ -31,31 +35,15 @@ export type ApprovalValidation =
 export function caseManifestProposal(
   manifest: CaseManifest,
 ): CaseManifestProposal {
-  return {
-    manifestVersion: manifest.manifestVersion,
-    caseId: manifest.caseId,
-    canonicalDatasetHash: manifest.canonicalDatasetHash,
-    hypothesis: manifest.hypothesis,
-    rules: manifest.rules,
-    aiTrace: manifest.aiTrace,
-  };
+  const { approval, ...proposal } = manifest;
+  void approval;
+  return CaseManifestProposalSchema.parse(proposal);
 }
 
 export function mappingApprovalArtifact(
   mapping: SchemaMappingProposal,
 ): JsonValue {
-  return {
-    mappingVersion: mapping.mappingVersion,
-    sourceArtifactHash: mapping.sourceArtifactHash,
-    fields: mapping.fields.map((field) => ({
-      sourceColumn: field.sourceColumn,
-      targetField: field.targetField,
-      ...(field.transform === undefined ? {} : { transform: field.transform }),
-      confidence: field.confidence,
-      evidence: field.evidence,
-      status: field.status,
-    })),
-  };
+  return SchemaMappingProposalSchema.parse(mapping) as JsonValue;
 }
 
 function validateApprovalRecord(
