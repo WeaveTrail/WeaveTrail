@@ -67,7 +67,9 @@ Equal-time events use an unsigned numeric `sequence` comparison and then
 lexicographic UTF-16 code-unit `eventId` order. Canonical JSON keys use the same
 code-unit order and do not depend on host locale data or object property
 enumeration order. Canonical JSON rejects non-finite numbers; protected
-decimal values are represented as strings.
+decimal values are represented as strings. It omits `undefined` object
+properties but rejects `undefined` array elements rather than silently
+converting them to `null`.
 
 The current dataset contract represents one ordered source stream. Every event
 must either provide `sequence` or omit it; mixed presence stops replay with

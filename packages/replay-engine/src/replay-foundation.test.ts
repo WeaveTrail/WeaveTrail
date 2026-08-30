@@ -283,6 +283,28 @@ describe("canonicalJson", () => {
     }
     expect(canonicalJson(-0)).toBe("0");
   });
+
+  it("omits undefined object properties and produces round-trippable JSON", () => {
+    const serialized = canonicalJson({ retained: "value", omitted: undefined });
+
+    expect(serialized).toBe('{"retained":"value"}');
+    expect(JSON.stringify(JSON.parse(serialized))).toBe(serialized);
+  });
+
+  it("rejects undefined array elements instead of converting them to null", () => {
+    expect(() => canonicalJson(["value", undefined])).toThrowError(
+      CanonicalizationError,
+    );
+    try {
+      canonicalJson(["value", undefined]);
+    } catch (error) {
+      expect(error).toMatchObject({ code: "UNDEFINED_VALUE" });
+    }
+
+    expect(() => canonicalJson(new Array(1))).toThrowError(
+      CanonicalizationError,
+    );
+  });
 });
 
 describe("canonical event projection", () => {

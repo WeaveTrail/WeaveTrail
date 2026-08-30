@@ -43,7 +43,24 @@ export function caseManifestProposal(
 export function mappingApprovalArtifact(
   mapping: SchemaMappingProposal,
 ): JsonValue {
-  return SchemaMappingProposalSchema.parse(mapping) as JsonValue;
+  const parsed = SchemaMappingProposalSchema.parse(mapping);
+  return {
+    mappingVersion: parsed.mappingVersion,
+    sourceArtifactHash: parsed.sourceArtifactHash,
+    fields: parsed.fields.map((field): JsonValue => {
+      const artifactField: { [key: string]: JsonValue } = {
+        sourceColumn: field.sourceColumn,
+        targetField: field.targetField,
+        confidence: field.confidence,
+        evidence: field.evidence,
+        status: field.status,
+      };
+      if (field.transform !== undefined) {
+        artifactField.transform = field.transform;
+      }
+      return artifactField;
+    }),
+  };
 }
 
 function validateApprovalRecord(

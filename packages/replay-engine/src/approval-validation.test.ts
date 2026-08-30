@@ -79,6 +79,40 @@ describe("replay approval gate", () => {
     );
   });
 
+  it("binds absent and explicitly undefined transforms to the same approval", () => {
+    const field = {
+      sourceColumn: "price_text",
+      targetField: "price",
+      confidence: 1,
+      evidence: "Synthetic fixture uses the canonical decimal representation.",
+      status: "PROPOSED" as const,
+    };
+    const absentTransform = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      fields: [field],
+    });
+    const undefinedTransform = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      fields: [{ ...field, transform: undefined }],
+    });
+    const absentHash = sha256Canonical(
+      mappingApprovalArtifact(absentTransform),
+    );
+    const undefinedHash = sha256Canonical(
+      mappingApprovalArtifact(undefinedTransform),
+    );
+    const approval = ApprovalRecordSchema.parse({
+      ...mappingApproval,
+      approvedArtifactHash: absentHash,
+    });
+
+    expect(undefinedTransform.fields[0]).toHaveProperty("transform");
+    expect(undefinedHash).toBe(absentHash);
+    expect(
+      validateReplayApprovals(undefinedTransform, approval, manifest),
+    ).toEqual({ accepted: true });
+  });
+
   it("rejects replay when either approval record is absent", () => {
     const result = validateReplayApprovals(mapping, undefined, undefined);
 

@@ -32,7 +32,11 @@ so distinct code-unit sequences remain distinct identifiers. Canonical key
 order is produced directly by serialization; it does not rely on JavaScript
 object property insertion or enumeration order. Canonical JSON rejects
 non-finite numbers instead of allowing JSON serialization to convert them to
-`null`; protected decimal payloads remain strings.
+`null`; protected decimal payloads remain strings. Object properties whose
+value is `undefined` are omitted, matching JSON object serialization so that
+equivalent key-presence representations remain identical. An `undefined`
+array element is rejected because converting it to `null` would silently turn
+a missing element into an explicit value.
 
 The current canonical dataset is one ordered source stream. Its events must
 either all declare `sequence` or all omit it. Mixed presence raises
