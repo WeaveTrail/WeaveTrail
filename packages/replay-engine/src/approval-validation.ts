@@ -7,6 +7,11 @@ import type {
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 
 import { sha256Canonical, type JsonValue } from "./canonical-json";
+import {
+  validateCaseAgainstProfile,
+  type CaseProfileValidation,
+} from "./case-validation";
+import { computeDatasetProfile } from "./dataset-profile";
 import { replayFoundation, type FoundationReplay } from "./replay-foundation";
 
 export type ApprovalIssueCode =
@@ -122,8 +127,24 @@ export function replayApproved(
   mapping: SchemaMappingProposal,
   mappingApproval: ApprovalRecord | undefined,
   manifest: CaseManifest | undefined,
-): FoundationReplay | Exclude<ApprovalValidation, { accepted: true }> {
+):
+  | FoundationReplay
+  | Exclude<ApprovalValidation, { accepted: true }>
+  | Exclude<CaseProfileValidation, { accepted: true }> {
   const approval = validateReplayApprovals(mapping, mappingApproval, manifest);
   if (!approval.accepted) return approval;
+  if (manifest === undefined) {
+    return {
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" }],
+    };
+  }
+
+  const profileValidation = validateCaseAgainstProfile(
+    manifest,
+    computeDatasetProfile(events),
+  );
+  if (!profileValidation.accepted) return profileValidation;
   return replayFoundation(events);
 }

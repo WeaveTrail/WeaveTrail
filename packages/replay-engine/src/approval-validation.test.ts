@@ -9,6 +9,7 @@ import {
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
 
 import { sha256Canonical } from "./canonical-json";
+import { computeDatasetProfile } from "./dataset-profile";
 import {
   mappingApprovalArtifact,
   replayApproved,
@@ -20,16 +21,17 @@ const mapping = SchemaMappingProposalSchema.parse({
   sourceArtifactHash: "a".repeat(64),
   fields: [],
 });
+const datasetProfile = computeDatasetProfile(concentratedBuyEvents);
 const caseProposal: CaseManifestProposal = {
   manifestVersion: "1.2",
   caseId: "synthetic-case",
-  canonicalDatasetHash: "b".repeat(64),
+  canonicalDatasetHash: datasetProfile.canonicalDatasetHash,
   hypothesis: {
     pattern: "RAPID_PRICE_LIFT",
     instrumentId: "WT-DEMO",
     actorIds: ["actor-a"],
-    startTime: "2026-08-25T00:00:00Z",
-    endTime: "2026-08-25T00:01:00Z",
+    startTime: datasetProfile.earliestEventTime,
+    endTime: datasetProfile.latestEventTime,
   },
   rules: [],
   aiTrace: {
@@ -99,6 +101,38 @@ describe("replay approval gate", () => {
         }),
       ],
     });
+  });
+
+  it("rejects an approved case outside its canonical dataset profile before hashing", () => {
+    const outsideProposal = {
+      ...caseProposal,
+      hypothesis: {
+        ...caseProposal.hypothesis,
+        actorIds: ["actor-outside-profile"],
+      },
+    };
+    const outsideManifest = CaseManifestSchema.parse({
+      ...outsideProposal,
+      approval: {
+        ...caseApproval,
+        approvedArtifactHash: sha256Canonical(outsideProposal),
+      },
+    });
+    const result = replayApproved(
+      concentratedBuyEvents,
+      mapping,
+      mappingApproval,
+      outsideManifest,
+    );
+
+    expect(result).toMatchObject({
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({ code: "ACTOR_OUTSIDE_DATASET_PROFILE" }),
+      ],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
   it.each([
