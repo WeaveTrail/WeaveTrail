@@ -1,6 +1,11 @@
 import { TradeEventSchema, type TradeEvent } from "@weavetrail/contracts";
 
 import {
+  canonicalJson,
+  sha256Canonical,
+  type JsonValue,
+} from "./canonical-json";
+import {
   CanonicalizationError,
   compareCanonicalEventTimes,
   compareUtf16CodeUnits,
@@ -11,6 +16,63 @@ export type CanonicalizationResult = {
   events: TradeEvent[];
   duplicateCount: number;
 };
+
+export const CANONICAL_EVENT_FIELDS = [
+  "schemaVersion",
+  "eventId",
+  "sourceEventId",
+  "datasetId",
+  "venueId",
+  "eventTime",
+  "sequence",
+  "instrumentId",
+  "eventType",
+  "side",
+  "actorId",
+  "counterpartyId",
+  "orderId",
+  "price",
+  "quantity",
+] as const satisfies readonly (keyof TradeEvent)[];
+
+export const COLLECTION_METADATA_FIELDS = [
+  "receivedAt",
+  "rawRowHash",
+] as const satisfies readonly (keyof TradeEvent)[];
+
+export type CanonicalEventProjection = {
+  [Field in (typeof CANONICAL_EVENT_FIELDS)[number]]?: JsonValue;
+};
+
+export function projectCanonicalEvent(
+  event: TradeEvent,
+): CanonicalEventProjection {
+  const projection: CanonicalEventProjection = {};
+
+  for (const field of CANONICAL_EVENT_FIELDS) {
+    const value = event[field];
+    if (value !== undefined) projection[field] = value;
+  }
+
+  return projection;
+}
+
+function sourceIdentity(event: TradeEvent): [string, string, string] {
+  return [event.datasetId, event.venueId, event.sourceEventId];
+}
+
+function sourceIdentityKey(event: TradeEvent): string {
+  return canonicalJson(sourceIdentity(event));
+}
+
+function compareDuplicateRepresentatives(
+  left: TradeEvent,
+  right: TradeEvent,
+): number {
+  const rawRowOrder = compareUtf16CodeUnits(left.rawRowHash, right.rawRowHash);
+  if (rawRowOrder !== 0) return rawRowOrder;
+  return compareUtf16CodeUnits(left.receivedAt ?? "", right.receivedAt ?? "");
+}
 
 function compareUnsignedIntegerStrings(left: string, right: string): number {
   const normalizedLeft = left.replace(/^0+(?=\d)/, "");
@@ -61,19 +123,33 @@ export function canonicalizeEvents(
     return { ...parsed, eventTime: normalizeEventTime(parsed.eventTime) };
   });
   requireConsistentSequencePresence(validated);
-  const seen = new Set<string>();
+  const groups = new Map<string, TradeEvent[]>();
+
+  for (const event of validated) {
+    const identityKey = sourceIdentityKey(event);
+    const group = groups.get(identityKey);
+    if (group) group.push(event);
+    else groups.set(identityKey, [event]);
+  }
+
   const events: TradeEvent[] = [];
   let duplicateCount = 0;
 
-  for (const event of validated) {
-    const duplicateKey = `${event.datasetId}\u0000${event.venueId}\u0000${event.sourceEventId}\u0000${event.rawRowHash}`;
-    if (seen.has(duplicateKey)) {
-      duplicateCount += 1;
-      continue;
+  for (const group of groups.values()) {
+    const projectionHashes = new Set(
+      group.map((event) => sha256Canonical(projectCanonicalEvent(event))),
+    );
+    if (projectionHashes.size !== 1) {
+      const [datasetId, venueId, sourceEventId] = sourceIdentity(group[0]!);
+      throw new CanonicalizationError(
+        "CONFLICTING_SOURCE_IDENTITY",
+        `Conflicting canonical records for source identity datasetId=${JSON.stringify(datasetId)}, venueId=${JSON.stringify(venueId)}, sourceEventId=${JSON.stringify(sourceEventId)}`,
+      );
     }
 
-    seen.add(duplicateKey);
-    events.push(event);
+    group.sort(compareDuplicateRepresentatives);
+    events.push(group[0]!);
+    duplicateCount += group.length - 1;
   }
 
   events.sort(compareEvents);

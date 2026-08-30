@@ -5,7 +5,10 @@ const EVENT_TIME_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|([+-])(\d{2}):(\d{2}))$/;
 
 export type CanonicalizationErrorCode =
-  "MIXED_SEQUENCE_PRESENCE" | "UNSUPPORTED_EVENT_TIME";
+  | "CONFLICTING_SOURCE_IDENTITY"
+  | "MIXED_SEQUENCE_PRESENCE"
+  | "NON_FINITE_NUMBER"
+  | "UNSUPPORTED_EVENT_TIME";
 
 export class CanonicalizationError extends Error {
   readonly code: CanonicalizationErrorCode;

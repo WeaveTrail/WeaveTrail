@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { compareUtf16CodeUnits } from "./canonical-order";
+import { CanonicalizationError } from "./canonical-order";
 
 type JsonPrimitive = boolean | null | number | string;
 export type JsonValue =
@@ -19,7 +20,10 @@ function serializeValue(value: JsonValue): string {
   }
 
   if (typeof value === "number" && !Number.isFinite(value)) {
-    throw new TypeError("canonical JSON does not support non-finite numbers");
+    throw new CanonicalizationError(
+      "NON_FINITE_NUMBER",
+      "canonical JSON does not support non-finite numbers",
+    );
   }
 
   return JSON.stringify(value);
