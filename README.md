@@ -70,8 +70,10 @@ pnpm build
 The current tests verify fixed-precision time normalization,
 locale-independent ordering, conflict-safe duplicate handling, an identical
 canonical hash after input shuffling, and a literal golden hash for the
-concentrated-buy fixture. No performance or detection accuracy claim is made
-yet. The versioned measurement plan lives in
+concentrated-buy fixture. Two committed synthetic source dialects also
+re-derive their row provenance and converge to the same canonical dataset and
+replay result. No performance or detection accuracy claim is made yet. The
+versioned measurement plan lives in
 [Evaluation](docs/EVALUATION.md).
 
 ## Documentation

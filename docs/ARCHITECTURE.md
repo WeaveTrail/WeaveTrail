@@ -50,7 +50,9 @@ It never executes code written by a model.
 
 Canonical hashes exclude volatile metadata. Findings refer to canonical
 `eventId` values, and those events retain `sourceEventId` and `rawRowHash` so a
-reviewer can reach the source row.
+reviewer can reach the source row. The committed synthetic fixtures derive
+those identifiers from exact source-artifact bytes and raw rows rather than
+hand-authored placeholders.
 
 ## Package boundaries
 
@@ -79,17 +81,32 @@ For one validated dataset and approved manifest:
 - conflicting duplicates fail closed rather than being silently selected;
 - canonical hashes cover an explicit semantic event projection and exclude
   collection metadata (`receivedAt` and `rawRowHash`);
+- equivalent approved CSV and JSON Lines dialects converge to the same
+  `canonicalDatasetHash` and replay result while retaining distinct artifact
+  and row hashes;
 - decimal values are never calculated with JavaScript floating point;
 - reruns produce the same `canonicalResultHash`.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
 rejection, row shuffling, conflict-safe duplicate handling, the canonical event
 projection, and a committed literal golden hash have tests today.
-Manifest-aware replay and financial arithmetic remain planned. See
+Source-artifact, raw-row, event-ID, and canonical-dataset derivation also have
+committed tests today. Manifest-aware replay and financial arithmetic remain
+planned. See
 [ADR 0003](adr/0003-use-nanosecond-utc-and-code-unit-ordering.md) for the exact
 time representation and input limits, and
 [ADR 0004](adr/0004-protect-semantic-events-and-reject-identity-conflicts.md) for
 identity and projection scope.
+
+## Provenance contract migration
+
+Hash names identify one boundary rather than relying on context. Mapping
+proposal `1.1` uses `sourceArtifactHash`; case manifest `1.1` and Evidence
+Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
+`sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
+not accepted by the new strict contracts. See
+[ADR 0005](adr/0005-derive-source-provenance.md) for derivation and migration
+rules.
 
 ## Deployment boundary
 
