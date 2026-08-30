@@ -41,7 +41,12 @@ a missing element into an explicit value.
 The current canonical dataset is one ordered source stream. Its events must
 either all declare `sequence` or all omit it. Mixed presence raises
 `MIXED_SEQUENCE_PRESENCE` before ordering or hashing. When sequence is absent
-for every event, `eventId` is the tie-breaker for equal event times.
+for every event, `eventId` is the tie-breaker for equal event times. After
+exact duplicates collapse, every remaining source identity must carry a unique
+canonical `eventId`. Reusing an `eventId` across source identities raises
+`CONFLICTING_EVENT_IDENTIFIER` before ordering or hashing. When multiple
+source-identity or event-identifier conflicts exist, canonicalization reports
+the first conflict in canonical key order rather than input order.
 
 ## Contract migration
 
@@ -50,6 +55,11 @@ schema but are now rejected. Producers must emit no more than nanosecond
 precision without rounding inside WeaveTrail. Datasets that mix sequence
 presence must resolve that source policy before replay; WeaveTrail will not
 fill or discard sequence values.
+
+Datasets that reuse one canonical `eventId` across distinct source identities
+previously could produce an input-order-dependent result hash. They are now
+rejected and must assign unique canonical identifiers before replay. Exact
+duplicates within one source identity continue to collapse.
 
 Canonical event-time strings and result hashes change because accepted source
 offsets now converge on the fixed UTC representation. A literal golden hash
@@ -61,5 +71,7 @@ is complete.
 Equivalent offset notations and sub-millisecond events now have one explicit,
 runtime-independent ordering representation. The stricter timestamp and
 sequence limits favor fail-closed replay over silently losing precision or
-inventing order. Multi-stream sequence semantics remain outside the current
-single-stream foundation.
+inventing order. Canonical identifier uniqueness makes `eventId` a valid final
+tie-breaker, while canonical conflict selection keeps reviewer-visible failures
+stable across input permutations. Multi-stream sequence semantics remain
+outside the current single-stream foundation.

@@ -88,7 +88,11 @@ For one validated dataset and approved manifest:
 - a dataset that mixes present and absent sequence values fails closed before
   replay;
 - exact duplicates do not alter the result;
-- conflicting duplicates fail closed rather than being silently selected;
+- conflicting duplicates fail closed rather than being silently selected, and
+  multiple conflicts are reported in canonical source-identity order;
+- after exact duplicate collapse, canonical `eventId` values are unique across
+  source identities or replay fails with `CONFLICTING_EVENT_IDENTIFIER` before
+  ordering and hashing;
 - canonical hashes cover an explicit semantic event projection and exclude
   collection metadata (`receivedAt` and `rawRowHash`);
 - equivalent approved CSV and JSON Lines dialects converge to the same
@@ -98,8 +102,10 @@ For one validated dataset and approved manifest:
 - reruns produce the same `canonicalResultHash`.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
-rejection, row shuffling, conflict-safe duplicate handling, the canonical event
-projection, and a committed literal golden hash have tests today.
+rejection, every permutation of the committed four-event fixture,
+conflict-safe duplicate handling, canonical identifier uniqueness and conflict
+selection, the canonical event projection, and a committed literal golden hash
+have tests today.
 Source-artifact, raw-row, event-ID, canonical-dataset and dataset-profile
 derivation, profile-bounded cases, workflow transitions, and approval-gated
 replay also have committed tests today. Financial arithmetic remains planned.
