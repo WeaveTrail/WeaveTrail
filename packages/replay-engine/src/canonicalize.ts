@@ -159,6 +159,49 @@ export function canonicalizeEvents(
     duplicateCount += group.length - 1;
   }
 
+  const eventsByIdentifier = new Map<string, TradeEvent[]>();
+  for (const event of events) {
+    const matchingEvents = eventsByIdentifier.get(event.eventId);
+    if (matchingEvents) matchingEvents.push(event);
+    else eventsByIdentifier.set(event.eventId, [event]);
+  }
+
+  const conflictingEventIdentifiers = [...eventsByIdentifier.entries()]
+    .filter(([, matchingEvents]) => matchingEvents.length > 1)
+    .map(
+      ([eventId, matchingEvents]) =>
+        [
+          eventId,
+          matchingEvents.sort((left, right) =>
+            compareUtf16CodeUnits(
+              sourceIdentityKey(left),
+              sourceIdentityKey(right),
+            ),
+          ),
+        ] as const,
+    )
+    .sort(([leftEventId, leftEvents], [rightEventId, rightEvents]) => {
+      const identifierOrder = compareUtf16CodeUnits(leftEventId, rightEventId);
+      if (identifierOrder !== 0) return identifierOrder;
+      return compareUtf16CodeUnits(
+        sourceIdentityKey(leftEvents[0]!),
+        sourceIdentityKey(rightEvents[0]!),
+      );
+    });
+
+  if (conflictingEventIdentifiers.length > 0) {
+    const [eventId, matchingEvents] = conflictingEventIdentifiers[0]!;
+    const [firstDatasetId, firstVenueId, firstSourceEventId] = sourceIdentity(
+      matchingEvents[0]!,
+    );
+    const [secondDatasetId, secondVenueId, secondSourceEventId] =
+      sourceIdentity(matchingEvents[1]!);
+    throw new CanonicalizationError(
+      "CONFLICTING_EVENT_IDENTIFIER",
+      `Conflicting source identities for canonical eventId=${JSON.stringify(eventId)}: datasetId=${JSON.stringify(firstDatasetId)}, venueId=${JSON.stringify(firstVenueId)}, sourceEventId=${JSON.stringify(firstSourceEventId)}; datasetId=${JSON.stringify(secondDatasetId)}, venueId=${JSON.stringify(secondVenueId)}, sourceEventId=${JSON.stringify(secondSourceEventId)}`,
+    );
+  }
+
   events.sort(compareEvents);
   return { events, duplicateCount };
 }
