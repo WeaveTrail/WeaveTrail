@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  concentratedBuyEvents,
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
 } from "@weavetrail/scenarios";
@@ -111,6 +112,24 @@ describe("source provenance", () => {
 
     expect(dialectA).toMatchObject({ status: "APPROVED", issues: [] });
     expect(dialectB).toMatchObject({ status: "APPROVED", issues: [] });
+  });
+
+  it("re-derives every generated fixture event and raw-row hash", () => {
+    const dialectARows = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const dialectA = applyApprovedMapping(
+      dialectARows,
+      concentratedBuyDialectAMapping,
+    );
+    expect(dialectA.status).toBe("APPROVED");
+    if (dialectA.status !== "APPROVED") {
+      throw new Error("committed dialect A mapping must be approved");
+    }
+
+    expect(dialectA.events).toEqual(concentratedBuyEvents);
+    for (const [index, event] of concentratedBuyEvents.entries()) {
+      expect(event.rawRowHash).toBe(deriveRawRowHash(dialectARows[index]!));
+      expect(event.rawRowHash).not.toMatch(/^([a-f0-9])\1{63}$/);
+    }
   });
 
   it("converges equivalent source dialects to one canonical dataset and result", () => {

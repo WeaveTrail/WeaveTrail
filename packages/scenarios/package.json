@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate:fixtures": "node scripts/generate-concentrated-buy.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
