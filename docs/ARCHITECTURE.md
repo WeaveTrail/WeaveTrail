@@ -33,12 +33,22 @@ unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 The state machine prevents unapproved output from reaching replay:
 
 ```text
-UPLOADED -> MAPPING_PROPOSED -> MAPPING_APPROVED
-         -> CASE_PROPOSED -> CASE_APPROVED -> REPLAYED -> EXPORTED
+UPLOADED -> MAPPING_PROPOSED -> MAPPING_REVIEW_REQUIRED
+                           \-> MAPPING_APPROVED -> CASE_PROPOSED
+CASE_PROPOSED -> CASE_REVIEW_REQUIRED
+             \-> CASE_APPROVED -> REPLAYED -> EXPORTED
 ```
 
-The current scaffold implements fixture input and deterministic replay. The
-complete approval state machine remains planned.
+Any pre-replay state can enter `INPUT_REVIEW_REQUIRED`; resolving the input
+conflict restarts at `UPLOADED`. Contracts own this legal transition table and
+reject every other transition. Replay requires separate mapping and case
+approval records bound to the hashes of their proposed artifacts. A flagged or
+non-exact mapping field additionally requires a justified reviewed override.
+
+Canonical events produce a deterministic `DatasetProfile` containing only the
+canonical dataset hash, sorted instrument and actor sets, and normalized time
+bounds. Case validation cannot widen those facts. Reviewer identity and
+approval time remain audit metadata and do not alter the semantic replay hash.
 
 ### Decision boundary
 
@@ -90,9 +100,10 @@ For one validated dataset and approved manifest:
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
 rejection, row shuffling, conflict-safe duplicate handling, the canonical event
 projection, and a committed literal golden hash have tests today.
-Source-artifact, raw-row, event-ID, and canonical-dataset derivation also have
-committed tests today. Manifest-aware replay and financial arithmetic remain
-planned. See
+Source-artifact, raw-row, event-ID, canonical-dataset and dataset-profile
+derivation, profile-bounded cases, workflow transitions, and approval-gated
+replay also have committed tests today. Financial arithmetic remains planned.
+See
 [ADR 0003](adr/0003-use-nanosecond-utc-and-code-unit-ordering.md) for the exact
 time representation and input limits, and
 [ADR 0004](adr/0004-protect-semantic-events-and-reject-identity-conflicts.md) for
@@ -107,6 +118,16 @@ Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
 not accepted by the new strict contracts. See
 [ADR 0005](adr/0005-derive-source-provenance.md) for derivation and migration
 rules.
+
+## Approval contract migration
+
+Case Manifest `1.2` replaces the `1.1` bare approval status with an immutable
+approval record, requires at least one actor, and accepts only registered rule
+parameters for the declared rule version. Mapping Proposal remains at `1.1`,
+but replay now requires a separate mapping approval record bound to its
+artifact hash. Older manifests must retain their original version and migrate
+explicitly. See
+[ADR 0006](adr/0006-enforce-approval-provenance-before-replay.md).
 
 ## Deployment boundary
 

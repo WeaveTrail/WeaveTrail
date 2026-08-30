@@ -8,6 +8,7 @@ export type CanonicalizationErrorCode =
   | "CONFLICTING_SOURCE_IDENTITY"
   | "MIXED_SEQUENCE_PRESENCE"
   | "NON_FINITE_NUMBER"
+  | "UNDEFINED_VALUE"
   | "UNSUPPORTED_EVENT_TIME";
 
 export class CanonicalizationError extends Error {

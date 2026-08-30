@@ -11,14 +11,40 @@ versioned pattern of concentrated, repeated aggressive buying.
 
 The replay result is intentionally closed:
 
-| Result          | Meaning                                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------ |
-| `SUPPORTED`     | Validated data satisfies every required threshold in the approved rule version.            |
-| `NOT_SUPPORTED` | Data is sufficient, but one or more required thresholds are not satisfied.                 |
-| `INCONCLUSIVE`  | Missing, conflicting, or unresolvable inputs prevent the rule from being evaluated safely. |
+| Result          | Meaning                                                                                       |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `SUPPORTED`     | Validated data satisfies every required threshold in the approved rule version.               |
+| `NOT_SUPPORTED` | Data is sufficient, but one or more required thresholds are not satisfied.                    |
+| `INCONCLUSIVE`  | Approved inputs reached a versioned rule, but valid evidence was insufficient for comparison. |
 
 These states concern a technical pattern hypothesis. They are not legal or
 causal conclusions.
+
+Input identity, mapping, case scope, parameter, or approval ambiguity detected
+before replay is `REVIEW_REQUIRED`, never `INCONCLUSIVE`. The code-owned state
+table rejects illegal transitions, and the approval gate produces no replay
+hash unless mapping and case approval records match their artifact hashes.
+
+## Dataset profile and approval scope
+
+Canonical events deterministically produce the canonical dataset hash, sorted
+distinct instrument and actor identifiers, and normalized earliest/latest
+times. Case validation accepts only that `DatasetProfile`: a different dataset
+hash, an absent instrument or actor, an empty actor set, or an interval outside
+the profile stops before replay.
+
+Case Manifest `1.2` carries an approval record instead of a writable approval
+status. Mapping approval uses a separate record. Both records retain an opaque
+reviewer reference, decision, approval time, and justified override paths while
+binding to the immutable proposed artifact. Mapping confidence below the
+declared fixture threshold `1.0`, or a `REVIEW_REQUIRED` field, needs a matching
+override and non-empty reason.
+
+The `RAPID_PRICE_LIFT` `1.0` registry accepts only the declared parameter names
+for price change, aggressive-buy share, actor concentration, executions above
+a reference, and removal sensitivity. Their values are decimal or unsigned
+integer strings. The registry supplies no values or defaults; formula and
+threshold selection remain planned with the rule implementation.
 
 ## Canonical time and ordering
 
@@ -41,7 +67,9 @@ Equal-time events use an unsigned numeric `sequence` comparison and then
 lexicographic UTF-16 code-unit `eventId` order. Canonical JSON keys use the same
 code-unit order and do not depend on host locale data or object property
 enumeration order. Canonical JSON rejects non-finite numbers; protected
-decimal values are represented as strings.
+decimal values are represented as strings. It omits `undefined` object
+properties but rejects `undefined` array elements rather than silently
+converting them to `null`.
 
 The current dataset contract represents one ordered source stream. Every event
 must either provide `sequence` or omit it; mixed presence stops replay with

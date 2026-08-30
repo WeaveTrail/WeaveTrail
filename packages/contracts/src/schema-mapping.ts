@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const MAPPING_CONFIDENCE_REVIEW_THRESHOLD = 1;
+
 export const AllowedTransformSchema = z.enum([
   "IDENTITY",
   "ISO_DATETIME",
