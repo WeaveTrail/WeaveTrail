@@ -1,24 +1,25 @@
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
-import {
-  concentratedBuyDialectAMapping,
-  concentratedBuyDialectBMapping,
-} from "@weavetrail/scenarios";
+import { committedReplayScenarios } from "@weavetrail/scenarios";
 
 import { Lab } from "./lab";
 
 export default async function LabPage() {
   const provider = new FixtureSchemaMappingProvider();
-  const mappings = [
-    concentratedBuyDialectAMapping,
-    concentratedBuyDialectBMapping,
-  ] as const;
+  const scenarios = Object.entries(committedReplayScenarios).map(
+    ([value, scenario]) => ({
+      value: value as keyof typeof committedReplayScenarios,
+      label: scenario.label,
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      columns: [...scenario.columns],
+    }),
+  );
   const proposals = Object.fromEntries(
     await Promise.all(
-      mappings.map(async (mapping) => [
-        mapping.sourceArtifactHash,
+      scenarios.map(async (scenario) => [
+        scenario.sourceArtifactHash,
         await provider.propose({
-          sourceArtifactHash: mapping.sourceArtifactHash,
-          columns: mapping.fields.map(([sourceColumn]) => sourceColumn),
+          sourceArtifactHash: scenario.sourceArtifactHash,
+          columns: scenario.columns,
           sampleRows: [],
         }),
       ]),
@@ -35,7 +36,15 @@ export default async function LabPage() {
           The canonical event order and result hash should remain identical.
         </p>
       </div>
-      <Lab proposals={proposals} providerMode={provider.mode} />
+      <Lab
+        proposals={proposals}
+        providerMode={provider.mode}
+        scenarios={scenarios.map(({ value, label, sourceArtifactHash }) => ({
+          value,
+          label,
+          sourceArtifactHash,
+        }))}
+      />
     </main>
   );
 }

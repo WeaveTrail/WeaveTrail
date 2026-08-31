@@ -6,10 +6,6 @@ import { concentratedBuyEvents } from "@weavetrail/scenarios";
 import { POST } from "./route";
 
 const scenario = "concentrated-buy-dialect-a.csv";
-const scenarios = [
-  "concentrated-buy-dialect-a.csv",
-  "concentrated-buy-dialect-b.jsonl",
-] as const;
 const mutations = ["baseline", "shuffle", "duplicate"] as const;
 
 function request(body: unknown): Request {
@@ -21,21 +17,40 @@ function request(body: unknown): Request {
 }
 
 describe("POST /api/replay request boundary", () => {
-  it.each(
-    scenarios.flatMap((scenarioName) =>
-      mutations.map((mutation) => [scenarioName, mutation] as const),
-    ),
-  )("replays scenario %s with mutation %s", async (scenarioName, mutation) => {
-    const response = await POST(request({ scenario: scenarioName, mutation }));
+  it.each(mutations)("replays dialect A with mutation %s", async (mutation) => {
+    const response = await POST(request({ scenario, mutation }));
     const result = await response.json();
 
     expect(response.status).toBe(200);
     expect(result).toMatchObject({
       mode: "fixture",
-      scenario: scenarioName,
+      scenario,
       mutation,
       replay: { canonicalResultHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
     });
+    expect(result.replay).not.toHaveProperty("events");
+  });
+
+  it.each([
+    ["without caller events", undefined],
+    ["with caller events", [concentratedBuyEvents[0]!]],
+  ])("blocks dialect B %s before replay", async (_label, events) => {
+    const response = await POST(
+      request({
+        scenario: "concentrated-buy-dialect-b.jsonl",
+        mutation: "baseline",
+        ...(events === undefined ? {} : { events }),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [{ code: "MAPPING_REVIEW_REQUIRED", path: ["scenario"] }],
+    });
+    expect(result).not.toHaveProperty("replay");
+    expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
   it("rejects unparseable JSON with a structured review response", async () => {
@@ -109,6 +124,30 @@ describe("POST /api/replay request boundary", () => {
         duplicateCount: 1,
       },
     });
+  });
+
+  it("rejects caller event arrays above the fixture limit", async () => {
+    const response = await POST(
+      request({
+        scenario,
+        mutation: "baseline",
+        events: Array.from({ length: 5 }, (_, index) => ({
+          ...concentratedBuyEvents[0]!,
+          eventId: `event-${index}`,
+          sourceEventId: `source-${index}`,
+        })),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({ code: "INVALID_REQUEST", path: ["events"] }),
+      ],
+    });
+    expect(result).not.toHaveProperty("replay");
   });
 
   it("changes the result hash when valid caller event content changes", async () => {

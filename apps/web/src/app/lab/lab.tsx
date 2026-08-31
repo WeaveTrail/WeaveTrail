@@ -1,54 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 import type {
+  ReplayResultResponse,
   ReplayReviewResponse,
   ReplayScenario,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import {
-  concentratedBuyDialectAMapping,
-  concentratedBuyDialectBMapping,
-} from "@weavetrail/scenarios";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
-type ReplayResponse = {
-  mode: string;
-  scenario: string;
-  mutation: string;
-  boundary: string;
-  replay: {
-    engineVersion: string;
-    inputEventCount: number;
-    canonicalEventCount: number;
-    duplicateCount: number;
-    orderedEventIds: string[];
-    canonicalResultHash: string;
-  };
+
+export type LabScenario = {
+  value: ReplayScenario;
+  label: string;
+  sourceArtifactHash: string;
 };
 
 type LabProps = {
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
+  scenarios: LabScenario[];
 };
-
-const scenarios: Array<{
-  value: ReplayScenario;
-  label: string;
-  sourceArtifactHash: string;
-}> = [
-  {
-    value: "concentrated-buy-dialect-a.csv",
-    label: "Dialect A · CSV",
-    sourceArtifactHash: concentratedBuyDialectAMapping.sourceArtifactHash,
-  },
-  {
-    value: "concentrated-buy-dialect-b.jsonl",
-    label: "Dialect B · JSON Lines",
-    sourceArtifactHash: concentratedBuyDialectBMapping.sourceArtifactHash,
-  },
-];
 
 const options: Array<{ value: Mutation; label: string; detail: string }> = [
   { value: "baseline", label: "Baseline", detail: "Original fixture order" },
@@ -64,10 +37,10 @@ const options: Array<{ value: Mutation; label: string; detail: string }> = [
   },
 ];
 
-export function Lab({ proposals, providerMode }: LabProps) {
+export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const [scenario, setScenario] = useState<ReplayScenario>(scenarios[0]!.value);
   const [mutation, setMutation] = useState<Mutation>("baseline");
-  const [result, setResult] = useState<ReplayResponse | null>(null);
+  const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
@@ -89,7 +62,7 @@ export function Lab({ proposals, providerMode }: LabProps) {
         const review = (await response.json()) as ReplayReviewResponse;
         throw new Error(review.issues.map(({ message }) => message).join(" "));
       }
-      setResult((await response.json()) as ReplayResponse);
+      setResult((await response.json()) as ReplayResultResponse);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Replay failed");
     } finally {

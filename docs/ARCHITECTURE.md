@@ -33,22 +33,34 @@ by the committed `sourceArtifactHash`. It returns a structured `1.1` proposal
 containing each source column, target field, closed transform, confidence,
 evidence, and either `PROPOSED` or `REVIEW_REQUIRED`. This proposal is not an
 approval. The JSON Lines fixture deliberately leaves `source_note` unmapped,
-which demonstrates the review-required path and blocks the lab replay control.
+which demonstrates the review-required path. The API executes this proposal
+after request validation and returns `MAPPING_REVIEW_REQUIRED` before replay if
+any field needs review; the disabled lab control mirrors that server gate.
 
 ### Replay HTTP boundary
 
 `POST /api/replay` accepts a strict object with a committed source-artifact
 scenario, one of `baseline`, `shuffle`, or `duplicate`, and an optional non-empty
-array of `TradeEvent 1.0` values. When events are absent, the named committed
-scenario supplies them. Mutations operate on the validated array; ordering,
-duplicate counts, engine version, and result hashes are always derived on the
-server.
+array of at most four `TradeEvent 1.0` values. Each scenario resolves through an
+explicit table to its source artifact, mapping columns, and any committed event
+set. The CSV scenario supplies its artifact-derived events when events are
+absent. The JSON Lines scenario has no committed event set and its unmapped
+`source_note` fails the server mapping gate regardless of whether caller events
+are present; it never falls back to CSV-derived evidence. Mutations operate on
+the validated selected array, while ordering, duplicate counts, engine version,
+and result hashes are always derived on the server.
 
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`
 array whose entries carry `code`, `path`, and `message`. Review responses never
 contain a replay result or canonical result hash. HTTP `500` remains reserved
 for defects outside these declared input failures.
+
+A successful response is also contract-validated and contains only fixture
+mode, scenario, mutation, boundary text, engine version, event counts, ordered
+event identifiers, and the canonical result hash. The engine's canonical event
+objects and their `rawRowHash` provenance remain server-side rather than being
+included accidentally through the engine's internal return type.
 
 ### Approval boundary
 

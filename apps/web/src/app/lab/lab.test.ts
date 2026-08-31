@@ -1,21 +1,40 @@
-import { readFileSync } from "node:fs";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import { describe, expect, it } from "vitest";
 
+import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
+import { committedReplayScenarios } from "@weavetrail/scenarios";
+
+import { Lab, type LabScenario } from "./lab";
+
 describe("lab mapping status boundary", () => {
-  it("does not render an approval status before approval binding exists", () => {
-    const source = readFileSync(new URL("./lab.tsx", import.meta.url), "utf8");
-    const providerSource = readFileSync(
-      new URL(
-        "../../../../../packages/ai-harness/src/fixture-provider.ts",
-        import.meta.url,
-      ),
-      "utf8",
+  it("disables replay for a review-required proposal without rendering approval", async () => {
+    const scenarioName = "concentrated-buy-dialect-b.jsonl";
+    const scenario = committedReplayScenarios[scenarioName];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+    const scenarios: LabScenario[] = [
+      {
+        value: scenarioName,
+        label: scenario.label,
+        sourceArtifactHash: scenario.sourceArtifactHash,
+      },
+    ];
+
+    const markup = renderToStaticMarkup(
+      createElement(Lab, {
+        proposals: { [scenario.sourceArtifactHash]: proposal },
+        providerMode: "fixture",
+        scenarios,
+      }),
     );
 
-    expect(source).not.toContain("APPROVED");
-    expect(providerSource).not.toContain("APPROVED");
-    expect(providerSource).toContain("PROPOSED");
-    expect(source + providerSource).toContain("REVIEW_REQUIRED");
+    expect(markup).toContain("REVIEW_REQUIRED");
+    expect(markup).not.toContain("APPROVED");
+    expect(markup).toMatch(/<button[^>]*disabled=""/);
   });
 });

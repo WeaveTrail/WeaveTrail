@@ -1,12 +1,15 @@
 import {
   ReplayRequestSchema,
+  ReplayResultResponseSchema,
+  ReplayReviewResponseSchema,
   type ReplayReviewResponse,
 } from "@weavetrail/contracts";
+import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import {
   CanonicalizationError,
   replayFoundation,
 } from "@weavetrail/replay-engine";
-import { concentratedBuyEvents } from "@weavetrail/scenarios";
+import { committedReplayScenarios } from "@weavetrail/scenarios";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -14,10 +17,11 @@ export const runtime = "nodejs";
 function reviewResponse(
   issues: ReplayReviewResponse["issues"],
 ): NextResponse<ReplayReviewResponse> {
-  return NextResponse.json(
-    { status: "REVIEW_REQUIRED", issues },
-    { status: 422 },
-  );
+  const body = ReplayReviewResponseSchema.parse({
+    status: "REVIEW_REQUIRED",
+    issues,
+  });
+  return NextResponse.json(body, { status: 422 });
 }
 
 export async function POST(request: Request) {
@@ -50,7 +54,37 @@ export async function POST(request: Request) {
   }
 
   const { events: requestedEvents, mutation, scenario } = parsed.data;
-  let events = [...(requestedEvents ?? concentratedBuyEvents)];
+  const scenarioConfig = committedReplayScenarios[scenario];
+  const mappingProposal = await new FixtureSchemaMappingProvider().propose({
+    sourceArtifactHash: scenarioConfig.sourceArtifactHash,
+    columns: [...scenarioConfig.columns],
+    sampleRows: [],
+  });
+  if (
+    mappingProposal.fields.some(({ status }) => status === "REVIEW_REQUIRED")
+  ) {
+    return reviewResponse([
+      {
+        code: "MAPPING_REVIEW_REQUIRED",
+        path: ["scenario"],
+        message: `Scenario ${scenario} has mapping fields that require review.`,
+      },
+    ]);
+  }
+
+  const committedEvents =
+    "events" in scenarioConfig ? scenarioConfig.events : undefined;
+  const selectedEvents = requestedEvents ?? committedEvents;
+  if (selectedEvents === undefined) {
+    return reviewResponse([
+      {
+        code: "MAPPING_REVIEW_REQUIRED",
+        path: ["scenario"],
+        message: `Scenario ${scenario} has no committed event set.`,
+      },
+    ]);
+  }
+  let events = [...selectedEvents];
 
   if (mutation === "shuffle") {
     const last = events.at(-1)!;
@@ -62,14 +96,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json({
+    const replay = replayFoundation(events);
+    const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
       scenario,
       mutation,
-      replay: replayFoundation(events),
+      replay: {
+        engineVersion: replay.engineVersion,
+        inputEventCount: replay.inputEventCount,
+        canonicalEventCount: replay.canonicalEventCount,
+        duplicateCount: replay.duplicateCount,
+        orderedEventIds: replay.orderedEventIds,
+        canonicalResultHash: replay.canonicalResultHash,
+      },
       boundary:
         "Foundation replay verifies ordering, exact deduplication, and hashing only. Pattern evaluation is not implemented.",
     });
+    return NextResponse.json(response);
   } catch (error) {
     if (error instanceof CanonicalizationError) {
       return reviewResponse([

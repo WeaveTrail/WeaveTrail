@@ -27,11 +27,19 @@ hash unless mapping and case approval records match their artifact hashes.
 
 The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, and any supplied
-events before replay. Invalid JSON, invalid event fields, mixed sequence
-presence, unsupported normalized time, conflicting source identity, or a
-canonical event identifier shared by distinct source identities returns a
-structured `REVIEW_REQUIRED` response with HTTP `422`. Each issue includes a
-code and actionable request path; no replay hash is returned.
+events before replay. Caller event arrays are limited to the four-event fixture
+size. The API also executes the scenario's fixture mapping proposal and returns
+`MAPPING_REVIEW_REQUIRED` before replay if any field needs review, including
+when caller events were supplied. Invalid JSON, invalid event fields, mixed
+sequence presence, unsupported normalized time, conflicting source identity,
+or a canonical event identifier shared by distinct source identities likewise
+returns a structured `REVIEW_REQUIRED` response with HTTP `422`. Each issue
+includes a code and actionable request path; no replay hash is returned.
+
+Successful responses are contract-validated projections of the replay result.
+They expose the engine version, counts, canonical ordering identifiers, and
+result hash, but not the engine's returned canonical event objects or raw-row
+hashes.
 
 ## Dataset profile and approval scope
 
@@ -140,9 +148,10 @@ the server. Its proposal is keyed by the exact source artifact hash and exposes
 source column, target field, transform, confidence, evidence, and proposal
 status. The fixture provider performs no network call and uses no credentials.
 Dialect A produces declared `PROPOSED` fields; dialect B also produces an
-unmapped `source_note` with `REVIEW_REQUIRED`, which blocks replay. Neither
-status is an approval. Binding an approved mapping to execution remains a
-separate approval step.
+unmapped `source_note` with `REVIEW_REQUIRED`, which the API enforces before
+replay. The client disables its replay control for the same state, but it is not
+the authority for the gate. Neither status is an approval. Binding an approved
+mapping to execution remains a separate approval step.
 
 ## Planned `RAPID_PRICE_LIFT` rule
 

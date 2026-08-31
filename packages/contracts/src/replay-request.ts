@@ -17,13 +17,14 @@ export const ReplayRequestSchema = z
   .object({
     scenario: ReplayScenarioSchema,
     mutation: ReplayMutationSchema,
-    events: z.array(TradeEventSchema).min(1).optional(),
+    events: z.array(TradeEventSchema).min(1).max(4).optional(),
   })
   .strict();
 
 export const ReplayReviewIssueCodeSchema = z.enum([
   "INVALID_JSON",
   "INVALID_REQUEST",
+  "MAPPING_REVIEW_REQUIRED",
   "CONFLICTING_EVENT_IDENTIFIER",
   "CONFLICTING_SOURCE_IDENTITY",
   "MIXED_SEQUENCE_PRESENCE",
@@ -49,7 +50,27 @@ export const ReplayReviewResponseSchema = z
   })
   .strict();
 
+export const ReplayResultResponseSchema = z
+  .object({
+    mode: z.literal("fixture"),
+    scenario: ReplayScenarioSchema,
+    mutation: ReplayMutationSchema,
+    boundary: z.string().min(1),
+    replay: z
+      .object({
+        engineVersion: z.string().min(1),
+        inputEventCount: z.number().int().nonnegative(),
+        canonicalEventCount: z.number().int().nonnegative(),
+        duplicateCount: z.number().int().nonnegative(),
+        orderedEventIds: z.array(z.string().min(1)),
+        canonicalResultHash: z.string().regex(/^[a-f0-9]{64}$/),
+      })
+      .strict(),
+  })
+  .strict();
+
 export type ReplayScenario = z.infer<typeof ReplayScenarioSchema>;
 export type ReplayMutation = z.infer<typeof ReplayMutationSchema>;
 export type ReplayRequest = z.infer<typeof ReplayRequestSchema>;
 export type ReplayReviewResponse = z.infer<typeof ReplayReviewResponseSchema>;
+export type ReplayResultResponse = z.infer<typeof ReplayResultResponseSchema>;
