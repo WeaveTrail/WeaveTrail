@@ -17,6 +17,12 @@ acting.
 - Preserve unrelated work and stage explicit paths only.
 - Record only checks actually run as `PASS`, `FAIL`, or `SKIP`.
 - A user-visible contract change includes docs in the same pull request.
+- Write multiline GitHub bodies (issues, pull requests, and review replies) to
+  files with actual newlines, then pass them with `--body-file` or
+  `-F body=@file`. Do not put escape sequences such as `\n` in shell strings;
+  `-f` sends values literally rather than interpreting them.
+- Read each published body back from GitHub, verify its rendered structure,
+  and report only what that check confirms.
 
 ## Safety and authorization
 
