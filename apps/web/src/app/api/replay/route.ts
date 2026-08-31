@@ -14,6 +14,8 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+const mappingProvider = new FixtureSchemaMappingProvider();
+
 function reviewResponse(
   issues: ReplayReviewResponse["issues"],
 ): NextResponse<ReplayReviewResponse> {
@@ -55,7 +57,7 @@ export async function POST(request: Request) {
 
   const { events: requestedEvents, mutation, scenario } = parsed.data;
   const scenarioConfig = committedReplayScenarios[scenario];
-  const mappingProposal = await new FixtureSchemaMappingProvider().propose({
+  const mappingProposal = await mappingProvider.propose({
     sourceArtifactHash: scenarioConfig.sourceArtifactHash,
     columns: [...scenarioConfig.columns],
     sampleRows: [],
@@ -75,10 +77,12 @@ export async function POST(request: Request) {
   const committedEvents =
     "events" in scenarioConfig ? scenarioConfig.events : undefined;
   const selectedEvents = requestedEvents ?? committedEvents;
+  // This defense becomes reachable if a future scenario has only PROPOSED
+  // mapping fields but supplies neither caller events nor a committed event set.
   if (selectedEvents === undefined) {
     return reviewResponse([
       {
-        code: "MAPPING_REVIEW_REQUIRED",
+        code: "NO_COMMITTED_EVENT_SET",
         path: ["scenario"],
         message: `Scenario ${scenario} has no committed event set.`,
       },

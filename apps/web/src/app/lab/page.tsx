@@ -5,25 +5,33 @@ import { Lab } from "./lab";
 
 export default async function LabPage() {
   const provider = new FixtureSchemaMappingProvider();
-  const scenarios = Object.entries(committedReplayScenarios).map(
-    ([value, scenario]) => ({
-      value: value as keyof typeof committedReplayScenarios,
-      label: scenario.label,
-      sourceArtifactHash: scenario.sourceArtifactHash,
-      columns: [...scenario.columns],
-    }),
+  const preparedScenarios = await Promise.all(
+    Object.entries(committedReplayScenarios).map(async ([value, scenario]) => ({
+      scenario: {
+        value: value as keyof typeof committedReplayScenarios,
+        label: scenario.label,
+        sourceArtifactHash: scenario.sourceArtifactHash,
+      },
+      proposal: await provider.propose({
+        sourceArtifactHash: scenario.sourceArtifactHash,
+        columns: [...scenario.columns],
+        sampleRows: [],
+      }),
+    })),
   );
-  const proposals = Object.fromEntries(
-    await Promise.all(
-      scenarios.map(async (scenario) => [
-        scenario.sourceArtifactHash,
-        await provider.propose({
-          sourceArtifactHash: scenario.sourceArtifactHash,
-          columns: scenario.columns,
-          sampleRows: [],
-        }),
-      ]),
-    ),
+  const { proposals, scenarios } = preparedScenarios.reduce(
+    (result, { proposal, scenario }) => {
+      result.scenarios.push(scenario);
+      result.proposals[scenario.sourceArtifactHash] = proposal;
+      return result;
+    },
+    {
+      proposals: {} as Record<
+        string,
+        (typeof preparedScenarios)[number]["proposal"]
+      >,
+      scenarios: [] as Array<(typeof preparedScenarios)[number]["scenario"]>,
+    },
   );
 
   return (
@@ -39,11 +47,7 @@ export default async function LabPage() {
       <Lab
         proposals={proposals}
         providerMode={provider.mode}
-        scenarios={scenarios.map(({ value, label, sourceArtifactHash }) => ({
-          value,
-          label,
-          sourceArtifactHash,
-        }))}
+        scenarios={scenarios}
       />
     </main>
   );

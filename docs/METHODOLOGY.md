@@ -36,6 +36,12 @@ or a canonical event identifier shared by distinct source identities likewise
 returns a structured `REVIEW_REQUIRED` response with HTTP `422`. Each issue
 includes a code and actionable request path; no replay hash is returned.
 
+The boundary reserves `NO_COMMITTED_EVENT_SET` for a future scenario whose
+mapping fields are all `PROPOSED` but which has neither caller-supplied events
+nor a committed event set. This defensive branch is not reached by the current
+fixtures because the only fixture without committed events first fails the
+mapping gate.
+
 Successful responses are contract-validated projections of the replay result.
 They expose the engine version, counts, canonical ordering identifiers, and
 result hash, but not the engine's returned canonical event objects or raw-row

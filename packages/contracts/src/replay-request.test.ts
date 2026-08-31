@@ -79,6 +79,23 @@ describe("ReplayResultResponseSchema", () => {
 });
 
 describe("ReplayReviewResponseSchema", () => {
+  it("accepts the dedicated missing committed event set issue code", () => {
+    expect(
+      ReplayReviewResponseSchema.parse({
+        status: "REVIEW_REQUIRED",
+        issues: [
+          {
+            code: "NO_COMMITTED_EVENT_SET",
+            path: ["scenario"],
+            message: "Scenario has no committed event set.",
+          },
+        ],
+      }),
+    ).toMatchObject({
+      issues: [{ code: "NO_COMMITTED_EVENT_SET", path: ["scenario"] }],
+    });
+  });
+
   it("requires a code and path for every review issue", () => {
     expect(
       ReplayReviewResponseSchema.parse({

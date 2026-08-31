@@ -50,6 +50,12 @@ are present; it never falls back to CSV-derived evidence. Mutations operate on
 the validated selected array, while ordering, duplicate counts, engine version,
 and result hashes are always derived on the server.
 
+`NO_COMMITTED_EVENT_SET` is a separate defensive review issue for a scenario
+whose mapping fields are all `PROPOSED` but which has neither caller-supplied
+events nor a committed event set. No current scenario reaches this branch: the
+only scenario without committed events has a `REVIEW_REQUIRED` mapping field
+and stops at the earlier mapping gate.
+
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`
 array whose entries carry `code`, `path`, and `message`. Review responses never
