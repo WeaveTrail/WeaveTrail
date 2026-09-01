@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { TradeEventSchema } from "./trade-event";
+import { ApprovalRecordSchema } from "./approval-record";
 
 export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
@@ -17,7 +17,23 @@ export const ReplayRequestSchema = z
   .object({
     scenario: ReplayScenarioSchema,
     mutation: ReplayMutationSchema,
-    events: z.array(TradeEventSchema).min(1).max(4).optional(),
+    rows: z
+      .array(
+        z
+          .object({
+            coordinate: z
+              .object({
+                sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+                rowNumber: z.string().min(1),
+              })
+              .strict(),
+            values: z.record(z.string(), z.string()),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(4),
+    mappingApproval: ApprovalRecordSchema.optional(),
   })
   .strict();
 
@@ -25,7 +41,12 @@ export const ReplayReviewIssueCodeSchema = z.enum([
   "INVALID_JSON",
   "INVALID_REQUEST",
   "MAPPING_REVIEW_REQUIRED",
-  "NO_COMMITTED_EVENT_SET",
+  "APPROVAL_RECORD_REQUIRED",
+  "APPROVAL_REJECTED",
+  "APPROVED_ARTIFACT_HASH_MISMATCH",
+  "MAPPING_OVERRIDE_REQUIRED",
+  "SOURCE_ARTIFACT_NOT_APPROVED",
+  "MAPPING_APPLICATION_REVIEW_REQUIRED",
   "CONFLICTING_EVENT_IDENTIFIER",
   "CONFLICTING_SOURCE_IDENTITY",
   "MIXED_SEQUENCE_PRESENCE",

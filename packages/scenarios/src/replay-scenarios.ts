@@ -1,23 +1,31 @@
-import { concentratedBuyEvents } from "./concentrated-buy";
+import {
+  concentratedBuyDialectARows,
+  concentratedBuyDialectBRows,
+} from "./source-rows";
 import {
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
+  concentratedBuyDialectAProposal,
+  concentratedBuyDialectBProposal,
 } from "./source-mappings";
 
 export const committedReplayScenarios = {
   "concentrated-buy-dialect-a.csv": {
     label: "Dialect A · CSV",
     sourceArtifactHash: concentratedBuyDialectAMapping.sourceArtifactHash,
-    columns: concentratedBuyDialectAMapping.fields.map(
-      ([sourceColumn]) => sourceColumn,
+    constants: concentratedBuyDialectAProposal.constants,
+    columns: concentratedBuyDialectAProposal.fields.map(
+      ({ sourceColumn }) => sourceColumn,
     ),
-    events: concentratedBuyEvents,
+    rows: concentratedBuyDialectARows,
   },
   "concentrated-buy-dialect-b.jsonl": {
     label: "Dialect B · JSON Lines",
     sourceArtifactHash: concentratedBuyDialectBMapping.sourceArtifactHash,
-    columns: concentratedBuyDialectBMapping.fields.map(
-      ([sourceColumn]) => sourceColumn,
+    constants: concentratedBuyDialectBProposal.constants,
+    columns: concentratedBuyDialectBProposal.fields.map(
+      ({ sourceColumn }) => sourceColumn,
     ),
+    rows: concentratedBuyDialectBRows,
   },
 } as const;
