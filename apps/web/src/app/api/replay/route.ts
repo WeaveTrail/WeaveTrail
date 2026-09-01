@@ -7,7 +7,7 @@ import {
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import {
   CanonicalizationError,
-  replayFoundation,
+  replayApproved,
 } from "@weavetrail/replay-engine";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 import { NextResponse } from "next/server";
@@ -55,10 +55,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const { events: requestedEvents, mutation, scenario } = parsed.data;
+  const {
+    rows: requestedRows,
+    mappingApproval,
+    mutation,
+    scenario,
+  } = parsed.data;
   const scenarioConfig = committedReplayScenarios[scenario];
   const mappingProposal = await mappingProvider.propose({
     sourceArtifactHash: scenarioConfig.sourceArtifactHash,
+    constants: scenarioConfig.constants,
     columns: [...scenarioConfig.columns],
     sampleRows: [],
   });
@@ -74,33 +80,25 @@ export async function POST(request: Request) {
     ]);
   }
 
-  const committedEvents =
-    "events" in scenarioConfig ? scenarioConfig.events : undefined;
-  const selectedEvents = requestedEvents ?? committedEvents;
-  // This defense becomes reachable if a future scenario has only PROPOSED
-  // mapping fields but supplies neither caller events nor a committed event set.
-  if (selectedEvents === undefined) {
-    return reviewResponse([
-      {
-        code: "NO_COMMITTED_EVENT_SET",
-        path: ["scenario"],
-        message: `Scenario ${scenario} has no committed event set.`,
-      },
-    ]);
-  }
-  let events = [...selectedEvents];
-
-  if (mutation === "shuffle") {
-    const last = events.at(-1)!;
-    events = [last, ...events.slice(0, -1)];
-  }
-
-  if (mutation === "duplicate") {
-    events = [...events, events[0]!];
-  }
-
   try {
-    const replay = replayFoundation(events);
+    const replay = replayApproved(
+      requestedRows,
+      mappingProposal,
+      mappingApproval,
+      undefined,
+      mutation,
+    );
+    if (!("canonicalResultHash" in replay)) {
+      return reviewResponse(
+        replay.issues.map((issue) => ({
+          code: issue.code as ReplayReviewResponse["issues"][number]["code"],
+          path: issue.path
+            .split(".")
+            .map((part) => (/^\d+$/.test(part) ? Number(part) : part)),
+          message: `Replay approval boundary rejected ${issue.path}: ${issue.code}.`,
+        })),
+      );
+    }
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
       scenario,
@@ -120,7 +118,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof CanonicalizationError) {
       return reviewResponse([
-        { code: error.code, path: ["events"], message: error.message },
+        { code: error.code, path: ["rows"], message: error.message },
       ]);
     }
     throw error;

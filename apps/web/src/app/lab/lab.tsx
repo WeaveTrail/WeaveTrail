@@ -6,6 +6,8 @@ import type {
   ReplayResultResponse,
   ReplayReviewResponse,
   ReplayScenario,
+  ReplayRequest,
+  ApprovalRecord,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
 
@@ -15,6 +17,7 @@ export type LabScenario = {
   value: ReplayScenario;
   label: string;
   sourceArtifactHash: string;
+  rows: ReplayRequest["rows"];
 };
 
 type LabProps = {
@@ -43,11 +46,48 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [approval, setApproval] = useState<ApprovalRecord | null>(null);
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
   const proposal = proposals[selectedScenario.sourceArtifactHash]!;
   const reviewRequired = proposal.fields.some(
     ({ status }) => status === "REVIEW_REQUIRED",
   );
+
+  function canonicalJson(value: unknown): string {
+    if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+    if (value !== null && typeof value === "object") {
+      return `{${Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+        .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
+        .join(",")}}`;
+    }
+    return JSON.stringify(value);
+  }
+
+  async function approveMapping() {
+    const bytes = new TextEncoder().encode(canonicalJson(proposal));
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    setApproval({
+      approvedArtifactHash,
+      reviewerRef: "reviewer:local-lab",
+      decision: "APPROVED",
+      overrides: proposal.fields.flatMap((field, index) =>
+        field.status === "REVIEW_REQUIRED" || field.confidence < 1
+          ? [
+              {
+                fieldPath: `fields.${index}`,
+                reason: "Explicit local lab reviewer override.",
+              },
+            ]
+          : [],
+      ),
+      approvedAt: new Date().toISOString(),
+    });
+    setResult(null);
+  }
 
   async function runReplay() {
     setRunning(true);
@@ -56,7 +96,12 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
       const response = await fetch("/api/replay", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ scenario, mutation }),
+        body: JSON.stringify({
+          scenario,
+          mutation,
+          rows: selectedScenario.rows,
+          mappingApproval: approval,
+        }),
       });
       if (!response.ok) {
         const review = (await response.json()) as ReplayReviewResponse;
@@ -77,9 +122,11 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
         <label className="scenario-select">
           <span>Committed source artifact</span>
           <select
-            onChange={(event) =>
-              setScenario(event.target.value as ReplayScenario)
-            }
+            onChange={(event) => {
+              setScenario(event.target.value as ReplayScenario);
+              setApproval(null);
+              setResult(null);
+            }}
             value={scenario}
           >
             {scenarios.map(({ label, value }) => (
@@ -132,9 +179,12 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
             </p>
           ) : null}
         </div>
+        <button className="button" onClick={approveMapping} type="button">
+          {approval ? "Mapping approved locally" : "Approve executed mapping"}
+        </button>
         <button
           className="button primary run-button"
-          disabled={running || reviewRequired}
+          disabled={running || approval === null}
           onClick={runReplay}
           type="button"
         >

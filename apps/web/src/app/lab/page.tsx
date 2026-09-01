@@ -11,9 +11,11 @@ export default async function LabPage() {
         value: value as keyof typeof committedReplayScenarios,
         label: scenario.label,
         sourceArtifactHash: scenario.sourceArtifactHash,
+        rows: scenario.rows,
       },
       proposal: await provider.propose({
         sourceArtifactHash: scenario.sourceArtifactHash,
+        constants: scenario.constants,
         columns: [...scenario.columns],
         sampleRows: [],
       }),
