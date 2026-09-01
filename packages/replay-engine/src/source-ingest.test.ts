@@ -5,7 +5,9 @@ import { describe, expect, it } from "vitest";
 import {
   concentratedBuyEvents,
   concentratedBuyDialectAMapping,
+  concentratedBuyDialectARows,
   concentratedBuyDialectBMapping,
+  concentratedBuyDialectBRows,
 } from "@weavetrail/scenarios";
 import { canonicalDatasetHash } from "./canonical-dataset";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
@@ -42,6 +44,35 @@ describe("source provenance", () => {
   it("derives the pinned source artifact hashes from exact bytes", () => {
     expect(sourceArtifactHash(dialectABytes)).toBe(DIALECT_A_HASH);
     expect(sourceArtifactHash(dialectBBytes)).toBe(DIALECT_B_HASH);
+  });
+
+  it("keeps every declared source row byte-faithful to its committed artifact", () => {
+    const parsedRowsByArtifact = new Map([
+      [
+        DIALECT_A_HASH,
+        parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
+      ],
+      [
+        DIALECT_B_HASH,
+        parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
+      ],
+    ]);
+
+    for (const declaredRow of [
+      ...concentratedBuyDialectARows,
+      ...concentratedBuyDialectBRows,
+    ]) {
+      const parsedRows = parsedRowsByArtifact.get(
+        declaredRow.coordinate.sourceArtifactHash,
+      );
+      expect(parsedRows).toBeDefined();
+
+      const parsedRow = parsedRows!.find(
+        ({ coordinate }) =>
+          coordinate.rowNumber === declaredRow.coordinate.rowNumber,
+      );
+      expect(parsedRow?.values).toEqual(declaredRow.values);
+    }
   });
 
   it("serializes raw columns in canonical key order without coercion", () => {

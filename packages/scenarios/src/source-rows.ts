@@ -66,7 +66,12 @@ export const concentratedBuyDialectBRows: SourceRow[] =
       },
       values: {
         sourceRef: value.sourceEventId,
-        event_timestamp: value.eventTime,
+        event_timestamp: {
+          "source-001": "2026-08-25T00:00:00Z",
+          "source-002": "2026-08-25T00:00:01Z",
+          "source-003": "2026-08-25T00:00:02Z",
+          "source-004": "2026-08-25T00:00:02Z",
+        }[value.sourceEventId]!,
         received_timestamp: value.receivedAt,
         source_sequence: value.sequence,
         product: value.instrumentId,
