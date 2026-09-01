@@ -13,7 +13,7 @@ describe("committed replay scenarios", () => {
     expect(scenario.sourceArtifactHash).toBe(
       concentratedBuyDialectAMapping.sourceArtifactHash,
     );
-    expect(scenario.events).toHaveLength(4);
+    expect(scenario.rows).toHaveLength(4);
   });
 
   it("does not fall back to dialect A events for dialect B", () => {

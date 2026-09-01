@@ -13,8 +13,13 @@ const HASH = "a".repeat(64);
 describe("provenance contract migration", () => {
   it("binds mapping proposals to a source artifact", () => {
     const proposal = {
-      mappingVersion: "1.1",
+      mappingVersion: "1.2",
       sourceArtifactHash: HASH,
+      constants: {
+        schemaVersion: "1.0",
+        datasetId: "dataset",
+        venueId: "venue",
+      },
       fields: [],
     };
 
