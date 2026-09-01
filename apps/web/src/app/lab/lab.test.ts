@@ -6,11 +6,7 @@ import { describe, expect, it } from "vitest";
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
-import {
-  Lab,
-  resetReplayForScenarioChange,
-  type LabScenario,
-} from "./lab";
+import { Lab, resetReplayForScenarioChange, type LabScenario } from "./lab";
 
 describe("lab mapping status boundary", () => {
   it("clears a failed replay error when switching scenarios", () => {

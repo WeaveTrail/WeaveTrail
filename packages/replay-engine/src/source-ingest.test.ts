@@ -48,10 +48,7 @@ describe("source provenance", () => {
 
   it("keeps every declared source row byte-faithful to its committed artifact", () => {
     const parsedRowsByArtifact = new Map([
-      [
-        DIALECT_A_HASH,
-        parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
-      ],
+      [DIALECT_A_HASH, parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH)],
       [
         DIALECT_B_HASH,
         parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
