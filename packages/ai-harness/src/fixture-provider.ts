@@ -4,29 +4,30 @@ import {
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import {
-  concentratedBuyDialectAProposal,
-  concentratedBuyDialectBProposal,
+  concentratedBuyDialectAMapping,
+  concentratedBuyDialectBMapping,
 } from "@weavetrail/scenarios";
 
 import type { MappingInput, SchemaMappingProvider } from "./provider";
 
 type DeclaredField = {
-  targetField: string | null;
-  transform: AllowedTransform | null;
+  targetField: string;
+  transform: AllowedTransform;
 };
 
 function declaredFields(
-  fields: readonly {
-    sourceColumn: string;
-    targetField: string | null;
-    transform: AllowedTransform | null;
-  }[],
+  fields: readonly (readonly [
+    string,
+    string | null,
+    AllowedTransform | null,
+  ])[],
 ): ReadonlyMap<string, DeclaredField> {
   return new Map(
-    fields.map(({ sourceColumn, targetField, transform }) => [
-      sourceColumn,
-      { targetField, transform },
-    ]),
+    fields.flatMap(([sourceColumn, targetField, transform]) =>
+      targetField === null || transform === null
+        ? []
+        : [[sourceColumn, { targetField, transform }] as const],
+    ),
   );
 }
 
@@ -35,12 +36,12 @@ export const fixtureMappingsByArtifact = new Map<
   ReadonlyMap<string, DeclaredField>
 >([
   [
-    concentratedBuyDialectAProposal.sourceArtifactHash,
-    declaredFields(concentratedBuyDialectAProposal.fields),
+    concentratedBuyDialectAMapping.sourceArtifactHash,
+    declaredFields(concentratedBuyDialectAMapping.fields),
   ],
   [
-    concentratedBuyDialectBProposal.sourceArtifactHash,
-    declaredFields(concentratedBuyDialectBProposal.fields),
+    concentratedBuyDialectBMapping.sourceArtifactHash,
+    declaredFields(concentratedBuyDialectBMapping.fields),
   ],
 ]);
 
@@ -52,15 +53,14 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       input.sourceArtifactHash,
     );
     return SchemaMappingProposalSchema.parse({
-      mappingVersion: "1.2",
+      mappingVersion: "1.1",
       sourceArtifactHash: input.sourceArtifactHash,
-      constants: input.constants,
       fields: input.columns.map((sourceColumn) => {
         const declared = artifactMapping?.get(sourceColumn);
         return {
           sourceColumn,
           targetField: declared?.targetField ?? null,
-          transform: declared?.transform ?? null,
+          transform: declared?.transform,
           confidence: declared === undefined ? 0 : 1,
           evidence: declared
             ? "Matched by the versioned per-artifact fixture mapping table."

@@ -14,7 +14,6 @@ describe("lab mapping status boundary", () => {
     const scenario = committedReplayScenarios[scenarioName];
     const proposal = await new FixtureSchemaMappingProvider().propose({
       sourceArtifactHash: scenario.sourceArtifactHash,
-      constants: scenario.constants,
       columns: [...scenario.columns],
       sampleRows: [],
     });
@@ -23,7 +22,6 @@ describe("lab mapping status boundary", () => {
         value: scenarioName,
         label: scenario.label,
         sourceArtifactHash: scenario.sourceArtifactHash,
-        rows: scenario.rows,
       },
     ];
 
@@ -38,8 +36,7 @@ describe("lab mapping status boundary", () => {
     expect(markup).toContain("PROPOSED");
     expect(markup).not.toContain("APPROVED");
     expect(markup).not.toContain("Replay is blocked");
-    expect(markup).toContain("Approve executed mapping");
-    expect(markup).toMatch(/<button[^>]*disabled=""/);
+    expect(markup).not.toMatch(/<button[^>]*disabled=""/);
   });
 
   it("disables replay for a review-required proposal without rendering approval", async () => {
@@ -47,7 +44,6 @@ describe("lab mapping status boundary", () => {
     const scenario = committedReplayScenarios[scenarioName];
     const proposal = await new FixtureSchemaMappingProvider().propose({
       sourceArtifactHash: scenario.sourceArtifactHash,
-      constants: scenario.constants,
       columns: [...scenario.columns],
       sampleRows: [],
     });
@@ -56,26 +52,12 @@ describe("lab mapping status boundary", () => {
         value: scenarioName,
         label: scenario.label,
         sourceArtifactHash: scenario.sourceArtifactHash,
-        rows: scenario.rows,
       },
     ];
 
     const markup = renderToStaticMarkup(
       createElement(Lab, {
-        proposals: {
-          [scenario.sourceArtifactHash]: {
-            ...proposal,
-            fields: proposal.fields.map((field, index) =>
-              index === 0
-                ? {
-                    ...field,
-                    confidence: 0,
-                    status: "REVIEW_REQUIRED" as const,
-                  }
-                : field,
-            ),
-          },
-        },
+        proposals: { [scenario.sourceArtifactHash]: proposal },
         providerMode: "fixture",
         scenarios,
       }),

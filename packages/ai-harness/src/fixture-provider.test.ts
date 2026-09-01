@@ -19,7 +19,6 @@ describe("FixtureSchemaMappingProvider", () => {
     async (_name, mapping) => {
       const proposal = await provider.propose({
         sourceArtifactHash: mapping.sourceArtifactHash,
-        constants: mapping.constants,
         columns: mapping.fields.map(([sourceColumn]) => sourceColumn),
         sampleRows: [],
       });
@@ -32,10 +31,10 @@ describe("FixtureSchemaMappingProvider", () => {
           expect(field).toMatchObject({
             sourceColumn,
             targetField: null,
-            confidence: 1,
-            status: "PROPOSED",
+            confidence: 0,
+            status: "REVIEW_REQUIRED",
           });
-          expect(field?.transform).toBeNull();
+          expect(field?.transform).toBeUndefined();
         } else {
           expect(field).toMatchObject({
             sourceColumn,
@@ -52,7 +51,6 @@ describe("FixtureSchemaMappingProvider", () => {
   it("keeps dialect B source_note below the review threshold", async () => {
     const proposal = await provider.propose({
       sourceArtifactHash: concentratedBuyDialectBMapping.sourceArtifactHash,
-      constants: concentratedBuyDialectBMapping.constants,
       columns: ["source_note"],
       sampleRows: [],
     });
@@ -60,9 +58,9 @@ describe("FixtureSchemaMappingProvider", () => {
     expect(proposal.fields[0]).toMatchObject({
       sourceColumn: "source_note",
       targetField: null,
-      status: "PROPOSED",
+      status: "REVIEW_REQUIRED",
     });
-    expect(proposal.fields[0]!.confidence).toBe(
+    expect(proposal.fields[0]!.confidence).toBeLessThan(
       MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
     );
   });
