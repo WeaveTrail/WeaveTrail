@@ -15,11 +15,17 @@ describe("ReplayRequestSchema", () => {
       ReplayRequestSchema.parse({
         scenario,
         mutation: "baseline",
+        rows: [
+          {
+            coordinate: { sourceArtifactHash: "a".repeat(64), rowNumber: "1" },
+            values: { id: "1" },
+          },
+        ],
       }),
     ).toMatchObject({ scenario, mutation: "baseline" });
   });
 
-  it("rejects unknown request fields and malformed events", () => {
+  it("rejects unknown request fields and caller events", () => {
     expect(() =>
       ReplayRequestSchema.parse({
         scenario: "concentrated-buy-dialect-a.csv",
@@ -30,27 +36,17 @@ describe("ReplayRequestSchema", () => {
     ).toThrow();
   });
 
-  it("rejects event arrays larger than the committed fixture", () => {
-    const event = {
-      schemaVersion: "1.0",
-      eventId: "event-1",
-      sourceEventId: "source-1",
-      datasetId: "dataset-1",
-      venueId: "venue-1",
-      eventTime: "2026-08-31T00:00:00Z",
-      instrumentId: "instrument-1",
-      eventType: "TRADE",
-      rawRowHash: "a".repeat(64),
-    };
-
+  it("rejects row arrays larger than the committed fixture", () => {
     expect(() =>
       ReplayRequestSchema.parse({
         scenario: "concentrated-buy-dialect-a.csv",
         mutation: "baseline",
-        events: Array.from({ length: 5 }, (_, index) => ({
-          ...event,
-          eventId: `event-${index}`,
-          sourceEventId: `source-${index}`,
+        rows: Array.from({ length: 5 }, (_, index) => ({
+          coordinate: {
+            sourceArtifactHash: "a".repeat(64),
+            rowNumber: String(index),
+          },
+          values: { id: String(index) },
         })),
       }),
     ).toThrow();
@@ -79,20 +75,20 @@ describe("ReplayResultResponseSchema", () => {
 });
 
 describe("ReplayReviewResponseSchema", () => {
-  it("accepts the dedicated missing committed event set issue code", () => {
+  it("accepts the mapping approval required issue code", () => {
     expect(
       ReplayReviewResponseSchema.parse({
         status: "REVIEW_REQUIRED",
         issues: [
           {
-            code: "NO_COMMITTED_EVENT_SET",
-            path: ["scenario"],
-            message: "Scenario has no committed event set.",
+            code: "APPROVAL_RECORD_REQUIRED",
+            path: ["mappingApproval"],
+            message: "Mapping approval is required.",
           },
         ],
       }),
     ).toMatchObject({
-      issues: [{ code: "NO_COMMITTED_EVENT_SET", path: ["scenario"] }],
+      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: ["mappingApproval"] }],
     });
   });
 
