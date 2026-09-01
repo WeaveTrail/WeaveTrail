@@ -29,21 +29,32 @@ that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
 The guided lab executes the server-only fixture provider against a table keyed
-by the committed `sourceArtifactHash`. It returns a structured `1.2` proposal
-containing approved dataset and venue constants plus each source column, closed
-target field, transform, confidence, evidence, and proposal status. This
-proposal is not an approval. The lab exposes an explicit local-reviewer action;
-the API recomputes the proposal hash and enforces any required overrides.
+by the committed `sourceArtifactHash`. It returns a structured `1.1` proposal
+containing each source column, target field, closed transform, confidence,
+evidence, and either `PROPOSED` or `REVIEW_REQUIRED`. This proposal is not an
+approval. The JSON Lines fixture deliberately leaves `source_note` unmapped,
+which demonstrates the review-required path. The API executes this proposal
+after request validation and returns `MAPPING_REVIEW_REQUIRED` before replay if
+any field needs review; the disabled lab control mirrors that server gate.
 
 ### Replay HTTP boundary
 
 `POST /api/replay` accepts a strict object with a committed source-artifact
-scenario, one of `baseline`, `shuffle`, or `duplicate`, one to four declared
-source rows, and an optional mapping approval record. Caller-authored canonical
-events are rejected. The server obtains the scenario proposal, verifies the
-approval against that exact proposal, derives the executable mapping as a pure
-projection, checks every row's artifact identity, and only then derives events.
-Mutations operate after that derivation.
+scenario, one of `baseline`, `shuffle`, or `duplicate`, and an optional non-empty
+array of at most four `TradeEvent 1.0` values. Each scenario resolves through an
+explicit table to its source artifact, mapping columns, and any committed event
+set. The CSV scenario supplies its artifact-derived events when events are
+absent. The JSON Lines scenario has no committed event set and its unmapped
+`source_note` fails the server mapping gate regardless of whether caller events
+are present; it never falls back to CSV-derived evidence. Mutations operate on
+the validated selected array, while ordering, duplicate counts, engine version,
+and result hashes are always derived on the server.
+
+`NO_COMMITTED_EVENT_SET` is a separate defensive review issue for a scenario
+whose mapping fields are all `PROPOSED` but which has neither caller-supplied
+events nor a committed event set. No current scenario reaches this branch: the
+only scenario without committed events has a `REVIEW_REQUIRED` mapping field
+and stops at the earlier mapping gate.
 
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`
@@ -59,8 +70,7 @@ included accidentally through the engine's internal return type.
 
 ### Approval boundary
 
-The running HTTP route and the state machine prevent unapproved mapping output
-from reaching replay:
+The state machine prevents unapproved output from reaching replay:
 
 ```text
 UPLOADED -> MAPPING_PROPOSED -> MAPPING_REVIEW_REQUIRED
@@ -148,7 +158,7 @@ identity and projection scope.
 ## Provenance contract migration
 
 Hash names identify one boundary rather than relying on context. Mapping
-proposal `1.2` uses `sourceArtifactHash`; case manifest `1.1` and Evidence
+proposal `1.1` uses `sourceArtifactHash`; case manifest `1.1` and Evidence
 Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
 `sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
 not accepted by the new strict contracts. See
@@ -159,13 +169,11 @@ rules.
 
 Case Manifest `1.2` replaces the `1.1` bare approval status with an immutable
 approval record, requires at least one actor, and accepts only registered rule
-parameters for the declared rule version. Mapping Proposal `1.2` adds the
-dataset and venue constants used by event identity, closes target fields, and
-requires an explicit transform or an explicit null pair. Replay Request `2.0`
-accepts source rows and a mapping approval instead of canonical events. Older
-artifacts retain their original version and migrate explicitly. See
-[ADR 0006](adr/0006-enforce-approval-provenance-before-replay.md) and
-[ADR 0007](adr/0007-bind-approved-mapping-to-replay.md).
+parameters for the declared rule version. Mapping Proposal remains at `1.1`,
+but replay now requires a separate mapping approval record bound to its
+artifact hash. Older manifests must retain their original version and migrate
+explicitly. See
+[ADR 0006](adr/0006-enforce-approval-provenance-before-replay.md).
 
 ## Deployment boundary
 
