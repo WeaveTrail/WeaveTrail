@@ -42,8 +42,10 @@ scenario, one of `baseline`, `shuffle`, or `duplicate`, one to four declared
 source rows, and an optional mapping approval record. Caller-authored canonical
 events are rejected. The server obtains the scenario proposal, verifies the
 approval against that exact proposal, derives the executable mapping as a pure
-projection, checks every row's artifact identity, and only then derives events.
-Mutations operate after that derivation.
+projection, and checks every submitted row against the server-owned committed
+row at the same artifact coordinate. A missing coordinate or differing column
+fails closed; the server does not silently substitute fixture values. Only
+then does it derive events. Mutations operate after that derivation.
 
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`

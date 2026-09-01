@@ -15,7 +15,11 @@ callers do not independently author executable mappings.
 `ReplayRequest 2.0` accepts declared source rows and a mapping approval record,
 not canonical events. The server hashes its own scenario proposal, verifies the
 approval and required overrides, checks each row's source artifact, applies the
-derived mapping, and only then invokes deterministic replay.
+derived mapping, and only then invokes deterministic replay. For committed
+scenarios, the server also compares each submitted row with the server-owned
+row at the same artifact coordinate. A missing coordinate or any key-for-key,
+string-for-string value difference fails closed rather than being silently
+replaced.
 
 ## Consequences
 

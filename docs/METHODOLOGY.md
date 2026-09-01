@@ -30,8 +30,10 @@ named committed CSV or JSON Lines scenario, a closed mutation, declared source
 rows, and a mapping approval record. It never accepts caller-authored canonical
 events. The API hashes its own executed `1.2` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
-source artifact, and re-derives events through the approved mapping. Any
-failure returns structured `REVIEW_REQUIRED` with HTTP `422`, an actionable
+source artifact, and compares its values with the server-owned committed row
+at the same coordinate before re-deriving events through the approved mapping.
+A missing row or differing column is rejected rather than silently replaced.
+Any failure returns structured `REVIEW_REQUIRED` with HTTP `422`, an actionable
 path, and no replay hash.
 
 Successful responses are contract-validated projections of the replay result.
