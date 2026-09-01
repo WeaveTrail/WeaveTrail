@@ -109,14 +109,14 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
-  it("surfaces mapping application review issues without replay", async () => {
+  it("rejects a changed value that claims a committed source coordinate", async () => {
     const base = validBody();
     const body = {
       ...base,
       rows: [
         {
           ...base.rows[0]!,
-          values: { ...base.rows[0]!.values, undeclared_column: "value" },
+          values: { ...base.rows[0]!.values, px: "999.99" },
         },
       ],
     };
@@ -126,7 +126,11 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+          code: "SOURCE_ROW_MISMATCH",
+          path: ["rows", 0, "values", "px"],
+          message: expect.stringContaining(
+            `Source row ${base.rows[0]!.coordinate.rowNumber} column px`,
+          ),
         }),
       ]),
     );
