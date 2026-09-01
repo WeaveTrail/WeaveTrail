@@ -130,6 +130,20 @@ export function replayApproved(
   | Exclude<CaseProfileValidation, { accepted: true }> {
   const approval = validateMappingApproval(mapping, mappingApproval);
   if (!approval.accepted) return approval;
+  if (manifest !== undefined) {
+    const caseApprovalIssues = validateApprovalRecord(
+      caseManifestProposal(manifest),
+      manifest.approval,
+      "caseApproval",
+    );
+    if (caseApprovalIssues.length > 0) {
+      return {
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: caseApprovalIssues,
+      };
+    }
+  }
   const executable = approvedSourceMapping(mapping);
   const foreignRows = rows
     .map((row, index) => ({ row, index }))

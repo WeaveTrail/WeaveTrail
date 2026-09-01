@@ -4,6 +4,7 @@ import {
   ApprovalRecordSchema,
   CaseManifestProposalSchema,
   CaseManifestSchema,
+  type CaseManifest,
   type CaseManifestProposal,
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
@@ -145,6 +146,84 @@ describe("replay approval gate", () => {
   it("accepts matching immutable mapping and case approval records", () => {
     expect(validateReplayApprovals(mapping, mappingApproval, manifest)).toEqual(
       { accepted: true },
+    );
+  });
+
+  it("rejects a manifest without case approval through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      { ...caseProposal, approval: undefined } as unknown as CaseManifest,
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" }],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("rejects a rejected case approval through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      CaseManifestSchema.parse({
+        ...caseProposal,
+        approval: { ...caseApproval, decision: "REJECTED" },
+      }),
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({
+          code: "APPROVAL_REJECTED",
+          path: "caseApproval.decision",
+        }),
+      ],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("rejects case approval bound to another proposal through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      CaseManifestSchema.parse({
+        ...caseProposal,
+        approval: {
+          ...caseApproval,
+          approvedArtifactHash: "c".repeat(64),
+        },
+      }),
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({
+          code: "APPROVED_ARTIFACT_HASH_MISMATCH",
+          path: "caseApproval.approvedArtifactHash",
+        }),
+      ],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("keeps manifest-less foundation replay available", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      undefined,
+    );
+
+    expect(result).toHaveProperty(
+      "canonicalResultHash",
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
     );
   });
 
