@@ -6,9 +6,30 @@ import { describe, expect, it } from "vitest";
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
-import { Lab, type LabScenario } from "./lab";
+import {
+  Lab,
+  resetReplayForScenarioChange,
+  type LabScenario,
+} from "./lab";
 
 describe("lab mapping status boundary", () => {
+  it("clears a failed replay error when switching scenarios", () => {
+    const failedReplay = { error: "Dialect B replay failed" };
+
+    const reset = {
+      ...failedReplay,
+      ...resetReplayForScenarioChange("concentrated-buy-dialect-a.csv"),
+    };
+
+    expect(reset).toMatchObject({
+      scenario: "concentrated-buy-dialect-a.csv",
+      approval: null,
+      result: null,
+      error: null,
+    });
+    expect(reset.error).toBeNull();
+  });
+
   it("enables replay for a proposed mapping without rendering a blocked banner", async () => {
     const scenarioName = "concentrated-buy-dialect-a.csv";
     const scenario = committedReplayScenarios[scenarioName];

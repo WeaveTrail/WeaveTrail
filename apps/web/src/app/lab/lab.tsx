@@ -26,6 +26,20 @@ type LabProps = {
   scenarios: LabScenario[];
 };
 
+export function resetReplayForScenarioChange(scenario: ReplayScenario) {
+  return {
+    scenario,
+    approval: null,
+    result: null,
+    error: null,
+  } satisfies {
+    scenario: ReplayScenario;
+    approval: ApprovalRecord | null;
+    result: ReplayResultResponse | null;
+    error: string | null;
+  };
+}
+
 const options: Array<{ value: Mutation; label: string; detail: string }> = [
   { value: "baseline", label: "Baseline", detail: "Original fixture order" },
   {
@@ -123,9 +137,13 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           <span>Committed source artifact</span>
           <select
             onChange={(event) => {
-              setScenario(event.target.value as ReplayScenario);
-              setApproval(null);
-              setResult(null);
+              const reset = resetReplayForScenarioChange(
+                event.target.value as ReplayScenario,
+              );
+              setScenario(reset.scenario);
+              setApproval(reset.approval);
+              setResult(reset.result);
+              setError(reset.error);
             }}
             value={scenario}
           >
