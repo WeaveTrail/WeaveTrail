@@ -38,7 +38,10 @@ pnpm test
 
 - row shuffling does not change canonical order or result hash;
 - exact duplicate insertion does not change canonical events or result hash;
-- event order is stable at equal timestamps.
+- event order is stable at equal timestamps;
+- an omitted declared source row fails before result hashing;
+- an absent approved source-column key fails before dataset profiling or
+  result hashing.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.

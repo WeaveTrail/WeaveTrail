@@ -32,9 +32,14 @@ events. The API hashes its own executed `1.2` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
 at the same coordinate before re-deriving events through the approved mapping.
-A missing row or differing column is rejected rather than silently replaced.
-Any failure returns structured `REVIEW_REQUIRED` with HTTP `422`, an actionable
-path, and no replay hash.
+The engine also verifies that every row number declared by the committed
+artifact is submitted and that every submitted row contains every source
+column declared by the approved mapping. An omitted row returns
+`SOURCE_ROW_MISSING`; an absent column key returns
+`APPROVED_SOURCE_COLUMN_MISSING`. A present key with an empty string remains
+subject to its existing transform and target-field validation. A differing
+value is rejected as `SOURCE_ROW_MISMATCH`. Any failure returns structured
+`REVIEW_REQUIRED` with HTTP `422`, an actionable path, and no replay hash.
 
 Successful responses are contract-validated projections of the replay result.
 They expose the engine version, counts, canonical ordering identifiers, and
@@ -125,8 +130,12 @@ The implemented synthetic ingest path hashes exact artifact bytes as
 its artifact-hash/row-number coordinate and verbatim string values, then hashed
 as `rawRowHash`. Approved mappings apply only closed transforms; unapproved
 columns, duplicate source or target mappings, unknown transforms, rejected
-values, missing required targets, duplicate coordinates, and artifact
-mismatches stop before canonical dataset or result hashing.
+values, missing approved columns, missing required targets, duplicate
+coordinates, and artifact mismatches stop before canonical dataset or result
+hashing. The committed scenario row arrays are pinned by tests to the complete
+output of the CSV and JSON Lines artifact parsers. Replay checks declared row
+coverage before applying a mutation; mutations may reorder or repeat mapped
+events but do not remove the requirement to submit every declared source row.
 
 Canonical `eventId` is derived as the percent-encoded composite
 `event:<datasetId>:<venueId>:<sourceEventId>`. The engine orders normalized
