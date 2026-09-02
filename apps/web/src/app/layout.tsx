@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 const navigation = [
   ["Overview", "/"],
+  ["Architecture", "/architecture"],
   ["Lab", "/lab"],
   ["Evals", "/evals"],
   ["Methodology", "/methodology"],
