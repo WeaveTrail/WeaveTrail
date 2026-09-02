@@ -40,7 +40,6 @@ export const ReplayRequestSchema = z
 export const ReplayReviewIssueCodeSchema = z.enum([
   "INVALID_JSON",
   "INVALID_REQUEST",
-  "MAPPING_REVIEW_REQUIRED",
   "APPROVAL_RECORD_REQUIRED",
   "APPROVAL_REJECTED",
   "APPROVED_ARTIFACT_HASH_MISMATCH",

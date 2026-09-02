@@ -23,12 +23,15 @@ function request(body: unknown): Request {
   });
 }
 
-function approval(proposal: SchemaMappingProposal): ApprovalRecord {
+function approval(
+  proposal: SchemaMappingProposal,
+  overrides: ApprovalRecord["overrides"] = [],
+): ApprovalRecord {
   return {
     approvedArtifactHash: sha256Canonical(proposal),
     reviewerRef: "reviewer:test",
     decision: "APPROVED",
-    overrides: [],
+    overrides,
     approvedAt: "2026-08-31T00:00:00Z",
   };
 }
@@ -190,7 +193,12 @@ describe("POST /api/replay approved mapping boundary", () => {
         scenario: dialectBScenario,
         mutation: "baseline",
         rows: committedReplayScenarios[dialectBScenario].rows,
-        mappingApproval: approval(concentratedBuyDialectBProposal),
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: "fields.12",
+            reason: "Reviewed the source note as intentionally unmapped.",
+          },
+        ]),
       }),
     );
     expect(dialectA.status).toBe(200);

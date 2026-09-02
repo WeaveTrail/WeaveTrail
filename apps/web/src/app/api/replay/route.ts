@@ -109,18 +109,6 @@ export async function POST(request: Request) {
     columns: [...scenarioConfig.columns],
     sampleRows: [],
   });
-  if (
-    mappingProposal.fields.some(({ status }) => status === "REVIEW_REQUIRED")
-  ) {
-    return reviewResponse([
-      {
-        code: "MAPPING_REVIEW_REQUIRED",
-        path: ["scenario"],
-        message: `Scenario ${scenario} has mapping fields that require review.`,
-      },
-    ]);
-  }
-
   const rowIssues = sourceRowMismatchIssues(requestedRows, scenarioConfig.rows);
   if (rowIssues.length > 0) return reviewResponse(rowIssues);
 
