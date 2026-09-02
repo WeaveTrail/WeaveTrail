@@ -155,6 +155,49 @@ describe("source provenance", () => {
     expect(result).not.toHaveProperty("events");
   });
 
+  it("rejects a row that omits an approved optional actor column", () => {
+    const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const values = { ...row!.values };
+    delete values.actor;
+
+    const result = applyApprovedMapping(
+      [{ ...row!, values }],
+      concentratedBuyDialectAMapping,
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({
+          code: "APPROVED_SOURCE_COLUMN_MISSING",
+          rowNumber: row!.coordinate.rowNumber,
+          sourceColumn: "actor",
+        }),
+      ],
+    });
+    expect(result).not.toHaveProperty("events");
+  });
+
+  it("keeps an approved empty column under existing value validation", () => {
+    const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const result = applyApprovedMapping(
+      [{ ...row!, values: { ...row!.values, actor: "" } }],
+      concentratedBuyDialectAMapping,
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({ code: "REQUIRED_TARGET_FIELD_MISSING" }),
+      ],
+    });
+    expect(result.issues).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: "APPROVED_SOURCE_COLUMN_MISSING" }),
+      ]),
+    );
+  });
+
   it("rejects duplicate source-column mappings identically in both listing orders", () => {
     const [row] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
     const fieldsWithoutQuantityOrOrder =
@@ -336,7 +379,7 @@ describe("source provenance", () => {
     ["unknown source column", "UNKNOWN_SOURCE_COLUMN"],
     ["unknown transform", "UNKNOWN_TRANSFORM"],
     ["transform-rejected value", "TRANSFORM_REJECTED_VALUE"],
-    ["missing required target", "REQUIRED_TARGET_FIELD_MISSING"],
+    ["missing required target", "APPROVED_SOURCE_COLUMN_MISSING"],
     ["mapping artifact mismatch", "SOURCE_ARTIFACT_HASH_MISMATCH"],
   ] as const)(
     "routes %s to review without events",

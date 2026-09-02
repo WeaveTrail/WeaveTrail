@@ -65,6 +65,7 @@ export function approvedSourceMapping(
 }
 
 export type MappingReviewCode =
+  | "APPROVED_SOURCE_COLUMN_MISSING"
   | "DUPLICATE_SOURCE_COORDINATE"
   | "DUPLICATE_SOURCE_COLUMN"
   | "DUPLICATE_TARGET_FIELD"
@@ -215,6 +216,18 @@ export function applyApprovedMapping(
       continue;
     }
     const candidate: Record<string, string> = { ...mapping.constants };
+    let approvedColumnMissing = false;
+    for (const sourceColumn of fieldMappings.keys()) {
+      if (!Object.hasOwn(row.values, sourceColumn)) {
+        approvedColumnMissing = true;
+        issues.push({
+          code: "APPROVED_SOURCE_COLUMN_MISSING",
+          rowNumber: row.coordinate.rowNumber,
+          sourceColumn,
+          message: `Approved source column ${JSON.stringify(sourceColumn)} is missing from row ${row.coordinate.rowNumber}`,
+        });
+      }
+    }
     for (const [sourceColumn, value] of Object.entries(row.values)) {
       const fieldMapping = fieldMappings.get(sourceColumn);
       if (!fieldMapping) {
@@ -240,6 +253,8 @@ export function applyApprovedMapping(
       }
       candidate[fieldMapping.targetField] = transformed;
     }
+
+    if (approvedColumnMissing) continue;
 
     const sourceEventId = candidate.sourceEventId;
     if (sourceEventId) {
