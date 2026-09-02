@@ -11,7 +11,9 @@ acting.
 
 ## Conventions
 
-- Issue and pull request title: `Type: lowercase summary`.
+- Issue title: `<type>: <lowercase summary>`.
+- Pull request title: repeat the linked issue title verbatim, with no scope,
+  trailing `#<number>`, or paraphrase.
 - Branch: `<type><issue-number>/<short-kebab-summary>`.
 - Commit: `<type>(<scope>): <summary> #<issue-number>`.
 - Preserve unrelated work and stage explicit paths only.
@@ -23,6 +25,12 @@ acting.
   `-f` sends values literally rather than interpreting them.
 - Read each published body back from GitHub, verify its rendered structure,
   and report only what that check confirms.
+- Rely on the repository's automatic review instead of posting a duplicate
+  trigger comment. Start a review reply with `[result]` and a one-sentence work
+  summary. Follow it with `in commit: <commit_hash>`, then two to four short
+  bullets covering problem, work, and resolution. Do not add a separate
+  `Summary` heading. Resolve threads only when the task explicitly includes
+  resolution.
 
 ## Safety and authorization
 
