@@ -7,8 +7,10 @@ verification. It is not a production market-surveillance system.
 
 - The repository currently uses deterministic fixtures, not a live AI mapping
   provider.
-- The guided lab demonstrates canonical ordering, exact deduplication, and
-  hashing; the financial pattern rule and counterfactual metrics are planned.
+- The guided lab demonstrates source-row provenance, execution of the mapping
+  proposal, approval-bound replay, canonical ordering, exact deduplication,
+  record-set completeness, and hashing; the financial pattern rule and
+  counterfactual metrics are planned.
 - The approval state machine is documented but not yet persisted end to end.
 - All data is synthetic, so no result establishes real-market accuracy.
 - No large-scale performance benchmark has been run.
