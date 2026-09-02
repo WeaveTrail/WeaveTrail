@@ -7,6 +7,7 @@ import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
 import {
+  hasUnresolvedMappingReview,
   Lab,
   mappingOverrides,
   resetReplayForScenarioChange,
@@ -125,16 +126,44 @@ describe("lab mapping status boundary", () => {
       sampleRows: [],
     });
 
+    const sourceNoteIndex = proposal.fields.findIndex(
+      ({ sourceColumn }) => sourceColumn === "source_note",
+    );
+    expect(proposal.fields[sourceNoteIndex]?.sourceColumn).toBe("source_note");
+    const sourceNotePath = `fields.${sourceNoteIndex}`;
+
     expect(
       mappingOverrides(proposal, {
-        "fields.12": "  Source note reviewed as intentionally unmapped.  ",
+        [sourceNotePath]: "  Source note reviewed as intentionally unmapped.  ",
       }),
     ).toEqual([
       {
-        fieldPath: "fields.12",
+        fieldPath: sourceNotePath,
         reason: "Source note reviewed as intentionally unmapped.",
       },
     ]);
-    expect(mappingOverrides(proposal, { "fields.12": "   " })).toEqual([]);
+    expect(mappingOverrides(proposal, { [sourceNotePath]: "   " })).toEqual([]);
+  });
+
+  it("clears the blocked state after every flagged field has a reviewer reason", async () => {
+    const scenario =
+      committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+    const sourceNoteIndex = proposal.fields.findIndex(
+      ({ sourceColumn }) => sourceColumn === "source_note",
+    );
+    expect(proposal.fields[sourceNoteIndex]?.sourceColumn).toBe("source_note");
+
+    expect(hasUnresolvedMappingReview(proposal, {})).toBe(true);
+    expect(
+      hasUnresolvedMappingReview(proposal, {
+        [`fields.${sourceNoteIndex}`]: "Reviewed as intentionally unmapped.",
+      }),
+    ).toBe(false);
   });
 });

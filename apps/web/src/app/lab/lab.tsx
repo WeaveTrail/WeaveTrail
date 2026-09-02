@@ -47,6 +47,17 @@ export function mappingOverrides(
   });
 }
 
+export function hasUnresolvedMappingReview(
+  proposal: SchemaMappingProposal,
+  reasons: Readonly<Record<string, string>>,
+): boolean {
+  return proposal.fields.some(
+    (field, index) =>
+      requiresMappingOverride(field) &&
+      !reasons[`fields.${index}`]?.trim(),
+  );
+}
+
 export function resetReplayForScenarioChange(scenario: ReplayScenario) {
   return {
     scenario,
@@ -90,9 +101,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const reviewRequiredFields = proposal.fields
     .map((field, index) => ({ field, index }))
     .filter(({ field }) => requiresMappingOverride(field));
-  const unresolvedReview = reviewRequiredFields.some(
-    ({ index }) => !reviewReasons[`fields.${index}`]?.trim(),
-  );
+  const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
 
   function canonicalJson(value: unknown): string {
     if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
@@ -229,7 +238,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               ) : null}
             </div>
           ))}
-          {reviewRequiredFields.length > 0 ? (
+          {unresolvedReview ? (
             <p className="error-message">
               Replay is blocked until every flagged field has a reviewer reason.
             </p>
