@@ -13,6 +13,9 @@ import type { MappingInput, SchemaMappingProvider } from "./provider";
 type DeclaredField = {
   targetField: string | null;
   transform: AllowedTransform | null;
+  confidence: number;
+  evidence: string;
+  status: "PROPOSED" | "REVIEW_REQUIRED";
 };
 
 function declaredFields(
@@ -20,13 +23,25 @@ function declaredFields(
     sourceColumn: string;
     targetField: string | null;
     transform: AllowedTransform | null;
+    confidence: number;
+    evidence: string;
+    status: "PROPOSED" | "REVIEW_REQUIRED";
   }[],
 ): ReadonlyMap<string, DeclaredField> {
   return new Map(
-    fields.map(({ sourceColumn, targetField, transform }) => [
-      sourceColumn,
-      { targetField, transform },
-    ]),
+    fields.map(
+      ({
+        sourceColumn,
+        targetField,
+        transform,
+        confidence,
+        evidence,
+        status,
+      }) => [
+        sourceColumn,
+        { targetField, transform, confidence, evidence, status },
+      ],
+    ),
   );
 }
 
@@ -61,11 +76,11 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
           sourceColumn,
           targetField: declared?.targetField ?? null,
           transform: declared?.transform ?? null,
-          confidence: declared === undefined ? 0 : 1,
-          evidence: declared
-            ? "Matched by the versioned per-artifact fixture mapping table."
-            : "The deterministic fixture has no declared mapping for this artifact and column.",
-          status: declared === undefined ? "REVIEW_REQUIRED" : "PROPOSED",
+          confidence: declared?.confidence ?? 0,
+          evidence:
+            declared?.evidence ??
+            "The deterministic fixture has no declared mapping for this artifact and column.",
+          status: declared?.status ?? "REVIEW_REQUIRED",
         };
       }),
     });

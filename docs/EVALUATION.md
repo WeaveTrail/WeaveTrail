@@ -64,8 +64,10 @@ pnpm test
   before result hashing.
 - **Mapping agreement reporting** — the engine reports per-field agreement
   between mapped canonical events and each mapping application's review
-  outcome. A committed scenario that reaches the review-required outcome
-  remains planned.
+  outcome.
+- **Reachable mapping review** — dialect B presents its `source_note` for
+  review; replay fails without a matching justified override and succeeds with
+  one, while dialect A remains fully resolvable.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.

@@ -75,6 +75,21 @@ describe("ReplayResultResponseSchema", () => {
 });
 
 describe("ReplayReviewResponseSchema", () => {
+  it("rejects the removed scenario-level mapping review issue code", () => {
+    expect(() =>
+      ReplayReviewResponseSchema.parse({
+        status: "REVIEW_REQUIRED",
+        issues: [
+          {
+            code: "MAPPING_REVIEW_REQUIRED",
+            path: ["scenario"],
+            message: "Scenario mapping review is required.",
+          },
+        ],
+      }),
+    ).toThrow();
+  });
+
   it("accepts the mapping approval required issue code", () => {
     expect(
       ReplayReviewResponseSchema.parse({

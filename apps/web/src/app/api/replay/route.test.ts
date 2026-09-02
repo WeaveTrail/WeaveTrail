@@ -23,14 +23,31 @@ function request(body: unknown): Request {
   });
 }
 
-function approval(proposal: SchemaMappingProposal): ApprovalRecord {
+function approval(
+  proposal: SchemaMappingProposal,
+  overrides: ApprovalRecord["overrides"] = [],
+): ApprovalRecord {
   return {
     approvedArtifactHash: sha256Canonical(proposal),
     reviewerRef: "reviewer:test",
     decision: "APPROVED",
-    overrides: [],
+    overrides,
     approvedAt: "2026-08-31T00:00:00Z",
   };
+}
+
+function reviewFieldIndex(
+  proposal: SchemaMappingProposal,
+  sourceColumn: string,
+): number {
+  const index = proposal.fields.findIndex(
+    (field) => field.sourceColumn === sourceColumn,
+  );
+  expect(proposal.fields[index]).toMatchObject({
+    sourceColumn,
+    status: "REVIEW_REQUIRED",
+  });
+  return index;
 }
 
 function validBody() {
@@ -43,6 +60,17 @@ function validBody() {
 }
 
 describe("POST /api/replay approved mapping boundary", () => {
+  it("replays dialect A with an empty override list to the golden hash", async () => {
+    const response = await POST(request(validBody()));
+    const result = await response.json();
+
+    expect(validBody().mappingApproval.overrides).toEqual([]);
+    expect(response.status).toBe(200);
+    expect(result.replay.canonicalResultHash).toBe(
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+    );
+  });
+
   it.each(["baseline", "shuffle", "duplicate"] as const)(
     "re-derives approved rows with mutation %s",
     async (mutation) => {
@@ -185,12 +213,21 @@ describe("POST /api/replay approved mapping boundary", () => {
   it("replays both committed dialects to the same result hash", async () => {
     const dialectA = await POST(request(validBody()));
     const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const sourceNoteIndex = reviewFieldIndex(
+      concentratedBuyDialectBProposal,
+      "source_note",
+    );
     const dialectB = await POST(
       request({
         scenario: dialectBScenario,
         mutation: "baseline",
         rows: committedReplayScenarios[dialectBScenario].rows,
-        mappingApproval: approval(concentratedBuyDialectBProposal),
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: `fields.${sourceNoteIndex}`,
+            reason: "Reviewed the source note as intentionally unmapped.",
+          },
+        ]),
       }),
     );
     expect(dialectA.status).toBe(200);
@@ -198,6 +235,92 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect((await dialectA.json()).replay.canonicalResultHash).toBe(
       (await dialectB.json()).replay.canonicalResultHash,
     );
+  });
+
+  it("requires a field override before replaying dialect B", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const sourceNoteIndex = reviewFieldIndex(
+      concentratedBuyDialectBProposal,
+      "source_note",
+    );
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "MAPPING_OVERRIDE_REQUIRED",
+        path: ["fields", sourceNoteIndex],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
+  });
+
+  it("replays dialect B after a justified source_note override", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const sourceNoteIndex = reviewFieldIndex(
+      concentratedBuyDialectBProposal,
+      "source_note",
+    );
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: `fields.${sourceNoteIndex}`,
+            reason: "Reviewed the source note as intentionally unmapped.",
+          },
+        ]),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(result.replay.canonicalResultHash).toBe(
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+    );
+  });
+
+  it("rejects a whitespace-only source_note override", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const sourceNoteIndex = reviewFieldIndex(
+      concentratedBuyDialectBProposal,
+      "source_note",
+    );
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: `fields.${sourceNoteIndex}`,
+            reason: "   ",
+          },
+        ]),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "MAPPING_OVERRIDE_REQUIRED",
+        path: ["fields", sourceNoteIndex],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
   });
 
   it("rejects invalid JSON and caller-authored events", async () => {
