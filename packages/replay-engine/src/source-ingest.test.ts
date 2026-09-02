@@ -46,30 +46,13 @@ describe("source provenance", () => {
     expect(sourceArtifactHash(dialectBBytes)).toBe(DIALECT_B_HASH);
   });
 
-  it("keeps every declared source row byte-faithful to its committed artifact", () => {
-    const parsedRowsByArtifact = new Map([
-      [DIALECT_A_HASH, parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH)],
-      [
-        DIALECT_B_HASH,
-        parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
-      ],
-    ]);
-
-    for (const declaredRow of [
-      ...concentratedBuyDialectARows,
-      ...concentratedBuyDialectBRows,
-    ]) {
-      const parsedRows = parsedRowsByArtifact.get(
-        declaredRow.coordinate.sourceArtifactHash,
-      );
-      expect(parsedRows).toBeDefined();
-
-      const parsedRow = parsedRows!.find(
-        ({ coordinate }) =>
-          coordinate.rowNumber === declaredRow.coordinate.rowNumber,
-      );
-      expect(parsedRow?.values).toEqual(declaredRow.values);
-    }
+  it("pins each complete declared row set to its committed artifact parser", () => {
+    expect(concentratedBuyDialectARows).toEqual(
+      parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
+    );
+    expect(concentratedBuyDialectBRows).toEqual(
+      parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
+    );
   });
 
   it("serializes raw columns in canonical key order without coercion", () => {
