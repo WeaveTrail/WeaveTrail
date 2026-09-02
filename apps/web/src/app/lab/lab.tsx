@@ -53,8 +53,7 @@ export function hasUnresolvedMappingReview(
 ): boolean {
   return proposal.fields.some(
     (field, index) =>
-      requiresMappingOverride(field) &&
-      !reasons[`fields.${index}`]?.trim(),
+      requiresMappingOverride(field) && !reasons[`fields.${index}`]?.trim(),
   );
 }
 
