@@ -228,9 +228,25 @@ export const checks = [
   },
   {
     name: "Reachable mapping review",
-    status: "Planned",
+    status: "Implemented",
     detail:
-      "Exercise a committed scenario that reaches the review-required outcome.",
+      "Require a justified override for a flagged field while preserving a fully resolvable path.",
+    evidence: [
+      {
+        file: "packages/ai-harness/src/fixture-provider.test.ts",
+        titles: [
+          "reaches review-required through a committed replay scenario",
+          "keeps dialect A fully resolvable",
+        ],
+      },
+      {
+        file: "apps/web/src/app/api/replay/route.test.ts",
+        titles: [
+          "requires a field override before replaying dialect B",
+          "replays dialect B after a justified source_note override",
+        ],
+      },
+    ],
   },
   {
     name: "Scenario classification",

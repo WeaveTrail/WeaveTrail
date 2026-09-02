@@ -60,6 +60,10 @@ reviewer reference, decision, approval time, and justified override paths while
 binding to the immutable proposed artifact. Mapping confidence below the
 declared fixture threshold `1.0`, or a `REVIEW_REQUIRED` field, needs a matching
 override and non-empty reason.
+At the replay service boundary, unresolved flagged fields return
+`MAPPING_OVERRIDE_REQUIRED` at the field path; the response contract no longer
+includes a separate scenario-level `MAPPING_REVIEW_REQUIRED` code. The workflow
+state with that name remains unchanged.
 
 The `RAPID_PRICE_LIFT` `1.0` registry accepts only the declared parameter names
 for price change, aggressive-buy share, actor concentration, executions above
@@ -156,12 +160,16 @@ Separately, the guided lab executes a deterministic fixture mapping provider on
 the server. Its proposal is keyed by the exact source artifact hash and exposes
 source column, target field, transform, confidence, evidence, and proposal
 status. The fixture provider performs no network call and uses no credentials.
-Both dialects produce declared fields; dialect B's `source_note` is explicitly
-unmapped with a null target and transform. The lab reviewer action creates an
-approval over the displayed proposal, using the opaque local reference
+Both dialects produce declared fields. Dialect A is fully resolvable. Dialect
+B's `source_note` has a null target and transform and is presented for
+adjudication as `REVIEW_REQUIRED` at confidence `0`. The lab will not create an
+approval for that proposal until the reviewer records a non-empty reason for
+the field override. The approval uses the opaque local reference
 `reviewer:local-lab`. The server remains the authority: it independently hashes
-that proposal and derives the only executable mapping from it. Proposal status
-alone never constitutes approval.
+that proposal, validates the justified override, and derives the only
+executable mapping from it. Proposal status alone never constitutes approval.
+The override changes approval metadata, not the approved mapping projection,
+so the canonical result hash is unchanged.
 
 ## Planned `RAPID_PRICE_LIFT` rule
 
