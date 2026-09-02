@@ -422,6 +422,47 @@ describe("replay approval gate", () => {
     },
   );
 
+  it("does not accept a whitespace-only mapping override reason", () => {
+    const sourceNoteIndex = concentratedBuyDialectBProposal.fields.findIndex(
+      ({ sourceColumn }) => sourceColumn === "source_note",
+    );
+    expect(
+      concentratedBuyDialectBProposal.fields[sourceNoteIndex],
+    ).toMatchObject({
+      sourceColumn: "source_note",
+      status: "REVIEW_REQUIRED",
+    });
+    const approval = ApprovalRecordSchema.parse({
+      ...mappingApproval,
+      approvedArtifactHash: sha256Canonical(
+        mappingApprovalArtifact(concentratedBuyDialectBProposal),
+      ),
+      overrides: [
+        {
+          fieldPath: `fields.${sourceNoteIndex}`,
+          reason: "   ",
+        },
+      ],
+    });
+
+    expect(
+      validateReplayApprovals(
+        concentratedBuyDialectBProposal,
+        approval,
+        manifest,
+      ),
+    ).toMatchObject({
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "MAPPING_OVERRIDE_REQUIRED",
+          path: `fields.${sourceNoteIndex}`,
+        },
+      ],
+    });
+  });
+
   it("keeps approval audit metadata outside the canonical result hash", () => {
     const alternateMappingApproval = {
       ...mappingApproval,

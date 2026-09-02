@@ -78,6 +78,14 @@ function validateApprovalRecord(
   return issues;
 }
 
+function justifiedOverridePaths(approval: ApprovalRecord): Set<string> {
+  return new Set(
+    approval.overrides
+      .filter(({ reason }) => reason.trim().length > 0)
+      .map(({ fieldPath }) => fieldPath),
+  );
+}
+
 export function validateReplayApprovals(
   mapping: SchemaMappingProposal,
   mappingApproval: ApprovalRecord | undefined,
@@ -89,9 +97,7 @@ export function validateReplayApprovals(
     "mappingApproval",
   );
   if (mappingApproval !== undefined) {
-    const overridePaths = new Set(
-      mappingApproval.overrides.map(({ fieldPath }) => fieldPath),
-    );
+    const overridePaths = justifiedOverridePaths(mappingApproval);
     for (const [index, field] of mapping.fields.entries()) {
       const requiresOverride =
         field.status === "REVIEW_REQUIRED" ||
@@ -236,9 +242,7 @@ function validateMappingApproval(
     "mappingApproval",
   );
   if (mappingApproval !== undefined) {
-    const overridePaths = new Set(
-      mappingApproval.overrides.map(({ fieldPath }) => fieldPath),
-    );
+    const overridePaths = justifiedOverridePaths(mappingApproval);
     mapping.fields.forEach((field, index) => {
       if (
         (field.status === "REVIEW_REQUIRED" ||

@@ -291,6 +291,38 @@ describe("POST /api/replay approved mapping boundary", () => {
     );
   });
 
+  it("rejects a whitespace-only source_note override", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const sourceNoteIndex = reviewFieldIndex(
+      concentratedBuyDialectBProposal,
+      "source_note",
+    );
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: `fields.${sourceNoteIndex}`,
+            reason: "   ",
+          },
+        ]),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "MAPPING_OVERRIDE_REQUIRED",
+        path: ["fields", sourceNoteIndex],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
+  });
+
   it("rejects invalid JSON and caller-authored events", async () => {
     const invalidJson = await POST(
       new Request("http://localhost/api/replay", { method: "POST", body: "{" }),
