@@ -215,7 +215,8 @@ export const checks = [
   {
     name: "Mapping agreement reporting",
     status: "Implemented",
-    detail: "Report per-field proposal agreement counts and review outcomes.",
+    detail:
+      "Report per-field agreement between mapped canonical events and each mapping application's review outcome.",
     evidence: [
       {
         file: "packages/replay-engine/src/source-ingest.test.ts",

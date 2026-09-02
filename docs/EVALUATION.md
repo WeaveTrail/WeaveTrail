@@ -62,9 +62,10 @@ pnpm test
   and its executed transforms.
 - **Record-set completeness** — omitted declared rows or approved columns fail
   before result hashing.
-- **Mapping agreement reporting** — the engine reports per-field proposal
-  agreement counts and review outcomes. A committed scenario that reaches the
-  review-required outcome remains planned.
+- **Mapping agreement reporting** — the engine reports per-field agreement
+  between mapped canonical events and each mapping application's review
+  outcome. A committed scenario that reaches the review-required outcome
+  remains planned.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.
