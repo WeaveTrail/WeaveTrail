@@ -98,9 +98,6 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   );
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
   const proposal = proposals[selectedScenario.sourceArtifactHash]!;
-  const reviewRequiredFields = proposal.fields
-    .map((field, index) => ({ field, index }))
-    .filter(({ field }) => requiresMappingOverride(field));
   const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
 
   function canonicalJson(value: unknown): string {
