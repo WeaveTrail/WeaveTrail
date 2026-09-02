@@ -4,13 +4,23 @@ import {
   ApprovalRecordSchema,
   CaseManifestProposalSchema,
   CaseManifestSchema,
+  type CaseManifest,
   type CaseManifestProposal,
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
-import { concentratedBuyEvents } from "@weavetrail/scenarios";
+import {
+  concentratedBuyDialectAProposal,
+  concentratedBuyDialectARows,
+  concentratedBuyDialectBProposal,
+  concentratedBuyEvents,
+} from "@weavetrail/scenarios";
 
 import { sha256Canonical } from "./canonical-json";
 import { computeDatasetProfile } from "./dataset-profile";
+import {
+  approvedSourceMapping,
+  validateApprovedMapping,
+} from "./source-ingest";
 import {
   mappingApprovalArtifact,
   caseManifestProposal,
@@ -18,11 +28,7 @@ import {
   validateReplayApprovals,
 } from "./approval-validation";
 
-const mapping = SchemaMappingProposalSchema.parse({
-  mappingVersion: "1.1",
-  sourceArtifactHash: "a".repeat(64),
-  fields: [],
-});
+const mapping = concentratedBuyDialectAProposal;
 const datasetProfile = computeDatasetProfile(concentratedBuyEvents);
 const caseProposal: CaseManifestProposal = {
   manifestVersion: "1.2",
@@ -64,6 +70,61 @@ const manifest = CaseManifestSchema.parse({
 });
 
 describe("replay approval gate", () => {
+  it("does not admit mapped rows through an approved proposal with no fields", () => {
+    const empty = SchemaMappingProposalSchema.parse({ ...mapping, fields: [] });
+    const emptyApproval = {
+      ...mappingApproval,
+      approvedArtifactHash: sha256Canonical(empty),
+    };
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      empty,
+      emptyApproval,
+      undefined,
+    );
+    expect(result).toMatchObject({ status: "REVIEW_REQUIRED" });
+    if (!("issues" in result)) throw new Error("expected review issues");
+    expect(result.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+        }),
+      ]),
+    );
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("derives valid executable mappings for both committed proposals", () => {
+    for (const proposal of [mapping, concentratedBuyDialectBProposal]) {
+      expect(validateApprovedMapping(approvedSourceMapping(proposal))).toEqual(
+        [],
+      );
+    }
+  });
+
+  it("binds constants into both approval hash and derived event identity", () => {
+    const changed = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      constants: { ...mapping.constants, venueId: "SYNTH-Y" },
+    });
+    expect(sha256Canonical(changed)).not.toBe(sha256Canonical(mapping));
+    const changedApproval = {
+      ...mappingApproval,
+      approvedArtifactHash: sha256Canonical(changed),
+    };
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      changed,
+      changedApproval,
+      undefined,
+    );
+    expect(result).toHaveProperty("orderedEventIds");
+    if (!("orderedEventIds" in result)) throw new Error("expected replay");
+    expect(result.orderedEventIds.every((id) => id.includes("SYNTH-Y"))).toBe(
+      true,
+    );
+  });
+
   it("derives approved artifacts from their proposal schemas", () => {
     const mappingArtifact = mappingApprovalArtifact(mapping);
     expect(mappingArtifact).toEqual(SchemaMappingProposalSchema.parse(mapping));
@@ -88,38 +149,115 @@ describe("replay approval gate", () => {
     );
   });
 
-  it("binds absent and explicitly undefined transforms to the same approval", () => {
-    const field = {
-      sourceColumn: "price_text",
-      targetField: "price",
-      confidence: 1,
-      evidence: "Synthetic fixture uses the canonical decimal representation.",
-      status: "PROPOSED" as const,
-    };
-    const absentTransform = SchemaMappingProposalSchema.parse({
-      ...mapping,
-      fields: [field],
-    });
-    const undefinedTransform = SchemaMappingProposalSchema.parse({
-      ...mapping,
-      fields: [{ ...field, transform: undefined }],
-    });
-    const absentHash = sha256Canonical(
-      mappingApprovalArtifact(absentTransform),
+  it("rejects a manifest without case approval through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      { ...caseProposal, approval: undefined } as unknown as CaseManifest,
     );
-    const undefinedHash = sha256Canonical(
-      mappingApprovalArtifact(undefinedTransform),
-    );
-    const approval = ApprovalRecordSchema.parse({
-      ...mappingApproval,
-      approvedArtifactHash: absentHash,
-    });
 
-    expect(undefinedTransform.fields[0]).toHaveProperty("transform");
-    expect(undefinedHash).toBe(absentHash);
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" }],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("rejects a rejected case approval through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      CaseManifestSchema.parse({
+        ...caseProposal,
+        approval: { ...caseApproval, decision: "REJECTED" },
+      }),
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({
+          code: "APPROVAL_REJECTED",
+          path: "caseApproval.decision",
+        }),
+      ],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("rejects case approval bound to another proposal through the replay gate", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      CaseManifestSchema.parse({
+        ...caseProposal,
+        approval: {
+          ...caseApproval,
+          approvedArtifactHash: "c".repeat(64),
+        },
+      }),
+    );
+
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({
+          code: "APPROVED_ARTIFACT_HASH_MISMATCH",
+          path: "caseApproval.approvedArtifactHash",
+        }),
+      ],
+    });
+    expect(result).not.toHaveProperty("canonicalResultHash");
+  });
+
+  it("keeps manifest-less foundation replay available", () => {
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      undefined,
+    );
+
+    expect(result).toHaveProperty(
+      "canonicalResultHash",
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+    );
+  });
+
+  it.each([
+    ["target without transform", "sourceEventId", null],
+    ["transform without target", null, "IDENTITY"],
+    ["missing transform", "sourceEventId", undefined],
+    ["missing transform for null target", null, undefined],
+  ] as const)("rejects %s", (_label, targetField, transform) => {
     expect(
-      validateReplayApprovals(undefinedTransform, approval, manifest),
-    ).toEqual({ accepted: true });
+      SchemaMappingProposalSchema.safeParse({
+        ...mapping,
+        fields: [{ ...mapping.fields[0], targetField, transform }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("makes an approved transform change affect the gate outcome", () => {
+    const changed = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      fields: mapping.fields.map((field) =>
+        field.sourceColumn === "side_code"
+          ? { ...field, transform: "IDENTITY" as const }
+          : field,
+      ),
+    });
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      changed,
+      { ...mappingApproval, approvedArtifactHash: sha256Canonical(changed) },
+      undefined,
+    );
+    expect(result).toMatchObject({ status: "REVIEW_REQUIRED" });
+    expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
   it("rejects replay when either approval record is absent", () => {
@@ -135,7 +273,12 @@ describe("replay approval gate", () => {
     });
     expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
     expect(
-      replayApproved(concentratedBuyEvents, mapping, undefined, undefined),
+      replayApproved(
+        concentratedBuyDialectARows,
+        mapping,
+        undefined,
+        undefined,
+      ),
     ).not.toHaveProperty("canonicalResultHash");
   });
 
@@ -173,7 +316,7 @@ describe("replay approval gate", () => {
       },
     });
     const result = replayApproved(
-      concentratedBuyEvents,
+      concentratedBuyDialectARows,
       mapping,
       mappingApproval,
       outsideManifest,
@@ -201,6 +344,7 @@ describe("replay approval gate", () => {
           {
             sourceColumn: "source-text",
             targetField: null,
+            transform: null,
             confidence: fieldState.confidence,
             evidence: "No exact fixture mapping exists.",
             status: fieldState.status,
@@ -264,13 +408,13 @@ describe("replay approval gate", () => {
     ).toEqual({ accepted: true });
 
     const baseline = replayApproved(
-      concentratedBuyEvents,
+      concentratedBuyDialectARows,
       mapping,
       mappingApproval,
       manifest,
     );
     const alternate = replayApproved(
-      concentratedBuyEvents,
+      concentratedBuyDialectARows,
       mapping,
       alternateMappingApproval,
       alternateManifest,

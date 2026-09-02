@@ -2,8 +2,11 @@ import { createHash } from "node:crypto";
 
 import {
   AllowedTransformSchema,
+  deriveApprovedSourceMapping,
   TradeEventSchema,
   type AllowedTransform,
+  type MappedTargetField,
+  type SchemaMappingProposal,
   type TradeEvent,
 } from "@weavetrail/contracts";
 
@@ -44,25 +47,22 @@ export function deriveEventId(identity: EventSourceIdentity): string {
   return `event:${encodeURIComponent(identity.datasetId)}:${encodeURIComponent(identity.venueId)}:${encodeURIComponent(identity.sourceEventId)}`;
 }
 
-type MappedTargetField = Exclude<
-  keyof TradeEvent,
-  "datasetId" | "eventId" | "rawRowHash" | "schemaVersion" | "venueId"
->;
-
 export type ApprovedSourceMapping = {
-  mappingVersion: "1.1";
+  mappingVersion: "1.2";
   sourceArtifactHash: string;
-  constants: {
-    schemaVersion: "1.0";
-    datasetId: string;
-    venueId: string;
-  };
+  constants: SchemaMappingProposal["constants"];
   fields: readonly (readonly [
-    sourceColumn: string,
-    targetField: MappedTargetField | null,
-    transform: AllowedTransform | null,
+    string,
+    MappedTargetField | null,
+    AllowedTransform | null,
   ])[];
 };
+
+export function approvedSourceMapping(
+  proposal: SchemaMappingProposal,
+): ApprovedSourceMapping {
+  return deriveApprovedSourceMapping(proposal);
+}
 
 export type MappingReviewCode =
   | "DUPLICATE_SOURCE_COORDINATE"
