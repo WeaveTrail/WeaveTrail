@@ -10,6 +10,7 @@ import type {
   ApprovalRecord,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
+import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -25,6 +26,26 @@ type LabProps = {
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: LabScenario[];
 };
+
+function requiresMappingOverride(
+  field: SchemaMappingProposal["fields"][number],
+): boolean {
+  return (
+    field.status === "REVIEW_REQUIRED" ||
+    field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD
+  );
+}
+
+export function mappingOverrides(
+  proposal: SchemaMappingProposal,
+  reasons: Readonly<Record<string, string>>,
+): ApprovalRecord["overrides"] {
+  return proposal.fields.flatMap((field, index) => {
+    if (!requiresMappingOverride(field)) return [];
+    const reason = reasons[`fields.${index}`]?.trim();
+    return reason ? [{ fieldPath: `fields.${index}`, reason }] : [];
+  });
+}
 
 export function resetReplayForScenarioChange(scenario: ReplayScenario) {
   return {
@@ -61,10 +82,16 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [approval, setApproval] = useState<ApprovalRecord | null>(null);
+  const [reviewReasons, setReviewReasons] = useState<Record<string, string>>(
+    {},
+  );
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
   const proposal = proposals[selectedScenario.sourceArtifactHash]!;
-  const reviewRequired = proposal.fields.some(
-    ({ status }) => status === "REVIEW_REQUIRED",
+  const reviewRequiredFields = proposal.fields
+    .map((field, index) => ({ field, index }))
+    .filter(({ field }) => requiresMappingOverride(field));
+  const unresolvedReview = reviewRequiredFields.some(
+    ({ index }) => !reviewReasons[`fields.${index}`]?.trim(),
   );
 
   function canonicalJson(value: unknown): string {
@@ -79,6 +106,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   }
 
   async function approveMapping() {
+    if (unresolvedReview) return;
     const bytes = new TextEncoder().encode(canonicalJson(proposal));
     const digest = await crypto.subtle.digest("SHA-256", bytes);
     const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
@@ -88,16 +116,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
       approvedArtifactHash,
       reviewerRef: "reviewer:local-lab",
       decision: "APPROVED",
-      overrides: proposal.fields.flatMap((field, index) =>
-        field.status === "REVIEW_REQUIRED" || field.confidence < 1
-          ? [
-              {
-                fieldPath: `fields.${index}`,
-                reason: "Explicit local lab reviewer override.",
-              },
-            ]
-          : [],
-      ),
+      overrides: mappingOverrides(proposal, reviewReasons),
       approvedAt: new Date().toISOString(),
     });
     setResult(null);
@@ -144,6 +163,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               setApproval(reset.approval);
               setResult(reset.result);
               setError(reset.error);
+              setReviewReasons({});
             }}
             value={scenario}
           >
@@ -180,7 +200,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           <span className="panel-label">
             02 · Executed mapping proposal · {providerMode}
           </span>
-          {proposal.fields.map((field) => (
+          {proposal.fields.map((field, index) => (
             <div className="mapping-row" key={field.sourceColumn}>
               <code>{field.sourceColumn}</code>
               <span>→</span>
@@ -189,15 +209,38 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               <span>{field.confidence.toFixed(2)}</span>
               <span>{field.evidence}</span>
               <b data-status={field.status}>{field.status}</b>
+              {requiresMappingOverride(field) ? (
+                <label>
+                  <span>Reviewer reason for {field.sourceColumn}</span>
+                  <input
+                    aria-label={`Reviewer reason for ${field.sourceColumn}`}
+                    onChange={(event) => {
+                      setReviewReasons((current) => ({
+                        ...current,
+                        [`fields.${index}`]: event.target.value,
+                      }));
+                      setApproval(null);
+                    }}
+                    required
+                    type="text"
+                    value={reviewReasons[`fields.${index}`] ?? ""}
+                  />
+                </label>
+              ) : null}
             </div>
           ))}
-          {reviewRequired ? (
+          {reviewRequiredFields.length > 0 ? (
             <p className="error-message">
-              Replay is blocked until every field has a reviewable mapping.
+              Replay is blocked until every flagged field has a reviewer reason.
             </p>
           ) : null}
         </div>
-        <button className="button" onClick={approveMapping} type="button">
+        <button
+          className="button"
+          disabled={unresolvedReview}
+          onClick={approveMapping}
+          type="button"
+        >
           {approval ? "Mapping approved locally" : "Approve executed mapping"}
         </button>
         <button
