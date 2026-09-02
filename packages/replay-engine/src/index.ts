@@ -7,4 +7,5 @@ export * from "./case-validation";
 export * from "./dataset-profile";
 export * from "./mapping-evaluation";
 export * from "./replay-foundation";
+export * from "./scaled-decimal";
 export * from "./source-ingest";
