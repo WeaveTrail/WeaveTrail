@@ -46,12 +46,7 @@ function sourceRowMismatchIssues(
     }
     if (committedRow === undefined) return [];
 
-    const columns = [
-      ...new Set([
-        ...Object.keys(row.values),
-        ...Object.keys(committedRow.values),
-      ]),
-    ].sort();
+    const columns = Object.keys(row.values).sort();
     return columns
       .filter((column) => row.values[column] !== committedRow.values[column])
       .map((column) => ({

@@ -137,6 +137,51 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result).not.toHaveProperty("replay");
   });
 
+  it("rejects omitted declared rows without returning a result hash", async () => {
+    const base = validBody();
+    const response = await POST(
+      request({ ...base, rows: [base.rows[0]!, base.rows[2]!] }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "SOURCE_ROW_MISSING",
+        path: ["rows", 3],
+      }),
+      expect.objectContaining({
+        code: "SOURCE_ROW_MISSING",
+        path: ["rows", 5],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
+  });
+
+  it("rejects an omitted approved column with its row and column", async () => {
+    const base = validBody();
+    const values = { ...base.rows[0]!.values };
+    delete values.actor;
+    const response = await POST(
+      request({
+        ...base,
+        rows: [{ ...base.rows[0]!, values }, ...base.rows.slice(1)],
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "APPROVED_SOURCE_COLUMN_MISSING",
+        path: ["rows", 2, "values", "actor"],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
+  });
+
   it("replays both committed dialects to the same result hash", async () => {
     const dialectA = await POST(request(validBody()));
     const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;

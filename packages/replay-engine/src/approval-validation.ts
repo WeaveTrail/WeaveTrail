@@ -25,6 +25,7 @@ import {
 } from "./source-ingest";
 
 export type ApprovalIssueCode =
+  | "APPROVED_SOURCE_COLUMN_MISSING"
   | "APPROVAL_RECORD_REQUIRED"
   | "APPROVED_ARTIFACT_HASH_MISMATCH"
   | "APPROVAL_REJECTED"
@@ -195,10 +196,17 @@ export function replayApproved(
     return {
       accepted: false,
       status: "REVIEW_REQUIRED",
-      issues: application.issues.map((issue) => ({
-        code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
-        path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
-      })),
+      issues: application.issues.map((issue) =>
+        issue.code === "APPROVED_SOURCE_COLUMN_MISSING"
+          ? {
+              code: issue.code,
+              path: `rows.${issue.rowNumber}.values.${issue.sourceColumn}`,
+            }
+          : {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
+              path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
+            },
+      ),
     };
   }
   let events = application.events;
