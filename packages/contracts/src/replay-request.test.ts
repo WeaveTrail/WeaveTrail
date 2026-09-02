@@ -62,7 +62,7 @@ describe("ReplayResultResponseSchema", () => {
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
       replay: {
-        engineVersion: "0.3.0-foundation",
+        engineVersion: "0.4.0-rule",
         inputEventCount: 1,
         canonicalEventCount: 1,
         duplicateCount: 0,

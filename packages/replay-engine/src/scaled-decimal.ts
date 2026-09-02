@@ -70,6 +70,16 @@ export function addScaledDecimals(
   };
 }
 
+export function subtractScaledDecimals(
+  left: ScaledDecimal,
+  right: ScaledDecimal,
+): ScaledDecimal {
+  return addScaledDecimals(left, {
+    coefficient: -right.coefficient,
+    scale: right.scale,
+  });
+}
+
 export function multiplyScaledDecimals(
   left: ScaledDecimal,
   right: ScaledDecimal,

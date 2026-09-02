@@ -229,7 +229,7 @@ describe("replay approval gate", () => {
 
     expect(result).toHaveProperty(
       "canonicalResultHash",
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
   });
 
@@ -512,7 +512,7 @@ describe("replay approval gate", () => {
     const alternateApprovalHash = alternate.canonicalResultHash;
     expect(alternateApprovalHash).toBe(baselineHash);
     expect(alternateApprovalHash).toBe(
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
   });
 });
