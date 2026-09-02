@@ -14,7 +14,7 @@
     "@weavetrail/contracts": "workspace:*",
     "@weavetrail/replay-engine": "workspace:*",
     "@weavetrail/scenarios": "workspace:*",
-    "next": "16.3.2",
+    "next": "16.3.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
