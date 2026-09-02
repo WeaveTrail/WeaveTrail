@@ -235,7 +235,7 @@ export const checks = [
       {
         file: "packages/ai-harness/src/fixture-provider.test.ts",
         titles: [
-          "reaches review-required through a committed replay scenario",
+          "reaches source_note review-required through committed dialect B",
           "keeps dialect A fully resolvable",
         ],
       },

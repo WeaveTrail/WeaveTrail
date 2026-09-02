@@ -71,23 +71,27 @@ describe("FixtureSchemaMappingProvider", () => {
     );
   });
 
-  it("reaches review-required through a committed replay scenario", async () => {
-    const proposals = await Promise.all(
-      Object.values(committedReplayScenarios).map((scenario) =>
-        provider.propose({
-          sourceArtifactHash: scenario.sourceArtifactHash,
-          constants: scenario.constants,
-          columns: [...scenario.columns],
-          sampleRows: [],
-        }),
-      ),
-    );
+  it("reaches source_note review-required through committed dialect B", async () => {
+    const scenario =
+      committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];
+    const proposal = await provider.propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
 
     expect(
-      proposals
-        .flatMap(({ fields }) => fields)
-        .some(({ status }) => status === "REVIEW_REQUIRED"),
-    ).toBe(true);
+      proposal.fields.filter(({ status }) => status === "REVIEW_REQUIRED"),
+    ).toEqual([
+      expect.objectContaining({
+        sourceColumn: "source_note",
+        targetField: null,
+        transform: null,
+        confidence: 0,
+        status: "REVIEW_REQUIRED",
+      }),
+    ]);
   });
 
   it("keeps dialect A fully resolvable", async () => {
