@@ -36,20 +36,21 @@ describe("ReplayRequestSchema", () => {
     ).toThrow();
   });
 
-  it("rejects row arrays larger than the committed fixture", () => {
-    expect(() =>
-      ReplayRequestSchema.parse({
-        scenario: "concentrated-buy-dialect-a.csv",
-        mutation: "baseline",
-        rows: Array.from({ length: 5 }, (_, index) => ({
-          coordinate: {
-            sourceArtifactHash: "a".repeat(64),
-            rowNumber: String(index),
-          },
-          values: { id: String(index) },
-        })),
-      }),
-    ).toThrow();
+  it("accepts up to 64 rows and rejects larger requests", () => {
+    const request = (length: number) => ({
+      scenario: "concentrated-buy-dialect-a.csv",
+      mutation: "baseline",
+      rows: Array.from({ length }, (_, index) => ({
+        coordinate: {
+          sourceArtifactHash: "a".repeat(64),
+          rowNumber: String(index),
+        },
+        values: { id: String(index) },
+      })),
+    });
+
+    expect(ReplayRequestSchema.safeParse(request(64)).success).toBe(true);
+    expect(() => ReplayRequestSchema.parse(request(65))).toThrow();
   });
 });
 
@@ -71,6 +72,51 @@ describe("ReplayResultResponseSchema", () => {
     });
 
     expect(response.replay).not.toHaveProperty("events");
+  });
+
+  it("accepts an evaluated rapid price lift result branch", () => {
+    const response = ReplayResultResponseSchema.parse({
+      mode: "fixture",
+      scenario: "concentrated-buy-dialect-a.csv",
+      mutation: "baseline",
+      boundary: "Deterministic replay boundary.",
+      replay: {
+        engineVersion: "0.4.0-rule",
+        inputEventCount: 6,
+        canonicalEventCount: 6,
+        duplicateCount: 0,
+        orderedEventIds: ["event-1", "event-2"],
+        canonicalResultHash: "a".repeat(64),
+      },
+      evaluation: {
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.0",
+        result: "SUPPORTED",
+        nonComparableEventCount: 0,
+        findings: [
+          "PRICE_CHANGE",
+          "AGGRESSIVE_BUY_SHARE",
+          "ACTOR_CONCENTRATION",
+          "REPEATED_EXECUTION",
+          "REMOVAL_SENSITIVITY",
+        ].map((gate) => ({
+          gate,
+          ruleId: "RAPID_PRICE_LIFT",
+          observedValue: "1.0000",
+          threshold: "1",
+          passed: true,
+          referencedEventIds: ["event-1"],
+        })),
+        sensitivity: {
+          comparison: "MECHANICAL_METRIC_COMPARISON",
+          priceChangeBps: "100.0000",
+          priceChangeBpsWithoutApprovedActors: "25.0000",
+          removalSensitivityBps: "75.0000",
+        },
+      },
+    });
+
+    expect(response.evaluation?.result).toBe("SUPPORTED");
   });
 });
 
@@ -105,6 +151,20 @@ describe("ReplayReviewResponseSchema", () => {
     ).toMatchObject({
       issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: ["mappingApproval"] }],
     });
+  });
+
+  it.each([
+    "CANONICAL_DATASET_HASH_MISMATCH",
+    "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+    "ACTOR_OUTSIDE_DATASET_PROFILE",
+    "TIME_WINDOW_OUTSIDE_DATASET_PROFILE",
+  ] as const)("accepts reachable case review issue code %s", (code) => {
+    expect(
+      ReplayReviewResponseSchema.parse({
+        status: "REVIEW_REQUIRED",
+        issues: [{ code, path: ["caseManifest"], message: "Review required" }],
+      }),
+    ).toMatchObject({ issues: [{ code }] });
   });
 
   it("requires a code and path for every review issue", () => {
