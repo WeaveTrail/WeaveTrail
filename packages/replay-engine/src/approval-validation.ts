@@ -25,10 +25,12 @@ import {
 } from "./source-ingest";
 
 export type ApprovalIssueCode =
+  | "APPROVED_SOURCE_COLUMN_MISSING"
   | "APPROVAL_RECORD_REQUIRED"
   | "APPROVED_ARTIFACT_HASH_MISMATCH"
   | "APPROVAL_REJECTED"
   | "MAPPING_OVERRIDE_REQUIRED"
+  | "SOURCE_ROW_MISSING"
   | "SOURCE_ARTIFACT_NOT_APPROVED"
   | "MAPPING_APPLICATION_REVIEW_REQUIRED";
 
@@ -120,6 +122,7 @@ export function validateReplayApprovals(
 
 export function replayApproved(
   rows: readonly SourceRow[],
+  declaredRows: readonly SourceRow[],
   mapping: SchemaMappingProposal,
   mappingApproval: ApprovalRecord | undefined,
   manifest: CaseManifest | undefined,
@@ -162,15 +165,48 @@ export function replayApproved(
     };
   }
 
+  const submittedRowNumbers = new Set(
+    rows.map(({ coordinate }) => coordinate.rowNumber),
+  );
+  const missingRowNumbers = [
+    ...new Set(
+      declaredRows
+        .filter(
+          ({ coordinate }) =>
+            coordinate.sourceArtifactHash === mapping.sourceArtifactHash,
+        )
+        .map(({ coordinate }) => coordinate.rowNumber),
+    ),
+  ]
+    .filter((rowNumber) => !submittedRowNumbers.has(rowNumber))
+    .sort();
+  if (missingRowNumbers.length > 0) {
+    return {
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: missingRowNumbers.map((rowNumber) => ({
+        code: "SOURCE_ROW_MISSING" as const,
+        path: `rows.${rowNumber}`,
+      })),
+    };
+  }
+
   const application = applyApprovedMapping(rows, executable);
   if (application.status === "REVIEW_REQUIRED") {
     return {
       accepted: false,
       status: "REVIEW_REQUIRED",
-      issues: application.issues.map((issue) => ({
-        code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
-        path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
-      })),
+      issues: application.issues.map((issue) =>
+        issue.code === "APPROVED_SOURCE_COLUMN_MISSING"
+          ? {
+              code: issue.code,
+              path: `rows.${issue.rowNumber}.values.${issue.sourceColumn}`,
+            }
+          : {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
+              path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
+            },
+      ),
     };
   }
   let events = application.events;
