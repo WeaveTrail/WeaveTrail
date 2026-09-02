@@ -36,12 +36,35 @@ The current unit suite tests these engineering invariants only:
 pnpm test
 ```
 
-- row shuffling does not change canonical order or result hash;
-- exact duplicate insertion does not change canonical events or result hash;
-- event order is stable at equal timestamps;
-- an omitted declared source row fails before result hashing;
-- an absent approved source-column key fails before dataset profiling or
-  result hashing.
+- **Row-order invariance** — shuffling does not change canonical order or the
+  result hash, including across every committed fixture permutation.
+- **Literal golden hash** — a committed fixture is pinned to its literal
+  canonical result hash.
+- **Exact duplicate tolerance** — identical source-identity duplicates collapse
+  without changing canonical events.
+- **Identity-conflict rejection** — conflicting reuse of an event or source
+  identity fails independent of input order.
+- **Time-format equivalence** — equivalent offset and `Z` timestamps normalize
+  to the same instant, including across a UTC date boundary.
+- **Sub-millisecond order** — supported precision preserves ordering and finer
+  than nanosecond timestamps are rejected.
+- **Locale-independent order** — canonical keys use UTF-16 code-unit ordering
+  without locale data.
+- **Volatile-metadata exclusion** — collection metadata is classified and
+  excluded from the canonical result hash.
+- **Mixed-sequence policy** — mixed sequence presence fails closed and the
+  all-absent case orders by event ID.
+- **Dialect convergence** — equivalent committed source dialects converge to
+  one canonical dataset and result hash.
+- **Dataset-profile determinism** — profiles remain identical across event
+  shuffling and committed source dialects.
+- **Mapping-approval binding** — approval is bound to the validated proposal
+  and its executed transforms.
+- **Record-set completeness** — omitted declared rows or approved columns fail
+  before result hashing.
+- **Mapping agreement reporting** — the engine reports per-field proposal
+  agreement counts and review outcomes. A committed scenario that reaches the
+  review-required outcome remains planned.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.
