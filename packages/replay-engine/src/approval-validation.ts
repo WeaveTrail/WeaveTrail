@@ -29,6 +29,7 @@ export type ApprovalIssueCode =
   | "APPROVED_ARTIFACT_HASH_MISMATCH"
   | "APPROVAL_REJECTED"
   | "MAPPING_OVERRIDE_REQUIRED"
+  | "SOURCE_ROW_MISSING"
   | "SOURCE_ARTIFACT_NOT_APPROVED"
   | "MAPPING_APPLICATION_REVIEW_REQUIRED";
 
@@ -120,6 +121,7 @@ export function validateReplayApprovals(
 
 export function replayApproved(
   rows: readonly SourceRow[],
+  declaredRows: readonly SourceRow[],
   mapping: SchemaMappingProposal,
   mappingApproval: ApprovalRecord | undefined,
   manifest: CaseManifest | undefined,
@@ -158,6 +160,32 @@ export function replayApproved(
       issues: foreignRows.map(({ index }) => ({
         code: "SOURCE_ARTIFACT_NOT_APPROVED" as const,
         path: `rows.${index}.coordinate.sourceArtifactHash`,
+      })),
+    };
+  }
+
+  const submittedRowNumbers = new Set(
+    rows.map(({ coordinate }) => coordinate.rowNumber),
+  );
+  const missingRowNumbers = [
+    ...new Set(
+      declaredRows
+        .filter(
+          ({ coordinate }) =>
+            coordinate.sourceArtifactHash === mapping.sourceArtifactHash,
+        )
+        .map(({ coordinate }) => coordinate.rowNumber),
+    ),
+  ]
+    .filter((rowNumber) => !submittedRowNumbers.has(rowNumber))
+    .sort();
+  if (missingRowNumbers.length > 0) {
+    return {
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: missingRowNumbers.map((rowNumber) => ({
+        code: "SOURCE_ROW_MISSING" as const,
+        path: `rows.${rowNumber}`,
       })),
     };
   }

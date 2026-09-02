@@ -78,6 +78,7 @@ describe("replay approval gate", () => {
     };
     const result = replayApproved(
       concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
       empty,
       emptyApproval,
       undefined,
@@ -113,6 +114,7 @@ describe("replay approval gate", () => {
       approvedArtifactHash: sha256Canonical(changed),
     };
     const result = replayApproved(
+      concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       changed,
       changedApproval,
@@ -152,6 +154,7 @@ describe("replay approval gate", () => {
   it("rejects a manifest without case approval through the replay gate", () => {
     const result = replayApproved(
       concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
       mapping,
       mappingApproval,
       { ...caseProposal, approval: undefined } as unknown as CaseManifest,
@@ -166,6 +169,7 @@ describe("replay approval gate", () => {
 
   it("rejects a rejected case approval through the replay gate", () => {
     const result = replayApproved(
+      concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       mapping,
       mappingApproval,
@@ -189,6 +193,7 @@ describe("replay approval gate", () => {
 
   it("rejects case approval bound to another proposal through the replay gate", () => {
     const result = replayApproved(
+      concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       mapping,
       mappingApproval,
@@ -216,6 +221,7 @@ describe("replay approval gate", () => {
   it("keeps manifest-less foundation replay available", () => {
     const result = replayApproved(
       concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
       mapping,
       mappingApproval,
       undefined,
@@ -225,6 +231,35 @@ describe("replay approval gate", () => {
       "canonicalResultHash",
       "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
     );
+  });
+
+  it("rejects every missing declared row in declaration order", () => {
+    const submittedRows = [
+      concentratedBuyDialectARows[0]!,
+      concentratedBuyDialectARows[2]!,
+    ];
+    const results = [submittedRows, [...submittedRows].reverse()].map((rows) =>
+      replayApproved(
+        rows,
+        concentratedBuyDialectARows,
+        mapping,
+        mappingApproval,
+        undefined,
+      ),
+    );
+
+    for (const result of results) {
+      expect(result).toEqual({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [
+          { code: "SOURCE_ROW_MISSING", path: "rows.3" },
+          { code: "SOURCE_ROW_MISSING", path: "rows.5" },
+        ],
+      });
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    }
+    expect(results[0]).toEqual(results[1]);
   });
 
   it.each([
@@ -252,6 +287,7 @@ describe("replay approval gate", () => {
     });
     const result = replayApproved(
       concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
       changed,
       { ...mappingApproval, approvedArtifactHash: sha256Canonical(changed) },
       undefined,
@@ -274,6 +310,7 @@ describe("replay approval gate", () => {
     expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
     expect(
       replayApproved(
+        concentratedBuyDialectARows,
         concentratedBuyDialectARows,
         mapping,
         undefined,
@@ -316,6 +353,7 @@ describe("replay approval gate", () => {
       },
     });
     const result = replayApproved(
+      concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       mapping,
       mappingApproval,
@@ -409,11 +447,13 @@ describe("replay approval gate", () => {
 
     const baseline = replayApproved(
       concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
       mapping,
       mappingApproval,
       manifest,
     );
     const alternate = replayApproved(
+      concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       mapping,
       alternateMappingApproval,

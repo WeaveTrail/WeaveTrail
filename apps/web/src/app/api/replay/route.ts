@@ -132,6 +132,7 @@ export async function POST(request: Request) {
   try {
     const replay = replayApproved(
       requestedRows,
+      scenarioConfig.rows,
       mappingProposal,
       mappingApproval,
       undefined,
