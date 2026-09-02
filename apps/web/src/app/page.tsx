@@ -72,7 +72,7 @@ export default function HomePage() {
 
       <section className="shell question-panel">
         <div>
-          <span className="kicker">First bounded application</span>
+          <span className="kicker">Bounded application</span>
           <h2>
             Does a short-window price lift satisfy a declared concentrated-buy
             pattern?
@@ -84,8 +84,11 @@ export default function HomePage() {
           <span>INCONCLUSIVE</span>
         </div>
         <p>
-          These are technical hypothesis states—not a finding of guilt, a causal
-          claim, investment advice, or an automated trading decision.
+          For a post-alert market-surveillance reviewer, WeaveTrail helps turn
+          an alert that has already fired into reviewable evidence for more
+          consistent, reviewable oversight. The displayed results are technical
+          hypothesis states—not a finding of guilt, a causal claim, investment
+          advice, an automated trading decision, or real-time surveillance.
         </p>
       </section>
     </main>

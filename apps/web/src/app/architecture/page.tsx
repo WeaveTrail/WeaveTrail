@@ -31,7 +31,7 @@ export default function ArchitecturePage() {
       <section className="eval-list">
         {layers.map(([name, detail], index) => (
           <article className="eval-row" key={name}>
-            <span className="pill implemented">0{index + 1}</span>
+            <span className="pill">0{index + 1}</span>
             <h2>{name}</h2>
             <p>{detail}</p>
           </article>
