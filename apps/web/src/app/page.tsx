@@ -86,9 +86,9 @@ export default function HomePage() {
         <p>
           For a post-alert market-surveillance reviewer, WeaveTrail helps turn
           an alert that has already fired into reviewable evidence for more
-          consistent, reviewable oversight. It verifies a technical hypothesis;
-          it does not determine guilt or causality, provide real-time
-          surveillance, or offer investment guidance.
+          consistent, reviewable oversight. The displayed results are technical
+          hypothesis states—not a finding of guilt, a causal claim, investment
+          advice, an automated trading decision, or real-time surveillance.
         </p>
       </section>
     </main>
