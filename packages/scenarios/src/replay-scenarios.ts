@@ -8,6 +8,7 @@ import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
 } from "./source-mappings";
+import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
 
 export const committedReplayScenarios = {
   "concentrated-buy-dialect-a.csv": {
@@ -28,4 +29,5 @@ export const committedReplayScenarios = {
     ),
     rows: concentratedBuyDialectBRows,
   },
+  ...rapidPriceLiftScenarios,
 } as const;

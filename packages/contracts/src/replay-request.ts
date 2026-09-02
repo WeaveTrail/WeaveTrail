@@ -7,6 +7,9 @@ import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
   "concentrated-buy-dialect-b.jsonl",
+  "rapid-price-lift-supported.csv",
+  "rapid-price-lift-broad-participation.csv",
+  "rapid-price-lift-insufficient-evidence.csv",
 ]);
 
 export const ReplayMutationSchema = z.enum([

@@ -6,6 +6,7 @@ import {
 import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
 import type { MappingInput, SchemaMappingProvider } from "./provider";
@@ -57,6 +58,13 @@ export const fixtureMappingsByArtifact = new Map<
     concentratedBuyDialectBProposal.sourceArtifactHash,
     declaredFields(concentratedBuyDialectBProposal.fields),
   ],
+  ...Object.values(rapidPriceLiftScenarios).map(
+    ({ mappingProposal }) =>
+      [
+        mappingProposal.sourceArtifactHash,
+        declaredFields(mappingProposal.fields),
+      ] as const,
+  ),
 ]);
 
 export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
