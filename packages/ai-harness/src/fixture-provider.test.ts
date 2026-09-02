@@ -32,8 +32,11 @@ describe("FixtureSchemaMappingProvider", () => {
           expect(field).toMatchObject({
             sourceColumn,
             targetField: null,
-            confidence: 1,
-            status: "PROPOSED",
+            confidence: sourceColumn === "source_note" ? 0 : 1,
+            status:
+              sourceColumn === "source_note"
+                ? "REVIEW_REQUIRED"
+                : "PROPOSED",
           });
           expect(field?.transform).toBeNull();
         } else {
@@ -60,9 +63,9 @@ describe("FixtureSchemaMappingProvider", () => {
     expect(proposal.fields[0]).toMatchObject({
       sourceColumn: "source_note",
       targetField: null,
-      status: "PROPOSED",
+      status: "REVIEW_REQUIRED",
     });
-    expect(proposal.fields[0]!.confidence).toBe(
+    expect(proposal.fields[0]!.confidence).toBeLessThan(
       MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
     );
   });

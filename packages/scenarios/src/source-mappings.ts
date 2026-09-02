@@ -62,9 +62,12 @@ export const concentratedBuyDialectBProposal =
       sourceColumn,
       targetField,
       transform,
-      confidence: 1,
-      evidence: "Matched by the versioned per-artifact fixture mapping table.",
-      status: "PROPOSED",
+      confidence: sourceColumn === "source_note" ? 0 : 1,
+      evidence:
+        sourceColumn === "source_note"
+          ? "The fixture does not determine whether this source note should remain unmapped."
+          : "Matched by the versioned per-artifact fixture mapping table.",
+      status: sourceColumn === "source_note" ? "REVIEW_REQUIRED" : "PROPOSED",
     })),
   });
 
