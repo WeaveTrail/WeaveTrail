@@ -46,6 +46,17 @@ function validBody() {
 }
 
 describe("POST /api/replay approved mapping boundary", () => {
+  it("replays dialect A with an empty override list to the golden hash", async () => {
+    const response = await POST(request(validBody()));
+    const result = await response.json();
+
+    expect(validBody().mappingApproval.overrides).toEqual([]);
+    expect(response.status).toBe(200);
+    expect(result.replay.canonicalResultHash).toBe(
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+    );
+  });
+
   it.each(["baseline", "shuffle", "duplicate"] as const)(
     "re-derives approved rows with mutation %s",
     async (mutation) => {
@@ -205,6 +216,52 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(dialectB.status).toBe(200);
     expect((await dialectA.json()).replay.canonicalResultHash).toBe(
       (await dialectB.json()).replay.canonicalResultHash,
+    );
+  });
+
+  it("requires a field override before replaying dialect B", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result.issues).toEqual([
+      expect.objectContaining({
+        code: "MAPPING_OVERRIDE_REQUIRED",
+        path: ["fields", 12],
+      }),
+    ]);
+    expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(result).not.toHaveProperty("replay");
+  });
+
+  it("replays dialect B after a justified source_note override", async () => {
+    const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
+    const response = await POST(
+      request({
+        scenario: dialectBScenario,
+        mutation: "baseline",
+        rows: committedReplayScenarios[dialectBScenario].rows,
+        mappingApproval: approval(concentratedBuyDialectBProposal, [
+          {
+            fieldPath: "fields.12",
+            reason: "Reviewed the source note as intentionally unmapped.",
+          },
+        ]),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(result.replay.canonicalResultHash).toBe(
+      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
     );
   });
 

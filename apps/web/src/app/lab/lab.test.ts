@@ -6,7 +6,18 @@ import { describe, expect, it } from "vitest";
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
-import { Lab, resetReplayForScenarioChange, type LabScenario } from "./lab";
+import {
+  Lab,
+  mappingOverrides,
+  resetReplayForScenarioChange,
+  type LabScenario,
+} from "./lab";
+
+function renderedButton(markup: string, label: string): string {
+  const button = markup.match(new RegExp(`<button[^>]*>${label}</button>`));
+  expect(button, `button labeled ${label}`).not.toBeNull();
+  return button![0];
+}
 
 describe("lab mapping status boundary", () => {
   it("clears a failed replay error when switching scenarios", () => {
@@ -26,7 +37,7 @@ describe("lab mapping status boundary", () => {
     expect(reset.error).toBeNull();
   });
 
-  it("enables replay for a proposed mapping without rendering a blocked banner", async () => {
+  it("offers mapping approval for dialect A without a blocked banner", async () => {
     const scenarioName = "concentrated-buy-dialect-a.csv";
     const scenario = committedReplayScenarios[scenarioName];
     const proposal = await new FixtureSchemaMappingProvider().propose({
@@ -56,10 +67,15 @@ describe("lab mapping status boundary", () => {
     expect(markup).not.toContain("APPROVED");
     expect(markup).not.toContain("Replay is blocked");
     expect(markup).toContain("Approve executed mapping");
-    expect(markup).toMatch(/<button[^>]*disabled=""/);
+    expect(renderedButton(markup, "Approve executed mapping")).not.toContain(
+      "disabled",
+    );
+    expect(renderedButton(markup, "Run deterministic replay")).toContain(
+      "disabled",
+    );
   });
 
-  it("disables replay for a review-required proposal without rendering approval", async () => {
+  it("requires a reviewer reason before offering mapping approval for dialect B", async () => {
     const scenarioName = "concentrated-buy-dialect-b.jsonl";
     const scenario = committedReplayScenarios[scenarioName];
     const proposal = await new FixtureSchemaMappingProvider().propose({
@@ -79,20 +95,7 @@ describe("lab mapping status boundary", () => {
 
     const markup = renderToStaticMarkup(
       createElement(Lab, {
-        proposals: {
-          [scenario.sourceArtifactHash]: {
-            ...proposal,
-            fields: proposal.fields.map((field, index) =>
-              index === 0
-                ? {
-                    ...field,
-                    confidence: 0,
-                    status: "REVIEW_REQUIRED" as const,
-                  }
-                : field,
-            ),
-          },
-        },
+        proposals: { [scenario.sourceArtifactHash]: proposal },
         providerMode: "fixture",
         scenarios,
       }),
@@ -100,6 +103,38 @@ describe("lab mapping status boundary", () => {
 
     expect(markup).toContain("REVIEW_REQUIRED");
     expect(markup).not.toContain("APPROVED");
-    expect(markup).toMatch(/<button[^>]*disabled=""/);
+    expect(markup).toContain("Reviewer reason for source_note");
+    expect(markup).toContain(
+      "Replay is blocked until every flagged field has a reviewer reason.",
+    );
+    expect(renderedButton(markup, "Approve executed mapping")).toContain(
+      "disabled",
+    );
+    expect(renderedButton(markup, "Run deterministic replay")).toContain(
+      "disabled",
+    );
+  });
+
+  it("records the reviewer's source_note reason in the dialect B override", async () => {
+    const scenario =
+      committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+
+    expect(
+      mappingOverrides(proposal, {
+        "fields.12": "  Source note reviewed as intentionally unmapped.  ",
+      }),
+    ).toEqual([
+      {
+        fieldPath: "fields.12",
+        reason: "Source note reviewed as intentionally unmapped.",
+      },
+    ]);
+    expect(mappingOverrides(proposal, { "fields.12": "   " })).toEqual([]);
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 import {
+  committedReplayScenarios,
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
 } from "@weavetrail/scenarios";
@@ -34,9 +35,7 @@ describe("FixtureSchemaMappingProvider", () => {
             targetField: null,
             confidence: sourceColumn === "source_note" ? 0 : 1,
             status:
-              sourceColumn === "source_note"
-                ? "REVIEW_REQUIRED"
-                : "PROPOSED",
+              sourceColumn === "source_note" ? "REVIEW_REQUIRED" : "PROPOSED",
           });
           expect(field?.transform).toBeNull();
         } else {
@@ -52,7 +51,7 @@ describe("FixtureSchemaMappingProvider", () => {
     },
   );
 
-  it("keeps dialect B source_note below the review threshold", async () => {
+  it("presents dialect B source_note for review below the confidence threshold", async () => {
     const proposal = await provider.propose({
       sourceArtifactHash: concentratedBuyDialectBMapping.sourceArtifactHash,
       constants: concentratedBuyDialectBMapping.constants,
@@ -63,10 +62,45 @@ describe("FixtureSchemaMappingProvider", () => {
     expect(proposal.fields[0]).toMatchObject({
       sourceColumn: "source_note",
       targetField: null,
+      transform: null,
+      confidence: 0,
       status: "REVIEW_REQUIRED",
     });
     expect(proposal.fields[0]!.confidence).toBeLessThan(
       MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
     );
+  });
+
+  it("reaches review-required through a committed replay scenario", async () => {
+    const proposals = await Promise.all(
+      Object.values(committedReplayScenarios).map((scenario) =>
+        provider.propose({
+          sourceArtifactHash: scenario.sourceArtifactHash,
+          constants: scenario.constants,
+          columns: [...scenario.columns],
+          sampleRows: [],
+        }),
+      ),
+    );
+
+    expect(
+      proposals
+        .flatMap(({ fields }) => fields)
+        .some(({ status }) => status === "REVIEW_REQUIRED"),
+    ).toBe(true);
+  });
+
+  it("keeps dialect A fully resolvable", async () => {
+    const scenario = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
+    const proposal = await provider.propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+
+    expect(
+      proposal.fields.filter(({ status }) => status === "REVIEW_REQUIRED"),
+    ).toEqual([]);
   });
 });
