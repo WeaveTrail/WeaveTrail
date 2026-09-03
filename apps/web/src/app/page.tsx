@@ -82,6 +82,7 @@ export default function HomePage() {
           <span>SUPPORTED</span>
           <span>NOT_SUPPORTED</span>
           <span>INCONCLUSIVE</span>
+          <span className="review-state">REVIEW_REQUIRED · pre-replay</span>
         </div>
         <p>
           For a post-alert market-surveillance reviewer, WeaveTrail helps turn
