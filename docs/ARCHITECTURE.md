@@ -29,7 +29,7 @@ that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
 The guided lab executes the server-only fixture provider against a table keyed
-by the committed `sourceArtifactHash`. It returns a structured `1.3` proposal
+by the committed `sourceArtifactHash`. It returns a structured `1.4` proposal
 containing approved dataset and venue constants plus each source column, closed
 target field, transform, confidence, evidence, and proposal status. This
 proposal is not an approval. The lab exposes an explicit local-reviewer action;

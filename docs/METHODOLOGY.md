@@ -28,7 +28,7 @@ The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, up to 64
 declared source rows, a mapping approval record, and an optional approved case
 manifest. It never accepts caller-authored canonical
-events. The API hashes its own executed `1.3` proposal, checks the approval and
+events. The API hashes its own executed `1.4` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
 at the same coordinate before re-deriving events through the approved mapping.
