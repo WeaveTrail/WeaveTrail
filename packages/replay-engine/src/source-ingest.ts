@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import {
   AllowedTransformSchema,
+  canonicalizeDecimalString,
   deriveApprovedSourceMapping,
   TradeEventSchema,
   type AllowedTransform,
@@ -48,7 +49,7 @@ export function deriveEventId(identity: EventSourceIdentity): string {
 }
 
 export type ApprovedSourceMapping = {
-  mappingVersion: "1.3";
+  mappingVersion: "1.4";
   sourceArtifactHash: string;
   constants: SchemaMappingProposal["constants"];
   fields: readonly (readonly [
@@ -141,7 +142,7 @@ function applyTransform(
     case "UPPERCASE":
       return value.toUpperCase();
     case "DECIMAL_STRING":
-      return /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value) ? value : undefined;
+      return canonicalizeDecimalString(value);
     case "BUY_SELL_CODE": {
       const sides: Record<string, string> = {
         B: "BUY",

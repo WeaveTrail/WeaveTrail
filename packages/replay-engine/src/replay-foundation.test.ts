@@ -39,12 +39,12 @@ function permutations<T>(values: readonly T[]): T[][] {
 
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
-    expect(ENGINE_VERSION).toBe("0.6.0-canonical-number");
+    expect(ENGINE_VERSION).toBe("0.7.0-canonical-decimal");
   });
 
   it("pins the concentrated-buy canonical result hash", () => {
     expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
-      "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
+      "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
     );
   });
 
@@ -71,7 +71,7 @@ describe("replayFoundation", () => {
     expect(permutations(concentratedBuyEvents)).toHaveLength(24);
     expect(hashes).toEqual(
       new Set([
-        "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
+        "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
       ]),
     );
   });
@@ -88,6 +88,26 @@ describe("replayFoundation", () => {
     expect(withDuplicate.canonicalResultHash).toBe(
       baseline.canonicalResultHash,
     );
+  });
+
+  it("collapses decimal spelling variants as exact semantic duplicates", () => {
+    const first = syntheticEvent({
+      price: "100",
+      quantity: "3.5",
+      rawRowHash: "a".repeat(64),
+    });
+    const variant = {
+      ...first,
+      price: "100.00",
+      quantity: "3.500",
+      rawRowHash: "b".repeat(64),
+    };
+
+    const replay = replayFoundation([first, variant]);
+
+    expect(replay.duplicateCount).toBe(1);
+    expect(replay.events).toHaveLength(1);
+    expect(replay.events[0]).toMatchObject({ price: "100", quantity: "3.5" });
   });
 
   it("rejects a shared event identifier independent of input order", () => {

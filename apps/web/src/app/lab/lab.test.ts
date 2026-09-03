@@ -44,7 +44,7 @@ describe("lab mapping status boundary", () => {
     ],
   ])("fails closed with a visible error for %s", async (_, cryptoProvider) => {
     const replayRequest = vi.fn();
-    const artifact = { mappingVersion: "1.3", confidence: 1 };
+    const artifact = { mappingVersion: "1.4", confidence: 1 };
 
     vi.stubGlobal("fetch", replayRequest);
 

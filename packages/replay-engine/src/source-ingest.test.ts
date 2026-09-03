@@ -357,6 +357,47 @@ describe("source provenance", () => {
     }
   });
 
+  it("converges trailing-zero artifacts without changing raw-row provenance", () => {
+    const [original] = parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH);
+    const alternateHash = "f".repeat(64);
+    const variant = {
+      coordinate: {
+        ...original!.coordinate,
+        sourceArtifactHash: alternateHash,
+      },
+      values: {
+        ...original!.values,
+        px: `${original!.values.px}0`,
+        qty: `${original!.values.qty}0`,
+      },
+    };
+    const baseline = applyApprovedMapping([original!], {
+      ...concentratedBuyDialectAMapping,
+      sourceArtifactHash: DIALECT_A_HASH,
+    });
+    const alternate = applyApprovedMapping([variant], {
+      ...concentratedBuyDialectAMapping,
+      sourceArtifactHash: alternateHash,
+    });
+
+    expect(baseline.status).toBe("APPROVED");
+    expect(alternate.status).toBe("APPROVED");
+    if (baseline.status !== "APPROVED" || alternate.status !== "APPROVED") {
+      throw new Error("decimal spelling fixtures must map successfully");
+    }
+
+    expect(canonicalDatasetHash(alternate.events)).toBe(
+      canonicalDatasetHash(baseline.events),
+    );
+    expect(replayFoundation(alternate.events).canonicalResultHash).toBe(
+      replayFoundation(baseline.events).canonicalResultHash,
+    );
+    expect(alternate.events[0]!.rawRowHash).not.toBe(
+      baseline.events[0]!.rawRowHash,
+    );
+    expect(alternate.events[0]!.rawRowHash).toBe(deriveRawRowHash(variant));
+  });
+
   it("reports field-level mapping agreement counts and review outcomes", () => {
     const dialectA = applyApprovedMapping(
       parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),

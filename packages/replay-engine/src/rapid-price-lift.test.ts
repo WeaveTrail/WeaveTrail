@@ -106,7 +106,7 @@ describe("evaluateRapidPriceLift", () => {
         removalSensitivityBps: "150.0000",
       },
     });
-    expect(replay.engineVersion).toBe("0.6.0-canonical-number");
+    expect(replay.engineVersion).toBe("0.7.0-canonical-decimal");
     expect(replay.evaluation.findings).toHaveLength(5);
     expect(replay.evaluation.findings.every(({ passed }) => passed)).toBe(true);
     expect(
@@ -218,7 +218,7 @@ describe("evaluateRapidPriceLift", () => {
 
     expect(result.nonComparableEventCount).toBe(1);
     expect(result.ruleVersion).toBe("1.1");
-    expect(replay.engineVersion).toBe("0.6.0-canonical-number");
+    expect(replay.engineVersion).toBe("0.7.0-canonical-decimal");
     expect(aggressiveBuyShare?.observedValue).toBe("8019.7530");
     expect(
       result.findings.every(

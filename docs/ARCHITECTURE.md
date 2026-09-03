@@ -140,7 +140,10 @@ For one validated dataset and approved manifest:
 - equivalent approved CSV and JSON Lines dialects converge to the same
   `canonicalDatasetHash` and replay result while retaining distinct artifact
   and row hashes;
-- decimal values are never calculated with JavaScript floating point;
+- validated price and quantity strings remove insignificant fractional zeroes
+  and normalize signed zero before duplicate comparison or hashing;
+- decimal values are never normalized or calculated with JavaScript floating
+  point;
 - finite JSON numbers use RFC 8785 section 3.2.2.3 binary64 spelling through a
   runtime-neutral serializer shared by browser approval and server validation;
 - ratio gates compare exact scaled-integer cross-products;
@@ -151,8 +154,8 @@ For one validated dataset and approved manifest:
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
 rejection, every permutation of the committed four-event fixture,
 conflict-safe duplicate handling, canonical identifier uniqueness and conflict
-selection, the canonical event projection, and a committed literal golden hash
-have tests today.
+selection, canonical decimal spelling, the canonical event projection, and a
+committed literal golden hash have tests today.
 Source-artifact, raw-row, event-ID, canonical-dataset and dataset-profile
 derivation, profile-bounded cases, workflow transitions, and approval-gated
 replay also have committed tests today. Exact financial arithmetic and three
@@ -169,7 +172,7 @@ for the rule formula and abstention boundary.
 ## Provenance contract migration
 
 Hash names identify one boundary rather than relying on context. Mapping
-proposal `1.3` uses `sourceArtifactHash`; case manifest `1.3` and Evidence
+proposal `1.4` uses `sourceArtifactHash`; case manifest `1.3` and Evidence
 Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
 `sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
 not accepted by the new strict contracts. See
@@ -180,15 +183,18 @@ rules.
 
 Case Manifest `1.3` retains the immutable approval record introduced by `1.2`,
 requires at least one actor, and accepts only registered rule parameters for
-the declared rule version. Mapping Proposal `1.3` retains the closed identity
-constants and transform pairs introduced by `1.2`. Both `1.3` artifacts bind
-approvals to the RFC 8785 finite-number serialization rule; `1.2` artifacts are
-rejected and require migration and reapproval. Replay Request `2.0`
+the declared rule version. Mapping Proposal `1.4` retains the closed identity
+constants and transform pairs and makes `DECIMAL_STRING` produce canonical
+decimal spelling. Both artifact types use the shared RFC 8785 finite-number
+serialization rule for JSON numbers. Superseded artifacts are rejected and
+require migration and reapproval. Replay Request `2.0`
 accepts source rows and a mapping approval instead of canonical events. Older
 artifacts retain their original version and migrate explicitly. See
 [ADR 0006](adr/0006-enforce-approval-provenance-before-replay.md) and
 [ADR 0007](adr/0007-bind-approved-mapping-to-replay.md) and
 [ADR 0011](adr/0011-use-rfc-8785-number-serialization.md).
+Decimal-string normalization and its version migration are recorded in
+[ADR 0013](adr/0013-normalize-canonical-decimal-strings.md).
 
 ## Deployment boundary
 

@@ -56,6 +56,9 @@ pnpm test
   all-absent case orders by event ID.
 - **Dialect convergence** — equivalent committed source dialects converge to
   one canonical dataset and result hash.
+- **Decimal-spelling convergence** — accepted trailing-zero and signed-zero
+  variants normalize before duplicate classification and hashing while their
+  verbatim source rows retain distinct raw-row hashes.
 - **Dataset-profile determinism** — profiles remain identical across event
   shuffling and committed source dialects.
 - **Mapping-approval binding** — approval is bound to the validated proposal
