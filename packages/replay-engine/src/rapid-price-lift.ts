@@ -50,26 +50,6 @@ type EligibleEvent = TradeEvent & {
   actorId: string;
 };
 
-function isEligible(
-  event: TradeEvent,
-  manifest: CaseManifest,
-): event is EligibleEvent {
-  return (
-    event.instrumentId === manifest.hypothesis.instrumentId &&
-    event.eventType === "TRADE" &&
-    compareCanonicalEventTimes(
-      event.eventTime,
-      manifest.hypothesis.startTime,
-    ) >= 0 &&
-    compareCanonicalEventTimes(event.eventTime, manifest.hypothesis.endTime) <=
-      0 &&
-    event.price !== undefined &&
-    event.quantity !== undefined &&
-    event.side !== undefined &&
-    event.actorId !== undefined
-  );
-}
-
 function isComparableCandidate(
   event: TradeEvent,
   manifest: CaseManifest,
@@ -83,6 +63,26 @@ function isComparableCandidate(
     ) >= 0 &&
     compareCanonicalEventTimes(event.eventTime, manifest.hypothesis.endTime) <=
       0
+  );
+}
+
+function hasComparableRuleInputs(event: TradeEvent): event is EligibleEvent {
+  return (
+    event.price !== undefined &&
+    event.quantity !== undefined &&
+    event.side !== undefined &&
+    event.actorId !== undefined &&
+    compareScaledDecimals(parseScaledDecimal(event.price), ZERO) > 0 &&
+    compareScaledDecimals(parseScaledDecimal(event.quantity), ZERO) > 0
+  );
+}
+
+function isEligible(
+  event: TradeEvent,
+  manifest: CaseManifest,
+): event is EligibleEvent {
+  return (
+    isComparableCandidate(event, manifest) && hasComparableRuleInputs(event)
   );
 }
 
@@ -190,11 +190,7 @@ export function evaluateRapidPriceLift(
   );
   const nonComparableEventCount = canonicalEvents.filter(
     (event) =>
-      isComparableCandidate(event, manifest) &&
-      (event.price === undefined ||
-        event.quantity === undefined ||
-        event.side === undefined ||
-        event.actorId === undefined),
+      isComparableCandidate(event, manifest) && !hasComparableRuleInputs(event),
   ).length;
   if (eligible.length < 2) {
     return inconclusive(

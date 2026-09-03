@@ -116,11 +116,6 @@ describe("evaluateRapidPriceLift", () => {
 
   it.each([
     ["INSUFFICIENT_ELIGIBLE_EVENTS", [event(1)]],
-    ["REFERENCE_PRICE_NOT_POSITIVE", [event(1, { price: "0" }), event(2)]],
-    [
-      "TOTAL_NOTIONAL_NOT_POSITIVE",
-      [event(1, { quantity: "-1" }), event(2, { quantity: "1" })],
-    ],
     ["NO_AGGRESSIVE_BUY_NOTIONAL", [event(1), event(2)]],
     [
       "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
@@ -137,6 +132,22 @@ describe("evaluateRapidPriceLift", () => {
         nonComparableEventCount: 0,
         findings: [],
         sensitivity: null,
+      });
+    },
+  );
+
+  it.each([
+    ["price", event(1, { price: "0" }), event(2)],
+    ["quantity", event(1, { quantity: "-1" }), event(2)],
+  ] as const)(
+    "treats a non-positive %s as non-comparable before aggregate preconditions",
+    (_field, nonComparable, comparable) => {
+      expect(
+        evaluateRapidPriceLift([nonComparable, comparable], manifest()),
+      ).toMatchObject({
+        result: "INCONCLUSIVE",
+        reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+        nonComparableEventCount: 1,
       });
     },
   );
@@ -190,6 +201,58 @@ describe("evaluateRapidPriceLift", () => {
     expect(result.result).toBe("SUPPORTED");
     expect(result.nonComparableEventCount).toBe(1);
     expect(concentration?.observedValue).toBe("10000.0000");
+  });
+
+  it("excludes a negative-price trade from metrics and finding references", () => {
+    const negativePrice = event(5, { price: "-1" });
+    const result = evaluateRapidPriceLift(
+      [...supportedEvents, negativePrice],
+      manifest(),
+    );
+    const aggressiveBuyShare = result.findings.find(
+      ({ gate }) => gate === "AGGRESSIVE_BUY_SHARE",
+    );
+
+    expect(result.nonComparableEventCount).toBe(1);
+    expect(aggressiveBuyShare?.observedValue).toBe("8019.7530");
+    expect(
+      result.findings.every(
+        ({ referencedEventIds }) =>
+          !referencedEventIds.includes(negativePrice.eventId),
+      ),
+    ).toBe(true);
+  });
+
+  it("excludes a zero-quantity trade from the peak price", () => {
+    const zeroQuantity = event(5, { price: "99999", quantity: "0" });
+    const result = evaluateRapidPriceLift(
+      [...supportedEvents, zeroQuantity],
+      manifest(),
+    );
+    const priceChange = result.findings.find(
+      ({ gate }) => gate === "PRICE_CHANGE",
+    );
+
+    expect(result.nonComparableEventCount).toBe(1);
+    expect(priceChange?.observedValue).toBe("200.0000");
+  });
+
+  it("abstains when every in-window trade has a non-positive value", () => {
+    const result = evaluateRapidPriceLift(
+      [
+        event(1, { price: "0" }),
+        event(2, { price: "-1" }),
+        event(3, { quantity: "0" }),
+        event(4, { quantity: "-1" }),
+      ],
+      manifest(),
+    );
+
+    expect(result).toMatchObject({
+      result: "INCONCLUSIVE",
+      reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+      nonComparableEventCount: 4,
+    });
   });
 
   it("abstains when every in-window trade is unclassifiable", () => {
@@ -264,7 +327,7 @@ describe("evaluateRapidPriceLift", () => {
   });
 
   it.each(["0", "-1"])(
-    "abstains when the surviving reference price is %s",
+    "excludes a survivor candidate whose price is %s",
     (survivorPrice) => {
       const result = evaluateRapidPriceLift(
         [
@@ -279,19 +342,15 @@ describe("evaluateRapidPriceLift", () => {
         manifest(),
       );
 
-      expect(result).toEqual({
-        ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+      expect(result).toMatchObject({
         result: "INCONCLUSIVE",
-        reason: "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
-        nonComparableEventCount: 0,
-        findings: [],
-        sensitivity: null,
+        reason: "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+        nonComparableEventCount: 1,
       });
     },
   );
 
-  it("checks survivor count before survivor reference price", () => {
+  it("checks eligible count after excluding a non-positive value", () => {
     const result = evaluateRapidPriceLift(
       [
         event(1, {
@@ -306,7 +365,8 @@ describe("evaluateRapidPriceLift", () => {
 
     expect(result).toMatchObject({
       result: "INCONCLUSIVE",
-      reason: "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+      reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+      nonComparableEventCount: 1,
     });
   });
 });
