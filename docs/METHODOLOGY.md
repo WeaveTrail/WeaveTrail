@@ -28,7 +28,7 @@ The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, up to 64
 declared source rows, a mapping approval record, and an optional approved case
 manifest. It never accepts caller-authored canonical
-events. The API hashes its own executed `1.2` proposal, checks the approval and
+events. The API hashes its own executed `1.3` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
 at the same coordinate before re-deriving events through the approved mapping.
@@ -54,7 +54,7 @@ times. Case validation accepts only that `DatasetProfile`: a different dataset
 hash, an absent instrument or actor, an empty actor set, or an interval outside
 the profile stops before replay.
 
-Case Manifest `1.2` carries an approval record instead of a writable approval
+Case Manifest `1.3` carries an approval record instead of a writable approval
 status. Mapping approval uses a separate record. Both records retain an opaque
 reviewer reference, decision, approval time, and justified override paths while
 binding to the immutable proposed artifact. Mapping confidence below the
@@ -97,10 +97,25 @@ compared as a signed nanosecond integer, not through millisecond date parsing.
 Equal-time events use an unsigned numeric `sequence` comparison and then
 lexicographic UTF-16 code-unit `eventId` order. Canonical JSON keys use the same
 code-unit order and do not depend on host locale data or object property
-enumeration order. Canonical JSON rejects non-finite numbers; protected
-decimal values are represented as strings. It omits `undefined` object
-properties but rejects `undefined` array elements rather than silently
-converting them to `null`.
+enumeration order.
+
+Finite JSON number spelling follows RFC 8785 section 3.2.2.3 over the IEEE 754
+binary64 value already held by the runtime. It uses the shortest
+round-trippable ECMAScript representation: negative zero becomes `0`, `1e-6`
+is `0.000001`, `1e-7` is `1e-7`, `1e20` is
+`100000000000000000000`, and `1e21` is `1e+21`. Exponents use lowercase `e`
+and include `+` when required. The values `0.1`, the minimum positive
+subnormal, and the maximum finite value serialize as `0.1`, `5e-324`, and
+`1.7976931348623157e+308`, respectively. `NaN` and either infinity are
+rejected. A JSON number has already been rounded to binary64 before
+canonicalization; serialization cannot recover lost precision. Exact prices,
+quantities, money, financial rates, and thresholds therefore remain decimal
+strings and use scaled-integer arithmetic.
+
+This is the RFC 8785 finite-number rule only, not a claim of full JSON
+Canonicalization Scheme compliance. WeaveTrail retains its existing UTF-16
+key ordering and `undefined` policy: object properties with `undefined` are
+omitted, while `undefined` or holes in arrays are rejected.
 
 The current dataset contract represents one ordered source stream. Every event
 must either provide `sequence` or omit it; mixed presence stops replay with
@@ -175,7 +190,11 @@ the field override. The approval uses the opaque local reference
 that proposal, validates the justified override, and derives the only
 executable mapping from it. Proposal status alone never constitutes approval.
 The override changes approval metadata, not the approved mapping projection,
-so the canonical result hash is unchanged.
+so the canonical result hash is unchanged. Browser mapping and case approvals
+serialize with the same runtime-neutral canonical serializer used by the
+server before Web Crypto computes SHA-256. If canonicalization or hashing is
+unavailable or fails, the lab displays an approval-hash error, creates no
+approval, and keeps replay blocked.
 
 ## `RAPID_PRICE_LIFT` version `1.1`
 

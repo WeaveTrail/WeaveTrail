@@ -29,11 +29,14 @@ that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
 The guided lab executes the server-only fixture provider against a table keyed
-by the committed `sourceArtifactHash`. It returns a structured `1.2` proposal
+by the committed `sourceArtifactHash`. It returns a structured `1.3` proposal
 containing approved dataset and venue constants plus each source column, closed
 target field, transform, confidence, evidence, and proposal status. This
 proposal is not an approval. The lab exposes an explicit local-reviewer action;
-the API recomputes the proposal hash and enforces any required overrides.
+the browser and API use the same runtime-neutral canonical serializer, the API
+recomputes the proposal hash, and it enforces any required overrides. The
+browser uses Web Crypto only after canonical serialization and fails closed
+with a visible error if either step cannot complete.
 
 ### Replay HTTP boundary
 
@@ -138,6 +141,8 @@ For one validated dataset and approved manifest:
   `canonicalDatasetHash` and replay result while retaining distinct artifact
   and row hashes;
 - decimal values are never calculated with JavaScript floating point;
+- finite JSON numbers use RFC 8785 section 3.2.2.3 binary64 spelling through a
+  runtime-neutral serializer shared by browser approval and server validation;
 - ratio gates compare exact scaled-integer cross-products;
 - `canonicalResultHash` includes engine version and canonical events, plus the
   rule result, findings, and sensitivity when evaluation occurs;
@@ -164,7 +169,7 @@ for the rule formula and abstention boundary.
 ## Provenance contract migration
 
 Hash names identify one boundary rather than relying on context. Mapping
-proposal `1.2` uses `sourceArtifactHash`; case manifest `1.1` and Evidence
+proposal `1.3` uses `sourceArtifactHash`; case manifest `1.3` and Evidence
 Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
 `sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
 not accepted by the new strict contracts. See
@@ -173,15 +178,17 @@ rules.
 
 ## Approval contract migration
 
-Case Manifest `1.2` replaces the `1.1` bare approval status with an immutable
-approval record, requires at least one actor, and accepts only registered rule
-parameters for the declared rule version. Mapping Proposal `1.2` adds the
-dataset and venue constants used by event identity, closes target fields, and
-requires an explicit transform or an explicit null pair. Replay Request `2.0`
+Case Manifest `1.3` retains the immutable approval record introduced by `1.2`,
+requires at least one actor, and accepts only registered rule parameters for
+the declared rule version. Mapping Proposal `1.3` retains the closed identity
+constants and transform pairs introduced by `1.2`. Both `1.3` artifacts bind
+approvals to the RFC 8785 finite-number serialization rule; `1.2` artifacts are
+rejected and require migration and reapproval. Replay Request `2.0`
 accepts source rows and a mapping approval instead of canonical events. Older
 artifacts retain their original version and migrate explicitly. See
 [ADR 0006](adr/0006-enforce-approval-provenance-before-replay.md) and
-[ADR 0007](adr/0007-bind-approved-mapping-to-replay.md).
+[ADR 0007](adr/0007-bind-approved-mapping-to-replay.md) and
+[ADR 0011](adr/0011-use-rfc-8785-number-serialization.md).
 
 ## Deployment boundary
 
