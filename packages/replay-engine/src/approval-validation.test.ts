@@ -31,7 +31,7 @@ import {
 const mapping = concentratedBuyDialectAProposal;
 const datasetProfile = computeDatasetProfile(concentratedBuyEvents);
 const caseProposal: CaseManifestProposal = {
-  manifestVersion: "1.2",
+  manifestVersion: "1.3",
   caseId: "synthetic-case",
   canonicalDatasetHash: datasetProfile.canonicalDatasetHash,
   hypothesis: {
@@ -241,7 +241,7 @@ describe("replay approval gate", () => {
 
     expect(result).toHaveProperty(
       "canonicalResultHash",
-      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
+      "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
     );
   });
 
@@ -565,7 +565,7 @@ describe("replay approval gate", () => {
     const alternateApprovalHash = alternate.canonicalResultHash;
     expect(alternateApprovalHash).toBe(baselineHash);
     expect(alternateApprovalHash).toBe(
-      "dd374dae321d8304a99c34a5d76451afda6832fa384dabac4aa9408b62326f5c",
+      "205186561d12b6efdd1281c70f32e2692fc16004014d57c8ac56a2a79e1924c1",
     );
   });
 });

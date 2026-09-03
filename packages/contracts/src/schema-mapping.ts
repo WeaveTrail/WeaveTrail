@@ -29,7 +29,7 @@ export const MappedTargetFieldSchema = z.enum([
 
 export const SchemaMappingProposalSchema = z
   .object({
-    mappingVersion: z.literal("1.2"),
+    mappingVersion: z.literal("1.3"),
     sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
     constants: z
       .object({

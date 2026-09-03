@@ -64,7 +64,7 @@ function caseWindowIsOrdered(hypothesis: {
 }
 
 const CaseManifestFields = {
-  manifestVersion: z.literal("1.2"),
+  manifestVersion: z.literal("1.3"),
   caseId: z.string().min(1),
   canonicalDatasetHash: z.string().regex(/^[a-f0-9]{64}$/),
   hypothesis: z

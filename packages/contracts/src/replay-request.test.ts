@@ -62,7 +62,7 @@ describe("ReplayResultResponseSchema", () => {
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
       replay: {
-        engineVersion: "0.5.0-rule",
+        engineVersion: "0.6.0-canonical-number",
         inputEventCount: 1,
         canonicalEventCount: 1,
         duplicateCount: 0,
@@ -81,7 +81,7 @@ describe("ReplayResultResponseSchema", () => {
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
       replay: {
-        engineVersion: "0.5.0-rule",
+        engineVersion: "0.6.0-canonical-number",
         inputEventCount: 6,
         canonicalEventCount: 6,
         duplicateCount: 0,

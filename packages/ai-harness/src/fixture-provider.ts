@@ -75,7 +75,7 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       input.sourceArtifactHash,
     );
     return SchemaMappingProposalSchema.parse({
-      mappingVersion: "1.2",
+      mappingVersion: "1.3",
       sourceArtifactHash: input.sourceArtifactHash,
       constants: input.constants,
       fields: input.columns.map((sourceColumn) => {
