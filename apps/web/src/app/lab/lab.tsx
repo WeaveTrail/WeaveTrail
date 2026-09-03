@@ -19,8 +19,6 @@ import {
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
 
-import { Diagnostic, HashRef, ProvenanceChip, ResultBanner } from "../ui";
-
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
 export type LabScenario = {
@@ -137,10 +135,13 @@ export function RapidPriceLiftEvaluation({
   evaluation: RapidPriceLiftResult;
 }) {
   return (
-    <ResultBanner
-      result={evaluation.result}
-      rule={`${evaluation.ruleId}@${evaluation.ruleVersion}`}
-    >
+    <section className="result-summary" aria-label="Pattern hypothesis result">
+      <div className="evaluation-heading">
+        <strong data-result={evaluation.result}>{evaluation.result}</strong>
+        <code>
+          {evaluation.ruleId}@{evaluation.ruleVersion}
+        </code>
+      </div>
       <div className="evaluation-block">
         {evaluation.result === "INCONCLUSIVE" ? (
           <p>Reason: {evaluation.reason}</p>
@@ -180,7 +181,7 @@ export function RapidPriceLiftEvaluation({
           Non-comparable events: {evaluation.nonComparableEventCount}
         </small>
       </div>
-    </ResultBanner>
+    </section>
   );
 }
 
@@ -323,7 +324,6 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           <span className="panel-label">
             02 · Executed mapping proposal · {providerMode}
           </span>
-          <ProvenanceChip kind={approval ? "approved" : "proposed"} />
           {proposal.fields.map((field, index) => (
             <div className="mapping-row" key={field.sourceColumn}>
               <code>{field.sourceColumn}</code>
@@ -354,7 +354,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
             </div>
           ))}
           {unresolvedReview ? (
-            <div className="review-required" data-status="REVIEW_REQUIRED">
+            <div className="review-message" data-status="REVIEW_REQUIRED">
               <strong>REVIEW_REQUIRED</strong>
               <span>
                 Replay is blocked until every flagged field has a reviewer
@@ -410,7 +410,11 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
         >
           {running ? "Replaying…" : "Run deterministic replay"}
         </button>
-        {error ? <Diagnostic code="REPLAY_REFUSED">{error}</Diagnostic> : null}
+        {error ? (
+          <p className="error-message" role="alert">
+            <strong>REPLAY_REFUSED</strong> {error}
+          </p>
+        ) : null}
       </div>
 
       <div className="panel result-panel" aria-live="polite">
@@ -440,11 +444,8 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               </div>
             </div>
             <div className="hash-block">
-              <HashRef
-                label="canonicalResultHash"
-                value={result.replay.canonicalResultHash}
-                full
-              />
+              <span>Canonical result hash</span>
+              <code>{result.replay.canonicalResultHash}</code>
             </div>
             {result.evaluation ? (
               <RapidPriceLiftEvaluation evaluation={result.evaluation} />
