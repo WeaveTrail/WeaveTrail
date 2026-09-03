@@ -12,11 +12,8 @@ export const RapidPriceLiftGateSchema = z.enum([
 
 export const RapidPriceLiftInconclusiveReasonSchema = z.enum([
   "INSUFFICIENT_ELIGIBLE_EVENTS",
-  "REFERENCE_PRICE_NOT_POSITIVE",
-  "TOTAL_NOTIONAL_NOT_POSITIVE",
   "NO_AGGRESSIVE_BUY_NOTIONAL",
   "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
-  "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
 ]);
 
 export const RapidPriceLiftFindingSchema = z
@@ -41,7 +38,7 @@ export const RapidPriceLiftSensitivitySchema = z
 
 const RapidPriceLiftResultFields = {
   ruleId: z.literal("RAPID_PRICE_LIFT"),
-  ruleVersion: z.literal("1.0"),
+  ruleVersion: z.literal("1.1"),
   nonComparableEventCount: z.number().int().nonnegative(),
 } as const;
 

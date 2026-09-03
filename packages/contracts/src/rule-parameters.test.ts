@@ -15,7 +15,7 @@ describe("rule parameter registry", () => {
     expect(
       RuleConfigurationSchema.safeParse({
         ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         parameters,
       }).success,
     ).toBe(true);
@@ -31,11 +31,21 @@ describe("rule parameter registry", () => {
     ).toBe(false);
   });
 
-  it("rejects an unknown parameter name", () => {
+  it("rejects the superseded 1.0 rule version", () => {
     expect(
       RuleConfigurationSchema.safeParse({
         ruleId: "RAPID_PRICE_LIFT",
         ruleVersion: "1.0",
+        parameters,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects an unknown parameter name", () => {
+    expect(
+      RuleConfigurationSchema.safeParse({
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.1",
         parameters: { ...parameters, modelSelectedThreshold: "1" },
       }).success,
     ).toBe(false);

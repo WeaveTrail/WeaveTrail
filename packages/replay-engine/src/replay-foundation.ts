@@ -3,7 +3,7 @@ import type { RapidPriceLiftResult, TradeEvent } from "@weavetrail/contracts";
 import { sha256Canonical } from "./canonical-json";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 
-export const ENGINE_VERSION = "0.4.0-rule";
+export const ENGINE_VERSION = "0.5.0-rule";
 
 export type FoundationReplay = {
   engineVersion: string;

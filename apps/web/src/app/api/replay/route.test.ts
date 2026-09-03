@@ -80,7 +80,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(validBody().mappingApproval.overrides).toEqual([]);
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
+      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
     );
     expect(result).not.toHaveProperty("evaluation");
   });
@@ -93,7 +93,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result).toMatchObject({
       evaluation: {
         ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         result: "SUPPORTED",
         findings: expect.arrayContaining([
           expect.objectContaining({ gate: "PRICE_CHANGE", passed: true }),
@@ -379,7 +379,7 @@ describe("POST /api/replay approved mapping boundary", () => {
 
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
+      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
     );
   });
 

@@ -1,7 +1,7 @@
 # Methodology
 
 This document defines how to interpret WeaveTrail output and the implemented
-`RAPID_PRICE_LIFT` version `1.0` rule.
+`RAPID_PRICE_LIFT` version `1.1` rule.
 
 ## Question and result vocabulary
 
@@ -65,13 +65,17 @@ At the replay service boundary, unresolved flagged fields return
 includes a separate scenario-level `MAPPING_REVIEW_REQUIRED` code. The workflow
 state with that name remains unchanged.
 
-The `RAPID_PRICE_LIFT` `1.0` registry accepts only the declared parameter names
+The `RAPID_PRICE_LIFT` `1.1` registry accepts only the declared parameter names
 for price change, aggressive-buy share, actor concentration, executions above
 a reference, and removal sensitivity. Their values are decimal or unsigned
 integer strings. The registry supplies no values, defaults, or fallbacks. Rule
-evaluation requires exactly one matching `RAPID_PRICE_LIFT` `1.0`
+evaluation requires exactly one matching `RAPID_PRICE_LIFT` `1.1`
 configuration; zero or multiple entries return `RULE_CONFIGURATION_REQUIRED`
-before evaluation.
+before evaluation. The current contract rejects version `1.0`; using the new
+eligibility semantics requires migrating the manifest to `1.1`, recomputing
+its approval artifact hash, and obtaining a new approval. Existing `1.0`
+evidence retains its original version label and is not reinterpreted by this
+runtime.
 
 ## Canonical time and ordering
 
@@ -173,7 +177,7 @@ executable mapping from it. Proposal status alone never constitutes approval.
 The override changes approval metadata, not the approved mapping projection,
 so the canonical result hash is unchanged.
 
-## `RAPID_PRICE_LIFT` version `1.0`
+## `RAPID_PRICE_LIFT` version `1.1`
 
 An event is eligible when its instrument matches the approved hypothesis, its
 type is `TRADE`, its signed-nanosecond event time is inside the inclusive
@@ -214,16 +218,16 @@ Basis-point values are truncated toward zero to four fractional digits only
 when reported; counts are unsigned integer strings. Consequently a displayed
 value equal to a threshold can still fail when its exact value is lower.
 
-Preconditions run in this order and stop at the first failure:
+Because every eligible event has a strictly positive price and quantity,
+positive reference-price, total-notional, and survivor-reference checks are
+guaranteed by eligibility rather than exposed as separate preconditions.
+The remaining preconditions run in this order and stop at the first failure:
 
-| Precondition                              | `INCONCLUSIVE` reason                   |
-| ----------------------------------------- | --------------------------------------- |
-| At least two eligible events              | `INSUFFICIENT_ELIGIBLE_EVENTS`          |
-| Positive reference price                  | `REFERENCE_PRICE_NOT_POSITIVE`          |
-| Positive total notional                   | `TOTAL_NOTIONAL_NOT_POSITIVE`           |
-| Positive aggressive-buy notional          | `NO_AGGRESSIVE_BUY_NOTIONAL`            |
-| At least two events survive actor removal | `REMOVAL_LEAVES_INSUFFICIENT_EVENTS`    |
-| Positive reference after actor removal    | `SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE` |
+| Precondition                              | `INCONCLUSIVE` reason                |
+| ----------------------------------------- | ------------------------------------ |
+| At least two eligible events              | `INSUFFICIENT_ELIGIBLE_EVENTS`       |
+| Positive aggressive-buy notional          | `NO_AGGRESSIVE_BUY_NOTIONAL`         |
+| At least two events survive actor removal | `REMOVAL_LEAVES_INSUFFICIENT_EVENTS` |
 
 After all preconditions pass, all five gates passing produces `SUPPORTED`; any
 failed gate produces `NOT_SUPPORTED`. Each finding includes its observed

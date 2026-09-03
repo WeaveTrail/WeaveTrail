@@ -47,7 +47,7 @@ function manifest(
     rules: [
       {
         ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         parameters: {
           minimumPriceChangeBps: "100",
           minimumAggressiveBuyShareBps: "7000",
@@ -96,6 +96,7 @@ describe("evaluateRapidPriceLift", () => {
     const replay = replayRapidPriceLift(supportedEvents, manifest());
 
     expect(replay.evaluation).toMatchObject({
+      ruleVersion: "1.1",
       result: "SUPPORTED",
       nonComparableEventCount: 0,
       sensitivity: {
@@ -105,6 +106,7 @@ describe("evaluateRapidPriceLift", () => {
         removalSensitivityBps: "150.0000",
       },
     });
+    expect(replay.engineVersion).toBe("0.5.0-rule");
     expect(replay.evaluation.findings).toHaveLength(5);
     expect(replay.evaluation.findings.every(({ passed }) => passed)).toBe(true);
     expect(
@@ -126,7 +128,7 @@ describe("evaluateRapidPriceLift", () => {
     (reason, events) => {
       expect(evaluateRapidPriceLift(events, manifest())).toEqual({
         ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         result: "INCONCLUSIVE",
         reason,
         nonComparableEventCount: 0,
@@ -205,15 +207,18 @@ describe("evaluateRapidPriceLift", () => {
 
   it("excludes a negative-price trade from metrics and finding references", () => {
     const negativePrice = event(5, { price: "-1" });
-    const result = evaluateRapidPriceLift(
+    const replay = replayRapidPriceLift(
       [...supportedEvents, negativePrice],
       manifest(),
     );
+    const result = replay.evaluation;
     const aggressiveBuyShare = result.findings.find(
       ({ gate }) => gate === "AGGRESSIVE_BUY_SHARE",
     );
 
     expect(result.nonComparableEventCount).toBe(1);
+    expect(result.ruleVersion).toBe("1.1");
+    expect(replay.engineVersion).toBe("0.5.0-rule");
     expect(aggressiveBuyShare?.observedValue).toBe("8019.7530");
     expect(
       result.findings.every(
@@ -278,6 +283,18 @@ describe("evaluateRapidPriceLift", () => {
       expect.objectContaining<Partial<RuleEvaluationError>>({
         code: "RULE_CONFIGURATION_REQUIRED",
       }),
+    );
+  });
+
+  it("rejects a superseded 1.0 rule configuration instead of reinterpreting it", () => {
+    const current = manifest();
+    const configured = {
+      ...current,
+      rules: [{ ...current.rules[0]!, ruleVersion: "1.0" }],
+    } as unknown as CaseManifest;
+
+    expect(() => evaluateRapidPriceLift([], configured)).toThrowError(
+      "Exactly one approved RAPID_PRICE_LIFT 1.1 rule configuration is required",
     );
   });
 

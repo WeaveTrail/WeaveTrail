@@ -166,7 +166,7 @@ describe("provenance contract migration", () => {
       canonicalDatasetHash: HASH,
       sourceArtifacts: [{ sourceArtifactHash: HASH }],
       manifestHash: HASH,
-      engineVersion: "0.4.0-rule",
+      engineVersion: "0.5.0-rule",
       ruleVersion: "planned-fixture",
       result: "INCONCLUSIVE",
       findings: [],

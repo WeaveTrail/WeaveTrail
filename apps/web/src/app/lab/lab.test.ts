@@ -45,7 +45,7 @@ describe("lab mapping status boundary", () => {
       createElement(RapidPriceLiftEvaluation, {
         evaluation: {
           ruleId: "RAPID_PRICE_LIFT",
-          ruleVersion: "1.0",
+          ruleVersion: "1.1",
           result: "NOT_SUPPORTED",
           nonComparableEventCount: 0,
           findings: [
