@@ -250,8 +250,18 @@ export const checks = [
   },
   {
     name: "Scenario classification",
-    status: "Planned",
-    detail: "Compare synthetic cases with their declared outcomes.",
+    status: "Implemented",
+    detail: "Pin three synthetic cases to their declared rule outcomes.",
+    evidence: [
+      {
+        file: "packages/replay-engine/src/rapid-price-lift-golden.test.ts",
+        titles: [
+          "pins rapid-price-lift-supported.csv to SUPPORTED",
+          "pins rapid-price-lift-broad-participation.csv to NOT_SUPPORTED",
+          "pins rapid-price-lift-insufficient-evidence.csv to INCONCLUSIVE",
+        ],
+      },
+    ],
   },
   {
     name: "Evidence completeness",

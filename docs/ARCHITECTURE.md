@@ -38,8 +38,9 @@ the API recomputes the proposal hash and enforces any required overrides.
 ### Replay HTTP boundary
 
 `POST /api/replay` accepts a strict object with a committed source-artifact
-scenario, one of `baseline`, `shuffle`, or `duplicate`, one to four declared
-source rows, and an optional mapping approval record. Caller-authored canonical
+scenario, one of `baseline`, `shuffle`, or `duplicate`, one to 64 declared
+source rows, an optional mapping approval record, and an optional approved
+`CaseManifest`. Caller-authored canonical
 events are rejected. The server obtains the scenario proposal, verifies the
 approval against that exact proposal, derives the executable mapping as a pure
 projection, and checks every submitted row against the server-owned committed
@@ -57,7 +58,13 @@ A successful response is also contract-validated and contains only fixture
 mode, scenario, mutation, boundary text, engine version, event counts, ordered
 event identifiers, and the canonical result hash. The engine's canonical event
 objects and their `rawRowHash` provenance remain server-side rather than being
-included accidentally through the engine's internal return type.
+included accidentally through the engine's internal return type. With an
+approved manifest, the response also carries the closed rule result, five gate
+findings for a conclusive evaluation, and a mechanical sensitivity comparison.
+Profile failures use `CANONICAL_DATASET_HASH_MISMATCH`,
+`INSTRUMENT_OUTSIDE_DATASET_PROFILE`, `ACTOR_OUTSIDE_DATASET_PROFILE`, or
+`TIME_WINDOW_OUTSIDE_DATASET_PROFILE`; missing rule configuration uses
+`RULE_CONFIGURATION_REQUIRED`.
 
 ### Approval boundary
 
@@ -131,6 +138,9 @@ For one validated dataset and approved manifest:
   `canonicalDatasetHash` and replay result while retaining distinct artifact
   and row hashes;
 - decimal values are never calculated with JavaScript floating point;
+- ratio gates compare exact scaled-integer cross-products;
+- `canonicalResultHash` includes engine version and canonical events, plus the
+  rule result, findings, and sensitivity when evaluation occurs;
 - reruns produce the same `canonicalResultHash`.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
@@ -140,12 +150,16 @@ selection, the canonical event projection, and a committed literal golden hash
 have tests today.
 Source-artifact, raw-row, event-ID, canonical-dataset and dataset-profile
 derivation, profile-bounded cases, workflow transitions, and approval-gated
-replay also have committed tests today. Financial arithmetic remains planned.
+replay also have committed tests today. Exact financial arithmetic and three
+declared scenario results now have committed tests.
 See
 [ADR 0003](adr/0003-use-nanosecond-utc-and-code-unit-ordering.md) for the exact
 time representation and input limits, and
 [ADR 0004](adr/0004-protect-semantic-events-and-reject-identity-conflicts.md) for
 identity and projection scope.
+See
+[ADR 0009](adr/0009-use-exact-rapid-price-lift-rules-and-explicit-abstention.md)
+for the rule formula and abstention boundary.
 
 ## Provenance contract migration
 

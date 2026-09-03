@@ -1,8 +1,7 @@
 # Methodology
 
-This document defines how to interpret WeaveTrail output. It describes the
-planned financial reference rule where noted; it does not claim that the rule
-has been implemented or evaluated.
+This document defines how to interpret WeaveTrail output and the implemented
+`RAPID_PRICE_LIFT` version `1.0` rule.
 
 ## Question and result vocabulary
 
@@ -26,8 +25,9 @@ table rejects illegal transitions, and the approval gate produces no replay
 hash unless mapping and case approval records match their artifact hashes.
 
 The fixture replay HTTP boundary applies the same distinction. It validates a
-named committed CSV or JSON Lines scenario, a closed mutation, declared source
-rows, and a mapping approval record. It never accepts caller-authored canonical
+named committed CSV or JSON Lines scenario, a closed mutation, up to 64
+declared source rows, a mapping approval record, and an optional approved case
+manifest. It never accepts caller-authored canonical
 events. The API hashes its own executed `1.2` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
@@ -68,8 +68,7 @@ state with that name remains unchanged.
 The `RAPID_PRICE_LIFT` `1.0` registry accepts only the declared parameter names
 for price change, aggressive-buy share, actor concentration, executions above
 a reference, and removal sensitivity. Their values are decimal or unsigned
-integer strings. The registry supplies no values or defaults; formula and
-threshold selection remain planned with the rule implementation.
+integer strings. The registry supplies no values, defaults, or fallbacks.
 
 ## Canonical time and ordering
 
@@ -171,27 +170,66 @@ executable mapping from it. Proposal status alone never constitutes approval.
 The override changes approval metadata, not the approved mapping projection,
 so the canonical result hash is unchanged.
 
-## Planned `RAPID_PRICE_LIFT` rule
+## `RAPID_PRICE_LIFT` version `1.0`
 
-The first rule version will evaluate a fixed time window using decimal-safe
-calculations for:
+An event is eligible when its instrument matches the approved hypothesis, its
+type is `TRADE`, its signed-nanosecond event time is inside the inclusive
+approved window, and both `price` and `quantity` are present. A matching trade
+without either decimal increments `nonComparableEventCount` and enters no
+metric. Eligible events retain canonical `eventTime -> sequence -> eventId`
+order.
 
-- price change in basis points;
-- aggressive-buy share for the approved actor set;
-- actor-set share of traded notional or quantity;
-- repeated executions above a reference price; and
-- the mechanical difference after excluding the approved actor set.
+| Metric                                | Definition                                                      |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `referencePrice`                      | Price of the first eligible event                               |
+| `peakPrice`                           | Greatest eligible price                                         |
+| `priceChangeBps`                      | `(peakPrice - referencePrice) * 10000 / referencePrice`         |
+| `aggressiveBuyNotional`               | Sum of `price * quantity` for eligible `BUY` events             |
+| `totalNotional`                       | Sum of `price * quantity` for all eligible events               |
+| `aggressiveBuyShareBps`               | `aggressiveBuyNotional * 10000 / totalNotional`                 |
+| `approvedActorBuyNotional`            | Eligible buy notional whose actor is in the approved group      |
+| `actorConcentrationShareBps`          | `approvedActorBuyNotional * 10000 / aggressiveBuyNotional`      |
+| `executionsAboveReference`            | Approved-actor `BUY` count whose price is above the reference   |
+| `priceChangeBpsWithoutApprovedActors` | Price change recomputed after removing the approved actor group |
+| `removalSensitivityBps`               | `priceChangeBps - priceChangeBpsWithoutApprovedActors`          |
 
-Thresholds live in a versioned `CaseManifest`; the model cannot add rules or
-calculation code. The exact formula and threshold defaults will be documented
-in the same change that implements the rule.
+Removal recomputes both reference and peak from the surviving eligible events.
+It removes only the actor group named in the approved manifest.
 
-## Counterfactual interpretation
+| Gate                   | Exact condition                                                   |
+| ---------------------- | ----------------------------------------------------------------- |
+| `PRICE_CHANGE`         | `priceChangeBps >= minimumPriceChangeBps`                         |
+| `AGGRESSIVE_BUY_SHARE` | `aggressiveBuyShareBps >= minimumAggressiveBuyShareBps`           |
+| `ACTOR_CONCENTRATION`  | `actorConcentrationShareBps >= minimumActorConcentrationShareBps` |
+| `REPEATED_EXECUTION`   | `executionsAboveReference >= minimumExecutionsAboveReference`     |
+| `REMOVAL_SENSITIVITY`  | `removalSensitivityBps >= minimumRemovalSensitivityBps`           |
+
+For a ratio `a / b` and decimal threshold `t`, the engine compares integer
+cross-products at a common scale. It never compares a rendered quotient.
+Basis-point values are truncated toward zero to four fractional digits only
+when reported; counts are unsigned integer strings. Consequently a displayed
+value equal to a threshold can still fail when its exact value is lower.
+
+Preconditions run in this order and stop at the first failure:
+
+| Precondition                              | `INCONCLUSIVE` reason                |
+| ----------------------------------------- | ------------------------------------ |
+| At least two eligible events              | `INSUFFICIENT_ELIGIBLE_EVENTS`       |
+| Positive reference price                  | `REFERENCE_PRICE_NOT_POSITIVE`       |
+| Positive total notional                   | `TOTAL_NOTIONAL_NOT_POSITIVE`        |
+| Positive aggressive-buy notional          | `NO_AGGRESSIVE_BUY_NOTIONAL`         |
+| At least two events survive actor removal | `REMOVAL_LEAVES_INSUFFICIENT_EVENTS` |
+
+After all preconditions pass, all five gates passing produces `SUPPORTED`; any
+failed gate produces `NOT_SUPPORTED`. Each finding includes its observed
+string, configured threshold, pass state, and non-empty canonical event
+references.
+
+## Sensitivity interpretation
 
 The comparison asks, “What metric does the same deterministic replay produce
-after removing this declared event set?” It does not prove that those actors
-caused the observed market path. The output must be labeled sensitivity
-analysis and retain references to both included and excluded events.
+after removing this declared actor group?” It is reported as a mechanical
+sensitivity comparison and retains canonical event references.
 
 ## Abstention
 

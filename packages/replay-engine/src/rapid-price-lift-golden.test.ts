@@ -23,23 +23,11 @@ function scenarioEvents(name: keyof typeof rapidPriceLiftScenarios) {
 }
 
 describe("rapid price lift declared scenario goldens", () => {
-  it.each([
-    [
-      "rapid-price-lift-supported.csv",
-      "SUPPORTED",
-      "5fe3b76bfd23ac2f26cb3537ba1405ad465931a84a0a9dc2c2747198eaf984c9",
-    ],
-    [
-      "rapid-price-lift-broad-participation.csv",
-      "NOT_SUPPORTED",
-      "748bf513bc5acd1565ec419f1e8b6356945677b24243245155b28291a43fdc71",
-    ],
-    [
-      "rapid-price-lift-insufficient-evidence.csv",
-      "INCONCLUSIVE",
-      "da33eb868e6852e665284ff79046bec730e4d77b53f5316040c770150deb57df",
-    ],
-  ] as const)("pins %s to %s", (name, expectedResult, expectedHash) => {
+  function expectGolden(
+    name: keyof typeof rapidPriceLiftScenarios,
+    expectedResult: "SUPPORTED" | "NOT_SUPPORTED" | "INCONCLUSIVE",
+    expectedHash: string,
+  ) {
     const { scenario, events } = scenarioEvents(name);
     const replay = replayRapidPriceLift(events, scenario.manifest);
 
@@ -50,6 +38,30 @@ describe("rapid price lift declared scenario goldens", () => {
     );
     expect(sha256Canonical(caseManifestProposal(scenario.manifest))).toBe(
       scenario.manifest.approval.approvedArtifactHash,
+    );
+  }
+
+  it("pins rapid-price-lift-supported.csv to SUPPORTED", () => {
+    expectGolden(
+      "rapid-price-lift-supported.csv",
+      "SUPPORTED",
+      "5fe3b76bfd23ac2f26cb3537ba1405ad465931a84a0a9dc2c2747198eaf984c9",
+    );
+  });
+
+  it("pins rapid-price-lift-broad-participation.csv to NOT_SUPPORTED", () => {
+    expectGolden(
+      "rapid-price-lift-broad-participation.csv",
+      "NOT_SUPPORTED",
+      "748bf513bc5acd1565ec419f1e8b6356945677b24243245155b28291a43fdc71",
+    );
+  });
+
+  it("pins rapid-price-lift-insufficient-evidence.csv to INCONCLUSIVE", () => {
+    expectGolden(
+      "rapid-price-lift-insufficient-evidence.csv",
+      "INCONCLUSIVE",
+      "da33eb868e6852e665284ff79046bec730e4d77b53f5316040c770150deb57df",
     );
   });
 
