@@ -194,6 +194,8 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   async function approveMapping() {
     if (unresolvedReview) return;
     setError(null);
+    setApproval(null);
+    setResult(null);
     try {
       setApproval(
         await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
@@ -209,6 +211,8 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   async function approveCase() {
     if (selectedScenario.manifest === undefined) return;
     setError(null);
+    setCaseApproval(null);
+    setResult(null);
     try {
       setCaseApproval(await approvalFor(selectedScenario.manifest));
       setResult(null);
