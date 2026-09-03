@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import { compareUtf16CodeUnits } from "./canonical-order";
 import { CanonicalizationError } from "./canonical-order";
 
@@ -48,8 +46,4 @@ function serializeValue(value: CanonicalJsonInput): string {
 
 export function canonicalJson(value: CanonicalJsonInput): string {
   return serializeValue(value);
-}
-
-export function sha256Canonical(value: CanonicalJsonInput): string {
-  return createHash("sha256").update(canonicalJson(value)).digest("hex");
 }

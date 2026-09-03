@@ -11,7 +11,7 @@ import { computeDatasetProfile } from "./dataset-profile";
 
 const profile = computeDatasetProfile(concentratedBuyEvents);
 const validProposal: CaseManifestProposal = {
-  manifestVersion: "1.2",
+  manifestVersion: "1.3",
   caseId: "synthetic-case",
   canonicalDatasetHash: profile.canonicalDatasetHash,
   hypothesis: {

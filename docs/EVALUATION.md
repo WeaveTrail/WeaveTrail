@@ -62,6 +62,9 @@ pnpm test
   and its executed transforms.
 - **Record-set completeness** — omitted declared rows or approved columns fail
   before result hashing.
+- **Shared approval serialization** — browser approval and replay validation
+  use the same canonical bytes, including the RFC 8785 finite-number rule, and
+  browser hashing failures leave replay blocked.
 - **Mapping agreement reporting** — the engine reports per-field agreement
   between mapped canonical events and each mapping application's review
   outcome.

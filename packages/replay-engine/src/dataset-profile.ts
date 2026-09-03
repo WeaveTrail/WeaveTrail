@@ -3,7 +3,7 @@ import {
   type DatasetProfile,
 } from "@weavetrail/contracts";
 
-import { sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
 import { compareUtf16CodeUnits } from "./canonical-order";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 

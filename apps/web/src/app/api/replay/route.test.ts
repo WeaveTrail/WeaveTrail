@@ -80,7 +80,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(validBody().mappingApproval.overrides).toEqual([]);
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
+      "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
     );
     expect(result).not.toHaveProperty("evaluation");
   });
@@ -379,7 +379,7 @@ describe("POST /api/replay approved mapping boundary", () => {
 
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
+      "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
     );
   });
 

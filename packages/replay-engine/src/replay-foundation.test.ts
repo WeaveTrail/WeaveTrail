@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { TradeEventSchema, type TradeEvent } from "@weavetrail/contracts";
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
-import { canonicalJson, sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
+import { canonicalJson } from "./canonical-json";
 import {
   CanonicalizationError,
   compareCanonicalEventTimes,
@@ -19,6 +20,13 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
   return { ...concentratedBuyEvents[0]!, ...overrides };
 }
 
+function binary64(hex: string): number {
+  const bytes = Uint8Array.from(
+    hex.match(/.{2}/g)!.map((pair) => Number.parseInt(pair, 16)),
+  );
+  return new DataView(bytes.buffer).getFloat64(0, false);
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length === 0) return [[]];
 
@@ -31,12 +39,12 @@ function permutations<T>(values: readonly T[]): T[][] {
 
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
-    expect(ENGINE_VERSION).toBe("0.5.0-rule");
+    expect(ENGINE_VERSION).toBe("0.6.0-canonical-number");
   });
 
   it("pins the concentrated-buy canonical result hash", () => {
     expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
-      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
+      "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
     );
   });
 
@@ -63,7 +71,7 @@ describe("replayFoundation", () => {
     expect(permutations(concentratedBuyEvents)).toHaveLength(24);
     expect(hashes).toEqual(
       new Set([
-        "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
+        "3d4ab4df199f91cb9741359a2f2e905c51c6ff4305a43852ed4321b1218bb61a",
       ]),
     );
   });
@@ -466,6 +474,28 @@ describe("canonicalJson", () => {
       }
     }
     expect(canonicalJson(-0)).toBe("0");
+  });
+
+  it.each([
+    ["0000000000000000", "0"],
+    ["8000000000000000", "0"],
+    ["0000000000000001", "5e-324"],
+    ["8000000000000001", "-5e-324"],
+    ["7fefffffffffffff", "1.7976931348623157e+308"],
+    ["ffefffffffffffff", "-1.7976931348623157e+308"],
+    ["4340000000000000", "9007199254740992"],
+  ])("serializes RFC 8785 binary64 vector %s as %s", (hex, expected) => {
+    expect(canonicalJson(binary64(hex))).toBe(expected);
+  });
+
+  it.each([
+    [1e-6, "0.000001"],
+    [1e-7, "1e-7"],
+    [1e20, "100000000000000000000"],
+    [1e21, "1e+21"],
+    [0.1, "0.1"],
+  ])("pins finite-number spelling for %s", (value, expected) => {
+    expect(canonicalJson(value)).toBe(expected);
   });
 
   it("omits undefined object properties and produces round-trippable JSON", () => {

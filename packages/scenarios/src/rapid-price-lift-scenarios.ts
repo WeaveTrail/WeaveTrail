@@ -44,7 +44,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "d5f7482dab89bd7006f9e3e71e61d1fa8197ac4e714b1dc8a5036fd2140fede9",
     approvedManifestHash:
-      "ce18b883b94bea07710910610b50a034a24af8207cde612911e5915799358212",
+      "124cd4773a78072af775596fd1ff1a15302eb73bd52a44a2c3f17d550d4e240f",
     rows: [
       [
         "supported-001",
@@ -111,7 +111,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "84dd3996bebf1668be5bd87ca2ad0314c8bda278704d73880ae25118d6199bd9",
     approvedManifestHash:
-      "0e7cc0091a78db32ea42314b8e88ca2d663f3675284670112130282dd37b7e28",
+      "23f9f246abbfbc1508ad6f96730bd013a426e5a25c77ae9bdbd97757814a80a8",
     rows: [
       [
         "broad-001",
@@ -178,7 +178,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "b2fd0250f1e39205cf61b5447d8af9652a036f6276d2b8017334a0231d4fa630",
     approvedManifestHash:
-      "20fe1f5623e5ebdf16ad314699d13cfda88b11022c965ffd22263b0511122f52",
+      "fdd3c8b70beed197c49ab560b844d2b9797e1d84f72808689563d2c74af6b645",
     rows: [
       [
         "insufficient-001",
@@ -229,7 +229,7 @@ function buildScenario(
     venueId: "SYNTH-RULE",
   };
   const mappingProposal = SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.2",
+    mappingVersion: "1.3",
     sourceArtifactHash: input.sourceArtifactHash,
     constants,
     fields: [
@@ -272,7 +272,7 @@ function buildScenario(
     }),
   );
   const manifest = CaseManifestSchema.parse({
-    manifestVersion: "1.2",
+    manifestVersion: "1.3",
     caseId: input.datasetId,
     canonicalDatasetHash: input.canonicalDatasetHash,
     hypothesis: {

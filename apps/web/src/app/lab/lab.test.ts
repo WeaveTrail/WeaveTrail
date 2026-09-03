@@ -1,12 +1,19 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
+import { sha256Canonical } from "@weavetrail/replay-engine";
+import {
+  canonicalJson,
+  type CanonicalJsonInput,
+} from "@weavetrail/replay-engine/canonical-json";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
 import {
+  APPROVAL_HASH_ERROR,
+  attemptApproval,
   hasUnresolvedMappingReview,
   Lab,
   mappingOverrides,
@@ -21,7 +28,62 @@ function renderedButton(markup: string, label: string): string {
   return button![0];
 }
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("lab mapping status boundary", () => {
+  it.each([
+    ["missing Web Crypto", {}],
+    [
+      "rejecting Web Crypto",
+      {
+        subtle: {
+          digest: vi.fn().mockRejectedValue(new Error("digest failed")),
+        },
+      },
+    ],
+  ])("fails closed with a visible error for %s", async (_, cryptoProvider) => {
+    const replayRequest = vi.fn();
+    const artifact = { mappingVersion: "1.3", confidence: 1 };
+
+    vi.stubGlobal("fetch", replayRequest);
+
+    await expect(
+      attemptApproval(artifact, [], cryptoProvider),
+    ).resolves.toEqual({ approval: null, error: APPROVAL_HASH_ERROR });
+    expect(replayRequest).not.toHaveBeenCalled();
+  });
+
+  it("shares canonical approval bytes and hashes with the replay boundary", async () => {
+    const provider = new FixtureSchemaMappingProvider();
+
+    for (const scenario of Object.values(committedReplayScenarios)) {
+      const proposal = await provider.propose({
+        sourceArtifactHash: scenario.sourceArtifactHash,
+        constants: scenario.constants,
+        columns: [...scenario.columns],
+        sampleRows: [],
+      });
+      const artifacts: CanonicalJsonInput[] = [proposal];
+      if ("manifest" in scenario) {
+        const { approval: _, ...caseProposal } = scenario.manifest;
+        void _;
+        artifacts.push(caseProposal);
+      }
+
+      for (const artifact of artifacts) {
+        const bytes = new TextEncoder().encode(canonicalJson(artifact));
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+        const browserHash = Array.from(new Uint8Array(digest), (byte) =>
+          byte.toString(16).padStart(2, "0"),
+        ).join("");
+
+        expect(browserHash).toBe(sha256Canonical(artifact));
+      }
+    }
+  });
+
   it("clears a failed replay error when switching scenarios", () => {
     const failedReplay = { error: "Dialect B replay failed" };
 

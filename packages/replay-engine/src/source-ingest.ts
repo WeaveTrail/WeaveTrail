@@ -48,7 +48,7 @@ export function deriveEventId(identity: EventSourceIdentity): string {
 }
 
 export type ApprovedSourceMapping = {
-  mappingVersion: "1.2";
+  mappingVersion: "1.3";
   sourceArtifactHash: string;
   constants: SchemaMappingProposal["constants"];
   fields: readonly (readonly [

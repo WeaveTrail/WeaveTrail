@@ -14,6 +14,10 @@ import type {
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
+import {
+  canonicalJson,
+  type CanonicalJsonInput,
+} from "@weavetrail/replay-engine/canonical-json";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -29,6 +33,13 @@ type LabProps = {
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: LabScenario[];
+};
+
+export const APPROVAL_HASH_ERROR =
+  "Approval hash could not be computed. Approval and replay remain blocked.";
+
+type ApprovalHashCrypto = {
+  subtle?: Pick<SubtleCrypto, "digest">;
 };
 
 function requiresMappingOverride(
@@ -77,33 +88,45 @@ export function resetReplayForScenarioChange(scenario: ReplayScenario) {
   };
 }
 
-async function approvalFor(
-  artifact: unknown,
+export async function approvalFor(
+  artifact: CanonicalJsonInput,
   overrides: ApprovalRecord["overrides"] = [],
+  cryptoProvider: ApprovalHashCrypto | undefined = globalThis.crypto,
 ): Promise<ApprovalRecord> {
-  const bytes = new TextEncoder().encode(canonicalJson(artifact));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
-  return {
-    approvedArtifactHash,
-    reviewerRef: "reviewer:local-lab",
-    decision: "APPROVED",
-    overrides,
-    approvedAt: new Date().toISOString(),
-  };
+  try {
+    if (cryptoProvider?.subtle === undefined) {
+      throw new Error("Web Crypto is unavailable");
+    }
+    const bytes = new TextEncoder().encode(canonicalJson(artifact));
+    const digest = await cryptoProvider.subtle.digest("SHA-256", bytes);
+    const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    return {
+      approvedArtifactHash,
+      reviewerRef: "reviewer:local-lab",
+      decision: "APPROVED",
+      overrides,
+      approvedAt: new Date().toISOString(),
+    };
+  } catch {
+    throw new Error(APPROVAL_HASH_ERROR);
+  }
 }
 
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value !== null && typeof value === "object") {
-    return `{${Object.entries(value as Record<string, unknown>)
-      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
-      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
-      .join(",")}}`;
+export async function attemptApproval(
+  artifact: CanonicalJsonInput,
+  overrides: ApprovalRecord["overrides"] = [],
+  cryptoProvider: ApprovalHashCrypto | undefined = globalThis.crypto,
+): Promise<{ approval: ApprovalRecord | null; error: string | null }> {
+  try {
+    return {
+      approval: await approvalFor(artifact, overrides, cryptoProvider),
+      error: null,
+    };
+  } catch {
+    return { approval: null, error: APPROVAL_HASH_ERROR };
   }
-  return JSON.stringify(value);
 }
 
 export function RapidPriceLiftEvaluation({
@@ -185,16 +208,25 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
 
   async function approveMapping() {
     if (unresolvedReview) return;
-    setApproval(
-      await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
-    );
+    setError(null);
+    setApproval(null);
     setResult(null);
+    const attempt = await attemptApproval(
+      proposal,
+      mappingOverrides(proposal, reviewReasons),
+    );
+    setApproval(attempt.approval);
+    setError(attempt.error);
   }
 
   async function approveCase() {
     if (selectedScenario.manifest === undefined) return;
-    setCaseApproval(await approvalFor(selectedScenario.manifest));
+    setError(null);
+    setCaseApproval(null);
     setResult(null);
+    const attempt = await attemptApproval(selectedScenario.manifest);
+    setCaseApproval(attempt.approval);
+    setError(attempt.error);
   }
 
   async function runReplay() {

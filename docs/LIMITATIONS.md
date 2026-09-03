@@ -19,6 +19,9 @@ verification. It is not a production market-surveillance system.
 - No large-scale performance benchmark has been run.
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
+- Finite-number spelling is specified, but independent Evidence Bundle
+  assembly and verification remain planned. The implementation does not claim
+  full JSON Canonicalization Scheme compliance.
 
 ## Interpretation limits
 

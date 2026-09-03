@@ -1,4 +1,4 @@
-import { sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 
 export function canonicalDatasetHash(input: readonly unknown[]): string {

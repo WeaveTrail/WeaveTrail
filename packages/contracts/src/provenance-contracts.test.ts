@@ -13,7 +13,7 @@ const HASH = "a".repeat(64);
 describe("provenance contract migration", () => {
   it("binds mapping proposals to a source artifact", () => {
     const proposal = {
-      mappingVersion: "1.2",
+      mappingVersion: "1.3",
       sourceArtifactHash: HASH,
       constants: {
         schemaVersion: "1.0",
@@ -26,6 +26,12 @@ describe("provenance contract migration", () => {
     expect(SchemaMappingProposalSchema.parse(proposal)).toEqual(proposal);
     expect(
       SchemaMappingProposalSchema.safeParse({
+        ...proposal,
+        mappingVersion: "1.2",
+      }).success,
+    ).toBe(false);
+    expect(
+      SchemaMappingProposalSchema.safeParse({
         mappingVersion: "1.0",
         datasetHash: HASH,
         fields: [],
@@ -35,7 +41,7 @@ describe("provenance contract migration", () => {
 
   it("binds case manifests to canonical dataset meaning", () => {
     const manifest = {
-      manifestVersion: "1.2",
+      manifestVersion: "1.3",
       caseId: "synthetic-case",
       canonicalDatasetHash: HASH,
       hypothesis: {
@@ -66,6 +72,12 @@ describe("provenance contract migration", () => {
     expect(
       CaseManifestSchema.safeParse({
         ...manifest,
+        manifestVersion: "1.2",
+      }).success,
+    ).toBe(false);
+    expect(
+      CaseManifestSchema.safeParse({
+        ...manifest,
         manifestVersion: "1.1",
         canonicalDatasetHash: undefined,
         datasetHash: HASH,
@@ -78,7 +90,7 @@ describe("provenance contract migration", () => {
     ["approved manifest", CaseManifestSchema],
   ])("rejects a sub-millisecond inverted window in a %s", (_, schema) => {
     const proposal = {
-      manifestVersion: "1.2",
+      manifestVersion: "1.3",
       caseId: "synthetic-case",
       canonicalDatasetHash: HASH,
       hypothesis: {
@@ -121,7 +133,7 @@ describe("provenance contract migration", () => {
     "fails closed for unsupported case-time precision in a %s",
     (_, schema) => {
       const proposal = {
-        manifestVersion: "1.2",
+        manifestVersion: "1.3",
         caseId: "synthetic-case",
         canonicalDatasetHash: HASH,
         hypothesis: {
@@ -166,7 +178,7 @@ describe("provenance contract migration", () => {
       canonicalDatasetHash: HASH,
       sourceArtifacts: [{ sourceArtifactHash: HASH }],
       manifestHash: HASH,
-      engineVersion: "0.5.0-rule",
+      engineVersion: "0.6.0-canonical-number",
       ruleVersion: "planned-fixture",
       result: "INCONCLUSIVE",
       findings: [],

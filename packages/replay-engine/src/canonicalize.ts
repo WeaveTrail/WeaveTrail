@@ -1,10 +1,7 @@
 import { TradeEventSchema, type TradeEvent } from "@weavetrail/contracts";
 
-import {
-  canonicalJson,
-  sha256Canonical,
-  type JsonValue,
-} from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
+import { canonicalJson, type JsonValue } from "./canonical-json";
 import {
   CanonicalizationError,
   compareCanonicalEventTimes,
