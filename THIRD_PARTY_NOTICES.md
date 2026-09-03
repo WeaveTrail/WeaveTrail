@@ -18,10 +18,6 @@ The current `pnpm-lock.yaml` resolves the direct runtime dependencies below.
 The workspace packages under `@weavetrail/*` are original project code covered
 by the root Apache-2.0 license.
 
-The web build uses `next/font` to self-host IBM Plex Sans and JetBrains Mono.
-Both font families are distributed under the SIL Open Font License 1.1. No
-runtime font CDN is used.
-
 ## Transitive dependency boundary
 
 The production dependency graph currently contains packages declaring MIT,
