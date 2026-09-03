@@ -35,6 +35,13 @@ type LabProps = {
   scenarios: LabScenario[];
 };
 
+export const APPROVAL_HASH_ERROR =
+  "Approval hash could not be computed. Approval and replay remain blocked.";
+
+type ApprovalHashCrypto = {
+  subtle?: Pick<SubtleCrypto, "digest">;
+};
+
 function requiresMappingOverride(
   field: SchemaMappingProposal["fields"][number],
 ): boolean {
@@ -81,22 +88,30 @@ export function resetReplayForScenarioChange(scenario: ReplayScenario) {
   };
 }
 
-async function approvalFor(
+export async function approvalFor(
   artifact: CanonicalJsonInput,
   overrides: ApprovalRecord["overrides"] = [],
+  cryptoProvider: ApprovalHashCrypto | undefined = globalThis.crypto,
 ): Promise<ApprovalRecord> {
-  const bytes = new TextEncoder().encode(canonicalJson(artifact));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
-  return {
-    approvedArtifactHash,
-    reviewerRef: "reviewer:local-lab",
-    decision: "APPROVED",
-    overrides,
-    approvedAt: new Date().toISOString(),
-  };
+  try {
+    if (cryptoProvider?.subtle === undefined) {
+      throw new Error("Web Crypto is unavailable");
+    }
+    const bytes = new TextEncoder().encode(canonicalJson(artifact));
+    const digest = await cryptoProvider.subtle.digest("SHA-256", bytes);
+    const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    return {
+      approvedArtifactHash,
+      reviewerRef: "reviewer:local-lab",
+      decision: "APPROVED",
+      overrides,
+      approvedAt: new Date().toISOString(),
+    };
+  } catch {
+    throw new Error(APPROVAL_HASH_ERROR);
+  }
 }
 
 export function RapidPriceLiftEvaluation({
@@ -178,16 +193,30 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
 
   async function approveMapping() {
     if (unresolvedReview) return;
-    setApproval(
-      await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
-    );
-    setResult(null);
+    setError(null);
+    try {
+      setApproval(
+        await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
+      );
+      setResult(null);
+    } catch {
+      setApproval(null);
+      setResult(null);
+      setError(APPROVAL_HASH_ERROR);
+    }
   }
 
   async function approveCase() {
     if (selectedScenario.manifest === undefined) return;
-    setCaseApproval(await approvalFor(selectedScenario.manifest));
-    setResult(null);
+    setError(null);
+    try {
+      setCaseApproval(await approvalFor(selectedScenario.manifest));
+      setResult(null);
+    } catch {
+      setCaseApproval(null);
+      setResult(null);
+      setError(APPROVAL_HASH_ERROR);
+    }
   }
 
   async function runReplay() {

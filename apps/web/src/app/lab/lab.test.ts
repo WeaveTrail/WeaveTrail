@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { sha256Canonical } from "@weavetrail/replay-engine";
@@ -12,6 +12,8 @@ import {
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 
 import {
+  APPROVAL_HASH_ERROR,
+  approvalFor,
   hasUnresolvedMappingReview,
   Lab,
   mappingOverrides,
@@ -27,6 +29,26 @@ function renderedButton(markup: string, label: string): string {
 }
 
 describe("lab mapping status boundary", () => {
+  it.each([
+    ["missing Web Crypto", {}],
+    [
+      "rejecting Web Crypto",
+      {
+        subtle: {
+          digest: vi.fn().mockRejectedValue(new Error("digest failed")),
+        },
+      },
+    ],
+  ])("fails closed with a visible error for %s", async (_, cryptoProvider) => {
+    const replayRequest = vi.fn();
+    const artifact = { mappingVersion: "1.3", confidence: 1 };
+
+    await expect(approvalFor(artifact, [], cryptoProvider)).rejects.toThrow(
+      APPROVAL_HASH_ERROR,
+    );
+    expect(replayRequest).not.toHaveBeenCalled();
+  });
+
   it("shares canonical approval bytes and hashes with the replay boundary", async () => {
     const provider = new FixtureSchemaMappingProvider();
 
