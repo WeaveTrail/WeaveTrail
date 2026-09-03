@@ -44,7 +44,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "d5f7482dab89bd7006f9e3e71e61d1fa8197ac4e714b1dc8a5036fd2140fede9",
     approvedManifestHash:
-      "3bee8ad2bd52bea49c4e64b13cfee48913f4c757ad010629eab3ae05fdb9e8f8",
+      "ce18b883b94bea07710910610b50a034a24af8207cde612911e5915799358212",
     rows: [
       [
         "supported-001",
@@ -111,7 +111,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "84dd3996bebf1668be5bd87ca2ad0314c8bda278704d73880ae25118d6199bd9",
     approvedManifestHash:
-      "5f388b1d6ebb6cd1a47b98caa9c6a399c5f576d31a79c075166259d980ab6b0b",
+      "0e7cc0091a78db32ea42314b8e88ca2d663f3675284670112130282dd37b7e28",
     rows: [
       [
         "broad-001",
@@ -178,7 +178,7 @@ const SCENARIO_INPUTS = {
     canonicalDatasetHash:
       "b2fd0250f1e39205cf61b5447d8af9652a036f6276d2b8017334a0231d4fa630",
     approvedManifestHash:
-      "a05de0032c21a3a1007593c4e2c34486b789e8b23402141ecb1d1a5c592bb57f",
+      "20fe1f5623e5ebdf16ad314699d13cfda88b11022c965ffd22263b0511122f52",
     rows: [
       [
         "insufficient-001",
@@ -285,7 +285,7 @@ function buildScenario(
     rules: [
       {
         ruleId: "RAPID_PRICE_LIFT",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         parameters: {
           minimumPriceChangeBps: "100",
           minimumAggressiveBuyShareBps: "7000",

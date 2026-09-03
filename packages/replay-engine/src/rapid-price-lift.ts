@@ -11,6 +11,7 @@ import { compareCanonicalEventTimes } from "./canonical-order";
 import { canonicalizeEvents } from "./canonicalize";
 import {
   canonicalReplayResultHash,
+  ENGINE_VERSION,
   type FoundationReplay,
 } from "./replay-foundation";
 import {
@@ -50,26 +51,6 @@ type EligibleEvent = TradeEvent & {
   actorId: string;
 };
 
-function isEligible(
-  event: TradeEvent,
-  manifest: CaseManifest,
-): event is EligibleEvent {
-  return (
-    event.instrumentId === manifest.hypothesis.instrumentId &&
-    event.eventType === "TRADE" &&
-    compareCanonicalEventTimes(
-      event.eventTime,
-      manifest.hypothesis.startTime,
-    ) >= 0 &&
-    compareCanonicalEventTimes(event.eventTime, manifest.hypothesis.endTime) <=
-      0 &&
-    event.price !== undefined &&
-    event.quantity !== undefined &&
-    event.side !== undefined &&
-    event.actorId !== undefined
-  );
-}
-
 function isComparableCandidate(
   event: TradeEvent,
   manifest: CaseManifest,
@@ -83,6 +64,26 @@ function isComparableCandidate(
     ) >= 0 &&
     compareCanonicalEventTimes(event.eventTime, manifest.hypothesis.endTime) <=
       0
+  );
+}
+
+function hasComparableRuleInputs(event: TradeEvent): event is EligibleEvent {
+  return (
+    event.price !== undefined &&
+    event.quantity !== undefined &&
+    event.side !== undefined &&
+    event.actorId !== undefined &&
+    compareScaledDecimals(parseScaledDecimal(event.price), ZERO) > 0 &&
+    compareScaledDecimals(parseScaledDecimal(event.quantity), ZERO) > 0
+  );
+}
+
+function isEligible(
+  event: TradeEvent,
+  manifest: CaseManifest,
+): event is EligibleEvent {
+  return (
+    isComparableCandidate(event, manifest) && hasComparableRuleInputs(event)
   );
 }
 
@@ -160,7 +161,7 @@ function inconclusive(
 ): RapidPriceLiftResult {
   return RapidPriceLiftResultSchema.parse({
     ruleId: "RAPID_PRICE_LIFT",
-    ruleVersion: "1.0",
+    ruleVersion: "1.1",
     result: "INCONCLUSIVE",
     reason,
     nonComparableEventCount,
@@ -175,12 +176,12 @@ export function evaluateRapidPriceLift(
 ): RapidPriceLiftResult {
   const matchingRules = manifest.rules.filter(
     ({ ruleId, ruleVersion }) =>
-      ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
+      ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.1",
   );
   if (matchingRules.length !== 1) {
     throw new RuleEvaluationError(
       "RULE_CONFIGURATION_REQUIRED",
-      "Exactly one approved RAPID_PRICE_LIFT 1.0 rule configuration is required",
+      "Exactly one approved RAPID_PRICE_LIFT 1.1 rule configuration is required",
     );
   }
   const rule = matchingRules[0]!;
@@ -190,11 +191,7 @@ export function evaluateRapidPriceLift(
   );
   const nonComparableEventCount = canonicalEvents.filter(
     (event) =>
-      isComparableCandidate(event, manifest) &&
-      (event.price === undefined ||
-        event.quantity === undefined ||
-        event.side === undefined ||
-        event.actorId === undefined),
+      isComparableCandidate(event, manifest) && !hasComparableRuleInputs(event),
   ).length;
   if (eligible.length < 2) {
     return inconclusive(
@@ -204,18 +201,8 @@ export function evaluateRapidPriceLift(
   }
 
   const referencePrice = parseScaledDecimal(eligible[0]!.price);
-  if (compareScaledDecimals(referencePrice, ZERO) <= 0) {
-    return inconclusive(
-      "REFERENCE_PRICE_NOT_POSITIVE",
-      nonComparableEventCount,
-    );
-  }
 
   const totalNotional = sum(eligible.map(notional));
-  if (compareScaledDecimals(totalNotional, ZERO) <= 0) {
-    return inconclusive("TOTAL_NOTIONAL_NOT_POSITIVE", nonComparableEventCount);
-  }
-
   const buys = eligible.filter(({ side }) => side === "BUY");
   const aggressiveBuyNotional = sum(buys.map(notional));
   if (compareScaledDecimals(aggressiveBuyNotional, ZERO) <= 0) {
@@ -232,16 +219,6 @@ export function evaluateRapidPriceLift(
       nonComparableEventCount,
     );
   }
-  const survivorReferencePrice = parseScaledDecimal(
-    withoutApprovedActors[0]!.price,
-  );
-  if (compareScaledDecimals(survivorReferencePrice, ZERO) <= 0) {
-    return inconclusive(
-      "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
-      nonComparableEventCount,
-    );
-  }
-
   const approvedActorBuys = buys.filter(
     ({ actorId }) => actorId !== undefined && approvedActors.has(actorId),
   );
@@ -332,7 +309,7 @@ export function evaluateRapidPriceLift(
 
   return RapidPriceLiftResultSchema.parse({
     ruleId: "RAPID_PRICE_LIFT",
-    ruleVersion: "1.0",
+    ruleVersion: "1.1",
     result: findings.every(({ passed }) => passed)
       ? "SUPPORTED"
       : "NOT_SUPPORTED",
@@ -363,7 +340,7 @@ export function replayRapidPriceLift(
   const { events, duplicateCount } = canonicalizeEvents(input);
   const evaluation = evaluateRapidPriceLift(events, manifest);
   return {
-    engineVersion: "0.4.0-rule",
+    engineVersion: ENGINE_VERSION,
     inputEventCount: input.length,
     canonicalEventCount: events.length,
     duplicateCount,

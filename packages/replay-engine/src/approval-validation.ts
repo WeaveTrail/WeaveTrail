@@ -237,7 +237,7 @@ export function replayApproved(
   if (!profileValidation.accepted) return profileValidation;
   const matchingRules = manifest.rules.filter(
     ({ ruleId, ruleVersion }) =>
-      ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
+      ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.1",
   );
   if (matchingRules.length !== 1) {
     return {

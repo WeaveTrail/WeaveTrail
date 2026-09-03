@@ -44,7 +44,7 @@ const caseProposal: CaseManifestProposal = {
   rules: [
     {
       ruleId: "RAPID_PRICE_LIFT",
-      ruleVersion: "1.0",
+      ruleVersion: "1.1",
       parameters: {
         minimumPriceChangeBps: "100",
         minimumAggressiveBuyShareBps: "7000",
@@ -241,7 +241,7 @@ describe("replay approval gate", () => {
 
     expect(result).toHaveProperty(
       "canonicalResultHash",
-      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
+      "2379be92502d1220f86f2fe81d16f65e4a945c33472d47ef69cc6e27832b25d1",
     );
   });
 
@@ -565,7 +565,7 @@ describe("replay approval gate", () => {
     const alternateApprovalHash = alternate.canonicalResultHash;
     expect(alternateApprovalHash).toBe(baselineHash);
     expect(alternateApprovalHash).toBe(
-      "c696e63a930e08046cecc8bb5afd1893d5c02ddfb6a05681fac6cb918b8578c3",
+      "dd374dae321d8304a99c34a5d76451afda6832fa384dabac4aa9408b62326f5c",
     );
   });
 });

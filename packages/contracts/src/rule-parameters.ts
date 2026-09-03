@@ -5,7 +5,7 @@ const UnsignedIntegerStringSchema = z.string().regex(/^(?:0|[1-9]\d*)$/);
 
 export const RULE_PARAMETER_SCHEMAS = {
   RAPID_PRICE_LIFT: {
-    "1.0": z
+    "1.1": z
       .object({
         minimumPriceChangeBps: DecimalStringSchema,
         minimumAggressiveBuyShareBps: DecimalStringSchema,
@@ -21,8 +21,8 @@ export const RuleConfigurationSchema = z.discriminatedUnion("ruleId", [
   z
     .object({
       ruleId: z.literal("RAPID_PRICE_LIFT"),
-      ruleVersion: z.literal("1.0"),
-      parameters: RULE_PARAMETER_SCHEMAS.RAPID_PRICE_LIFT["1.0"],
+      ruleVersion: z.literal("1.1"),
+      parameters: RULE_PARAMETER_SCHEMAS.RAPID_PRICE_LIFT["1.1"],
     })
     .strict(),
 ]);
