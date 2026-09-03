@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 
-import { canonicalizeDecimalString } from "../../contracts/src/decimal-string.ts";
+import { canonicalizeDecimalString } from "@weavetrail/contracts/decimal-string-runtime";
 
 const scenarioRoot = new URL("../src/", import.meta.url);
 const sourcePath = new URL(
