@@ -65,6 +65,7 @@ export const ReplayReviewIssueCodeSchema = z.enum([
   "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
   "ACTOR_OUTSIDE_DATASET_PROFILE",
   "TIME_WINDOW_OUTSIDE_DATASET_PROFILE",
+  "RULE_CONFIGURATION_REQUIRED",
 ]);
 
 export const ReplayReviewResponseSchema = z

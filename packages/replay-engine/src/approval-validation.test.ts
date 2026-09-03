@@ -41,7 +41,19 @@ const caseProposal: CaseManifestProposal = {
     startTime: datasetProfile.earliestEventTime,
     endTime: datasetProfile.latestEventTime,
   },
-  rules: [],
+  rules: [
+    {
+      ruleId: "RAPID_PRICE_LIFT",
+      ruleVersion: "1.0",
+      parameters: {
+        minimumPriceChangeBps: "100",
+        minimumAggressiveBuyShareBps: "7000",
+        minimumActorConcentrationShareBps: "8000",
+        minimumExecutionsAboveReference: "2",
+        minimumRemovalSensitivityBps: "50",
+      },
+    },
+  ],
   aiTrace: {
     provider: "fixture",
     model: "deterministic",
@@ -512,7 +524,7 @@ describe("replay approval gate", () => {
     const alternateApprovalHash = alternate.canonicalResultHash;
     expect(alternateApprovalHash).toBe(baselineHash);
     expect(alternateApprovalHash).toBe(
-      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
+      "c696e63a930e08046cecc8bb5afd1893d5c02ddfb6a05681fac6cb918b8578c3",
     );
   });
 });

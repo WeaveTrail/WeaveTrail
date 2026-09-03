@@ -18,6 +18,10 @@ import {
 import { computeDatasetProfile } from "./dataset-profile";
 import { replayFoundation, type FoundationReplay } from "./replay-foundation";
 import {
+  replayRapidPriceLift,
+  type RapidPriceLiftReplay,
+} from "./rapid-price-lift";
+import {
   applyApprovedMapping,
   approvedSourceMapping,
   type MappingReviewCode,
@@ -32,7 +36,8 @@ export type ApprovalIssueCode =
   | "MAPPING_OVERRIDE_REQUIRED"
   | "SOURCE_ROW_MISSING"
   | "SOURCE_ARTIFACT_NOT_APPROVED"
-  | "MAPPING_APPLICATION_REVIEW_REQUIRED";
+  | "MAPPING_APPLICATION_REVIEW_REQUIRED"
+  | "RULE_CONFIGURATION_REQUIRED";
 
 export type ApprovalValidation =
   | { accepted: true }
@@ -135,6 +140,7 @@ export function replayApproved(
   mutation: "baseline" | "shuffle" | "duplicate" = "baseline",
 ):
   | FoundationReplay
+  | RapidPriceLiftReplay
   | Exclude<ApprovalValidation, { accepted: true }>
   | Exclude<CaseProfileValidation, { accepted: true }> {
   const approval = validateMappingApproval(mapping, mappingApproval);
@@ -229,7 +235,24 @@ export function replayApproved(
     computeDatasetProfile(events),
   );
   if (!profileValidation.accepted) return profileValidation;
-  return replayFoundation(events);
+  if (
+    !manifest.rules.some(
+      ({ ruleId, ruleVersion }) =>
+        ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
+    )
+  ) {
+    return {
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "RULE_CONFIGURATION_REQUIRED",
+          path: "rules",
+        },
+      ],
+    };
+  }
+  return replayRapidPriceLift(events, manifest);
 }
 
 function validateMappingApproval(
