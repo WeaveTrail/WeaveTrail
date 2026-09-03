@@ -19,6 +19,13 @@ function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
   return { ...concentratedBuyEvents[0]!, ...overrides };
 }
 
+function binary64(hex: string): number {
+  const bytes = Uint8Array.from(
+    hex.match(/.{2}/g)!.map((pair) => Number.parseInt(pair, 16)),
+  );
+  return new DataView(bytes.buffer).getFloat64(0, false);
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length === 0) return [[]];
 
@@ -466,6 +473,28 @@ describe("canonicalJson", () => {
       }
     }
     expect(canonicalJson(-0)).toBe("0");
+  });
+
+  it.each([
+    ["0000000000000000", "0"],
+    ["8000000000000000", "0"],
+    ["0000000000000001", "5e-324"],
+    ["8000000000000001", "-5e-324"],
+    ["7fefffffffffffff", "1.7976931348623157e+308"],
+    ["ffefffffffffffff", "-1.7976931348623157e+308"],
+    ["4340000000000000", "9007199254740992"],
+  ])("serializes RFC 8785 binary64 vector %s as %s", (hex, expected) => {
+    expect(canonicalJson(binary64(hex))).toBe(expected);
+  });
+
+  it.each([
+    [1e-6, "0.000001"],
+    [1e-7, "1e-7"],
+    [1e20, "100000000000000000000"],
+    [1e21, "1e+21"],
+    [0.1, "0.1"],
+  ])("pins finite-number spelling for %s", (value, expected) => {
+    expect(canonicalJson(value)).toBe(expected);
   });
 
   it("omits undefined object properties and produces round-trippable JSON", () => {
