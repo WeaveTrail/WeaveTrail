@@ -1,5 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -138,7 +140,6 @@ describe("lab mapping status boundary", () => {
         },
       }),
     );
-
     for (const gate of [
       "PRICE_CHANGE",
       "AGGRESSIVE_BUY_SHARE",
@@ -215,12 +216,23 @@ describe("lab mapping status boundary", () => {
         scenarios,
       }),
     );
+    const css = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
 
     expect(markup).toContain("REVIEW_REQUIRED");
     expect(markup).not.toContain("APPROVED");
     expect(markup).toContain("Reviewer reason for source_note");
     expect(markup).toContain(
       "Replay is blocked until every flagged field has a reviewer reason.",
+    );
+    expect(markup).toContain('class="review-required"');
+    expect(markup).toContain('data-status="REVIEW_REQUIRED"');
+    expect(markup).not.toContain('class="diagnostic"');
+    expect(markup).not.toContain('role="alert"');
+    expect(css).toMatch(
+      /\.review-required\s*{[^}]*color:\s*var\(--blue-dark\);[^}]*background:\s*var\(--blue-soft\);[^}]*border-left:\s*3px solid var\(--blue\);/s,
     );
     expect(renderedButton(markup, "Approve executed mapping")).toContain(
       "disabled",

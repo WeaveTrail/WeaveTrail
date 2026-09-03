@@ -19,6 +19,8 @@ import {
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
 
+import { Diagnostic, HashRef, ProvenanceChip, ResultBanner } from "../ui";
+
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
 export type LabScenario = {
@@ -135,45 +137,50 @@ export function RapidPriceLiftEvaluation({
   evaluation: RapidPriceLiftResult;
 }) {
   return (
-    <div className="evaluation-block">
-      <div className="evaluation-heading">
-        <span>Pattern hypothesis result</span>
-        <strong data-result={evaluation.result}>{evaluation.result}</strong>
+    <ResultBanner
+      result={evaluation.result}
+      rule={`${evaluation.ruleId}@${evaluation.ruleVersion}`}
+    >
+      <div className="evaluation-block">
+        {evaluation.result === "INCONCLUSIVE" ? (
+          <p>Reason: {evaluation.reason}</p>
+        ) : (
+          <div className="gate-list">
+            {evaluation.findings.map((finding) => (
+              <div className="gate-row" key={finding.gate}>
+                <strong>{finding.gate}</strong>
+                <span>
+                  {finding.observedValue} / threshold {finding.threshold}
+                </span>
+                <b data-passed={finding.passed}>
+                  {finding.passed ? "PASS" : "FAIL"}
+                </b>
+                <small>{finding.referencedEventIds.join(" · ")}</small>
+              </div>
+            ))}
+          </div>
+        )}
+        {evaluation.sensitivity ? (
+          <div className="sensitivity-block">
+            <strong>Mechanical sensitivity comparison</strong>
+            <span>
+              Price change: {evaluation.sensitivity.priceChangeBps} bps
+            </span>
+            <span>
+              Without approved actor group:{" "}
+              {evaluation.sensitivity.priceChangeBpsWithoutApprovedActors} bps
+            </span>
+            <span>
+              Metric difference: {evaluation.sensitivity.removalSensitivityBps}{" "}
+              bps
+            </span>
+          </div>
+        ) : null}
+        <small>
+          Non-comparable events: {evaluation.nonComparableEventCount}
+        </small>
       </div>
-      {evaluation.result === "INCONCLUSIVE" ? (
-        <p>Reason: {evaluation.reason}</p>
-      ) : (
-        <div className="gate-list">
-          {evaluation.findings.map((finding) => (
-            <div className="gate-row" key={finding.gate}>
-              <strong>{finding.gate}</strong>
-              <span>
-                {finding.observedValue} / threshold {finding.threshold}
-              </span>
-              <b data-passed={finding.passed}>
-                {finding.passed ? "PASS" : "FAIL"}
-              </b>
-              <small>{finding.referencedEventIds.join(" · ")}</small>
-            </div>
-          ))}
-        </div>
-      )}
-      {evaluation.sensitivity ? (
-        <div className="sensitivity-block">
-          <strong>Mechanical sensitivity comparison</strong>
-          <span>Price change: {evaluation.sensitivity.priceChangeBps} bps</span>
-          <span>
-            Without approved actor group:{" "}
-            {evaluation.sensitivity.priceChangeBpsWithoutApprovedActors} bps
-          </span>
-          <span>
-            Metric difference: {evaluation.sensitivity.removalSensitivityBps}{" "}
-            bps
-          </span>
-        </div>
-      ) : null}
-      <small>Non-comparable events: {evaluation.nonComparableEventCount}</small>
-    </div>
+    </ResultBanner>
   );
 }
 
@@ -316,6 +323,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           <span className="panel-label">
             02 · Executed mapping proposal · {providerMode}
           </span>
+          <ProvenanceChip kind={approval ? "approved" : "proposed"} />
           {proposal.fields.map((field, index) => (
             <div className="mapping-row" key={field.sourceColumn}>
               <code>{field.sourceColumn}</code>
@@ -346,9 +354,13 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
             </div>
           ))}
           {unresolvedReview ? (
-            <p className="error-message">
-              Replay is blocked until every flagged field has a reviewer reason.
-            </p>
+            <div className="review-required" data-status="REVIEW_REQUIRED">
+              <strong>REVIEW_REQUIRED</strong>
+              <span>
+                Replay is blocked until every flagged field has a reviewer
+                reason.
+              </span>
+            </div>
           ) : null}
         </div>
         <button
@@ -398,7 +410,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
         >
           {running ? "Replaying…" : "Run deterministic replay"}
         </button>
-        {error ? <p className="error-message">{error}</p> : null}
+        {error ? <Diagnostic code="REPLAY_REFUSED">{error}</Diagnostic> : null}
       </div>
 
       <div className="panel result-panel" aria-live="polite">
@@ -428,8 +440,11 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               </div>
             </div>
             <div className="hash-block">
-              <span>Canonical result hash</span>
-              <code>{result.replay.canonicalResultHash}</code>
+              <HashRef
+                label="canonicalResultHash"
+                value={result.replay.canonicalResultHash}
+                full
+              />
             </div>
             {result.evaluation ? (
               <RapidPriceLiftEvaluation evaluation={result.evaluation} />

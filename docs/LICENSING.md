@@ -30,6 +30,11 @@ The source distribution includes:
 Dependencies are resolved by `pnpm-lock.yaml` and installed separately. Their
 upstream license files remain authoritative.
 
+The repository-authored WeaveTrail mark, lockups, and app icons are project
+assets under Apache-2.0. Their embedded provenance metadata must be retained.
+The web build self-hosts IBM Plex Sans and JetBrains Mono through `next/font`;
+the fonts remain licensed under the SIL Open Font License 1.1.
+
 ## Binary, container, and standalone distributions
 
 Before publishing an artifact that embeds dependencies:

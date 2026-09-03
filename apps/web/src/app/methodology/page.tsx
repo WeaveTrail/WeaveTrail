@@ -7,7 +7,14 @@ const states = [
     "NOT_SUPPORTED",
     "Data is sufficient, but one or more required thresholds are not satisfied.",
   ],
-  ["INCONCLUSIVE", "Missing or conflicting input prevents safe evaluation."],
+  [
+    "INCONCLUSIVE",
+    "Approved inputs entered replay, but valid evidence was insufficient for the declared comparison.",
+  ],
+  [
+    "REVIEW_REQUIRED",
+    "A pre-replay mapping, identity, scope, or approval problem requires human review; this is not a replay result.",
+  ],
 ];
 
 export default function MethodologyPage() {
@@ -17,8 +24,8 @@ export default function MethodologyPage() {
         <span className="eyebrow">Methodology & boundaries</span>
         <h1>A narrow question with explicit abstention.</h1>
         <p>
-          The planned financial reference case evaluates a versioned technical
-          pattern. It does not produce a legal finding or causal conclusion.
+          The implemented synthetic reference cases evaluate a versioned
+          technical pattern. They do not produce legal or causal conclusions.
         </p>
       </div>
       <section className="method-grid">

@@ -10,13 +10,17 @@ The current `pnpm-lock.yaml` resolves the direct runtime dependencies below.
 
 | Package   | Resolved version | Declared license |
 | --------- | ---------------- | ---------------- |
-| Next.js   | 16.2.11          | MIT              |
+| Next.js   | 16.3.3           | MIT              |
 | React     | 19.2.8           | MIT              |
 | React DOM | 19.2.8           | MIT              |
-| Zod       | 4.4.3            | MIT              |
+| Zod       | 4.5.4            | MIT              |
 
 The workspace packages under `@weavetrail/*` are original project code covered
 by the root Apache-2.0 license.
+
+The web build uses `next/font` to self-host IBM Plex Sans and JetBrains Mono.
+Both font families are distributed under the SIL Open Font License 1.1. No
+runtime font CDN is used.
 
 ## Transitive dependency boundary
 
