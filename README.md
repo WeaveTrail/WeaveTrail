@@ -9,9 +9,9 @@ every result back to source events.
 
 > **Repository status — foundation scaffold.** The committed implementation
 > currently covers runtime contracts, deterministic ordering and deduplication,
-> canonical hashing, synthetic fixtures, and a guided local lab. AI-backed
-> mapping, the financial rule engine, counterfactual analysis, and measured
-> evaluation results remain planned.
+> canonical hashing, synthetic fixtures, the `RAPID_PRICE_LIFT` rule, mechanical
+> sensitivity comparison, and a guided local lab. AI-backed mapping and
+> measured evaluation results remain planned.
 
 ## Why it exists
 
@@ -42,7 +42,7 @@ The initial reference case asks one bounded question:
 > Does the observed short-window price lift satisfy a versioned pattern of
 > repeated aggressive buying by a concentrated actor group?
 
-The planned `RAPID_PRICE_LIFT` rule reports only `SUPPORTED`,
+The implemented `RAPID_PRICE_LIFT` rule reports only `SUPPORTED`,
 `NOT_SUPPORTED`, or `INCONCLUSIVE`. It does not determine legal liability,
 infer guilt, provide investment advice, or execute trades. See
 [Methodology](docs/METHODOLOGY.md) and [Limitations](docs/LIMITATIONS.md).
@@ -72,14 +72,15 @@ locale-independent ordering, conflict-safe duplicate handling, an identical
 canonical hash after input shuffling, and a literal golden hash for the
 concentrated-buy fixture. Two committed synthetic source dialects also
 re-derive their row provenance and converge to the same canonical dataset and
-replay result. No performance or detection accuracy claim is made yet. The
-versioned measurement plan lives in
+replay result. Exact scaled-integer financial arithmetic and three synthetic
+scenario results are also pinned by committed tests. No performance or
+detection accuracy claim is made yet. The versioned measurement plan lives in
 [Evaluation](docs/EVALUATION.md).
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md) — component and trust boundaries
-- [Methodology](docs/METHODOLOGY.md) — result semantics and planned rule
+- [Methodology](docs/METHODOLOGY.md) — result semantics and implemented rule
 - [Evaluation](docs/EVALUATION.md) — reproducible metrics protocol, without
   unmeasured targets presented as results
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
