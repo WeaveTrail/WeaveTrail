@@ -36,6 +36,28 @@ describe("forensic workbench semantics", () => {
     expect(markup).toContain("01234567…cdef");
   });
 
+  it("preserves lowercase machine values and limits hash label typography", () => {
+    const value = "sha256:AbCdEf0123deadbeef";
+    const markup = renderToStaticMarkup(
+      createElement(HashRef, {
+        label: "canonicalResultHash",
+        value,
+        full: true,
+      }),
+    );
+    const css = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+
+    expect(markup).toContain(`<code title="${value}"`);
+    expect(markup).toContain(`>${value}</code>`);
+    expect(css).toMatch(
+      /\.hash-block\s*>\s*\.hash-ref\s*>\s*span\s*{[^}]*text-transform:\s*uppercase;[^}]*letter-spacing:/s,
+    );
+    expect(css).not.toMatch(/\.hash-block\s*>\s*span\s*{/);
+  });
+
   it("distinguishes all four provenance sources without color-only labels", () => {
     for (const kind of ["source", "proposed", "approved", "derived"] as const) {
       const markup = renderToStaticMarkup(

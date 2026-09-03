@@ -47,14 +47,14 @@ scale animation, or shadows.
 The component vocabulary is fixed even when a contract is not yet activated by
 runtime data.
 
-| Group | Components | Contract |
-| --- | --- | --- |
-| Core | `Button`, `Badge`, `Tag`, `Card`, `Callout`, `Icon` | Text-first controls, literal states, canonical identifiers, flat panels, explicit boundaries, and labelled outline icons only |
-| Evidence | `ProvenanceChip`, `ResultBanner`, `HashRef`, `MappingRow`, `ThresholdGate`, `StateTrail` | Authorship, closed state vocabulary, labelled hashes, mapping review, exact gates, and runtime-backed history |
-| Data | `DataTable`, `MetricRow` | Supplied order is preserved; machine and financial strings pass through unchanged |
-| Forms | `Input`, `Select` | Visible labels, native semantics, and downstream reset after scenario changes |
-| Navigation | `SideNav`, `Breadcrumb`, `Tabs` | Route-complete navigation and artifact views; tabs never stand in for workflow states |
-| Code | `CodeBlock`, `Diagnostic` | Exact source text and field-specific fail-closed explanations |
+| Group      | Components                                                                               | Contract                                                                                                                      |
+| ---------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Core       | `Button`, `Badge`, `Tag`, `Card`, `Callout`, `Icon`                                      | Text-first controls, literal states, canonical identifiers, flat panels, explicit boundaries, and labelled outline icons only |
+| Evidence   | `ProvenanceChip`, `ResultBanner`, `HashRef`, `MappingRow`, `ThresholdGate`, `StateTrail` | Authorship, closed state vocabulary, labelled hashes, mapping review, exact gates, and runtime-backed history                 |
+| Data       | `DataTable`, `MetricRow`                                                                 | Supplied order is preserved; machine and financial strings pass through unchanged                                             |
+| Forms      | `Input`, `Select`                                                                        | Visible labels, native semantics, and downstream reset after scenario changes                                                 |
+| Navigation | `SideNav`, `Breadcrumb`, `Tabs`                                                          | Route-complete navigation and artifact views; tabs never stand in for workflow states                                         |
+| Code       | `CodeBlock`, `Diagnostic`                                                                | Exact source text and field-specific fail-closed explanations                                                                 |
 
 `StateTrail` remains inactive until workflow states come from the running replay
 path. Artifact tabs and bundle views remain inactive until real multiple-view

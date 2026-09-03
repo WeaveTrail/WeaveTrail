@@ -11,9 +11,9 @@ The current `pnpm-lock.yaml` resolves the direct runtime dependencies below.
 | Package   | Resolved version | Declared license |
 | --------- | ---------------- | ---------------- |
 | Next.js   | 16.3.3           | MIT              |
-| React     | 19.2.0           | MIT              |
-| React DOM | 19.2.0           | MIT              |
-| Zod       | 4.4.3            | MIT              |
+| React     | 19.2.8           | MIT              |
+| React DOM | 19.2.8           | MIT              |
+| Zod       | 4.5.4            | MIT              |
 
 The workspace packages under `@weavetrail/*` are original project code covered
 by the root Apache-2.0 license.

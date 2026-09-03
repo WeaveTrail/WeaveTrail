@@ -354,9 +354,13 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
             </div>
           ))}
           {unresolvedReview ? (
-            <Diagnostic code="MAPPING_OVERRIDE_REQUIRED" field="fields">
-              Replay is blocked until every flagged field has a reviewer reason.
-            </Diagnostic>
+            <div className="review-required" data-status="REVIEW_REQUIRED">
+              <strong>REVIEW_REQUIRED</strong>
+              <span>
+                Replay is blocked until every flagged field has a reviewer
+                reason.
+              </span>
+            </div>
           ) : null}
         </div>
         <button
