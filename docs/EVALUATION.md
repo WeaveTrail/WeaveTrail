@@ -68,6 +68,17 @@ pnpm test
 - **Reachable mapping review** — dialect B presents its `source_note` for
   review; replay fails without a matching justified override and succeeds with
   one, while dialect A remains fully resolvable.
+- **Scenario classification** — the supported, broad-participation, and
+  insufficient-evidence synthetic scenarios are pinned to `SUPPORTED`,
+  `NOT_SUPPORTED`, and `INCONCLUSIVE` respectively. The same suite pins their
+  semantic result hashes, declared orders, duplicate tolerance, finding
+  references, and dataset-hash independence.
+
+The scenario-classification sample is three authored synthetic fixtures. Run
+`pnpm test -- packages/replay-engine/src/rapid-price-lift-golden.test.ts` on
+Node 22.18.0, pnpm 10.33.2, Vitest 4.1.11, Linux WSL2 x86_64. These outcomes
+verify only the declared cases and illustrative per-case thresholds; they do
+not estimate performance on independent or real-market data.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.

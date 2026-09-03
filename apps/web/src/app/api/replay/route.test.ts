@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type {
   ApprovalRecord,
+  CaseManifest,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import { sha256Canonical } from "@weavetrail/replay-engine";
@@ -59,6 +60,18 @@ function validBody() {
   };
 }
 
+function rapidBody() {
+  const rapidScenario = "rapid-price-lift-supported.csv" as const;
+  const fixture = committedReplayScenarios[rapidScenario];
+  return {
+    scenario: rapidScenario,
+    mutation: "baseline" as const,
+    rows: fixture.rows,
+    mappingApproval: approval(fixture.mappingProposal),
+    caseManifest: fixture.manifest,
+  };
+}
+
 describe("POST /api/replay approved mapping boundary", () => {
   it("replays dialect A with an empty override list to the golden hash", async () => {
     const response = await POST(request(validBody()));
@@ -67,8 +80,87 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(validBody().mappingApproval.overrides).toEqual([]);
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
+    expect(result).not.toHaveProperty("evaluation");
+  });
+
+  it("returns an approved rapid price lift result", async () => {
+    const response = await POST(request(rapidBody()));
+    const result = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(result).toMatchObject({
+      evaluation: {
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.0",
+        result: "SUPPORTED",
+        findings: expect.arrayContaining([
+          expect.objectContaining({ gate: "PRICE_CHANGE", passed: true }),
+          expect.objectContaining({
+            gate: "REMOVAL_SENSITIVITY",
+            passed: true,
+          }),
+        ]),
+        sensitivity: { comparison: "MECHANICAL_METRIC_COMPARISON" },
+      },
+    });
+  });
+
+  it("rejects an approved manifest actor outside the dataset profile before evaluation", async () => {
+    const body = rapidBody();
+    const proposal = {
+      ...body.caseManifest,
+      hypothesis: {
+        ...body.caseManifest.hypothesis,
+        actorIds: ["participant-absent"],
+      },
+    };
+    const { approval: _, ...artifact } = proposal;
+    void _;
+    const caseManifest: CaseManifest = {
+      ...proposal,
+      approval: {
+        ...body.caseManifest.approval,
+        approvedArtifactHash: sha256Canonical(artifact),
+      },
+    };
+    const response = await POST(request({ ...body, caseManifest }));
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      issues: [{ code: "ACTOR_OUTSIDE_DATASET_PROFILE" }],
+    });
+    expect(result).not.toHaveProperty("evaluation");
+  });
+
+  it("rejects an approved manifest window outside the dataset profile before evaluation", async () => {
+    const body = rapidBody();
+    const proposal = {
+      ...body.caseManifest,
+      hypothesis: {
+        ...body.caseManifest.hypothesis,
+        endTime: "2026-09-01T00:00:06Z",
+      },
+    };
+    const { approval: _, ...artifact } = proposal;
+    void _;
+    const caseManifest: CaseManifest = {
+      ...proposal,
+      approval: {
+        ...body.caseManifest.approval,
+        approvedArtifactHash: sha256Canonical(artifact),
+      },
+    };
+    const response = await POST(request({ ...body, caseManifest }));
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      issues: [{ code: "TIME_WINDOW_OUTSIDE_DATASET_PROFILE" }],
+    });
+    expect(result).not.toHaveProperty("evaluation");
   });
 
   it.each(["baseline", "shuffle", "duplicate"] as const)(
@@ -287,7 +379,7 @@ describe("POST /api/replay approved mapping boundary", () => {
 
     expect(response.status).toBe(200);
     expect(result.replay.canonicalResultHash).toBe(
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
   });
 

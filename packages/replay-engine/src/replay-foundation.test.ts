@@ -31,12 +31,12 @@ function permutations<T>(values: readonly T[]): T[][] {
 
 describe("replayFoundation", () => {
   it("versions the conflict-safe canonical hash definition", () => {
-    expect(ENGINE_VERSION).toBe("0.3.0-foundation");
+    expect(ENGINE_VERSION).toBe("0.4.0-rule");
   });
 
   it("pins the concentrated-buy canonical result hash", () => {
     expect(replayFoundation(concentratedBuyEvents).canonicalResultHash).toBe(
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
   });
 
@@ -63,7 +63,7 @@ describe("replayFoundation", () => {
     expect(permutations(concentratedBuyEvents)).toHaveLength(24);
     expect(hashes).toEqual(
       new Set([
-        "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+        "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
       ]),
     );
   });

@@ -41,7 +41,19 @@ const caseProposal: CaseManifestProposal = {
     startTime: datasetProfile.earliestEventTime,
     endTime: datasetProfile.latestEventTime,
   },
-  rules: [],
+  rules: [
+    {
+      ruleId: "RAPID_PRICE_LIFT",
+      ruleVersion: "1.0",
+      parameters: {
+        minimumPriceChangeBps: "100",
+        minimumAggressiveBuyShareBps: "7000",
+        minimumActorConcentrationShareBps: "8000",
+        minimumExecutionsAboveReference: "2",
+        minimumRemovalSensitivityBps: "50",
+      },
+    },
+  ],
   aiTrace: {
     provider: "fixture",
     model: "deterministic",
@@ -229,7 +241,7 @@ describe("replay approval gate", () => {
 
     expect(result).toHaveProperty(
       "canonicalResultHash",
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "27c4b5a36f4ba37fe35dd6b40f203e176f9ff097f1fbb85f5372a461287a52b5",
     );
   });
 
@@ -369,6 +381,47 @@ describe("replay approval gate", () => {
     });
     expect(result).not.toHaveProperty("canonicalResultHash");
   });
+
+  it.each(["lenient-first", "strict-first"] as const)(
+    "rejects duplicate rule configurations independent of %s order",
+    (order) => {
+      const strictRule = {
+        ...caseProposal.rules[0]!,
+        parameters: {
+          ...caseProposal.rules[0]!.parameters,
+          minimumPriceChangeBps: "9999",
+        },
+      };
+      const duplicateProposal = {
+        ...caseProposal,
+        rules:
+          order === "lenient-first"
+            ? [caseProposal.rules[0]!, strictRule]
+            : [strictRule, caseProposal.rules[0]!],
+      };
+      const duplicateManifest = CaseManifestSchema.parse({
+        ...duplicateProposal,
+        approval: {
+          ...caseApproval,
+          approvedArtifactHash: sha256Canonical(duplicateProposal),
+        },
+      });
+      const result = replayApproved(
+        concentratedBuyDialectARows,
+        concentratedBuyDialectARows,
+        mapping,
+        mappingApproval,
+        duplicateManifest,
+      );
+
+      expect(result).toEqual({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [{ code: "RULE_CONFIGURATION_REQUIRED", path: "rules" }],
+      });
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    },
+  );
 
   it.each([
     ["low-confidence", { confidence: 0.999, status: "PROPOSED" as const }],
@@ -512,7 +565,7 @@ describe("replay approval gate", () => {
     const alternateApprovalHash = alternate.canonicalResultHash;
     expect(alternateApprovalHash).toBe(baselineHash);
     expect(alternateApprovalHash).toBe(
-      "42effb2884a481780106155712be7500ae5cffe89ee0c1d89622e62f7dafd4c8",
+      "c696e63a930e08046cecc8bb5afd1893d5c02ddfb6a05681fac6cb918b8578c3",
     );
   });
 });

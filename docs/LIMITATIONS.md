@@ -9,10 +9,13 @@ verification. It is not a production market-surveillance system.
   provider.
 - The guided lab demonstrates both a fully resolvable mapping and a
   review-required field that needs a justified override before approval, then
-  approval-bound replay, canonical ordering, exact deduplication, and hashing;
-  the financial pattern rule and counterfactual metrics are planned.
+  approval-bound replay, canonical ordering, exact deduplication, hashing, and
+  one versioned financial pattern rule.
 - The approval state machine is documented but not yet persisted end to end.
 - All data is synthetic, so no result establishes real-market accuracy.
+- Rule thresholds are illustrative per-case configuration, not calibrated
+  market thresholds. The three declared outcomes are synthetic-fixture
+  results, not a detection-rate measurement.
 - No large-scale performance benchmark has been run.
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
@@ -22,8 +25,8 @@ verification. It is not a production market-surveillance system.
 - `SUPPORTED` means only that data satisfies a declared technical rule.
 - `NOT_SUPPORTED` is not proof that no misconduct occurred.
 - `INCONCLUSIVE` is a first-class safe outcome, not an error to hide.
-- Removing events and replaying metrics is sensitivity analysis, not causal
-  inference.
+- Removing the approved actor group and replaying metrics is a mechanical
+  sensitivity comparison, not a causal conclusion.
 - Model confidence is not calibrated probability unless a documented
   evaluation establishes that property.
 

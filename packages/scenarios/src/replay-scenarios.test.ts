@@ -25,4 +25,24 @@ describe("committed replay scenarios", () => {
     );
     expect(scenario).not.toHaveProperty("events");
   });
+
+  it.each([
+    ["rapid-price-lift-supported.csv", "SUPPORTED", 6],
+    ["rapid-price-lift-broad-participation.csv", "NOT_SUPPORTED", 6],
+    ["rapid-price-lift-insufficient-evidence.csv", "INCONCLUSIVE", 4],
+  ] as const)(
+    "declares bounded rows, mapping, and approved manifest for %s",
+    (name, expectedResult, rowCount) => {
+      const scenario = committedReplayScenarios[name];
+
+      expect(scenario.rows).toHaveLength(rowCount);
+      expect(scenario.expectedResult).toBe(expectedResult);
+      expect(scenario.mappingProposal.sourceArtifactHash).toBe(
+        scenario.sourceArtifactHash,
+      );
+      expect(scenario.manifest.canonicalDatasetHash).toMatch(/^[a-f0-9]{64}$/);
+      expect(scenario.manifest.approval.decision).toBe("APPROVED");
+      expect(scenario.manifest.aiTrace.confidence).toBe(1);
+    },
+  );
 });

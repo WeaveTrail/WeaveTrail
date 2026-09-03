@@ -1,10 +1,15 @@
 import { z } from "zod";
 
 import { ApprovalRecordSchema } from "./approval-record";
+import { CaseManifestSchema } from "./case-manifest";
+import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 
 export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
   "concentrated-buy-dialect-b.jsonl",
+  "rapid-price-lift-supported.csv",
+  "rapid-price-lift-broad-participation.csv",
+  "rapid-price-lift-insufficient-evidence.csv",
 ]);
 
 export const ReplayMutationSchema = z.enum([
@@ -32,8 +37,9 @@ export const ReplayRequestSchema = z
           .strict(),
       )
       .min(1)
-      .max(4),
+      .max(64),
     mappingApproval: ApprovalRecordSchema.optional(),
+    caseManifest: CaseManifestSchema.optional(),
   })
   .strict();
 
@@ -55,6 +61,11 @@ export const ReplayReviewIssueCodeSchema = z.enum([
   "NON_FINITE_NUMBER",
   "UNDEFINED_VALUE",
   "UNSUPPORTED_EVENT_TIME",
+  "CANONICAL_DATASET_HASH_MISMATCH",
+  "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+  "ACTOR_OUTSIDE_DATASET_PROFILE",
+  "TIME_WINDOW_OUTSIDE_DATASET_PROFILE",
+  "RULE_CONFIGURATION_REQUIRED",
 ]);
 
 export const ReplayReviewResponseSchema = z
@@ -90,6 +101,7 @@ export const ReplayResultResponseSchema = z
         canonicalResultHash: z.string().regex(/^[a-f0-9]{64}$/),
       })
       .strict(),
+    evaluation: RapidPriceLiftResultSchema.optional(),
   })
   .strict();
 

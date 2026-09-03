@@ -97,6 +97,7 @@ export async function POST(request: Request) {
   }
 
   const {
+    caseManifest,
     rows: requestedRows,
     mappingApproval,
     mutation,
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
       scenarioConfig.rows,
       mappingProposal,
       mappingApproval,
-      undefined,
+      caseManifest,
       mutation,
     );
     if (!("canonicalResultHash" in replay)) {
@@ -144,8 +145,11 @@ export async function POST(request: Request) {
         orderedEventIds: replay.orderedEventIds,
         canonicalResultHash: replay.canonicalResultHash,
       },
+      ...("evaluation" in replay ? { evaluation: replay.evaluation } : {}),
       boundary:
-        "Foundation replay verifies ordering, exact deduplication, and hashing only. Pattern evaluation is not implemented.",
+        caseManifest === undefined
+          ? "Foundation replay verifies ordering, exact deduplication, and hashing."
+          : "Approved case replay evaluates a versioned pattern hypothesis with deterministic rules.",
     });
     return NextResponse.json(response);
   } catch (error) {
