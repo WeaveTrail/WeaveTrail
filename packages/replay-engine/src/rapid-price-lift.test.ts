@@ -169,6 +169,25 @@ describe("evaluateRapidPriceLift", () => {
     );
   });
 
+  it("fails closed when the approved manifest has duplicate rule configurations", () => {
+    const configured = manifest();
+    configured.rules.push({
+      ...configured.rules[0]!,
+      parameters: {
+        ...configured.rules[0]!.parameters,
+        minimumPriceChangeBps: "9999",
+      },
+    });
+
+    expect(() =>
+      evaluateRapidPriceLift(supportedEvents, configured),
+    ).toThrowError(
+      expect.objectContaining<Partial<RuleEvaluationError>>({
+        code: "RULE_CONFIGURATION_REQUIRED",
+      }),
+    );
+  });
+
   it("does not let rendering determine an exact gate outcome", () => {
     const configured = manifest();
     configured.rules[0]!.parameters.minimumRemovalSensitivityBps = "0.0000";

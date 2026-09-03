@@ -166,16 +166,17 @@ export function evaluateRapidPriceLift(
   canonicalEvents: readonly TradeEvent[],
   manifest: CaseManifest,
 ): RapidPriceLiftResult {
-  const rule = manifest.rules.find(
+  const matchingRules = manifest.rules.filter(
     ({ ruleId, ruleVersion }) =>
       ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
   );
-  if (rule === undefined) {
+  if (matchingRules.length !== 1) {
     throw new RuleEvaluationError(
       "RULE_CONFIGURATION_REQUIRED",
-      "An approved RAPID_PRICE_LIFT 1.0 rule configuration is required",
+      "Exactly one approved RAPID_PRICE_LIFT 1.0 rule configuration is required",
     );
   }
+  const rule = matchingRules[0]!;
 
   const eligible = canonicalEvents.filter((event) =>
     isEligible(event, manifest),

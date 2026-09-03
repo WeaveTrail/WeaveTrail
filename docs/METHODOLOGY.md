@@ -68,7 +68,10 @@ state with that name remains unchanged.
 The `RAPID_PRICE_LIFT` `1.0` registry accepts only the declared parameter names
 for price change, aggressive-buy share, actor concentration, executions above
 a reference, and removal sensitivity. Their values are decimal or unsigned
-integer strings. The registry supplies no values, defaults, or fallbacks.
+integer strings. The registry supplies no values, defaults, or fallbacks. Rule
+evaluation requires exactly one matching `RAPID_PRICE_LIFT` `1.0`
+configuration; zero or multiple entries return `RULE_CONFIGURATION_REQUIRED`
+before evaluation.
 
 ## Canonical time and ordering
 

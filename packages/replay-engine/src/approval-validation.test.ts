@@ -382,6 +382,47 @@ describe("replay approval gate", () => {
     expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
+  it.each(["lenient-first", "strict-first"] as const)(
+    "rejects duplicate rule configurations independent of %s order",
+    (order) => {
+      const strictRule = {
+        ...caseProposal.rules[0]!,
+        parameters: {
+          ...caseProposal.rules[0]!.parameters,
+          minimumPriceChangeBps: "9999",
+        },
+      };
+      const duplicateProposal = {
+        ...caseProposal,
+        rules:
+          order === "lenient-first"
+            ? [caseProposal.rules[0]!, strictRule]
+            : [strictRule, caseProposal.rules[0]!],
+      };
+      const duplicateManifest = CaseManifestSchema.parse({
+        ...duplicateProposal,
+        approval: {
+          ...caseApproval,
+          approvedArtifactHash: sha256Canonical(duplicateProposal),
+        },
+      });
+      const result = replayApproved(
+        concentratedBuyDialectARows,
+        concentratedBuyDialectARows,
+        mapping,
+        mappingApproval,
+        duplicateManifest,
+      );
+
+      expect(result).toEqual({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [{ code: "RULE_CONFIGURATION_REQUIRED", path: "rules" }],
+      });
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    },
+  );
+
   it.each([
     ["low-confidence", { confidence: 0.999, status: "PROPOSED" as const }],
     ["review-required", { confidence: 1, status: "REVIEW_REQUIRED" as const }],

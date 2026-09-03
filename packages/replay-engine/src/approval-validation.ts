@@ -235,12 +235,11 @@ export function replayApproved(
     computeDatasetProfile(events),
   );
   if (!profileValidation.accepted) return profileValidation;
-  if (
-    !manifest.rules.some(
-      ({ ruleId, ruleVersion }) =>
-        ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
-    )
-  ) {
+  const matchingRules = manifest.rules.filter(
+    ({ ruleId, ruleVersion }) =>
+      ruleId === "RAPID_PRICE_LIFT" && ruleVersion === "1.0",
+  );
+  if (matchingRules.length !== 1) {
     return {
       accepted: false,
       status: "REVIEW_REQUIRED",
