@@ -14,6 +14,10 @@ import type {
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
+import {
+  canonicalJson,
+  type CanonicalJsonInput,
+} from "@weavetrail/replay-engine/canonical-json";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -78,7 +82,7 @@ export function resetReplayForScenarioChange(scenario: ReplayScenario) {
 }
 
 async function approvalFor(
-  artifact: unknown,
+  artifact: CanonicalJsonInput,
   overrides: ApprovalRecord["overrides"] = [],
 ): Promise<ApprovalRecord> {
   const bytes = new TextEncoder().encode(canonicalJson(artifact));
@@ -93,17 +97,6 @@ async function approvalFor(
     overrides,
     approvedAt: new Date().toISOString(),
   };
-}
-
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value !== null && typeof value === "object") {
-    return `{${Object.entries(value as Record<string, unknown>)
-      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
-      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
-      .join(",")}}`;
-  }
-  return JSON.stringify(value);
 }
 
 export function RapidPriceLiftEvaluation({
