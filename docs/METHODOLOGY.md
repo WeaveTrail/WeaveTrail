@@ -177,10 +177,10 @@ so the canonical result hash is unchanged.
 
 An event is eligible when its instrument matches the approved hypothesis, its
 type is `TRADE`, its signed-nanosecond event time is inside the inclusive
-approved window, and both `price` and `quantity` are present. A matching trade
-without either decimal increments `nonComparableEventCount` and enters no
-metric. Eligible events retain canonical `eventTime -> sequence -> eventId`
-order.
+approved window, and `price`, `quantity`, `side`, and `actorId` are all
+present. A matching trade without any one of those rule inputs increments
+`nonComparableEventCount` and enters no metric. Eligible events retain
+canonical `eventTime -> sequence -> eventId` order.
 
 | Metric                                | Definition                                                      |
 | ------------------------------------- | --------------------------------------------------------------- |

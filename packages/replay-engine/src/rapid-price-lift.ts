@@ -43,7 +43,12 @@ export type RapidPriceLiftReplay = FoundationReplay & {
   evaluation: RapidPriceLiftResult;
 };
 
-type EligibleEvent = TradeEvent & { price: string; quantity: string };
+type EligibleEvent = TradeEvent & {
+  price: string;
+  quantity: string;
+  side: "BUY" | "SELL";
+  actorId: string;
+};
 
 function isEligible(
   event: TradeEvent,
@@ -59,7 +64,9 @@ function isEligible(
     compareCanonicalEventTimes(event.eventTime, manifest.hypothesis.endTime) <=
       0 &&
     event.price !== undefined &&
-    event.quantity !== undefined
+    event.quantity !== undefined &&
+    event.side !== undefined &&
+    event.actorId !== undefined
   );
 }
 
@@ -184,7 +191,10 @@ export function evaluateRapidPriceLift(
   const nonComparableEventCount = canonicalEvents.filter(
     (event) =>
       isComparableCandidate(event, manifest) &&
-      (event.price === undefined || event.quantity === undefined),
+      (event.price === undefined ||
+        event.quantity === undefined ||
+        event.side === undefined ||
+        event.actorId === undefined),
   ).length;
   if (eligible.length < 2) {
     return inconclusive(
@@ -214,7 +224,7 @@ export function evaluateRapidPriceLift(
 
   const approvedActors = new Set(manifest.hypothesis.actorIds);
   const withoutApprovedActors = eligible.filter(
-    ({ actorId }) => actorId === undefined || !approvedActors.has(actorId),
+    ({ actorId }) => !approvedActors.has(actorId),
   );
   if (withoutApprovedActors.length < 2) {
     return inconclusive(

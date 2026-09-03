@@ -141,21 +141,70 @@ describe("evaluateRapidPriceLift", () => {
     },
   );
 
-  it("counts an in-window trade without price as non-comparable and excludes it", () => {
-    const missingPrice = event(5);
-    delete missingPrice.price;
+  it.each(["price", "quantity"] as const)(
+    "counts an in-window trade without %s as non-comparable and excludes it",
+    (field) => {
+      const incomplete = event(5);
+      delete incomplete[field];
+      const result = evaluateRapidPriceLift(
+        [...supportedEvents, incomplete],
+        manifest(),
+      );
+
+      expect(result.nonComparableEventCount).toBe(1);
+      expect(
+        result.findings.every(
+          ({ referencedEventIds }) =>
+            !referencedEventIds.includes(incomplete.eventId),
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it("excludes an in-window trade without side instead of reading negative evidence", () => {
+    const missingSide = event(5, { quantity: "1000" });
+    delete missingSide.side;
     const result = evaluateRapidPriceLift(
-      [...supportedEvents, missingPrice],
+      [...supportedEvents, missingSide],
       manifest(),
     );
 
+    expect(result.result).toBe("SUPPORTED");
     expect(result.nonComparableEventCount).toBe(1);
+  });
+
+  it("excludes an in-window buy without actor identity from concentration", () => {
+    const missingActor = event(5, {
+      side: "BUY",
+      quantity: "1000",
+    });
+    delete missingActor.actorId;
+    const result = evaluateRapidPriceLift(
+      [...supportedEvents, missingActor],
+      manifest(),
+    );
+    const concentration = result.findings.find(
+      ({ gate }) => gate === "ACTOR_CONCENTRATION",
+    );
+
+    expect(result.result).toBe("SUPPORTED");
+    expect(result.nonComparableEventCount).toBe(1);
+    expect(concentration?.observedValue).toBe("10000.0000");
+  });
+
+  it("abstains when every in-window trade is unclassifiable", () => {
+    const missingSide = event(1);
+    delete missingSide.side;
+    const missingActor = event(2);
+    delete missingActor.actorId;
+
     expect(
-      result.findings.every(
-        ({ referencedEventIds }) =>
-          !referencedEventIds.includes(missingPrice.eventId),
-      ),
-    ).toBe(true);
+      evaluateRapidPriceLift([missingSide, missingActor], manifest()),
+    ).toMatchObject({
+      result: "INCONCLUSIVE",
+      reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+      nonComparableEventCount: 2,
+    });
   });
 
   it("fails closed when the approved manifest has no rule configuration", () => {
