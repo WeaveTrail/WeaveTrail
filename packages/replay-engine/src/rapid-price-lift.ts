@@ -232,6 +232,15 @@ export function evaluateRapidPriceLift(
       nonComparableEventCount,
     );
   }
+  const survivorReferencePrice = parseScaledDecimal(
+    withoutApprovedActors[0]!.price,
+  );
+  if (compareScaledDecimals(survivorReferencePrice, ZERO) <= 0) {
+    return inconclusive(
+      "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
+      nonComparableEventCount,
+    );
+  }
 
   const approvedActorBuys = buys.filter(
     ({ actorId }) => actorId !== undefined && approvedActors.has(actorId),

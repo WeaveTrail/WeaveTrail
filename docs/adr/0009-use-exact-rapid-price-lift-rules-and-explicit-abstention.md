@@ -23,7 +23,7 @@ scaled integers on `bigint`. Ratio gates compare exact integer cross-products.
 Basis-point strings are truncated toward zero to four fractional digits only
 for reporting; displayed rounding cannot decide a gate.
 
-The rule returns `INCONCLUSIVE` only when one of its five ordered preconditions
+The rule returns `INCONCLUSIVE` only when one of its six ordered preconditions
 fails after validated, approved inputs reach evaluation. Approval, artifact,
 mapping, profile, or rule-configuration failures remain `REVIEW_REQUIRED` and
 produce no evaluation.

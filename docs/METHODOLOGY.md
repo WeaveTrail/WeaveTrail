@@ -215,13 +215,14 @@ value equal to a threshold can still fail when its exact value is lower.
 
 Preconditions run in this order and stop at the first failure:
 
-| Precondition                              | `INCONCLUSIVE` reason                |
-| ----------------------------------------- | ------------------------------------ |
-| At least two eligible events              | `INSUFFICIENT_ELIGIBLE_EVENTS`       |
-| Positive reference price                  | `REFERENCE_PRICE_NOT_POSITIVE`       |
-| Positive total notional                   | `TOTAL_NOTIONAL_NOT_POSITIVE`        |
-| Positive aggressive-buy notional          | `NO_AGGRESSIVE_BUY_NOTIONAL`         |
-| At least two events survive actor removal | `REMOVAL_LEAVES_INSUFFICIENT_EVENTS` |
+| Precondition                              | `INCONCLUSIVE` reason                   |
+| ----------------------------------------- | --------------------------------------- |
+| At least two eligible events              | `INSUFFICIENT_ELIGIBLE_EVENTS`          |
+| Positive reference price                  | `REFERENCE_PRICE_NOT_POSITIVE`          |
+| Positive total notional                   | `TOTAL_NOTIONAL_NOT_POSITIVE`           |
+| Positive aggressive-buy notional          | `NO_AGGRESSIVE_BUY_NOTIONAL`            |
+| At least two events survive actor removal | `REMOVAL_LEAVES_INSUFFICIENT_EVENTS`    |
+| Positive reference after actor removal    | `SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE` |
 
 After all preconditions pass, all five gates passing produces `SUPPORTED`; any
 failed gate produces `NOT_SUPPORTED`. Each finding includes its observed

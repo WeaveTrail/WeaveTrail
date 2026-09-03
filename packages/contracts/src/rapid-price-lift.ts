@@ -16,6 +16,7 @@ export const RapidPriceLiftInconclusiveReasonSchema = z.enum([
   "TOTAL_NOTIONAL_NOT_POSITIVE",
   "NO_AGGRESSIVE_BUY_NOTIONAL",
   "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+  "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
 ]);
 
 export const RapidPriceLiftFindingSchema = z

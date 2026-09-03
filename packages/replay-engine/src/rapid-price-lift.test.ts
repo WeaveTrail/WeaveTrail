@@ -262,4 +262,51 @@ describe("evaluateRapidPriceLift", () => {
     expect(gate?.threshold).toBe("0.0000");
     expect(gate?.passed).toBe(false);
   });
+
+  it.each(["0", "-1"])(
+    "abstains when the surviving reference price is %s",
+    (survivorPrice) => {
+      const result = evaluateRapidPriceLift(
+        [
+          event(1, {
+            side: "BUY",
+            actorId: "actor-approved",
+            price: "100",
+          }),
+          event(2, { price: survivorPrice }),
+          event(3, { price: "100" }),
+        ],
+        manifest(),
+      );
+
+      expect(result).toEqual({
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.0",
+        result: "INCONCLUSIVE",
+        reason: "SURVIVOR_REFERENCE_PRICE_NOT_POSITIVE",
+        nonComparableEventCount: 0,
+        findings: [],
+        sensitivity: null,
+      });
+    },
+  );
+
+  it("checks survivor count before survivor reference price", () => {
+    const result = evaluateRapidPriceLift(
+      [
+        event(1, {
+          side: "BUY",
+          actorId: "actor-approved",
+          price: "100",
+        }),
+        event(2, { price: "0" }),
+      ],
+      manifest(),
+    );
+
+    expect(result).toMatchObject({
+      result: "INCONCLUSIVE",
+      reason: "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+    });
+  });
 });
