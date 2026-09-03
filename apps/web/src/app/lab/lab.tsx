@@ -8,6 +8,9 @@ import type {
   ReplayScenario,
   ReplayRequest,
   ApprovalRecord,
+  CaseManifest,
+  CaseManifestProposal,
+  RapidPriceLiftResult,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
@@ -19,6 +22,7 @@ export type LabScenario = {
   label: string;
   sourceArtifactHash: string;
   rows: ReplayRequest["rows"];
+  manifest?: CaseManifestProposal;
 };
 
 type LabProps = {
@@ -61,14 +65,93 @@ export function resetReplayForScenarioChange(scenario: ReplayScenario) {
   return {
     scenario,
     approval: null,
+    caseApproval: null,
     result: null,
     error: null,
   } satisfies {
     scenario: ReplayScenario;
     approval: ApprovalRecord | null;
+    caseApproval: ApprovalRecord | null;
     result: ReplayResultResponse | null;
     error: string | null;
   };
+}
+
+async function approvalFor(
+  artifact: unknown,
+  overrides: ApprovalRecord["overrides"] = [],
+): Promise<ApprovalRecord> {
+  const bytes = new TextEncoder().encode(canonicalJson(artifact));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+  return {
+    approvedArtifactHash,
+    reviewerRef: "reviewer:local-lab",
+    decision: "APPROVED",
+    overrides,
+    approvedAt: new Date().toISOString(),
+  };
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+export function RapidPriceLiftEvaluation({
+  evaluation,
+}: {
+  evaluation: RapidPriceLiftResult;
+}) {
+  return (
+    <div className="evaluation-block">
+      <div className="evaluation-heading">
+        <span>Pattern hypothesis result</span>
+        <strong data-result={evaluation.result}>{evaluation.result}</strong>
+      </div>
+      {evaluation.result === "INCONCLUSIVE" ? (
+        <p>Reason: {evaluation.reason}</p>
+      ) : (
+        <div className="gate-list">
+          {evaluation.findings.map((finding) => (
+            <div className="gate-row" key={finding.gate}>
+              <strong>{finding.gate}</strong>
+              <span>
+                {finding.observedValue} / threshold {finding.threshold}
+              </span>
+              <b data-passed={finding.passed}>
+                {finding.passed ? "PASS" : "FAIL"}
+              </b>
+              <small>{finding.referencedEventIds.join(" · ")}</small>
+            </div>
+          ))}
+        </div>
+      )}
+      {evaluation.sensitivity ? (
+        <div className="sensitivity-block">
+          <strong>Mechanical sensitivity comparison</strong>
+          <span>Price change: {evaluation.sensitivity.priceChangeBps} bps</span>
+          <span>
+            Without approved actor group:{" "}
+            {evaluation.sensitivity.priceChangeBpsWithoutApprovedActors} bps
+          </span>
+          <span>
+            Metric difference: {evaluation.sensitivity.removalSensitivityBps}{" "}
+            bps
+          </span>
+        </div>
+      ) : null}
+      <small>Non-comparable events: {evaluation.nonComparableEventCount}</small>
+    </div>
+  );
 }
 
 const options: Array<{ value: Mutation; label: string; detail: string }> = [
@@ -92,6 +175,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [approval, setApproval] = useState<ApprovalRecord | null>(null);
+  const [caseApproval, setCaseApproval] = useState<ApprovalRecord | null>(null);
   const [reviewReasons, setReviewReasons] = useState<Record<string, string>>(
     {},
   );
@@ -99,31 +183,17 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const proposal = proposals[selectedScenario.sourceArtifactHash]!;
   const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
 
-  function canonicalJson(value: unknown): string {
-    if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-    if (value !== null && typeof value === "object") {
-      return `{${Object.entries(value as Record<string, unknown>)
-        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
-        .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
-        .join(",")}}`;
-    }
-    return JSON.stringify(value);
-  }
-
   async function approveMapping() {
     if (unresolvedReview) return;
-    const bytes = new TextEncoder().encode(canonicalJson(proposal));
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    const approvedArtifactHash = Array.from(new Uint8Array(digest), (byte) =>
-      byte.toString(16).padStart(2, "0"),
-    ).join("");
-    setApproval({
-      approvedArtifactHash,
-      reviewerRef: "reviewer:local-lab",
-      decision: "APPROVED",
-      overrides: mappingOverrides(proposal, reviewReasons),
-      approvedAt: new Date().toISOString(),
-    });
+    setApproval(
+      await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
+    );
+    setResult(null);
+  }
+
+  async function approveCase() {
+    if (selectedScenario.manifest === undefined) return;
+    setCaseApproval(await approvalFor(selectedScenario.manifest));
     setResult(null);
   }
 
@@ -139,6 +209,14 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           mutation,
           rows: selectedScenario.rows,
           mappingApproval: approval,
+          ...(selectedScenario.manifest && caseApproval
+            ? {
+                caseManifest: {
+                  ...selectedScenario.manifest,
+                  approval: caseApproval,
+                } satisfies CaseManifest,
+              }
+            : {}),
         }),
       });
       if (!response.ok) {
@@ -166,6 +244,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               );
               setScenario(reset.scenario);
               setApproval(reset.approval);
+              setCaseApproval(reset.caseApproval);
               setResult(reset.result);
               setError(reset.error);
               setReviewReasons({});
@@ -248,9 +327,40 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
         >
           {approval ? "Mapping approved locally" : "Approve executed mapping"}
         </button>
+        {selectedScenario.manifest ? (
+          <div className="case-preview">
+            <span className="panel-label">03 · Case manifest proposal</span>
+            <dl>
+              <div>
+                <dt>Instrument</dt>
+                <dd>{selectedScenario.manifest.hypothesis.instrumentId}</dd>
+              </div>
+              <div>
+                <dt>Approved actor group</dt>
+                <dd>
+                  {selectedScenario.manifest.hypothesis.actorIds.join(", ")}
+                </dd>
+              </div>
+              <div>
+                <dt>Window</dt>
+                <dd>
+                  {selectedScenario.manifest.hypothesis.startTime} —{" "}
+                  {selectedScenario.manifest.hypothesis.endTime}
+                </dd>
+              </div>
+            </dl>
+            <button className="button" onClick={approveCase} type="button">
+              {caseApproval ? "Case approved locally" : "Approve case manifest"}
+            </button>
+          </div>
+        ) : null}
         <button
           className="button primary run-button"
-          disabled={running || approval === null}
+          disabled={
+            running ||
+            approval === null ||
+            (selectedScenario.manifest !== undefined && caseApproval === null)
+          }
           onClick={runReplay}
           type="button"
         >
@@ -260,7 +370,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
       </div>
 
       <div className="panel result-panel" aria-live="polite">
-        <span className="panel-label">03 · Canonical result</span>
+        <span className="panel-label">04 · Canonical result</span>
         {result ? (
           <>
             <div className="metric-grid">
@@ -289,6 +399,9 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               <span>Canonical result hash</span>
               <code>{result.replay.canonicalResultHash}</code>
             </div>
+            {result.evaluation ? (
+              <RapidPriceLiftEvaluation evaluation={result.evaluation} />
+            ) : null}
             <div className="boundary-note">
               <strong>Fixture mode</strong>
               <p>{result.boundary}</p>

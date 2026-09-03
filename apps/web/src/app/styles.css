@@ -311,6 +311,59 @@ h1 em {
   padding-top: 20px;
   border-top: 1px solid var(--line);
 }
+.case-preview,
+.evaluation-block,
+.sensitivity-block {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.case-preview dl,
+.case-preview dl div {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+.case-preview dt,
+.gate-row span,
+.gate-row small,
+.sensitivity-block span,
+.evaluation-block > small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.case-preview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.evaluation-heading,
+.gate-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+}
+.evaluation-heading strong,
+.gate-row b[data-passed="true"] {
+  color: var(--mint);
+}
+.gate-row b[data-passed="false"] {
+  color: var(--danger);
+}
+.gate-list {
+  display: grid;
+  gap: 10px;
+}
+.gate-row {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.gate-row small {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
 .mapping-row {
   display: grid;
   grid-template-columns: minmax(100px, 1fr) auto minmax(100px, 1fr);

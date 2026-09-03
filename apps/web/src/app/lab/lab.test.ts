@@ -10,6 +10,7 @@ import {
   hasUnresolvedMappingReview,
   Lab,
   mappingOverrides,
+  RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
   type LabScenario,
 } from "./lab";
@@ -32,10 +33,61 @@ describe("lab mapping status boundary", () => {
     expect(reset).toMatchObject({
       scenario: "concentrated-buy-dialect-a.csv",
       approval: null,
+      caseApproval: null,
       result: null,
       error: null,
     });
     expect(reset.error).toBeNull();
+  });
+
+  it("renders every gate and neutral mechanical sensitivity wording", () => {
+    const markup = renderToStaticMarkup(
+      createElement(RapidPriceLiftEvaluation, {
+        evaluation: {
+          ruleId: "RAPID_PRICE_LIFT",
+          ruleVersion: "1.0",
+          result: "NOT_SUPPORTED",
+          nonComparableEventCount: 0,
+          findings: [
+            "PRICE_CHANGE",
+            "AGGRESSIVE_BUY_SHARE",
+            "ACTOR_CONCENTRATION",
+            "REPEATED_EXECUTION",
+            "REMOVAL_SENSITIVITY",
+          ].map((gate, index) => ({
+            gate: gate as
+              | "PRICE_CHANGE"
+              | "AGGRESSIVE_BUY_SHARE"
+              | "ACTOR_CONCENTRATION"
+              | "REPEATED_EXECUTION"
+              | "REMOVAL_SENSITIVITY",
+            ruleId: "RAPID_PRICE_LIFT",
+            observedValue: "100.0000",
+            threshold: "50",
+            passed: index !== 2,
+            referencedEventIds: ["synthetic-event-1"],
+          })) as [never, never, never, never, never],
+          sensitivity: {
+            comparison: "MECHANICAL_METRIC_COMPARISON",
+            priceChangeBps: "200.0000",
+            priceChangeBpsWithoutApprovedActors: "75.0000",
+            removalSensitivityBps: "125.0000",
+          },
+        },
+      }),
+    );
+
+    for (const gate of [
+      "PRICE_CHANGE",
+      "AGGRESSIVE_BUY_SHARE",
+      "ACTOR_CONCENTRATION",
+      "REPEATED_EXECUTION",
+      "REMOVAL_SENSITIVITY",
+    ]) {
+      expect(markup).toContain(gate);
+    }
+    expect(markup).toContain("Mechanical sensitivity comparison");
+    expect(markup).toContain("Metric difference");
   });
 
   it("offers mapping approval for dialect A without a blocked banner", async () => {

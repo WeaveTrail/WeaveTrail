@@ -12,6 +12,13 @@ export default async function LabPage() {
         label: scenario.label,
         sourceArtifactHash: scenario.sourceArtifactHash,
         rows: scenario.rows,
+        ...(value.startsWith("rapid-price-lift-") && "manifest" in scenario
+          ? (() => {
+              const { approval: _, ...manifest } = scenario.manifest;
+              void _;
+              return { manifest };
+            })()
+          : {}),
       },
       proposal: await provider.propose({
         sourceArtifactHash: scenario.sourceArtifactHash,
