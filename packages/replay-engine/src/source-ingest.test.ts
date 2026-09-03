@@ -3,11 +3,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  committedReplayScenarios,
   concentratedBuyEvents,
   concentratedBuyDialectAMapping,
-  concentratedBuyDialectARows,
   concentratedBuyDialectBMapping,
-  concentratedBuyDialectBRows,
 } from "@weavetrail/scenarios";
 import { canonicalDatasetHash } from "./canonical-dataset";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
@@ -37,6 +36,17 @@ function artifactBytes(name: string): Buffer {
   );
 }
 
+function parseArtifactRows(name: string, declaredHash: string) {
+  const bytes = artifactBytes(name);
+  if (name.endsWith(".csv")) {
+    return parseCsvSourceArtifact(bytes, declaredHash);
+  }
+  if (name.endsWith(".jsonl")) {
+    return parseJsonLinesSourceArtifact(bytes, declaredHash);
+  }
+  throw new Error(`Unsupported source artifact extension: ${name}`);
+}
+
 describe("source provenance", () => {
   const dialectABytes = artifactBytes("concentrated-buy-dialect-a.csv");
   const dialectBBytes = artifactBytes("concentrated-buy-dialect-b.jsonl");
@@ -47,12 +57,11 @@ describe("source provenance", () => {
   });
 
   it("pins each complete declared row set to its committed artifact parser", () => {
-    expect(concentratedBuyDialectARows).toEqual(
-      parseCsvSourceArtifact(dialectABytes, DIALECT_A_HASH),
-    );
-    expect(concentratedBuyDialectBRows).toEqual(
-      parseJsonLinesSourceArtifact(dialectBBytes, DIALECT_B_HASH),
-    );
+    for (const [name, scenario] of Object.entries(committedReplayScenarios)) {
+      expect(scenario.rows).toEqual(
+        parseArtifactRows(name, scenario.sourceArtifactHash),
+      );
+    }
   });
 
   it("serializes raw columns in canonical key order without coercion", () => {
