@@ -1,4 +1,5 @@
 export * from "./approval-validation";
+export * from "./canonical-hash";
 export * from "./canonical-json";
 export * from "./canonical-dataset";
 export * from "./canonical-order";

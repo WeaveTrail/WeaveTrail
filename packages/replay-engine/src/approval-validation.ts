@@ -10,7 +10,8 @@ import {
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
 
-import { sha256Canonical, type CanonicalJsonInput } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
+import type { CanonicalJsonInput } from "./canonical-json";
 import {
   validateCaseAgainstProfile,
   type CaseProfileValidation,

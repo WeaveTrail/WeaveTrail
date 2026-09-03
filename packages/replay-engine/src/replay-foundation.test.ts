@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { TradeEventSchema, type TradeEvent } from "@weavetrail/contracts";
 import { concentratedBuyEvents } from "@weavetrail/scenarios";
-import { canonicalJson, sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
+import { canonicalJson } from "./canonical-json";
 import {
   CanonicalizationError,
   compareCanonicalEventTimes,

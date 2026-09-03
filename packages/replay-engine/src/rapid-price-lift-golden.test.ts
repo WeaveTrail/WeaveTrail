@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { rapidPriceLiftScenarios } from "@weavetrail/scenarios";
 
 import { caseManifestProposal } from "./approval-validation";
-import { sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
 import { computeDatasetProfile } from "./dataset-profile";
 import { replayRapidPriceLift } from "./rapid-price-lift";
 import { applyApprovedMapping, approvedSourceMapping } from "./source-ingest";

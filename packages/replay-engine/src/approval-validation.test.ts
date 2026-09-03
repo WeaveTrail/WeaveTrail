@@ -15,7 +15,7 @@ import {
   concentratedBuyEvents,
 } from "@weavetrail/scenarios";
 
-import { sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
 import { computeDatasetProfile } from "./dataset-profile";
 import {
   approvedSourceMapping,

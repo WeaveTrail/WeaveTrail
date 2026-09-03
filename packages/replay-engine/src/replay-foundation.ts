@@ -1,6 +1,6 @@
 import type { RapidPriceLiftResult, TradeEvent } from "@weavetrail/contracts";
 
-import { sha256Canonical } from "./canonical-json";
+import { sha256Canonical } from "./canonical-hash";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 
 export const ENGINE_VERSION = "0.5.0-rule";
