@@ -114,6 +114,21 @@ export async function approvalFor(
   }
 }
 
+export async function attemptApproval(
+  artifact: CanonicalJsonInput,
+  overrides: ApprovalRecord["overrides"] = [],
+  cryptoProvider: ApprovalHashCrypto | undefined = globalThis.crypto,
+): Promise<{ approval: ApprovalRecord | null; error: string | null }> {
+  try {
+    return {
+      approval: await approvalFor(artifact, overrides, cryptoProvider),
+      error: null,
+    };
+  } catch {
+    return { approval: null, error: APPROVAL_HASH_ERROR };
+  }
+}
+
 export function RapidPriceLiftEvaluation({
   evaluation,
 }: {
@@ -196,16 +211,12 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
     setError(null);
     setApproval(null);
     setResult(null);
-    try {
-      setApproval(
-        await approvalFor(proposal, mappingOverrides(proposal, reviewReasons)),
-      );
-      setResult(null);
-    } catch {
-      setApproval(null);
-      setResult(null);
-      setError(APPROVAL_HASH_ERROR);
-    }
+    const attempt = await attemptApproval(
+      proposal,
+      mappingOverrides(proposal, reviewReasons),
+    );
+    setApproval(attempt.approval);
+    setError(attempt.error);
   }
 
   async function approveCase() {
@@ -213,14 +224,9 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
     setError(null);
     setCaseApproval(null);
     setResult(null);
-    try {
-      setCaseApproval(await approvalFor(selectedScenario.manifest));
-      setResult(null);
-    } catch {
-      setCaseApproval(null);
-      setResult(null);
-      setError(APPROVAL_HASH_ERROR);
-    }
+    const attempt = await attemptApproval(selectedScenario.manifest);
+    setCaseApproval(attempt.approval);
+    setError(attempt.error);
   }
 
   async function runReplay() {

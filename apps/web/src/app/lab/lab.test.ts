@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { sha256Canonical } from "@weavetrail/replay-engine";
@@ -13,7 +13,7 @@ import { committedReplayScenarios } from "@weavetrail/scenarios";
 
 import {
   APPROVAL_HASH_ERROR,
-  approvalFor,
+  attemptApproval,
   hasUnresolvedMappingReview,
   Lab,
   mappingOverrides,
@@ -27,6 +27,10 @@ function renderedButton(markup: string, label: string): string {
   expect(button, `button labeled ${label}`).not.toBeNull();
   return button![0];
 }
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("lab mapping status boundary", () => {
   it.each([
@@ -43,9 +47,11 @@ describe("lab mapping status boundary", () => {
     const replayRequest = vi.fn();
     const artifact = { mappingVersion: "1.3", confidence: 1 };
 
-    await expect(approvalFor(artifact, [], cryptoProvider)).rejects.toThrow(
-      APPROVAL_HASH_ERROR,
-    );
+    vi.stubGlobal("fetch", replayRequest);
+
+    await expect(
+      attemptApproval(artifact, [], cryptoProvider),
+    ).resolves.toEqual({ approval: null, error: APPROVAL_HASH_ERROR });
     expect(replayRequest).not.toHaveBeenCalled();
   });
 
