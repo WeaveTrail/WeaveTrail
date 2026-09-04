@@ -23,35 +23,49 @@
   <a href="#run-it">Run it</a>
 </p>
 
-WeaveTrail is a verification harness for event data that arrives in several
-dialects and has to end in a number somebody can defend. A constrained model
-proposes how each source column maps to a versioned contract. A person approves
-that exact proposal. Versioned code then replays it, and every finding it
-returns points back at the source row it came from.
+WeaveTrail is an investigation workbench for the step after a market-surveillance
+alert. Surveillance and AI-assisted analysis narrow the field to a suspect
+instrument, an actor group and a time window; turning one of those candidates
+into a result a second investigator can re-derive is a different problem.
+WeaveTrail is where that handoff happens. A constrained model proposes how each
+source column maps to a versioned contract, a person approves that exact
+proposal, and versioned code replays it so every finding points back at the
+execution it came from.
 
 ## An anomaly alert is not yet evidence
 
-Two source files can carry the same trades and agree on nothing else. One is
-CSV with a `+09:00` offset and a `side_code` column; the other is JSON Lines
-with a `Z` timestamp and a `direction` column. Nothing inside either file says
-they describe the same trades, and nothing says which of them wins when they
-disagree.
+An alert names a candidate. Whoever picks it up has to say which orders and
+executions produced the number, under which mapping, and under which rule
+version — and the source systems make that hard before a model is anywhere near
+it. One feed is CSV with a `+09:00` offset and a `side_code` column; the next is
+JSON Lines with a `Z` timestamp and a `direction` column. Nothing inside either
+file says they describe the same executions, and nothing says which one wins
+when they disagree.
 
-![Two source files describe the same trades with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
+![An alert names a candidate whose executions arrive in two dialects with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
 
-- **Sources disagree by construction ·** field names, time notation and decimal
-  spelling all differ, and each difference is a place where a reconciliation can
-  be wrong without being visibly wrong.
-- **Identity is not given ·** an exact duplicate, a reused identifier with new
-  content and a late arrival look alike until something decides what "the same
-  event" means.
+- **Trading feeds disagree by construction ·** field names, time precision,
+  decimal spelling and what a resend means all differ between an exchange and a
+  broker, and each difference is a place where a reconciliation can be wrong
+  without being visibly wrong.
+- **Identity is not given ·** an exact duplicate, a reused order reference with
+  new content and a late arrival look alike until something decides what "the
+  same execution" means.
 - **A model adds a second boundary ·** a mapper narrows the ambiguity, but its
   output is a proposal. A column with no defensible target field stops for
-  review rather than being guessed at.
+  review rather than being guessed at, because a plausible summary can hide a
+  gap that the next reviewer will find.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
 ## AI proposes. A person approves. Code decides.
+
+The first case is bounded on purpose:
+
+> Does the observed short-window price lift support a versioned pattern of
+> repeated, concentrated aggressive buying by the approved actor group — and how
+> do the same metrics move when that group's executions are mechanically
+> removed?
 
 The model's job ends at a structured proposal. Approval is a separate,
 human-owned act bound to the hash of the exact artifact that was proposed, and
@@ -68,14 +82,20 @@ the engine will not run without it.
 - **Replay ·** `RAPID_PRICE_LIFT` version `1.1` reports `SUPPORTED`,
   `NOT_SUPPORTED` or `INCONCLUSIVE` across five gates. Abstention is a
   first-class outcome, not an error to hide.
-- **Trace ·** the result carries the canonical hash, the five gate findings and
-  event identifiers that resolve to `rawRowHash` on the source row.
+- **Trace ·** the result carries the canonical hash, the five gate findings, the
+  actor-removal comparison and event identifiers that resolve to `rawRowHash` on
+  the source row.
 
 Determinism here is pinned rather than asserted. Every permutation of a source
 event set resolves to one canonical hash. Equivalent CSV and JSON Lines
 dialects converge to a single canonical dataset while keeping their own
 artifact and row hashes. Each of the three results is anchored to a reference
 scenario by a literal golden hash.
+
+The output boundary is part of the design. WeaveTrail reports pattern support,
+the arithmetic behind it and the executions it rests on. It does not rule on
+legality, intent or guilt, the actor-removal comparison is mechanical rather
+than causal, and nothing it returns is investment advice.
 
 See [Methodology](docs/METHODOLOGY.md) for the rule, the gates and the
 abstention boundary.
