@@ -41,6 +41,8 @@ const SCENARIO_INPUTS = {
       "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
     datasetId: "synthetic-rapid-price-lift-supported-v1",
     expectedResult: "SUPPORTED",
+    startTime: "2026-09-01T00:00:00Z",
+    endTime: "2026-09-01T00:00:05Z",
     canonicalDatasetHash:
       "9eeb45d15373e1222c8b7e1b147b5010d415a72109aca8a264f1da0a8ae4b706",
     approvedManifestHash:
@@ -108,6 +110,8 @@ const SCENARIO_INPUTS = {
       "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
     datasetId: "synthetic-rapid-price-lift-broad-v1",
     expectedResult: "NOT_SUPPORTED",
+    startTime: "2026-09-01T00:00:00Z",
+    endTime: "2026-09-01T00:00:05Z",
     canonicalDatasetHash:
       "704fb15495b7fb2c5b612ba9a9213d1a429342e408587a085cdf4e28e859100f",
     approvedManifestHash:
@@ -175,10 +179,12 @@ const SCENARIO_INPUTS = {
       "15f79ef0265f836b5a01635bbcdd8e2f241431fbcc87fc504a1e2f7ea05582f7",
     datasetId: "synthetic-rapid-price-lift-insufficient-v1",
     expectedResult: "INCONCLUSIVE",
+    startTime: "2026-09-01T00:00:00Z",
+    endTime: "2026-09-01T00:00:03Z",
     canonicalDatasetHash:
       "0deca356833da2703b3a307b31b5426302a985ea91bdaad64218f5999a0965c2",
     approvedManifestHash:
-      "283021d2308ca8b3b0ab93515a8ce7b5998d435002e72cee8072753565e267a0",
+      "75f042f8768934ac440d5f8f89f81fe4fbfd221cf8ce148fb96b60462504c096",
     rows: [
       [
         "insufficient-001",
@@ -279,8 +285,8 @@ function buildScenario(
       pattern: "RAPID_PRICE_LIFT",
       instrumentId: "WT-RPL-SYNTH",
       actorIds: ["participant-focus"],
-      startTime: "2026-09-01T00:00:00Z",
-      endTime: "2026-09-01T00:00:05Z",
+      startTime: input.startTime,
+      endTime: input.endTime,
     },
     rules: [
       {
