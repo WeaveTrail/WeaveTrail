@@ -17,44 +17,38 @@
 </p>
 
 <p align="center">
-  <a href="#an-anomaly-alert-is-not-yet-evidence">Problem</a> &middot;
+  <a href="#an-alert-is-not-yet-evidence">Problem</a> &middot;
   <a href="#ai-proposes-a-person-approves-code-decides">Approach</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
   <a href="#run-it">Run it</a>
 </p>
 
 WeaveTrail is an investigation workbench for the step after a market-surveillance
-alert. Surveillance and AI-assisted analysis narrow the field to a suspect
-instrument, an actor group and a time window; turning one of those candidates
-into a result a second investigator can re-derive is a different problem.
-WeaveTrail is where that handoff happens. A constrained model proposes how each
-source column maps to a versioned contract, a person approves that exact
-proposal, and versioned code replays it so every finding points back at the
-execution it came from.
+alert. As surveillance turns AI-assisted, candidates arrive faster than anyone
+can check them — and a candidate is not a finding until a second person can
+re-derive it from the same executions.
 
-## An anomaly alert is not yet evidence
+- **Where it sits ·** after an alert or a referral, before an investigation
+  concludes.
+- **Who it is for ·** surveillance teams at a trading venue, compliance reviewers
+  at a broker or bank, supervisory investigators, internal audit.
+- **What it returns ·** a versioned pattern verdict, the arithmetic behind it,
+  and every execution it rests on.
 
-An alert names a candidate. Whoever picks it up has to say which orders and
-executions produced the number, under which mapping, and under which rule
-version — and the source systems make that hard before a model is anywhere near
-it. One feed is CSV with a `+09:00` offset and a `side_code` column; the next is
-JSON Lines with a `Z` timestamp and a `direction` column. Nothing inside either
-file says they describe the same executions, and nothing says which one wins
-when they disagree.
+## An alert is not yet evidence
+
+Whoever picks the alert up has to say which executions produced the number,
+under which mapping, under which rule version. The feeds make that hard before
+a model is anywhere near it.
 
 ![An alert names a candidate whose executions arrive in two dialects with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
 
-- **Trading feeds disagree by construction ·** field names, time precision,
-  decimal spelling and what a resend means all differ between an exchange and a
-  broker, and each difference is a place where a reconciliation can be wrong
-  without being visibly wrong.
-- **Identity is not given ·** an exact duplicate, a reused order reference with
-  new content and a late arrival look alike until something decides what "the
-  same execution" means.
-- **A model adds a second boundary ·** a mapper narrows the ambiguity, but its
-  output is a proposal. A column with no defensible target field stops for
-  review rather than being guessed at, because a plausible summary can hide a
-  gap that the next reviewer will find.
+- **Venues disagree by construction ·** field names, time precision, decimal
+  spelling and resend semantics differ between any two systems.
+- **Identity is not given ·** a duplicate, a reused order reference and a late
+  arrival look alike until something defines "the same execution".
+- **A model adds a second boundary ·** it narrows the ambiguity, but its output
+  is a proposal, and a plausible summary can hide a gap.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
@@ -62,70 +56,49 @@ See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
 The first case is bounded on purpose:
 
-> Does the observed short-window price lift support a versioned pattern of
-> repeated, concentrated aggressive buying by the approved actor group — and how
-> do the same metrics move when that group's executions are mechanically
-> removed?
+> Does a short-window price lift support a versioned pattern of repeated,
+> concentrated aggressive buying by the approved actor group — and how do the
+> metrics move when that group's executions are removed?
 
-The model's job ends at a structured proposal. Approval is a separate,
-human-owned act bound to the hash of the exact artifact that was proposed, and
-the engine will not run without it.
+![Four stages between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code replays the approved manifest, and the result carries a canonical hash and event identifiers that resolve back to source rows](docs/assets/how-it-works.svg)
 
-![Four stages: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code replays the approved manifest, and the result carries a canonical hash and event identifiers that resolve back to source rows](docs/assets/how-it-works.svg)
+- **Propose ·** one target field and one allowlisted transform per source
+  column, each with a confidence and its evidence.
+- **Approve ·** the approval binds to the proposed artifact hash, and a flagged
+  field needs a justified override to clear.
+- **Replay ·** `RAPID_PRICE_LIFT` reports `SUPPORTED`, `NOT_SUPPORTED` or
+  `INCONCLUSIVE` across five gates. Abstention is a first-class outcome.
+- **Trace ·** the canonical hash, the gate findings, the actor-removal
+  comparison, and event identifiers that resolve to their source rows.
 
-- **Propose ·** the mapper returns one target field and one allowlisted
-  transform per source column, each with a confidence and its evidence. An
-  unknown column, a low confidence or an unsupported transform is
-  `REVIEW_REQUIRED`, not a guess.
-- **Approve ·** the approval record binds to the proposed artifact hash, and a
-  flagged field needs a justified override before it clears.
-- **Replay ·** `RAPID_PRICE_LIFT` version `1.1` reports `SUPPORTED`,
-  `NOT_SUPPORTED` or `INCONCLUSIVE` across five gates. Abstention is a
-  first-class outcome, not an error to hide.
-- **Trace ·** the result carries the canonical hash, the five gate findings, the
-  actor-removal comparison and event identifiers that resolve to `rawRowHash` on
-  the source row.
-
-Determinism here is pinned rather than asserted. Every permutation of a source
-event set resolves to one canonical hash. Equivalent CSV and JSON Lines
-dialects converge to a single canonical dataset while keeping their own
-artifact and row hashes. Each of the three results is anchored to a reference
-scenario by a literal golden hash.
-
-The output boundary is part of the design. WeaveTrail reports pattern support,
-the arithmetic behind it and the executions it rests on. It does not rule on
-legality, intent or guilt, the actor-removal comparison is mechanical rather
-than causal, and nothing it returns is investment advice.
+The verdict is about a technical pattern, not legality, intent or guilt, and the
+actor-removal comparison is mechanical rather than causal.
 
 See [Methodology](docs/METHODOLOGY.md) for the rule, the gates and the
 abstention boundary.
 
 ## The boundary is a contract, not a convention
 
-Determinism is not a property the engine tries to have. It is a set of choices
-made once, written down as ADRs, and pinned by tests: how time is represented,
-how ties break, how decimals are stored and compared, and what the result hash
-is allowed to depend on.
+Determinism is pinned rather than asserted: how time is represented, how ties
+break, how decimals compare, and what the result hash may depend on are fixed
+choices, written down and tested.
 
-![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the server's committed row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
+![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the stored row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
 
-- **Nothing model-authored crosses unapproved ·** the replay route rejects
-  caller-authored canonical events outright and re-derives them from the stored
-  rows through the approved mapping.
-- **No floating point anywhere it matters ·** prices, quantities and thresholds
-  stay decimal strings and compare as exact scaled-integer cross-products.
-- **The hash covers the result, not the run ·** engine version, canonical
-  events and rule outcome are inside it; `receivedAt`, `rawRowHash`,
-  `workflowState`, reviewer identity and approval time are outside it.
-- **Failure is a state, not an exception ·** a gate that cannot be satisfied
-  returns HTTP `422` with a review state and no result hash.
+- **Nothing model-authored crosses unapproved ·** canonical events are
+  re-derived from stored rows through the approved mapping.
+- **No floating point where it matters ·** prices and thresholds stay decimal
+  strings and compare as exact scaled integers.
+- **The hash covers the result, not the run ·** every permutation of a source
+  set resolves to one canonical hash.
+- **Failure is a state ·** a gate that cannot be satisfied returns a review
+  state and no result hash.
 
-The mapper is defined by its contract rather than by its provider, so the model
-behind it stays an implementation detail that can be swapped without moving the
-boundary.
+The mapper is defined by its contract rather than its provider, so the model
+behind it can be swapped without moving the boundary.
 
-See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries and the
-package split, and the [ADRs](docs/adr) for why each choice was made.
+See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries, and the
+[ADRs](docs/adr) for why each choice was made.
 
 ## Run it
 
@@ -148,9 +121,6 @@ pnpm test
 pnpm typecheck
 pnpm build
 ```
-
-See [Deployment](docs/DEPLOYMENT.md) for the recorded Vercel settings, the
-environment boundary and the rollback procedure.
 
 ## Documentation
 

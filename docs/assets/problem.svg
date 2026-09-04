@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="problemTitle problemDesc">
-  <title id="problemTitle">An anomaly alert is not yet evidence</title>
+  <title id="problemTitle">An alert is not yet evidence</title>
   <desc id="problemDesc">An alert names a candidate whose executions arrive in two dialects with different field names and time notations. A constrained model can propose how they line up, but one field stays flagged for review, and an alert alone never records which rows, which mapping, or which rule version produced its number.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
@@ -34,7 +34,7 @@
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">THE PROBLEM</text>
-    <text class="title" x="40" y="84">An anomaly alert is not yet evidence.</text>
+    <text class="title" x="40" y="84">An alert is not yet evidence.</text>
     <text class="sub" x="40" y="112">An alert names a candidate. Its executions arrive in dialects that agree on nothing.</text>
   </g>
   <line class="rule" x1="40" y1="140" x2="1160" y2="140"/>
@@ -83,7 +83,7 @@
   <text class="s note" x="558" y="410" font-size="12">Proposal, not approval.</text>
 
   <!-- panel 3 : what the alert leaves open -->
-  <g class="s"><text class="panelLabel" x="844" y="170">WHAT AN ALERT LEAVES OPEN</text></g>
+  <g class="s"><text class="panelLabel" x="844" y="170">WHAT THE NEXT REVIEWER CANNOT ANSWER</text></g>
   <rect x="844" y="184" width="316" height="240" fill="#f0f5f4" stroke="#d0d7de"/>
   <g class="s">
     <text class="q" x="864" y="222">Which rows produced the number?</text>

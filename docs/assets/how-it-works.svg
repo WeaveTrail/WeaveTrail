@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="flowTitle flowDesc">
   <title id="flowTitle">AI proposes, a person approves, versioned code decides</title>
-  <desc id="flowDesc">Four stages run left to right. A constrained mapper proposes a field mapping; a reviewer approves that exact proposal by hash; versioned code replays the approved manifest and evaluates the rule; the result carries a canonical hash and event identifiers that resolve back to source rows. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
+  <desc id="flowDesc">Four stages run left to right, between an alert that names an instrument, an actor group and a time window, and a result the next reviewer can re-derive. A constrained mapper proposes a field mapping; a reviewer approves that exact proposal by hash; versioned code replays the approved manifest and evaluates the rule; the result carries a canonical hash and event identifiers that resolve back to source rows. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
@@ -23,6 +23,7 @@
       .foot{font-size:11px;fill:#566461}
       .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
       .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .ctx{font-size:11px;fill:#7d8b88}
       .rule{stroke:#d0d7de;stroke-width:1}
     </style>
   </defs>
@@ -37,6 +38,11 @@
     <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a human decision. Ink is versioned code.</text>
   </g>
   <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <g class="s">
+    <text class="ctx" x="40" y="176">FROM &#183; an alert naming an instrument, an actor group and a time window</text>
+    <text class="ctx" x="1160" y="176" text-anchor="end">TO &#183; a result the next reviewer can re-derive</text>
+  </g>
 
   <!-- stage 1 : interpret -->
   <rect x="40" y="192" width="262" height="200" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
