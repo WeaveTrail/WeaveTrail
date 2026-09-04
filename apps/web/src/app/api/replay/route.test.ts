@@ -10,6 +10,7 @@ import {
   committedReplayScenarios,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
 import { POST } from "./route";
@@ -107,6 +108,52 @@ describe("POST /api/replay approved mapping boundary", () => {
         sensitivity: { comparison: "MECHANICAL_METRIC_COMPARISON" },
       },
     });
+  });
+
+  it.each(Object.entries(rapidPriceLiftScenarios))(
+    "replays declared scenario %s to its expected result",
+    async (scenarioName, fixture) => {
+      const response = await POST(
+        request({
+          scenario: scenarioName,
+          mutation: "baseline",
+          rows: fixture.rows,
+          mappingApproval: approval(fixture.mappingProposal),
+          caseManifest: fixture.manifest,
+        }),
+      );
+      const result = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(result.workflowState).toBe("REPLAYED");
+      expect(result.evaluation.result).toBe(fixture.expectedResult);
+      expect(result).not.toHaveProperty("issues");
+    },
+  );
+
+  it("replays insufficient evidence as an inconclusive result without review issues", async () => {
+    const scenarioName = "rapid-price-lift-insufficient-evidence.csv";
+    const fixture = rapidPriceLiftScenarios[scenarioName];
+    const response = await POST(
+      request({
+        scenario: scenarioName,
+        mutation: "baseline",
+        rows: fixture.rows,
+        mappingApproval: approval(fixture.mappingProposal),
+        caseManifest: fixture.manifest,
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(result.workflowState).toBe("REPLAYED");
+    expect(result.evaluation).toMatchObject({
+      result: "INCONCLUSIVE",
+      reason: "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+      findings: [],
+      sensitivity: null,
+    });
+    expect(result).not.toHaveProperty("issues");
   });
 
   it("rejects an approved manifest actor outside the dataset profile before evaluation", async () => {
