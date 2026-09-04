@@ -5,30 +5,33 @@ fixture mode. It serves only the synthetic scenarios committed to this
 repository. No live model provider, provider credential, database, analytics,
 telemetry, or third-party script is part of this deployment.
 
-The stable public URL and deployed revision will be recorded here after the
-first production promotion. Until then, this document is a reproducible
-handover, not evidence that a public deployment exists.
+Production is live at
+[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
+The first production deployment uses Git revision `56d76f3` and is owned by the
+WeaveTrail Vercel organization.
 
 ## Vercel project settings
 
 Import the repository as one Vercel project with these settings:
 
-| Setting           | Value                                             |
-| ----------------- | ------------------------------------------------- |
-| Framework preset  | Next.js                                           |
-| Root directory    | `apps/web`                                        |
-| Install command   | `cd ../.. && pnpm install --frozen-lockfile`      |
-| Build command     | `cd ../.. && pnpm build`                          |
-| Output directory  | Next.js default (`.next`); do not override        |
-| Node.js version   | 22.x                                              |
-| Production branch | `main`                                            |
-| Pull requests     | Isolated preview deployment for each pull request |
+| Setting           | Value                                              |
+| ----------------- | -------------------------------------------------- |
+| Framework preset  | Next.js                                            |
+| Root directory    | `apps/web`                                         |
+| Install command   | Vercel default (`pnpm install` for this workspace) |
+| Build command     | Vercel default (`npm run build` or `next build`)   |
+| Output directory  | Next.js default (`.next`); do not override         |
+| Node.js version   | 24.x                                               |
+| Production branch | `main`                                             |
+| Pull requests     | Isolated preview deployment for each pull request  |
 
-Keep access to source files outside the root directory enabled. The web app
-imports workspace packages from `packages/`, and both commands deliberately run
-at the workspace root so the committed lockfile and root build script are the
-single source of truth. Use the provider's Git integration as the deployment
-trigger; this repository does not duplicate it with a deployment workflow.
+The project uses the dashboard defaults for install and build. Vercel detects
+pnpm from the root `packageManager` declaration and installs the workspace even
+though the selected application root is `apps/web`. Keep access to source files
+outside that root enabled because the web app imports packages from
+`packages/`. The existing Git integration is the deployment trigger:
+production follows `main`, and pull requests receive isolated previews. This
+repository does not duplicate that trigger with a deployment workflow.
 
 ## Environment
 
@@ -83,6 +86,10 @@ body, raw model trace, canonical event, or `rawRowHash` is present. Record the
 search terms and results without copying a secret into the record.
 
 ## Rollback
+
+Rollback is documented but was **not exercised** for the first production
+release because only one production deployment exists. There is not yet a
+previous known-good deployment to restore.
 
 Before promotion, identify the previous known-good deployment by both its full
 Git commit SHA and its immutable Vercel deployment URL. Record whether rollback
