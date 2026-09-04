@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="problemTitle problemDesc">
   <title id="problemTitle">An anomaly alert is not yet evidence</title>
-  <desc id="problemDesc">Two committed source files describe the same trades with different field names and time notations. A constrained model can propose how they line up, but one field stays flagged for review, and an alert alone never records which rows, which mapping, or which rule version produced its number.</desc>
+  <desc id="problemDesc">Two source files describe the same trades with different field names and time notations. A constrained model can propose how they line up, but one field stays flagged for review, and an alert alone never records which rows, which mapping, or which rule version produced its number.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
@@ -35,7 +35,7 @@
   <g class="s">
     <text class="eyebrow" x="40" y="48">THE PROBLEM</text>
     <text class="title" x="40" y="84">An anomaly alert is not yet evidence.</text>
-    <text class="sub" x="40" y="112">Two committed source files carry the same four trades. Nothing inside either file says so.</text>
+    <text class="sub" x="40" y="112">Two source files carry the same trades. Nothing inside either file says so.</text>
   </g>
   <line class="rule" x1="40" y1="140" x2="1160" y2="140"/>
 
@@ -97,6 +97,6 @@
   </g>
 
   <g class="s">
-    <text class="note" x="40" y="452" font-size="12">Values shown are committed synthetic fixtures from <tspan class="m">packages/scenarios</tspan>.</text>
+    <text class="note" x="40" y="452" font-size="12">Field names, notations and decimal spellings are drawn from the reference source dialects.</text>
   </g>
 </svg>

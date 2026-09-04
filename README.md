@@ -14,7 +14,6 @@
   <a href="https://github.com/WeaveTrail/WeaveTrail/actions/workflows/ci.yml?query=branch%3Amain"><img alt="CI" src="https://github.com/WeaveTrail/WeaveTrail/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
   <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A5%2022-informational">
-  <img alt="status" src="https://img.shields.io/badge/status-foundation%20scaffold-lightgrey">
 </p>
 
 <p align="center">
@@ -30,22 +29,15 @@ proposes how each source column maps to a versioned contract. A person approves
 that exact proposal. Versioned code then replays it, and every finding it
 returns points back at the source row it came from.
 
-> **Status — foundation scaffold.** The contracts, the deterministic engine,
-> the approval gates, the `RAPID_PRICE_LIFT` rule and the guided lab are
-> committed and tested. A live model provider and published measurements are
-> not: the lab runs a deterministic fixture provider over synthetic data, and
-> [Evaluation](docs/EVALUATION.md) defines the measurements before any of them
-> exist.
-
 ## An anomaly alert is not yet evidence
 
-Two files in `packages/scenarios` carry the same four synthetic trades. One is
+Two source files can carry the same trades and agree on nothing else. One is
 CSV with a `+09:00` offset and a `side_code` column; the other is JSON Lines
 with a `Z` timestamp and a `direction` column. Nothing inside either file says
-they describe the same trades, and nothing says which of them is authoritative
-when they disagree.
+they describe the same trades, and nothing says which of them wins when they
+disagree.
 
-![Two committed source files describe the same trades with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
+![Two source files describe the same trades with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
 
 - **Sources disagree by construction ·** field names, time notation and decimal
   spelling all differ, and each difference is a place where a reconciliation can
@@ -54,8 +46,8 @@ when they disagree.
   content and a late arrival look alike until something decides what "the same
   event" means.
 - **A model adds a second boundary ·** a mapper narrows the ambiguity, but its
-  output is a proposal. In the JSON Lines dialect one column has no defensible
-  target field, and it stops for review rather than guessing.
+  output is a proposal. A column with no defensible target field stops for
+  review rather than being guessed at.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
@@ -73,17 +65,17 @@ the engine will not run without it.
   `REVIEW_REQUIRED`, not a guess.
 - **Approve ·** the approval record binds to the proposed artifact hash, and a
   flagged field needs a justified override before it clears.
-- **Replay ·** `RAPID_PRICE_LIFT` version `1.1` runs on engine
-  `0.7.0-canonical-decimal` and reports `SUPPORTED`, `NOT_SUPPORTED` or
-  `INCONCLUSIVE` across five gates. Abstention is a first-class outcome.
+- **Replay ·** `RAPID_PRICE_LIFT` version `1.1` reports `SUPPORTED`,
+  `NOT_SUPPORTED` or `INCONCLUSIVE` across five gates. Abstention is a
+  first-class outcome, not an error to hide.
 - **Trace ·** the result carries the canonical hash, the five gate findings and
   event identifiers that resolve to `rawRowHash` on the source row.
 
-What that buys is checkable today, without a model in the loop. All 24
-permutations of the committed four-event fixture produce the single hash
-`8ecbc171…c81b13ff`. The CSV and JSON Lines dialects converge to one canonical
-dataset while keeping distinct artifact and row hashes. Three declared scenarios
-are pinned to the three results by literal golden hash, one scenario each.
+Determinism here is pinned rather than asserted. Every permutation of a source
+event set resolves to one canonical hash. Equivalent CSV and JSON Lines
+dialects converge to a single canonical dataset while keeping their own
+artifact and row hashes. Each of the three results is anchored to a reference
+scenario by a literal golden hash.
 
 See [Methodology](docs/METHODOLOGY.md) for the rule, the gates and the
 abstention boundary.
@@ -91,14 +83,14 @@ abstention boundary.
 ## The boundary is a contract, not a convention
 
 Determinism is not a property the engine tries to have. It is a set of choices
-that were made once, written down as ADRs, and pinned by tests: how time is
-represented, how ties break, how decimals are stored and compared, and what the
-result hash is allowed to depend on.
+made once, written down as ADRs, and pinned by tests: how time is represented,
+how ties break, how decimals are stored and compared, and what the result hash
+is allowed to depend on.
 
 ![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the server's committed row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
 
 - **Nothing model-authored crosses unapproved ·** the replay route rejects
-  caller-authored canonical events outright and re-derives them from committed
+  caller-authored canonical events outright and re-derives them from the stored
   rows through the approved mapping.
 - **No floating point anywhere it matters ·** prices, quantities and thresholds
   stay decimal strings and compare as exact scaled-integer cross-products.
@@ -107,6 +99,10 @@ result hash is allowed to depend on.
   `workflowState`, reviewer identity and approval time are outside it.
 - **Failure is a state, not an exception ·** a gate that cannot be satisfied
   returns HTTP `422` with a review state and no result hash.
+
+The mapper is defined by its contract rather than by its provider, so the model
+behind it stays an implementation detail that can be swapped without moving the
+boundary.
 
 See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries and the
 package split, and the [ADRs](docs/adr) for why each choice was made.
@@ -121,14 +117,14 @@ pnpm install
 pnpm dev
 ```
 
-Open <http://localhost:3000/lab>. Fixture mode needs no API key. The deployed
-copy at
+Open <http://localhost:3000/lab> and walk the whole path: a proposal, a review
+with a justified override, an approval, and the replay it authorises. The
+deployed workbench at
 [weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app)
-runs the same fixture provider and the same committed scenarios, holds no
-model-provider credential, and is for synthetic data only.
+runs the same engine over the same reference scenarios.
 
 ```bash
-pnpm test       # the full suite, including every invariant above
+pnpm test
 pnpm typecheck
 pnpm build
 ```
@@ -140,8 +136,8 @@ environment boundary and the rollback procedure.
 
 - [Architecture](docs/ARCHITECTURE.md) — components and trust boundaries
 - [Methodology](docs/METHODOLOGY.md) — result semantics and the implemented rule
-- [Evaluation](docs/EVALUATION.md) — the measurement protocol, with no targets
-  written up as results
+- [Evaluation](docs/EVALUATION.md) — how every published measurement is defined
+  and reproduced
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
 - [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations
