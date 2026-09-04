@@ -6,7 +6,7 @@ import type {
 } from "@weavetrail/contracts";
 import {
   CaseManifestProposalSchema,
-  MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
+  requiresMappingOverride,
   SchemaMappingProposalSchema,
 } from "@weavetrail/contracts";
 
@@ -97,23 +97,10 @@ export function validateReplayApprovals(
   mappingApproval: ApprovalRecord | undefined,
   manifest: CaseManifest | undefined,
 ): ApprovalValidation {
-  const issues = validateApprovalRecord(
-    mappingApprovalArtifact(mapping),
-    mappingApproval,
-    "mappingApproval",
-  );
-  if (mappingApproval !== undefined) {
-    const overridePaths = justifiedOverridePaths(mappingApproval);
-    for (const [index, field] of mapping.fields.entries()) {
-      const requiresOverride =
-        field.status === "REVIEW_REQUIRED" ||
-        field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD;
-      const fieldPath = `fields.${index}`;
-      if (requiresOverride && !overridePaths.has(fieldPath)) {
-        issues.push({ code: "MAPPING_OVERRIDE_REQUIRED", path: fieldPath });
-      }
-    }
-  }
+  const mappingValidation = validateMappingApproval(mapping, mappingApproval);
+  const issues = mappingValidation.accepted
+    ? []
+    : [...mappingValidation.issues];
 
   if (manifest === undefined) {
     issues.push({ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" });
@@ -268,8 +255,7 @@ function validateMappingApproval(
     const overridePaths = justifiedOverridePaths(mappingApproval);
     mapping.fields.forEach((field, index) => {
       if (
-        (field.status === "REVIEW_REQUIRED" ||
-          field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD) &&
+        requiresMappingOverride(field) &&
         !overridePaths.has(`fields.${index}`)
       ) {
         issues.push({

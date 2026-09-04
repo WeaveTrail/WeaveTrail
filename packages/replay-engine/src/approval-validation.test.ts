@@ -427,20 +427,13 @@ describe("replay approval gate", () => {
     ["low-confidence", { confidence: 0.999, status: "PROPOSED" as const }],
     ["review-required", { confidence: 1, status: "REVIEW_REQUIRED" as const }],
   ])(
-    "requires a justified override for a %s mapping field",
+    "returns the same override issue from both gates for a %s mapping field",
     (_, fieldState) => {
       const flaggedMapping = SchemaMappingProposalSchema.parse({
         ...mapping,
-        fields: [
-          {
-            sourceColumn: "source-text",
-            targetField: null,
-            transform: null,
-            confidence: fieldState.confidence,
-            evidence: "No exact fixture mapping exists.",
-            status: fieldState.status,
-          },
-        ],
+        fields: mapping.fields.map((field, index) =>
+          index === 0 ? { ...field, ...fieldState } : field,
+        ),
       });
       const approval = {
         ...mappingApproval,
@@ -448,32 +441,78 @@ describe("replay approval gate", () => {
           mappingApprovalArtifact(flaggedMapping),
         ),
       };
+      const expected = {
+        accepted: false as const,
+        status: "REVIEW_REQUIRED" as const,
+        issues: [{ code: "MAPPING_OVERRIDE_REQUIRED", path: "fields.0" }],
+      };
 
       expect(
         validateReplayApprovals(flaggedMapping, approval, manifest),
-      ).toMatchObject({
-        accepted: false,
-        status: "REVIEW_REQUIRED",
-        issues: [{ code: "MAPPING_OVERRIDE_REQUIRED", path: "fields.0" }],
-      });
-
+      ).toEqual(expected);
       expect(
-        validateReplayApprovals(
+        replayApproved(
+          concentratedBuyDialectARows,
+          concentratedBuyDialectARows,
           flaggedMapping,
-          {
-            ...approval,
-            overrides: [
-              {
-                fieldPath: "fields.0",
-                reason: "Reviewed as intentionally unmapped synthetic text.",
-              },
-            ],
-          },
+          approval,
           manifest,
         ),
+      ).toEqual(expected);
+
+      const justifiedApproval = {
+        ...approval,
+        overrides: [
+          {
+            fieldPath: "fields.0",
+            reason: "Reviewed against the synthetic source schema.",
+          },
+        ],
+      };
+      expect(
+        validateReplayApprovals(flaggedMapping, justifiedApproval, manifest),
       ).toEqual({ accepted: true });
+      expect(
+        replayApproved(
+          concentratedBuyDialectARows,
+          concentratedBuyDialectARows,
+          flaggedMapping,
+          justifiedApproval,
+          manifest,
+        ),
+      ).toHaveProperty("canonicalResultHash");
     },
   );
+
+  it("does not require an override at confidence 1 for a proposed field", () => {
+    const boundaryMapping = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      fields: mapping.fields.map((field, index) =>
+        index === 0
+          ? { ...field, confidence: 1, status: "PROPOSED" as const }
+          : field,
+      ),
+    });
+    const approval = {
+      ...mappingApproval,
+      approvedArtifactHash: sha256Canonical(
+        mappingApprovalArtifact(boundaryMapping),
+      ),
+    };
+
+    expect(
+      validateReplayApprovals(boundaryMapping, approval, manifest),
+    ).toEqual({ accepted: true });
+    expect(
+      replayApproved(
+        concentratedBuyDialectARows,
+        concentratedBuyDialectARows,
+        boundaryMapping,
+        approval,
+        manifest,
+      ),
+    ).toHaveProperty("canonicalResultHash");
+  });
 
   it("does not accept a whitespace-only mapping override reason", () => {
     const sourceNoteIndex = concentratedBuyDialectBProposal.fields.findIndex(
@@ -498,13 +537,7 @@ describe("replay approval gate", () => {
       ],
     });
 
-    expect(
-      validateReplayApprovals(
-        concentratedBuyDialectBProposal,
-        approval,
-        manifest,
-      ),
-    ).toMatchObject({
+    const expectedIssue = {
       accepted: false,
       status: "REVIEW_REQUIRED",
       issues: [
@@ -513,7 +546,24 @@ describe("replay approval gate", () => {
           path: `fields.${sourceNoteIndex}`,
         },
       ],
-    });
+    } as const;
+
+    expect(
+      validateReplayApprovals(
+        concentratedBuyDialectBProposal,
+        approval,
+        manifest,
+      ),
+    ).toEqual(expectedIssue);
+    expect(
+      replayApproved(
+        [],
+        [],
+        concentratedBuyDialectBProposal,
+        approval,
+        manifest,
+      ),
+    ).toEqual(expectedIssue);
   });
 
   it("keeps approval audit metadata outside the canonical result hash", () => {

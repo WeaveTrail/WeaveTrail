@@ -65,6 +65,15 @@ export type AllowedTransform = z.infer<typeof AllowedTransformSchema>;
 export type MappedTargetField = z.infer<typeof MappedTargetFieldSchema>;
 export type SchemaMappingProposal = z.infer<typeof SchemaMappingProposalSchema>;
 
+export function requiresMappingOverride(
+  field: SchemaMappingProposal["fields"][number],
+): boolean {
+  return (
+    field.status === "REVIEW_REQUIRED" ||
+    field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD
+  );
+}
+
 export function deriveApprovedSourceMapping(proposal: SchemaMappingProposal) {
   return {
     mappingVersion: proposal.mappingVersion,
