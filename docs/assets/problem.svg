@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="problemTitle problemDesc">
+  <title id="problemTitle">An anomaly alert is not yet evidence</title>
+  <desc id="problemDesc">Two committed source files describe the same trades with different field names and time notations. A constrained model can propose how they line up, but one field stays flagged for review, and an alert alone never records which rows, which mapping, or which rule version produced its number.</desc>
+  <!--
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 ledger-head
+    #0c1513 ink-900 | #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400
+    #0b6e6a teal-700 | #e6f2f1 teal-tint
+    #4f6270 authorship-ai | #6d7d86 slate-500 | #eef1f2 state-review-bg
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .panelLabel{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .key{font-size:12px;fill:#566461}
+      .val{font-size:12px;fill:#263230}
+      .note{font-size:13px;fill:#566461}
+      .q{font-size:14px;fill:#263230}
+      .file{font-size:11px;font-weight:600;fill:#7d8b88}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="470" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="469" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">THE PROBLEM</text>
+    <text class="title" x="40" y="84">An anomaly alert is not yet evidence.</text>
+    <text class="sub" x="40" y="112">Two committed source files carry the same four trades. Nothing inside either file says so.</text>
+  </g>
+  <line class="rule" x1="40" y1="140" x2="1160" y2="140"/>
+
+  <!-- panel 1 : one trade, two dialects -->
+  <g class="s"><text class="panelLabel" x="40" y="170">ONE TRADE, TWO DIALECTS</text></g>
+  <rect x="40" y="184" width="470" height="240" fill="#ffffff" stroke="#d0d7de"/>
+  <g>
+    <text class="m file" x="60" y="212">concentrated-buy-dialect-a.csv</text>
+    <line class="rule" x1="60" y1="222" x2="490" y2="222"/>
+    <g class="m">
+      <text class="key" x="60" y="244">ts</text>
+      <text class="val" x="196" y="244">2026-08-25T09:00:00.000+09:00</text>
+      <text class="key" x="60" y="266">side_code</text>
+      <text class="val" x="196" y="266">B</text>
+      <text class="key" x="60" y="288">px</text>
+      <text class="val" x="196" y="288">100.00</text>
+    </g>
+    <text class="m file" x="60" y="326">concentrated-buy-dialect-b.jsonl</text>
+    <line class="rule" x1="60" y1="336" x2="490" y2="336"/>
+    <g class="m">
+      <text class="key" x="60" y="358">event_timestamp</text>
+      <text class="val" x="196" y="358">2026-08-25T00:00:00Z</text>
+      <text class="key" x="60" y="380">direction</text>
+      <text class="val" x="196" y="380">BUY</text>
+      <text class="key" x="60" y="402">trade_price</text>
+      <text class="val" x="196" y="402">100.00</text>
+    </g>
+  </g>
+
+  <!-- panel 2 : a model proposes -->
+  <g class="s"><text class="panelLabel" x="538" y="170">A MODEL CAN PROPOSE</text></g>
+  <rect x="538" y="184" width="278" height="240" fill="#eef1f2" stroke="#6d7d86" stroke-dasharray="4 3"/>
+  <g class="m">
+    <text class="key" x="558" y="214">trade_price</text>
+    <text class="val" x="558" y="234">&#8594; price</text>
+    <line class="rule" x1="558" y1="250" x2="796" y2="250"/>
+    <text class="key" x="558" y="276">direction</text>
+    <text class="val" x="558" y="296">&#8594; side</text>
+    <line class="rule" x1="558" y1="312" x2="796" y2="312"/>
+    <text class="key" x="558" y="338">source_note</text>
+    <text class="val" x="558" y="358" fill="#4f6270">&#8594; no target field</text>
+  </g>
+  <rect x="558" y="370" width="132" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="566" y="383" fill="#4f6270">REVIEW_REQUIRED</text>
+  <text class="s note" x="558" y="410" font-size="12">Proposal, not approval.</text>
+
+  <!-- panel 3 : what the alert leaves open -->
+  <g class="s"><text class="panelLabel" x="844" y="170">WHAT AN ALERT LEAVES OPEN</text></g>
+  <rect x="844" y="184" width="316" height="240" fill="#f0f5f4" stroke="#d0d7de"/>
+  <g class="s">
+    <text class="q" x="864" y="222">Which rows produced the number?</text>
+    <line class="rule" x1="864" y1="242" x2="1140" y2="242"/>
+    <text class="q" x="864" y="274">Which mapping was applied to them?</text>
+    <line class="rule" x1="864" y1="294" x2="1140" y2="294"/>
+    <text class="q" x="864" y="326">Which rule version decided?</text>
+    <line class="rule" x1="864" y1="346" x2="1140" y2="346"/>
+    <text class="note" x="864" y="378" font-size="12">A claim nobody can re-derive is</text>
+    <text class="note" x="864" y="396" font-size="12">not yet evidence.</text>
+  </g>
+
+  <g class="s">
+    <text class="note" x="40" y="452" font-size="12">Values shown are committed synthetic fixtures from <tspan class="m">packages/scenarios</tspan>.</text>
+  </g>
+</svg>

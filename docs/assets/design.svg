@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="designTitle designDesc">
+  <title id="designTitle">The trust boundary and what the canonical hash covers</title>
+  <desc id="designDesc">Untrusted input on the left holds the model-authored mapping proposal, the submitted source rows, and the approval record; caller-authored canonical events are rejected outright. A gate in the middle validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the server's committed row. The deterministic core on the right fixes ordering, time precision, decimal arithmetic, and number spelling. The canonical result hash covers the engine version, the canonical event projection, and the rule outcome, and excludes collection metadata, workflow state, and reviewer identity.</desc>
+  <!--
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 ledger-head
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint
+    #4f6270 authorship-ai | #eef1f2 slate-tint
+    #b23b32 state-refused | #fdeeed red-tint
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .zone{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .item{font-size:13px;fill:#263230}
+      .key{font-size:12px;fill:#566461}
+      .val{font-size:12px;fill:#263230}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="540" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">THE DESIGN</text>
+    <text class="title" x="40" y="84">The boundary is a contract, not a convention.</text>
+    <text class="sub" x="40" y="112">Nothing a model wrote reaches the engine unapproved, and the hash covers only what the result depends on.</text>
+  </g>
+  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <!-- untrusted input -->
+  <g class="s"><text class="zone" x="40" y="180">UNTRUSTED INPUT</text></g>
+  <rect x="40" y="192" width="410" height="204" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <g class="s">
+    <text class="item" x="60" y="224">The model-authored mapping proposal</text>
+    <line class="rule" x1="60" y1="240" x2="430" y2="240"/>
+    <text class="item" x="60" y="266">Up to 64 declared source rows</text>
+    <line class="rule" x1="60" y1="282" x2="430" y2="282"/>
+    <text class="item" x="60" y="308">The approval record and its overrides</text>
+    <line class="rule" x1="60" y1="324" x2="430" y2="324"/>
+    <text class="item" x="60" y="350" fill="#b23b32">Caller-authored canonical events</text>
+  </g>
+  <rect x="60" y="362" width="72" height="18" fill="#fdeeed" stroke="#b23b32"/>
+  <text class="s chip" x="68" y="375" fill="#b23b32">REJECTED</text>
+
+  <!-- the gate -->
+  <g class="s"><text class="zone" x="482" y="180">THE GATE</text></g>
+  <rect x="482" y="192" width="240" height="204" fill="#ffffff" stroke="#14211f"/>
+  <rect x="482" y="192" width="240" height="4" fill="#14211f"/>
+  <g class="s">
+    <text class="item" x="502" y="228">Contract validation</text>
+    <text class="key" x="502" y="246">every field, closed vocabularies</text>
+    <line class="rule" x1="502" y1="262" x2="702" y2="262"/>
+    <text class="item" x="502" y="288">Approval binding</text>
+    <text class="key" x="502" y="306">bound to the proposed hash</text>
+    <line class="rule" x1="502" y1="322" x2="702" y2="322"/>
+    <text class="item" x="502" y="348">Row equality</text>
+    <text class="key" x="502" y="366">against the committed row</text>
+  </g>
+
+  <!-- deterministic core -->
+  <g class="s"><text class="zone" x="754" y="180">DETERMINISTIC CORE</text></g>
+  <rect x="754" y="192" width="406" height="204" fill="#ffffff" stroke="#14211f"/>
+  <g class="m">
+    <text class="key" x="774" y="224">order</text>
+    <text class="val" x="864" y="224">eventTime &#8594; sequence &#8594; eventId</text>
+    <text class="key" x="774" y="258">tie-break</text>
+    <text class="val" x="864" y="258">UTF-16 code units</text>
+    <text class="key" x="774" y="292">time</text>
+    <text class="val" x="864" y="292">fixed-width UTC nanoseconds</text>
+    <text class="key" x="774" y="326">decimals</text>
+    <text class="val" x="864" y="326">scaled integers, never floats</text>
+    <text class="key" x="774" y="360">numbers</text>
+    <text class="val" x="864" y="360">RFC 8785 binary64 spelling</text>
+  </g>
+
+  <g fill="#0b6e6a">
+    <path d="M456 286l10 6-10 6z"/>
+    <path d="M728 286l10 6-10 6z"/>
+  </g>
+  <text class="s key" x="482" y="420" font-size="12">A failed gate returns HTTP 422 with a review state and no result hash.</text>
+
+  <line class="rule" x1="40" y1="444" x2="1160" y2="444"/>
+
+  <g class="s">
+    <text class="zone" x="40" y="474">canonicalResultHash COVERS</text>
+    <text class="zone" x="1160" y="474" text-anchor="end">AND EXCLUDES</text>
+  </g>
+  <g class="m">
+    <text class="val" x="40" y="498">engine version &#183; canonical event projection</text>
+    <text class="val" x="40" y="518">rule result &#183; five gate findings &#183; sensitivity</text>
+    <text class="val" x="1160" y="498" text-anchor="end">receivedAt &#183; rawRowHash &#183; workflowState</text>
+    <text class="val" x="1160" y="518" text-anchor="end">reviewer identity &#183; approval time</text>
+  </g>
+</svg>

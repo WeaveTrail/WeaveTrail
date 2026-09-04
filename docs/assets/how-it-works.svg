@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="flowTitle flowDesc">
+  <title id="flowTitle">AI proposes, a person approves, versioned code decides</title>
+  <desc id="flowDesc">Four stages run left to right. A constrained mapper proposes a field mapping; a reviewer approves that exact proposal by hash; versioned code replays the approved manifest and evaluates the rule; the result carries a canonical hash and event identifiers that resolve back to source rows. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
+  <!--
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint | #085652 teal-800
+    #4f6270 authorship-ai state-review | #eef1f2 slate-tint state-review-bg
+    #8a6a12 result-inconclusive | #fbf4e4 amber-tint
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .stage{font-size:18px;font-weight:600;fill:#0c1513}
+      .body{font-size:13px;fill:#263230}
+      .foot{font-size:11px;fill:#566461}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="520" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="519" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">THE APPROACH</text>
+    <text class="title" x="40" y="84">AI proposes. A person approves. Code decides.</text>
+    <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a human decision. Ink is versioned code.</text>
+  </g>
+  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <!-- stage 1 : interpret -->
+  <rect x="40" y="192" width="262" height="200" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="56" y="208" width="94" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="64" y="221" fill="#4f6270">AI PROPOSES</text>
+  <g class="s">
+    <text class="stage" x="56" y="256">1 &#183; Interpret</text>
+    <text class="body" x="56" y="284">A constrained mapper proposes one</text>
+    <text class="body" x="56" y="304">target field and one allowlisted</text>
+    <text class="body" x="56" y="324">transform per source column, with</text>
+    <text class="body" x="56" y="344">a confidence and its evidence.</text>
+  </g>
+  <text class="m foot" x="56" y="374">mappingVersion 1.4</text>
+
+  <!-- stage 2 : approve -->
+  <rect x="326" y="192" width="262" height="200" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="342" y="208" width="114" height="18" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="350" y="221" fill="#0b6e6a">HUMAN APPROVES</text>
+  <g class="s">
+    <text class="stage" x="342" y="256">2 &#183; Approve</text>
+    <text class="body" x="342" y="284">A reviewer approves that exact</text>
+    <text class="body" x="342" y="304">proposal, bound to its hash. A</text>
+    <text class="body" x="342" y="324">flagged field needs a justified</text>
+    <text class="body" x="342" y="344">override before it can pass.</text>
+  </g>
+  <text class="m foot" x="342" y="374">approvedArtifactHash</text>
+
+  <!-- stage 3 : replay -->
+  <rect x="612" y="192" width="262" height="200" fill="#ffffff" stroke="#14211f"/>
+  <rect x="628" y="208" width="100" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="636" y="221" fill="#14211f">CODE DECIDES</text>
+  <g class="s">
+    <text class="stage" x="628" y="256">3 &#183; Replay</text>
+    <text class="body" x="628" y="284">Versioned code orders, collapses</text>
+    <text class="body" x="628" y="304">duplicates, computes exact</text>
+    <text class="body" x="628" y="324">decimals, and evaluates</text>
+    <text class="body" x="628" y="344">RAPID_PRICE_LIFT 1.1.</text>
+  </g>
+  <text class="m foot" x="628" y="374">engine 0.7.0-canonical-decimal</text>
+
+  <!-- stage 4 : trace -->
+  <rect x="898" y="192" width="262" height="200" fill="#ffffff" stroke="#14211f"/>
+  <rect x="914" y="208" width="102" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="922" y="221" fill="#14211f">CODE RECORDS</text>
+  <g class="s">
+    <text class="stage" x="914" y="256">4 &#183; Trace</text>
+    <text class="body" x="914" y="284">The result carries a canonical</text>
+    <text class="body" x="914" y="304">hash, five gate findings, and</text>
+    <text class="body" x="914" y="324">event identifiers that resolve</text>
+    <text class="body" x="914" y="344">back to their source rows.</text>
+  </g>
+  <text class="m foot" x="914" y="374">eventId &#8594; rawRowHash</text>
+
+  <g fill="#0b6e6a">
+    <path d="M306 286l10 6-10 6z"/>
+    <path d="M592 286l10 6-10 6z"/>
+    <path d="M878 286l10 6-10 6z"/>
+  </g>
+
+  <line class="rule" x1="40" y1="422" x2="1160" y2="422"/>
+
+  <g class="s">
+    <text class="band" x="40" y="452">FAILS CLOSED, NEVER AS A RESULT</text>
+    <text class="band" x="1160" y="452" text-anchor="end">THREE RESULTS, AND ONLY THREE</text>
+  </g>
+  <g>
+    <rect x="40" y="464" width="160" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="50" y="478" fill="#4f6270">INPUT_REVIEW_REQUIRED</text>
+    <rect x="208" y="464" width="174" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="218" y="478" fill="#4f6270">MAPPING_REVIEW_REQUIRED</text>
+    <rect x="390" y="464" width="154" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="400" y="478" fill="#4f6270">CASE_REVIEW_REQUIRED</text>
+  </g>
+  <g>
+    <rect x="854" y="464" width="82" height="20" fill="#e6f2f1" stroke="#0b6e6a"/>
+    <text class="m chip" x="864" y="478" fill="#0b6e6a">SUPPORTED</text>
+    <rect x="944" y="464" width="108" height="20" fill="#f0f5f4" stroke="#263230"/>
+    <text class="m chip" x="954" y="478" fill="#263230">NOT_SUPPORTED</text>
+    <rect x="1060" y="464" width="100" height="20" fill="#fbf4e4" stroke="#8a6a12"/>
+    <text class="m chip" x="1070" y="478" fill="#8a6a12">INCONCLUSIVE</text>
+  </g>
+</svg>

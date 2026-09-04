@@ -1,55 +1,119 @@
-# WeaveTrail
+<!-- markdownlint-disable-file MD033 MD041 -->
 
-**Weave signals into replayable evidence.**
+<p align="center">
+  <img src="docs/assets/brand/mark.svg" width="72" height="72" alt="">
+</p>
 
-WeaveTrail is an AI-assisted deterministic verification harness for
-heterogeneous event data. It constrains AI to schema interpretation and case
-proposal, then uses versioned code to replay the approved hypothesis and trace
-every result back to source events.
+<h1 align="center">WeaveTrail</h1>
 
-> **Repository status — foundation scaffold.** The committed implementation
-> currently covers runtime contracts, deterministic ordering and deduplication,
-> canonical hashing, synthetic fixtures, the `RAPID_PRICE_LIFT` rule, mechanical
-> sensitivity comparison, and a guided local lab. AI-backed mapping and
-> measured evaluation results remain planned.
+<p align="center">
+  Weave signals into replayable evidence.
+</p>
 
-## Why it exists
+<p align="center">
+  <a href="https://github.com/WeaveTrail/WeaveTrail/actions/workflows/ci.yml?query=branch%3Amain"><img alt="CI" src="https://github.com/WeaveTrail/WeaveTrail/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
+  <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A5%2022-informational">
+  <img alt="status" src="https://img.shields.io/badge/status-foundation%20scaffold-lightgrey">
+</p>
 
-An anomaly alert is not yet evidence. Source systems disagree on field names,
-time formats, identifiers, and event ordering; model output adds another
-uncertain boundary. WeaveTrail makes those boundaries reviewable and keeps the
-final computation deterministic.
+<p align="center">
+  <a href="#an-anomaly-alert-is-not-yet-evidence">Problem</a> &middot;
+  <a href="#ai-proposes-a-person-approves-code-decides">Approach</a> &middot;
+  <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
+  <a href="#run-it">Run it</a>
+</p>
 
-![WeaveTrail system overview: heterogeneous events pass through constrained mapping and approval before deterministic replay produces traceable evidence](docs/assets/system-overview.svg)
+WeaveTrail is a verification harness for event data that arrives in several
+dialects and has to end in a number somebody can defend. A constrained model
+proposes how each source column maps to a versioned contract. A person approves
+that exact proposal. Versioned code then replays it, and every finding it
+returns points back at the source row it came from.
 
-## System at a glance
+> **Status — foundation scaffold.** The contracts, the deterministic engine,
+> the approval gates, the `RAPID_PRICE_LIFT` rule and the guided lab are
+> committed and tested. A live model provider and published measurements are
+> not: the lab runs a deterministic fixture provider over synthetic data, and
+> [Evaluation](docs/EVALUATION.md) defines the measurements before any of them
+> exist.
 
-1. **Interpret:** a constrained mapper proposes how source fields map to a
-   versioned event contract.
-2. **Approve:** ambiguous mappings and case scope stop for human review.
-3. **Replay:** versioned code orders, deduplicates, calculates, and evaluates
-   the approved manifest.
-4. **Trace:** the evidence bundle records hashes, rule versions, findings, and
-   source-event references.
+## An anomaly alert is not yet evidence
 
-AI proposes; deterministic code decides. See [Architecture](docs/ARCHITECTURE.md)
-for the trust boundaries and component design.
+Two files in `packages/scenarios` carry the same four synthetic trades. One is
+CSV with a `+09:00` offset and a `side_code` column; the other is JSON Lines
+with a `Z` timestamp and a `direction` column. Nothing inside either file says
+they describe the same trades, and nothing says which of them is authoritative
+when they disagree.
 
-## First application
+![Two committed source files describe the same trades with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
 
-The initial reference case asks one bounded question:
+- **Sources disagree by construction ·** field names, time notation and decimal
+  spelling all differ, and each difference is a place where a reconciliation can
+  be wrong without being visibly wrong.
+- **Identity is not given ·** an exact duplicate, a reused identifier with new
+  content and a late arrival look alike until something decides what "the same
+  event" means.
+- **A model adds a second boundary ·** a mapper narrows the ambiguity, but its
+  output is a proposal. In the JSON Lines dialect one column has no defensible
+  target field, and it stops for review rather than guessing.
 
-> Does the observed short-window price lift satisfy a versioned pattern of
-> repeated aggressive buying by a concentrated actor group?
+See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
-The implemented `RAPID_PRICE_LIFT` rule reports only `SUPPORTED`,
-`NOT_SUPPORTED`, or `INCONCLUSIVE`. It does not determine legal liability,
-infer guilt, provide investment advice, or execute trades. See
-[Methodology](docs/METHODOLOGY.md) and [Limitations](docs/LIMITATIONS.md).
+## AI proposes. A person approves. Code decides.
 
-## Run locally
+The model's job ends at a structured proposal. Approval is a separate,
+human-owned act bound to the hash of the exact artifact that was proposed, and
+the engine will not run without it.
 
-Prerequisites: Node.js 22+ and pnpm 10.33.2.
+![Four stages: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code replays the approved manifest, and the result carries a canonical hash and event identifiers that resolve back to source rows](docs/assets/how-it-works.svg)
+
+- **Propose ·** the mapper returns one target field and one allowlisted
+  transform per source column, each with a confidence and its evidence. An
+  unknown column, a low confidence or an unsupported transform is
+  `REVIEW_REQUIRED`, not a guess.
+- **Approve ·** the approval record binds to the proposed artifact hash, and a
+  flagged field needs a justified override before it clears.
+- **Replay ·** `RAPID_PRICE_LIFT` version `1.1` runs on engine
+  `0.7.0-canonical-decimal` and reports `SUPPORTED`, `NOT_SUPPORTED` or
+  `INCONCLUSIVE` across five gates. Abstention is a first-class outcome.
+- **Trace ·** the result carries the canonical hash, the five gate findings and
+  event identifiers that resolve to `rawRowHash` on the source row.
+
+What that buys is checkable today, without a model in the loop. All 24
+permutations of the committed four-event fixture produce the single hash
+`8ecbc171…c81b13ff`. The CSV and JSON Lines dialects converge to one canonical
+dataset while keeping distinct artifact and row hashes. Three declared scenarios
+are pinned to the three results by literal golden hash, one scenario each.
+
+See [Methodology](docs/METHODOLOGY.md) for the rule, the gates and the
+abstention boundary.
+
+## The boundary is a contract, not a convention
+
+Determinism is not a property the engine tries to have. It is a set of choices
+that were made once, written down as ADRs, and pinned by tests: how time is
+represented, how ties break, how decimals are stored and compared, and what the
+result hash is allowed to depend on.
+
+![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the server's committed row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
+
+- **Nothing model-authored crosses unapproved ·** the replay route rejects
+  caller-authored canonical events outright and re-derives them from committed
+  rows through the approved mapping.
+- **No floating point anywhere it matters ·** prices, quantities and thresholds
+  stay decimal strings and compare as exact scaled-integer cross-products.
+- **The hash covers the result, not the run ·** engine version, canonical
+  events and rule outcome are inside it; `receivedAt`, `rawRowHash`,
+  `workflowState`, reviewer identity and approval time are outside it.
+- **Failure is a state, not an exception ·** a gate that cannot be satisfied
+  returns HTTP `422` with a review state and no result hash.
+
+See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries and the
+package split, and the [ADRs](docs/adr) for why each choice was made.
+
+## Run it
+
+Node.js 22+ and pnpm 10.33.2.
 
 ```bash
 cp .env.example apps/web/.env.local
@@ -57,51 +121,34 @@ pnpm install
 pnpm dev
 ```
 
-Open <http://localhost:3000/lab>. Fixture mode requires no API key.
-
-## Public workbench
-
-Open the deployed workbench at
-[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
-The public deployment runs the same deterministic fixture provider and
-committed synthetic scenarios as the local lab. It has no live model-provider
-credential and is intended for synthetic data only.
-
-See [Deployment](docs/DEPLOYMENT.md) for the recorded Vercel settings, smoke
-checks, environment boundary, and rollback procedure.
-
-## Verify the foundation
+Open <http://localhost:3000/lab>. Fixture mode needs no API key. The deployed
+copy at
+[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app)
+runs the same fixture provider and the same committed scenarios, holds no
+model-provider credential, and is for synthetic data only.
 
 ```bash
-pnpm test
+pnpm test       # the full suite, including every invariant above
 pnpm typecheck
 pnpm build
 ```
 
-The current tests verify fixed-precision time normalization,
-locale-independent ordering, conflict-safe duplicate handling, an identical
-canonical hash after input shuffling, and a literal golden hash for the
-concentrated-buy fixture. Two committed synthetic source dialects also
-re-derive their row provenance and converge to the same canonical dataset and
-replay result. Exact scaled-integer financial arithmetic and three synthetic
-scenario results are also pinned by committed tests. No performance or
-detection accuracy claim is made yet. The versioned measurement plan lives in
-[Evaluation](docs/EVALUATION.md).
+See [Deployment](docs/DEPLOYMENT.md) for the recorded Vercel settings, the
+environment boundary and the rollback procedure.
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) — component and trust boundaries
-- [Methodology](docs/METHODOLOGY.md) — result semantics and implemented rule
-- [Evaluation](docs/EVALUATION.md) — reproducible metrics protocol, without
-  unmeasured targets presented as results
+- [Architecture](docs/ARCHITECTURE.md) — components and trust boundaries
+- [Methodology](docs/METHODOLOGY.md) — result semantics and the implemented rule
+- [Evaluation](docs/EVALUATION.md) — the measurement protocol, with no targets
+  written up as results
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
-- [Deployment](docs/DEPLOYMENT.md) — public URL, reproducible settings, checks,
-  and rollback
+- [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations
 
 ## License
 
-WeaveTrail's original source code and documentation are licensed under the
-[Apache License 2.0](LICENSE). Third-party packages retain their own licenses;
+Original source code and documentation are licensed under the
+[Apache License 2.0](LICENSE). Third-party packages keep their own licences;
 see [Licensing and distribution](docs/LICENSING.md) and
 [Third-party notices](THIRD_PARTY_NOTICES.md).
