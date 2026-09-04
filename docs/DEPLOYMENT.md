@@ -7,7 +7,8 @@ telemetry, or third-party script is part of this deployment.
 
 Production is live at
 [weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
-The first production deployment uses Git revision `56d76f3` and is owned by the
+The first production deployment uses Git revision
+`56d76f3597de36db68af344843854bbd58fc416b` and is owned by the
 `jaeundas-projects` Vercel scope. Its connected repository belongs to the
 WeaveTrail GitHub organization.
 
@@ -36,9 +37,11 @@ repository does not duplicate that trigger with a deployment workflow.
 
 ## Environment
 
-Set `AI_MODE=fixture` in both Production and Preview. Do not create
-`OPENAI_API_KEY`, `OPENAI_MODEL`, or any other provider credential or provider
-configuration in either environment.
+Fixture mode is enforced in code: both the lab page and replay route construct
+the fixture provider unconditionally. `AI_MODE` is reserved for a future
+provider boundary and is not read, so setting it changes nothing today. Do not
+create `OPENAI_API_KEY`, `OPENAI_MODEL`, or any other provider credential or
+provider configuration in Production or Preview.
 
 Vercel supplies the deployment origins used for canonical metadata:
 
@@ -50,9 +53,9 @@ Vercel supplies the deployment origins used for canonical metadata:
   stable HTTPS origin. Leave it unset for the initial Vercel deployment.
 - Local builds fall back to `http://localhost:3000`.
 
-Configured origin values must be origins only: no path, query, or fragment. An
-invalid value fails the build instead of silently publishing incorrect
-canonical metadata.
+Configured origin values must be origins only: no credentials, path, query, or
+fragment. An invalid value fails the build instead of silently publishing
+incorrect canonical metadata or credentials.
 
 ## Promotion gate
 
