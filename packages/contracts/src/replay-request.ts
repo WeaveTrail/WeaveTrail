@@ -98,26 +98,35 @@ export const ReplayReviewResponseSchema = z
   })
   .strict();
 
-export const ReplayResultResponseSchema = z
-  .object({
-    mode: z.literal("fixture"),
-    workflowState: ReplayResultWorkflowStateSchema,
-    scenario: ReplayScenarioSchema,
-    mutation: ReplayMutationSchema,
-    boundary: z.string().min(1),
-    replay: z
-      .object({
-        engineVersion: z.string().min(1),
-        inputEventCount: z.number().int().nonnegative(),
-        canonicalEventCount: z.number().int().nonnegative(),
-        duplicateCount: z.number().int().nonnegative(),
-        orderedEventIds: z.array(z.string().min(1)),
-        canonicalResultHash: z.string().regex(/^[a-f0-9]{64}$/),
-      })
-      .strict(),
-    evaluation: RapidPriceLiftResultSchema.optional(),
-  })
-  .strict();
+const ReplayResultResponseBaseSchema = z.object({
+  mode: z.literal("fixture"),
+  scenario: ReplayScenarioSchema,
+  mutation: ReplayMutationSchema,
+  boundary: z.string().min(1),
+  replay: z
+    .object({
+      engineVersion: z.string().min(1),
+      inputEventCount: z.number().int().nonnegative(),
+      canonicalEventCount: z.number().int().nonnegative(),
+      duplicateCount: z.number().int().nonnegative(),
+      orderedEventIds: z.array(z.string().min(1)),
+      canonicalResultHash: z.string().regex(/^[a-f0-9]{64}$/),
+    })
+    .strict(),
+});
+
+export const ReplayResultResponseSchema = z.discriminatedUnion(
+  "workflowState",
+  [
+    ReplayResultResponseBaseSchema.extend({
+      workflowState: z.literal("MAPPING_APPROVED"),
+    }).strict(),
+    ReplayResultResponseBaseSchema.extend({
+      workflowState: z.literal("REPLAYED"),
+      evaluation: RapidPriceLiftResultSchema,
+    }).strict(),
+  ],
+);
 
 export type ReplayScenario = z.infer<typeof ReplayScenarioSchema>;
 export type ReplayMutation = z.infer<typeof ReplayMutationSchema>;

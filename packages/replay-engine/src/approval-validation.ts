@@ -24,6 +24,7 @@ import { replayRapidPriceLift } from "./rapid-price-lift";
 import {
   applyApprovedMapping,
   approvedSourceMapping,
+  validateApprovedMapping,
   type MappingReviewCode,
   type SourceRow,
 } from "./source-ingest";
@@ -45,7 +46,7 @@ export type ApprovalValidation =
   | {
       accepted: false;
       status: "REVIEW_REQUIRED";
-      issues: { code: ApprovalIssueCode; path: string }[];
+      issues: { code: ApprovalIssueCode; path: string; message?: string }[];
     };
 
 export function caseManifestProposal(
@@ -136,12 +137,27 @@ export function replayApproved(
     workflow.requireTransition("MAPPING_REVIEW_REQUIRED");
     return approval;
   }
+  const executable = approvedSourceMapping(mapping);
+  const structuralIssues = validateApprovedMapping(executable);
+  if (structuralIssues.length > 0) {
+    workflow.requireTransition("MAPPING_REVIEW_REQUIRED");
+    return {
+      accepted: false as const,
+      status: "REVIEW_REQUIRED" as const,
+      issues: structuralIssues.map((issue) => ({
+        code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
+        path: `mapping:${issue.code}`,
+        message: issue.message,
+      })),
+    };
+  }
   workflow.requireTransition("MAPPING_APPROVED");
 
   const inputReview = (
     issues: {
       code: ReplayReviewResponse["issues"][number]["code"];
       path: string;
+      message?: string;
     }[],
   ) => {
     workflow.requireTransition("INPUT_REVIEW_REQUIRED");
@@ -152,7 +168,6 @@ export function replayApproved(
     };
   };
 
-  const executable = approvedSourceMapping(mapping);
   const foreignRows = rows
     .map((row, index) => ({ row, index }))
     .filter(
@@ -200,10 +215,12 @@ export function replayApproved(
           ? {
               code: issue.code,
               path: `rows.${issue.rowNumber}.values.${issue.sourceColumn}`,
+              message: issue.message,
             }
           : {
               code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
               path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
+              message: issue.message,
             },
       ),
     );
@@ -220,7 +237,9 @@ export function replayApproved(
       return replayFoundation(events);
     } catch (error) {
       if (error instanceof CanonicalizationError) {
-        return inputReview([{ code: error.code, path: "rows" }]);
+        return inputReview([
+          { code: error.code, path: "rows", message: error.message },
+        ]);
       }
       throw error;
     }
@@ -231,7 +250,9 @@ export function replayApproved(
     datasetProfile = computeDatasetProfile(events);
   } catch (error) {
     if (error instanceof CanonicalizationError) {
-      return inputReview([{ code: error.code, path: "rows" }]);
+      return inputReview([
+        { code: error.code, path: "rows", message: error.message },
+      ]);
     }
     throw error;
   }

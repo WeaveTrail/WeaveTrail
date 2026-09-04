@@ -118,7 +118,65 @@ describe("ReplayResultResponseSchema", () => {
       },
     });
 
-    expect(response.evaluation?.result).toBe("SUPPORTED");
+    expect(response.workflowState).toBe("REPLAYED");
+    if (response.workflowState !== "REPLAYED") {
+      throw new Error("expected evaluated replay branch");
+    }
+    expect(response.evaluation.result).toBe("SUPPORTED");
+  });
+
+  it("rejects REPLAYED without an evaluation", () => {
+    expect(
+      ReplayResultResponseSchema.safeParse({
+        mode: "fixture",
+        workflowState: "REPLAYED",
+        scenario: "concentrated-buy-dialect-a.csv",
+        mutation: "baseline",
+        boundary: "Deterministic replay boundary.",
+        replay: {
+          engineVersion: "0.7.0-canonical-decimal",
+          inputEventCount: 1,
+          canonicalEventCount: 1,
+          duplicateCount: 0,
+          orderedEventIds: ["event-1"],
+          canonicalResultHash: "a".repeat(64),
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects MAPPING_APPROVED with an evaluation", () => {
+    const evaluated = ReplayResultResponseSchema.parse({
+      mode: "fixture",
+      workflowState: "REPLAYED",
+      scenario: "concentrated-buy-dialect-a.csv",
+      mutation: "baseline",
+      boundary: "Deterministic replay boundary.",
+      replay: {
+        engineVersion: "0.7.0-canonical-decimal",
+        inputEventCount: 0,
+        canonicalEventCount: 0,
+        duplicateCount: 0,
+        orderedEventIds: [],
+        canonicalResultHash: "a".repeat(64),
+      },
+      evaluation: {
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.1",
+        result: "INCONCLUSIVE",
+        reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+        nonComparableEventCount: 0,
+        findings: [],
+        sensitivity: null,
+      },
+    });
+
+    expect(
+      ReplayResultResponseSchema.safeParse({
+        ...evaluated,
+        workflowState: "MAPPING_APPROVED",
+      }).success,
+    ).toBe(false);
   });
 
   it.each(["UPLOADED", "CASE_APPROVED", "INPUT_REVIEW_REQUIRED"] as const)(

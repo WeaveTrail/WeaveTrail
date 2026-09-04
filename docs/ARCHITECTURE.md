@@ -99,6 +99,9 @@ across requests. Contracts own this legal transition table and reject every
 other transition. Replay requires separate mapping and case
 approval records bound to the hashes of their proposed artifacts. A flagged or
 non-exact mapping field additionally requires a justified reviewed override.
+See
+[ADR 0014](adr/0014-keep-replay-workflows-request-local.md) for the
+request-local lifetime, successful terminal states, and hash boundary.
 
 Canonical events produce a deterministic `DatasetProfile` containing only the
 canonical dataset hash, sorted instrument and actor sets, and normalized time

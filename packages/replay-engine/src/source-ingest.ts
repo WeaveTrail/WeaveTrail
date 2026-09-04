@@ -122,6 +122,20 @@ export function validateApprovedMapping(
     }
   }
 
+  for (const targetField of [
+    "sourceEventId",
+    "eventTime",
+    "instrumentId",
+    "eventType",
+  ] as const) {
+    if (!seenTargets.has(targetField)) {
+      issues.push({
+        code: "REQUIRED_TARGET_FIELD_MISSING",
+        message: `Approved mapping does not assign required target field ${JSON.stringify(targetField)}`,
+      });
+    }
+  }
+
   return issues.sort((left, right) => {
     if (left.code < right.code) return -1;
     if (left.code > right.code) return 1;

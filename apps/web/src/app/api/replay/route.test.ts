@@ -326,6 +326,7 @@ describe("POST /api/replay approved mapping boundary", () => {
       expect.objectContaining({
         code: "APPROVED_SOURCE_COLUMN_MISSING",
         path: ["rows", 2, "values", "actor"],
+        message: expect.stringContaining("Approved source column"),
       }),
     ]);
     expect(result).not.toHaveProperty("canonicalResultHash");

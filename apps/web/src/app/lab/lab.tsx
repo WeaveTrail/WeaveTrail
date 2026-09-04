@@ -462,7 +462,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               <span>Canonical result hash</span>
               <code>{result.replay.canonicalResultHash}</code>
             </div>
-            {result.evaluation ? (
+            {"evaluation" in result ? (
               <RapidPriceLiftEvaluation evaluation={result.evaluation} />
             ) : null}
             <div className="boundary-note">

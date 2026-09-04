@@ -142,7 +142,9 @@ export async function POST(request: Request) {
           path: issue.path
             .split(".")
             .map((part) => (/^\d+$/.test(part) ? Number(part) : part)),
-          message: `Replay approval boundary rejected ${issue.path}: ${issue.code}.`,
+          message:
+            ("message" in issue ? issue.message : undefined) ??
+            `Replay approval boundary rejected ${issue.path}: ${issue.code}.`,
         })),
       );
     }
