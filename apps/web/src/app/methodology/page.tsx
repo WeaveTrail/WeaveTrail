@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Methodology and Boundaries",
+  description:
+    "Understand WeaveTrail's versioned pattern hypothesis, closed result vocabulary, approval boundary, and interpretation limits.",
+  alternates: { canonical: "/methodology" },
+};
+
 const states = [
   [
     "SUPPORTED",

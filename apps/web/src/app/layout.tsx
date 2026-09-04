@@ -3,8 +3,17 @@ import Link from "next/link";
 
 import "./styles.css";
 
+import { getSiteUrl } from "./site-url";
+
 export const metadata: Metadata = {
-  title: "WeaveTrail",
+  metadataBase: getSiteUrl(),
+  alternates: {
+    canonical: "/",
+  },
+  title: {
+    default: "WeaveTrail",
+    template: "%s | WeaveTrail",
+  },
   description: "Weave signals into replayable evidence.",
 };
 

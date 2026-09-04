@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Overview",
+  description:
+    "See how WeaveTrail separates constrained AI proposals, human approval, deterministic replay, and traceable evidence.",
+  alternates: { canonical: "/" },
+};
 
 const roles = [
   {
