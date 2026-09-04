@@ -13,7 +13,7 @@ import type {
   RapidPriceLiftResult,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
+import { requiresMappingOverride } from "@weavetrail/contracts";
 import {
   canonicalJson,
   type CanonicalJsonInput,
@@ -41,15 +41,6 @@ export const APPROVAL_HASH_ERROR =
 type ApprovalHashCrypto = {
   subtle?: Pick<SubtleCrypto, "digest">;
 };
-
-function requiresMappingOverride(
-  field: SchemaMappingProposal["fields"][number],
-): boolean {
-  return (
-    field.status === "REVIEW_REQUIRED" ||
-    field.confidence < MAPPING_CONFIDENCE_REVIEW_THRESHOLD
-  );
-}
 
 export function mappingOverrides(
   proposal: SchemaMappingProposal,
