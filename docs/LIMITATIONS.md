@@ -7,6 +7,8 @@ verification. It is not a production market-surveillance system.
 
 - The repository currently uses deterministic fixtures, not a live AI mapping
   provider.
+- The public deployment configuration uses fixture mode with synthetic data
+  only and contains no model-provider credential.
 - The guided lab demonstrates both a fully resolvable mapping and a
   review-required field that needs a justified override before approval, then
   approval-bound replay, canonical ordering, exact deduplication, hashing, and

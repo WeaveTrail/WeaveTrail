@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Architecture",
+  description:
+    "Review WeaveTrail's trust boundary between untrusted interpretation, human approval, deterministic decisions, and traceable evidence.",
+  alternates: { canonical: "/architecture" },
+};
+
 const layers = [
   [
     "Interpretation",

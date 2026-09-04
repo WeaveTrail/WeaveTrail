@@ -59,6 +59,17 @@ pnpm dev
 
 Open <http://localhost:3000/lab>. Fixture mode requires no API key.
 
+## Public workbench
+
+Open the deployed workbench at
+[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
+The public deployment runs the same deterministic fixture provider and
+committed synthetic scenarios as the local lab. It has no live model-provider
+credential and is intended for synthetic data only.
+
+See [Deployment](docs/DEPLOYMENT.md) for the recorded Vercel settings, smoke
+checks, environment boundary, and rollback procedure.
+
 ## Verify the foundation
 
 ```bash
@@ -84,6 +95,8 @@ detection accuracy claim is made yet. The versioned measurement plan lives in
 - [Evaluation](docs/EVALUATION.md) — reproducible metrics protocol, without
   unmeasured targets presented as results
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
+- [Deployment](docs/DEPLOYMENT.md) — public URL, reproducible settings, checks,
+  and rollback
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations
 
 ## License

@@ -1,7 +1,15 @@
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
+import type { Metadata } from "next";
 
 import { Lab } from "./lab";
+
+export const metadata: Metadata = {
+  title: "Guided Replay Lab",
+  description:
+    "Run committed synthetic fixtures through WeaveTrail's approval-bound deterministic replay workflow.",
+  alternates: { canonical: "/lab" },
+};
 
 export default async function LabPage() {
   const provider = new FixtureSchemaMappingProvider();

@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Evaluation Coverage",
+  description:
+    "Inspect the implemented and planned checks behind WeaveTrail's deterministic replay claims.",
+  alternates: { canonical: "/evals" },
+};
+
 type Evidence = { file: string; titles: readonly string[] };
 
 type ImplementedCheck = {
