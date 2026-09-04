@@ -8,9 +8,15 @@ function parseSiteUrl(value: string, source: string): URL {
     throw new Error(`${source} must use the http or https protocol.`);
   }
 
-  if (url.pathname !== "/" || url.search || url.hash) {
+  if (
+    url.username ||
+    url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash
+  ) {
     throw new Error(
-      `${source} must be an origin without a path, query, or hash.`,
+      `${source} must be an origin without credentials, a path, query, or hash.`,
     );
   }
 

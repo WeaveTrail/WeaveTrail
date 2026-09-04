@@ -36,11 +36,17 @@ describe("getSiteUrl", () => {
     );
   });
 
-  it("rejects a configured URL that is not an origin", () => {
-    vi.stubEnv("WEAVETRAIL_SITE_URL", "https://example.com/workbench");
+  it.each([
+    "https://example.com/workbench",
+    "https://example.com?source=deployment",
+    "https://example.com#deployment",
+    "https://user:secret@example.com",
+    "https://user@example.com",
+  ])("rejects a configured URL that is not an origin: %s", (configuredUrl) => {
+    vi.stubEnv("WEAVETRAIL_SITE_URL", configuredUrl);
 
     expect(() => getSiteUrl()).toThrow(
-      "WEAVETRAIL_SITE_URL must be an origin without a path, query, or hash.",
+      "WEAVETRAIL_SITE_URL must be an origin without credentials, a path, query, or hash.",
     );
   });
 });
