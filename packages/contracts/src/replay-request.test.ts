@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
 import {
   ReplayRequestSchema,
   ReplayResultResponseSchema,
   ReplayReviewResponseSchema,
+  type ReplayReviewResponse,
 } from "./replay-request";
 
 describe("ReplayRequestSchema", () => {
@@ -204,6 +205,29 @@ describe("ReplayResultResponseSchema", () => {
 });
 
 describe("ReplayReviewResponseSchema", () => {
+  const reviewResponse = (workflowState: string, codes: readonly string[]) => ({
+    status: "REVIEW_REQUIRED",
+    workflowState,
+    issues: codes.map((code) => ({
+      code,
+      path: [],
+      message: "Review required",
+    })),
+  });
+
+  it("preserves workflow stage and issue code correlation in the inferred type", () => {
+    const response = {} as ReplayReviewResponse;
+    if (response.workflowState === "MAPPING_REVIEW_REQUIRED") {
+      expectTypeOf<(typeof response.issues)[number]["code"]>().toEqualTypeOf<
+        | "MAPPING_OVERRIDE_REQUIRED"
+        | "APPROVAL_RECORD_REQUIRED"
+        | "APPROVAL_REJECTED"
+        | "APPROVED_ARTIFACT_HASH_MISMATCH"
+        | "MAPPING_APPLICATION_REVIEW_REQUIRED"
+      >();
+    }
+  });
+
   it("rejects the removed scenario-level mapping review issue code", () => {
     expect(() =>
       ReplayReviewResponseSchema.parse({
@@ -270,19 +294,76 @@ describe("ReplayReviewResponseSchema", () => {
   });
 
   it.each([
-    "MAPPING_REVIEW_REQUIRED",
-    "CASE_REVIEW_REQUIRED",
-    "INPUT_REVIEW_REQUIRED",
-  ] as const)("accepts review workflow state %s", (workflowState) => {
+    ["INPUT_REVIEW_REQUIRED", "INVALID_REQUEST"],
+    ["MAPPING_REVIEW_REQUIRED", "MAPPING_OVERRIDE_REQUIRED"],
+    ["CASE_REVIEW_REQUIRED", "RULE_CONFIGURATION_REQUIRED"],
+  ] as const)("accepts %s with its stage issue %s", (workflowState, code) => {
     expect(
-      ReplayReviewResponseSchema.safeParse({
-        status: "REVIEW_REQUIRED",
-        workflowState,
-        issues: [
-          { code: "INVALID_REQUEST", path: [], message: "Review required" },
-        ],
-      }).success,
+      ReplayReviewResponseSchema.safeParse(
+        reviewResponse(workflowState, [code]),
+      ).success,
     ).toBe(true);
+  });
+
+  it.each([
+    ["MAPPING_REVIEW_REQUIRED", "INVALID_JSON"],
+    ["INPUT_REVIEW_REQUIRED", "ACTOR_OUTSIDE_DATASET_PROFILE"],
+    ["CASE_REVIEW_REQUIRED", "SOURCE_ROW_MISSING"],
+  ] as const)(
+    "rejects %s with incompatible issue %s",
+    (workflowState, code) => {
+      expect(
+        ReplayReviewResponseSchema.safeParse(
+          reviewResponse(workflowState, [code]),
+        ).success,
+      ).toBe(false);
+    },
+  );
+
+  it.each([
+    "APPROVAL_RECORD_REQUIRED",
+    "APPROVAL_REJECTED",
+    "APPROVED_ARTIFACT_HASH_MISMATCH",
+  ] as const)(
+    "accepts shared approval issue %s for mapping and case",
+    (code) => {
+      for (const workflowState of [
+        "MAPPING_REVIEW_REQUIRED",
+        "CASE_REVIEW_REQUIRED",
+      ] as const) {
+        expect(
+          ReplayReviewResponseSchema.safeParse(
+            reviewResponse(workflowState, [code]),
+          ).success,
+        ).toBe(true);
+      }
+    },
+  );
+
+  it("accepts mapping application review for mapping and input", () => {
+    for (const workflowState of [
+      "MAPPING_REVIEW_REQUIRED",
+      "INPUT_REVIEW_REQUIRED",
+    ] as const) {
+      expect(
+        ReplayReviewResponseSchema.safeParse(
+          reviewResponse(workflowState, [
+            "MAPPING_APPLICATION_REVIEW_REQUIRED",
+          ]),
+        ).success,
+      ).toBe(true);
+    }
+  });
+
+  it("rejects the whole response when one of several issues is incompatible", () => {
+    expect(
+      ReplayReviewResponseSchema.safeParse(
+        reviewResponse("INPUT_REVIEW_REQUIRED", [
+          "INVALID_REQUEST",
+          "RULE_CONFIGURATION_REQUIRED",
+        ]),
+      ).success,
+    ).toBe(false);
   });
 
   it.each(["UPLOADED", "MAPPING_APPROVED", "REPLAYED"] as const)(

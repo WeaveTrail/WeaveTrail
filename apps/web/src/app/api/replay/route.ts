@@ -59,8 +59,8 @@ function sourceRowMismatchIssues(
 }
 
 function reviewResponse(
-  workflowState: ReplayReviewResponse["workflowState"],
-  issues: ReplayReviewResponse["issues"],
+  workflowState: unknown,
+  issues: unknown,
 ): NextResponse<ReplayReviewResponse> {
   const body = ReplayReviewResponseSchema.parse({
     status: "REVIEW_REQUIRED",
@@ -136,9 +136,9 @@ export async function POST(request: Request) {
     );
     if (!("canonicalResultHash" in replay)) {
       return reviewResponse(
-        workflow.state as ReplayReviewResponse["workflowState"],
+        workflow.state,
         replay.issues.map((issue) => ({
-          code: issue.code as ReplayReviewResponse["issues"][number]["code"],
+          code: issue.code,
           path: issue.path
             .split(".")
             .map((part) => (/^\d+$/.test(part) ? Number(part) : part)),

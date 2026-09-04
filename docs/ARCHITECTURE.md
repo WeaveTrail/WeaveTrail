@@ -59,9 +59,10 @@ use `INPUT_REVIEW_REQUIRED`, mapping-gate failures use
 `MAPPING_REVIEW_REQUIRED`, and case approval, profile, or rule-configuration
 failures use `CASE_REVIEW_REQUIRED`. The failing execution stage selects this
 state directly; shared issue codes such as `APPROVAL_RECORD_REQUIRED` are not
-reclassified from their strings. Review responses never contain a replay result
-or canonical result hash. HTTP `500` remains reserved for defects outside these
-declared input failures.
+reclassified from their strings. The runtime response contract rejects issue
+codes that are incompatible with the selected workflow stage. Review responses
+never contain a replay result or canonical result hash. HTTP `500` remains
+reserved for defects outside these declared input failures.
 
 A successful response is also contract-validated and contains only fixture
 mode, scenario, mutation, boundary text, final `workflowState`, engine version,
