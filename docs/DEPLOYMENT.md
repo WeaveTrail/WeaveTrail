@@ -8,7 +8,8 @@ telemetry, or third-party script is part of this deployment.
 Production is live at
 [weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
 The first production deployment uses Git revision `56d76f3` and is owned by the
-WeaveTrail Vercel organization.
+`jaeundas-projects` Vercel scope. Its connected repository belongs to the
+WeaveTrail GitHub organization.
 
 ## Vercel project settings
 
