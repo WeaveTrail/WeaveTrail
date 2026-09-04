@@ -17,6 +17,7 @@ import {
 
 import { sha256Canonical } from "./canonical-hash";
 import { computeDatasetProfile } from "./dataset-profile";
+import { RequestWorkflow } from "./request-workflow";
 import {
   approvedSourceMapping,
   validateApprovedMapping,
@@ -82,6 +83,47 @@ const manifest = CaseManifestSchema.parse({
 });
 
 describe("replay approval gate", () => {
+  it("uses the complete legal workflow for an approved case replay", () => {
+    const workflow = new RequestWorkflow();
+
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      manifest,
+      "baseline",
+      workflow,
+    );
+
+    expect(result).toHaveProperty("canonicalResultHash");
+    expect(workflow.history).toEqual([
+      "UPLOADED",
+      "MAPPING_PROPOSED",
+      "MAPPING_APPROVED",
+      "CASE_PROPOSED",
+      "CASE_APPROVED",
+      "REPLAYED",
+    ]);
+  });
+
+  it("ends a mapping-only foundation replay at mapping approval", () => {
+    const workflow = new RequestWorkflow();
+
+    expect(
+      replayApproved(
+        concentratedBuyDialectARows,
+        concentratedBuyDialectARows,
+        mapping,
+        mappingApproval,
+        undefined,
+        "baseline",
+        workflow,
+      ),
+    ).toHaveProperty("canonicalResultHash");
+    expect(workflow.state).toBe("MAPPING_APPROVED");
+  });
+
   it("does not admit mapped rows through an approved proposal with no fields", () => {
     const empty = SchemaMappingProposalSchema.parse({ ...mapping, fields: [] });
     const emptyApproval = {

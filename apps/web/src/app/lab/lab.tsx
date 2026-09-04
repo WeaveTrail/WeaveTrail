@@ -12,6 +12,7 @@ import type {
   CaseManifestProposal,
   RapidPriceLiftResult,
   SchemaMappingProposal,
+  WorkflowState,
 } from "@weavetrail/contracts";
 import { requiresMappingOverride } from "@weavetrail/contracts";
 import {
@@ -176,6 +177,15 @@ export function RapidPriceLiftEvaluation({
   );
 }
 
+export function WorkflowStateBadge({ state }: { state: WorkflowState }) {
+  return (
+    <div className="workflow-state" data-state={state}>
+      <strong>Workflow state</strong>
+      <code>{state}</code>
+    </div>
+  );
+}
+
 const options: Array<{ value: Mutation; label: string; detail: string }> = [
   { value: "baseline", label: "Baseline", detail: "Original fixture order" },
   {
@@ -196,6 +206,9 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [workflowState, setWorkflowState] = useState<WorkflowState | null>(
+    null,
+  );
   const [approval, setApproval] = useState<ApprovalRecord | null>(null);
   const [caseApproval, setCaseApproval] = useState<ApprovalRecord | null>(null);
   const [reviewReasons, setReviewReasons] = useState<Record<string, string>>(
@@ -210,6 +223,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
     setError(null);
     setApproval(null);
     setResult(null);
+    setWorkflowState(null);
     const attempt = await attemptApproval(
       proposal,
       mappingOverrides(proposal, reviewReasons),
@@ -223,6 +237,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
     setError(null);
     setCaseApproval(null);
     setResult(null);
+    setWorkflowState(null);
     const attempt = await attemptApproval(selectedScenario.manifest);
     setCaseApproval(attempt.approval);
     setError(attempt.error);
@@ -231,6 +246,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   async function runReplay() {
     setRunning(true);
     setError(null);
+    setWorkflowState(null);
     try {
       const response = await fetch("/api/replay", {
         method: "POST",
@@ -252,9 +268,12 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
       });
       if (!response.ok) {
         const review = (await response.json()) as ReplayReviewResponse;
+        setWorkflowState(review.workflowState);
         throw new Error(review.issues.map(({ message }) => message).join(" "));
       }
-      setResult((await response.json()) as ReplayResultResponse);
+      const replayResult = (await response.json()) as ReplayResultResponse;
+      setWorkflowState(replayResult.workflowState);
+      setResult(replayResult);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Replay failed");
     } finally {
@@ -278,6 +297,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               setCaseApproval(reset.caseApproval);
               setResult(reset.result);
               setError(reset.error);
+              setWorkflowState(null);
               setReviewReasons({});
             }}
             value={scenario}
@@ -406,12 +426,16 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
             <strong>REPLAY_REFUSED</strong> {error}
           </p>
         ) : null}
+        {error && workflowState ? (
+          <WorkflowStateBadge state={workflowState} />
+        ) : null}
       </div>
 
       <div className="panel result-panel" aria-live="polite">
         <span className="panel-label">04 · Canonical result</span>
         {result ? (
           <>
+            <WorkflowStateBadge state={result.workflowState} />
             <div className="metric-grid">
               <div>
                 <span>Input</span>

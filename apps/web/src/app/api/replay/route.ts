@@ -7,6 +7,7 @@ import {
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import {
   CanonicalizationError,
+  RequestWorkflow,
   replayApproved,
 } from "@weavetrail/replay-engine";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
@@ -58,21 +59,25 @@ function sourceRowMismatchIssues(
 }
 
 function reviewResponse(
+  workflowState: ReplayReviewResponse["workflowState"],
   issues: ReplayReviewResponse["issues"],
 ): NextResponse<ReplayReviewResponse> {
   const body = ReplayReviewResponseSchema.parse({
     status: "REVIEW_REQUIRED",
+    workflowState,
     issues,
   });
   return NextResponse.json(body, { status: 422 });
 }
 
 export async function POST(request: Request) {
+  const workflow = new RequestWorkflow();
   let body: unknown;
   try {
     body = JSON.parse(await request.text()) as unknown;
   } catch {
-    return reviewResponse([
+    workflow.requireTransition("INPUT_REVIEW_REQUIRED");
+    return reviewResponse("INPUT_REVIEW_REQUIRED", [
       {
         code: "INVALID_JSON",
         path: [],
@@ -83,7 +88,9 @@ export async function POST(request: Request) {
 
   const parsed = ReplayRequestSchema.safeParse(body);
   if (!parsed.success) {
+    workflow.requireTransition("INPUT_REVIEW_REQUIRED");
     return reviewResponse(
+      "INPUT_REVIEW_REQUIRED",
       parsed.error.issues.map((issue) => ({
         code: "INVALID_REQUEST",
         path: issue.path.map((segment) =>
@@ -110,8 +117,12 @@ export async function POST(request: Request) {
     columns: [...scenarioConfig.columns],
     sampleRows: [],
   });
+  workflow.requireTransition("MAPPING_PROPOSED");
   const rowIssues = sourceRowMismatchIssues(requestedRows, scenarioConfig.rows);
-  if (rowIssues.length > 0) return reviewResponse(rowIssues);
+  if (rowIssues.length > 0) {
+    workflow.requireTransition("INPUT_REVIEW_REQUIRED");
+    return reviewResponse("INPUT_REVIEW_REQUIRED", rowIssues);
+  }
 
   try {
     const replay = replayApproved(
@@ -121,9 +132,11 @@ export async function POST(request: Request) {
       mappingApproval,
       caseManifest,
       mutation,
+      workflow,
     );
     if (!("canonicalResultHash" in replay)) {
       return reviewResponse(
+        workflow.state as ReplayReviewResponse["workflowState"],
         replay.issues.map((issue) => ({
           code: issue.code as ReplayReviewResponse["issues"][number]["code"],
           path: issue.path
@@ -135,6 +148,7 @@ export async function POST(request: Request) {
     }
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
+      workflowState: workflow.state,
       scenario,
       mutation,
       replay: {
@@ -154,7 +168,8 @@ export async function POST(request: Request) {
     return NextResponse.json(response);
   } catch (error) {
     if (error instanceof CanonicalizationError) {
-      return reviewResponse([
+      workflow.requireTransition("INPUT_REVIEW_REQUIRED");
+      return reviewResponse("INPUT_REVIEW_REQUIRED", [
         { code: error.code, path: ["rows"], message: error.message },
       ]);
     }

@@ -3,6 +3,18 @@ import { z } from "zod";
 import { ApprovalRecordSchema } from "./approval-record";
 import { CaseManifestSchema } from "./case-manifest";
 import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
+import { WorkflowStateSchema } from "./workflow";
+
+export const ReplayReviewWorkflowStateSchema = WorkflowStateSchema.extract([
+  "MAPPING_REVIEW_REQUIRED",
+  "CASE_REVIEW_REQUIRED",
+  "INPUT_REVIEW_REQUIRED",
+]);
+
+export const ReplayResultWorkflowStateSchema = WorkflowStateSchema.extract([
+  "MAPPING_APPROVED",
+  "REPLAYED",
+]);
 
 export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
@@ -71,6 +83,7 @@ export const ReplayReviewIssueCodeSchema = z.enum([
 export const ReplayReviewResponseSchema = z
   .object({
     status: z.literal("REVIEW_REQUIRED"),
+    workflowState: ReplayReviewWorkflowStateSchema,
     issues: z
       .array(
         z
@@ -88,6 +101,7 @@ export const ReplayReviewResponseSchema = z
 export const ReplayResultResponseSchema = z
   .object({
     mode: z.literal("fixture"),
+    workflowState: ReplayResultWorkflowStateSchema,
     scenario: ReplayScenarioSchema,
     mutation: ReplayMutationSchema,
     boundary: z.string().min(1),

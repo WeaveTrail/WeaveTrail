@@ -58,6 +58,7 @@ describe("ReplayResultResponseSchema", () => {
   it("projects only the public replay result fields", () => {
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
+      workflowState: "MAPPING_APPROVED",
       scenario: "concentrated-buy-dialect-a.csv",
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
@@ -77,6 +78,7 @@ describe("ReplayResultResponseSchema", () => {
   it("accepts an evaluated rapid price lift result branch", () => {
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
+      workflowState: "REPLAYED",
       scenario: "concentrated-buy-dialect-a.csv",
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
@@ -118,6 +120,29 @@ describe("ReplayResultResponseSchema", () => {
 
     expect(response.evaluation?.result).toBe("SUPPORTED");
   });
+
+  it.each(["UPLOADED", "CASE_APPROVED", "INPUT_REVIEW_REQUIRED"] as const)(
+    "rejects non-result workflow state %s",
+    (workflowState) => {
+      expect(
+        ReplayResultResponseSchema.safeParse({
+          mode: "fixture",
+          workflowState,
+          scenario: "concentrated-buy-dialect-a.csv",
+          mutation: "baseline",
+          boundary: "Deterministic replay boundary.",
+          replay: {
+            engineVersion: "0.7.0-canonical-decimal",
+            inputEventCount: 1,
+            canonicalEventCount: 1,
+            duplicateCount: 0,
+            orderedEventIds: ["event-1"],
+            canonicalResultHash: "a".repeat(64),
+          },
+        }).success,
+      ).toBe(false);
+    },
+  );
 });
 
 describe("ReplayReviewResponseSchema", () => {
@@ -125,6 +150,7 @@ describe("ReplayReviewResponseSchema", () => {
     expect(() =>
       ReplayReviewResponseSchema.parse({
         status: "REVIEW_REQUIRED",
+        workflowState: "MAPPING_REVIEW_REQUIRED",
         issues: [
           {
             code: "MAPPING_REVIEW_REQUIRED",
@@ -140,6 +166,7 @@ describe("ReplayReviewResponseSchema", () => {
     expect(
       ReplayReviewResponseSchema.parse({
         status: "REVIEW_REQUIRED",
+        workflowState: "MAPPING_REVIEW_REQUIRED",
         issues: [
           {
             code: "APPROVAL_RECORD_REQUIRED",
@@ -162,6 +189,7 @@ describe("ReplayReviewResponseSchema", () => {
     expect(
       ReplayReviewResponseSchema.parse({
         status: "REVIEW_REQUIRED",
+        workflowState: "CASE_REVIEW_REQUIRED",
         issues: [{ code, path: ["caseManifest"], message: "Review required" }],
       }),
     ).toMatchObject({ issues: [{ code }] });
@@ -171,6 +199,7 @@ describe("ReplayReviewResponseSchema", () => {
     expect(
       ReplayReviewResponseSchema.parse({
         status: "REVIEW_REQUIRED",
+        workflowState: "INPUT_REVIEW_REQUIRED",
         issues: [
           {
             code: "INVALID_REQUEST",
@@ -181,4 +210,35 @@ describe("ReplayReviewResponseSchema", () => {
       }),
     ).toEqual(expect.objectContaining({ status: "REVIEW_REQUIRED" }));
   });
+
+  it.each([
+    "MAPPING_REVIEW_REQUIRED",
+    "CASE_REVIEW_REQUIRED",
+    "INPUT_REVIEW_REQUIRED",
+  ] as const)("accepts review workflow state %s", (workflowState) => {
+    expect(
+      ReplayReviewResponseSchema.safeParse({
+        status: "REVIEW_REQUIRED",
+        workflowState,
+        issues: [
+          { code: "INVALID_REQUEST", path: [], message: "Review required" },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+
+  it.each(["UPLOADED", "MAPPING_APPROVED", "REPLAYED"] as const)(
+    "rejects non-review workflow state %s",
+    (workflowState) => {
+      expect(
+        ReplayReviewResponseSchema.safeParse({
+          status: "REVIEW_REQUIRED",
+          workflowState,
+          issues: [
+            { code: "INVALID_REQUEST", path: [], message: "Review required" },
+          ],
+        }).success,
+      ).toBe(false);
+    },
+  );
 });
