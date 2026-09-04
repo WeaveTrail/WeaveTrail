@@ -42,9 +42,9 @@ const SCENARIO_INPUTS = {
     datasetId: "synthetic-rapid-price-lift-supported-v1",
     expectedResult: "SUPPORTED",
     canonicalDatasetHash:
-      "d5f7482dab89bd7006f9e3e71e61d1fa8197ac4e714b1dc8a5036fd2140fede9",
+      "9eeb45d15373e1222c8b7e1b147b5010d415a72109aca8a264f1da0a8ae4b706",
     approvedManifestHash:
-      "124cd4773a78072af775596fd1ff1a15302eb73bd52a44a2c3f17d550d4e240f",
+      "5f4334b7b9cbd719a1ea38f882fac4d81fadd472a6f28da714fbe7967176802f",
     rows: [
       [
         "supported-001",
@@ -109,9 +109,9 @@ const SCENARIO_INPUTS = {
     datasetId: "synthetic-rapid-price-lift-broad-v1",
     expectedResult: "NOT_SUPPORTED",
     canonicalDatasetHash:
-      "84dd3996bebf1668be5bd87ca2ad0314c8bda278704d73880ae25118d6199bd9",
+      "704fb15495b7fb2c5b612ba9a9213d1a429342e408587a085cdf4e28e859100f",
     approvedManifestHash:
-      "23f9f246abbfbc1508ad6f96730bd013a426e5a25c77ae9bdbd97757814a80a8",
+      "8974645046e0f26d0ad112652c3f7bc3c604ad8fc6306979e9f959cb1cf9e4a7",
     rows: [
       [
         "broad-001",
@@ -176,9 +176,9 @@ const SCENARIO_INPUTS = {
     datasetId: "synthetic-rapid-price-lift-insufficient-v1",
     expectedResult: "INCONCLUSIVE",
     canonicalDatasetHash:
-      "b2fd0250f1e39205cf61b5447d8af9652a036f6276d2b8017334a0231d4fa630",
+      "0deca356833da2703b3a307b31b5426302a985ea91bdaad64218f5999a0965c2",
     approvedManifestHash:
-      "fdd3c8b70beed197c49ab560b844d2b9797e1d84f72808689563d2c74af6b645",
+      "283021d2308ca8b3b0ab93515a8ce7b5998d435002e72cee8072753565e267a0",
     rows: [
       [
         "insufficient-001",
@@ -224,12 +224,12 @@ function buildScenario(
   input: (typeof SCENARIO_INPUTS)[keyof typeof SCENARIO_INPUTS],
 ): ScenarioDefinition {
   const constants = {
-    schemaVersion: "1.0" as const,
+    schemaVersion: "1.1" as const,
     datasetId: input.datasetId,
     venueId: "SYNTH-RULE",
   };
   const mappingProposal = SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.3",
+    mappingVersion: "1.4",
     sourceArtifactHash: input.sourceArtifactHash,
     constants,
     fields: [

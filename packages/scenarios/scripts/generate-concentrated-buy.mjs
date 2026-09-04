@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 
+import { canonicalizeDecimalString } from "@weavetrail/contracts/decimal-string-runtime";
+
 const scenarioRoot = new URL("../src/", import.meta.url);
 const sourcePath = new URL(
   "sources/concentrated-buy-dialect-a.csv",
@@ -43,7 +45,7 @@ const events = lines.slice(1).map((line, index) => {
   if (!side) throw new Error(`unsupported side code ${values.side_code}`);
 
   return {
-    schemaVersion: "1.0",
+    schemaVersion: "1.1",
     eventId: `event:synthetic-concentrated-buy-v1:SYNTH-X:${encodeURIComponent(values.source_id)}`,
     sourceEventId: values.source_id,
     datasetId: "synthetic-concentrated-buy-v1",
@@ -57,8 +59,8 @@ const events = lines.slice(1).map((line, index) => {
     actorId: values.actor,
     counterpartyId: values.counterparty,
     orderId: values.order_ref,
-    price: values.px,
-    quantity: values.qty,
+    price: canonicalizeDecimalString(values.px),
+    quantity: canonicalizeDecimalString(values.qty),
     rawRowHash: sha256(canonicalJson({ coordinate, values })),
   };
 });

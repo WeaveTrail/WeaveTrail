@@ -28,7 +28,7 @@ The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, up to 64
 declared source rows, a mapping approval record, and an optional approved case
 manifest. It never accepts caller-authored canonical
-events. The API hashes its own executed `1.3` proposal, checks the approval and
+events. The API hashes its own executed `1.4` proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
 at the same coordinate before re-deriving events through the approved mapping.
@@ -112,6 +112,14 @@ canonicalization; serialization cannot recover lost precision. Exact prices,
 quantities, money, financial rates, and thresholds therefore remain decimal
 strings and use scaled-integer arithmetic.
 
+Trade Event `1.1` canonicalizes price and quantity strings at validation. The
+accepted grammar excludes exponents, `+` prefixes, leading zeroes, locale
+formats, and non-finite values. Insignificant fractional zeroes are removed,
+and `-0`, `-0.0`, and other accepted negative-zero spellings become `0`. This
+is a string operation performed before source-identity grouping, duplicate
+classification, projection, or hashing; it does not change scaled-integer rule
+arithmetic.
+
 This is the RFC 8785 finite-number rule only, not a claim of full JSON
 Canonicalization Scheme compliance. WeaveTrail retains its existing UTF-16
 key ordering and `undefined` policy: object properties with `undefined` are
@@ -166,7 +174,10 @@ Canonical `eventId` is derived as the percent-encoded composite
 `event:<datasetId>:<venueId>:<sourceEventId>`. The engine orders normalized
 canonical projections and hashes them as `canonicalDatasetHash`. Thus two
 source dialects may retain different `sourceArtifactHash` and `rawRowHash`
-values while converging to one semantic dataset and replay result.
+values while converging to one semantic dataset and replay result. This also
+holds when accepted price or quantity spellings differ only by trailing
+fractional zeroes; raw-row hashes remain distinct because they cover the
+unmodified source strings.
 
 The committed four-row CSV and JSON Lines fixtures report `APPROVED` for both
 mappings and 4 of 4 agreements for each of the 15 protected event fields. This

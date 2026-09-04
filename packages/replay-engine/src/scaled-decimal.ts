@@ -1,4 +1,4 @@
-const DECIMAL_PATTERN = /^(-?)(0|[1-9]\d*)(?:\.(\d+))?$/;
+import { DECIMAL_STRING_PATTERN } from "@weavetrail/contracts";
 
 export type ScaledDecimal = Readonly<{
   coefficient: bigint;
@@ -42,7 +42,7 @@ function alignCoefficient(value: ScaledDecimal, scale: bigint): bigint {
 }
 
 export function parseScaledDecimal(value: string): ScaledDecimal {
-  const match = DECIMAL_PATTERN.exec(value);
+  const match = DECIMAL_STRING_PATTERN.exec(value);
   if (!match) {
     throw new DecimalArithmeticError(
       "INVALID_DECIMAL",
@@ -50,11 +50,11 @@ export function parseScaledDecimal(value: string): ScaledDecimal {
     );
   }
 
-  const sign = match[1] === "-" ? -1n : 1n;
-  const integer = match[2]!;
-  const fraction = match[3] ?? "";
+  const negative = value.startsWith("-");
+  const unsigned = negative ? value.slice(1) : value;
+  const [integer, fraction = ""] = unsigned.split(".");
   return {
-    coefficient: sign * BigInt(`${integer}${fraction}`),
+    coefficient: (negative ? -1n : 1n) * BigInt(`${integer}${fraction}`),
     scale: BigInt(fraction.length),
   };
 }

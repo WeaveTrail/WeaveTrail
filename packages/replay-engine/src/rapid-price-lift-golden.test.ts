@@ -45,7 +45,7 @@ describe("rapid price lift declared scenario goldens", () => {
     expectGolden(
       "rapid-price-lift-supported.csv",
       "SUPPORTED",
-      "555e805d5111fd2c592e59247c926d66365410f7d8655518a38909b9ba0b7b14",
+      "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45",
     );
   });
 
@@ -53,7 +53,7 @@ describe("rapid price lift declared scenario goldens", () => {
     expectGolden(
       "rapid-price-lift-broad-participation.csv",
       "NOT_SUPPORTED",
-      "2d2cba158b2fe30899f993e514a7edbcb3eb4bd898d784222977d6de76330a66",
+      "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93",
     );
   });
 
@@ -61,7 +61,7 @@ describe("rapid price lift declared scenario goldens", () => {
     expectGolden(
       "rapid-price-lift-insufficient-evidence.csv",
       "INCONCLUSIVE",
-      "0cb89b70d90aa81263ed3b2b9bc24cea74bb68f300c3a4833d54f74ad3e04549",
+      "e9e7a01885d47f21d7372f9b4008418e7585dbdc35abe272adbc3f703a3408fc",
     );
   });
 

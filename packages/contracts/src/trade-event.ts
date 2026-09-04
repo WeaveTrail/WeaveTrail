@@ -1,8 +1,5 @@
 import { z } from "zod";
-
-const DecimalStringSchema = z
-  .string()
-  .regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/, "Expected a canonical decimal string");
+import { DecimalStringSchema } from "./decimal-string";
 
 const EventTimeSchema = z.iso
   .datetime({ offset: true })
@@ -16,7 +13,7 @@ const EventTimeSchema = z.iso
 
 export const TradeEventSchema = z
   .object({
-    schemaVersion: z.literal("1.0"),
+    schemaVersion: z.literal("1.1"),
     eventId: z.string().min(1),
     sourceEventId: z.string().min(1),
     datasetId: z.string().min(1),

@@ -50,8 +50,18 @@ export const concentratedBuyDialectARows: SourceRow[] =
         actor: value.actorId,
         counterparty: value.counterpartyId,
         order_ref: value.orderId,
-        px: value.price,
-        qty: value.quantity,
+        px: {
+          "source-001": "100.00",
+          "source-002": "100.80",
+          "source-003": "101.25",
+          "source-004": "101.20",
+        }[value.sourceEventId]!,
+        qty: {
+          "source-001": "2.00",
+          "source-002": "3.50",
+          "source-003": "4.00",
+          "source-004": "1.25",
+        }[value.sourceEventId]!,
       },
     };
   });
@@ -80,8 +90,18 @@ export const concentratedBuyDialectBRows: SourceRow[] =
         participant: value.actorId,
         contra: value.counterpartyId,
         order_reference: value.orderId,
-        trade_price: value.price,
-        trade_quantity: value.quantity,
+        trade_price: {
+          "source-001": "100.00",
+          "source-002": "100.80",
+          "source-003": "101.25",
+          "source-004": "101.20",
+        }[value.sourceEventId]!,
+        trade_quantity: {
+          "source-001": "2.00",
+          "source-002": "3.50",
+          "source-003": "4.00",
+          "source-004": "1.25",
+        }[value.sourceEventId]!,
         source_note: "synthetic-b",
       },
     };

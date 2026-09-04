@@ -13,10 +13,10 @@ const HASH = "a".repeat(64);
 describe("provenance contract migration", () => {
   it("binds mapping proposals to a source artifact", () => {
     const proposal = {
-      mappingVersion: "1.3",
+      mappingVersion: "1.4",
       sourceArtifactHash: HASH,
       constants: {
-        schemaVersion: "1.0",
+        schemaVersion: "1.1",
         datasetId: "dataset",
         venueId: "venue",
       },
@@ -178,7 +178,7 @@ describe("provenance contract migration", () => {
       canonicalDatasetHash: HASH,
       sourceArtifacts: [{ sourceArtifactHash: HASH }],
       manifestHash: HASH,
-      engineVersion: "0.6.0-canonical-number",
+      engineVersion: "0.7.0-canonical-decimal",
       ruleVersion: "planned-fixture",
       result: "INCONCLUSIVE",
       findings: [],

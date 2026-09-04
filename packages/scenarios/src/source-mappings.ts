@@ -4,14 +4,14 @@ import {
 } from "@weavetrail/contracts";
 
 const SHARED_CONSTANTS = {
-  schemaVersion: "1.0",
+  schemaVersion: "1.1",
   datasetId: "synthetic-concentrated-buy-v1",
   venueId: "SYNTH-X",
 } as const;
 
 export const concentratedBuyDialectAProposal =
   SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.3",
+    mappingVersion: "1.4",
     sourceArtifactHash:
       "d4bd80adf6a853adcf98f9ee08092f786b9b9276b349ad11fef6d0af078b867e",
     constants: SHARED_CONSTANTS,
@@ -40,7 +40,7 @@ export const concentratedBuyDialectAProposal =
 
 export const concentratedBuyDialectBProposal =
   SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.3",
+    mappingVersion: "1.4",
     sourceArtifactHash:
       "71a367b78a9bfefa685b9f40414b778712860b358882537b7f87127ab1584cff",
     constants: SHARED_CONSTANTS,

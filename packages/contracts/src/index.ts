@@ -1,6 +1,7 @@
 export * from "./approval-record";
 export * from "./case-manifest";
 export * from "./dataset-profile";
+export * from "./decimal-string";
 export * from "./evidence-bundle";
 export * from "./rapid-price-lift";
 export * from "./rule-parameters";

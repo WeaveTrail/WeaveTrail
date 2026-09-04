@@ -5,7 +5,8 @@
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./decimal-string-runtime": "./src/canonical-decimal-runtime.mjs"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -35,6 +35,10 @@ jobs:
         run: pnpm typecheck
       - name: Run unit and golden tests
         run: pnpm test
+      - name: Verify generated fixture reproducibility
+        run: |
+          pnpm --filter @weavetrail/scenarios generate:fixtures
+          git diff --exit-code -- packages/scenarios/src/generated/concentrated-buy.json
       - name: Check formatting
         run: pnpm format:check
       - name: Build production application
