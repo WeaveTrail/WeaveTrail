@@ -53,13 +53,23 @@ then does it derive events. Mutations operate after that derivation.
 
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`
-array whose entries carry `code`, `path`, and `message`. Review responses never
-contain a replay result or canonical result hash. HTTP `500` remains reserved
-for defects outside these declared input failures.
+array whose entries carry `code`, `path`, and `message`. The response also
+exposes the request's final `workflowState`: input and canonicalization failures
+use `INPUT_REVIEW_REQUIRED`, mapping-gate failures use
+`MAPPING_REVIEW_REQUIRED`, and case approval, profile, or rule-configuration
+failures use `CASE_REVIEW_REQUIRED`. The failing execution stage selects this
+state directly; shared issue codes such as `APPROVAL_RECORD_REQUIRED` are not
+reclassified from their strings. The runtime response contract rejects issue
+codes that are incompatible with the selected workflow stage. Review responses
+never contain a replay result or canonical result hash. HTTP `500` remains
+reserved for defects outside these declared input failures.
 
 A successful response is also contract-validated and contains only fixture
-mode, scenario, mutation, boundary text, engine version, event counts, ordered
-event identifiers, and the canonical result hash. The engine's canonical event
+mode, scenario, mutation, boundary text, final `workflowState`, engine version,
+event counts, ordered event identifiers, and the canonical result hash. A
+foundation request without a case manifest stops at `MAPPING_APPROVED`; it does
+not invent case approval or claim `REPLAYED`. An approved case replay completes
+at `REPLAYED`. The engine's canonical event
 objects and their `rawRowHash` provenance remain server-side rather than being
 included accidentally through the engine's internal return type. With an
 approved manifest, the response also carries the closed rule result, five gate
@@ -71,8 +81,10 @@ Profile failures use `CANONICAL_DATASET_HASH_MISMATCH`,
 
 ### Approval boundary
 
-The running HTTP route and the state machine prevent unapproved mapping output
-from reaching replay:
+The running HTTP route creates a request-local workflow at `UPLOADED` and sends
+every state change through the contracts package's `applyTransition`. Rejected
+transitions leave the current state unchanged. The executed state machine
+prevents unapproved mapping output from reaching replay:
 
 ```text
 UPLOADED -> MAPPING_PROPOSED -> MAPPING_REVIEW_REQUIRED
@@ -82,10 +94,15 @@ CASE_PROPOSED -> CASE_REVIEW_REQUIRED
 ```
 
 Any pre-replay state can enter `INPUT_REVIEW_REQUIRED`; resolving the input
-conflict restarts at `UPLOADED`. Contracts own this legal transition table and
-reject every other transition. Replay requires separate mapping and case
+conflict starts a new request and therefore a new workflow at `UPLOADED`.
+Request workflows and transition histories are not persisted or correlated
+across requests. Contracts own this legal transition table and reject every
+other transition. Replay requires separate mapping and case
 approval records bound to the hashes of their proposed artifacts. A flagged or
 non-exact mapping field additionally requires a justified reviewed override.
+See
+[ADR 0014](adr/0014-keep-replay-workflows-request-local.md) for the
+request-local lifetime, successful terminal states, and hash boundary.
 
 Canonical events produce a deterministic `DatasetProfile` containing only the
 canonical dataset hash, sorted instrument and actor sets, and normalized time
@@ -149,6 +166,7 @@ For one validated dataset and approved manifest:
 - ratio gates compare exact scaled-integer cross-products;
 - `canonicalResultHash` includes engine version and canonical events, plus the
   rule result, findings, and sensitivity when evaluation occurs;
+- response `workflowState` is outside `canonicalResultHash` input;
 - reruns produce the same `canonicalResultHash`.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence

@@ -19,6 +19,7 @@ import {
   RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
   type LabScenario,
+  WorkflowStateBadge,
 } from "./lab";
 
 function renderedButton(markup: string, label: string): string {
@@ -32,6 +33,19 @@ afterEach(() => {
 });
 
 describe("lab mapping status boundary", () => {
+  it.each(["MAPPING_APPROVED", "CASE_REVIEW_REQUIRED"] as const)(
+    "shows workflow state %s to the reviewer",
+    (state) => {
+      const markup = renderToStaticMarkup(
+        createElement(WorkflowStateBadge, { state }),
+      );
+
+      expect(markup).toContain("Workflow state");
+      expect(markup).toContain(state);
+      expect(markup).toContain(`data-state="${state}"`);
+    },
+  );
+
   it.each([
     ["missing Web Crypto", {}],
     [

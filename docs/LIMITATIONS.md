@@ -11,7 +11,13 @@ verification. It is not a production market-surveillance system.
   review-required field that needs a justified override before approval, then
   approval-bound replay, canonical ordering, exact deduplication, hashing, and
   one versioned financial pattern rule.
-- The approval state machine is documented but not yet persisted end to end.
+- Replay requests execute mapping, input, and case transitions through the
+  approval state machine, and responses expose their final state. State and
+  transition history are request-local: persistence, cross-request correlation,
+  and audit history are not implemented. Corrected input after
+  `INPUT_REVIEW_REQUIRED` starts a new request at `UPLOADED`.
+- Mapping-only foundation validation ends at `MAPPING_APPROVED`; only an
+  approved case rule replay reaches `REPLAYED`.
 - All data is synthetic, so no result establishes real-market accuracy.
 - Rule thresholds are illustrative per-case configuration, not calibrated
   market thresholds. The three declared outcomes are synthetic-fixture

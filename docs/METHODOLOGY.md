@@ -21,8 +21,13 @@ causal conclusions.
 
 Input identity, mapping, case scope, parameter, or approval ambiguity detected
 before replay is `REVIEW_REQUIRED`, never `INCONCLUSIVE`. The code-owned state
-table rejects illegal transitions, and the approval gate produces no replay
-hash unless mapping and case approval records match their artifact hashes.
+table rejects illegal transitions without changing the current state. Each HTTP
+request starts at `UPLOADED`, and its mapping, input, and case gates execute
+request-local transitions through `applyTransition`. The failing gate returns
+`MAPPING_REVIEW_REQUIRED`, `INPUT_REVIEW_REQUIRED`, or
+`CASE_REVIEW_REQUIRED` directly rather than deriving state from an issue code.
+The approval gate produces no replay hash unless the required approval records
+match their artifact hashes.
 
 The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, up to 64
@@ -39,12 +44,20 @@ column declared by the approved mapping. An omitted row returns
 `APPROVED_SOURCE_COLUMN_MISSING`. A present key with an empty string remains
 subject to its existing transform and target-field validation. A differing
 value is rejected as `SOURCE_ROW_MISMATCH`. Any failure returns structured
-`REVIEW_REQUIRED` with HTTP `422`, an actionable path, and no replay hash.
+`REVIEW_REQUIRED` with HTTP `422`, an actionable path, the final workflow
+state, and no replay hash.
 
 Successful responses are contract-validated projections of the replay result.
 They expose the engine version, counts, canonical ordering identifiers, and
 result hash, but not the engine's returned canonical event objects or raw-row
-hashes.
+hashes. Mapping-only foundation validation finishes at `MAPPING_APPROVED` and
+returns its existing canonical result; only a replay with approved mapping and
+case manifests finishes at `REPLAYED`. The response workflow state is not an
+input to the canonical result hash.
+
+Workflow state exists only for the lifetime of one request. After an
+`INPUT_REVIEW_REQUIRED` response, corrected input begins a new execution at
+`UPLOADED`; persistence and cross-request workflow history are not implemented.
 
 ## Dataset profile and approval scope
 

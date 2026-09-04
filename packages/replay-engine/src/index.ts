@@ -8,6 +8,7 @@ export * from "./case-validation";
 export * from "./dataset-profile";
 export * from "./mapping-evaluation";
 export * from "./rapid-price-lift";
+export * from "./request-workflow";
 export * from "./replay-foundation";
 export * from "./scaled-decimal";
 export * from "./source-ingest";

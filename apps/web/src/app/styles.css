@@ -192,6 +192,14 @@ a:focus-visible {
   border-left-color: #b91c1c;
   color: #7f1d1d;
 }
+.workflow-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+}
 .metric-grid div {
   padding: 0.75rem;
   border: 1px solid #d1d5db;

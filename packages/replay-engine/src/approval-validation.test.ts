@@ -17,6 +17,7 @@ import {
 
 import { sha256Canonical } from "./canonical-hash";
 import { computeDatasetProfile } from "./dataset-profile";
+import { RequestWorkflow } from "./request-workflow";
 import {
   approvedSourceMapping,
   validateApprovedMapping,
@@ -82,18 +83,62 @@ const manifest = CaseManifestSchema.parse({
 });
 
 describe("replay approval gate", () => {
+  it("uses the complete legal workflow for an approved case replay", () => {
+    const workflow = new RequestWorkflow();
+
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
+      mapping,
+      mappingApproval,
+      manifest,
+      "baseline",
+      workflow,
+    );
+
+    expect(result).toHaveProperty("canonicalResultHash");
+    expect(workflow.history).toEqual([
+      "UPLOADED",
+      "MAPPING_PROPOSED",
+      "MAPPING_APPROVED",
+      "CASE_PROPOSED",
+      "CASE_APPROVED",
+      "REPLAYED",
+    ]);
+  });
+
+  it("ends a mapping-only foundation replay at mapping approval", () => {
+    const workflow = new RequestWorkflow();
+
+    expect(
+      replayApproved(
+        concentratedBuyDialectARows,
+        concentratedBuyDialectARows,
+        mapping,
+        mappingApproval,
+        undefined,
+        "baseline",
+        workflow,
+      ),
+    ).toHaveProperty("canonicalResultHash");
+    expect(workflow.state).toBe("MAPPING_APPROVED");
+  });
+
   it("does not admit mapped rows through an approved proposal with no fields", () => {
     const empty = SchemaMappingProposalSchema.parse({ ...mapping, fields: [] });
     const emptyApproval = {
       ...mappingApproval,
       approvedArtifactHash: sha256Canonical(empty),
     };
+    const workflow = new RequestWorkflow();
     const result = replayApproved(
       concentratedBuyDialectARows,
       concentratedBuyDialectARows,
       empty,
       emptyApproval,
       undefined,
+      "baseline",
+      workflow,
     );
     expect(result).toMatchObject({ status: "REVIEW_REQUIRED" });
     if (!("issues" in result)) throw new Error("expected review issues");
@@ -105,7 +150,92 @@ describe("replay approval gate", () => {
       ]),
     );
     expect(result).not.toHaveProperty("canonicalResultHash");
+    expect(workflow.state).toBe("MAPPING_REVIEW_REQUIRED");
+    expect(workflow.history).toEqual([
+      "UPLOADED",
+      "MAPPING_PROPOSED",
+      "MAPPING_REVIEW_REQUIRED",
+    ]);
+    expect(workflow.history).not.toContain("MAPPING_APPROVED");
   });
+
+  it.each([
+    [
+      "duplicate source column",
+      { sourceColumn: mapping.fields[0]!.sourceColumn },
+    ],
+    ["duplicate target field", { targetField: mapping.fields[0]!.targetField }],
+  ] as const)("keeps a %s at mapping review", (_label, duplicate) => {
+    const duplicateMapping = SchemaMappingProposalSchema.parse({
+      ...mapping,
+      fields: [
+        ...mapping.fields,
+        {
+          ...mapping.fields[1]!,
+          ...duplicate,
+        },
+      ],
+    });
+    const workflow = new RequestWorkflow();
+    const result = replayApproved(
+      concentratedBuyDialectARows,
+      concentratedBuyDialectARows,
+      duplicateMapping,
+      {
+        ...mappingApproval,
+        approvedArtifactHash: sha256Canonical(duplicateMapping),
+      },
+      undefined,
+      "baseline",
+      workflow,
+    );
+
+    expect(result).toMatchObject({ status: "REVIEW_REQUIRED" });
+    expect(workflow.state).toBe("MAPPING_REVIEW_REQUIRED");
+    expect(workflow.history).toEqual([
+      "UPLOADED",
+      "MAPPING_PROPOSED",
+      "MAPPING_REVIEW_REQUIRED",
+    ]);
+    expect(workflow.history).not.toContain("MAPPING_APPROVED");
+  });
+
+  it.each([
+    ["foundation-only", undefined],
+    ["case-manifest", manifest],
+  ] as const)(
+    "preserves conflicting source identity details on %s replay",
+    (_label, caseManifest) => {
+      const conflictingRows = concentratedBuyDialectARows.map((row, index) =>
+        index === 1
+          ? {
+              ...row,
+              values: {
+                ...row.values,
+                source_id: concentratedBuyDialectARows[0]!.values.source_id!,
+              },
+            }
+          : row,
+      );
+      const result = replayApproved(
+        conflictingRows,
+        conflictingRows,
+        mapping,
+        mappingApproval,
+        caseManifest,
+      );
+
+      expect(result).toMatchObject({
+        status: "REVIEW_REQUIRED",
+        issues: [
+          expect.objectContaining({
+            code: "CONFLICTING_SOURCE_IDENTITY",
+            message: expect.stringContaining("source identity"),
+          }),
+        ],
+      });
+    },
+  );
 
   it("derives valid executable mappings for both committed proposals", () => {
     for (const proposal of [mapping, concentratedBuyDialectBProposal]) {

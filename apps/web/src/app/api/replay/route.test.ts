@@ -79,6 +79,7 @@ describe("POST /api/replay approved mapping boundary", () => {
 
     expect(validBody().mappingApproval.overrides).toEqual([]);
     expect(response.status).toBe(200);
+    expect(result.workflowState).toBe("MAPPING_APPROVED");
     expect(result.replay.canonicalResultHash).toBe(
       "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
     );
@@ -90,6 +91,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     const result = await response.json();
 
     expect(response.status).toBe(200);
+    expect(result.workflowState).toBe("REPLAYED");
     expect(result).toMatchObject({
       evaluation: {
         ruleId: "RAPID_PRICE_LIFT",
@@ -130,9 +132,34 @@ describe("POST /api/replay approved mapping boundary", () => {
 
     expect(response.status).toBe(422);
     expect(result).toMatchObject({
+      workflowState: "CASE_REVIEW_REQUIRED",
       issues: [{ code: "ACTOR_OUTSIDE_DATASET_PROFILE" }],
     });
     expect(result).not.toHaveProperty("evaluation");
+  });
+
+  it("assigns a case approval hash mismatch to case review", async () => {
+    const body = rapidBody();
+    const response = await POST(
+      request({
+        ...body,
+        caseManifest: {
+          ...body.caseManifest,
+          approval: {
+            ...body.caseManifest.approval,
+            approvedArtifactHash: "f".repeat(64),
+          },
+        },
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      workflowState: "CASE_REVIEW_REQUIRED",
+      issues: [{ code: "APPROVED_ARTIFACT_HASH_MISMATCH" }],
+    });
+    expect(result).not.toHaveProperty("replay");
   });
 
   it("rejects an approved manifest window outside the dataset profile before evaluation", async () => {
@@ -187,6 +214,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     const response = await POST(request(body));
     expect(response.status).toBe(422);
     expect(await response.json()).toMatchObject({
+      workflowState: "MAPPING_REVIEW_REQUIRED",
       issues: [{ code: "APPROVAL_RECORD_REQUIRED" }],
     });
   });
@@ -226,6 +254,7 @@ describe("POST /api/replay approved mapping boundary", () => {
         expect.objectContaining({ code: "SOURCE_ARTIFACT_NOT_APPROVED" }),
       ]),
     );
+    expect(result.workflowState).toBe("INPUT_REVIEW_REQUIRED");
     expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
@@ -254,6 +283,7 @@ describe("POST /api/replay approved mapping boundary", () => {
         }),
       ]),
     );
+    expect(result.workflowState).toBe("INPUT_REVIEW_REQUIRED");
     expect(result).not.toHaveProperty("replay");
   });
 
@@ -296,6 +326,7 @@ describe("POST /api/replay approved mapping boundary", () => {
       expect.objectContaining({
         code: "APPROVED_SOURCE_COLUMN_MISSING",
         path: ["rows", 2, "values", "actor"],
+        message: expect.stringContaining("Approved source column"),
       }),
     ]);
     expect(result).not.toHaveProperty("canonicalResultHash");
@@ -420,11 +451,13 @@ describe("POST /api/replay approved mapping boundary", () => {
       new Request("http://localhost/api/replay", { method: "POST", body: "{" }),
     );
     expect(await invalidJson.json()).toMatchObject({
+      workflowState: "INPUT_REVIEW_REQUIRED",
       issues: [{ code: "INVALID_JSON" }],
     });
     const response = await POST(request({ ...validBody(), events: [] }));
     expect(response.status).toBe(422);
     expect(await response.json()).toMatchObject({
+      workflowState: "INPUT_REVIEW_REQUIRED",
       issues: [{ code: "INVALID_REQUEST" }],
     });
   });
