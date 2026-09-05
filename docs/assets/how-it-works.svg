@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="flowTitle flowDesc">
-  <title id="flowTitle">AI proposes, a person approves, versioned code decides</title>
-  <desc id="flowDesc">Four stages run left to right, between an alert that names an instrument, an actor group and a time window, and a result the next reviewer can re-derive. A constrained mapper proposes a field mapping; a reviewer approves that exact proposal by hash; versioned code replays the approved manifest and evaluates the rule; the result carries a canonical hash and event identifiers that resolve back to source rows. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
+  <title id="flowTitle">Layer separation: a model proposes, a person approves, versioned code decides, and evidence carries the result back</title>
+  <desc id="flowDesc">Four layers run left to right, between an alert that names an instrument, an actor group and a time window, and a result the next reviewer can re-derive. Layer one, interpret: a constrained mapper proposes a field mapping and never computes. Layer two, approve: a reviewer approves that exact proposal by hash and never edits a computed result. Layer three, decide: versioned code replays the approved manifest and reads nothing outside the approved scope. Layer four, evidence: the result carries a canonical hash and event identifiers that resolve back to source rows. No layer holds two authorities, and a verdict is true only for the engine version, rule version and thresholds it carries. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
@@ -33,9 +33,10 @@
   <rect x=".5" y=".5" width="1199" height="519" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
-    <text class="eyebrow" x="40" y="48">THE APPROACH</text>
+    <text class="eyebrow" x="40" y="48">LAYER SEPARATION</text>
     <text class="title" x="40" y="84">AI proposes. A person approves. Code decides.</text>
     <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a human decision. Ink is versioned code.</text>
+    <text class="sub" x="40" y="132">No layer holds two authorities, and a verdict carries the engine version, rule version and thresholds it is true under.</text>
   </g>
   <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
 
@@ -49,7 +50,7 @@
   <rect x="56" y="208" width="94" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
   <text class="s chip" x="64" y="221" fill="#4f6270">AI PROPOSES</text>
   <g class="s">
-    <text class="stage" x="56" y="256">1 &#183; Interpret</text>
+    <text class="stage" x="56" y="256">L1 &#183; Interpret</text>
     <text class="body" x="56" y="284">A constrained mapper proposes one</text>
     <text class="body" x="56" y="304">target field and one allowlisted</text>
     <text class="body" x="56" y="324">transform per source column, with</text>
@@ -62,7 +63,7 @@
   <rect x="342" y="208" width="114" height="18" fill="#ffffff" stroke="#0b6e6a"/>
   <text class="s chip" x="350" y="221" fill="#0b6e6a">HUMAN APPROVES</text>
   <g class="s">
-    <text class="stage" x="342" y="256">2 &#183; Approve</text>
+    <text class="stage" x="342" y="256">L2 &#183; Approve</text>
     <text class="body" x="342" y="284">A reviewer approves that exact</text>
     <text class="body" x="342" y="304">proposal, bound to its hash. A</text>
     <text class="body" x="342" y="324">flagged field needs a justified</text>
@@ -75,7 +76,7 @@
   <rect x="628" y="208" width="100" height="18" fill="#f0f5f4" stroke="#14211f"/>
   <text class="s chip" x="636" y="221" fill="#14211f">CODE DECIDES</text>
   <g class="s">
-    <text class="stage" x="628" y="256">3 &#183; Replay</text>
+    <text class="stage" x="628" y="256">L3 &#183; Decide</text>
     <text class="body" x="628" y="284">Versioned code orders, collapses</text>
     <text class="body" x="628" y="304">duplicates, computes exact</text>
     <text class="body" x="628" y="324">decimals, and evaluates</text>
@@ -88,7 +89,7 @@
   <rect x="914" y="208" width="102" height="18" fill="#f0f5f4" stroke="#14211f"/>
   <text class="s chip" x="922" y="221" fill="#14211f">CODE RECORDS</text>
   <g class="s">
-    <text class="stage" x="914" y="256">4 &#183; Trace</text>
+    <text class="stage" x="914" y="256">L4 &#183; Evidence</text>
     <text class="body" x="914" y="284">The result carries a canonical</text>
     <text class="body" x="914" y="304">hash, five gate findings, and</text>
     <text class="body" x="914" y="324">event identifiers that resolve</text>

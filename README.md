@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="#an-alert-is-not-yet-evidence">Problem</a> &middot;
-  <a href="#ai-proposes-a-person-approves-code-decides">Approach</a> &middot;
+  <a href="#layer-separation">Layers</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
   <a href="#run-it">Run it</a>
 </p>
@@ -52,7 +52,15 @@ a model is anywhere near it.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
-## AI proposes. A person approves. Code decides.
+## Layer separation
+
+AI proposes. A person approves. Code decides. Evidence carries it back.
+
+Keeping a model off the network protects the data and leaves the second boundary
+open: an unverified judgement can still walk into a case file from inside the
+perimeter. So the work is separated by authority rather than by location. Each
+layer holds what it may do, what it may never do, and the record it leaves
+behind.
 
 The first case is bounded on purpose:
 
@@ -60,20 +68,43 @@ The first case is bounded on purpose:
 > concentrated aggressive buying by the approved actor group — and how do the
 > metrics move when that group's executions are removed?
 
-![Four stages between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code replays the approved manifest, and the result carries a canonical hash and event identifiers that resolve back to source rows](docs/assets/how-it-works.svg)
+![Four layers between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code decides the outcome, and the evidence layer resolves every finding back to its source rows](docs/assets/how-it-works.svg)
 
-- **Propose ·** one target field and one allowlisted transform per source
-  column, each with a confidence and its evidence.
-- **Approve ·** the approval binds to the proposed artifact hash, and a flagged
-  field needs a justified override to clear.
-- **Replay ·** `RAPID_PRICE_LIFT` reports `SUPPORTED`, `NOT_SUPPORTED` or
-  `INCONCLUSIVE` across five gates. Abstention is a first-class outcome.
-- **Trace ·** open any evaluated gate to inspect its canonical events,
-  raw-row hashes, artifact coordinates, and unchanged source values.
+- **L1 Interpret · a model ·** proposes one target field and one allowlisted
+  transform per source column, each with a confidence and its evidence. It
+  never edits a row, computes a metric, or owns a result.
+- **L2 Approve · a person ·** approves that exact proposal, bound to its
+  artifact hash, and a flagged field needs a justified override to clear.
+  Approval fixes the scope; it never edits a computed result.
+- **L3 Decide · versioned code ·** `RAPID_PRICE_LIFT` reports `SUPPORTED`,
+  `NOT_SUPPORTED` or `INCONCLUSIVE` across five gates, and reads nothing
+  outside the approved scope. Abstention is a first-class outcome.
+- **L4 Evidence ·** open any evaluated gate to inspect its canonical events,
+  raw-row hashes, artifact coordinates, and unchanged source values. A finding
+  whose lineage cannot be resolved is refused rather than displayed, and
   `INCONCLUSIVE` displays no finding evidence.
+
+Two invariants hold the separation up, and both live in contracts rather than in
+guidance:
+
+1. **No layer holds two authorities.** The proposing layer cannot approve, the
+   approving layer cannot compute, and the deciding layer cannot widen its own
+   scope.
+2. **A verdict carries the conditions it is true under.** Not true in general,
+   but true for one engine version, one rule version and one approved scope —
+   and the result travels with those versions and with the threshold each gate
+   compared against.
 
 The verdict is about a technical pattern, not legality, intent or guilt, and the
 actor-removal comparison is mechanical rather than causal.
+
+Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
+since 22 June 2026, holds that the final decision and the responsibility for it
+stay with a person, and the supervisory AI risk-management framework issued
+alongside it asks for verification before release and documentation across the
+process. Layer separation is one way to carry that out inside a single
+investigation. It is a design alignment, not a certification, an approval, or an
+endorsement.
 
 See [Methodology](docs/METHODOLOGY.md) for the rule, the gates and the
 abstention boundary.
