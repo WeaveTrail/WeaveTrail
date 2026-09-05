@@ -20,7 +20,7 @@
   <a href="#an-alert-is-not-yet-evidence">Problem</a> &middot;
   <a href="#layer-separation">Layers</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
-  <a href="#run-it">Run it</a>
+  <a href="#how-it-is-built">How it is built</a>
 </p>
 
 WeaveTrail is an investigation workbench for the step after a market-surveillance
@@ -34,8 +34,8 @@ re-derive it from the same executions.
   at a broker or bank, supervisory investigators, internal audit.
 - **What it returns ·** a versioned pattern verdict, the arithmetic behind it,
   and every execution it rests on.
-- **How it is built ·** [Architecture](docs/ARCHITECTURE.md) — the component
-  chain, the four trust boundaries, and what the canonical hash covers.
+- **How it is built ·** [one chain with a contract at every handover](#how-it-is-built)
+  — the components, the four trust boundaries, and what the canonical hash covers.
 
 ## An alert is not yet evidence
 
@@ -134,27 +134,25 @@ behind it can be swapped without moving the boundary.
 See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries, and the
 [ADRs](docs/adr) for why each choice was made.
 
-## Run it
+## How it is built
 
-Node.js 22+ and pnpm 10.33.2.
+One chain runs from committed source rows to evidence, and every handover
+between components is a contract rather than a convention. A component is
+coloured by who authors it — a model, a person, or versioned code — so the
+question "who decided this?" is answered by the diagram itself. Two components
+are specified and not yet built, and they say so.
 
-```bash
-cp .env.example apps/web/.env.local
-pnpm install
-pnpm dev
-```
+![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](docs/assets/component-chain.svg)
 
-Open <http://localhost:3000/lab> and walk the whole path: a proposal, a review
-with a justified override, an approval, and the replay it authorises. The
-deployed workbench at
-[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app)
-runs the same engine over the same reference scenarios.
+[Architecture](docs/ARCHITECTURE.md) carries the trust boundaries and what the
+canonical hash covers, [Methodology](docs/METHODOLOGY.md) the rule and its
+gates, and the [ADRs](docs/adr) the reason behind each choice.
 
-```bash
-pnpm test
-pnpm typecheck
-pnpm build
-```
+See it running at
+[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app),
+which serves the same engine over the same committed scenarios. Locally, with
+Node.js 22+ and pnpm 10.33.2, `pnpm install` and `pnpm dev` serve it at
+<http://localhost:3000/lab>; `pnpm check` runs the checks a change has to pass.
 
 ## Documentation
 
