@@ -22,6 +22,31 @@ flowchart LR
 
 ## Trust boundaries
 
+These boundaries implement one control model: authority is separated by layer
+rather than by location, so each layer holds what it may do, what it may never
+do, and the record it leaves behind. The README states the model; this document
+is where each layer's enforcement lives.
+
+| Layer        | Enforced by             | May never                                                       | Leaves behind                                                     |
+| ------------ | ----------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| L1 Interpret | Interpretation boundary | mutate a row, compute a metric, or own a result                 | proposal, per-field evidence, confidence, proposal status         |
+| L2 Approve   | Approval boundary       | edit a computed result, or widen the `DatasetProfile` facts     | approval records bound to proposal hashes, justified overrides    |
+| L3 Decide    | Decision boundary       | execute model-authored code, or read outside the approved scope | engine and rule version, `canonicalResultHash`                    |
+| L4 Evidence  | Evidence boundary       | present a finding whose lineage cannot be resolved              | `eventId`, `rawRowHash`, and the committed source row behind them |
+
+Two invariants cross all four.
+
+1. **No layer holds two authorities.** The proposing layer cannot approve, the
+   approving layer cannot compute, and the deciding layer cannot widen its own
+   scope.
+2. **A result is true under stated conditions rather than in general.** The
+   engine version, the rule version, and the threshold each gate compared
+   against travel with the result.
+
+The replay HTTP boundary is not one of these layers. It is the transport gate
+that carries a request across them and validates every input before any layer
+acts on it.
+
 ### Interpretation boundary
 
 Provider output is untrusted data. The mapper may select only source columns
