@@ -12,9 +12,15 @@ pnpm check
 pnpm build
 ```
 
-Use synthetic data only. If a new fixture resembles a real system, replace
+Prefer synthetic data. If a synthetic fixture resembles a real system, replace
 identifiers, values, timing, and schema details until it cannot expose a person,
 customer, venue, or production implementation.
+
+Real data may be committed only under the provenance conditions in
+[AGENTS.md](AGENTS.md): its published licence must permit commitment,
+modification, and redistribution, and its provider, origin, retrieval date,
+licence, and required attribution must be recorded beside it. A real artifact
+carries no fabricated attribute.
 
 ## Change requirements
 

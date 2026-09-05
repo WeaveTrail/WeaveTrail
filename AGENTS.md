@@ -59,12 +59,12 @@ reproducible check confirms it.
 ## Data provenance
 
 - Synthetic data is the default for repository fixtures and examples.
-- Real market data may be committed only when its published licence permits
+- Any real data may be committed only when its published licence permits
   commitment, modification, and redistribution, and only with its provider,
-  endpoint, retrieval date, licence, and required attribution recorded beside
-  it.
+  origin, retrieval date, licence, and required attribution recorded beside it.
+  This applies to every real artifact, not only market data.
 - Never commit personal, customer, order, or production trading data, or any
-  market data whose licence does not permit third-party provision.
+  data whose licence does not permit third-party provision.
 - A committed real artifact carries no fabricated attribute. Never attach an
   invented participant, trade side, hypothesis, or pattern verdict to a real
   instrument.
