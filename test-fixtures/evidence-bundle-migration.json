@@ -1,0 +1,117 @@
+{
+  "description": "Illustrative synthetic contract inputs for Evidence Bundle migration rejection tests.",
+  "removedNestedMembers": [
+    "originalPriceChangeBps",
+    "withoutSuspectedActorsBps",
+    "attributableDifferenceBps"
+  ],
+  "candidates": [
+    {
+      "name": "current-shape-with-legacy-version",
+      "expectedPath": ["bundleVersion"],
+      "input": {
+        "bundleVersion": "1.1",
+        "caseId": "synthetic-case",
+        "canonicalDatasetHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sourceArtifacts": [
+          {
+            "sourceArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "manifestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "engineVersion": "0.7.0-canonical-decimal",
+        "ruleVersion": "1.1",
+        "result": "SUPPORTED",
+        "findings": [],
+        "sensitivity": {
+          "comparison": "MECHANICAL_METRIC_COMPARISON",
+          "priceChangeBps": "125.0000",
+          "priceChangeBpsWithoutApprovedActors": "25.0000",
+          "removalSensitivityBps": "100.0000"
+        },
+        "canonicalResultHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "complete-legacy-shape",
+      "expectedPath": ["bundleVersion"],
+      "input": {
+        "bundleVersion": "1.1",
+        "caseId": "synthetic-case",
+        "canonicalDatasetHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sourceArtifacts": [
+          {
+            "sourceArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "manifestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "engineVersion": "0.7.0-canonical-decimal",
+        "ruleVersion": "1.1",
+        "result": "SUPPORTED",
+        "findings": [],
+        "counterfactual": {
+          "originalPriceChangeBps": "125.0000",
+          "withoutSuspectedActorsBps": "25.0000",
+          "attributableDifferenceBps": "100.0000"
+        },
+        "canonicalResultHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "legacy-group-in-current-version",
+      "expectedPath": [],
+      "input": {
+        "bundleVersion": "1.2",
+        "caseId": "synthetic-case",
+        "canonicalDatasetHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sourceArtifacts": [
+          {
+            "sourceArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "manifestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "engineVersion": "0.7.0-canonical-decimal",
+        "ruleVersion": "1.1",
+        "result": "SUPPORTED",
+        "findings": [],
+        "counterfactual": {
+          "originalPriceChangeBps": "125.0000",
+          "withoutSuspectedActorsBps": "25.0000",
+          "attributableDifferenceBps": "100.0000"
+        },
+        "canonicalResultHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "mixed-current-and-legacy-groups",
+      "expectedPath": [],
+      "input": {
+        "bundleVersion": "1.2",
+        "caseId": "synthetic-case",
+        "canonicalDatasetHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sourceArtifacts": [
+          {
+            "sourceArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "manifestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "engineVersion": "0.7.0-canonical-decimal",
+        "ruleVersion": "1.1",
+        "result": "SUPPORTED",
+        "findings": [],
+        "sensitivity": {
+          "comparison": "MECHANICAL_METRIC_COMPARISON",
+          "priceChangeBps": "125.0000",
+          "priceChangeBpsWithoutApprovedActors": "25.0000",
+          "removalSensitivityBps": "100.0000"
+        },
+        "counterfactual": {
+          "originalPriceChangeBps": "125.0000",
+          "withoutSuspectedActorsBps": "25.0000",
+          "attributableDifferenceBps": "100.0000"
+        },
+        "canonicalResultHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ]
+}

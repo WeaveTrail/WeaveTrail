@@ -171,21 +171,22 @@ describe("provenance contract migration", () => {
     },
   );
 
-  it("records canonical meaning and every declared source artifact in bundles", () => {
+  it("records canonical meaning and every declared source artifact in conclusive bundles", () => {
     const bundle = {
-      bundleVersion: "1.1",
+      bundleVersion: "1.2",
       caseId: "synthetic-case",
       canonicalDatasetHash: HASH,
       sourceArtifacts: [{ sourceArtifactHash: HASH }],
       manifestHash: HASH,
       engineVersion: "0.7.0-canonical-decimal",
-      ruleVersion: "planned-fixture",
-      result: "INCONCLUSIVE",
+      ruleVersion: "1.1",
+      result: "SUPPORTED",
       findings: [],
-      counterfactual: {
-        originalPriceChangeBps: "0",
-        withoutSuspectedActorsBps: "0",
-        attributableDifferenceBps: "0",
+      sensitivity: {
+        comparison: "MECHANICAL_METRIC_COMPARISON",
+        priceChangeBps: "125.0000",
+        priceChangeBpsWithoutApprovedActors: "25.0000",
+        removalSensitivityBps: "100.0000",
       },
       canonicalResultHash: HASH,
     };
@@ -194,7 +195,7 @@ describe("provenance contract migration", () => {
     expect(
       EvidenceBundleSchema.safeParse({
         ...bundle,
-        bundleVersion: "1.0",
+        bundleVersion: "1.1",
         canonicalDatasetHash: undefined,
         sourceArtifacts: undefined,
         datasetHash: HASH,

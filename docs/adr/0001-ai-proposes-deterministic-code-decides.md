@@ -14,8 +14,8 @@ dependent on a probabilistic component.
 
 Models are restricted to versioned schema-mapping and case-proposal contracts.
 Their output requires runtime validation and explicit approval. Versioned code
-alone performs normalization, calculation, rule evaluation, counterfactual
-comparison, and canonical hashing.
+alone performs normalization, calculation, rule evaluation, mechanical
+sensitivity comparison, and canonical hashing.
 
 ## Consequences
 
