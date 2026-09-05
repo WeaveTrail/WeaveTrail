@@ -14,6 +14,11 @@ WeaveTrail GitHub organization.
 
 ## Vercel project settings
 
+This checkout names the core surface **Case Replay** at `/replay`, with the
+entry walkthrough at `/replay?mode=guided`. The former `/lab` route has no
+alias and returns not found. Verify the promoted revision before expecting the
+new route on production; this documentation does not confirm its deployment.
+
 Import the repository as one Vercel project with these settings:
 
 | Setting           | Value                                              |
@@ -37,7 +42,7 @@ repository does not duplicate that trigger with a deployment workflow.
 
 ## Environment
 
-Fixture mode is enforced in code: both the lab page and replay route construct
+Fixture mode is enforced in code: both the Case Replay surface page and replay route construct
 the fixture provider unconditionally. `AI_MODE` is reserved for a future
 provider boundary and is not read, so setting it changes nothing today. Do not
 create `OPENAI_API_KEY`, `OPENAI_MODEL`, or any other provider credential or
@@ -74,11 +79,16 @@ pnpm format:check
 pnpm build
 ```
 
-Then use a fresh browser session to load `/`, `/architecture`, `/lab`,
-`/evals`, and `/methodology` from the production origin. In `/lab`:
+Then use a fresh browser session to load `/`, `/architecture`, `/replay`,
+`/evals`, and `/methodology` from the production origin. In `/replay`:
 
-1. Complete one unchanged committed synthetic replay and compare its result
-   with the literal golden hash committed for that scenario.
+1. From `/`, select **Walk through a case**. Read the supported source, exercise
+   the separate Dialect B review stop, supply its justified reason, and approve
+   the worked case's own mapping and manifest. Run it, open source evidence,
+   repeat it and compare both returned hashes with the committed golden oracle.
+   Continue to working mode and confirm the case, approvals and result remain.
+   Refresh and confirm approvals and results are cleared. Inspect a narrow
+   viewport and keyboard navigation.
 2. Submit the committed rejected mapping path and confirm an HTTP `422`
    response with `status: REVIEW_REQUIRED`, a review workflow state, and no
    replay or canonical result hash.
@@ -105,7 +115,7 @@ To roll back without rewriting Git history:
    deployment whose Git SHA matches the recorded revision.
 2. Use the deployment's rollback action to restore it as production.
 3. Confirm the production alias points to that immutable deployment URL.
-4. Repeat the five-route fresh-browser smoke check and both lab checks.
+4. Repeat the five-route fresh-browser smoke check and both Case Replay checks.
 5. Record the restored SHA, immutable deployment URL, time, check results, and
    whether any check was skipped.
 

@@ -4,6 +4,32 @@ WeaveTrail separates probabilistic interpretation from authoritative
 calculation. A model can narrow ambiguity, but only validated inputs and
 versioned code can produce a replay result.
 
+## Entry and Case Replay
+
+The overview links to `/replay?mode=guided` and `/architecture`. Case Replay
+at `/replay` replaces the former `/lab` route with no alias. Guided and working
+modes share one server scenario loader and one mounted client surface, including
+approval serialization, request generation and server-derived result rendering.
+
+The guided source is `rapid-price-lift-supported.csv` with baseline mutation.
+Its mapping chapter embeds a separate `concentrated-buy-dialect-b.jsonl`
+mapping review example. Each instance owns its proposal-specific approval and
+async generation guard. Only an example-completion flag crosses into guide
+progress; the example's approval, source and result never enter the case request.
+The server loader strips committed case approval records before sending props.
+
+The walkthrough requires explicit mapping and case approvals, a `REPLAYED`
+response with evaluation and source trace, opening a finding's source disclosure,
+and repeating the same approved case. Hash comparison is string equality between
+two returned results. Completion exposes working controls without remounting the
+case surface; in-memory approvals and result remain valid. Refresh starts
+unapproved. The query selects only guided presentation and supplies no trusted
+state. Guide progress is distinct from the request-local server workflow.
+
+Advanced controls reorder or duplicate derived events after mapping; committed
+source rows remain unchanged. See
+[ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md).
+
 ## Component chain
 
 ![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
@@ -44,11 +70,11 @@ Provider output is untrusted data. The mapper may select only source columns
 that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
-The guided lab executes the server-only fixture provider against a table keyed
+The Case Replay walkthrough executes the server-only fixture provider against a table keyed
 by the committed `sourceArtifactHash`. It returns a structured `1.4` proposal
 containing approved dataset and venue constants plus each source column, closed
 target field, transform, confidence, evidence, and proposal status. This
-proposal is not an approval. The lab exposes an explicit local-reviewer action;
+proposal is not an approval. The Case Replay surface exposes an explicit local-reviewer action;
 the browser and API use the same runtime-neutral canonical serializer, the API
 recomputes the proposal hash, and it enforces any required overrides. The
 browser uses Web Crypto only after canonical serialization and fails closed
@@ -148,7 +174,7 @@ HTTP 422 responses with no trace or result. Internal event arrays are still
 excluded from `replay.events`; `receivedAt` is excluded from the event view,
 though its unchanged original source text may appear in raw column values.
 
-The lab provides a native disclosure for each gate, including failed gates,
+The Case Replay surface provides a native disclosure for each gate, including failed gates,
 with its canonical events, hashes, coordinates, and source text. The browser
 selects server-resolved entries for display without deriving evidence. Changing
 inputs or approvals and starting a run clear previous evidence; superseded

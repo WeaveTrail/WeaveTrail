@@ -11,7 +11,7 @@ import {
 import { validateLocalPayloadPaths } from "../../../../scripts/verify-design-snapshot.mjs";
 import ArchitecturePage from "./architecture/page";
 import EvalsPage from "./evals/page";
-import { Lab, type LabScenario } from "./lab/lab";
+import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
 import MethodologyPage from "./methodology/page";
 import HomePage from "./page";
 
@@ -65,7 +65,13 @@ describe("canonical product presentation", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    for (const href of ["/", "/architecture", "/lab", "/evals", "/methodology"])
+    for (const href of [
+      "/",
+      "/architecture",
+      "/replay",
+      "/evals",
+      "/methodology",
+    ])
       expect(navigation).toContain(`"${href}"`);
     expect(navigation).toContain("Primary navigation");
     expect(navigation).toContain('aria-current={pathname === href ? "page"');
@@ -88,18 +94,18 @@ describe("canonical product presentation", () => {
         columns: [...scenario.columns],
         sampleRows: [],
       });
-      const labScenario: LabScenario = {
-        value: value as LabScenario["value"],
+      const replayScenario: ReplayScenarioOption = {
+        value: value as ReplayScenarioOption["value"],
         label: scenario.label,
         sourceArtifactHash: scenario.sourceArtifactHash,
         rows: scenario.rows,
         manifest: scenario.manifest,
       };
       const markup = renderToStaticMarkup(
-        createElement(Lab, {
+        createElement(CaseReplay, {
           proposals: { [scenario.sourceArtifactHash]: proposal },
           providerMode: "fixture",
-          scenarios: [labScenario],
+          scenarios: [replayScenario],
         }),
       );
       expect(markup).toContain(scenario.manifest.hypothesis.instrumentId);

@@ -58,7 +58,7 @@ case manifests finishes at `REPLAYED`. The response workflow state is not an
 input to the canonical result hash; neither is the source trace.
 
 Each evaluated gate, including a failed gate, offers read-only source inspection
-in the lab. The server links retained raw-row hashes to committed coordinates
+in the Case Replay surface. The server links retained raw-row hashes to committed coordinates
 and unchanged string values; the browser only displays that resolved evidence.
 The artifact name, artifact hash, and physical source row number identify the
 record independently of request-array order. Original whitespace, decimal
@@ -219,13 +219,13 @@ that contains this document. The recorded environment is Node 22.18.0, pnpm
 fully synthetic dialects encoding the same four events; it does not measure
 performance on independent or production data.
 
-Separately, the guided lab executes a deterministic fixture mapping provider on
+Separately, the Case Replay walkthrough executes a deterministic fixture mapping provider on
 the server. Its proposal is keyed by the exact source artifact hash and exposes
 source column, target field, transform, confidence, evidence, and proposal
 status. The fixture provider performs no network call and uses no credentials.
 Both dialects produce declared fields. Dialect A is fully resolvable. Dialect
 B's `source_note` has a null target and transform and is presented for
-adjudication as `REVIEW_REQUIRED` at confidence `0`. The lab will not create an
+adjudication as `REVIEW_REQUIRED` at confidence `0`. The Case Replay surface will not create an
 approval for that proposal until the reviewer records a non-empty reason for
 the field override. The approval uses the opaque local reference
 `reviewer:local-lab`. The server remains the authority: it independently hashes
@@ -235,8 +235,23 @@ The override changes approval metadata, not the approved mapping projection,
 so the canonical result hash is unchanged. Browser mapping and case approvals
 serialize with the same runtime-neutral canonical serializer used by the
 server before Web Crypto computes SHA-256. If canonicalization or hashing is
-unavailable or fails, the lab displays an approval-hash error, creates no
+unavailable or fails, the Case Replay surface displays an approval-hash error, creates no
 approval, and keeps replay blocked.
+
+### Worked-case interpretation
+
+The entry action opens `/replay?mode=guided`. The supported case and the
+Dialect B review example are distinct committed sources, with independent
+proposal hashes and approvals. The example's unmapped field is retained with
+a justified reason; this does not invent a transform or provide a rule manifest.
+The worked case needs its own explicit mapping and case approvals.
+
+The guide displays actual source strings and coordinates, fixture proposal
+fields, approval records, authored case scope and thresholds, and API-returned
+gates and source trace. Only `REPLAYED` with evaluation and source trace counts
+as a completed case. A foundation response is not a rule result. Repeating the
+unchanged approved case compares two returned hashes as strings, without
+calculating metrics or remapping evidence in the browser.
 
 ## `RAPID_PRICE_LIFT` version `1.1`
 

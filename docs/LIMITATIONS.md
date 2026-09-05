@@ -9,10 +9,15 @@ verification. It is not a production market-surveillance system.
   provider.
 - The public deployment configuration uses fixture mode with synthetic data
   only and contains no model-provider credential.
-- The guided lab demonstrates both a fully resolvable mapping and a
-  review-required field that needs a justified override before approval, then
-  approval-bound replay, canonical ordering, exact deduplication, hashing, and
-  one versioned financial pattern rule.
+- Case Replay uses a supported synthetic case and a separate Dialect B mapping
+  review example. Dialect B has no rule manifest; its justified override cannot
+  authorize the worked case. The guide is not a missing/conflicting-source
+  scenario suite.
+- Guided completion preserves approvals and results only in the mounted
+  browser view. Refresh starts unapproved. Repeating a case compares two actual
+  hashes for same-input repeatability; it establishes neither authenticity nor
+  general mutation tolerance. Advanced mutations operate on derived events,
+  not original source rows.
 - Replay requests execute mapping, input, and case transitions through the
   approval state machine, and responses expose their final state. State and
   transition history are request-local: persistence, cross-request correlation,
