@@ -41,3 +41,25 @@ pnpm licenses list --prod
 This file is an inventory aid, not a substitute for the license files shipped
 inside the dependency packages or for a distribution-specific compliance
 review.
+
+## Vendored design output
+
+The product includes tokens and `assets/mark.svg` from
+`WeaveTrail/design-reference` revision
+`3f078da1970e8accd83fbdde73308a2a24d0d1f8`, licensed under Apache-2.0. The
+upstream license is copied at `third_party/design-reference-LICENSE.txt`. The
+WeaveTrail name and marks are not granted trademark rights by that license.
+The SVG is preserved byte-for-byte, including its embedded C2PA provenance
+metadata.
+
+## Self-hosted fonts
+
+| Family         | Included files                              | Upstream                                              | License     |
+| -------------- | ------------------------------------------- | ----------------------------------------------------- | ----------- |
+| IBM Plex Sans  | Regular 400, Medium 500, SemiBold 600 WOFF2 | `IBM/plex`, `packages/plex-sans/fonts/complete/woff2` | SIL OFL 1.1 |
+| JetBrains Mono | Regular 400, Medium 500, Bold 700 WOFF2     | `JetBrains/JetBrainsMono`, `fonts/webfonts`           | SIL OFL 1.1 |
+
+The license texts are copied to `third_party/fonts/ibm-plex-sans/OFL.txt` and
+`third_party/fonts/jetbrains-mono/OFL.txt`. These files are served locally by
+Next.js; page rendering does not request Google Fonts, gstatic, or another font
+CDN.

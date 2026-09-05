@@ -472,7 +472,9 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           </>
         ) : (
           <div className="empty-result">
-            <span className="empty-mark">⌁</span>
+            <span className="empty-mark" aria-hidden="true">
+              WT
+            </span>
             <h2>Ready to replay</h2>
             <p>
               Select a controlled mutation and run the fixture. Compare hashes

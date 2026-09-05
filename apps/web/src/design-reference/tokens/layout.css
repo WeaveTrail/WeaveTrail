@@ -1,0 +1,7 @@
+:root{
+--appbar-height:56px;--rail-width:240px;--rail-width-narrow:64px;
+--content-max:1120px;--prose-max:66ch;--gutter:24px;--gutter-narrow:16px;
+--table-row-height:32px;--control-height:32px;--control-height-lg:36px;
+--breakpoint-narrow:390px;--breakpoint-tablet:1024px;--breakpoint-desktop:1440px;
+--z-rail:10;/* @kind other */--z-appbar:20;/* @kind other */--z-overlay:30;/* @kind other */
+}

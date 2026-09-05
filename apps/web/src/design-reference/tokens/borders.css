@@ -1,0 +1,13 @@
+:root{
+--radius-0:0;--radius-sm:2px;--radius-md:3px;--radius-lg:4px;/* nothing rounder: no pills, no capsules */
+--hairline:1px solid var(--ledger-rule);
+--hairline-strong:1px solid var(--ledger-rule-strong);
+--hairline-ink:1px solid var(--ink-800);
+--border-proposal:1px dashed var(--slate-500);/* unapproved authorship is always dashed */
+--border-approved:1px solid var(--teal-700);
+--rule-accent:2px solid var(--teal-700);
+/* elevation: evidence never floats */
+--shadow-none:none;
+--shadow-overlay:0 8px 24px rgba(12,21,19,0.14);
+--focus-outline:2px solid var(--focus-ring);--focus-offset:1px;
+}
