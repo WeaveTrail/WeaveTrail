@@ -34,6 +34,8 @@ re-derive it from the same executions.
   at a broker or bank, supervisory investigators, internal audit.
 - **What it returns ·** a versioned pattern verdict, the arithmetic behind it,
   and every execution it rests on.
+- **How it is built ·** [Architecture](docs/ARCHITECTURE.md) — the component
+  chain, the four trust boundaries, and what the canonical hash covers.
 
 ## An alert is not yet evidence
 
