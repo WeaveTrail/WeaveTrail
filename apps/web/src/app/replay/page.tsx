@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import React from "react";
 
-import { CaseReplay } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { ReplayModeBoundary } from "./replay-mode-boundary";
 
 export const metadata: Metadata = {
   title: "Case Replay",
@@ -28,7 +28,7 @@ export default async function ReplayPage({
           and scope, then inspect the versioned pattern result.
         </p>
       </div>
-      <CaseReplay {...prepared} initialGuided={guided} />
+      <ReplayModeBoundary {...prepared} guided={guided} />
     </main>
   );
 }

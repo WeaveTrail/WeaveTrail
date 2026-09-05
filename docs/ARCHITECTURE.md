@@ -20,11 +20,15 @@ The server loader strips committed case approval records before sending props.
 
 The walkthrough requires explicit mapping and case approvals, a `REPLAYED`
 response with evaluation and source trace, opening a finding's source disclosure,
-and repeating the same approved case. Hash comparison is string equality between
-two returned results. Completion exposes working controls without remounting the
-case surface; in-memory approvals and result remain valid. Refresh starts
-unapproved. The query selects only guided presentation and supplies no trusted
-state. Guide progress is distinct from the request-local server workflow.
+and repeating the same approved case. Completion requires string equality between
+the baseline returned hash and a later returned hash; mismatches keep the original
+baseline, block completion and remain retryable. A successful handoff exposes
+working controls without remounting the case surface, so in-memory approvals and
+the result remain valid. The current query is the presentation-mode source of
+truth. Re-entering guided mode restores its supported-case baseline and clears
+state from working inputs; refresh also starts unapproved. The query supplies no
+trusted approval or result state. Guide progress is distinct from the
+request-local server workflow.
 
 Advanced controls reorder or duplicate derived events after mapping; committed
 source rows remain unchanged. See

@@ -12,14 +12,15 @@ import { committedReplayScenarios } from "@weavetrail/scenarios";
 import ReplayPage, { metadata } from "./page";
 import { CaseReplay, SourceRows } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { ReplayModeBoundary } from "./replay-mode-boundary";
 
 function replayProps(
   node: ReactNode,
-): ComponentProps<typeof CaseReplay> | undefined {
+): ComponentProps<typeof ReplayModeBoundary> | undefined {
   if (Array.isArray(node)) return node.map(replayProps).find(Boolean);
   if (!isValidElement<{ children?: ReactNode }>(node)) return;
-  if (node.type === CaseReplay)
-    return node.props as ComponentProps<typeof CaseReplay>;
+  if (node.type === ReplayModeBoundary)
+    return node.props as ComponentProps<typeof ReplayModeBoundary>;
   return replayProps(node.props.children);
 }
 
@@ -74,7 +75,7 @@ describe("Case Replay entry contract", () => {
         }),
       });
       const props = replayProps(page)!;
-      expect(props.initialGuided).toBe(mode === "guided");
+      expect(props.guided).toBe(mode === "guided");
       expect(props).not.toHaveProperty("approval");
       expect(props).not.toHaveProperty("result");
       const markup = renderToStaticMarkup(createElement(CaseReplay, props));

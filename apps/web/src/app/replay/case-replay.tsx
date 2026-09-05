@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import type {
@@ -32,13 +32,14 @@ export type ReplayScenarioOption = {
   manifest?: CaseManifestProposal;
 };
 
-type CaseReplayProps = {
+export type CaseReplayProps = {
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: ReplayScenarioOption[];
-  initialGuided?: boolean;
+  guided?: boolean;
   mappingExample?: boolean;
   onMappingApprovalChange?: (approved: boolean) => void;
+  onGuideComplete?: () => void;
 };
 
 const workedCase = "rapid-price-lift-supported.csv";
@@ -383,21 +384,22 @@ export function CaseReplay({
   proposals,
   providerMode,
   scenarios,
-  initialGuided = false,
+  guided = false,
   mappingExample = false,
   onMappingApprovalChange,
+  onGuideComplete,
 }: CaseReplayProps) {
   const requestGeneration = useRef(0);
   const focusPending = useRef(false);
-  const [guided, setGuided] = useState(initialGuided);
+  const previousGuided = useRef(guided);
   const [chapter, setChapter] = useState(0);
   const [exampleApproved, setExampleApproved] = useState(false);
   const [evidenceOpened, setEvidenceOpened] = useState(false);
   const [previousHash, setPreviousHash] = useState<string | null>(null);
-  const [scenario, setScenario] = useState<ReplayScenario>(
+  const guidedScenario =
     scenarios.find(({ value }) => value === workedCase)?.value ??
-      scenarios[0]!.value,
-  );
+    scenarios[0]!.value;
+  const [scenario, setScenario] = useState<ReplayScenario>(guidedScenario);
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
@@ -420,13 +422,17 @@ export function CaseReplay({
     result?.workflowState === "REPLAYED" &&
     "evaluation" in result &&
     "sourceTrace" in result;
+  const repeatMatches =
+    completeResult &&
+    previousHash !== null &&
+    previousHash === result.replay.canonicalResultHash;
   const canContinue = [
     true,
     approval !== null && exampleApproved,
     approval !== null && caseApproval !== null,
     completeResult,
     completeResult && evidenceOpened,
-    completeResult && previousHash !== null,
+    repeatMatches,
     true,
   ][chapter];
   const blockedReason = [
@@ -435,10 +441,32 @@ export function CaseReplay({
     "Approve the mapping, then this exact case manifest.",
     "Run the approved case and wait for its evaluation and source trace.",
     "Open a finding's source evidence to continue.",
-    "Repeat the same approved case to compare returned hashes.",
+    previousHash && completeResult
+      ? "The returned hashes differ. Retry the same approved case or inspect the results."
+      : "Repeat the same approved case to compare returned hashes.",
     "",
   ][chapter];
   const show = (step: number) => !guided || chapter === step;
+
+  useEffect(() => {
+    if (guided && !previousGuided.current) {
+      requestGeneration.current += 1;
+      setChapter(0);
+      setExampleApproved(false);
+      setEvidenceOpened(false);
+      setPreviousHash(null);
+      setScenario(guidedScenario);
+      setMutation("baseline");
+      setResult(null);
+      setRunning(false);
+      setError(null);
+      setWorkflowState(null);
+      setApproval(null);
+      setCaseApproval(null);
+      setReviewReasons({});
+    }
+    previousGuided.current = guided;
+  }, [guided, guidedScenario]);
 
   function goToChapter(next: number) {
     focusPending.current = true;
@@ -494,13 +522,13 @@ export function CaseReplay({
       running ||
       !approval ||
       unresolvedReview ||
+      (repeat && !completeResult && previousHash === null) ||
       (selectedScenario.manifest && !caseApproval)
     )
       return;
     const comparisonHash = repeat
-      ? completeResult
-        ? result.replay.canonicalResultHash
-        : previousHash
+      ? (previousHash ??
+        (completeResult ? result.replay.canonicalResultHash : null))
       : null;
     const generation = invalidateResult();
     setPreviousHash(comparisonHash);
@@ -578,7 +606,7 @@ export function CaseReplay({
                   [
                     "Start with the committed supported case. No approval has been supplied. Read its columns and original values.",
                     "A deterministic fixture supplies the proposal shown below. No live model call occurred. First review a separate example that stops on an unmapped field, then approve the worked case's own mapping.",
-                    "You approve the scope. This is a committed, authored case proposal; live case proposal is planned. Versioned code owns the thresholds.",
+                    "Review and approve the exact scope and threshold values proposed in this committed, authored case. Versioned code defines the allowed parameter schema, formulas and comparisons. Live case proposal is planned.",
                     "The server validates the exact approvals and source rows, then versioned code decides. Each request has its own workflow state.",
                     "This result describes support for one versioned pattern hypothesis under the approved scope. Inspect all five gates, then open a finding to trace it to the original rows.",
                     "Execute the same approved input again. Comparing two returned hashes checks same-input repeatability only.",
@@ -792,9 +820,12 @@ export function CaseReplay({
                     </code>
                   </h3>
                   <p>
-                    Code-owned threshold fields. All values remain exact
-                    strings; shares and price changes use basis points (100 bps
-                    = 1%).
+                    {caseApproval
+                      ? "Threshold values approved with this case."
+                      : "Threshold values proposed in this authored case."}{" "}
+                    Versioned code defines the allowed parameter schema,
+                    formulas and comparisons. All values remain exact strings;
+                    shares and price changes use basis points (100 bps = 1%).
                   </p>
                   <dl>
                     {Object.entries(rule.parameters).map(([name, value]) => (
@@ -981,7 +1012,7 @@ export function CaseReplay({
                   <strong>
                     {previousHash === result.replay.canonicalResultHash
                       ? "MATCH · same-input repeatability"
-                      : "MISMATCH · inspect the returned results"}
+                      : "MISMATCH · retry or inspect the returned results"}
                   </strong>
                 </>
               )}
@@ -989,8 +1020,8 @@ export function CaseReplay({
           )}
         </section>
       )}
-      {!mappingExample && (!guided || chapter === 6) && (
-        <section className="panel">
+      {!mappingExample && (
+        <section className="panel" hidden={guided && chapter !== 6}>
           <h3>What runs today</h3>
           <p>
             Synthetic committed sources, a deterministic fixture mapping
@@ -1008,11 +1039,11 @@ export function CaseReplay({
             <button
               className="button primary"
               type="button"
-              disabled={!completeResult || !previousHash}
+              disabled={!repeatMatches}
               onClick={() => {
+                if (!repeatMatches) return;
                 focusPending.current = true;
-                setGuided(false);
-                window.history.replaceState(null, "", "/replay");
+                onGuideComplete?.();
               }}
             >
               Continue in Case Replay
