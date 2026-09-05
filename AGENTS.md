@@ -55,8 +55,23 @@ reproducible check confirms it.
   or investment suitability.
 - Counterfactual output is a mechanical sensitivity comparison, not a causal
   conclusion.
-- Repository data must be synthetic. Never commit personal, customer, order,
-  or production trading data.
+
+## Data provenance
+
+- Synthetic data is the default for repository fixtures and examples.
+- Any real data may be committed only when its published licence permits
+  commitment, modification, and redistribution, and only with its provider,
+  origin, retrieval date, licence, and required attribution recorded beside it.
+  This applies to every real artifact, not only market data.
+- Never commit personal, customer, order, or production trading data, or any
+  data whose licence does not permit third-party provision.
+- A committed real artifact carries no fabricated attribute. Never attach an
+  invented participant, trade side, hypothesis, or pattern verdict to a real
+  instrument.
+- Commit the retrieved response as returned. Where a committed artifact is
+  derived from it, record that response, its checksum, and the deterministic
+  steps that produce the artifact, so a reader can reproduce the committed
+  bytes from the stated origin.
 
 ## Documentation rules
 
