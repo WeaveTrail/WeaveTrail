@@ -56,7 +56,7 @@ See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
 ## Layer separation
 
-AI proposes. A person approves. Code decides. Evidence carries it back.
+**AI proposes. A person approves. Code decides. Evidence carries it back.**
 
 Keeping a model off the network protects the data and leaves the second boundary
 open: an unverified judgement can still walk into a case file from inside the
@@ -147,12 +147,6 @@ are specified and not yet built, and they say so.
 [Architecture](docs/ARCHITECTURE.md) carries the trust boundaries and what the
 canonical hash covers, [Methodology](docs/METHODOLOGY.md) the rule and its
 gates, and the [ADRs](docs/adr) the reason behind each choice.
-
-See it running at
-[weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app),
-which serves the same engine over the same committed scenarios. Locally, with
-Node.js 22+ and pnpm 10.33.2, `pnpm install` and `pnpm dev` serve it at
-<http://localhost:3000/lab>; `pnpm check` runs the checks a change has to pass.
 
 ## Documentation
 
