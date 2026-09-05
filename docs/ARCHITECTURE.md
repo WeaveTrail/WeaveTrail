@@ -241,8 +241,9 @@ bundle's shape, not that metrics were recomputed or that evidence is authentic.
 Runtime replay behavior is unchanged. Bundle assembly, export, and independent
 verification remain planned. The declared bundle continues to require a
 sensitivity object, while the running rule result uses `null` for
-`INCONCLUSIVE`; result-specific bundle policy remains deferred to #13. The
-contract regressions in
+`INCONCLUSIVE`; result-specific bundle policy remains planned in
+[the public bundle-verification issue](https://github.com/WeaveTrail/WeaveTrail/issues/13).
+The contract regressions in
 [`evidence-bundle.test.ts`](../packages/contracts/src/evidence-bundle.test.ts)
 exercise these strict migration boundaries with illustrative synthetic inputs.
 
@@ -314,7 +315,7 @@ for the rule formula and abstention boundary.
 
 Hash names identify one boundary rather than relying on context. Mapping
 proposal `1.4` uses `sourceArtifactHash`; case manifest `1.3` and Evidence
-Bundle `1.1` use `canonicalDatasetHash`; bundles additionally list the
+Bundle `1.2` use `canonicalDatasetHash`; bundles additionally list the
 `sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
 not accepted by the new strict contracts. See
 [ADR 0005](adr/0005-derive-source-provenance.md) for derivation and migration
