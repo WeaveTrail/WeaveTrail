@@ -16,8 +16,15 @@ import {
 } from "./canonicalize";
 import { ENGINE_VERSION, replayFoundation } from "./replay-foundation";
 
-function syntheticEvent(overrides: Partial<TradeEvent>): TradeEvent {
-  return { ...concentratedBuyEvents[0]!, ...overrides };
+function syntheticEvent(
+  overrides: Partial<Extract<TradeEvent, { schemaVersion: "1.1" }>>,
+): TradeEvent {
+  const base = concentratedBuyEvents[0]!;
+  if (base.schemaVersion !== "1.1") throw new Error("Expected legacy fixture");
+  return {
+    ...base,
+    ...overrides,
+  };
 }
 
 function binary64(hex: string): number {
@@ -548,9 +555,9 @@ describe("canonical event projection", () => {
       ...COLLECTION_METADATA_FIELDS,
     ].sort();
 
-    expect(classifiedFields).toEqual(
-      [...TradeEventSchema.keyof().options].sort(),
-    );
+    for (const branch of TradeEventSchema.options) {
+      expect(classifiedFields).toEqual([...branch.keyof().options].sort());
+    }
     expect(new Set(classifiedFields).size).toBe(classifiedFields.length);
   });
 

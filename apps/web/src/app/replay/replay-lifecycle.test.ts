@@ -10,11 +10,13 @@ import {
   CaseReplay,
   ApprovalReceipt,
   RapidPriceLiftEvaluation,
+  DailyQuoteCaseLimitation,
   type ReplayScenarioOption,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import * as rowShuffle from "./shuffle-source-rows";
 import type { ReplayRequest } from "@weavetrail/contracts";
+import { replayApproved } from "@weavetrail/replay-engine";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
 // component-state regression harness, not a browser/hydration assertion.
@@ -258,6 +260,99 @@ async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
 }
 
 describe("replay result lifecycle", () => {
+  it("clears a synthetic verdict, requires daily reasons, normalizes without a case and returns to the guide unapproved", async () => {
+    const prepared = await prepareReplayScenarios();
+    const dailyKey = "real/fsc-stock-quotes-20260903.jsonl";
+    const daily = prepared.scenarios.find(({ value }) => value === dailyKey)!;
+    const specimen = {
+      rows: daily.rows,
+      proposal: prepared.proposals[daily.sourceArtifactHash]!,
+    };
+    const scenarios = [
+      prepared.scenarios.find(({ value }) => value === first)!,
+      daily,
+    ];
+    const ui = setup({
+      ...prepared,
+      scenarios,
+      proposals: {
+        ...prepared.proposals,
+        [daily.sourceArtifactHash]: specimen.proposal,
+      },
+    });
+    const requests: ReplayRequest[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url, init) => {
+        const body = JSON.parse(init.body) as ReplayRequest;
+        requests.push(body);
+        if (body.scenario === first) return ok();
+        const replay = replayApproved(
+          body.rows,
+          specimen.rows,
+          specimen.proposal,
+          body.mappingApproval,
+          body.caseManifest,
+        );
+        if (!("canonicalResultHash" in replay))
+          throw new Error("Expected daily normalization");
+        const { events: _, ...foundation } = replay;
+        void _;
+        return Response.json({
+          mode: "fixture",
+          scenario: dailyKey,
+          mutation: "baseline",
+          workflowState: "MAPPING_APPROVED",
+          boundary: "Foundation normalization",
+          replay: foundation,
+        });
+      }),
+    );
+    await ui.approve();
+    await ui.button("Run deterministic replay");
+    expect(ui.evidence()).toHaveLength(1);
+    ui.changeScenario(dailyKey);
+    expect(ui.evidence()).toHaveLength(0);
+    expect(
+      ui.render().filter((element) => element.type === ApprovalReceipt),
+    ).toHaveLength(0);
+    expect(ui.buttonDisabled("Normalize source")).toBe(true);
+    expect(ui.buttonDisabled("Approve executed mapping")).toBe(true);
+    for (const column of ["basDt", "clpr", "trqu"]) {
+      ui
+        .render()
+        .find(
+          (element) =>
+            element.props["aria-label"] === `Reviewer reason for ${column}`,
+        )!.props.onChange!({
+        target: {
+          value: `Accept the declared published daily ${column} interpretation.`,
+        },
+      });
+    }
+    await ui.button("Approve executed mapping");
+    expect(ui.buttonDisabled("Normalize source")).toBe(false);
+    await ui.button("Normalize source");
+    expect(requests.at(-1)).not.toHaveProperty("caseManifest");
+    expect(requests.at(-1)!.mappingApproval!.overrides).toHaveLength(3);
+    expect(ui.evidence()).toHaveLength(0);
+    expect(ui.hasText("Mapping and normalization only.")).toBe(true);
+    const limitation = ui
+      .render()
+      .find((element) => element.type === DailyQuoteCaseLimitation)!;
+    expect(
+      (limitation.props as ComponentProps<typeof DailyQuoteCaseLimitation>)
+        .normalized,
+    ).toBe(true);
+    ui.changeScenario(first);
+    ui.setGuided(true);
+    expect(ui.evidence()).toHaveLength(0);
+    expect(
+      ui.render().filter((element) => element.type === ApprovalReceipt),
+    ).toHaveLength(0);
+    expect(ui.buttonDisabled("Run deterministic replay")).toBe(true);
+  });
+
   it("submits varying source orders, displays the exact request and retains explicit approvals", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
     const ui = setup();

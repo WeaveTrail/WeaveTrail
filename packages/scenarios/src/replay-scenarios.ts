@@ -9,8 +9,10 @@ import {
   concentratedBuyDialectBProposal,
 } from "./source-mappings";
 import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
+import { syntheticSourceProvenance } from "./source-provenance";
+import { realMarketDataScenarios } from "./real-market-data";
 
-export const committedReplayScenarios = {
+const syntheticScenarios = {
   "concentrated-buy-dialect-a.csv": {
     label: "Dialect A · CSV",
     sourceArtifactHash: concentratedBuyDialectAMapping.sourceArtifactHash,
@@ -30,4 +32,22 @@ export const committedReplayScenarios = {
     rows: concentratedBuyDialectBRows,
   },
   ...rapidPriceLiftScenarios,
+} as const;
+
+const committedSyntheticScenarios = Object.fromEntries(
+  Object.entries(syntheticScenarios).map(([name, scenario]) => [
+    name,
+    { ...scenario, provenance: syntheticSourceProvenance },
+  ]),
+) as {
+  [
+    Name in keyof typeof syntheticScenarios
+  ]: (typeof syntheticScenarios)[Name] & {
+    provenance: typeof syntheticSourceProvenance;
+  };
+};
+
+export const committedReplayScenarios = {
+  ...committedSyntheticScenarios,
+  ...realMarketDataScenarios,
 } as const;

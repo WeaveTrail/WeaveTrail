@@ -180,6 +180,15 @@ covers running it locally.
 - [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations
 
+## Daily quote processing
+
+Working mode includes a published FSC KOSPI daily quotation artifact for
+2026-09-03 alongside synthetic cases. Review its provenance and mapping reasons,
+approve, then normalize its 40 rows. Participant and execution details are absent,
+so case approval is unavailable and no pattern verdict is produced. See
+[daily quote normalization](docs/DAILY_QUOTES.md) for source permission, exact
+reproduction and the approval boundary.
+
 ## License
 
 Original source code and documentation are licensed under the

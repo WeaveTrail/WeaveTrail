@@ -1,8 +1,9 @@
 # Deployment
 
 The public WeaveTrail workbench is designed to run on Vercel in deterministic
-fixture mode. It serves only the synthetic scenarios committed to this
-repository. No live model provider, provider credential, database, analytics,
+fixture mode. This checkout serves committed synthetic scenarios and a licensed
+published daily quotation artifact; it never retrieves source data at runtime.
+No live model provider, provider credential, database, analytics,
 telemetry, or third-party script is part of this deployment.
 
 Production is live at
@@ -40,6 +41,9 @@ outside that root enabled because the web app imports packages from
 production follows `main`, and pull requests receive isolated previews. This
 repository does not duplicate that trigger with a deployment workflow.
 
+The published quotation flow also requires verification at the promoted revision;
+this document does not claim that the current checkout has been deployed.
+
 ## Environment
 
 Fixture mode is enforced in code: both the Case Replay surface page and replay route construct
@@ -47,6 +51,10 @@ the fixture provider unconditionally. `AI_MODE` is reserved for a future
 provider boundary and is not read, so setting it changes nothing today. Do not
 create `OPENAI_API_KEY`, `OPENAI_MODEL`, or any other provider credential or
 provider configuration in Production or Preview.
+
+`DATA_GO_KR_SERVICE_KEY` is used only by the manual local retrieval script.
+Do not configure it in Production or Preview; source artifacts are already
+committed with their provenance and hashes.
 
 Vercel supplies the deployment origins used for canonical metadata:
 

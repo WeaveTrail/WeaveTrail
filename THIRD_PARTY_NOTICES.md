@@ -63,3 +63,23 @@ The license texts are copied to `third_party/fonts/ibm-plex-sans/OFL.txt` and
 `third_party/fonts/jetbrains-mono/OFL.txt`. These files are served locally by
 Next.js; page rendering does not request Google Fonts, gstatic, or another font
 CDN.
+
+## Published FSC stock quotations
+
+Source: Financial Services Commission (금융위원회),
+[금융위원회_주식시세정보](https://www.data.go.kr/data/15094808/openapi.do),
+via data.go.kr. The committed window is 2026-09-03 KOSPI daily quotes, first
+40 rows of 943, retrieved at 2026-09-05T19:31:27.527Z (2026-09-06 KST).
+
+Recorded permission: **이용허락범위 제한 없음**, checked at
+2026-09-05T19:31:14Z with the linked
+[portal policy](https://www.data.go.kr/ugs/selectPortalPolicyView.do). Neither
+the distribution label nor that policy states a specific attribution condition
+for this unrestricted distribution. This provider credit is retained under
+repository provenance rules; no CC0, Apache-2.0 or KOGL type is inferred.
+
+The original response and deterministically derived JSONL retain every returned
+item and column. These data bytes are not relicensed under the code licence.
+See the [source README and adjacent provenance](packages/scenarios/src/sources/real/README.md)
+for the request, checksums, derivation and interpretation. No participant, trade
+side or pattern verdict is attached to a real instrument.

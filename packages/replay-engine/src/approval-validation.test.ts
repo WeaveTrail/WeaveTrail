@@ -318,7 +318,7 @@ describe("replay approval gate", () => {
       throw new Error("mapping approval artifact must be an object");
     }
     expect(Object.keys(mappingArtifact).sort()).toEqual(
-      [...SchemaMappingProposalSchema.keyof().options].sort(),
+      [...SchemaMappingProposalSchema.options[0].keyof().options].sort(),
     );
     expect(caseManifestProposal(manifest)).toEqual(
       CaseManifestProposalSchema.parse(caseProposal),

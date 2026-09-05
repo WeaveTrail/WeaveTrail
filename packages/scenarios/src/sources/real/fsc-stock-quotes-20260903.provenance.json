@@ -1,0 +1,112 @@
+{
+  "kind": "real",
+  "provider": "Financial Services Commission (금융위원회)",
+  "title": "금융위원회_주식시세정보",
+  "titleEnglish": "Financial Services Commission — stock price information",
+  "originUrl": "https://www.data.go.kr/data/15094808/openapi.do",
+  "operationUrl": "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo",
+  "operationGuideUrl": "https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003526398&fileDetailSn=1",
+  "retrievedAt": "2026-09-05T19:31:27.527Z",
+  "retrievalDateUtc": "2026-09-05",
+  "retrievalDateKst": "2026-09-06",
+  "request": {
+    "basDt": "20260903",
+    "resultType": "json",
+    "pageNo": "1",
+    "numOfRows": "40",
+    "mrktCls": "KOSPI",
+    "serviceKey": "REDACTED"
+  },
+  "contentType": "application/json; charset=UTF-8",
+  "rowCount": 40,
+  "pagination": {
+    "pageNo": 1,
+    "numOfRows": 40,
+    "totalCount": 943
+  },
+  "licence": {
+    "label": "이용허락범위 제한 없음",
+    "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+    "checkedAt": "2026-09-05T19:31:14Z",
+    "attributionRequirements": "No specific attribution condition is stated by the distribution’s unrestricted permission label or the linked portal policy for this distribution. No CC0, Apache-2.0 or KOGL type is inferred. Provider credit is retained under repository provenance rules.",
+    "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_주식시세정보, via data.go.kr. Trading date 2026-09-03; retrieved 2026-09-05 UTC (2026-09-06 KST)."
+  },
+  "basDt": "20260903",
+  "venue": {
+    "value": "KRX-KOSPI",
+    "basis": "The official getStockPriceInfo guide describes KRX-listed stocks and documents the mrktCls market filter. The request uses mrktCls=KOSPI; every returned mrktCtg is KOSPI. KRX-KOSPI is declared artifact metadata for that documented scope."
+  },
+  "windowPolicy": "First successful response satisfying the fixed completed date, 2–40 rows, single market and unique issue identities. Page 1 of 40 out of 943, not the whole market. No price-based filters or row selection. The portal states next-business-day publication after 13:00; 2026-09-03 is the latest trading date expected published before the weekend. Earlier local attempts failed the UTC verification-date precondition before any network request.",
+  "identity": {
+    "sourceEventIdColumn": "srtnCd",
+    "instrumentIdColumn": "isinCd",
+    "constraint": "Both identifiers are nonempty and unique within this one-date artifact; srtnCd is a publisher issue key, not an execution identifier."
+  },
+  "derivation": {
+    "version": "fsc-json-envelope-to-jsonl-v1",
+    "itemArrayPath": "response.body.items.item",
+    "columns": [
+      "basDt",
+      "srtnCd",
+      "isinCd",
+      "itmsNm",
+      "mrktCtg",
+      "clpr",
+      "vs",
+      "fltRt",
+      "mkp",
+      "hipr",
+      "lopr",
+      "trqu",
+      "trPrc",
+      "lstgStCnt",
+      "mrktTotAmt"
+    ],
+    "itemValues": "Complete string-valued items; no coercion, trimming, field filtering, sorting, normalization or financial arithmetic.",
+    "jsonlSerialization": "Compact JSON.stringify(item) in response order; UTF-8 without BOM; LF between items and exactly one final LF.",
+    "generatedRowsSerialization": "JSON.stringify(rows, null, 2) plus one final LF; coordinates contain JSONL SHA-256 and one-based physical line numbers.",
+    "command": "node scripts/derive-fsc-stock-quotes.mjs packages/scenarios/src/sources/real/fsc-stock-quotes-20260903.response.json 20260903 KOSPI /tmp/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903-rows.json"
+  },
+  "artifacts": {
+    "rawResponse": {
+      "path": "fsc-stock-quotes-20260903.response.json",
+      "sha256": "4ad9c1e1677a19b4fd28b766ae32883d82ec824b66a2687f1533198f18cc5b43"
+    },
+    "runtimeJsonl": {
+      "path": "fsc-stock-quotes-20260903.jsonl",
+      "sha256": "17d3e9462f2322b0227554d76a4c7c4022261b4976727b3884f452d68f075eea"
+    },
+    "generatedRows": {
+      "path": "../../generated/fsc-stock-quotes-20260903-rows.json",
+      "sha256": "b22afd23826096720fa1251bb3ee8908047bc3d4544075d21ae9fbc6d3809b8c"
+    }
+  },
+  "interpretation": {
+    "eventSchemaVersion": "1.2",
+    "mappingVersion": "1.5",
+    "eventType": "DAILY_QUOTE",
+    "dateAnchor": "basDt interpreted by explicit approval as YYYY-MM-DDT00:00:00+09:00. The fixed Korean trading-date offset is a declared interpretation, not a publisher-returned timestamp or observed execution time.",
+    "price": "clpr is the daily closing price; requires a justified mapping override.",
+    "quantity": "trqu is the daily aggregate volume; requires a justified mapping override.",
+    "unmappedColumns": [
+      "itmsNm",
+      "mrktCtg",
+      "vs",
+      "fltRt",
+      "mkp",
+      "hipr",
+      "lopr",
+      "trPrc",
+      "lstgStCnt",
+      "mrktTotAmt"
+    ],
+    "absentFields": [
+      "side",
+      "actorId",
+      "counterpartyId",
+      "orderId",
+      "sequence",
+      "receivedAt"
+    ]
+  }
+}
