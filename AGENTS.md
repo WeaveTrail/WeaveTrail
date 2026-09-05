@@ -10,7 +10,7 @@ this file covers the judgment calls that process does not spell out.
 
 | Path                     | Responsibility                                                         |
 | ------------------------ | ---------------------------------------------------------------------- |
-| `apps/web`               | The public explanation pages and guided replay lab                     |
+| `apps/web`               | The public explanation pages and guided Case Replay                    |
 | `packages/contracts`     | Versioned runtime contracts and shared types                           |
 | `packages/replay-engine` | Deterministic normalization, ordering, rules, and evidence hashes      |
 | `packages/ai-harness`    | Constrained provider adapters and deterministic fixtures               |

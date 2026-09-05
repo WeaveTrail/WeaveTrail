@@ -28,7 +28,7 @@ const roles = [
   {
     step: "04",
     title: "Trace",
-    text: "Every finding is designed to resolve to canonical events and source-row hashes.",
+    text: "Open a finding to inspect its canonical events, original source rows and row hashes.",
   },
 ];
 
@@ -41,13 +41,14 @@ export default function HomePage() {
           Turn uncertain signals into <em>replayable evidence.</em>
         </h1>
         <p className="hero-copy">
-          WeaveTrail constrains AI to interpreting heterogeneous event data,
-          then hands approved inputs to a deterministic engine that preserves
-          order, provenance, and a stable result hash.
+          After a market-surveillance alert, a reviewer needs to check which
+          executions support the pattern. Review a proposed field mapping,
+          approve the case scope, and let versioned code return a pattern result
+          with five checks and traceable source rows.
         </p>
         <div className="hero-actions">
-          <Link className="button primary" href="/lab">
-            Run the fixture lab
+          <Link className="button primary" href="/replay?mode=guided">
+            Walk through a case
           </Link>
           <Link className="button secondary" href="/architecture">
             Read the architecture
@@ -58,8 +59,12 @@ export default function HomePage() {
           aria-label="Current implementation status"
         >
           <span className="status-dot" />
-          <strong>Foundation scaffold</strong>
-          <span>Contracts · ordering · exact dedupe · canonical hash</span>
+          <strong>
+            Synthetic data · fixture provider · one implemented rule
+          </strong>
+          <span>
+            Live AI proposals and independent bundle export are planned.
+          </span>
         </div>
       </section>
 

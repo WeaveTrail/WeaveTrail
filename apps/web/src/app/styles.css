@@ -229,7 +229,7 @@ button:disabled {
   margin-top: 6px;
 }
 .role-grid,
-.lab-grid,
+.replay-grid,
 .method-grid,
 .metric-grid {
   display: grid;
@@ -359,11 +359,116 @@ button:disabled {
   gap: 12px;
   margin-top: 16px;
 }
-.lab-grid {
+.replay-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
   align-items: start;
 }
-.lab-control {
+.replay-journey {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.journey-header,
+.journey-footer {
+  grid-column: 1 / -1;
+}
+.journey-links,
+.journey-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.journey-progress,
+.component-chain {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin-block: 20px;
+  list-style: none;
+}
+.journey-progress li,
+.component-chain li {
+  padding: 10px;
+  border: var(--hairline);
+  font-size: 0.875rem;
+}
+.journey-progress [aria-current="step"] {
+  background: var(--selected-bg);
+  border-color: var(--teal-700);
+  font-weight: 600;
+}
+.component-chain span {
+  display: block;
+  margin-top: 8px;
+}
+.journey-header h2,
+.journey-header p,
+.source-preview p,
+.architecture-hash p,
+.repeat-panel p {
+  margin-block: 12px;
+}
+.source-preview code,
+.approval-receipt code {
+  overflow-wrap: anywhere;
+}
+.source-preview details,
+.mapping-example,
+.advanced-controls {
+  margin-block: 16px;
+  padding: 12px;
+  border: var(--hairline);
+}
+.source-preview summary,
+.mapping-example summary,
+.advanced-controls summary {
+  cursor: pointer;
+}
+.source-preview dl > div,
+.approval-receipt > div {
+  padding-block: 6px;
+  border-bottom: var(--hairline);
+}
+.source-preview dd,
+.approval-receipt dd,
+.case-rules dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.case-rules dt {
+  overflow-wrap: anywhere;
+}
+.case-rules dl > div {
+  margin-block: 8px;
+}
+.journey-header h2,
+.source-evidence,
+.result-panel {
+  scroll-margin-top: 110px;
+}
+.gate-description {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+}
+.artifact-json {
+  max-height: 28rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 12px;
+  background: var(--paper-0);
+  border: var(--hairline);
+}
+.architecture-hash {
+  margin-top: 24px;
+}
+[hidden] {
+  display: none !important;
+}
+.replay-control {
   border-style: dashed;
   border-color: var(--slate-500);
 }
@@ -561,7 +666,7 @@ code {
   .side-nav-footer {
     display: none;
   }
-  .lab-grid {
+  .replay-grid {
     grid-template-columns: 1fr;
   }
 }

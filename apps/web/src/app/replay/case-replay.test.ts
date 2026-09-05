@@ -22,13 +22,14 @@ import {
   APPROVAL_HASH_ERROR,
   attemptApproval,
   hasUnresolvedMappingReview,
-  Lab,
+  CaseReplay,
   mappingOverrides,
   RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
-  type LabScenario,
+  type ReplayScenarioOption,
   WorkflowStateBadge,
-} from "./lab";
+} from "./case-replay";
+import { prepareReplayScenarios } from "./prepare-scenarios";
 
 function renderedButton(markup: string, label: string): string {
   const button = markup.match(new RegExp(`<button[^>]*>${label}</button>`));
@@ -40,7 +41,21 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("lab mapping status boundary", () => {
+describe("replay mapping status boundary", () => {
+  it("attributes displayed threshold values to the authored case configuration", async () => {
+    const prepared = await prepareReplayScenarios();
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, { ...prepared, guided: true }),
+    );
+
+    expect(markup).toContain("Threshold values proposed in this authored case");
+    expect(markup).toContain(
+      "Versioned code defines the allowed parameter schema, formulas and comparisons",
+    );
+    expect(markup).not.toContain("Versioned code owns the thresholds");
+    expect(markup).not.toContain("Code-owned threshold fields");
+  });
+
   it.each(["MAPPING_APPROVED", "CASE_REVIEW_REQUIRED"] as const)(
     "shows workflow state %s to the reviewer",
     (state) => {
@@ -183,7 +198,7 @@ describe("lab mapping status boundary", () => {
       columns: [...scenario.columns],
       sampleRows: [],
     });
-    const scenarios: LabScenario[] = [
+    const scenarios: ReplayScenarioOption[] = [
       {
         value: scenarioName,
         label: scenario.label,
@@ -193,7 +208,7 @@ describe("lab mapping status boundary", () => {
     ];
 
     const markup = renderToStaticMarkup(
-      createElement(Lab, {
+      createElement(CaseReplay, {
         proposals: { [scenario.sourceArtifactHash]: proposal },
         providerMode: "fixture",
         scenarios,
@@ -221,7 +236,7 @@ describe("lab mapping status boundary", () => {
       columns: [...scenario.columns],
       sampleRows: [],
     });
-    const scenarios: LabScenario[] = [
+    const scenarios: ReplayScenarioOption[] = [
       {
         value: scenarioName,
         label: scenario.label,
@@ -231,7 +246,7 @@ describe("lab mapping status boundary", () => {
     ];
 
     const markup = renderToStaticMarkup(
-      createElement(Lab, {
+      createElement(CaseReplay, {
         proposals: { [scenario.sourceArtifactHash]: proposal },
         providerMode: "fixture",
         scenarios,
@@ -337,7 +352,7 @@ describe("finding evidence disclosures", () => {
           createElement(RapidPriceLiftEvaluation, {
             evaluation,
             sourceTrace,
-            scenario: scenario as LabScenario["value"],
+            scenario: scenario as ReplayScenarioOption["value"],
           }),
         );
       const markup = render();
