@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import type {
   ReplayResultResponse,
@@ -12,6 +12,7 @@ import type {
   CaseManifestProposal,
   RapidPriceLiftResult,
   SchemaMappingProposal,
+  SourceTrace,
   WorkflowState,
 } from "@weavetrail/contracts";
 import { requiresMappingOverride } from "@weavetrail/contracts";
@@ -123,8 +124,12 @@ export async function attemptApproval(
 
 export function RapidPriceLiftEvaluation({
   evaluation,
+  sourceTrace,
+  scenario,
 }: {
   evaluation: RapidPriceLiftResult;
+  sourceTrace: SourceTrace;
+  scenario: ReplayScenario;
 }) {
   return (
     <section className="result-summary" aria-label="Pattern hypothesis result">
@@ -136,11 +141,18 @@ export function RapidPriceLiftEvaluation({
       </div>
       <div className="evaluation-block">
         {evaluation.result === "INCONCLUSIVE" ? (
-          <p>Reason: {evaluation.reason}</p>
+          <>
+            <p>Reason: {evaluation.reason}</p>
+            <p>No evaluated finding evidence is available.</p>
+          </>
         ) : (
           <div className="gate-list">
             {evaluation.findings.map((finding) => (
-              <div className="gate-row" key={finding.gate}>
+              <div
+                className="gate-row"
+                key={finding.gate}
+                id={`gate-${finding.gate}`}
+              >
                 <strong>{finding.gate}</strong>
                 <span>
                   {finding.observedValue} / threshold {finding.threshold}
@@ -149,6 +161,63 @@ export function RapidPriceLiftEvaluation({
                   {finding.passed ? "PASS" : "FAIL"}
                 </b>
                 <small>{finding.referencedEventIds.join(" · ")}</small>
+                <details className="source-evidence">
+                  <summary>Inspect source evidence for {finding.gate}</summary>
+                  {sourceTrace.entries
+                    .filter(({ event }) =>
+                      finding.referencedEventIds.includes(event.eventId),
+                    )
+                    .map(({ event, sourceRow }) => (
+                      <article
+                        key={event.eventId}
+                        aria-label={`Source evidence for ${event.eventId}`}
+                      >
+                        <h3>Canonical event</h3>
+                        <dl>
+                          {Object.entries(event).map(([field, value]) => (
+                            <div key={field}>
+                              <dt>{field}</dt>
+                              <dd>
+                                <code>{value}</code>
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <h3>Committed source row</h3>
+                        <dl>
+                          <div>
+                            <dt>Artifact</dt>
+                            <dd>{scenario}</dd>
+                          </div>
+                          <div>
+                            <dt>sourceArtifactHash</dt>
+                            <dd>
+                              <code>
+                                {sourceRow.coordinate.sourceArtifactHash}
+                              </code>
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Source row number</dt>
+                            <dd>{sourceRow.coordinate.rowNumber}</dd>
+                          </div>
+                        </dl>
+                        <h3>Raw column values</h3>
+                        <dl className="source-values">
+                          {Object.entries(sourceRow.values).map(
+                            ([column, value]) => (
+                              <div key={column}>
+                                <dt>{column}</dt>
+                                <dd>
+                                  <code>{value}</code>
+                                </dd>
+                              </div>
+                            ),
+                          )}
+                        </dl>
+                      </article>
+                    ))}
+                </details>
               </div>
             ))}
           </div>
@@ -156,6 +225,9 @@ export function RapidPriceLiftEvaluation({
         {evaluation.sensitivity ? (
           <div className="sensitivity-block">
             <strong>Mechanical sensitivity comparison</strong>
+            <a href="#gate-REMOVAL_SENSITIVITY">
+              Inspect removal sensitivity evidence
+            </a>
             <span>
               Price change: {evaluation.sensitivity.priceChangeBps} bps
             </span>
@@ -201,6 +273,7 @@ const options: Array<{ value: Mutation; label: string; detail: string }> = [
 ];
 
 export function Lab({ proposals, providerMode, scenarios }: LabProps) {
+  const requestGeneration = useRef(0);
   const [scenario, setScenario] = useState<ReplayScenario>(scenarios[0]!.value);
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
@@ -218,35 +291,42 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
   const proposal = proposals[selectedScenario.sourceArtifactHash]!;
   const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
 
+  function invalidateResult() {
+    requestGeneration.current += 1;
+    setResult(null);
+    setError(null);
+    setWorkflowState(null);
+    setRunning(false);
+    return requestGeneration.current;
+  }
+
   async function approveMapping() {
     if (unresolvedReview) return;
-    setError(null);
+    const generation = invalidateResult();
+    setCaseApproval(null);
     setApproval(null);
-    setResult(null);
-    setWorkflowState(null);
     const attempt = await attemptApproval(
       proposal,
       mappingOverrides(proposal, reviewReasons),
     );
+    if (generation !== requestGeneration.current) return;
     setApproval(attempt.approval);
     setError(attempt.error);
   }
 
   async function approveCase() {
     if (selectedScenario.manifest === undefined) return;
-    setError(null);
+    const generation = invalidateResult();
     setCaseApproval(null);
-    setResult(null);
-    setWorkflowState(null);
     const attempt = await attemptApproval(selectedScenario.manifest);
+    if (generation !== requestGeneration.current) return;
     setCaseApproval(attempt.approval);
     setError(attempt.error);
   }
 
   async function runReplay() {
+    const generation = invalidateResult();
     setRunning(true);
-    setError(null);
-    setWorkflowState(null);
     try {
       const response = await fetch("/api/replay", {
         method: "POST",
@@ -268,16 +348,19 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
       });
       if (!response.ok) {
         const review = (await response.json()) as ReplayReviewResponse;
+        if (generation !== requestGeneration.current) return;
         setWorkflowState(review.workflowState);
         throw new Error(review.issues.map(({ message }) => message).join(" "));
       }
       const replayResult = (await response.json()) as ReplayResultResponse;
+      if (generation !== requestGeneration.current) return;
       setWorkflowState(replayResult.workflowState);
       setResult(replayResult);
     } catch (cause) {
+      if (generation !== requestGeneration.current) return;
       setError(cause instanceof Error ? cause.message : "Replay failed");
     } finally {
-      setRunning(false);
+      if (generation === requestGeneration.current) setRunning(false);
     }
   }
 
@@ -289,6 +372,7 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
           <span>Committed source artifact</span>
           <select
             onChange={(event) => {
+              invalidateResult();
               const reset = resetReplayForScenarioChange(
                 event.target.value as ReplayScenario,
               );
@@ -320,7 +404,10 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               <input
                 checked={mutation === option.value}
                 name="mutation"
-                onChange={() => setMutation(option.value)}
+                onChange={() => {
+                  invalidateResult();
+                  setMutation(option.value);
+                }}
                 type="radio"
                 value={option.value}
               />
@@ -350,6 +437,8 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
                   <input
                     aria-label={`Reviewer reason for ${field.sourceColumn}`}
                     onChange={(event) => {
+                      invalidateResult();
+                      setCaseApproval(null);
                       setReviewReasons((current) => ({
                         ...current,
                         [`fields.${index}`]: event.target.value,
@@ -463,7 +552,11 @@ export function Lab({ proposals, providerMode, scenarios }: LabProps) {
               <code>{result.replay.canonicalResultHash}</code>
             </div>
             {"evaluation" in result ? (
-              <RapidPriceLiftEvaluation evaluation={result.evaluation} />
+              <RapidPriceLiftEvaluation
+                evaluation={result.evaluation}
+                sourceTrace={result.sourceTrace}
+                scenario={result.scenario}
+              />
             ) : null}
             <div className="boundary-note">
               <strong>Fixture mode</strong>

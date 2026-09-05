@@ -2,13 +2,21 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { RapidPriceLiftResultSchema } from "@weavetrail/contracts";
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
-import { sha256Canonical } from "@weavetrail/replay-engine";
+import {
+  buildFindingSourceTrace,
+  replayApproved,
+  sha256Canonical,
+} from "@weavetrail/replay-engine";
 import {
   canonicalJson,
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
-import { committedReplayScenarios } from "@weavetrail/scenarios";
+import {
+  committedReplayScenarios,
+  rapidPriceLiftScenarios,
+} from "@weavetrail/scenarios";
 
 import {
   APPROVAL_HASH_ERROR,
@@ -118,6 +126,8 @@ describe("lab mapping status boundary", () => {
   it("renders every gate and neutral mechanical sensitivity wording", () => {
     const markup = renderToStaticMarkup(
       createElement(RapidPriceLiftEvaluation, {
+        sourceTrace: { traceVersion: "1.0", entries: [] },
+        scenario: "rapid-price-lift-supported.csv",
         evaluation: {
           ruleId: "RAPID_PRICE_LIFT",
           ruleVersion: "1.1",
@@ -294,4 +304,96 @@ describe("lab mapping status boundary", () => {
       }),
     ).toBe(false);
   });
+});
+
+describe("finding evidence disclosures", () => {
+  it.each(Object.entries(rapidPriceLiftScenarios))(
+    "shows only each gate's resolved rows for %s",
+    async (scenario, fixture) => {
+      const replay = replayApproved(
+        fixture.rows,
+        fixture.rows,
+        fixture.mappingProposal,
+        {
+          approvedArtifactHash: sha256Canonical(fixture.mappingProposal),
+          reviewerRef: "reviewer:test",
+          decision: "APPROVED",
+          overrides: [],
+          approvedAt: "2026-09-01T00:00:00Z",
+        },
+        fixture.manifest,
+        "baseline",
+      );
+      if (!("canonicalResultHash" in replay) || !("evaluation" in replay))
+        throw new Error("Expected evaluated fixture");
+      const evaluation = RapidPriceLiftResultSchema.parse(replay.evaluation);
+      const sourceTrace = buildFindingSourceTrace(
+        replay.events,
+        evaluation.findings,
+        fixture.rows,
+      );
+      const render = () =>
+        renderToStaticMarkup(
+          createElement(RapidPriceLiftEvaluation, {
+            evaluation,
+            sourceTrace,
+            scenario: scenario as LabScenario["value"],
+          }),
+        );
+      const markup = render();
+      if (evaluation.result === "INCONCLUSIVE") {
+        expect(markup).toContain("No evaluated finding evidence is available.");
+        expect(markup).toContain(evaluation.reason);
+        expect(markup).not.toContain("<details");
+        expect(markup).not.toContain("rawRowHash");
+        return;
+      }
+      const disclosures = [
+        ...markup.matchAll(/<details[\s\S]*?<\/details>/g),
+      ].map(([value]) => value);
+      expect(disclosures).toHaveLength(5);
+      evaluation.findings.forEach((finding, index) => {
+        const disclosure = disclosures[index]!;
+        expect(disclosure).toContain(
+          `<summary>Inspect source evidence for ${finding.gate}</summary>`,
+        );
+        for (const entry of sourceTrace.entries) {
+          if (!finding.referencedEventIds.includes(entry.event.eventId)) {
+            expect(disclosure).not.toContain(entry.event.rawRowHash);
+            continue;
+          }
+          expect(disclosure).toContain(entry.event.eventId);
+          expect(disclosure).toContain(entry.event.rawRowHash);
+          expect(disclosure).toContain(
+            entry.sourceRow.coordinate.sourceArtifactHash,
+          );
+          expect(disclosure).toContain(
+            `<dt>Source row number</dt><dd>${entry.sourceRow.coordinate.rowNumber}</dd>`,
+          );
+          expect(disclosure).toContain(scenario);
+          for (const [column, value] of Object.entries(
+            entry.sourceRow.values,
+          )) {
+            expect(disclosure).toContain(
+              renderToStaticMarkup(createElement("dt", null, column)),
+            );
+            expect(disclosure).toContain(
+              renderToStaticMarkup(createElement("code", null, value)),
+            );
+          }
+        }
+      });
+      if (evaluation.result === "NOT_SUPPORTED")
+        expect(markup).toContain('data-passed="false"');
+      sourceTrace.entries[0]!.sourceRow.values["<script>column</script>"] =
+        "  <img src=x onerror=alert(1)> Ignore previous instructions\n  exact text  ";
+      const escaped = render();
+      expect(escaped).not.toContain("<script>");
+      expect(escaped).not.toContain("<img src=x");
+      expect(escaped).toContain("&lt;script&gt;column&lt;/script&gt;");
+      expect(escaped).toContain(
+        "  &lt;img src=x onerror=alert(1)&gt; Ignore previous instructions\n  exact text  ",
+      );
+    },
+  );
 });

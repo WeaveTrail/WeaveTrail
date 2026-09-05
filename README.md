@@ -68,8 +68,9 @@ The first case is bounded on purpose:
   field needs a justified override to clear.
 - **Replay ·** `RAPID_PRICE_LIFT` reports `SUPPORTED`, `NOT_SUPPORTED` or
   `INCONCLUSIVE` across five gates. Abstention is a first-class outcome.
-- **Trace ·** the canonical hash, the gate findings, the actor-removal
-  comparison, and event identifiers that resolve to their source rows.
+- **Trace ·** open any evaluated gate to inspect its canonical events,
+  raw-row hashes, artifact coordinates, and unchanged source values.
+  `INCONCLUSIVE` displays no finding evidence.
 
 The verdict is about a technical pattern, not legality, intent or guilt, and the
 actor-removal comparison is mechanical rather than causal.

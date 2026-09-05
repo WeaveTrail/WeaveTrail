@@ -1,11 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { describe, expect, it, vi } from "vitest";
 
 import type {
   ApprovalRecord,
   CaseManifest,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { sha256Canonical } from "@weavetrail/replay-engine";
+import * as replayEngine from "@weavetrail/replay-engine";
+import {
+  deriveRawRowHash,
+  parseCsvSourceArtifact,
+  sha256Canonical,
+} from "@weavetrail/replay-engine";
 import {
   committedReplayScenarios,
   concentratedBuyDialectAProposal,
@@ -13,7 +19,10 @@ import {
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
-import { ReplayReviewResponseSchema } from "@weavetrail/contracts";
+import {
+  ReplayResultResponseSchema,
+  ReplayReviewResponseSchema,
+} from "@weavetrail/contracts";
 import { POST as handlePost } from "./route";
 
 // Exercise every rejection against the exact serialized request, including own
@@ -25,7 +34,12 @@ async function POST(request: Request) {
     const result = ReplayReviewResponseSchema.parse(
       await response.clone().json(),
     );
-    for (const key of ["replay", "evaluation", "canonicalResultHash"]) {
+    for (const key of [
+      "replay",
+      "evaluation",
+      "canonicalResultHash",
+      "sourceTrace",
+    ]) {
       expect(result).not.toHaveProperty(key);
     }
     for (const issue of result.issues) {
@@ -123,6 +137,7 @@ describe("POST /api/replay approved mapping boundary", () => {
       "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
     );
     expect(result).not.toHaveProperty("evaluation");
+    expect(result).not.toHaveProperty("sourceTrace");
   });
 
   it("returns an approved rapid price lift result", async () => {
@@ -221,6 +236,7 @@ describe("POST /api/replay approved mapping boundary", () => {
       issues: [{ code: "ACTOR_OUTSIDE_DATASET_PROFILE" }],
     });
     expect(result).not.toHaveProperty("evaluation");
+    expect(result).not.toHaveProperty("sourceTrace");
   });
 
   it("assigns a case approval hash mismatch to case review", async () => {
@@ -273,6 +289,7 @@ describe("POST /api/replay approved mapping boundary", () => {
       issues: [{ code: "TIME_WINDOW_OUTSIDE_DATASET_PROFILE" }],
     });
     expect(result).not.toHaveProperty("evaluation");
+    expect(result).not.toHaveProperty("sourceTrace");
   });
 
   it.each(["baseline", "shuffle", "duplicate"] as const)(
@@ -737,4 +754,95 @@ describe("request-relative review paths", () => {
       expect(result.issues).toEqual([expect.objectContaining({ path })]);
     },
   );
+});
+
+describe("server-resolved finding provenance", () => {
+  it.each(Object.entries(rapidPriceLiftScenarios))(
+    "resolves %s against parsed committed bytes for every mutation and reversed rows",
+    async (scenario, fixture) => {
+      const bytes = readFileSync(
+        new URL(
+          `../../../../../../packages/scenarios/src/sources/${scenario}`,
+          import.meta.url,
+        ),
+      );
+      const rows = parseCsvSourceArtifact(bytes, fixture.sourceArtifactHash);
+      let baseline: unknown;
+      for (const mutation of ["baseline", "shuffle", "duplicate"] as const) {
+        for (const submittedRows of [
+          fixture.rows,
+          [...fixture.rows].reverse(),
+        ]) {
+          const response = await POST(
+            request({
+              scenario,
+              mutation,
+              rows: submittedRows,
+              mappingApproval: approval(fixture.mappingProposal),
+              caseManifest: fixture.manifest,
+            }),
+          );
+          expect(response.status).toBe(200);
+          const result = ReplayResultResponseSchema.parse(
+            await response.json(),
+          );
+          if (result.workflowState !== "REPLAYED")
+            throw new Error("Expected case replay");
+          expect(result.evaluation.result).toBe(fixture.expectedResult);
+          expect(result.replay.canonicalResultHash).toBe(
+            {
+              SUPPORTED:
+                "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45",
+              NOT_SUPPORTED:
+                "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93",
+              INCONCLUSIVE:
+                "e9e7a01885d47f21d7372f9b4008418e7585dbdc35abe272adbc3f703a3408fc",
+            }[fixture.expectedResult],
+          );
+          expect(result.replay).not.toHaveProperty("events");
+          const references = new Set(
+            result.evaluation.findings.flatMap(
+              (finding) => finding.referencedEventIds,
+            ),
+          );
+          expect(
+            result.sourceTrace.entries.map(({ event }) => event.eventId),
+          ).toEqual(
+            result.replay.orderedEventIds.filter((id) => references.has(id)),
+          );
+          expect(result.sourceTrace.entries).toHaveLength(references.size);
+          for (const entry of result.sourceTrace.entries) {
+            const matches = rows.filter(
+              (row) =>
+                row.coordinate.rowNumber ===
+                entry.sourceRow.coordinate.rowNumber,
+            );
+            expect(matches).toHaveLength(1);
+            expect(entry.sourceRow).toEqual(matches[0]);
+            expect(entry.event.rawRowHash).toBe(deriveRawRowHash(matches[0]!));
+            expect(entry.event).not.toHaveProperty("receivedAt");
+          }
+          if (result.evaluation.result === "INCONCLUSIVE")
+            expect(result.sourceTrace.entries).toEqual([]);
+          if (baseline === undefined) baseline = result.sourceTrace;
+          expect(result.sourceTrace).toEqual(baseline);
+        }
+      }
+    },
+  );
+});
+
+it("propagates source trace invariant failures to the server error boundary", async () => {
+  const assemble = vi
+    .spyOn(replayEngine, "buildFindingSourceTrace")
+    .mockImplementation(() => {
+      throw new Error("Missing source row for finding event");
+    });
+  try {
+    await expect(handlePost(request(rapidBody()))).rejects.toThrow(
+      "Missing source row for finding event",
+    );
+  } finally {
+    assemble.mockRestore();
+  }
 });

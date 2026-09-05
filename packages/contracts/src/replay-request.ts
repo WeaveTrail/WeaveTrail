@@ -4,6 +4,7 @@ import { ApprovalRecordSchema } from "./approval-record";
 import { CaseManifestSchema } from "./case-manifest";
 import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 import { WorkflowStateSchema } from "./workflow";
+import { SourceTraceSchema } from "./source-trace";
 
 export const ReplayReviewWorkflowStateSchema = WorkflowStateSchema.extract([
   "MAPPING_REVIEW_REQUIRED",
@@ -195,7 +196,34 @@ export const ReplayResultResponseSchema = z.discriminatedUnion(
     ReplayResultResponseBaseSchema.extend({
       workflowState: z.literal("REPLAYED"),
       evaluation: RapidPriceLiftResultSchema,
-    }).strict(),
+      sourceTrace: SourceTraceSchema,
+    })
+      .strict()
+      .superRefine((response, ctx) => {
+        const references = new Set(
+          response.evaluation.findings.flatMap(
+            (finding) => finding.referencedEventIds,
+          ),
+        );
+        const expected = response.replay.orderedEventIds.filter((id) =>
+          references.has(id),
+        );
+        const actual = response.sourceTrace.entries.map(
+          (entry) => entry.event.eventId,
+        );
+        if (
+          references.size !== actual.length ||
+          expected.length !== actual.length ||
+          actual.some((id, index) => id !== expected[index])
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["sourceTrace", "entries"],
+            message:
+              "Trace must resolve exactly the finding references in canonical replay order",
+          });
+        }
+      }),
   ],
 );
 

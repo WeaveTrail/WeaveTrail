@@ -49,11 +49,29 @@ state, and no replay hash.
 
 Successful responses are contract-validated projections of the replay result.
 They expose the engine version, counts, canonical ordering identifiers, and
-result hash, but not the engine's returned canonical event objects or raw-row
-hashes. Mapping-only foundation validation finishes at `MAPPING_APPROVED` and
+result hash. Evaluated case responses also expose a versioned `sourceTrace`:
+each distinct finding event resolves to an allowlisted canonical event with its
+`rawRowHash` and an exact committed source row. Mapping-only foundation
+validation finishes at `MAPPING_APPROVED` and
 returns its existing canonical result; only a replay with approved mapping and
 case manifests finishes at `REPLAYED`. The response workflow state is not an
-input to the canonical result hash.
+input to the canonical result hash; neither is the source trace.
+
+Each evaluated gate, including a failed gate, offers read-only source inspection
+in the lab. The server links retained raw-row hashes to committed coordinates
+and unchanged string values; the browser only displays that resolved evidence.
+The artifact name, artifact hash, and physical source row number identify the
+record independently of request-array order. Original whitespace, decimal
+spelling, and unmapped columns remain visible as escaped text. Repeated gate
+references share one trace entry, and exact duplicate events collapse to one
+canonical event. A missing or ambiguous server-owned link is an internal error.
+
+An `INCONCLUSIVE` response has empty findings and empty source evidence. Counts
+without findings do not acquire substitute rows. Input or approval changes,
+new runs, and failures clear prior evidence; older requests cannot repopulate a
+new selection. This trace establishes provenance to synthetic source records;
+it does not establish causality or legal conclusions. Evidence Bundle assembly,
+export, and independent verification remain planned.
 
 Workflow state exists only for the lifetime of one request. After an
 `INPUT_REVIEW_REQUIRED` response, corrected input begins a new execution at
