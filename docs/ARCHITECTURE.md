@@ -203,7 +203,8 @@ approval time remain audit metadata and do not alter the semantic replay hash.
 ### Decision boundary
 
 The replay engine owns ordering, deduplication, decimal arithmetic, window
-aggregation, rule evaluation, counterfactual comparison, and canonical hashes.
+aggregation, rule evaluation, mechanical sensitivity comparison, and canonical
+hashes.
 It never executes code written by a model.
 
 ### Evidence boundary
@@ -213,6 +214,37 @@ Canonical hashes exclude volatile metadata. Findings refer to canonical
 reviewer can reach the source row. The committed synthetic fixtures derive
 those identifiers from exact source-artifact bytes and raw rows rather than
 hand-authored placeholders.
+
+### Evidence Bundle 1.2 migration
+
+`EvidenceBundleSchema` version `1.2` reuses the strict `sensitivity` object
+from the Rapid Price Lift rule result. Consumers of the declared bundle
+contract must migrate explicitly: version `1.1` inputs, removed fields, mixed
+shapes, and unknown keys are rejected. There are no aliases, coercion, or
+automatic converter.
+
+| Old 1.1 path                               | New 1.2 path                                      |
+| ------------------------------------------ | ------------------------------------------------- |
+| `counterfactual`                           | `sensitivity`                                     |
+| `counterfactual.originalPriceChangeBps`    | `sensitivity.priceChangeBps`                      |
+| `counterfactual.withoutSuspectedActorsBps` | `sensitivity.priceChangeBpsWithoutApprovedActors` |
+| `counterfactual.attributableDifferenceBps` | `sensitivity.removalSensitivityBps`               |
+
+The new shape requires `bundleVersion: "1.2"` and
+`sensitivity.comparison: "MECHANICAL_METRIC_COMPARISON"`. Its metrics retain
+the shared signed decimal-string validation; this change does not add decimal
+normalization or arithmetic checks. The comparison mechanically removes the
+approved actor set and reports the resulting metric difference. It does not
+establish attribution, guilt, or causation. Schema validation establishes the
+bundle's shape, not that metrics were recomputed or that evidence is authentic.
+
+Runtime replay behavior is unchanged. Bundle assembly, export, and independent
+verification remain planned. The declared bundle continues to require a
+sensitivity object, while the running rule result uses `null` for
+`INCONCLUSIVE`; result-specific bundle policy remains deferred to #13. The
+contract regressions in
+[`evidence-bundle.test.ts`](../packages/contracts/src/evidence-bundle.test.ts)
+exercise these strict migration boundaries with illustrative synthetic inputs.
 
 ## Package boundaries
 
