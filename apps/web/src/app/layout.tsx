@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import Link from "next/link";
 
 import "./styles.css";
 
 import { getSiteUrl } from "./site-url";
+import { SiteNavigation } from "./site-navigation";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -17,41 +19,58 @@ export const metadata: Metadata = {
   description: "Weave signals into replayable evidence.",
 };
 
-const navigation = [
-  ["Overview", "/"],
-  ["Architecture", "/architecture"],
-  ["Lab", "/lab"],
-  ["Evals", "/evals"],
-  ["Methodology", "/methodology"],
-] as const;
+const plex = localFont({
+  variable: "--font-sans-local",
+  display: "swap",
+  src: [
+    { path: "../fonts/ibm-plex-sans/IBMPlexSans-Regular.woff2", weight: "400" },
+    { path: "../fonts/ibm-plex-sans/IBMPlexSans-Medium.woff2", weight: "500" },
+    {
+      path: "../fonts/ibm-plex-sans/IBMPlexSans-SemiBold.woff2",
+      weight: "600",
+    },
+  ],
+});
+
+const mono = localFont({
+  variable: "--font-mono-local",
+  display: "swap",
+  src: [
+    {
+      path: "../fonts/jetbrains-mono/JetBrainsMono-Regular.woff2",
+      weight: "400",
+    },
+    {
+      path: "../fonts/jetbrains-mono/JetBrainsMono-Medium.woff2",
+      weight: "500",
+    },
+    { path: "../fonts/jetbrains-mono/JetBrainsMono-Bold.woff2", weight: "700" },
+  ],
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html className={`${plex.variable} ${mono.variable}`} lang="en">
       <body>
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
         <header className="site-header">
           <Link className="wordmark" href="/">
-            WeaveTrail
+            {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
+            <img alt="" height="36" src="/brand/mark.svg" width="36" />
+            <span>WeaveTrail</span>
           </Link>
           <span className="header-context">
             Deterministic fixture mode · synthetic data
           </span>
         </header>
         <div className="app-shell">
-          <aside className="side-nav">
-            <nav aria-label="Primary navigation">
-              <span className="nav-label">Workbench</span>
-              {navigation.map(([label, href]) => (
-                <Link href={href} key={href}>
-                  {label}
-                </Link>
-              ))}
-            </nav>
+          <aside className="side-nav" aria-label="Workbench navigation">
+            <SiteNavigation />
             <div className="side-nav-footer">
               <span>AI proposals</span>
               <span>Human approvals</span>

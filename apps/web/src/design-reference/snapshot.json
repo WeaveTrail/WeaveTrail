@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/WeaveTrail/design-reference",
+  "revision": "3f078da1970e8accd83fbdde73308a2a24d0d1f8",
+  "allowlistSha256": "82956712ffde8ec155470e77cda42612da953b4819da27efd4f85d61e7e5bae6",
+  "intentionalDifferences": [
+    "tokens/fonts.css is retained as source evidence but is not imported by the product; next/font/local supplies self-hosted fonts."
+  ],
+  "files": {
+    "styles.css": "220d7ae14ea4f65eb0d8d73bbcb7e473af03ab000248534f9242bc862c02550f",
+    "tokens/base.css": "0fa5b43a0bca58ec10108c5bda3bc20fa188f99157847806e7021b4baf237f3d",
+    "tokens/borders.css": "d4a68ec6f8a07671f23feccbf822ac566e5c489f5b19be1109c5ee9b8134a804",
+    "tokens/colors.css": "78dae5d288c2a1d5fb22cfe59631e7f476a437e65aba402f634c3383a0a1e1d5",
+    "tokens/fonts.css": "b7f3b1c90cc0a06c1242e7c285a9d8553ad09226c6665582d6ff8b57563eab67",
+    "tokens/layout.css": "b0d12368ed53dc4b57f2bf673a9ab9a8a4a1ce120e87027ab27c2333bdcf27e1",
+    "tokens/motion.css": "158b55cc4e6159487a8855c2ef6e6450c0e0c92bd868c3deec97a20a047421ee",
+    "tokens/spacing.css": "635d54988d1f52cae1341f99df600f504fc6e87178d65628f2e5fbe957d9af24",
+    "tokens/typography.css": "fc6844184300b1fd0bb08ee856350e5e7dfcd3eef7db3238602432caa8b04708",
+    "assets/mark.svg": "35c7b3c3eba88264d9150ca6ea3c033b55df94329854a124f8016e827cb8d0a0"
+  }
+}

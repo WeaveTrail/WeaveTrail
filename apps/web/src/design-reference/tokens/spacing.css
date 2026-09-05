@@ -1,0 +1,6 @@
+:root{
+--space-0:0;--space-1:2px;--space-2:4px;--space-3:6px;--space-4:8px;--space-5:12px;--space-6:16px;--space-7:20px;--space-8:24px;--space-9:32px;--space-10:40px;--space-11:56px;--space-12:72px;
+/* dense evidence density */
+--pad-cell-y:6px;--pad-cell-x:10px;--pad-control-y:6px;--pad-control-x:12px;--pad-panel:16px;--pad-panel-lg:20px;
+--gap-inline:8px;--gap-stack:12px;--gap-block:24px;--gap-section:40px;
+}

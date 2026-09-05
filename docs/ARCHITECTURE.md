@@ -221,3 +221,12 @@ works without an external model or database. Provider adapters run server-side;
 browser bundles must never receive provider credentials. A separate replay
 service or database is deferred until measured scale or persistence needs
 justify it.
+
+## Presentation boundary
+
+The five public routes use a product-local snapshot of the paper-first design
+tokens and original brand mark pinned to `WeaveTrail/design-reference` revision
+`3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is not a
+build or runtime dependency. Product copy and every visible evidence value stay
+owned by this repository's runtime responses and committed synthetic scenarios.
+See [ADR 0015](adr/0015-apply-the-canonical-design-reference.md).
