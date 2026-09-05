@@ -8,37 +8,39 @@ export type CaseProfileIssueCode =
   | "ACTOR_OUTSIDE_DATASET_PROFILE"
   | "TIME_WINDOW_OUTSIDE_DATASET_PROFILE";
 
+// Paths are relative to the validated manifest, not an HTTP request.
 export type CaseProfileValidation =
   | { accepted: true }
   | {
       accepted: false;
       status: "REVIEW_REQUIRED";
-      issues: { code: CaseProfileIssueCode; path: string }[];
+      issues: { code: CaseProfileIssueCode; path: (string | number)[] }[];
     };
 
 export function validateCaseAgainstProfile(
   manifest: CaseManifest,
   profile: DatasetProfile,
 ): CaseProfileValidation {
-  const issues: { code: CaseProfileIssueCode; path: string }[] = [];
+  const issues: { code: CaseProfileIssueCode; path: (string | number)[] }[] =
+    [];
 
   if (manifest.canonicalDatasetHash !== profile.canonicalDatasetHash) {
     issues.push({
       code: "CANONICAL_DATASET_HASH_MISMATCH",
-      path: "canonicalDatasetHash",
+      path: ["canonicalDatasetHash"],
     });
   }
   if (!profile.instrumentIds.includes(manifest.hypothesis.instrumentId)) {
     issues.push({
       code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
-      path: "hypothesis.instrumentId",
+      path: ["hypothesis", "instrumentId"],
     });
   }
   for (const [index, actorId] of manifest.hypothesis.actorIds.entries()) {
     if (!profile.actorIds.includes(actorId)) {
       issues.push({
         code: "ACTOR_OUTSIDE_DATASET_PROFILE",
-        path: `hypothesis.actorIds.${index}`,
+        path: ["hypothesis", "actorIds", index],
       });
     }
   }
@@ -54,7 +56,7 @@ export function validateCaseAgainstProfile(
   ) {
     issues.push({
       code: "TIME_WINDOW_OUTSIDE_DATASET_PROFILE",
-      path: "hypothesis",
+      path: ["hypothesis"],
     });
   }
 

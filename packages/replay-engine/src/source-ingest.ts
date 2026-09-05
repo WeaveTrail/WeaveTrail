@@ -78,6 +78,8 @@ export type MappingReviewCode =
 
 export type MappingReviewIssue = {
   code: MappingReviewCode;
+  /** Zero-based position in the submitted rows, independent of source coordinates. */
+  rowIndex?: number;
   rowNumber?: string;
   sourceColumn?: string;
   message: string;
@@ -221,10 +223,11 @@ export function applyApprovedMapping(
     ]),
   );
 
-  for (const row of rows) {
+  for (const [rowIndex, row] of rows.entries()) {
     if (row.coordinate.sourceArtifactHash !== mapping.sourceArtifactHash) {
       issues.push({
         code: "SOURCE_ARTIFACT_HASH_MISMATCH",
+        rowIndex,
         rowNumber: row.coordinate.rowNumber,
         message: `Row sourceArtifactHash ${row.coordinate.sourceArtifactHash} does not match approved mapping ${mapping.sourceArtifactHash}`,
       });
@@ -237,6 +240,7 @@ export function applyApprovedMapping(
         approvedColumnMissing = true;
         issues.push({
           code: "APPROVED_SOURCE_COLUMN_MISSING",
+          rowIndex,
           rowNumber: row.coordinate.rowNumber,
           sourceColumn,
           message: `Approved source column ${JSON.stringify(sourceColumn)} is missing from row ${row.coordinate.rowNumber}`,
@@ -248,6 +252,7 @@ export function applyApprovedMapping(
       if (!fieldMapping) {
         issues.push({
           code: "UNKNOWN_SOURCE_COLUMN",
+          rowIndex,
           rowNumber: row.coordinate.rowNumber,
           sourceColumn,
           message: `Source column ${JSON.stringify(sourceColumn)} is not present in the approved mapping`,
@@ -260,6 +265,7 @@ export function applyApprovedMapping(
       if (transformed === undefined) {
         issues.push({
           code: "TRANSFORM_REJECTED_VALUE",
+          rowIndex,
           rowNumber: row.coordinate.rowNumber,
           sourceColumn,
           message: `Transform ${transform} rejected source column ${JSON.stringify(sourceColumn)}`,
@@ -285,6 +291,7 @@ export function applyApprovedMapping(
     if (!parsed.success) {
       issues.push({
         code: "REQUIRED_TARGET_FIELD_MISSING",
+        rowIndex,
         rowNumber: row.coordinate.rowNumber,
         message: `Mapped row ${row.coordinate.rowNumber} does not satisfy TradeEventSchema`,
       });

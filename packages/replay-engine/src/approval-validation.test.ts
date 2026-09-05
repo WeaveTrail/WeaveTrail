@@ -146,6 +146,7 @@ describe("replay approval gate", () => {
       expect.arrayContaining([
         expect.objectContaining({
           code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+          path: ["mappingApproval"],
         }),
       ]),
     );
@@ -230,6 +231,7 @@ describe("replay approval gate", () => {
         issues: [
           expect.objectContaining({
             code: "CONFLICTING_SOURCE_IDENTITY",
+            path: ["rows"],
             message: expect.stringContaining("source identity"),
           }),
         ],
@@ -304,7 +306,7 @@ describe("replay approval gate", () => {
 
     expect(result).toMatchObject({
       status: "REVIEW_REQUIRED",
-      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" }],
+      issues: [{ code: "APPROVAL_RECORD_REQUIRED", path: ["caseManifest"] }],
     });
     expect(result).not.toHaveProperty("canonicalResultHash");
   });
@@ -326,7 +328,7 @@ describe("replay approval gate", () => {
       issues: [
         expect.objectContaining({
           code: "APPROVAL_REJECTED",
-          path: "caseApproval.decision",
+          path: ["caseManifest", "approval", "decision"],
         }),
       ],
     });
@@ -353,7 +355,7 @@ describe("replay approval gate", () => {
       issues: [
         expect.objectContaining({
           code: "APPROVED_ARTIFACT_HASH_MISMATCH",
-          path: "caseApproval.approvedArtifactHash",
+          path: ["caseManifest", "approval", "approvedArtifactHash"],
         }),
       ],
     });
@@ -395,8 +397,16 @@ describe("replay approval gate", () => {
         accepted: false,
         status: "REVIEW_REQUIRED",
         issues: [
-          { code: "SOURCE_ROW_MISSING", path: "rows.3" },
-          { code: "SOURCE_ROW_MISSING", path: "rows.5" },
+          {
+            code: "SOURCE_ROW_MISSING",
+            path: ["rows"],
+            message: `Source artifact ${mapping.sourceArtifactHash} is missing declared row 3.`,
+          },
+          {
+            code: "SOURCE_ROW_MISSING",
+            path: ["rows"],
+            message: `Source artifact ${mapping.sourceArtifactHash} is missing declared row 5.`,
+          },
         ],
       });
       expect(result).not.toHaveProperty("canonicalResultHash");
@@ -445,8 +455,8 @@ describe("replay approval gate", () => {
       accepted: false,
       status: "REVIEW_REQUIRED",
       issues: [
-        { code: "APPROVAL_RECORD_REQUIRED", path: "mappingApproval" },
-        { code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" },
+        { code: "APPROVAL_RECORD_REQUIRED", path: [] },
+        { code: "APPROVAL_RECORD_REQUIRED", path: [] },
       ],
     });
     expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
@@ -547,7 +557,12 @@ describe("replay approval gate", () => {
       expect(result).toEqual({
         accepted: false,
         status: "REVIEW_REQUIRED",
-        issues: [{ code: "RULE_CONFIGURATION_REQUIRED", path: "rules" }],
+        issues: [
+          {
+            code: "RULE_CONFIGURATION_REQUIRED",
+            path: ["caseManifest", "rules"],
+          },
+        ],
       });
       expect(result).not.toHaveProperty("canonicalResultHash");
     },
@@ -574,7 +589,14 @@ describe("replay approval gate", () => {
       const expected = {
         accepted: false as const,
         status: "REVIEW_REQUIRED" as const,
-        issues: [{ code: "MAPPING_OVERRIDE_REQUIRED", path: "fields.0" }],
+        issues: [
+          {
+            code: "MAPPING_OVERRIDE_REQUIRED",
+            path: ["mappingApproval", "overrides"],
+            message:
+              "A justified override for proposal fieldPath fields.0 is required.",
+          },
+        ],
       };
 
       expect(
@@ -673,7 +695,8 @@ describe("replay approval gate", () => {
       issues: [
         {
           code: "MAPPING_OVERRIDE_REQUIRED",
-          path: `fields.${sourceNoteIndex}`,
+          path: ["mappingApproval", "overrides"],
+          message: `A justified override for proposal fieldPath fields.${sourceNoteIndex} is required.`,
         },
       ],
     } as const;
@@ -747,5 +770,62 @@ describe("replay approval gate", () => {
     expect(alternateApprovalHash).toBe(
       "58f5400056129f1648337d0005deebbd3c7520292ea6c17dfafca3cce9601040",
     );
+  });
+});
+
+describe("mapping application request paths", () => {
+  it.each(["123", "a.b"])(
+    "preserves literal source key %s at the replay gate",
+    (column) => {
+      const rows = structuredClone(concentratedBuyDialectARows);
+      rows.reverse();
+      rows[1]!.values[column] = "synthetic";
+      const result = replayApproved(
+        rows,
+        rows,
+        mapping,
+        mappingApproval,
+        undefined,
+      );
+      expect(result).toMatchObject({
+        status: "REVIEW_REQUIRED",
+        issues: [
+          {
+            code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+            path: ["rows", 1, "values", column],
+            message: expect.stringContaining("UNKNOWN_SOURCE_COLUMN"),
+          },
+        ],
+      });
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    },
+  );
+
+  it("locates a rejected transform at its existing submitted value", () => {
+    const rows = structuredClone(concentratedBuyDialectARows);
+    rows.reverse();
+    rows[1]!.values.px = "invalid-decimal";
+    const result = replayApproved(
+      rows,
+      rows,
+      mapping,
+      mappingApproval,
+      undefined,
+    );
+    expect(result).toMatchObject({ status: "REVIEW_REQUIRED" });
+    if (!("issues" in result)) throw new Error("expected review issues");
+    expect(result.issues).toContainEqual(
+      expect.objectContaining({
+        code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+        path: ["rows", 1, "values", "px"],
+        message: expect.stringContaining("TRANSFORM_REJECTED_VALUE"),
+      }),
+    );
+    for (const issue of result.issues) {
+      expect(issue.path.slice(0, 3)).toEqual(["rows", 1, "values"]);
+      if (issue.path.length === 4)
+        expect(Object.hasOwn(rows[1]!.values, issue.path[3]!)).toBe(true);
+    }
+    expect(result).not.toHaveProperty("canonicalResultHash");
   });
 });

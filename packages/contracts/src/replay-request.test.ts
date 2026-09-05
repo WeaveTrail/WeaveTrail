@@ -381,3 +381,20 @@ describe("ReplayReviewResponseSchema", () => {
     },
   );
 });
+
+describe("review path segment contract", () => {
+  it.each([
+    [[], true],
+    [["rows", 0, "values", "123", "a.b"], true],
+    [["rows", -1], false],
+    [["rows", 0.5], false],
+  ])("validates %j", (path, accepted) => {
+    expect(
+      ReplayReviewResponseSchema.safeParse({
+        status: "REVIEW_REQUIRED",
+        workflowState: "INPUT_REVIEW_REQUIRED",
+        issues: [{ code: "INVALID_REQUEST", path, message: "Review required" }],
+      }).success,
+    ).toBe(accepted);
+  });
+});

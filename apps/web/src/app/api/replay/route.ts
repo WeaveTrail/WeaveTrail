@@ -13,6 +13,8 @@ import {
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 import { NextResponse } from "next/server";
 
+import { existingRequestPath } from "./review-path";
+
 export const runtime = "nodejs";
 
 const mappingProvider = new FixtureSchemaMappingProvider();
@@ -41,7 +43,7 @@ function sourceRowMismatchIssues(
         {
           code: "SOURCE_ROW_MISMATCH" as const,
           path: ["rows", index, "coordinate", "rowNumber"],
-          message: `Source row ${row.coordinate.rowNumber} is not declared by the committed artifact.`,
+          message: `Source row ${row.coordinate.rowNumber} in artifact ${row.coordinate.sourceArtifactHash} is not declared by the committed artifact.`,
         },
       ];
     }
@@ -53,19 +55,23 @@ function sourceRowMismatchIssues(
       .map((column) => ({
         code: "SOURCE_ROW_MISMATCH" as const,
         path: ["rows", index, "values", column],
-        message: `Source row ${row.coordinate.rowNumber} column ${column} does not match the committed artifact.`,
+        message: `Source row ${row.coordinate.rowNumber} column ${column} in artifact ${row.coordinate.sourceArtifactHash} does not match the committed artifact.`,
       }));
   });
 }
 
 function reviewResponse(
   workflowState: unknown,
-  issues: unknown,
+  issues: { code: string; path: (string | number)[]; message: string }[],
+  requestBody: unknown,
 ): NextResponse<ReplayReviewResponse> {
   const body = ReplayReviewResponseSchema.parse({
     status: "REVIEW_REQUIRED",
     workflowState,
-    issues,
+    issues: issues.map((issue) => ({
+      ...issue,
+      path: existingRequestPath(requestBody, issue.path),
+    })),
   });
   return NextResponse.json(body, { status: 422 });
 }
@@ -77,13 +83,17 @@ export async function POST(request: Request) {
     body = JSON.parse(await request.text()) as unknown;
   } catch {
     workflow.requireTransition("INPUT_REVIEW_REQUIRED");
-    return reviewResponse("INPUT_REVIEW_REQUIRED", [
-      {
-        code: "INVALID_JSON",
-        path: [],
-        message: "Request body must be valid JSON.",
-      },
-    ]);
+    return reviewResponse(
+      "INPUT_REVIEW_REQUIRED",
+      [
+        {
+          code: "INVALID_JSON",
+          path: [],
+          message: "Request body must be valid JSON.",
+        },
+      ],
+      body,
+    );
   }
 
   const parsed = ReplayRequestSchema.safeParse(body);
@@ -93,13 +103,10 @@ export async function POST(request: Request) {
       "INPUT_REVIEW_REQUIRED",
       parsed.error.issues.map((issue) => ({
         code: "INVALID_REQUEST",
-        path: issue.path.map((segment) =>
-          typeof segment === "symbol"
-            ? (segment.description ?? "symbol")
-            : segment,
-        ),
+        path: existingRequestPath(body, issue.path),
         message: issue.message,
       })),
+      body,
     );
   }
 
@@ -121,7 +128,7 @@ export async function POST(request: Request) {
   const rowIssues = sourceRowMismatchIssues(requestedRows, scenarioConfig.rows);
   if (rowIssues.length > 0) {
     workflow.requireTransition("INPUT_REVIEW_REQUIRED");
-    return reviewResponse("INPUT_REVIEW_REQUIRED", rowIssues);
+    return reviewResponse("INPUT_REVIEW_REQUIRED", rowIssues, body);
   }
 
   try {
@@ -139,13 +146,12 @@ export async function POST(request: Request) {
         workflow.state,
         replay.issues.map((issue) => ({
           code: issue.code,
-          path: issue.path
-            .split(".")
-            .map((part) => (/^\d+$/.test(part) ? Number(part) : part)),
+          path: issue.path,
           message:
             ("message" in issue ? issue.message : undefined) ??
-            `Replay approval boundary rejected ${issue.path}: ${issue.code}.`,
+            `Replay approval boundary rejected ${JSON.stringify(issue.path)}: ${issue.code}.`,
         })),
+        body,
       );
     }
     const response = ReplayResultResponseSchema.parse({
@@ -171,9 +177,11 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof CanonicalizationError) {
       workflow.requireTransition("INPUT_REVIEW_REQUIRED");
-      return reviewResponse("INPUT_REVIEW_REQUIRED", [
-        { code: error.code, path: ["rows"], message: error.message },
-      ]);
+      return reviewResponse(
+        "INPUT_REVIEW_REQUIRED",
+        [{ code: error.code, path: ["rows"], message: error.message }],
+        body,
+      );
     }
     throw error;
   }

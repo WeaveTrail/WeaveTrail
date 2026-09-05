@@ -126,7 +126,9 @@ const replayReviewIssueSchema = <
   z
     .object({
       code: codeSchema,
-      path: z.array(z.union([z.string(), z.number()])),
+      // Request-relative literal object keys and zero-based array indices.
+      // Missing children address their nearest existing parent; [] is the body.
+      path: z.array(z.union([z.string(), z.number().int().nonnegative()])),
       message: z.string().min(1),
     })
     .strict();
