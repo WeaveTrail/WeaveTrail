@@ -6,19 +6,10 @@ versioned code can produce a replay result.
 
 ## Component chain
 
-```mermaid
-flowchart LR
-    RAW[CSV / JSON events] --> MAPPER[Constrained schema mapper]
-    MAPPER --> MAP_GATE{Mapping approved?}
-    MAP_GATE -- no --> REVIEW[REVIEW_REQUIRED]
-    MAP_GATE -- yes --> EVENTS[Canonical TradeEvent set]
-    EVENTS --> PROPOSER[Bounded case proposer]
-    PROPOSER --> CASE_GATE{Case approved?}
-    CASE_GATE -- no --> REVIEW
-    CASE_GATE -- yes --> REPLAY[Deterministic replay engine]
-    REPLAY --> EVIDENCE[Evidence Bundle]
-    EVIDENCE --> SOURCE[Source event + raw-row trace]
-```
+![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
+
+A `PLANNED` component is specified in contracts and tracked as open work rather
+than implemented today.
 
 ## Trust boundaries
 
