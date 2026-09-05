@@ -53,11 +53,13 @@ describe("case validation against a dataset profile", () => {
       "dataset hash",
       { canonicalDatasetHash: "b".repeat(64) },
       "CANONICAL_DATASET_HASH_MISMATCH",
+      ["canonicalDatasetHash"],
     ],
     [
       "instrument",
       { hypothesis: { ...validManifest.hypothesis, instrumentId: "WT-OTHER" } },
       "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+      ["hypothesis", "instrumentId"],
     ],
     [
       "actor",
@@ -65,6 +67,7 @@ describe("case validation against a dataset profile", () => {
         hypothesis: { ...validManifest.hypothesis, actorIds: ["actor-other"] },
       },
       "ACTOR_OUTSIDE_DATASET_PROFILE",
+      ["hypothesis", "actorIds", 0],
     ],
     [
       "time",
@@ -75,21 +78,25 @@ describe("case validation against a dataset profile", () => {
         },
       },
       "TIME_WINDOW_OUTSIDE_DATASET_PROFILE",
+      ["hypothesis"],
     ],
-  ] as const)("rejects a profile-external %s", (_, override, expectedCode) => {
-    const manifest = CaseManifestSchema.parse({
-      ...validManifest,
-      ...override,
-    });
-    const result = validateCaseAgainstProfile(manifest, profile);
+  ] as const)(
+    "rejects a profile-external %s",
+    (_, override, expectedCode, path) => {
+      const manifest = CaseManifestSchema.parse({
+        ...validManifest,
+        ...override,
+      });
+      const result = validateCaseAgainstProfile(manifest, profile);
 
-    expect(result).toMatchObject({
-      accepted: false,
-      status: "REVIEW_REQUIRED",
-      issues: [expect.objectContaining({ code: expectedCode })],
-    });
-    expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
-  });
+      expect(result).toMatchObject({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [expect.objectContaining({ code: expectedCode, path })],
+      });
+      expect(result).not.toHaveProperty("result", "INCONCLUSIVE");
+    },
+  );
 
   it("rejects an empty actor set at the schema boundary", () => {
     expect(

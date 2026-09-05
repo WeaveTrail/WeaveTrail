@@ -13,7 +13,45 @@ import {
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
-import { POST } from "./route";
+import { ReplayReviewResponseSchema } from "@weavetrail/contracts";
+import { POST as handlePost } from "./route";
+
+// Exercise every rejection against the exact serialized request, including own
+// properties and array bounds. No production path helper is used in this oracle.
+async function POST(request: Request) {
+  const raw = await request.clone().text();
+  const response = await handlePost(request);
+  if (response.status === 422) {
+    const result = ReplayReviewResponseSchema.parse(
+      await response.clone().json(),
+    );
+    for (const key of ["replay", "evaluation", "canonicalResultHash"]) {
+      expect(result).not.toHaveProperty(key);
+    }
+    for (const issue of result.issues) {
+      if (issue.code === "INVALID_JSON") {
+        expect(issue.path).toEqual([]);
+        continue;
+      }
+      let value: unknown = JSON.parse(raw);
+      for (const segment of issue.path) {
+        expect(value).not.toBeNull();
+        expect(typeof value).toBe("object");
+        if (Array.isArray(value)) {
+          expect(typeof segment).toBe("number");
+          expect(Number.isInteger(segment)).toBe(true);
+          expect(segment).toBeGreaterThanOrEqual(0);
+          expect(segment).toBeLessThan(value.length);
+        } else {
+          expect(typeof segment).toBe("string");
+        }
+        expect(Object.hasOwn(value as object, segment)).toBe(true);
+        value = (value as Record<string | number, unknown>)[segment];
+      }
+    }
+  }
+  return response;
+}
 
 const scenario = "concentrated-buy-dialect-a.csv" as const;
 
@@ -345,11 +383,11 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.issues).toEqual([
       expect.objectContaining({
         code: "SOURCE_ROW_MISSING",
-        path: ["rows", 3],
+        path: ["rows"],
       }),
       expect.objectContaining({
         code: "SOURCE_ROW_MISSING",
-        path: ["rows", 5],
+        path: ["rows"],
       }),
     ]);
     expect(result).not.toHaveProperty("canonicalResultHash");
@@ -372,7 +410,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.issues).toEqual([
       expect.objectContaining({
         code: "APPROVED_SOURCE_COLUMN_MISSING",
-        path: ["rows", 2, "values", "actor"],
+        path: ["rows", 0, "values"],
         message: expect.stringContaining("Approved source column"),
       }),
     ]);
@@ -409,10 +447,6 @@ describe("POST /api/replay approved mapping boundary", () => {
 
   it("requires a field override before replaying dialect B", async () => {
     const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
-    const sourceNoteIndex = reviewFieldIndex(
-      concentratedBuyDialectBProposal,
-      "source_note",
-    );
     const response = await POST(
       request({
         scenario: dialectBScenario,
@@ -427,7 +461,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.issues).toEqual([
       expect.objectContaining({
         code: "MAPPING_OVERRIDE_REQUIRED",
-        path: ["fields", sourceNoteIndex],
+        path: ["mappingApproval", "overrides"],
       }),
     ]);
     expect(result).not.toHaveProperty("canonicalResultHash");
@@ -486,7 +520,7 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.issues).toEqual([
       expect.objectContaining({
         code: "MAPPING_OVERRIDE_REQUIRED",
-        path: ["fields", sourceNoteIndex],
+        path: ["mappingApproval", "overrides"],
       }),
     ]);
     expect(result).not.toHaveProperty("canonicalResultHash");
@@ -508,4 +542,199 @@ describe("POST /api/replay approved mapping boundary", () => {
       issues: [{ code: "INVALID_REQUEST" }],
     });
   });
+});
+
+describe("request-relative review paths", () => {
+  it.each([
+    ["missing row", "SOURCE_ROW_MISSING", ["rows"]],
+    ["changed value", "SOURCE_ROW_MISMATCH", ["rows", 0, "values", "px"]],
+    ["omitted column", "APPROVED_SOURCE_COLUMN_MISSING", ["rows", 0, "values"]],
+    [
+      "foreign artifact",
+      "SOURCE_ARTIFACT_NOT_APPROVED",
+      ["rows", 0, "coordinate", "sourceArtifactHash"],
+    ],
+    [
+      "override required",
+      "MAPPING_OVERRIDE_REQUIRED",
+      ["mappingApproval", "overrides"],
+    ],
+  ] as const)(
+    "addresses %s in the submitted request",
+    async (kind, code, path) => {
+      const body = structuredClone(validBody());
+      if (kind === "missing row") body.rows.pop();
+      if (kind === "changed value") body.rows[0]!.values.px = "999.99";
+      if (kind === "omitted column") delete body.rows[0]!.values.actor;
+      if (kind === "foreign artifact")
+        body.rows[0]!.coordinate.sourceArtifactHash = "f".repeat(64);
+      const submitted =
+        kind === "override required"
+          ? {
+              ...body,
+              scenario: "concentrated-buy-dialect-b.jsonl",
+              rows: committedReplayScenarios["concentrated-buy-dialect-b.jsonl"]
+                .rows,
+              mappingApproval: approval(concentratedBuyDialectBProposal),
+            }
+          : body;
+      const response = await POST(request(submitted));
+      expect(response.status).toBe(422);
+      expect((await response.json()).issues).toEqual([
+        expect.objectContaining({ code, path }),
+      ]);
+    },
+  );
+
+  it.each([0, 1, 3])(
+    "tracks the same source row at submitted index %i for different failures",
+    async (index) => {
+      const original = structuredClone(validBody());
+      const row = original.rows.shift()!;
+      original.rows.splice(index, 0, row);
+      for (const kind of ["changed", "missing"] as const) {
+        const body = structuredClone(original);
+        if (kind === "changed") body.rows[index]!.values.px = "999.99";
+        else delete body.rows[index]!.values.actor;
+        const response = await POST(request(body));
+        expect(response.status).toBe(422);
+        expect((await response.json()).issues).toEqual([
+          expect.objectContaining({
+            code:
+              kind === "changed"
+                ? "SOURCE_ROW_MISMATCH"
+                : "APPROVED_SOURCE_COLUMN_MISSING",
+            path:
+              kind === "changed"
+                ? ["rows", index, "values", "px"]
+                : ["rows", index, "values"],
+            message: expect.stringContaining(row.coordinate.sourceArtifactHash),
+          }),
+        ]);
+      }
+    },
+  );
+
+  it.each([
+    [
+      "missing scenario",
+      [],
+      (body: Record<string, unknown>) => {
+        delete body.scenario;
+      },
+    ],
+    [
+      "wrong rows type",
+      ["rows"],
+      (body: Record<string, unknown>) => {
+        body.rows = false;
+      },
+    ],
+    [
+      "missing coordinate child",
+      ["rows", 0, "coordinate"],
+      (body: Record<string, unknown>) => {
+        body.rows = [{ coordinate: { rowNumber: "2" }, values: {} }];
+      },
+    ],
+    [
+      "missing mapping approval",
+      [],
+      (body: Record<string, unknown>) => {
+        delete body.mappingApproval;
+      },
+    ],
+    [
+      "missing overrides",
+      ["mappingApproval"],
+      (body: Record<string, unknown>) => {
+        delete (body.mappingApproval as Record<string, unknown>).overrides;
+      },
+    ],
+    [
+      "rejected approval",
+      ["mappingApproval", "decision"],
+      (body: Record<string, unknown>) => {
+        (body.mappingApproval as Record<string, unknown>).decision = "REJECTED";
+      },
+    ],
+    [
+      "forged approval",
+      ["mappingApproval", "approvedArtifactHash"],
+      (body: Record<string, unknown>) => {
+        (body.mappingApproval as Record<string, unknown>).approvedArtifactHash =
+          "f".repeat(64);
+      },
+    ],
+    [
+      "duplicate coordinate",
+      ["rows"],
+      (body: Record<string, unknown>) => {
+        const rows = body.rows as unknown[];
+        rows.push(rows[0]);
+      },
+    ],
+  ] as const)("resolves %s", async (_, path, change) => {
+    const body = structuredClone(validBody());
+    change(body);
+    const response = await POST(request(body));
+    expect(response.status).toBe(422);
+    expect((await response.json()).issues).toEqual([
+      expect.objectContaining({ path }),
+    ]);
+  });
+
+  it.each([null, false, [], "invalid"])(
+    "rejects non-object request %j at the root",
+    async (body) => {
+      const response = await POST(request(body));
+      expect(response.status).toBe(422);
+      expect((await response.json()).issues).toEqual([
+        expect.objectContaining({ code: "INVALID_REQUEST", path: [] }),
+      ]);
+    },
+  );
+
+  it.each([
+    ["hash", ["caseManifest", "approval", "approvedArtifactHash"]],
+    ["rejected", ["caseManifest", "approval", "decision"]],
+    ["missing approval", ["caseManifest"]],
+    ["instrument", ["caseManifest", "hypothesis", "instrumentId"]],
+    ["actor", ["caseManifest", "hypothesis", "actorIds", 0]],
+    ["dataset", ["caseManifest", "canonicalDatasetHash"]],
+    ["window", ["caseManifest", "hypothesis"]],
+    ["rules", ["caseManifest", "rules"]],
+  ] as const)(
+    "scopes case %s to the submitted manifest",
+    async (kind, path) => {
+      const body = structuredClone(rapidBody());
+      if (kind === "instrument")
+        body.caseManifest.hypothesis.instrumentId = "WT-OTHER";
+      if (kind === "actor")
+        body.caseManifest.hypothesis.actorIds = ["participant-absent"];
+      if (kind === "dataset")
+        body.caseManifest.canonicalDatasetHash = "f".repeat(64);
+      if (kind === "window")
+        body.caseManifest.hypothesis.endTime = "2026-09-01T00:00:06Z";
+      if (kind === "rules") body.caseManifest.rules = [];
+      const { approval: _, ...artifact } = body.caseManifest;
+      void _;
+      body.caseManifest.approval.approvedArtifactHash =
+        sha256Canonical(artifact);
+      if (kind === "hash")
+        body.caseManifest.approval.approvedArtifactHash = "f".repeat(64);
+      if (kind === "rejected") body.caseManifest.approval.decision = "REJECTED";
+      if (kind === "missing approval")
+        Reflect.deleteProperty(body.caseManifest, "approval");
+      const response = await POST(request(body));
+      expect(response.status).toBe(422);
+      const result = await response.json();
+      expect(result.workflowState).toBe(
+        kind === "missing approval"
+          ? "INPUT_REVIEW_REQUIRED"
+          : "CASE_REVIEW_REQUIRED",
+      );
+      expect(result.issues).toEqual([expect.objectContaining({ path })]);
+    },
+  );
 });

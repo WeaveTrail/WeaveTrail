@@ -25,7 +25,6 @@ import {
   applyApprovedMapping,
   approvedSourceMapping,
   validateApprovedMapping,
-  type MappingReviewCode,
   type SourceRow,
 } from "./source-ingest";
 import { RequestWorkflow } from "./request-workflow";
@@ -41,12 +40,17 @@ export type ApprovalIssueCode =
   | "MAPPING_APPLICATION_REVIEW_REQUIRED"
   | "RULE_CONFIGURATION_REQUIRED";
 
+// Paths use replay request fields; proposal-relative override fieldPath is separate.
 export type ApprovalValidation =
   | { accepted: true }
   | {
       accepted: false;
       status: "REVIEW_REQUIRED";
-      issues: { code: ApprovalIssueCode; path: string; message?: string }[];
+      issues: {
+        code: ApprovalIssueCode;
+        path: (string | number)[];
+        message?: string;
+      }[];
     };
 
 export function caseManifestProposal(
@@ -66,20 +70,30 @@ export function mappingApprovalArtifact(
 function validateApprovalRecord(
   artifact: CanonicalJsonInput,
   approval: ApprovalRecord | undefined,
-  path: string,
-): { code: ApprovalIssueCode; path: string }[] {
+  path: (string | number)[],
+): { code: ApprovalIssueCode; path: (string | number)[]; message?: string }[] {
   if (approval === undefined) {
-    return [{ code: "APPROVAL_RECORD_REQUIRED", path }];
+    return [
+      {
+        code: "APPROVAL_RECORD_REQUIRED",
+        path: path.slice(0, -1),
+        message: `Approval record required at ${JSON.stringify(path)}.`,
+      },
+    ];
   }
 
-  const issues: { code: ApprovalIssueCode; path: string }[] = [];
+  const issues: {
+    code: ApprovalIssueCode;
+    path: (string | number)[];
+    message?: string;
+  }[] = [];
   if (approval.decision !== "APPROVED") {
-    issues.push({ code: "APPROVAL_REJECTED", path: `${path}.decision` });
+    issues.push({ code: "APPROVAL_REJECTED", path: [...path, "decision"] });
   }
   if (approval.approvedArtifactHash !== sha256Canonical(artifact)) {
     issues.push({
       code: "APPROVED_ARTIFACT_HASH_MISMATCH",
-      path: `${path}.approvedArtifactHash`,
+      path: [...path, "approvedArtifactHash"],
     });
   }
   return issues;
@@ -104,13 +118,17 @@ export function validateReplayApprovals(
     : [...mappingValidation.issues];
 
   if (manifest === undefined) {
-    issues.push({ code: "APPROVAL_RECORD_REQUIRED", path: "caseApproval" });
+    issues.push({
+      code: "APPROVAL_RECORD_REQUIRED",
+      path: [],
+      message: "Case manifest approval is required.",
+    });
   } else {
     issues.push(
       ...validateApprovalRecord(
         caseManifestProposal(manifest),
         manifest.approval,
-        "caseApproval",
+        ["caseManifest", "approval"],
       ),
     );
   }
@@ -146,7 +164,7 @@ export function replayApproved(
       status: "REVIEW_REQUIRED" as const,
       issues: structuralIssues.map((issue) => ({
         code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
-        path: `mapping:${issue.code}`,
+        path: ["mappingApproval"],
         message: issue.message,
       })),
     };
@@ -156,7 +174,7 @@ export function replayApproved(
   const inputReview = (
     issues: {
       code: ReplayReviewResponse["issues"][number]["code"];
-      path: string;
+      path: (string | number)[];
       message?: string;
     }[],
   ) => {
@@ -176,9 +194,10 @@ export function replayApproved(
     );
   if (foreignRows.length > 0) {
     return inputReview(
-      foreignRows.map(({ index }) => ({
+      foreignRows.map(({ row, index }) => ({
         code: "SOURCE_ARTIFACT_NOT_APPROVED" as const,
-        path: `rows.${index}.coordinate.sourceArtifactHash`,
+        path: ["rows", index, "coordinate", "sourceArtifactHash"],
+        message: `Source artifact ${row.coordinate.sourceArtifactHash}, row ${row.coordinate.rowNumber} is not approved by mapping ${mapping.sourceArtifactHash}.`,
       })),
     );
   }
@@ -202,7 +221,8 @@ export function replayApproved(
     return inputReview(
       missingRowNumbers.map((rowNumber) => ({
         code: "SOURCE_ROW_MISSING" as const,
-        path: `rows.${rowNumber}`,
+        path: ["rows"],
+        message: `Source artifact ${mapping.sourceArtifactHash} is missing declared row ${rowNumber}.`,
       })),
     );
   }
@@ -210,19 +230,23 @@ export function replayApproved(
   const application = applyApprovedMapping(rows, executable);
   if (application.status === "REVIEW_REQUIRED") {
     return inputReview(
-      application.issues.map((issue) =>
-        issue.code === "APPROVED_SOURCE_COLUMN_MISSING"
-          ? {
-              code: issue.code,
-              path: `rows.${issue.rowNumber}.values.${issue.sourceColumn}`,
-              message: issue.message,
-            }
-          : {
-              code: "MAPPING_APPLICATION_REVIEW_REQUIRED" as const,
-              path: `rows${issue.rowNumber ? `.${issue.rowNumber}` : ""}:${issue.code as MappingReviewCode}`,
-              message: issue.message,
-            },
-      ),
+      application.issues.map((issue) => ({
+        code:
+          issue.code === "APPROVED_SOURCE_COLUMN_MISSING"
+            ? issue.code
+            : ("MAPPING_APPLICATION_REVIEW_REQUIRED" as const),
+        path:
+          issue.rowIndex === undefined
+            ? ["rows"]
+            : issue.code === "APPROVED_SOURCE_COLUMN_MISSING" ||
+                issue.sourceColumn === undefined
+              ? ["rows", issue.rowIndex, "values"]
+              : ["rows", issue.rowIndex, "values", issue.sourceColumn],
+        message:
+          issue.rowIndex === undefined
+            ? `${issue.code}: ${issue.message}`
+            : `${issue.code}: ${issue.message} (sourceArtifactHash=${rows[issue.rowIndex]!.coordinate.sourceArtifactHash}, rowNumber=${issue.rowNumber}).`,
+      })),
     );
   }
   let events = application.events;
@@ -238,7 +262,7 @@ export function replayApproved(
     } catch (error) {
       if (error instanceof CanonicalizationError) {
         return inputReview([
-          { code: error.code, path: "rows", message: error.message },
+          { code: error.code, path: ["rows"], message: error.message },
         ]);
       }
       throw error;
@@ -251,7 +275,7 @@ export function replayApproved(
   } catch (error) {
     if (error instanceof CanonicalizationError) {
       return inputReview([
-        { code: error.code, path: "rows", message: error.message },
+        { code: error.code, path: ["rows"], message: error.message },
       ]);
     }
     throw error;
@@ -260,7 +284,7 @@ export function replayApproved(
   const caseApprovalIssues = validateApprovalRecord(
     caseManifestProposal(manifest),
     manifest.approval,
-    "caseApproval",
+    ["caseManifest", "approval"],
   );
   if (caseApprovalIssues.length > 0) {
     workflow.requireTransition("CASE_REVIEW_REQUIRED");
@@ -276,7 +300,13 @@ export function replayApproved(
   );
   if (!profileValidation.accepted) {
     workflow.requireTransition("CASE_REVIEW_REQUIRED");
-    return profileValidation;
+    return {
+      ...profileValidation,
+      issues: profileValidation.issues.map((issue) => ({
+        ...issue,
+        path: ["caseManifest", ...issue.path],
+      })),
+    };
   }
   const matchingRules = manifest.rules.filter(
     ({ ruleId, ruleVersion }) =>
@@ -290,7 +320,7 @@ export function replayApproved(
       issues: [
         {
           code: "RULE_CONFIGURATION_REQUIRED",
-          path: "rules",
+          path: ["caseManifest", "rules"],
         },
       ],
     };
@@ -308,7 +338,7 @@ function validateMappingApproval(
   const issues = validateApprovalRecord(
     mappingApprovalArtifact(mapping),
     mappingApproval,
-    "mappingApproval",
+    ["mappingApproval"],
   );
   if (mappingApproval !== undefined) {
     const overridePaths = justifiedOverridePaths(mappingApproval);
@@ -319,7 +349,8 @@ function validateMappingApproval(
       ) {
         issues.push({
           code: "MAPPING_OVERRIDE_REQUIRED",
-          path: `fields.${index}`,
+          path: ["mappingApproval", "overrides"],
+          message: `A justified override for proposal fieldPath fields.${index} is required.`,
         });
       }
     });

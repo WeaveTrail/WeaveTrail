@@ -64,6 +64,44 @@ codes that are incompatible with the selected workflow stage. Review responses
 never contain a replay result or canonical result hash. HTTP `500` remains
 reserved for defects outside these declared input failures.
 
+Review issue paths are structural arrays relative to the **submitted JSON
+request body**. String segments are literal object keys (including dots or
+numeric-looking names); number segments are nonnegative integer, zero-based
+array indices. In particular, `["rows", i]` addresses submitted position `i`,
+never the source coordinate's `rowNumber`. Existing values are addressed
+precisely; missing values point to the nearest existing parent container.
+`[]` means the entire body, including when `INVALID_JSON` prevents parsing it.
+
+Illustrative paths:
+
+| Failure                                 | Request path                                           |
+| --------------------------------------- | ------------------------------------------------------ |
+| Changed price in submitted row `i`      | `["rows", i, "values", "px"]`                          |
+| Missing actor column in row `i`         | `["rows", i, "values"]`                                |
+| Omitted declared row                    | `["rows"]`                                             |
+| Foreign artifact in row `i`             | `["rows", i, "coordinate", "sourceArtifactHash"]`      |
+| Required mapping override               | `["mappingApproval", "overrides"]`                     |
+| Missing mapping approval                | `[]`                                                   |
+| Case approval hash mismatch             | `["caseManifest", "approval", "approvedArtifactHash"]` |
+| Case instrument outside profile         | `["caseManifest", "hypothesis", "instrumentId"]`       |
+| Missing or duplicate rule configuration | `["caseManifest", "rules"]`                            |
+
+Source artifact hashes, source row numbers, missing column names, and required
+proposal field paths remain diagnostic message context. They are not request
+path segments. Messages are for human review, not a machine-readable protocol.
+Duplicate/conflicting row sets point to `["rows"]`; structural failures in the
+server-owned mapping point to `["mappingApproval"]`.
+
+**Consumer migration:** use path segments directly against the submitted body.
+Remove source-row-number lookups, dotted-string splitting, numeric-string
+coercion, and special handling for the former `fields`/`caseApproval` roots.
+Multiple missing items can share a parent path; retain each issue and message.
+Approval records' `overrides[].fieldPath` still use proposal-relative `fields.n`
+addresses and must not be rewritten. The response has no version field; this
+correction does not change approval artifacts, engine version, workflow states,
+HTTP status, rule verdicts, or canonical result hashes. See
+[ADR 0016](adr/0016-use-request-relative-review-paths.md).
+
 A successful response is also contract-validated and contains only fixture
 mode, scenario, mutation, boundary text, final `workflowState`, engine version,
 event counts, ordered event identifiers, and the canonical result hash. A
