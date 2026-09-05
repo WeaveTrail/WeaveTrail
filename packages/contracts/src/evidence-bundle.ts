@@ -1,10 +1,12 @@
 import { z } from "zod";
 
+import { RapidPriceLiftSensitivitySchema } from "./rapid-price-lift";
+
 const HashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
 export const EvidenceBundleSchema = z
   .object({
-    bundleVersion: z.literal("1.1"),
+    bundleVersion: z.literal("1.2"),
     caseId: z.string().min(1),
     canonicalDatasetHash: HashSchema,
     sourceArtifacts: z
@@ -31,13 +33,7 @@ export const EvidenceBundleSchema = z
         })
         .strict(),
     ),
-    counterfactual: z
-      .object({
-        originalPriceChangeBps: z.string(),
-        withoutSuspectedActorsBps: z.string(),
-        attributableDifferenceBps: z.string(),
-      })
-      .strict(),
+    sensitivity: RapidPriceLiftSensitivitySchema,
     canonicalResultHash: HashSchema,
   })
   .strict();
