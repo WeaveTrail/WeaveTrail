@@ -21,6 +21,7 @@ import {
   canonicalJson,
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
+import { shuffleSourceRows } from "./shuffle-source-rows";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -109,7 +110,7 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
       </p>
       <p>
         These synthetic source records are fixed. Values below are the original
-        strings, before mapping.
+        strings, before mapping, shown in committed order.
       </p>
       {scenario.rows.map((row) => (
         <details
@@ -370,8 +371,9 @@ const options: Array<{ value: Mutation; label: string; detail: string }> = [
   { value: "baseline", label: "Baseline", detail: "Original fixture order" },
   {
     value: "shuffle",
-    label: "Shuffle derived events",
-    detail: "Reorder events after mapping; source rows stay fixed",
+    label: "Shuffle source rows",
+    detail:
+      "Change submitted order before mapping; coordinates and values stay fixed",
   },
   {
     value: "duplicate",
@@ -392,6 +394,8 @@ export function CaseReplay({
   const requestGeneration = useRef(0);
   const focusPending = useRef(false);
   const previousGuided = useRef(guided);
+  const lastSubmittedRows = useRef<ReplayRequest["rows"] | null>(null);
+  const [submittedOrder, setSubmittedOrder] = useState<string[] | null>(null);
   const [chapter, setChapter] = useState(0);
   const [exampleApproved, setExampleApproved] = useState(false);
   const [evidenceOpened, setEvidenceOpened] = useState(false);
@@ -455,6 +459,8 @@ export function CaseReplay({
       setExampleApproved(false);
       setEvidenceOpened(false);
       setPreviousHash(null);
+      lastSubmittedRows.current = null;
+      setSubmittedOrder(null);
       setScenario(guidedScenario);
       setMutation("baseline");
       setResult(null);
@@ -488,6 +494,7 @@ export function CaseReplay({
     setRunning(false);
     setEvidenceOpened(false);
     setPreviousHash(null);
+    setSubmittedOrder(null);
     return requestGeneration.current;
   }
 
@@ -534,23 +541,37 @@ export function CaseReplay({
     setPreviousHash(comparisonHash);
     setRunning(true);
     try {
+      const rows =
+        repeat && lastSubmittedRows.current
+          ? lastSubmittedRows.current
+          : mutation === "shuffle"
+            ? shuffleSourceRows(
+                selectedScenario.rows,
+                lastSubmittedRows.current ?? selectedScenario.rows,
+              )
+            : [...selectedScenario.rows];
+      const request: ReplayRequest = {
+        scenario,
+        mutation,
+        rows,
+        mappingApproval: approval,
+        ...(selectedScenario.manifest && caseApproval
+          ? {
+              caseManifest: {
+                ...selectedScenario.manifest,
+                approval: caseApproval,
+              } satisfies CaseManifest,
+            }
+          : {}),
+      };
+      lastSubmittedRows.current = request.rows;
+      setSubmittedOrder(
+        request.rows.map(({ coordinate }) => coordinate.rowNumber),
+      );
       const response = await fetch("/api/replay", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          scenario,
-          mutation,
-          rows: selectedScenario.rows,
-          mappingApproval: approval,
-          ...(selectedScenario.manifest && caseApproval
-            ? {
-                caseManifest: {
-                  ...selectedScenario.manifest,
-                  approval: caseApproval,
-                } satisfies CaseManifest,
-              }
-            : {}),
-        }),
+        body: JSON.stringify(request),
       });
       if (!response.ok) {
         const review = (await response.json()) as ReplayReviewResponse;
@@ -622,8 +643,8 @@ export function CaseReplay({
               </h2>
               <p>
                 Select a committed source, review its mapping and approve its
-                case before replay. Advanced controls alter derived events after
-                mapping.
+                case before replay. Advanced controls change submitted source
+                order or duplicate one derived event after mapping.
               </p>
             </>
           )}
@@ -641,6 +662,7 @@ export function CaseReplay({
               disabled={guided}
               onChange={(event) => {
                 invalidateResult();
+                lastSubmittedRows.current = null;
                 const reset = resetReplayForScenarioChange(
                   event.target.value as ReplayScenario,
                 );
@@ -667,10 +689,11 @@ export function CaseReplay({
         </div>
         {!guided && !mappingExample && (
           <details className="advanced-controls">
-            <summary>Advanced event mutations</summary>
+            <summary>Advanced replay variations</summary>
             <p>
-              These controls reorder or duplicate derived events after mapping.
-              They do not edit the source rows above.
+              Shuffle changes the submitted source-row order before mapping.
+              Duplicate repeats one derived event after mapping. Original
+              coordinates and values stay fixed in both cases.
             </p>
             <div className="option-list">
               {options.map((option) => (
@@ -698,6 +721,18 @@ export function CaseReplay({
               ))}
             </div>
           </details>
+        )}
+        {submittedOrder && (
+          <section aria-label="Submitted source row order">
+            <h3>Submitted source row order</h3>
+            <p>
+              Request order for the current or last run, before canonical event
+              ordering.
+            </p>
+            <p>
+              <code>{submittedOrder.join(" → ")}</code>
+            </p>
+          </section>
         )}
         <div hidden={!show(1)}>
           {guided && exampleScenario && (

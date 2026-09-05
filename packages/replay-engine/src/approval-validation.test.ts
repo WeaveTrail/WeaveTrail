@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import * as sourceIngest from "./source-ingest";
+import * as foundation from "./replay-foundation";
 
 import {
   ApprovalRecordSchema,
@@ -83,6 +85,40 @@ const manifest = CaseManifestSchema.parse({
 });
 
 describe("replay approval gate", () => {
+  it("maps the submitted source order and passes it on without a hidden shuffle", () => {
+    const apply = vi.spyOn(sourceIngest, "applyApprovedMapping");
+    const replay = vi.spyOn(foundation, "replayFoundation");
+    try {
+      for (const rows of [
+        concentratedBuyDialectARows,
+        [...concentratedBuyDialectARows].reverse(),
+      ]) {
+        const expected = sourceIngest.applyApprovedMapping(
+          rows,
+          approvedSourceMapping(mapping),
+        );
+        if (expected.status === "REVIEW_REQUIRED")
+          throw new Error("Invalid fixture");
+        apply.mockClear();
+        replayApproved(
+          rows,
+          concentratedBuyDialectARows,
+          mapping,
+          mappingApproval,
+          undefined,
+          "shuffle",
+        );
+        expect(apply).toHaveBeenCalledExactlyOnceWith(
+          rows,
+          approvedSourceMapping(mapping),
+        );
+        expect(replay).toHaveBeenLastCalledWith(expected.events);
+      }
+    } finally {
+      apply.mockRestore();
+      replay.mockRestore();
+    }
+  });
   it("uses the complete legal workflow for an approved case replay", () => {
     const workflow = new RequestWorkflow();
 

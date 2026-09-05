@@ -36,8 +36,11 @@ The current unit suite tests these engineering invariants only:
 pnpm test
 ```
 
-- **Row-order invariance** — shuffling does not change canonical order or the
-  result hash, including across every committed fixture permutation.
+- **Row-order invariance** — all permutations of the committed four-event foundation
+  fixture preserve canonical order and the result hash. Representative
+  permutations of parsed source rows also pass the approved HTTP boundary for
+  both dialects and all three rule cases; rule evaluations and source traces
+  remain unchanged. Source-file bytes and coordinates are fixed in these checks.
 - **Literal golden hash** — a committed fixture is pinned to its literal
   canonical result hash.
 - **Exact duplicate tolerance** — identical source-identity duplicates collapse

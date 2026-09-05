@@ -197,9 +197,23 @@ columns, duplicate source or target mappings, unknown transforms, rejected
 values, missing approved columns, missing required targets, duplicate
 coordinates, and artifact mismatches stop before canonical dataset or result
 hashing. The committed scenario row arrays are pinned by tests to the complete
-output of the CSV and JSON Lines artifact parsers. Replay checks declared row
-coverage before applying a mutation; mutations may reorder or repeat mapped
-events but do not remove the requirement to submit every declared source row.
+output of the CSV and JSON Lines artifact parsers. The shuffle control permutes
+these parsed records before submitting them for approved mapping. Replay checks
+declared-row completeness and coordinates, then maps in submitted order with no
+additional server shuffle. The duplicate control instead repeats the first
+derived event after mapping; exact event deduplication retains the semantic
+result with an explicit duplicate count. An actual repeated source coordinate
+returns HTTP `422` / `INPUT_REVIEW_REQUIRED` without a result or source trace.
+
+The tested boundary is fixed committed CSV/JSON Lines bytes → parsed row records
+→ submitted permutations → approved mapping → canonical replay. Representative
+permutations of both dialects and all three rule cases preserve canonical order
+and literal result hashes; rule cases also preserve evaluation and source trace.
+These checks do not rewrite file bytes, renumber coordinates, or establish
+invariance for arbitrary source-file permutations with new provenance. Run
+`pnpm test` for the committed parser, replay-route and approval-boundary tests.
+The browser helper's injected draws test permutation variety and a bounded
+fallback; randomness never enters approvals, financial arithmetic or hashes.
 
 Canonical `eventId` is derived as the percent-encoded composite
 `event:<datasetId>:<venueId>:<sourceEventId>`. The engine orders normalized
