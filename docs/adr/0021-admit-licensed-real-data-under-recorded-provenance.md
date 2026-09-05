@@ -20,10 +20,10 @@ distributions carry no such restriction.
 
 Real market data also cannot answer every question a rule asks. Public
 quotations are daily aggregates: they carry no execution-level time, no trade
-side, and no participant identifier. `RAPID_PRICE_LIFT` treats a participant
-identifier as an eligibility condition, so an artifact without one produces
-`INCONCLUSIVE` through `INSUFFICIENT_ELIGIBLE_EVENTS` rather than reaching a
-gate.
+side, and no participant identifier. A case manifest requires at least one
+approved actor, and case validation rejects any actor absent from the dataset
+profile, so an actorless artifact stops at the pre-replay review state. The
+rule never runs, and no result state is produced.
 
 ## Decision
 
@@ -59,7 +59,9 @@ A real artifact demonstrates interpretation and its limits; a synthetic
 artifact carries the path that reaches a verdict and resolves a finding to its
 source rows. The point at which the real source stops is a stated outcome, not
 a defect: execution-level participant attribution is not published, which is
-part of the investigative gap the workbench addresses.
+part of the investigative gap the workbench addresses. That stop is a review
+state reached before replay, not a result, so no public description may present
+it as a verdict of any kind.
 
 `CONTRIBUTING.md` carries the same condition, so contributors are not given two
 mutually exclusive rules. Public documentation that describes all repository
