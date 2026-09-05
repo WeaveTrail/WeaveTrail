@@ -23,6 +23,7 @@ export const ReplayScenarioSchema = z.enum([
   "rapid-price-lift-supported.csv",
   "rapid-price-lift-broad-participation.csv",
   "rapid-price-lift-insufficient-evidence.csv",
+  "real/fsc-stock-quotes-20260903.jsonl",
 ]);
 
 export const ReplayMutationSchema = z.enum([

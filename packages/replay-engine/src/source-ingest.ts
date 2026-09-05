@@ -48,15 +48,9 @@ export function deriveEventId(identity: EventSourceIdentity): string {
   return `event:${encodeURIComponent(identity.datasetId)}:${encodeURIComponent(identity.venueId)}:${encodeURIComponent(identity.sourceEventId)}`;
 }
 
-export type ApprovedSourceMapping = {
-  mappingVersion: "1.4";
-  sourceArtifactHash: string;
-  constants: SchemaMappingProposal["constants"];
-  fields: readonly (readonly [
-    string,
-    MappedTargetField | null,
-    AllowedTransform | null,
-  ])[];
+type DerivedMapping = ReturnType<typeof deriveApprovedSourceMapping>;
+export type ApprovedSourceMapping = Omit<DerivedMapping, "fields"> & {
+  fields: Readonly<DerivedMapping["fields"]>;
 };
 
 export function approvedSourceMapping(
@@ -95,6 +89,7 @@ export function validateApprovedMapping(
   const issues: MappingReviewIssue[] = [];
   const seenSources = new Set<string>();
   const seenTargets = new Set<MappedTargetField>();
+  if ("eventType" in mapping.constants) seenTargets.add("eventType");
 
   for (const [sourceColumn, targetField, transform] of mapping.fields) {
     if (seenSources.has(sourceColumn)) {
@@ -115,7 +110,13 @@ export function validateApprovedMapping(
     }
     seenTargets.add(targetField);
 
-    if (!AllowedTransformSchema.safeParse(transform).success) {
+    if (
+      !AllowedTransformSchema.safeParse(transform).success ||
+      (transform === "YYYYMMDD_TO_KST_DAY_START_ISO" &&
+        (mapping.mappingVersion !== "1.5" ||
+          mapping.constants.schemaVersion !== "1.2" ||
+          targetField !== "eventTime"))
+    ) {
       issues.push({
         code: "UNKNOWN_TRANSFORM",
         sourceColumn,
@@ -155,6 +156,23 @@ function applyTransform(
     case "IDENTITY":
     case "ISO_DATETIME":
       return value;
+    case "YYYYMMDD_TO_KST_DAY_START_ISO": {
+      if (!/^\d{8}$/.test(value)) return undefined;
+      const year = Number(value.slice(0, 4));
+      const month = Number(value.slice(4, 6));
+      const day = Number(value.slice(6, 8));
+      const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+      const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      if (
+        year < 1 ||
+        month < 1 ||
+        month > 12 ||
+        day < 1 ||
+        day > days[month - 1]!
+      )
+        return undefined;
+      return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T00:00:00+09:00`;
+    }
     case "UPPERCASE":
       return value.toUpperCase();
     case "DECIMAL_STRING":

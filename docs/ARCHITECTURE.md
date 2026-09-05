@@ -77,7 +77,7 @@ that exist and transforms from a fixed allowlist. Invalid shape, low confidence,
 unknown columns, or unsupported transforms return `REVIEW_REQUIRED`.
 
 The Case Replay walkthrough executes the server-only fixture provider against a table keyed
-by the committed `sourceArtifactHash`. It returns a structured `1.4` proposal
+by the committed `sourceArtifactHash`. Existing sources return a structured `1.4` proposal
 containing approved dataset and venue constants plus each source column, closed
 target field, transform, confidence, evidence, and proposal status. This
 proposal is not an approval. The Case Replay surface exposes an explicit local-reviewer action;
@@ -306,7 +306,7 @@ exercise these strict migration boundaries with illustrative synthetic inputs.
 | `contracts`     | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic          |
 | `ai-harness`    | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval |
 | `replay-engine` | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
-| `scenarios`     | Synthetic datasets and mutations                                | Production or personal data              |
+| `scenarios`     | Provenanced source datasets and mutations                       | Production or personal data              |
 | `evals`         | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
 | `web`           | Human review flow and export surface                            | A second implementation of replay logic  |
 
@@ -406,3 +406,13 @@ tokens and original brand mark pinned to `WeaveTrail/design-reference` revision
 build or runtime dependency. Product copy and every visible evidence value stay
 owned by this repository's runtime responses and committed synthetic scenarios.
 See [ADR 0015](adr/0015-apply-the-canonical-design-reference.md).
+
+## Daily quote version coexistence
+
+The engine also accepts daily-only Event `1.2` and Mapping Proposal `1.5` with
+an approved `DAILY_QUOTE` constant and a trading-date anchor transform. Registry
+metadata carries versions/constants by artifact hash. Existing input branches,
+engine version, canonical processing and result shapes remain unchanged.
+The published FSC KOSPI daily artifact is registered without a case manifest; see
+[daily quote normalization](DAILY_QUOTES.md) and
+[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md).

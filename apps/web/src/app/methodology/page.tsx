@@ -38,6 +38,21 @@ export default function MethodologyPage() {
           technical pattern. They do not produce legal or causal conclusions.
         </p>
       </div>
+      <section className="panel">
+        <span className="panel-label">Published daily quotations</span>
+        <p>
+          Working mode also normalizes a published daily quotation source after
+          explicit mapping review. The source panel records its provider,
+          trading date, licence and attribution.
+        </p>
+        <p>
+          Daily quotes have no participant identities, execution side or
+          individual execution time. Mapping approval can produce a
+          normalization hash; case approval is unavailable and no pattern
+          verdict is produced. A date anchor and aggregate volume do not
+          establish individual executions.
+        </p>
+      </section>
       <section className="method-grid">
         <article className="panel">
           <span className="panel-label">Closed result vocabulary</span>

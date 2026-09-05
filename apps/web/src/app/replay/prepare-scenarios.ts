@@ -17,6 +17,7 @@ export async function prepareReplayScenarios() {
       const scenario: ReplayScenarioOption = {
         value: value as ReplayScenarioOption["value"],
         label: source.label,
+        provenance: source.provenance,
         sourceArtifactHash: source.sourceArtifactHash,
         rows: source.rows,
         ...(manifest ? { manifest } : {}),

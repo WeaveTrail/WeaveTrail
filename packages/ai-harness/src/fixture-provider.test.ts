@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 import {
@@ -7,11 +7,111 @@ import {
   concentratedBuyDialectBMapping,
 } from "@weavetrail/scenarios";
 
-import { FixtureSchemaMappingProvider } from "./fixture-provider";
+import {
+  FixtureSchemaMappingProvider,
+  fixtureMappingsByArtifact,
+} from "./fixture-provider";
 
 const provider = new FixtureSchemaMappingProvider();
+const syntheticDailyHash = "f".repeat(64);
+afterEach(() => {
+  fixtureMappingsByArtifact.delete(syntheticDailyHash);
+});
 
 describe("FixtureSchemaMappingProvider", () => {
+  it("selects daily proposal metadata by registered artifact hash and checks constants", async () => {
+    const constants = {
+      schemaVersion: "1.2",
+      eventType: "DAILY_QUOTE",
+      datasetId: "synthetic-daily-provider-test",
+      venueId: "SYNTH-X",
+    } as const;
+    fixtureMappingsByArtifact.set(syntheticDailyHash, {
+      mappingVersion: "1.5",
+      constants,
+      fields: new Map([
+        [
+          "date",
+          {
+            targetField: "eventTime",
+            transform: "YYYYMMDD_TO_KST_DAY_START_ISO",
+            confidence: 0,
+            status: "REVIEW_REQUIRED",
+            evidence:
+              "Synthetic trading-date interpretation requires approval.",
+          },
+        ],
+      ]),
+    });
+    const input = {
+      sourceArtifactHash: syntheticDailyHash,
+      constants,
+      columns: ["date", "unknown"],
+      sampleRows: [],
+    };
+    const proposal = await provider.propose(input);
+    expect(proposal).toMatchObject({
+      mappingVersion: "1.5",
+      constants,
+      fields: [
+        {
+          sourceColumn: "date",
+          targetField: "eventTime",
+          transform: "YYYYMMDD_TO_KST_DAY_START_ISO",
+          confidence: 0,
+          status: "REVIEW_REQUIRED",
+        },
+        {
+          sourceColumn: "unknown",
+          targetField: null,
+          transform: null,
+          confidence: 0,
+          status: "REVIEW_REQUIRED",
+        },
+      ],
+    });
+    for (const changed of [
+      { ...constants, datasetId: "OTHER" },
+      { ...constants, venueId: "OTHER" },
+      {
+        schemaVersion: "1.1",
+        datasetId: constants.datasetId,
+        venueId: constants.venueId,
+      } as const,
+    ]) {
+      await expect(
+        provider.propose({ ...input, constants: changed }),
+      ).rejects.toThrow("must match");
+    }
+    await expect(
+      provider.propose({ ...input, sourceArtifactHash: "e".repeat(64) }),
+    ).rejects.toThrow("registered");
+  });
+
+  it("keeps unknown legacy artifacts in review", async () => {
+    const proposal = await provider.propose({
+      sourceArtifactHash: "e".repeat(64),
+      constants: {
+        schemaVersion: "1.1",
+        datasetId: "synthetic-unknown",
+        venueId: "SYNTH-X",
+      },
+      columns: ["mystery"],
+      sampleRows: [],
+    });
+    expect(proposal).toMatchObject({
+      mappingVersion: "1.4",
+      fields: [
+        {
+          sourceColumn: "mystery",
+          targetField: null,
+          transform: null,
+          confidence: 0,
+          status: "REVIEW_REQUIRED",
+        },
+      ],
+    });
+  });
   it.each([
     ["dialect A", concentratedBuyDialectAMapping],
     ["dialect B", concentratedBuyDialectBMapping],

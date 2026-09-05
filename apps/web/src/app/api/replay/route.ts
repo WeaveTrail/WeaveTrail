@@ -11,6 +11,7 @@ import {
   buildFindingSourceTrace,
   RequestWorkflow,
   replayApproved,
+  type SourceRow,
 } from "@weavetrail/replay-engine";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
 import { NextResponse } from "next/server";
@@ -22,8 +23,8 @@ export const runtime = "nodejs";
 const mappingProvider = new FixtureSchemaMappingProvider();
 
 function sourceRowMismatchIssues(
-  requestedRows: (typeof committedReplayScenarios)[keyof typeof committedReplayScenarios]["rows"],
-  committedRows: (typeof committedReplayScenarios)[keyof typeof committedReplayScenarios]["rows"],
+  requestedRows: readonly SourceRow[],
+  committedRows: readonly SourceRow[],
 ): ReplayReviewResponse["issues"] {
   const committedByCoordinate = new Map(
     committedRows.map((row) => [

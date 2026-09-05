@@ -2,7 +2,7 @@ import type { SchemaMappingProposal } from "@weavetrail/contracts";
 
 export type MappingInput = {
   sourceArtifactHash: string;
-  constants: { schemaVersion: "1.1"; datasetId: string; venueId: string };
+  constants: SchemaMappingProposal["constants"];
   columns: string[];
   sampleRows: Array<Record<string, unknown>>;
 };

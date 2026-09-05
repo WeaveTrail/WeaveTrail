@@ -33,7 +33,7 @@ The fixture replay HTTP boundary applies the same distinction. It validates a
 named committed CSV or JSON Lines scenario, a closed mutation, up to 64
 declared source rows, a mapping approval record, and an optional approved case
 manifest. It never accepts caller-authored canonical
-events. The API hashes its own executed `1.4` proposal, checks the approval and
+events. The API hashes its own executed versioned proposal, checks the approval and
 any justified field overrides, verifies every row belongs to the approved
 source artifact, and compares its values with the server-owned committed row
 at the same coordinate before re-deriving events through the approved mapping.
@@ -189,7 +189,7 @@ a schema addition from silently expanding or bypassing the protected scope.
 
 ## Source provenance and approved mapping
 
-The implemented synthetic ingest path hashes exact artifact bytes as
+The implemented ingest path hashes exact artifact bytes as
 `sourceArtifactHash`. Each raw row is serialized as canonical JSON containing
 its artifact-hash/row-number coordinate and verbatim string values, then hashed
 as `rawRowHash`. Approved mappings apply only closed transforms; unapproved
@@ -338,6 +338,16 @@ must not fill a missing safety-critical value from a model guess.
 
 ## Synthetic data
 
-All committed scenarios are synthetic. They are designed to test contracts,
-failure handling, determinism, and traceability—not to estimate performance in
-a real market.
+The guided case and evaluation fixtures are synthetic. They test contracts,
+failure handling, determinism and traceability, without estimating performance
+in a real market. The separate published quotation artifact demonstrates
+normalization and its case-approval limit; it has no expected rule outcome.
+
+## Daily quote contract support
+
+Trade Event `1.2` and Mapping Proposal `1.5` add a daily-only kind constant and
+a reviewed trading-date anchor while retaining legacy `1.1`/`1.4` inputs and
+hashes. The published FSC KOSPI window for 2026-09-03 contains 40 quotations,
+with source/permission and derivation recorded beside it.
+[Daily quote normalization](DAILY_QUOTES.md) describes the exact command,
+environment, contracts, test evidence and published-field interpretation.

@@ -60,7 +60,7 @@ export default function HomePage() {
         >
           <span className="status-dot" />
           <strong>
-            Synthetic data · fixture provider · one implemented rule
+            Synthetic cases and published quotes · fixture provider
           </strong>
           <span>
             Live AI proposals and independent bundle export are planned.

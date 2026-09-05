@@ -36,6 +36,14 @@ The current unit suite tests these engineering invariants only:
 pnpm test
 ```
 
+- **Published quote derivation and normalization** — reproduce the complete
+  response-derived JSONL and generated rows, pin daily foundation/dataset hashes,
+  preserve them on repeat/shuffle/derived duplicate, and reject an explicitly
+  untrusted actor request before case approval or evaluation. The committed
+  sample is the first 40 FSC KOSPI quotations of 943 for 2026-09-03. It has no
+  expected rule outcome and is not a detection benchmark. Exact source, licence,
+  hashes and limitations are recorded in the
+  [source README](../packages/scenarios/src/sources/real/README.md).
 - **Row-order invariance** — all permutations of the committed four-event foundation
   fixture preserve canonical order and the result hash. Representative
   permutations of parsed source rows also pass the approved HTTP boundary for
@@ -91,6 +99,18 @@ not estimate performance on independent or real-market data.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.
+
+The published quote checks run offline with Node 22.18.0, pnpm 10.33.2,
+Vitest 4.1.11 and Linux WSL2 x86_64:
+
+```bash
+pnpm exec vitest run packages/replay-engine/src/real-market-data.test.ts apps/web/src/app/api/replay/real-market-data-route.test.ts
+```
+
+Malformed dates, parser edge cases and daily-kind rule eligibility use wholly
+synthetic specimens. Actual source values are never altered to construct those
+tests. The rejected actor case exists only as an untrusted negative request;
+it is not a source fact, registered scenario or published hypothesis.
 
 ## Publication gate
 
