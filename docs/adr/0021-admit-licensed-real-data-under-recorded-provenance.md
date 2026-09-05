@@ -6,12 +6,13 @@ Accepted
 
 ## Context
 
-Every committed artifact was synthetic by invariant. That kept the repository
-free of licensing and privacy exposure, but it also meant no source in the
-repository came from outside the project. The heterogeneous-interpretation
-problem the workbench addresses was demonstrated only on dialects the project
-had itself designed, so a reader could not distinguish a real normalization
-problem from a self-made one.
+Every committed dataset was synthetic by invariant. The repository already
+vendors external material under recorded licences, including a design snapshot
+and font files, but no event data came from outside the project. That kept the
+repository free of market-data licensing and privacy exposure, and it also
+meant the heterogeneous-interpretation problem the workbench addresses was
+demonstrated only on dialects the project had itself designed, so a reader
+could not distinguish a real normalization problem from a self-made one.
 
 Not every real source is admissible. Exchange data collected directly and
 brokerage quotation feeds restrict third-party provision, and committing them
@@ -41,6 +42,13 @@ A committed real artifact carries no fabricated attribute. Do not attach an
 invented participant, trade side, hypothesis, or pattern verdict to a real
 instrument. Where a real source cannot supply a field, leave it unmapped and
 let the workflow reach its review state rather than defaulting a value.
+
+Recording where and when a source was retrieved does not establish what the
+committed bytes contain. Commit the retrieved response as returned, and where
+an artifact is derived from it, record that response, its checksum, and the
+deterministic steps producing the artifact, so a reader can reproduce the
+committed bytes from the stated origin rather than trusting that nothing was
+filtered, aggregated or altered.
 
 Alternatives rejected:
 

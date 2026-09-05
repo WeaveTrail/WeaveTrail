@@ -68,6 +68,10 @@ reproducible check confirms it.
 - A committed real artifact carries no fabricated attribute. Never attach an
   invented participant, trade side, hypothesis, or pattern verdict to a real
   instrument.
+- Commit the retrieved response as returned. Where a committed artifact is
+  derived from it, record that response, its checksum, and the deterministic
+  steps that produce the artifact, so a reader can reproduce the committed
+  bytes from the stated origin.
 
 ## Documentation rules
 
