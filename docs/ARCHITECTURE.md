@@ -30,9 +30,11 @@ state from working inputs; refresh also starts unapproved. The query supplies no
 trusted approval or result state. Guide progress is distinct from the
 request-local server workflow.
 
-Advanced controls reorder or duplicate derived events after mapping; committed
-source rows remain unchanged. See
-[ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md).
+Advanced controls permute submitted source rows before mapping or duplicate one
+derived event after mapping; original coordinates and values remain unchanged.
+See [ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md) for shared
+journey state and [ADR 0020](adr/0020-prepare-source-order-at-the-caller.md) for
+the input-order change.
 
 ## Component chain
 
@@ -95,7 +97,27 @@ approval against that exact proposal, derives the executable mapping as a pure
 projection, and checks every submitted row against the server-owned committed
 row at the same artifact coordinate. A missing coordinate or differing column
 fails closed; the server does not silently substitute fixture values. Only
-then does it derive events. Mutations operate after that derivation.
+then does it derive events, preserving submitted order through mapping.
+
+The caller prepares `shuffle` by permuting the parsed source-row records in
+`rows` before submission. Working mode uses a browser-local Fisher–Yates shuffle
+and swaps the first two positions if the draw matches the previous submitted
+order. For two or more rows each new shuffle run differs from the previous
+submission; history starts at committed order and resets on source changes or
+guided re-entry. The displayed **Submitted source row order** is taken from the
+same request snapshot. The source preview stays in committed order. Explicit
+same-input repeats resend the previous rows without drawing another permutation.
+Input changes invalidate displayed evidence and order, and superseded responses
+cannot restore them. Pure reordering retains existing explicit approvals.
+
+`baseline` submits committed order, and `duplicate` submits committed order then
+repeats the first derived event after mapping. Repeated source coordinates are
+still rejected. The strict request/response shapes and the three mutation
+identifiers are unchanged. Migration: `shuffle` no longer requests a hidden
+server-side event rotation. Older callers sending committed-order `rows` with
+`shuffle` receive the deterministic result for that submitted order. The server
+adds no randomness and never substitutes stored rows for submitted ones.
+See [ADR 0020](adr/0020-prepare-source-order-at-the-caller.md).
 
 Invalid JSON, contract violations, and canonicalization ambiguity return HTTP
 `422` with one body shape: `status: REVIEW_REQUIRED` and a non-empty `issues`

@@ -147,11 +147,13 @@ choices, written down and tested.
 ![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the stored row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
 
 - **Nothing model-authored crosses unapproved ·** canonical events are
-  re-derived from stored rows through the approved mapping.
+  re-derived from validated submitted rows through the approved mapping.
 - **No floating point where it matters ·** prices and thresholds stay decimal
   strings and compare as exact scaled integers.
-- **The hash covers the result, not the run ·** every permutation of a source
-  set resolves to one canonical hash.
+- **The hash covers the result, not the run ·** tested permutations of parsed
+  committed source rows preserve canonical order and result hashes. Case Replay
+  shuffles those rows before mapping; its duplicate control repeats one derived
+  event after mapping. Neither control rewrites source-file bytes or coordinates.
 - **Failure is a state ·** a gate that cannot be satisfied returns a review
   state and no result hash.
 

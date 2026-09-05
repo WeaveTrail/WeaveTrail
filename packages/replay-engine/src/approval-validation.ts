@@ -250,10 +250,7 @@ export function replayApproved(
     );
   }
   let events = application.events;
-  if (mutation === "shuffle") {
-    const last = events.at(-1)!;
-    events = [last, ...events.slice(0, -1)];
-  } else if (mutation === "duplicate") {
+  if (mutation === "duplicate") {
     events = [...events, events[0]!];
   }
   if (manifest === undefined) {

@@ -10,6 +10,7 @@ import * as replayEngine from "@weavetrail/replay-engine";
 import {
   deriveRawRowHash,
   parseCsvSourceArtifact,
+  parseJsonLinesSourceArtifact,
   sha256Canonical,
 } from "@weavetrail/replay-engine";
 import {
@@ -437,29 +438,48 @@ describe("POST /api/replay approved mapping boundary", () => {
 
   it("replays both committed dialects to the same result hash", async () => {
     const dialectA = await POST(request(validBody()));
+    const baseline = (await dialectA.json()).replay;
     const dialectBScenario = "concentrated-buy-dialect-b.jsonl" as const;
     const sourceNoteIndex = reviewFieldIndex(
       concentratedBuyDialectBProposal,
       "source_note",
     );
-    const dialectB = await POST(
-      request({
-        scenario: dialectBScenario,
-        mutation: "baseline",
-        rows: committedReplayScenarios[dialectBScenario].rows,
-        mappingApproval: approval(concentratedBuyDialectBProposal, [
-          {
-            fieldPath: `fields.${sourceNoteIndex}`,
-            reason: "Reviewed the source note as intentionally unmapped.",
-          },
-        ]),
-      }),
-    );
-    expect(dialectA.status).toBe(200);
-    expect(dialectB.status).toBe(200);
-    expect((await dialectA.json()).replay.canonicalResultHash).toBe(
-      (await dialectB.json()).replay.canonicalResultHash,
-    );
+    for (const name of [scenario, dialectBScenario]) {
+      const fixture = committedReplayScenarios[name];
+      const bytes = readFileSync(
+        new URL(
+          `../../../../../../packages/scenarios/src/sources/${name}`,
+          import.meta.url,
+        ),
+      );
+      const rows = name.endsWith(".csv")
+        ? parseCsvSourceArtifact(bytes, fixture.sourceArtifactHash)
+        : parseJsonLinesSourceArtifact(bytes, fixture.sourceArtifactHash);
+      const submitted = [rows[2]!, rows[0]!, rows[3]!, rows[1]!];
+      const permuted = await POST(
+        request({
+          scenario: name,
+          mutation: "shuffle",
+          rows: submitted,
+          mappingApproval: approval(
+            name === dialectBScenario
+              ? concentratedBuyDialectBProposal
+              : concentratedBuyDialectAProposal,
+            name === dialectBScenario
+              ? [
+                  {
+                    fieldPath: `fields.${sourceNoteIndex}`,
+                    reason:
+                      "Reviewed the source note as intentionally unmapped.",
+                  },
+                ]
+              : [],
+          ),
+        }),
+      );
+      expect(permuted.status).toBe(200);
+      expect((await permuted.json()).replay).toEqual(baseline);
+    }
   });
 
   it("requires a field override before replaying dialect B", async () => {
@@ -610,7 +630,7 @@ describe("request-relative review paths", () => {
       const row = original.rows.shift()!;
       original.rows.splice(index, 0, row);
       for (const kind of ["changed", "missing"] as const) {
-        const body = structuredClone(original);
+        const body = { ...structuredClone(original), mutation: "shuffle" };
         if (kind === "changed") body.rows[index]!.values.px = "999.99";
         else delete body.rows[index]!.values.actor;
         const response = await POST(request(body));
@@ -758,7 +778,7 @@ describe("request-relative review paths", () => {
 
 describe("server-resolved finding provenance", () => {
   it.each(Object.entries(rapidPriceLiftScenarios))(
-    "resolves %s against parsed committed bytes for every mutation and reversed rows",
+    "resolves %s from parsed committed bytes for every mutation and source permutation",
     async (scenario, fixture) => {
       const bytes = readFileSync(
         new URL(
@@ -768,10 +788,16 @@ describe("server-resolved finding provenance", () => {
       );
       const rows = parseCsvSourceArtifact(bytes, fixture.sourceArtifactHash);
       let baseline: unknown;
+      let baselineEvaluation: unknown;
+      let baselineOrder: unknown;
       for (const mutation of ["baseline", "shuffle", "duplicate"] as const) {
         for (const submittedRows of [
-          fixture.rows,
-          [...fixture.rows].reverse(),
+          rows,
+          [...rows].reverse(),
+          [
+            ...rows.filter((_, index) => index % 2 === 1),
+            ...rows.filter((_, index) => index % 2 === 0),
+          ],
         ]) {
           const response = await POST(
             request({
@@ -825,12 +851,63 @@ describe("server-resolved finding provenance", () => {
           if (result.evaluation.result === "INCONCLUSIVE")
             expect(result.sourceTrace.entries).toEqual([]);
           if (baseline === undefined) baseline = result.sourceTrace;
+          if (baselineEvaluation === undefined)
+            baselineEvaluation = result.evaluation;
+          if (baselineOrder === undefined)
+            baselineOrder = result.replay.orderedEventIds;
           expect(result.sourceTrace).toEqual(baseline);
+          expect(result.evaluation).toEqual(baselineEvaluation);
+          expect(result.replay.orderedEventIds).toEqual(baselineOrder);
+          expect(result.replay.duplicateCount).toBe(
+            mutation === "duplicate" ? 1 : 0,
+          );
+          expect(result.replay.inputEventCount).toBe(
+            rows.length + (mutation === "duplicate" ? 1 : 0),
+          );
+          expect(result.replay.canonicalEventCount).toBe(rows.length);
         }
       }
     },
   );
 });
+
+it.each(["baseline", "shuffle", "duplicate"] as const)(
+  "refuses invalid source records for %s without result or trace",
+  async (mutation) => {
+    for (const kind of [
+      "duplicate",
+      "changed",
+      "omitted",
+      "foreign",
+    ] as const) {
+      const base = structuredClone(rapidBody());
+      const rows = base.rows.reverse();
+      if (kind === "duplicate") rows.push(rows[0]!);
+      if (kind === "changed") rows[0]!.values.px = "999.99";
+      if (kind === "omitted") rows.pop();
+      if (kind === "foreign")
+        rows[0]!.coordinate.sourceArtifactHash = "f".repeat(64);
+      const response = await POST(request({ ...base, mutation, rows }));
+      const result = await response.json();
+      expect(response.status).toBe(422);
+      expect(result.workflowState).toBe("INPUT_REVIEW_REQUIRED");
+      if (kind === "duplicate")
+        expect(result.issues).toEqual([
+          expect.objectContaining({
+            message: expect.stringContaining("DUPLICATE_SOURCE_COORDINATE"),
+          }),
+        ]);
+      for (const field of [
+        "replay",
+        "evaluation",
+        "canonicalResultHash",
+        "sourceTrace",
+      ]) {
+        expect(result).not.toHaveProperty(field);
+      }
+    }
+  },
+);
 
 it("propagates source trace invariant failures to the server error boundary", async () => {
   const assemble = vi

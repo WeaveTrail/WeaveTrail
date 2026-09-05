@@ -16,8 +16,10 @@ verification. It is not a production market-surveillance system.
 - Guided completion preserves approvals and results only in the mounted
   browser view. Refresh starts unapproved. Repeating a case compares two actual
   hashes for same-input repeatability; it establishes neither authenticity nor
-  general mutation tolerance. Advanced mutations operate on derived events,
-  not original source rows.
+  general mutation tolerance. Advanced shuffle permutes parsed committed
+  source-row records before mapping; duplicate repeats one derived event after
+  mapping. Neither rewrites artifact bytes or renumbers coordinates. Tests cover
+  representative committed-row permutations, not arbitrary rewritten files.
 - Replay requests execute mapping, input, and case transitions through the
   approval state machine, and responses expose their final state. State and
   transition history are request-local: persistence, cross-request correlation,

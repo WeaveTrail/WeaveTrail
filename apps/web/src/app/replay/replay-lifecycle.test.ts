@@ -13,6 +13,8 @@ import {
   type ReplayScenarioOption,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import * as rowShuffle from "./shuffle-source-rows";
+import type { ReplayRequest } from "@weavetrail/contracts";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
 // component-state regression harness, not a browser/hydration assertion.
@@ -68,6 +70,7 @@ type ElementProps = {
   name?: string;
   className?: string;
   disabled?: boolean;
+  "aria-label"?: string;
 };
 function elements(node: ReactNode): ReactElement<ElementProps>[] {
   if (Array.isArray(node)) return node.flatMap(elements);
@@ -142,10 +145,27 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     if (!element?.props.onClick) throw new Error(`Missing button ${label}`);
     return element.props.onClick();
   }
-  function changeScenario() {
+  function changeScenario(value = second) {
     render().find((element) => element.type === "select")!.props.onChange!({
-      target: { value: second },
+      target: { value },
     });
+  }
+  function changeMutation(value: string) {
+    render().find(
+      (element) =>
+        element.props.name === "mutation" && element.props.value === value,
+    )!.props.onChange!({ target: { value } });
+  }
+  function submittedOrder() {
+    const section = render().find(
+      (element) => element.props["aria-label"] === "Submitted source row order",
+    );
+    return section
+      ? textContent(
+          elements(section).find((element) => element.type === "code")?.props
+            .children,
+        )
+      : null;
   }
   function evidence() {
     return render().filter(
@@ -176,6 +196,8 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     button,
     buttonDisabled,
     changeScenario,
+    changeMutation,
+    submittedOrder,
     evidence,
     approve,
     hasText,
@@ -203,7 +225,10 @@ function ok(hash = "a".repeat(64)) {
     replay: { ...result.replay, canonicalResultHash: hash },
   });
 }
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
   await guide.button("Continue");
@@ -233,6 +258,100 @@ async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
 }
 
 describe("replay result lifecycle", () => {
+  it("submits varying source orders, displays the exact request and retains explicit approvals", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const ui = setup();
+    const request = vi.fn().mockImplementation(() => Promise.resolve(ok()));
+    vi.stubGlobal("fetch", request);
+    await ui.approve();
+    const committed = structuredClone(committedReplayScenarios[first].rows);
+    const bodies = () =>
+      request.mock.calls.map(
+        ([, init]) => JSON.parse(init.body) as ReplayRequest,
+      );
+    await ui.button("Run deterministic replay");
+    const baseline = bodies()[0]!;
+    ui.changeMutation("shuffle");
+    expect(ui.submittedOrder()).toBeNull();
+    for (let run = 0; run < 2; run += 1) {
+      await ui.button("Run deterministic replay");
+      const submitted = bodies().at(-1)!;
+      expect(submitted.mutation).toBe("shuffle");
+      expect(submitted.rows).not.toEqual(bodies().at(-2)!.rows);
+      expect(new Set(submitted.rows.map((row) => JSON.stringify(row)))).toEqual(
+        new Set(committed.map((row) => JSON.stringify(row))),
+      );
+      expect(ui.submittedOrder()).toBe(
+        submitted.rows.map((row) => row.coordinate.rowNumber).join(" → "),
+      );
+      expect(submitted.mappingApproval).toEqual(baseline.mappingApproval);
+      expect(submitted.caseManifest).toEqual(baseline.caseManifest);
+    }
+    await ui.button("Repeat the same approved case");
+    expect(bodies().at(-1)).toEqual(bodies().at(-2));
+    for (const mutation of ["duplicate", "baseline"]) {
+      ui.changeMutation(mutation);
+      await ui.button("Run deterministic replay");
+      expect(bodies().at(-1)!.rows).toEqual(committed);
+      expect(ui.submittedOrder()).toBe(
+        committed.map((row) => row.coordinate.rowNumber).join(" → "),
+      );
+    }
+    expect(committedReplayScenarios[first].rows).toEqual(committed);
+  });
+
+  it.each(["scenario", "guided re-entry"])(
+    "resets submitted order history on %s",
+    async (change) => {
+      vi.spyOn(Math, "random").mockReturnValue(0);
+      const shuffle = vi.spyOn(rowShuffle, "shuffleSourceRows");
+      const ui = setup();
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation(() => Promise.resolve(ok())),
+      );
+      await ui.approve();
+      ui.changeMutation("shuffle");
+      await ui.button("Run deterministic replay");
+      expect(ui.submittedOrder()).not.toBeNull();
+      if (change === "scenario") {
+        ui.changeScenario();
+        ui.changeScenario(first);
+      } else {
+        ui.setGuided(true);
+        ui.setGuided(false);
+      }
+      expect(ui.submittedOrder()).toBeNull();
+      await ui.approve();
+      ui.changeMutation("shuffle");
+      await ui.button("Run deterministic replay");
+      expect(shuffle.mock.calls.at(-1)![1]).toEqual(
+        committedReplayScenarios[first].rows,
+      );
+    },
+  );
+
+  it.each(["mutation", "scenario", "guided re-entry"])(
+    "keeps stale responses from restoring submitted order after %s",
+    async (change) => {
+      const ui = setup();
+      await ui.approve();
+      ui.changeMutation("shuffle");
+      const pending = deferred<Response>();
+      vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+      const run = ui.button("Run deterministic replay");
+      expect(ui.submittedOrder()).not.toBeNull();
+      if (change === "mutation") ui.changeMutation("baseline");
+      else if (change === "scenario") ui.changeScenario();
+      else ui.setGuided(true);
+      expect(ui.submittedOrder()).toBeNull();
+      pending.resolve(ok());
+      await run;
+      expect(ui.submittedOrder()).toBeNull();
+      expect(ui.evidence()).toHaveLength(0);
+      expect(ui.hasText("Previous returned hash")).toBe(false);
+    },
+  );
   it("describes threshold values as proposed and then approved case configuration", async () => {
     const prepared = await prepareReplayScenarios();
     const guide = setup({ ...prepared, guided: true });
@@ -270,6 +389,7 @@ describe("replay result lifecycle", () => {
   });
 
   it("accepts only a repeat that matches the original returned hash", async () => {
+    const shuffle = vi.spyOn(rowShuffle, "shuffleSourceRows");
     const prepared = await prepareReplayScenarios();
     const guide = setup({ ...prepared, guided: true });
     const request = vi
@@ -307,6 +427,7 @@ describe("replay result lifecycle", () => {
             body === JSON.stringify(JSON.parse(request.mock.calls[0]![1].body)),
         ),
     ).toBe(true);
+    expect(shuffle).not.toHaveBeenCalled();
   });
 
   it("accepts an immediate A to A repeat", async () => {
