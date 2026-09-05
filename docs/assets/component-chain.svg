@@ -1,0 +1,211 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="chainTitle chainDesc">
+  <title id="chainTitle">The component chain from source rows to evidence</title>
+  <desc id="chainDesc">Ten components run in two rows. Row one: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile. Row two: a bounded case proposer, which is specified but not implemented, would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule across five gates; the source trace resolves every finding back to the committed rows behind it; Evidence Bundle assembly and independent verification remain planned. Any gate can refuse, and a refused request carries no result hash.</desc>
+  <!--
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint
+    #4f6270 authorship-ai | #eef1f2 slate-tint state-review-bg
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong planned-outline
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .node{font-size:16px;font-weight:600;fill:#0c1513}
+      .body{font-size:12px;fill:#263230}
+      .bodyPlanned{font-size:12px;fill:#566461}
+      .foot{font-size:11px;fill:#566461}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="700" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="699" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">THE COMPONENT CHAIN</text>
+    <text class="title" x="40" y="84">Source rows in, evidence out, a gate at every handover.</text>
+    <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a human decision. Ink is versioned code.</text>
+    <text class="sub" x="40" y="132">A PLANNED chip marks a component specified in contracts but not implemented today.</text>
+  </g>
+  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <g class="s"><text class="band" x="40" y="178">MAPPING AND CANONICALIZATION</text></g>
+
+  <!-- 1 source rows -->
+  <rect x="40" y="192" width="208" height="170" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="54" y="208" width="78" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="62" y="221" fill="#4f6270">UNTRUSTED</text>
+  <g class="s">
+    <text class="node" x="54" y="254">Source rows</text>
+    <text class="body" x="54" y="280">One to 64 committed rows</text>
+    <text class="body" x="54" y="298">in CSV or JSON Lines form.</text>
+    <text class="body" x="54" y="316">Caller-authored canonical</text>
+    <text class="body" x="54" y="334">events are rejected.</text>
+  </g>
+  <text class="m foot" x="54" y="352">sourceArtifactHash</text>
+
+  <!-- 2 schema mapper -->
+  <rect x="268" y="192" width="208" height="170" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="282" y="208" width="94" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="290" y="221" fill="#4f6270">AI PROPOSES</text>
+  <g class="s">
+    <text class="node" x="282" y="254">Schema mapper</text>
+    <text class="body" x="282" y="280">One target field and one</text>
+    <text class="body" x="282" y="298">allowlisted transform per</text>
+    <text class="body" x="282" y="316">column, with confidence</text>
+    <text class="body" x="282" y="334">and its evidence.</text>
+  </g>
+  <text class="m foot" x="282" y="352">mappingVersion 1.4</text>
+
+  <!-- 3 mapping approval -->
+  <rect x="496" y="192" width="208" height="170" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="510" y="208" width="114" height="18" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="518" y="221" fill="#0b6e6a">HUMAN APPROVES</text>
+  <g class="s">
+    <text class="node" x="510" y="254">Mapping approval</text>
+    <text class="body" x="510" y="280">Bound to the proposed</text>
+    <text class="body" x="510" y="298">artifact hash. A flagged</text>
+    <text class="body" x="510" y="316">field needs a justified</text>
+    <text class="body" x="510" y="334">override to clear.</text>
+  </g>
+  <text class="m foot" x="510" y="352">approvedArtifactHash</text>
+
+  <!-- 4 canonical events -->
+  <rect x="724" y="192" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="738" y="208" width="78" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="746" y="221" fill="#14211f">CODE OWNS</text>
+  <g class="s">
+    <text class="node" x="738" y="254">Canonical events</text>
+    <text class="body" x="738" y="280">Re-derived from stored</text>
+    <text class="body" x="738" y="298">rows through the approved</text>
+    <text class="body" x="738" y="316">mapping, then ordered and</text>
+    <text class="body" x="738" y="334">deduplicated.</text>
+  </g>
+  <text class="m foot" x="738" y="352">canonicalDatasetHash</text>
+
+  <!-- 5 dataset profile -->
+  <rect x="952" y="192" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="966" y="208" width="78" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="974" y="221" fill="#14211f">CODE OWNS</text>
+  <g class="s">
+    <text class="node" x="966" y="254">Dataset profile</text>
+    <text class="body" x="966" y="280">The canonical dataset</text>
+    <text class="body" x="966" y="298">hash, sorted instrument</text>
+    <text class="body" x="966" y="316">and actor sets, and</text>
+    <text class="body" x="966" y="334">normalized time bounds.</text>
+  </g>
+  <text class="m foot" x="966" y="352">DatasetProfile</text>
+
+  <g fill="#0b6e6a">
+    <path d="M252 271l8 6-8 6z"/>
+    <path d="M480 271l8 6-8 6z"/>
+    <path d="M708 271l8 6-8 6z"/>
+    <path d="M936 271l8 6-8 6z"/>
+  </g>
+
+  <g class="s"><text class="band" x="40" y="384">CASE, REPLAY AND EVIDENCE</text></g>
+
+  <path d="M1056 362 V400 H144 V418" fill="none" stroke="#0b6e6a"/>
+  <path d="M138 418l6 8 6-8z" fill="#0b6e6a"/>
+
+  <!-- 6 case proposer -->
+  <rect x="40" y="428" width="208" height="170" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="54" y="444" width="94" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="62" y="457" fill="#4f6270">AI PROPOSES</text>
+  <rect x="154" y="444" width="62" height="18" fill="#ffffff" stroke="#a9bebc"/>
+  <text class="s chip" x="162" y="457" fill="#566461">PLANNED</text>
+  <g class="s">
+    <text class="node" x="54" y="490">Case proposer</text>
+    <text class="bodyPlanned" x="54" y="516">Would select an actor</text>
+    <text class="bodyPlanned" x="54" y="534">group and an interval</text>
+    <text class="bodyPlanned" x="54" y="552">from profile facts alone,</text>
+    <text class="bodyPlanned" x="54" y="570">never a threshold.</text>
+  </g>
+  <text class="m foot" x="54" y="588">not implemented</text>
+
+  <!-- 7 case approval -->
+  <rect x="268" y="428" width="208" height="170" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="282" y="444" width="114" height="18" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="290" y="457" fill="#0b6e6a">HUMAN APPROVES</text>
+  <g class="s">
+    <text class="node" x="282" y="490">Case approval</text>
+    <text class="body" x="282" y="516">Fixes instrument, interval,</text>
+    <text class="body" x="282" y="534">actors, rule and</text>
+    <text class="body" x="282" y="552">thresholds before any</text>
+    <text class="body" x="282" y="570">replay can run.</text>
+  </g>
+  <text class="m foot" x="282" y="588">approvedManifestHash</text>
+
+  <!-- 8 replay engine -->
+  <rect x="496" y="428" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="510" y="444" width="100" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="518" y="457" fill="#14211f">CODE DECIDES</text>
+  <g class="s">
+    <text class="node" x="510" y="490">Replay engine</text>
+    <text class="body" x="510" y="516">Orders, collapses</text>
+    <text class="body" x="510" y="534">duplicates, computes exact</text>
+    <text class="body" x="510" y="552">decimals, and evaluates</text>
+    <text class="body" x="510" y="570">RAPID_PRICE_LIFT 1.1.</text>
+  </g>
+  <text class="m foot" x="510" y="588">0.7.0-canonical-decimal</text>
+
+  <!-- 9 source trace -->
+  <rect x="724" y="428" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="738" y="444" width="100" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="746" y="457" fill="#14211f">CODE RECORDS</text>
+  <g class="s">
+    <text class="node" x="738" y="490">Source trace</text>
+    <text class="body" x="738" y="516">Resolves every finding to</text>
+    <text class="body" x="738" y="534">its canonical events and</text>
+    <text class="body" x="738" y="552">the committed rows behind</text>
+    <text class="body" x="738" y="570">them, or refuses.</text>
+  </g>
+  <text class="m foot" x="738" y="588">eventId &#8594; rawRowHash</text>
+
+  <!-- 10 evidence bundle -->
+  <rect x="952" y="428" width="208" height="170" fill="#ffffff" stroke="#a9bebc"/>
+  <rect x="966" y="444" width="78" height="18" fill="#f0f5f4" stroke="#a9bebc"/>
+  <text class="s chip" x="974" y="457" fill="#566461">CODE OWNS</text>
+  <rect x="1050" y="444" width="62" height="18" fill="#ffffff" stroke="#a9bebc"/>
+  <text class="s chip" x="1058" y="457" fill="#566461">PLANNED</text>
+  <g class="s">
+    <text class="node" x="966" y="490" fill="#263230">Evidence Bundle</text>
+    <text class="bodyPlanned" x="966" y="516">Would bind assembly,</text>
+    <text class="bodyPlanned" x="966" y="534">export and independent</text>
+    <text class="bodyPlanned" x="966" y="552">verification of one</text>
+    <text class="bodyPlanned" x="966" y="570">replayed result.</text>
+  </g>
+  <text class="m foot" x="966" y="588">not implemented</text>
+
+  <g fill="#0b6e6a">
+    <path d="M252 507l8 6-8 6z"/>
+    <path d="M480 507l8 6-8 6z"/>
+    <path d="M708 507l8 6-8 6z"/>
+    <path d="M936 507l8 6-8 6z"/>
+  </g>
+
+  <line class="rule" x1="40" y1="624" x2="1160" y2="624"/>
+
+  <g class="s">
+    <text class="band" x="40" y="650">ANY GATE CAN REFUSE</text>
+    <text class="band" x="1160" y="650" text-anchor="end">A REFUSED REQUEST CARRIES NO RESULT HASH</text>
+  </g>
+  <g>
+    <rect x="40" y="662" width="160" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="50" y="676" fill="#4f6270">INPUT_REVIEW_REQUIRED</text>
+    <rect x="208" y="662" width="174" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="218" y="676" fill="#4f6270">MAPPING_REVIEW_REQUIRED</text>
+    <rect x="390" y="662" width="154" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="400" y="676" fill="#4f6270">CASE_REVIEW_REQUIRED</text>
+  </g>
+</svg>

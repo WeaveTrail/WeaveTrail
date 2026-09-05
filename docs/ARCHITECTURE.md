@@ -6,21 +6,37 @@ versioned code can produce a replay result.
 
 ## Component chain
 
-```mermaid
-flowchart LR
-    RAW[CSV / JSON events] --> MAPPER[Constrained schema mapper]
-    MAPPER --> MAP_GATE{Mapping approved?}
-    MAP_GATE -- no --> REVIEW[REVIEW_REQUIRED]
-    MAP_GATE -- yes --> EVENTS[Canonical TradeEvent set]
-    EVENTS --> PROPOSER[Bounded case proposer]
-    PROPOSER --> CASE_GATE{Case approved?}
-    CASE_GATE -- no --> REVIEW
-    CASE_GATE -- yes --> REPLAY[Deterministic replay engine]
-    REPLAY --> EVIDENCE[Evidence Bundle]
-    EVIDENCE --> SOURCE[Source event + raw-row trace]
-```
+![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
+
+A `PLANNED` component is specified in contracts and tracked as open work rather
+than implemented today.
 
 ## Trust boundaries
+
+These boundaries implement one control model: authority is separated by layer
+rather than by location, so each layer holds what it may do, what it may never
+do, and the record it leaves behind. The README states the model; this document
+is where each layer's enforcement lives.
+
+| Layer        | Enforced by             | May never                                                       | Leaves behind                                                     |
+| ------------ | ----------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| L1 Interpret | Interpretation boundary | mutate a row, compute a metric, or own a result                 | proposal, per-field evidence, confidence, proposal status         |
+| L2 Approve   | Approval boundary       | edit a computed result, or widen the `DatasetProfile` facts     | approval records bound to proposal hashes, justified overrides    |
+| L3 Decide    | Decision boundary       | execute model-authored code, or read outside the approved scope | engine and rule version, `canonicalResultHash`                    |
+| L4 Evidence  | Evidence boundary       | present a finding whose lineage cannot be resolved              | `eventId`, `rawRowHash`, and the committed source row behind them |
+
+Two invariants cross all four.
+
+1. **No layer holds two authorities.** The proposing layer cannot approve, the
+   approving layer cannot compute, and the deciding layer cannot widen its own
+   scope.
+2. **A result is true under stated conditions rather than in general.** The
+   engine version, the rule version, and the threshold each gate compared
+   against travel with the result.
+
+The replay HTTP boundary is not one of these layers. It is the transport gate
+that carries a request across them and validates every input before any layer
+acts on it.
 
 ### Interpretation boundary
 
