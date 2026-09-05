@@ -37,33 +37,6 @@ re-derive it from the same executions.
 - **How it is built ·** [one chain with a contract at every handover](#how-it-is-built)
   — the components, the four trust boundaries, and what the canonical hash covers.
 
-## Run a case
-
-The [public application](https://weave-trail-web-flax.vercel.app) is the deployed
-entry point; its deployed revision may differ from this checkout. The route
-migration described here is not a claim that this revision has been deployed.
-
-With Node 22 or newer and pnpm 10.33.2:
-
-```bash
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-Open [the local entry page](http://localhost:3000) and choose **Walk through a
-case**, or open [the walkthrough](http://localhost:3000/replay?mode=guided)
-directly. Case Replay at `/replay` replaces the former `/lab` route; old links
-are not aliased and may return not found.
-
-The walkthrough uses `rapid-price-lift-supported.csv`: read actual source
-rows, review its fixture mapping, explicitly approve the mapping and authored
-case, run the server replay, and open a finding back to its original rows.
-The mapping chapter includes a separate Dialect B example whose `source_note`
-needs a justified override. That approval cannot authorize the worked case.
-Repeat the same approved case to compare returned hashes, then continue in
-Case Replay with the case, approvals and result still loaded. Refresh starts
-unapproved. Live proposals and independent bundle export remain planned.
-
 ## An alert is not yet evidence
 
 Whoever picks the alert up has to say which executions produced the number,
@@ -176,6 +149,26 @@ are specified and not yet built, and they say so.
 [Architecture](docs/ARCHITECTURE.md) carries the trust boundaries and what the
 canonical hash covers, [Methodology](docs/METHODOLOGY.md) the rule and its
 gates, and the [ADRs](docs/adr) the reason behind each choice.
+
+## A worked case
+
+The [deployed workbench](https://weave-trail-web-flax.vercel.app) opens on a
+guided walkthrough of one supported case at `/replay?mode=guided`. Its deployed
+revision may differ from this checkout, and nothing here is a claim that this
+revision has been deployed.
+
+The walkthrough carries `rapid-price-lift-supported.csv` along the whole chain:
+read the actual source rows, review the proposed mapping, approve that mapping
+and the authored case explicitly, run the server replay, and open a finding back
+to the rows it rests on. A separate Dialect B example holds a field the mapper
+leaves unresolved, so it needs a justified override before it can be approved —
+and that approval cannot authorize the worked case. Repeating the same approved
+case returns a second hash to compare against the first.
+
+Approvals and results live in the mounted view only, so a refresh starts
+unapproved; the walkthrough is one worked path, not a scenario suite. Live model
+proposals and independent bundle export remain planned. [Contributing](CONTRIBUTING.md)
+covers running it locally.
 
 ## Documentation
 

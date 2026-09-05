@@ -12,6 +12,9 @@ pnpm check
 pnpm build
 ```
 
+`pnpm dev` serves the workbench at <http://localhost:3000> with Node 22 or newer
+and pnpm 10.33.2; the guided walkthrough is at `/replay?mode=guided`.
+
 Prefer synthetic data. If a synthetic fixture resembles a real system, replace
 identifiers, values, timing, and schema details until it cannot expose a person,
 customer, venue, or production implementation.
