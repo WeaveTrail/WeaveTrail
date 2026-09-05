@@ -418,8 +418,37 @@ button:disabled {
 }
 .mapping-row > :nth-child(n + 4),
 .mapping-row label,
-.gate-row small {
+.gate-row small,
+.gate-row .source-evidence {
   grid-column: 1/-1;
+}
+.source-evidence summary {
+  cursor: pointer;
+  color: var(--text-strong);
+}
+.source-evidence summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.source-evidence article {
+  margin-top: 12px;
+  padding: 12px;
+  border: var(--hairline);
+  background: var(--paper-0);
+}
+.source-evidence h3 {
+  margin-block: 12px 8px;
+  font-size: 1rem;
+}
+.source-evidence dl > div {
+  margin-block: 8px;
+}
+.source-evidence dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.source-values code {
+  white-space: pre-wrap;
 }
 .mapping-row b[data-status="REVIEW_REQUIRED"] {
   color: var(--state-review);

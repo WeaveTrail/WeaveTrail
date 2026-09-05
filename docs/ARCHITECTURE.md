@@ -102,16 +102,53 @@ correction does not change approval artifacts, engine version, workflow states,
 HTTP status, rule verdicts, or canonical result hashes. See
 [ADR 0016](adr/0016-use-request-relative-review-paths.md).
 
-A successful response is also contract-validated and contains only fixture
-mode, scenario, mutation, boundary text, final `workflowState`, engine version,
-event counts, ordered event identifiers, and the canonical result hash. A
-foundation request without a case manifest stops at `MAPPING_APPROVED`; it does
-not invent case approval or claim `REPLAYED`. An approved case replay completes
-at `REPLAYED`. The engine's canonical event
-objects and their `rawRowHash` provenance remain server-side rather than being
-included accidentally through the engine's internal return type. With an
-approved manifest, the response also carries the closed rule result, five gate
-findings for a conclusive evaluation, and a mechanical sensitivity comparison.
+A successful response is contract-validated and includes fixture mode, scenario,
+mutation, boundary text, final `workflowState`, engine version, event counts,
+ordered event identifiers, and the canonical result hash. A foundation request
+without a case manifest stops at `MAPPING_APPROVED` and has no `sourceTrace`.
+An approved case replay completes at `REPLAYED` and also carries the closed rule
+result, five gate findings for a conclusive evaluation, a mechanical sensitivity
+comparison, and a required `sourceTrace` projection.
+
+`sourceTrace.traceVersion` is `"1.0"`. Its `entries` contain exactly one entry
+per distinct finding event, in canonical replay order. Each entry contains:
+
+- `event`: the allowlisted canonical fields `schemaVersion`, `eventId`,
+  `sourceEventId`, `datasetId`, `venueId`, `eventTime`, `instrumentId`,
+  `eventType`, and `rawRowHash`, plus `sequence`, `side`, `actorId`,
+  `counterpartyId`, `orderId`, `price`, and `quantity` when present.
+- `sourceRow`: the exact `coordinate` (`sourceArtifactHash`, positive decimal
+  string `rowNumber`) and unchanged string-valued `values` from the committed
+  source. The existing `scenario` field names the artifact at this single-artifact
+  boundary. CSV row numbers start at 2 after the header; JSON Lines starts at 1.
+
+After approval, source validation, and replay succeed, `buildFindingSourceTrace`
+resolves the returned canonical events against trusted committed rows using
+`deriveRawRowHash`, which hashes both coordinate and values. It does not repeat
+mapping or rule evaluation. Missing or ambiguous links are internal server
+errors, never partial successful traces or financial `INCONCLUSIVE` results.
+INCONCLUSIVE has no findings and an empty trace. Review responses remain closed
+HTTP 422 responses with no trace or result. Internal event arrays are still
+excluded from `replay.events`; `receivedAt` is excluded from the event view,
+though its unchanged original source text may appear in raw column values.
+
+The lab provides a native disclosure for each gate, including failed gates,
+with its canonical events, hashes, coordinates, and source text. The browser
+selects server-resolved entries for display without deriving evidence. Changing
+inputs or approvals and starting a run clear previous evidence; superseded
+requests cannot replace the current result.
+
+#### Trace response migration
+
+Strict consumers of successful `REPLAYED` responses must update to accept the
+required versioned `sourceTrace` member and validate its exact finding-reference
+set. It is not optional on newly produced case responses. Foundation and review
+response shapes are unchanged. The projection and its version remain outside
+`canonicalResultHash` and approval artifacts; engine/rule versions, three rule
+outcomes, and semantic hashes are unchanged. Trace inspection is implemented;
+Evidence Bundle assembly, export, and independent verification remain planned.
+See [ADR 0017](adr/0017-resolve-finding-source-traces-on-the-server.md).
+
 Profile failures use `CANONICAL_DATASET_HASH_MISMATCH`,
 `INSTRUMENT_OUTSIDE_DATASET_PROFILE`, `ACTOR_OUTSIDE_DATASET_PROFILE`, or
 `TIME_WINDOW_OUTSIDE_DATASET_PROFILE`; missing rule configuration uses

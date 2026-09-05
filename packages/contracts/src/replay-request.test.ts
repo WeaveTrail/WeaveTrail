@@ -80,6 +80,31 @@ describe("ReplayResultResponseSchema", () => {
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
       workflowState: "REPLAYED",
+      sourceTrace: {
+        traceVersion: "1.0",
+        entries: [
+          {
+            event: {
+              schemaVersion: "1.1",
+              eventId: "event-1",
+              sourceEventId: "source-1",
+              datasetId: "synthetic",
+              venueId: "SYNTH-X",
+              eventTime: "2026-09-01T00:00:00Z",
+              instrumentId: "WT",
+              eventType: "TRADE",
+              rawRowHash: "b".repeat(64),
+            },
+            sourceRow: {
+              coordinate: {
+                sourceArtifactHash: "c".repeat(64),
+                rowNumber: "2",
+              },
+              values: { id: "source-1" },
+            },
+          },
+        ],
+      },
       scenario: "concentrated-buy-dialect-a.csv",
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",
@@ -150,6 +175,7 @@ describe("ReplayResultResponseSchema", () => {
     const evaluated = ReplayResultResponseSchema.parse({
       mode: "fixture",
       workflowState: "REPLAYED",
+      sourceTrace: { traceVersion: "1.0", entries: [] },
       scenario: "concentrated-buy-dialect-a.csv",
       mutation: "baseline",
       boundary: "Deterministic replay boundary.",

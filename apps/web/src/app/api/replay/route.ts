@@ -1,4 +1,5 @@
 import {
+  RapidPriceLiftResultSchema,
   ReplayRequestSchema,
   ReplayResultResponseSchema,
   ReplayReviewResponseSchema,
@@ -7,6 +8,7 @@ import {
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import {
   CanonicalizationError,
+  buildFindingSourceTrace,
   RequestWorkflow,
   replayApproved,
 } from "@weavetrail/replay-engine";
@@ -154,6 +156,10 @@ export async function POST(request: Request) {
         body,
       );
     }
+    const evaluation =
+      "evaluation" in replay
+        ? RapidPriceLiftResultSchema.parse(replay.evaluation)
+        : undefined;
     const response = ReplayResultResponseSchema.parse({
       mode: "fixture",
       workflowState: workflow.state,
@@ -167,7 +173,16 @@ export async function POST(request: Request) {
         orderedEventIds: replay.orderedEventIds,
         canonicalResultHash: replay.canonicalResultHash,
       },
-      ...("evaluation" in replay ? { evaluation: replay.evaluation } : {}),
+      ...(evaluation !== undefined
+        ? {
+            evaluation,
+            sourceTrace: buildFindingSourceTrace(
+              replay.events,
+              evaluation.findings,
+              scenarioConfig.rows,
+            ),
+          }
+        : {}),
       boundary:
         caseManifest === undefined
           ? "Foundation replay verifies ordering, exact deduplication, and hashing."

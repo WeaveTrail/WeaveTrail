@@ -8,4 +8,5 @@ export * from "./rule-parameters";
 export * from "./replay-request";
 export * from "./schema-mapping";
 export * from "./trade-event";
+export * from "./source-trace";
 export * from "./workflow";

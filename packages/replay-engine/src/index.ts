@@ -12,3 +12,4 @@ export * from "./request-workflow";
 export * from "./replay-foundation";
 export * from "./scaled-decimal";
 export * from "./source-ingest";
+export * from "./source-trace";
