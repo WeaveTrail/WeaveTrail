@@ -12,6 +12,7 @@ import {
   HASH_SCOPES,
   HashValue,
   Instant,
+  REPORTED_VALUE_NOTE,
 } from "./machine-values";
 
 describe("machine value rendering", () => {
@@ -184,5 +185,57 @@ describe("hash scope statements against what the code hashes", () => {
     expect(HASH_SCOPES.rawRow.covers).toContain(
       "not the artifact's original bytes",
     );
+  });
+});
+
+describe("reported values against the exact comparison", () => {
+  it("says a reported rate is truncated and that the verdict uses the exact value", () => {
+    expect(REPORTED_VALUE_NOTE).toMatch(/truncated to four decimals/);
+    expect(REPORTED_VALUE_NOTE).toMatch(/computed on the exact value/);
+  });
+
+  it("shows that note wherever a reported rate sits beside a threshold or a difference", async () => {
+    const { RapidPriceLiftEvaluation } = await import("./case-replay");
+    const { RapidPriceLiftResultSchema } =
+      await import("@weavetrail/contracts");
+    const { buildFindingSourceTrace, replayApproved, sha256Canonical } =
+      await import("@weavetrail/replay-engine");
+    const { rapidPriceLiftScenarios } = await import("@weavetrail/scenarios");
+
+    const scenario = "rapid-price-lift-supported.csv";
+    const fixture = rapidPriceLiftScenarios[scenario];
+    const replay = replayApproved(
+      fixture.rows,
+      fixture.rows,
+      fixture.mappingProposal,
+      {
+        approvedArtifactHash: sha256Canonical(fixture.mappingProposal),
+        reviewerRef: "reviewer:test",
+        decision: "APPROVED",
+        overrides: [],
+        approvedAt: "2026-09-01T00:00:00Z",
+      },
+      fixture.manifest,
+      "baseline",
+    );
+    if (!("canonicalResultHash" in replay) || !("evaluation" in replay))
+      throw new Error("Expected evaluated fixture");
+    const evaluation = RapidPriceLiftResultSchema.parse(replay.evaluation);
+    const markup = renderToStaticMarkup(
+      createElement(RapidPriceLiftEvaluation, {
+        evaluation,
+        sourceTrace: buildFindingSourceTrace(
+          replay.events,
+          evaluation.findings,
+          fixture.rows,
+        ),
+        scenario,
+      }),
+    );
+
+    expect(evaluation.sensitivity).toBeDefined();
+    expect([
+      ...markup.matchAll(/Rates are reported truncated to four decimals/g),
+    ]).toHaveLength(2);
   });
 });

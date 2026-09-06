@@ -173,6 +173,15 @@ export const GATE_READINGS = {
 
 export type GateName = keyof typeof GATE_READINGS;
 
+/**
+ * Reported rates are truncated to four fractional digits, while the engine
+ * compares and subtracts the exact ratio. A reported value can therefore sit
+ * just below a threshold it passes, and the panel says so rather than letting
+ * the reported value be read as the comparison operand.
+ */
+export const REPORTED_VALUE_NOTE =
+  "Rates are reported truncated to four decimals. Every verdict and difference is computed on the exact value, so a reported value can sit just below a threshold it passes.";
+
 export function Bps({ value }: { value: string }) {
   const percent = bpsToPercent(value);
   return (

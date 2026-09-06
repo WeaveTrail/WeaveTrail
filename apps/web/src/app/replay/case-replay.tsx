@@ -31,6 +31,7 @@ import {
   HashValue,
   Instant,
   readableCompactDate,
+  REPORTED_VALUE_NOTE,
   type GateName,
 } from "./machine-values";
 
@@ -358,6 +359,7 @@ export function RapidPriceLiftEvaluation({
           </>
         ) : (
           <div className="gate-list">
+            <p className="machine-note">{REPORTED_VALUE_NOTE}</p>
             {evaluation.findings.map((finding) => (
               <div
                 className="gate-row"
@@ -461,6 +463,7 @@ export function RapidPriceLiftEvaluation({
         {evaluation.sensitivity ? (
           <div className="sensitivity-block">
             <strong>Mechanical sensitivity comparison</strong>
+            <small className="machine-note">{REPORTED_VALUE_NOTE}</small>
             <a href="#gate-REMOVAL_SENSITIVITY">
               Inspect removal sensitivity evidence
             </a>
