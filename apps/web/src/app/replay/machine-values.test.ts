@@ -151,3 +151,38 @@ describe("displayed hashes on the core surface", () => {
     }
   });
 });
+
+describe("hash scope statements against what the code hashes", () => {
+  it("keeps the approved artifact hash independent of the override reasons beside it", async () => {
+    const { attemptApproval } = await import("./case-replay");
+    const { rapidPriceLiftScenarios } = await import("@weavetrail/scenarios");
+    const proposal =
+      rapidPriceLiftScenarios["rapid-price-lift-supported.csv"].mappingProposal;
+
+    const withoutOverrides = await attemptApproval(proposal, []);
+    const withOverrides = await attemptApproval(proposal, [
+      { fieldPath: "fields.0", reason: "reviewed by hand" },
+    ]);
+
+    expect(withoutOverrides.approval?.approvedArtifactHash).toBe(
+      withOverrides.approval?.approvedArtifactHash,
+    );
+    expect(withOverrides.approval?.overrides).toHaveLength(1);
+    // The statement shown beside this hash must not claim the overrides.
+    expect(HASH_SCOPES.approvedArtifact.covers).toContain("the proposal alone");
+    expect(HASH_SCOPES.approvedArtifact.covers).toMatch(/not inside it/);
+  });
+
+  it("does not claim a matching result hash proves identical approvals", () => {
+    expect(HASH_SCOPES.canonicalResult.proves).toContain(
+      "does not prove the two requests carried the same approval records",
+    );
+  });
+
+  it("describes the raw row hash as a canonical projection rather than bytes", () => {
+    expect(HASH_SCOPES.rawRow.covers).toContain("parsed column values");
+    expect(HASH_SCOPES.rawRow.covers).toContain(
+      "not the artifact's original bytes",
+    );
+  });
+});

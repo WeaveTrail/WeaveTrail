@@ -409,8 +409,7 @@ export function RapidPriceLiftEvaluation({
                                 ) : (
                                   <code>{value}</code>
                                 )}
-                                {EVENT_FIELD_NOTES[field] &&
-                                field !== "rawRowHash" ? (
+                                {EVENT_FIELD_NOTES[field] ? (
                                   <small className="machine-note">
                                     {EVENT_FIELD_NOTES[field]}
                                   </small>

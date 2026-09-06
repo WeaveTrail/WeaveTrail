@@ -18,7 +18,7 @@ export const HASH_SCOPES = {
   approvedArtifact: {
     label: "Approved artifact hash",
     covers:
-      "the exact artifact a person approved, canonically serialized: this proposal and its overrides, nothing else.",
+      "the exact artifact a person approved, canonically serialized: the proposal alone. A reviewer's override reasons travel in the approval record beside this hash and are not inside it.",
     proves:
       "A match proves the request carries the artifact that was approved. A mismatch proves the approval does not authorize the request, and the replay boundary refuses it.",
   },
@@ -27,13 +27,14 @@ export const HASH_SCOPES = {
     covers:
       "the engine version, the canonical event projection and the evaluation when one is present. It does not cover complete approval records, every mapping or manifest field, or the source trace.",
     proves:
-      "A match across two runs proves the same approved input and engine version produced the same result. A mismatch proves something in the approved input or the engine differed. Neither establishes authenticity or real-market accuracy.",
+      "A match across two runs proves the covered material is identical: the same engine version, canonical event projection and evaluation. It does not prove the two requests carried the same approval records, mapping or manifest fields. A mismatch proves some of the covered material differed. Neither establishes authenticity or real-market accuracy.",
   },
   rawRow: {
     label: "Raw row hash",
-    covers: "the exact serialized source row this canonical event came from.",
+    covers:
+      "the canonicalized source coordinate and parsed column values of the row this canonical event came from, not the artifact's original bytes. Those are covered by the source artifact hash.",
     proves:
-      "A match proves the canonical event still resolves to that committed row. A mismatch proves the row changed after the event was derived.",
+      "A match proves the canonical event still resolves to that committed row. A mismatch proves the coordinate or a parsed value changed after the event was derived.",
   },
 } as const;
 
@@ -96,7 +97,7 @@ export function HashValue({
   value: string;
   label?: string;
 }) {
-  const [copied, setCopied] = useState(false);
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
   const { covers, proves } = HASH_SCOPES[scope];
   const name = label ?? HASH_SCOPES[scope].label;
   return (
@@ -111,13 +112,15 @@ export function HashValue({
           className="button"
           onClick={() => {
             navigator.clipboard?.writeText(value).then(
-              () => setCopied(true),
-              () => setCopied(false),
+              () => setCopiedValue(value),
+              () => setCopiedValue(null),
             );
           }}
           type="button"
         >
-          {copied ? "Copied the full value" : "Copy the full value"}
+          {copiedValue === value
+            ? "Copied the full value"
+            : "Copy the full value"}
         </button>
         <p className="machine-note">{proves}</p>
       </details>
@@ -212,10 +215,10 @@ export const EVENT_FIELD_NOTES: Record<string, string> = {
   eventId:
     "Canonical identity: dataset, venue and source event identity joined. Not a hash.",
   sourceEventId: "The identifier the source assigned to this record.",
-  eventTime: "When the source says the event occurred, in its own UTC offset.",
+  eventTime:
+    "The instant the source reported, normalized to UTC by the engine. The source's own offset stays in the committed source row below.",
   price:
     "Executed price per unit, as an exact decimal string. The source carries no currency.",
   quantity: "Executed quantity, in units, as an exact decimal string.",
   sequence: "The source's own ordering value, not the canonical order.",
-  rawRowHash: "Covers the exact serialized source row this event came from.",
 };
