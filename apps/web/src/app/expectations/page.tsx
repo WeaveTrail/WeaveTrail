@@ -57,10 +57,10 @@ export default function ExpectationsPage() {
             Select <strong>Run deterministic replay</strong> for mapping 1.4
             sources, including Dialect A and Dialect B, even though those two
             sources have no case manifest. Select{" "}
-            <strong>Normalize source</strong> for mapping 1.5 daily-quote
-            sources. Compare the final workflow state, result, gate readings,
-            and canonical result hash below. The case proposal shows the
-            canonical dataset hash for evaluated cases.
+            <strong>Normalize source</strong> for mapping 1.5 and 1.6
+            daily-quote sources. Compare the final workflow state, result, gate
+            readings, and canonical result hash below. The case proposal shows
+            the canonical dataset hash for evaluated cases.
           </li>
         </ol>
         <p>
@@ -75,7 +75,7 @@ export default function ExpectationsPage() {
         </p>
         <p>
           This publication was captured at Git revision{" "}
-          <code>0ab7d3bf8f1016306f1c0225f5fa12a3415c2b79</code> with Node{" "}
+          <code>2a438d04b3f5f04ad847d3207b72a70eb0a76b39</code> with Node{" "}
           <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
           <code>4.1.11</code>, and Linux WSL2 x86_64. The test recomputes every
           value with the environment in which it runs and reports drift from

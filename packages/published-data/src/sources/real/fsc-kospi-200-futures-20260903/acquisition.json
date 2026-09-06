@@ -1,0 +1,59 @@
+{
+  "declaration": {
+    "scope": "complete-series",
+    "date": "20260903",
+    "filter": {
+      "kind": "instrument-family",
+      "value": "코스피200"
+    },
+    "pageSize": "10",
+    "declaredAt": "2026-09-06T16:00:27.013Z",
+    "permission": {
+      "status": "UNRESTRICTED",
+      "label": "이용허락범위 제한 없음",
+      "checkedAt": "2026-09-06T16:00:27.013Z",
+      "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+      "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_파생상품시세정보, via data.go.kr. KOSPI 200 futures family on trading date 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+    }
+  },
+  "retrievedAt": "2026-09-06T16:01:41.580Z",
+  "pageCount": "2",
+  "publisherTotal": "13",
+  "rowCount": "13",
+  "pages": [
+    {
+      "file": "page-1.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getStockFuturesPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "1",
+          "numOfRows": "10",
+          "likeItmsNm": "코스피200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "13",
+      "sha256": "544075d8991ad30a674591bfcfb8515ca3576bba0dc8aba774befd3f0600b91f"
+    },
+    {
+      "file": "page-2.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getStockFuturesPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "2",
+          "numOfRows": "10",
+          "likeItmsNm": "코스피200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "3",
+      "publisherTotal": "13",
+      "sha256": "d40f2535df55e9bd58115b7e20109c5d9499949fbf4a6ed78f478d0bd9b89be9"
+    }
+  ],
+  "sourceArtifactHash": "49c1bb4fa3f703993308b0508212534e35133952df9be7c614651202f7626d1f",
+  "publisherObservations": []
+}

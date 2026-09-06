@@ -69,17 +69,19 @@ than implemented today.
 
 Published artifacts declare `bounded-window` or `complete-series` beside their
 provenance. The existing FSC first-page window remains unchanged. A complete
-series fixes an exact instrument/series/date selector before retrieval, retains
-every returned page in order and requires row count equality with an unchanged
-publisher total. Value predicates and incomplete pagination are refused.
+series fixes a single date or half-open range and a closed identity, family or
+date selector before retrieval, retains every returned page in order and
+requires row count equality with an unchanged publisher total. Value predicates
+and incomplete pagination are refused.
 
-The manual collector uses reviewed publisher adapters; only synthetic transport
-fixtures are supplied for complete series today. Offline admission compares
-committed rows and requests with the original page bytes. Neither acquisition
+The manual collector uses reviewed publisher adapters; automated transport tests
+remain synthetic. Offline admission compares committed rows, generated source
+coordinates and requests with the original page bytes. Neither acquisition
 scope enters canonical events or approval hashes. Tests, CI, builds and runtime
 use no acquisition network transport. See
 [Published acquisition scopes](PUBLISHED_ACQUISITION.md) and
-[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md).
+[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
+[ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md).
 
 ### Layer boundaries
 
@@ -378,7 +380,7 @@ empty findings and null sensitivity. Missing normalization omits `replay`;
 normalization without a rule result omits only `replay.evaluation`.
 
 The FSC daily quotation artifact ends at `MAPPING_APPROVED` with a result hash
-but no evaluation or case manifest. Event 1.1/1.2, Proposal 1.4/1.5 and Manifest
+but no evaluation or case manifest. Event 1.1/1.2, Proposal 1.4/1.5/1.6 and Manifest
 1.3 retain their own versions inside this declaration. Hashing converts none
 of them and invents no missing fields.
 
@@ -530,10 +532,14 @@ See [ADR 0015](adr/0015-apply-the-canonical-design-reference.md).
 
 ## Daily quote version coexistence
 
-The engine also accepts daily-only Event `1.2` and Mapping Proposal `1.5` with
+The engine also accepts daily-only Event `1.2` and Mapping Proposals `1.5`/`1.6` with
 an approved `DAILY_QUOTE` constant and a trading-date anchor transform. Registry
 metadata carries versions/constants by artifact hash. Existing input branches,
 engine version, canonical processing and result shapes remain unchanged.
 The published FSC KOSPI daily artifact is registered without a case manifest; see
 [daily quote normalization](DAILY_QUOTES.md) and
 [ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md).
+Proposal `1.6` adds an injective ordered composite for `sourceEventId` only;
+the components remain original source columns and the ordinary mapping retains
+its duplicate-source and duplicate-target checks. See
+[ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md).

@@ -1,4 +1,4 @@
-import { fscStockQuotesProposal } from "@weavetrail/published-data";
+import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   SchemaMappingProposalSchema,
   type AllowedTransform,
@@ -49,7 +49,9 @@ function declaredFields(
 }
 
 const registeredProposals = [
-  fscStockQuotesProposal,
+  ...Object.values(publishedReplaySources).map(
+    ({ mappingProposal }) => mappingProposal,
+  ),
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
@@ -67,6 +69,9 @@ export const fixtureMappingsByArtifact = new Map(
           mappingVersion: proposal.mappingVersion,
           constants: proposal.constants,
           fields: declaredFields(proposal.fields),
+          ...(proposal.mappingVersion === "1.6"
+            ? { compositeSourceEventId: proposal.compositeSourceEventId }
+            : {}),
         },
       ] as const,
   ),
@@ -86,10 +91,12 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
     );
     if (
       input.constants.schemaVersion === "1.2" ||
-      artifactMapping?.mappingVersion === "1.5"
+      artifactMapping?.mappingVersion === "1.5" ||
+      artifactMapping?.mappingVersion === "1.6"
     ) {
       if (
-        artifactMapping?.mappingVersion !== "1.5" ||
+        (artifactMapping?.mappingVersion !== "1.5" &&
+          artifactMapping?.mappingVersion !== "1.6") ||
         input.constants.schemaVersion !== "1.2" ||
         artifactMapping.constants.schemaVersion !== "1.2" ||
         input.constants.datasetId !== artifactMapping.constants.datasetId ||
@@ -105,6 +112,9 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       mappingVersion: artifactMapping?.mappingVersion ?? "1.4",
       sourceArtifactHash: input.sourceArtifactHash,
       constants: input.constants,
+      ...(artifactMapping?.mappingVersion === "1.6"
+        ? { compositeSourceEventId: artifactMapping.compositeSourceEventId }
+        : {}),
       fields: input.columns.map((sourceColumn) => {
         const declared = artifactMapping?.fields.get(sourceColumn);
         return {

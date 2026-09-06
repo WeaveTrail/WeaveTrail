@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`committed FSC complete-series artifacts > reproduces real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl rows and pins its canonical dataset hash 1`] = `"b7364e750ab9bcdc2ecabd6877435d4efd2b8a1bc3ce80f0687b11f8bcecc9c7"`;
+
+exports[`committed FSC complete-series artifacts > reproduces real/fsc-kospi-200-futures-20260903/source.jsonl rows and pins its canonical dataset hash 1`] = `"9df726e18dc8c22596b55e28e0add89637dd77b35396096e5dc6b60466856f70"`;
+
+exports[`committed FSC complete-series artifacts > reproduces real/fsc-kospi-index-family-20260903/source.jsonl rows and pins its canonical dataset hash 1`] = `"b0b42b61f5668bc23b5f622a4e9819263ce2554f4d900e547d3d28ce50dcf9da"`;
+
+exports[`committed FSC complete-series artifacts > reproduces real/fsc-weekly-options-20260903/source.jsonl rows and pins its canonical dataset hash 1`] = `"b087b9b8311003d35a0051428f61eff0af25e348f76caa7470d5626c880158dc"`;

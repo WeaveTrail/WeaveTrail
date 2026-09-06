@@ -6,19 +6,25 @@ import {
   appendCompleteSeriesPage,
   finishCompleteSeries,
 } from "./complete-series.mjs";
+import { derivePublishedRows } from "./derive-published-rows.mjs";
 
 // Manual API only. No default publisher, credentials or network transport.
 // fetchPage receives a credential-free request; the reviewed adapter's
 // transport reads any credentials from its environment and must list their
 // raw/encoded forms in secrets so echoed data is refused before writing.
-export async function retrieveCompleteSeries({ declaration, output }, adapter) {
+export async function retrieveCompleteSeries(
+  { declaration, output, publisherObservations = [] },
+  adapter,
+) {
   const state = startCompleteSeries(declaration, adapter);
   const today = new Date().toISOString().slice(0, 10);
   if (
     state.declaration.permission.checkedAt.slice(0, 10) !== today ||
     state.declaration.declaredAt.slice(0, 10) !== today ||
     state.declaration.declaredAt > new Date().toISOString() ||
-    state.declaration.date >= today.replaceAll("-", "")
+    (typeof state.declaration.date === "string"
+      ? state.declaration.date >= today.replaceAll("-", "")
+      : state.declaration.date.endExclusive > today.replaceAll("-", ""))
   )
     throw new Error(
       "Recheck unrestricted permission today and predeclare a completed date",
@@ -70,6 +76,7 @@ export async function retrieveCompleteSeries({ declaration, output }, adapter) {
     visit(value);
   };
   guard(JSON.stringify(state.declaration));
+  guard(JSON.stringify(publisherObservations));
   // Reserve a new directory before any request; never reuse existing outputs.
   await mkdir(output);
   const created = [];
@@ -130,10 +137,16 @@ export async function retrieveCompleteSeries({ declaration, output }, adapter) {
       }
       await write(state.pages.at(-1).file, bytes);
     }
-    const result = finishCompleteSeries(state, new Date().toISOString());
+    const result = finishCompleteSeries(
+      state,
+      new Date().toISOString(),
+      publisherObservations,
+    );
     guard(result.jsonl);
     guard(JSON.stringify(result.record));
     await write("source.jsonl", result.jsonl);
+    const generated = derivePublishedRows(Buffer.from(result.jsonl, "utf8"));
+    await write("rows.json", generated.generatedRows);
     // A receipt exists only after every page and the complete derived source.
     await write(
       "acquisition.json",

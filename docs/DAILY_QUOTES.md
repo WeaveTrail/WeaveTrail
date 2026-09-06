@@ -16,6 +16,18 @@ synthetic.
 | Mapping Proposal | `mappingVersion: 1.4`, event schema `1.1` constants        | `mappingVersion: 1.5`, event schema `1.2` constants and required `eventType: DAILY_QUOTE` |
 | Date transform   | Existing transforms                                        | Adds `YYYYMMDD_TO_KST_DAY_START_ISO` for `eventTime` only                                 |
 
+Published index observations use the additional Mapping Proposal `1.6`
+branch. It retains the Event `1.2` constants and date transform while declaring
+an ordered `compositeSourceEventId`. The FSC natural key `(basDt, idxNm)` is
+joined with a reserved NUL separator only during approved normalization;
+neither source column nor any committed artifact is rewritten. Missing or
+NUL-containing components fail closed. Existing `1.4` and `1.5` proposals need
+no migration, and derivative sources with `srtnCd` remain on `1.5`.
+
+Case Replay accepts a complete committed source in a request up to the contract
+limit of 1,000 rows. This admits the 546-row weekly-options series without
+trimming while retaining a finite request bound.
+
 Every object branch remains strict. Existing payloads require no migration;
 new kinds and transforms cannot enter a legacy proposal. The daily kind is an
 artifact constant included in the exact proposal approval hash. A field mapping
@@ -83,6 +95,12 @@ price and quantity, followed by separate case approval, would be needed for a
 future case. Adding an actor alone cannot turn daily quotes into trades.
 
 ## Evidence and reproduction
+
+Display provenance represents a single published trading day with `basDt`. A
+complete series spanning multiple trading days instead uses `basDtRange` with
+an inclusive `begin` and `endInclusive`; range records must not overload the
+single-date field. Existing single-day provenance requires no migration, while
+an existing range string must be split into those two explicit endpoints.
 
 This artifact uses the `bounded-window` acquisition scope. Its adjacent
 `.acquisition.json` classifies the already recorded first-page policy without

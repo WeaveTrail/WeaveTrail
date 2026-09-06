@@ -1,7 +1,16 @@
 export type CompleteSeriesDeclaration = {
   scope: "complete-series";
-  date: string;
-  filter: { kind: "instrument" | "series" | "date"; value: string };
+  date: string | { kind: "range"; begin: string; endExclusive: string };
+  filter: {
+    kind:
+      | "instrument"
+      | "index"
+      | "series"
+      | "date"
+      | "index-family"
+      | "instrument-family";
+    value: string;
+  };
   pageSize: string;
   declaredAt: string;
   permission: {
@@ -19,9 +28,15 @@ export type SeriesRequest = {
 export type SeriesAdapter = {
   endpoint: string;
   dateParameter: string;
+  rangeParameters?: { begin: string; endExclusive: string };
   pageParameter: string;
   pageSizeParameter: string;
-  selectors: Partial<Record<"instrument" | "series", string>>;
+  selectors: Partial<
+    Record<
+      "instrument" | "index" | "series" | "index-family" | "instrument-family",
+      string
+    >
+  >;
   format?: { parameter: string; value: string };
   decodePage(
     bytes: Uint8Array,
@@ -31,6 +46,7 @@ export type SeriesAdapter = {
     pageSize: string;
     total: string;
     rows: Record<string, string>[];
+    identityKeys?: string[];
   };
 };
 export type SeriesRecord = {
@@ -47,8 +63,23 @@ export type SeriesRecord = {
     sha256: string;
   }[];
   sourceArtifactHash: string;
-  publisherObservations: never[];
+  publisherObservations: PublisherObservation[];
 };
+export type PublisherObservation =
+  | {
+      kind: "RANGE_END_EXCLUSIVE";
+      statement: string;
+      evidence: string;
+      checkedAt: string;
+    }
+  | {
+      kind: "ROUNDED_DECIMAL";
+      column: string;
+      decimalPlaces: string;
+      statement: string;
+      evidence: string;
+      checkedAt: string;
+    };
 export function validateCompleteSeriesDeclaration(
   value: unknown,
 ): CompleteSeriesDeclaration;
@@ -57,6 +88,22 @@ export function completeSeriesRequest(
   adapter: SeriesAdapter,
   pageNumber: string,
 ): SeriesRequest;
+export function startCompleteSeries(
+  declaration: CompleteSeriesDeclaration,
+  adapter: SeriesAdapter,
+): {
+  declaration: CompleteSeriesDeclaration;
+  requestAdapter: Omit<SeriesAdapter, "decodePage">;
+  pages: SeriesRecord["pages"];
+  rows: Record<string, string>[];
+  identityKeys: Set<string>;
+  total?: bigint;
+};
+export function appendCompleteSeriesPage(
+  state: ReturnType<typeof startCompleteSeries>,
+  bytes: Uint8Array,
+  adapter: SeriesAdapter,
+): boolean;
 export function validateCompleteSeriesArtifact(
   record: unknown,
   rawPages: readonly Uint8Array[],

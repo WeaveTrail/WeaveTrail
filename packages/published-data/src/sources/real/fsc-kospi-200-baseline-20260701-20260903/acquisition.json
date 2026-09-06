@@ -1,0 +1,131 @@
+{
+  "declaration": {
+    "scope": "complete-series",
+    "date": {
+      "kind": "range",
+      "begin": "20260701",
+      "endExclusive": "20260904"
+    },
+    "filter": {
+      "kind": "index",
+      "value": "코스피 200"
+    },
+    "pageSize": "10",
+    "declaredAt": "2026-09-06T16:00:27.013Z",
+    "permission": {
+      "status": "UNRESTRICTED",
+      "label": "이용허락범위 제한 없음",
+      "checkedAt": "2026-09-06T16:00:27.013Z",
+      "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+      "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_지수시세정보, via data.go.kr. Baseline range 2026-07-01 through 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+    }
+  },
+  "retrievedAt": "2026-09-06T16:01:40.100Z",
+  "pageCount": "5",
+  "publisherTotal": "45",
+  "rowCount": "45",
+  "pages": [
+    {
+      "file": "page-1.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "beginBasDt": "20260701",
+          "endBasDt": "20260904",
+          "pageNo": "1",
+          "numOfRows": "10",
+          "idxNm": "코스피 200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "45",
+      "sha256": "d4c14cc20230fe35da9ab780eccedeac0d630718a365e1a434ae854ee2fc7c08"
+    },
+    {
+      "file": "page-2.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "beginBasDt": "20260701",
+          "endBasDt": "20260904",
+          "pageNo": "2",
+          "numOfRows": "10",
+          "idxNm": "코스피 200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "45",
+      "sha256": "7c6c6180b44ff8c47a8697a3b4fd2ed17de06b6e78ad882007c12e4833d4aff0"
+    },
+    {
+      "file": "page-3.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "beginBasDt": "20260701",
+          "endBasDt": "20260904",
+          "pageNo": "3",
+          "numOfRows": "10",
+          "idxNm": "코스피 200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "45",
+      "sha256": "6e1cc2041a946337a7ea86ac1d457dabf1c03a684e88c7399df9a15a06ba2389"
+    },
+    {
+      "file": "page-4.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "beginBasDt": "20260701",
+          "endBasDt": "20260904",
+          "pageNo": "4",
+          "numOfRows": "10",
+          "idxNm": "코스피 200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "45",
+      "sha256": "bb2cf75fce8c90110ff5a8f6ac376bff256f117f769110969bbcdb016b6af8fe"
+    },
+    {
+      "file": "page-5.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "beginBasDt": "20260701",
+          "endBasDt": "20260904",
+          "pageNo": "5",
+          "numOfRows": "10",
+          "idxNm": "코스피 200",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "5",
+      "publisherTotal": "45",
+      "sha256": "ce32e4ecc5d6ab2b60539cc64fe3a19c1d7366345b035a60349f716f045a1ff8"
+    }
+  ],
+  "sourceArtifactHash": "0ba6f0b0eb53876f60dcd51d2e1b480da215afdf6954f00f1fc443c08b8c7ae7",
+  "publisherObservations": [
+    {
+      "kind": "RANGE_END_EXCLUSIVE",
+      "statement": "The publisher treats endBasDt as an exclusive upper bound.",
+      "evidence": "The official operation guide defines endBasDt as selecting basDt values less than the supplied value; endBasDt=20260904 retains the analysed 20260903 row.",
+      "checkedAt": "2026-09-06T16:00:27.013Z"
+    },
+    {
+      "kind": "ROUNDED_DECIMAL",
+      "column": "fltRt",
+      "decimalPlaces": "2",
+      "statement": "The publisher supplies fltRt rounded to two decimal places; it is a convenience percentage, not a precise derived rate.",
+      "evidence": "The returned fltRt strings use at most two fractional digits; net change must instead be derived later from clpr and vs.",
+      "checkedAt": "2026-09-06T16:00:27.013Z"
+    }
+  ]
+}
