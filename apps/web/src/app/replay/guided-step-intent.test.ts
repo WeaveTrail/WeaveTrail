@@ -265,7 +265,7 @@ describe("guided step intent", () => {
     ui.openStep(1);
     expect(ui.requirement()!.props["data-met"]).toBe(false);
     expect(textContent(ui.requirement())).toContain(
-      "Approve the separate mapping review example and this case's mapping to continue.",
+      "To continue: Approve the separate mapping review example and this case's mapping to continue.",
     );
     expect(ui.indexOf("step-requirement")).toBeLessThan(
       ui.indexOf("replay-control panel"),
@@ -278,10 +278,10 @@ describe("guided step intent", () => {
     expect(ui.requirement()!.props["data-met"]).toBe(false);
     const text = textContent(ui.requirement());
     expect(text).toContain(
-      "Not satisfied yet · Run the approved case and wait for its evaluation and source trace.",
+      "To continue: Run the approved case and wait for its evaluation and source trace.",
     );
     expect(text).toContain(
-      "you have not completed step 2 · Review the mapping",
+      "You are reading ahead: step 2, Review the mapping, is not completed.",
     );
   });
 
@@ -290,7 +290,8 @@ describe("guided step intent", () => {
     ui.openStep(4);
     expect(ui.heading()).toBe("Step 5 · Inspect the finding");
     expect(ui.stepButtons()[4]!.props["data-complete"]).toBe(false);
-    expect(textContent(ui.stepButtons()[4])).toContain("not completed");
+    expect(textContent(ui.stepButtons()[4])).not.toContain("Completed");
+    expect(textContent(ui.stepButtons()[4])).toContain("Current step");
     expect(ui.withClass("panel result-panel")!.props.hidden).toBe(false);
   });
 
@@ -304,7 +305,7 @@ describe("guided step intent", () => {
     expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(false);
     await ui.button("Continue");
     expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(true);
-    expect(textContent(ui.stepButtons()[1])).toContain("Completed by you");
+    expect(textContent(ui.stepButtons()[1])).toContain("Completed");
 
     const example = await nestedExample(ui);
     example.reason("");
@@ -317,7 +318,7 @@ describe("guided step intent", () => {
     const refusal = textContent(ui.withClass("step-refusal"));
     expect(refusal).toContain("REVIEW_REQUIRED");
     expect(refusal).toContain(
-      "A nonblank reviewer reason on every flagged field is the condition that clears it.",
+      "until every flagged field has a nonblank reviewer reason",
     );
   });
 
@@ -404,7 +405,7 @@ describe("guided step intent", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    expect(navigation).toContain('["Case Replay", "/replay"]');
+    expect(navigation).toContain('["Walk through a case", "/replay"]');
     expect(navigation).not.toContain("mode=");
 
     for (const [mode, current] of [

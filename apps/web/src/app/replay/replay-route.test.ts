@@ -100,10 +100,10 @@ describe("Case Replay entry contract", () => {
     // The entry's secondary action now carries the argument, which links on to
     // the architecture in turn.
     expect(home).toContain('href="/why"');
-    expect(nav).toContain('["Case Replay", "/replay"]');
+    expect(nav).toContain('["Walk through a case", "/replay"]');
     // One entry: the guided and working modes are chosen inside the surface.
     expect(nav).not.toContain("mode=");
-    expect(nav).toContain("Workbench");
+    expect(nav).toContain('"Start here"');
     expect(home + nav).not.toContain('"/lab"');
   });
 });

@@ -21,7 +21,7 @@ at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
 approval serialization, request generation and server-derived result rendering.
 
-Case Replay is one navigation entry. Above the surface, `Guided walkthrough` and
+Case Replay is one navigation entry, labelled `Walk through a case`. Above the surface, `Guided walkthrough` and
 `Working mode` name the two ways to use it, state what each does and mark the
 running one. `/replay` opens the guided walkthrough, `mode=working` selects
 working mode, and the guide hands off to `mode=working`. Guided mode places a

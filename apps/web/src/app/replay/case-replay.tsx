@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 
 import type {
   ReplayResultResponse,
@@ -96,7 +95,7 @@ export const guideSteps: readonly GuideStep[] = [
     actorDetail:
       "The fixture mapping provider proposes targets, transforms and evidence. It cannot approve them.",
     refusal:
-      "This step keeps a refusal on the path: the review example holds at REVIEW_REQUIRED. A nonblank reviewer reason on every flagged field is the condition that clears it.",
+      "A refusal stays on this path: the review example holds at REVIEW_REQUIRED until every flagged field has a nonblank reviewer reason.",
   },
   {
     title: "Approve the case",
@@ -734,6 +733,8 @@ export function CaseReplay({
   }
 
   const guideStep = guideSteps[chapter]!;
+  const panelLabel = (order: string, label: string) =>
+    guided ? label : `${order} · ${label}`;
 
   // Rendered inline rather than as a nested component so the same controls open
   // and close the step without duplicating their disabled and blocked state.
@@ -887,69 +888,63 @@ export function CaseReplay({
     >
       {!mappingExample && (
         <header className="journey-header panel">
-          <div className="journey-links">
-            <span className="panel-label">
-              {guided ? "Worked case · guided" : "Working mode"} ·{" "}
-              {selectedScenario.provenance?.kind ?? "synthetic"} data · fixture
-              provider
-            </span>
-            <Link href="/architecture">How it is built</Link>
-          </div>
           {guided ? (
             <>
-              <ol
-                className="journey-progress"
-                aria-label="Case walkthrough progress"
-              >
-                {guideSteps.map((step, index) => (
-                  <li
-                    key={step.title}
-                    aria-current={chapter === index ? "step" : undefined}
-                  >
-                    <button
-                      className="journey-step"
-                      data-complete={stepCompleted(index)}
-                      onClick={() => goToChapter(index)}
-                      type="button"
+              <div className="rail-scroll">
+                <ol
+                  className="journey-progress"
+                  aria-label="Case walkthrough progress"
+                >
+                  {guideSteps.map((step, index) => (
+                    <li
+                      key={step.title}
+                      aria-current={chapter === index ? "step" : undefined}
                     >
-                      <span>
-                        {index + 1}. {step.title}
-                      </span>
-                      <small>
-                        {stepCompleted(index)
-                          ? "Completed by you"
-                          : chapter === index
-                            ? "Current step · not completed"
-                            : "Not completed · read ahead"}
-                      </small>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-              <h2 ref={focusChapterTitle} tabIndex={-1}>
-                Step {chapter + 1} · {guideStep.title}
-              </h2>
-              <dl className="step-intent">
-                <div>
-                  <dt>What this step demonstrates</dt>
-                  <dd>{guideStep.purpose}</dd>
-                </div>
-                <div>
-                  <dt>What you do to advance it</dt>
-                  <dd>{guideStep.action}</dd>
-                </div>
-                <div>
-                  <dt>Who acted</dt>
-                  <dd>
-                    <strong>{guideStep.actor}</strong> {guideStep.actorDetail}
-                  </dd>
-                </div>
-              </dl>
-              {guideStep.refusal ? (
-                <p className="step-refusal" data-status="REVIEW_REQUIRED">
-                  {guideStep.refusal}
-                </p>
-              ) : null}
+                      <button
+                        className="journey-step"
+                        data-complete={stepCompleted(index)}
+                        onClick={() => goToChapter(index)}
+                        type="button"
+                      >
+                        <span>
+                          {index + 1}. {step.title}
+                        </span>
+                        {stepCompleted(index) || chapter === index ? (
+                          <small>
+                            {stepCompleted(index)
+                              ? "Completed"
+                              : "Current step"}
+                          </small>
+                        ) : null}
+                      </button>
+                    </li>
+                  ))}
+                </ol>
+                <h2 ref={focusChapterTitle} tabIndex={-1}>
+                  Step {chapter + 1} · {guideStep.title}
+                </h2>
+                <dl className="step-intent">
+                  <div>
+                    <dt>What this shows</dt>
+                    <dd>{guideStep.purpose}</dd>
+                  </div>
+                  <div>
+                    <dt>What you do</dt>
+                    <dd>{guideStep.action}</dd>
+                  </div>
+                  <div>
+                    <dt>Who acted</dt>
+                    <dd>
+                      <strong>{guideStep.actor}</strong> {guideStep.actorDetail}
+                    </dd>
+                  </div>
+                </dl>
+                {guideStep.refusal ? (
+                  <p className="step-refusal" data-status="REVIEW_REQUIRED">
+                    {guideStep.refusal}
+                  </p>
+                ) : null}
+              </div>
               <div className="rail-actions">
                 <p
                   className="step-requirement"
@@ -958,15 +953,14 @@ export function CaseReplay({
                   role="status"
                 >
                   {canContinue
-                    ? "The required action for this step is satisfied."
-                    : `Not satisfied yet · ${blockedReason}`}
+                    ? "Ready to continue."
+                    : `To continue: ${blockedReason}`}
                   {unmetEarlierStep === -1
                     ? ""
-                    : ` Read-ahead · you have not completed step ${
+                    : ` You are reading ahead: step ${
                         unmetEarlierStep + 1
-                      } · ${guideSteps[unmetEarlierStep]!.title}: ${
-                        stepBlockers[unmetEarlierStep]
-                      }`}
+                      }, ${guideSteps[unmetEarlierStep]!.title}, is not
+                      completed.`.replace(/\s+/g, " ")}
                 </p>
                 {stepControls("rail")}
               </div>
@@ -992,7 +986,9 @@ export function CaseReplay({
         hidden={guided && chapter >= 4 && !error}
       >
         <div hidden={!show(0) || mappingExample}>
-          <span className="panel-label">01 · Committed source</span>
+          <span className="panel-label">
+            {panelLabel("01", "Committed source")}
+          </span>
           <label className="scenario-select">
             <span>Committed source artifact</span>
             <select
@@ -1092,8 +1088,9 @@ export function CaseReplay({
           )}
           <div className="mapping-preview">
             <span className="panel-label">
-              02 · Executed mapping proposal · {providerMode} ·{" "}
-              {selectedScenario.value}
+              {guided
+                ? "Proposed mapping"
+                : `02 · Executed mapping proposal · ${providerMode} · ${selectedScenario.value}`}
             </span>
             <p>
               Proposed targets and allowlisted transforms, with confidence,
@@ -1162,7 +1159,9 @@ export function CaseReplay({
         <div hidden={!show(2) || mappingExample}>
           {selectedScenario.manifest ? (
             <div className="case-preview">
-              <span className="panel-label">03 · Case manifest proposal</span>
+              <span className="panel-label">
+                {panelLabel("03", "Case manifest proposal")}
+              </span>
               <dl>
                 <div>
                   <dt>Instrument</dt>
@@ -1304,7 +1303,9 @@ export function CaseReplay({
         className="panel result-panel"
         aria-live="polite"
       >
-        <span className="panel-label">04 · Canonical result</span>
+        <span className="panel-label">
+          {panelLabel("04", "Canonical result")}
+        </span>
         {result ? (
           <>
             <WorkflowStateBadge state={result.workflowState} />
@@ -1402,7 +1403,7 @@ export function CaseReplay({
         selectedScenario.manifest &&
         (!guided || chapter === 5) && (
           <section className="panel repeat-panel">
-            <h3>05 · Same-input repeatability</h3>
+            <h3>{panelLabel("05", "Same-input repeatability")}</h3>
             <p>
               Repeat the same approved case and compare the two server-returned
               hashes as strings. This does not establish authenticity,
@@ -1450,7 +1451,7 @@ export function CaseReplay({
         )}
       {!mappingExample && (
         <section className="panel" hidden={guided && chapter !== 6}>
-          <h3>06 · What runs today</h3>
+          <h3>{panelLabel("06", "What runs today")}</h3>
           <p>
             Synthetic committed sources and one licensed published daily-quote
             source, a deterministic fixture mapping provider, explicit human

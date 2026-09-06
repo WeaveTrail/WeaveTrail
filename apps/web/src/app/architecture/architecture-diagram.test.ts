@@ -55,7 +55,13 @@ describe("architecture layer diagram", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    const order = ["Investigate", "/", "/replay", "Reference", "/architecture"];
+    const order = [
+      "Start here",
+      "/",
+      "/replay",
+      "About this project",
+      "/architecture",
+    ];
     let cursor = -1;
     for (const token of order) {
       const next = navigation.indexOf(`"${token}"`, cursor + 1);

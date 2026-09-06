@@ -111,7 +111,6 @@ button:disabled {
 .side-nav nav a[aria-current="page"] {
   font-weight: var(--weight-semibold);
 }
-.nav-label,
 .nav-group-label,
 .panel-label,
 .kicker,
@@ -430,13 +429,23 @@ button:disabled {
 .guided-split > * {
   grid-column: 2;
 }
+/* The rail is a column: the step and its explanation scroll inside their own
+   region, and the controls sit outside that region, so nothing ever scrolls
+   behind them. */
 .guided-split > .journey-header {
   position: sticky;
   top: calc(var(--appbar-height) + 16px);
   grid-column: 1;
   grid-row: 1 / -1;
   align-self: start;
+  display: flex;
+  flex-direction: column;
   max-height: calc(100vh - var(--appbar-height) - 32px);
+  overflow: hidden;
+}
+.guided-split .rail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 .guided-split .journey-progress {
@@ -472,19 +481,16 @@ button:disabled {
    and the controls hold at its bottom edge and advancing never depends on that
    scroll. */
 .guided-split > .journey-header .rail-actions {
-  position: sticky;
-  bottom: 0;
+  flex: 0 0 auto;
   display: grid;
   gap: 8px;
-  margin-top: 16px;
-  padding-block: 10px;
-  background: var(--surface-card);
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: var(--hairline);
 }
 .guided-split > .journey-header .journey-controls {
   margin-top: 0;
 }
-.journey-links,
 .journey-footer {
   display: flex;
   flex-wrap: wrap;
@@ -1004,8 +1010,12 @@ code {
     position: static;
   }
   .guided-split > .journey-header {
+    display: block;
     grid-row: auto;
     max-height: none;
+    overflow: visible;
+  }
+  .guided-split .rail-scroll {
     overflow-y: visible;
   }
 }

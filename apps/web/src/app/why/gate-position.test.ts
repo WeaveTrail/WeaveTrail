@@ -298,12 +298,12 @@ describe("where the gate sits", () => {
     );
   });
 
-  it("lists the page under the navigation Reference group", () => {
+  it("lists the page under the navigation group about the project", () => {
     const navigation = readFileSync(
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    const reference = navigation.indexOf('"Reference"');
+    const reference = navigation.indexOf('"About this project"');
     expect(reference).toBeGreaterThan(-1);
     expect(navigation.indexOf('"/why"')).toBeGreaterThan(reference);
   });

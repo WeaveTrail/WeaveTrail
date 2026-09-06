@@ -41,21 +41,11 @@ export default async function ReplayPage({
   return (
     <main className="shell page-shell">
       <div className="page-heading">
-        <span className="eyebrow">Case Replay</span>
         <h1>Follow a case from source to finding.</h1>
         <p>
           Review the executions behind an alert, approve their interpretation
-          and scope, then inspect the versioned pattern result. Follow the
-          guided walkthrough step by step, or take the same controls yourself in
-          working mode.
+          and scope, then inspect the result versioned code returns.
         </p>
-        {guided ? null : (
-          <p>
-            In working mode, you can also review and normalize published daily
-            quotations. Their source provenance and limits on case approval
-            remain visible.
-          </p>
-        )}
         <nav aria-label="Case Replay mode" className="mode-choice">
           {modes.map((mode) => (
             <Link

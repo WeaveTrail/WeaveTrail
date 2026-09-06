@@ -45,9 +45,14 @@ path and states the reviewer reason that clears it. The single control that
 advances the current step is marked, distinguishing it from the surrounding
 controls.
 
-Case Replay keeps one navigation entry. The two ways to use it are named and
-chosen inside the surface, above it, as `Guided walkthrough` and `Working mode`,
-each stating what it does and marking which one is running. `/replay` opens the
+Case Replay keeps one navigation entry, labelled `Walk through a case` for what
+a visitor does there; `Case Replay` remains its name in this documentation and
+in the page title. The navigation drops the `Workbench` heading that
+[ADR 0019](0019-share-guided-and-working-case-replay-state.md) retained, and its
+two groups are named for what they hold: `Start here`, with `Home` and the
+walkthrough, and `About this project`. The two ways to use the surface are named
+and chosen inside it, above it, as `Guided walkthrough` and `Working mode`, each
+stating what it does and marking which one is running. `/replay` opens the
 guided walkthrough, `mode=working` selects working mode, and `mode=guided`
 remains explicit. The query stays the only presentation-mode source of truth,
 and the guide's completion hands off to `mode=working` rather than restarting
@@ -64,3 +69,11 @@ input change that invalidates an approval also visibly withdraws that step's
 completion. One entry means the navigation no longer distinguishes the two
 modes; the surface does, and a visitor who wants the plain controls reaches
 them in one click from the same page.
+
+Labels that repeated what the page frame already says are gone: the rail's mode
+and provenance line, which the site header and footer carry; its architecture
+link, which the navigation carries; the panel numbers in guided mode, which
+competed with the step numbers; and the per-row status on steps the visitor has
+neither completed nor opened. The rail is a column whose step explanation
+scrolls in its own region, with the condition and controls outside it, so
+nothing scrolls behind the controls.

@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Overview",
+  title: "Home",
   description:
     "See how WeaveTrail separates constrained AI proposals, human approval, deterministic replay, and traceable evidence.",
   alternates: { canonical: "/" },
