@@ -113,6 +113,9 @@ parser edge cases, identity conflicts and rule ineligibility use wholly syntheti
 specimens. The negative real-data route test supplies an explicitly untrusted
 actor claim only in a refused request; it never evaluates that case.
 
-The engine stays `0.7.0-canonical-decimal`, Case Manifest stays `1.3`, and the
-rule, thresholds and HTTP response shapes stay unchanged. See
-[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md).
+The engine stays `0.7.0-canonical-decimal`; this published source still has no
+case manifest, rule result or pattern verdict. Parallel Case Manifest `1.4`
+can state an actorless multi-instrument hypothesis, but its cross-market rule
+remains planned. See
+[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
+[ADR 0027](adr/0027-coexist-with-actorless-multi-instrument-manifests.md).

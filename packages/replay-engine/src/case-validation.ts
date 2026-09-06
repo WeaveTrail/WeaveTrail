@@ -1,4 +1,7 @@
-import type { CaseManifest, DatasetProfile } from "@weavetrail/contracts";
+import type {
+  DatasetProfile,
+  VersionedCaseManifest,
+} from "@weavetrail/contracts";
 
 import { compareCanonicalEventTimes } from "./canonical-order";
 
@@ -18,7 +21,7 @@ export type CaseProfileValidation =
     };
 
 export function validateCaseAgainstProfile(
-  manifest: CaseManifest,
+  manifest: VersionedCaseManifest,
   profile: DatasetProfile,
 ): CaseProfileValidation {
   const issues: { code: CaseProfileIssueCode; path: (string | number)[] }[] =
@@ -30,11 +33,25 @@ export function validateCaseAgainstProfile(
       path: ["canonicalDatasetHash"],
     });
   }
-  if (!profile.instrumentIds.includes(manifest.hypothesis.instrumentId)) {
-    issues.push({
-      code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
-      path: ["hypothesis", "instrumentId"],
-    });
+  const declaredInstruments =
+    manifest.manifestVersion === "1.3"
+      ? [
+          {
+            instrumentId: manifest.hypothesis.instrumentId,
+            path: ["hypothesis", "instrumentId"] as (string | number)[],
+          },
+        ]
+      : manifest.hypothesis.instrumentIds.map((instrumentId, index) => ({
+          instrumentId,
+          path: ["hypothesis", "instrumentIds", index] as (string | number)[],
+        }));
+  for (const { instrumentId, path } of declaredInstruments) {
+    if (!profile.instrumentIds.includes(instrumentId)) {
+      issues.push({
+        code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+        path,
+      });
+    }
   }
   for (const [index, actorId] of manifest.hypothesis.actorIds.entries()) {
     if (!profile.actorIds.includes(actorId)) {

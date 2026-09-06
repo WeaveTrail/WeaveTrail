@@ -5,6 +5,7 @@ import {
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import {
+  actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   rapidPriceLiftScenarios,
@@ -49,6 +50,7 @@ function declaredFields(
 
 const registeredProposals = [
   fscStockQuotesProposal,
+  actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   ...Object.values(rapidPriceLiftScenarios).map(

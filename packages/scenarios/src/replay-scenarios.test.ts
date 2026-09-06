@@ -23,6 +23,22 @@ describe("committed replay scenarios", () => {
     expect(scenario.rows).toHaveLength(4);
   });
 
+  it("registers an actorless source with two declared instruments", () => {
+    const scenario =
+      committedReplayScenarios["actorless-multi-instrument-quotes.jsonl"];
+
+    expect(scenario.rows.map(({ values }) => values.instrument)).toEqual([
+      "WT-MARKET-A",
+      "WT-MARKET-B",
+    ]);
+    expect(scenario.mappingProposal.constants.schemaVersion).toBe("1.2");
+    if (scenario.mappingProposal.constants.schemaVersion !== "1.2") {
+      throw new Error("Expected the actorless source to use daily constants");
+    }
+    expect(scenario.mappingProposal.constants.eventType).toBe("DAILY_QUOTE");
+    expect(scenario).not.toHaveProperty("manifest");
+  });
+
   it("does not fall back to dialect A events for dialect B", () => {
     const scenario =
       committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];

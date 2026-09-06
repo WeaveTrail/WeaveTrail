@@ -180,17 +180,18 @@ precisely; missing values point to the nearest existing parent container.
 
 Illustrative paths:
 
-| Failure                                 | Request path                                           |
-| --------------------------------------- | ------------------------------------------------------ |
-| Changed price in submitted row `i`      | `["rows", i, "values", "px"]`                          |
-| Missing actor column in row `i`         | `["rows", i, "values"]`                                |
-| Omitted declared row                    | `["rows"]`                                             |
-| Foreign artifact in row `i`             | `["rows", i, "coordinate", "sourceArtifactHash"]`      |
-| Required mapping override               | `["mappingApproval", "overrides"]`                     |
-| Missing mapping approval                | `[]`                                                   |
-| Case approval hash mismatch             | `["caseManifest", "approval", "approvedArtifactHash"]` |
-| Case instrument outside profile         | `["caseManifest", "hypothesis", "instrumentId"]`       |
-| Missing or duplicate rule configuration | `["caseManifest", "rules"]`                            |
+| Failure                                   | Request path                                           |
+| ----------------------------------------- | ------------------------------------------------------ |
+| Changed price in submitted row `i`        | `["rows", i, "values", "px"]`                          |
+| Missing actor column in row `i`           | `["rows", i, "values"]`                                |
+| Omitted declared row                      | `["rows"]`                                             |
+| Foreign artifact in row `i`               | `["rows", i, "coordinate", "sourceArtifactHash"]`      |
+| Required mapping override                 | `["mappingApproval", "overrides"]`                     |
+| Missing mapping approval                  | `[]`                                                   |
+| Case approval hash mismatch               | `["caseManifest", "approval", "approvedArtifactHash"]` |
+| Case `1.3` instrument outside profile     | `["caseManifest", "hypothesis", "instrumentId"]`       |
+| Case `1.4` instrument `i` outside profile | `["caseManifest", "hypothesis", "instrumentIds", i]`   |
+| Missing or duplicate rule configuration   | `["caseManifest", "rules"]`                            |
 
 Source artifact hashes, source row numbers, missing column names, and required
 proposal field paths remain diagnostic message context. They are not request
@@ -465,7 +466,11 @@ rules.
 
 Case Manifest `1.3` retains the immutable approval record introduced by `1.2`,
 requires at least one actor, and accepts only registered rule parameters for
-the declared rule version. Mapping Proposal `1.4` retains the closed identity
+the declared rule version. Parallel Case Manifest `1.4` declares a non-empty
+instrument set and applies a closed pattern-to-participant policy; an empty
+actor list records identity absent from the source, not absence of actors.
+Existing `1.3` artifacts remain valid without migration. Mapping Proposal `1.4`
+retains the closed identity
 constants and transform pairs and makes `DECIMAL_STRING` produce canonical
 decimal spelling. Both artifact types use the shared RFC 8785 finite-number
 serialization rule for JSON numbers. Superseded artifacts are rejected and
@@ -477,6 +482,8 @@ artifacts retain their original version and migrate explicitly. See
 [ADR 0011](adr/0011-use-rfc-8785-number-serialization.md).
 Decimal-string normalization and its version migration are recorded in
 [ADR 0013](adr/0013-normalize-canonical-decimal-strings.md).
+Manifest coexistence and per-instrument validation are recorded in
+[ADR 0027](adr/0027-coexist-with-actorless-multi-instrument-manifests.md).
 
 ## Deployment boundary
 

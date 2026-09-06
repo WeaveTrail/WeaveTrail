@@ -2,12 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import {
   CaseManifestSchema,
+  CaseManifestV14Schema,
+  deriveApprovedSourceMapping,
   type CaseManifestProposal,
 } from "@weavetrail/contracts";
-import { concentratedBuyEvents } from "@weavetrail/scenarios";
+import {
+  actorlessMultiInstrumentScenario,
+  concentratedBuyEvents,
+} from "@weavetrail/scenarios";
 
 import { validateCaseAgainstProfile } from "./case-validation";
 import { computeDatasetProfile } from "./dataset-profile";
+import { applyApprovedMapping } from "./source-ingest";
 
 const profile = computeDatasetProfile(concentratedBuyEvents);
 const validProposal: CaseManifestProposal = {
@@ -105,5 +111,98 @@ describe("case validation against a dataset profile", () => {
         hypothesis: { ...validManifest.hypothesis, actorIds: [] },
       }).success,
     ).toBe(false);
+  });
+
+  it("accepts every instrument in an actorless multi-instrument case", () => {
+    const application = applyApprovedMapping(
+      actorlessMultiInstrumentScenario.rows,
+      deriveApprovedSourceMapping(
+        actorlessMultiInstrumentScenario.mappingProposal,
+      ),
+    );
+    if (application.status !== "APPROVED") {
+      throw new Error("Expected the committed synthetic mapping to apply");
+    }
+    const multiInstrumentProfile = computeDatasetProfile(application.events);
+    const manifest = CaseManifestV14Schema.parse({
+      manifestVersion: "1.4",
+      caseId: "synthetic-cross-market-case",
+      canonicalDatasetHash: multiInstrumentProfile.canonicalDatasetHash,
+      hypothesis: {
+        pattern: "CROSS_MARKET_SESSION_REVERSAL",
+        instrumentIds: ["WT-MARKET-A", "WT-MARKET-B"],
+        actorIds: [],
+        startTime: multiInstrumentProfile.earliestEventTime,
+        endTime: multiInstrumentProfile.latestEventTime,
+      },
+      rules: [],
+      aiTrace: {
+        provider: "fixture",
+        model: "deterministic",
+        promptVersion: "cross-market-case-v1",
+        confidence: 1,
+        referencedEventIds: [],
+      },
+      approval: {
+        approvedArtifactHash: "a".repeat(64),
+        reviewerRef: "reviewer-fixture",
+        decision: "APPROVED",
+        overrides: [],
+        approvedAt: "2026-09-06T00:00:00Z",
+      },
+    });
+
+    expect(multiInstrumentProfile).toMatchObject({
+      instrumentIds: ["WT-MARKET-A", "WT-MARKET-B"],
+      actorIds: [],
+    });
+    expect(
+      validateCaseAgainstProfile(manifest, multiInstrumentProfile),
+    ).toEqual({ accepted: true });
+  });
+
+  it("reports every out-of-profile instrument at its declared index", () => {
+    const manifest = CaseManifestV14Schema.parse({
+      manifestVersion: "1.4",
+      caseId: "synthetic-cross-market-case",
+      canonicalDatasetHash: profile.canonicalDatasetHash,
+      hypothesis: {
+        pattern: "CROSS_MARKET_SESSION_REVERSAL",
+        instrumentIds: ["WT-OUTSIDE-A", "WT-DEMO", "WT-OUTSIDE-B"],
+        actorIds: [],
+        startTime: profile.earliestEventTime,
+        endTime: profile.latestEventTime,
+      },
+      rules: [],
+      aiTrace: {
+        provider: "fixture",
+        model: "deterministic",
+        promptVersion: "cross-market-case-v1",
+        confidence: 1,
+        referencedEventIds: [],
+      },
+      approval: {
+        approvedArtifactHash: "a".repeat(64),
+        reviewerRef: "reviewer-fixture",
+        decision: "APPROVED",
+        overrides: [],
+        approvedAt: "2026-09-06T00:00:00Z",
+      },
+    });
+
+    expect(validateCaseAgainstProfile(manifest, profile)).toEqual({
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+          path: ["hypothesis", "instrumentIds", 0],
+        },
+        {
+          code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+          path: ["hypothesis", "instrumentIds", 2],
+        },
+      ],
+    });
   });
 });

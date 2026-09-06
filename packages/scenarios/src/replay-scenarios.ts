@@ -1,3 +1,4 @@
+import { actorlessMultiInstrumentScenario } from "./actorless-multi-instrument";
 import {
   concentratedBuyDialectARows,
   concentratedBuyDialectBRows,
@@ -12,6 +13,7 @@ import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
 import { syntheticSourceProvenance } from "./source-provenance";
 
 const syntheticScenarios = {
+  "actorless-multi-instrument-quotes.jsonl": actorlessMultiInstrumentScenario,
   "concentrated-buy-dialect-a.csv": {
     label: "Dialect A · CSV",
     sourceArtifactHash: concentratedBuyDialectAMapping.sourceArtifactHash,

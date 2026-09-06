@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
 import {
+  actorlessMultiInstrumentScenario,
   committedReplayScenarios,
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
@@ -19,6 +20,18 @@ afterEach(() => {
 });
 
 describe("FixtureSchemaMappingProvider", () => {
+  it("serves the committed actorless multi-instrument mapping", async () => {
+    const scenario = actorlessMultiInstrumentScenario;
+    const proposal = await provider.propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+
+    expect(proposal).toEqual(scenario.mappingProposal);
+  });
+
   it("selects daily proposal metadata by registered artifact hash and checks constants", async () => {
     const constants = {
       schemaVersion: "1.2",
