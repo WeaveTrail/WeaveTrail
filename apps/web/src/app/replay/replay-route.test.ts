@@ -91,7 +91,10 @@ describe("Case Replay entry contract", () => {
     expect(metadata.title).toBe("Case Replay");
     expect(metadata.alternates?.canonical).toBe("/replay");
     expect(existsSync(resolve("apps/web/src/app/lab/page.tsx"))).toBe(false);
-    const home = readFileSync(resolve("apps/web/src/app/page.tsx"), "utf8");
+    const home = readFileSync(
+      resolve("apps/web/src/app/home-content.tsx"),
+      "utf8",
+    );
     const nav = readFileSync(
       resolve("apps/web/src/app/site-navigation.tsx"),
       "utf8",
