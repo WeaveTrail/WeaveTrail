@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 const groups = [
   [
-    "Investigate",
+    "Start here",
     [
-      ["Overview", "/"],
-      ["Case Replay", "/replay"],
+      ["Home", "/"],
+      ["Walk through a case", "/replay"],
     ],
   ],
   [
-    "Reference",
+    "About this project",
     [
       ["Why the gate", "/why"],
       ["Architecture", "/architecture"],
@@ -27,7 +28,6 @@ export function SiteNavigation() {
 
   return (
     <nav aria-label="Primary navigation">
-      <span className="nav-label">Workbench</span>
       {groups.map(([group, items]) => (
         <div aria-label={group} className="nav-group" key={group} role="group">
           <span aria-hidden="true" className="nav-group-label">

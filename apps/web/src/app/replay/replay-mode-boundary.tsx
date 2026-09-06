@@ -11,7 +11,7 @@ export function ReplayModeBoundary(props: CaseReplayProps) {
     <CaseReplay
       {...props}
       onGuideComplete={() => {
-        router.replace("/replay");
+        router.replace("/replay?mode=working");
       }}
     />
   );

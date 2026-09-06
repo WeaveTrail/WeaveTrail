@@ -254,7 +254,13 @@ approval, and keeps replay blocked.
 
 ### Worked-case interpretation
 
-The entry action opens `/replay?mode=guided`. The supported case and the
+The entry action opens `/replay?mode=guided`, and `/replay` itself opens the
+same walkthrough; working mode is the named alternative beside it. Each step
+states what it demonstrates, what the visitor must do to
+advance it, and whether a model proposed, a person approved or versioned code
+decided the work it shows. A visitor may open any step to read it; completion is
+recorded only for a step the visitor satisfied, and it is withdrawn when a later
+change stops satisfying it. The supported case and the
 Dialect B review example are distinct committed sources, with independent
 proposal hashes and approvals. The example's unmapped field is retained with
 a justified reason; this does not invent a transform or provide a rule manifest.

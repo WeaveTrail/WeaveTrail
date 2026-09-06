@@ -21,6 +21,16 @@ at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
 approval serialization, request generation and server-derived result rendering.
 
+Case Replay is one navigation entry, labelled `Walk through a case`. Above the surface, `Guided walkthrough` and
+`Working mode` name the two ways to use it, state what each does and mark the
+running one. `/replay` opens the guided walkthrough, `mode=working` selects
+working mode, and the guide hands off to `mode=working`. Guided mode places a
+step rail beside the case content. Each step opens with its purpose, the action that advances it and
+the authority that acted in it, and the rail keeps the unmet condition and the
+step controls at its bottom edge while the step content repeats them at its end.
+The step list is navigable for reading; a step counts as completed only while the
+visitor's own work still satisfies it. See [ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md).
+
 The guided source is `rapid-price-lift-supported.csv` with baseline mutation.
 Its mapping chapter embeds a separate `concentrated-buy-dialect-b.jsonl`
 mapping review example. Each instance owns its proposal-specific approval and

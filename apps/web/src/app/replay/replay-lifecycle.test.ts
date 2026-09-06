@@ -508,18 +508,18 @@ describe("replay result lifecycle", () => {
       guide.hasText("MISMATCH · retry or inspect the returned results"),
     ).toBe(true);
     expect(guide.buttonDisabled("Continue")).toBe(true);
-    expect(guide.buttonDisabled("Continue in Case Replay")).toBe(true);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
 
     // A second B must still compare with the original A baseline.
     await guide.button("Repeat the same approved case");
     expect(guide.buttonDisabled("Continue")).toBe(true);
-    expect(guide.buttonDisabled("Continue in Case Replay")).toBe(true);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
 
     // Returning to A recovers both completion gates.
     await guide.button("Repeat the same approved case");
     expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
     expect(guide.buttonDisabled("Continue")).toBe(false);
-    expect(guide.buttonDisabled("Continue in Case Replay")).toBe(false);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
     expect(
       request.mock.calls
         .map(([, init]) => JSON.stringify(JSON.parse(init.body)))
@@ -543,7 +543,7 @@ describe("replay result lifecycle", () => {
     await guide.button("Repeat the same approved case");
     expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
     expect(guide.buttonDisabled("Continue")).toBe(false);
-    expect(guide.buttonDisabled("Continue in Case Replay")).toBe(false);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
   });
 
   it("requires an evaluated result, source inspection and a real repeat before retaining state in working mode", async () => {
@@ -625,7 +625,7 @@ describe("replay result lifecycle", () => {
       ),
     ).toBe(true);
     await guide.button("Continue");
-    await guide.button("Continue in Case Replay");
+    await guide.button("Continue in working mode");
     expect(completeGuide).toHaveBeenCalledOnce();
     guide.setGuided(false);
     expect(

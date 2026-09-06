@@ -111,7 +111,6 @@ button:disabled {
 .side-nav nav a[aria-current="page"] {
   font-weight: var(--weight-semibold);
 }
-.nav-label,
 .nav-group-label,
 .panel-label,
 .kicker,
@@ -421,7 +420,77 @@ button:disabled {
 .journey-footer {
   grid-column: 1 / -1;
 }
-.journey-links,
+/* Guided mode reads as a fixed step rail beside the case it drives, so the
+   steps, their intent and their controls stay in view without scrolling. */
+.guided-split {
+  grid-template-columns: minmax(17rem, 1fr) minmax(0, 2fr);
+  align-items: start;
+}
+.guided-split > * {
+  grid-column: 2;
+}
+/* The rail is a column: the step and its explanation scroll inside their own
+   region, and the controls sit outside that region, so nothing ever scrolls
+   behind them. */
+.guided-split > .journey-header {
+  position: sticky;
+  top: calc(var(--appbar-height) + 16px);
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--appbar-height) - 32px);
+  overflow: hidden;
+}
+.guided-split .rail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+.guided-split .journey-progress {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  margin-block: 12px;
+}
+.guided-split .journey-step {
+  gap: 1px;
+  padding: 6px 10px;
+}
+.guided-split .journey-step span {
+  font-size: 0.875rem;
+}
+.guided-split .journey-step small {
+  font-size: 0.6875rem;
+}
+.guided-split .journey-header h2 {
+  font: var(--type-section);
+  margin-block: 8px;
+}
+.guided-split .step-intent {
+  gap: 8px;
+  margin-block: 12px;
+  font-size: 0.875rem;
+}
+.guided-split .step-refusal,
+.guided-split .step-requirement {
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+}
+/* The rail scrolls on its own when a step says a lot, so the unmet condition
+   and the controls hold at its bottom edge and advancing never depends on that
+   scroll. */
+.guided-split > .journey-header .rail-actions {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: var(--hairline);
+}
+.guided-split > .journey-header .journey-controls {
+  margin-top: 0;
+}
 .journey-footer {
   display: flex;
   flex-wrap: wrap;
@@ -448,6 +517,108 @@ button:disabled {
   background: var(--selected-bg);
   border-color: var(--teal-700);
   font-weight: 600;
+}
+.journey-progress li {
+  padding: 0;
+}
+.journey-step {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.journey-step small {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.journey-step[data-complete="true"] small {
+  color: var(--authorship-human);
+}
+.journey-step[data-complete="true"] span::after {
+  content: " \2713";
+  color: var(--authorship-human);
+}
+.step-intent {
+  display: grid;
+  gap: 10px;
+  margin-block: 16px;
+  padding-left: 12px;
+  border-left: var(--rule-accent);
+}
+.step-intent dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.step-intent dd {
+  margin: 0;
+  max-width: var(--prose-max);
+}
+.step-intent strong {
+  color: var(--authorship-code);
+}
+.step-refusal,
+.step-requirement {
+  display: block;
+  max-width: var(--prose-max);
+  padding: 12px;
+  border-left: 3px solid var(--state-review);
+  background: var(--state-review-bg);
+  color: var(--text-body);
+}
+.step-requirement[data-met="true"] {
+  border-left-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
+.journey-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+.journey-footer .journey-controls {
+  margin-top: 0;
+}
+.step-action {
+  outline: var(--rule-accent);
+  outline-offset: 3px;
+}
+details.step-action > summary {
+  font-weight: var(--weight-semibold);
+  color: var(--teal-800);
+}
+/* One surface, two named ways to use it. The choice states what each does and
+   which one is running, so the modes are never two unexplained destinations. */
+.mode-choice {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.mode-choice a {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  color: var(--text-body);
+  text-decoration: none;
+}
+.mode-choice a[aria-current="page"] {
+  border: var(--border-approved);
+  background: var(--selected-bg);
+}
+.mode-choice small {
+  font: var(--type-small);
+  color: var(--text-muted);
 }
 .component-chain span {
   display: block;
@@ -826,8 +997,26 @@ code {
   .side-nav-footer {
     display: none;
   }
+  .guided-split,
   .replay-grid {
     grid-template-columns: 1fr;
+  }
+  .guided-split > *,
+  .guided-split > .journey-header {
+    grid-column: 1;
+  }
+  .guided-split > .journey-header,
+  .guided-split > .journey-header .rail-actions {
+    position: static;
+  }
+  .guided-split > .journey-header {
+    display: block;
+    grid-row: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .guided-split .rail-scroll {
+    overflow-y: visible;
   }
 }
 @media (max-width: 40rem) {

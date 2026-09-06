@@ -69,7 +69,7 @@ export default function RootLayout({
           </span>
         </header>
         <div className="app-shell">
-          <aside className="side-nav" aria-label="Workbench navigation">
+          <aside className="side-nav">
             <SiteNavigation />
             <div className="side-nav-footer">
               <span>AI proposals</span>
