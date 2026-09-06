@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import { EvalsContent } from "./evals-content";
 
 export const metadata: Metadata = {
   title: "Evaluation Coverage",
@@ -302,35 +303,5 @@ export const checks = [
 ] as const satisfies readonly (ImplementedCheck | PlannedCheck)[];
 
 export default function EvalsPage() {
-  return (
-    <main className="shell page-shell">
-      <div className="page-heading">
-        <span className="eyebrow">Evaluation ledger</span>
-        <h1>Measured evidence only.</h1>
-        <p>
-          This page distinguishes runnable invariants from future measurements.
-          Targets do not become results until their cases, command, environment,
-          and limitations are committed.
-        </p>
-        <p>
-          Rule outcome benchmarks use synthetic cases. The published daily quote
-          artifact is separate normalization and refusal evidence, with
-          provenance shown in working mode.
-        </p>
-      </div>
-      <section className="eval-list">
-        {checks.map(({ name, status, detail }) => (
-          <article className="eval-row" key={name}>
-            <span
-              className={status === "Implemented" ? "pill implemented" : "pill"}
-            >
-              {status}
-            </span>
-            <h2>{name}</h2>
-            <p>{detail}</p>
-          </article>
-        ))}
-      </section>
-    </main>
-  );
+  return <EvalsContent checks={checks} />;
 }

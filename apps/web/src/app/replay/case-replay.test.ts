@@ -42,6 +42,17 @@ afterEach(() => {
 });
 
 describe("replay mapping status boundary", () => {
+  it("renders the guided control surface in Korean when requested", async () => {
+    const prepared = await prepareReplayScenarios();
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, { ...prepared, guided: true, language: "ko" }),
+    );
+    expect(markup).toContain("커밋된 소스 행");
+    expect(markup).toContain("매핑 제안");
+    expect(markup).toContain("실행된 매핑 승인");
+    expect(markup).toContain("결정론적 리플레이 실행");
+  });
+
   it("attributes displayed threshold values to the authored case configuration", async () => {
     const prepared = await prepareReplayScenarios();
     const markup = renderToStaticMarkup(

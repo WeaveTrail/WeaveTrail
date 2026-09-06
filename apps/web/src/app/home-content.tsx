@@ -5,6 +5,12 @@ import React from "react";
 
 import { useCopy, type Language } from "./i18n/language";
 
+interface Position {
+  readonly name: string;
+  readonly text: string;
+  readonly here?: true;
+}
+
 interface Role {
   readonly step: string;
   readonly title: string;
@@ -12,15 +18,16 @@ interface Role {
 }
 
 interface HomeCopy {
-  readonly eyebrow: string;
   readonly headingLead: string;
   readonly headingEmphasis: string;
   readonly heroCopy: string;
   readonly walkThrough: string;
-  readonly whyTheGate: string;
-  readonly statusLabel: string;
-  readonly statusStrong: string;
-  readonly statusPlanned: string;
+  readonly whereItFits: string;
+  readonly positionKicker: string;
+  readonly positionHeading: string;
+  readonly positionLabel: string;
+  readonly positions: readonly Position[];
+  readonly positionNote: string;
   readonly boundaryKicker: string;
   readonly boundaryHeading: string;
   readonly roles: readonly Role[];
@@ -33,41 +40,62 @@ interface HomeCopy {
   readonly disclaimerTail: string;
 }
 
-const copy: Readonly<Record<Language, HomeCopy>> = {
+/**
+ * Voice copy — the headline, the section headings and the calls to action —
+ * is written in each language rather than translated from the other. The
+ * explanatory prose beneath it says the same things in both, with the same
+ * scope and the same hedging.
+ */
+export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   en: {
-    eyebrow: "AI-assisted · deterministic by design",
-    headingLead: "Turn uncertain signals into ",
-    headingEmphasis: "replayable evidence.",
+    headingLead: "AI raised the alert. ",
+    headingEmphasis: "Verify it before you sign.",
     heroCopy:
-      "AI surveillance finds the candidate. WeaveTrail adds the gate between that result and the judgement a person signs: a confirmed scope, a re-verification by versioned code, and every source row it rests on.",
+      "Market surveillance and AI analysis raise an unusual-trading candidate. A person confirms the scope, versioned code re-verifies it, and each finding opens onto its source rows.",
     walkThrough: "Walk through a case",
-    whyTheGate: "Why the gate sits here",
-    statusLabel: "Current implementation status",
-    statusStrong: "Synthetic cases and published quotes · fixture provider",
-    statusPlanned:
-      "Live AI proposals and independent bundle export are planned.",
+    whereItFits: "Where it fits",
+    positionKicker: "Where it fits",
+    positionHeading: "After the alert. Before the judgement.",
+    positionLabel: "Where WeaveTrail sits in an investigation",
+    positions: [
+      {
+        name: "Surveillance and AI analysis",
+        text: "A system already in place watches the market and raises a candidate.",
+      },
+      {
+        name: "WeaveTrail",
+        text: "Confirm the scope the alert assumed, re-verify it with versioned code, and read the evidence underneath.",
+        here: true,
+      },
+      {
+        name: "The investigator decides",
+        text: "A person reads the result and the rows under it, and answers for the judgement.",
+      },
+    ],
+    positionNote:
+      "It does not detect or replace surveillance. It verifies the alert before a person decides the case.",
     boundaryKicker: "Trust boundary",
     boundaryHeading: "AI proposes. Versioned code decides.",
     roles: [
       {
         step: "01",
         title: "Interpret",
-        text: "Constrained mapping proposals turn heterogeneous columns into a reviewable event contract.",
+        text: "A constrained mapper proposes what each source column means. It computes nothing.",
       },
       {
         step: "02",
         title: "Approve",
-        text: "Ambiguity stops at a human gate. Unapproved model output never enters replay.",
+        text: "A person approves that exact proposal. Unapproved model output never enters replay.",
       },
       {
         step: "03",
         title: "Replay",
-        text: "Versioned code orders, deduplicates, calculates, and hashes the same input the same way.",
+        text: "Versioned code orders, deduplicates, calculates and hashes the same input the same way.",
       },
       {
         step: "04",
         title: "Trace",
-        text: "Open a finding to inspect its canonical events, original source rows and row hashes.",
+        text: "Open a finding to reach its canonical events, its original source rows and their row hashes.",
       },
     ],
     applicationKicker: "Bounded application",
@@ -77,63 +105,79 @@ const copy: Readonly<Record<Language, HomeCopy>> = {
     reviewState: "REVIEW_REQUIRED · pre-replay",
     disclaimer:
       "The displayed results are technical hypothesis states—not a finding of guilt, a causal claim, investment advice, an automated trading decision, or real-time surveillance.",
-    gateLinkText: "Where the gate sits",
+    gateLinkText: "Where it fits",
     disclaimerTail:
-      " gives the reasoning behind the question and the boundaries of what it answers.",
+      " sets out the reasoning behind the question and the boundaries of what it answers.",
   },
   ko: {
-    eyebrow: "AI 보조 · 설계부터 결정론적",
-    headingLead: "불확실한 신호를 ",
-    headingEmphasis: "다시 돌려볼 수 있는 증거로.",
+    headingLead: "AI를 믿지 않아도 ",
+    headingEmphasis: "사용할 수 있는 금융 AI.",
     heroCopy:
-      "AI 감시는 후보를 찾아냅니다. WeaveTrail은 그 결과와 사람이 서명할 판단 사이에 게이트를 놓습니다. 확인된 범위, 버전이 찍힌 코드의 재검증, 그리고 그 판단이 딛고 선 원본 행 전부입니다.",
+      "시장감시와 AI 분석이 이상거래 후보를 올립니다. 그다음 사람이 범위를 확인하고, 버전이 고정된 코드가 다시 검증합니다. 발견은 원본 행까지 확인할 수 있습니다.",
     walkThrough: "사례 따라가기",
-    whyTheGate: "게이트가 왜 여기 있는가",
-    statusLabel: "현재 구현 상태",
-    statusStrong: "합성 사례와 공표 시세 · fixture provider",
-    statusPlanned: "실시간 AI 제안과 독립 번들 내보내기는 아직 계획입니다.",
+    whereItFits: "어디에 쓰이나",
+    positionKicker: "쓰이는 자리",
+    positionHeading: "알림이 나온 뒤, 판단이 내려지기 전.",
+    positionLabel: "조사 과정에서 WeaveTrail이 놓이는 자리",
+    positions: [
+      {
+        name: "감시와 AI 분석",
+        text: "이미 돌아가고 있는 시스템이 시장을 지켜보다가 후보를 올립니다.",
+      },
+      {
+        name: "WeaveTrail",
+        text: "알림이 전제한 범위를 확인하고, 버전이 고정된 코드로 다시 검증하고, 그 아래 증거를 읽습니다.",
+        here: true,
+      },
+      {
+        name: "조사자의 판단",
+        text: "사람이 결과와 그 아래 행을 읽고, 판단에 자기 이름을 겁니다.",
+      },
+    ],
+    positionNote:
+      "탐지 기능을 대체하지 않습니다. 알림이 나온 뒤부터 사람이 판단하기 전까지의 검증 단계입니다.",
     boundaryKicker: "신뢰 경계",
-    boundaryHeading: "AI는 제안하고, 버전이 찍힌 코드가 판정합니다.",
+    boundaryHeading: "AI는 제안하고, 판정은 코드가 합니다.",
     roles: [
       {
         step: "01",
         title: "해석",
-        text: "제약된 매핑 제안이 제각각인 열을 검토할 수 있는 이벤트 계약으로 바꿉니다.",
+        text: "제약된 매퍼가 소스의 각 열이 무엇을 뜻하는지 제안합니다. 계산은 하지 않습니다.",
       },
       {
         step: "02",
         title: "승인",
-        text: "모호한 것은 사람이 지키는 게이트에서 멈춥니다. 승인되지 않은 모델 출력은 리플레이에 들어가지 못합니다.",
+        text: "사람이 그 제안을 그대로 승인합니다. 승인받지 않은 모델 출력은 리플레이에 들어가지 못합니다.",
       },
       {
         step: "03",
         title: "리플레이",
-        text: "버전이 찍힌 코드가 같은 입력을 같은 순서로 정렬하고, 중복을 걸러내고, 계산하고, 해시합니다.",
+        text: "버전이 고정된 코드가 같은 입력을 같은 방식으로 정렬하고, 중복을 걸러내고, 계산하고, 해시합니다.",
       },
       {
         step: "04",
         title: "추적",
-        text: "발견을 열면 그것이 딛고 선 정본 이벤트와 원본 소스 행, 행 해시를 그대로 봅니다.",
+        text: "발견을 열면 정본 이벤트와 원본 소스 행, 그 행의 해시까지 그대로 따라갑니다.",
       },
     ],
-    applicationKicker: "적용 범위 한정",
+    applicationKicker: "적용 범위",
     question: "짧은 구간의 가격 상승이 선언된 매수 집중 패턴을 충족하는가?",
     resultLabel: "닫힌 결과 어휘",
     reviewState: "REVIEW_REQUIRED · 리플레이 이전",
     disclaimer:
       "여기 표시되는 결과는 기술적인 가설 상태입니다. 유죄 판단도, 인과 주장도, 투자 조언도, 자동 매매 결정도, 실시간 감시도 아닙니다.",
-    gateLinkText: "게이트가 놓인 자리",
-    disclaimerTail: "에서 이 질문의 근거와 답할 수 있는 범위를 설명합니다.",
+    gateLinkText: "어디에 쓰이나",
+    disclaimerTail:
+      "에서 이 질문을 세운 근거와 답할 수 있는 범위를 설명합니다.",
   },
 };
 
 export function HomeContent() {
-  const text = useCopy(copy);
+  const text = useCopy(homeCopy);
 
   return (
     <main>
       <section className="hero shell">
-        <div className="eyebrow">{text.eyebrow}</div>
         <h1>
           {text.headingLead}
           <em>{text.headingEmphasis}</em>
@@ -144,14 +188,28 @@ export function HomeContent() {
             {text.walkThrough}
           </Link>
           <Link className="button secondary" href="/why">
-            {text.whyTheGate}
+            {text.whereItFits}
           </Link>
         </div>
-        <div className="status-strip" aria-label={text.statusLabel}>
-          <span className="status-dot" />
-          <strong>{text.statusStrong}</strong>
-          <span>{text.statusPlanned}</span>
+      </section>
+
+      <section className="shell system-section">
+        <div className="section-heading">
+          <span>{text.positionKicker}</span>
+          <h2>{text.positionHeading}</h2>
         </div>
+        <ol className="position-chain" aria-label={text.positionLabel}>
+          {text.positions.map((position) => (
+            <li
+              className={position.here ? "position-here" : undefined}
+              key={position.name}
+            >
+              <strong>{position.name}</strong>
+              <p>{position.text}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="position-note">{text.positionNote}</p>
       </section>
 
       <section className="shell system-section">

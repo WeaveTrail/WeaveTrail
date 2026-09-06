@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import { MethodologyContent } from "./methodology-content";
 
 export const metadata: Metadata = {
   title: "Methodology and Boundaries",
@@ -8,86 +9,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/methodology" },
 };
 
-const states = [
-  [
-    "SUPPORTED",
-    "Validated data satisfies every required threshold in the approved rule version.",
-  ],
-  [
-    "NOT_SUPPORTED",
-    "Data is sufficient, but one or more required thresholds are not satisfied.",
-  ],
-  [
-    "INCONCLUSIVE",
-    "Approved inputs entered replay, but valid evidence was insufficient for the declared comparison.",
-  ],
-  [
-    "REVIEW_REQUIRED",
-    "A pre-replay mapping, identity, scope, or approval problem requires human review; this is not a replay result.",
-  ],
-];
-
 export default function MethodologyPage() {
-  return (
-    <main className="shell page-shell methodology">
-      <div className="page-heading">
-        <span className="eyebrow">Methodology & boundaries</span>
-        <h1>A narrow question with explicit abstention.</h1>
-        <p>
-          The implemented synthetic reference cases evaluate a versioned
-          technical pattern. They do not produce legal or causal conclusions.
-        </p>
-      </div>
-      <section className="panel">
-        <span className="panel-label">Published daily quotations</span>
-        <p>
-          Working mode also normalizes a published daily quotation source after
-          explicit mapping review. The source panel records its provider,
-          trading date, licence and attribution.
-        </p>
-        <p>
-          Daily quotes have no participant identities, execution side or
-          individual execution time. Mapping approval can produce a
-          normalization hash; case approval is unavailable and no pattern
-          verdict is produced. A date anchor and aggregate volume do not
-          establish individual executions.
-        </p>
-      </section>
-      <section className="method-grid">
-        <article className="panel">
-          <span className="panel-label">Closed result vocabulary</span>
-          {states.map(([state, meaning]) => (
-            <div className="state-row" key={state}>
-              <strong>{state}</strong>
-              <p>{meaning}</p>
-            </div>
-          ))}
-        </article>
-        <article className="panel">
-          <span className="panel-label">Responsibility split</span>
-          <div className="responsibility">
-            <strong>AI may</strong>
-            <p>
-              Propose column meanings, bounded case scope, and human-readable
-              explanations.
-            </p>
-          </div>
-          <div className="responsibility">
-            <strong>Code must</strong>
-            <p>
-              Validate, order, deduplicate, calculate, evaluate, hash, and
-              preserve traceability.
-            </p>
-          </div>
-          <div className="responsibility">
-            <strong>Neither may</strong>
-            <p>
-              Determine guilt, invent missing critical facts, recommend trades,
-              or execute orders.
-            </p>
-          </div>
-        </article>
-      </section>
-    </main>
-  );
+  return <MethodologyContent />;
 }

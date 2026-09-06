@@ -9,10 +9,8 @@ import React, {
 } from "react";
 
 /**
- * Language selection for the public surface. English is the server-rendered
- * default, so server output, the behavioural suite and any non-scripting
- * reader all see the same English strings this application has always
- * rendered. A stored Korean preference is applied after hydration.
+ * A saved choice wins. Otherwise use the browser's language setting, falling
+ * back to Korean when it is unavailable.
  */
 export type Language = "en" | "ko";
 
@@ -52,31 +50,41 @@ interface LanguageState {
  * and the first hydrated render agree; a stored Korean preference is picked up
  * when the store is first subscribed to, which happens after hydration.
  */
-let current: Language = "en";
+let current: Language = "ko";
 const listeners = new Set<() => void>();
 
 function emit(): void {
   for (const listener of listeners) listener();
 }
 
-function adoptStoredLanguage(): void {
-  const stored = readStoredLanguage();
-  if (stored !== undefined && stored !== current) {
-    current = stored;
+function systemLanguage(): Language {
+  const languages = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+  return languages.some((language) => language.toLowerCase().startsWith("ko"))
+    ? "ko"
+    : "en";
+}
+
+function adoptLanguagePreference(): void {
+  const preferred = readStoredLanguage() ?? systemLanguage();
+  if (preferred !== current) {
+    current = preferred;
     emit();
   }
 }
 
 function handleStorage(event: StorageEvent): void {
-  if (event.key === STORAGE_KEY || event.key === null) adoptStoredLanguage();
+  if (event.key === STORAGE_KEY || event.key === null)
+    adoptLanguagePreference();
 }
 
 function subscribe(listener: () => void): () => void {
   if (listeners.size === 0) {
     window.addEventListener("storage", handleStorage);
-    const stored = readStoredLanguage();
-    if (stored !== undefined && stored !== current) {
-      current = stored;
+    const preferred = readStoredLanguage() ?? systemLanguage();
+    if (preferred !== current) {
+      current = preferred;
       queueMicrotask(emit);
     }
   }
@@ -90,7 +98,7 @@ function subscribe(listener: () => void): () => void {
 }
 
 const getSnapshot = (): Language => current;
-const getServerSnapshot = (): Language => "en";
+const getServerSnapshot = (): Language => "ko";
 
 function setLanguage(next: Language): void {
   // Persist before the equality check. Another tab may have written a different
@@ -129,9 +137,8 @@ export function LanguageProvider({
 }
 
 /**
- * English outside a provider. Server rendering and any component mounted on its
- * own show the English strings this application has always rendered, so no
- * caller is required to supply a provider to stay correct.
+ * Standalone components keep the historical English surface; the application
+ * always mounts a provider, whose fallback is Korean.
  */
 const DEFAULT_STATE: LanguageState = {
   language: "en",

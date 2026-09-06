@@ -16,7 +16,25 @@ from both owners. See [ADR 0023](adr/0023-separate-published-data-ownership.md).
 
 The overview links to `/replay?mode=guided` and `/why`. `/why` states where the
 gate sits relative to an existing surveillance pipeline, cites the published
-sources its background rests on, and links on to `/architecture`. Case Replay
+sources its background rests on, and links on to `/architecture`. The overview
+states where WeaveTrail sits before it explains how it works: an existing
+surveillance layer raises a candidate, WeaveTrail confirms the scope,
+re-verifies and opens the evidence, and a person decides. It detects nothing.
+
+The surface is Korean and English on one set of routes; see
+[ADR 0030](adr/0030-hold-language-selection-outside-react.md) for the
+mechanism. Headlines, section headings and calls to action are written in each
+language rather than translated from the other; step purposes, gate
+descriptions, blockers, limitations and disclosures say the same things in
+both, with the same scope and the same hedging. Neither language may name a
+capability the other omits or present a planned component as working, and
+`apps/web/src/app/i18n/bilingual-parity.test.ts` checks that by shape rather
+than by string. Contract vocabulary carries one spelling in both. The
+fixture-mode and synthetic-source disclosures sit in the site footer, where
+every page shows them. Korean is set in a committed face
+([ADR 0031](adr/0031-commit-a-korean-face-for-the-korean-surface.md)) and the
+layer diagram is drawn from localized copy
+([ADR 0032](adr/0032-draw-the-layer-diagram-from-localized-copy.md)). Case Replay
 at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
 approval serialization, request generation and server-derived result rendering.

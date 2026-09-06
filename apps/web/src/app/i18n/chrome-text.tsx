@@ -4,37 +4,34 @@ import React from "react";
 
 import { useCopy, type Language } from "./language";
 
-type ChromeKey =
-  | "skipToContent"
-  | "headerContext"
-  | "roleProposals"
-  | "roleApprovals"
-  | "roleCode"
-  | "footerTagline"
-  | "footerStatus";
+/**
+ * The chrome carries the disclosures that have to reach a reader on every
+ * page, and nothing else. The header's context line, the rail's authorship
+ * legend and the footer tagline were removed: none of them was a step of the
+ * flow, and the fixture-mode and synthetic-source statements they shared now
+ * sit here once, where every page shows them.
+ */
+type ChromeKey = "skipToContent" | "footerStatus" | "footerPlanned";
 
-const chrome: Readonly<Record<Language, Record<ChromeKey, string>>> = {
-  en: {
-    skipToContent: "Skip to content",
-    headerContext: "Deterministic fixture mode · recorded source provenance",
-    roleProposals: "AI proposals",
-    roleApprovals: "Human approvals",
-    roleCode: "Versioned code",
-    footerTagline: "Weave signals into replayable evidence.",
-    footerStatus: "Synthetic cases and published quotes · fixture provider",
-  },
-  ko: {
-    skipToContent: "본문으로 건너뛰기",
-    headerContext: "결정론적 fixture 모드 · 기록된 소스 출처",
-    roleProposals: "AI 제안",
-    roleApprovals: "사람의 승인",
-    roleCode: "버전이 찍힌 코드",
-    footerTagline: "신호를 다시 돌려볼 수 있는 증거로.",
-    footerStatus: "합성 사례와 공표 시세 · fixture provider",
-  },
-};
+export const chromeCopy: Readonly<Record<Language, Record<ChromeKey, string>>> =
+  {
+    en: {
+      skipToContent: "Skip to content",
+      footerStatus:
+        "Fixture mode · synthetic cases and licensed published quotes, provenance recorded",
+      footerPlanned:
+        "Live AI proposals and independent Evidence Bundle export are planned.",
+    },
+    ko: {
+      skipToContent: "본문으로 건너뛰기",
+      footerStatus:
+        "fixture 모드 · 합성 사례와 이용이 허락된 공표 시세, 출처 기록 있음",
+      footerPlanned:
+        "실시간 AI 제안과 독립적인 증거 번들 내보내기는 아직 계획입니다.",
+    },
+  };
 
 /** One chrome string in the active language. English outside a provider. */
 export function ChromeText({ id }: { readonly id: ChromeKey }) {
-  return <>{useCopy(chrome)[id]}</>;
+  return <>{useCopy(chromeCopy)[id]}</>;
 }

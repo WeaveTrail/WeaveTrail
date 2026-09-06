@@ -1,11 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  createElement,
   isValidElement,
   type ComponentProps,
   type ReactElement,
   type ReactNode,
 } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -16,6 +18,7 @@ import {
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import ReplayPage from "./page";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
+import { ReplayHeading } from "./replay-heading";
 
 // The same persistent hook slots used by the lifecycle harness: this walks the
 // element tree of the real component so step navigation, completion and the
@@ -415,24 +418,16 @@ describe("guided step intent", () => {
       const rendered = elements(
         await ReplayPage({ searchParams: Promise.resolve({ mode }) }),
       );
-      const choice = elements(
-        rendered.find((element) => element.props.className === "mode-choice"),
-      ).filter((element) => element.props.href);
-      expect(choice.map((element) => element.props.href)).toEqual([
-        "/replay?mode=guided",
-        "/replay?mode=working",
-      ]);
+      const heading = renderToStaticMarkup(
+        createElement(ReplayHeading, { guided: mode !== "working" }),
+      );
+      expect(heading).toContain('href="/replay?mode=guided"');
+      expect(heading).toContain('href="/replay?mode=working"');
+      expect(heading).toContain(`aria-current="page" href="${current}"`);
+      expect(heading).toContain("Guided walkthrough");
+      expect(heading).toContain("Working mode");
       expect(
-        choice
-          .filter((element) => element.props["aria-current"] === "page")
-          .map((element) => element.props.href),
-      ).toEqual([current]);
-      expect(textContent(choice[0])).toContain("Guided walkthrough");
-      expect(textContent(choice[1])).toContain("Working mode");
-      expect(
-        rendered.findIndex(
-          (element) => element.props.className === "mode-choice",
-        ),
+        rendered.findIndex((element) => element.type === ReplayHeading),
       ).toBeLessThan(
         rendered.findIndex((element) => element.type === ReplayModeBoundary),
       );

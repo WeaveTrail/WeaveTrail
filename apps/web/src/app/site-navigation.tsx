@@ -11,7 +11,7 @@ type NavigationGroups = readonly (readonly [
   readonly (readonly [string, string])[],
 ])[];
 
-const groups: Readonly<Record<Language, NavigationGroups>> = {
+export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
   en: [
     [
       "Start here",
@@ -23,7 +23,7 @@ const groups: Readonly<Record<Language, NavigationGroups>> = {
     [
       "About this project",
       [
-        ["Why the gate", "/why"],
+        ["Where it fits", "/why"],
         ["Architecture", "/architecture"],
         ["Methodology", "/methodology"],
         ["Expected results", "/expectations"],
@@ -42,7 +42,7 @@ const groups: Readonly<Record<Language, NavigationGroups>> = {
     [
       "프로젝트 소개",
       [
-        ["게이트가 필요한 이유", "/why"],
+        ["어디에 쓰이나", "/why"],
         ["아키텍처", "/architecture"],
         ["방법론", "/methodology"],
         ["기대 결과", "/expectations"],
@@ -54,7 +54,7 @@ const groups: Readonly<Record<Language, NavigationGroups>> = {
 
 export function SiteNavigation() {
   const pathname = usePathname();
-  const navigationGroups = useCopy(groups);
+  const navigationGroups = useCopy(navigationCopy);
 
   return (
     <nav aria-label="Primary navigation">
