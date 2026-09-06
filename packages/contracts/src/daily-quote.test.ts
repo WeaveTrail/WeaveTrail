@@ -61,6 +61,17 @@ describe("daily-only version coexistence", () => {
         },
       }).success,
     ).toBe(false);
+    for (const compositeSourceEventId of [
+      { ...composite.compositeSourceEventId, confidence: 0 },
+      { ...composite.compositeSourceEventId, status: "REVIEW_REQUIRED" },
+    ]) {
+      expect(
+        SchemaMappingProposalSchema.safeParse({
+          ...composite,
+          compositeSourceEventId,
+        }).success,
+      ).toBe(false);
+    }
     expect(
       SchemaMappingProposalSchema.safeParse({
         ...proposal,

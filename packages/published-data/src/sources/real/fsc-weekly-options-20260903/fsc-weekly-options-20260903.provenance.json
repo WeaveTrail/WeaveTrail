@@ -59,6 +59,7 @@
     "unmappedColumns": [
       "prdCtg",
       "itmsNm",
+      "clpr",
       "vs",
       "mkp",
       "hipr",

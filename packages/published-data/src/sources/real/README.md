@@ -174,9 +174,12 @@ Every request used `numOfRows=10`. The baseline records that `endBasDt` is
 exclusive and both index sources record that `fltRt` is rounded to two decimal
 places. The 13 futures `sptPrc` values equal the KOSPI 200 index `clpr` value
 `1032.82`; this is a captured cross-check, not a causal or authenticity claim.
-Options with an empty published close leave canonical `price` absent instead
-of inventing a value. All returned columns remain present and are mapped or
-explicitly unmapped in the registered proposal.
+All 546 options carry a nonempty published close, but 41 distinct values use
+the publisher's noncanonical leading-dot spelling (for example `.33`). The
+current `DECIMAL_STRING` transform rejects that spelling, so `clpr` remains
+explicitly unmapped rather than being selectively omitted or rewritten. All
+returned columns remain present and are mapped or explicitly unmapped in the
+registered proposal.
 
 Reproduce rows offline for any directory without network access:
 

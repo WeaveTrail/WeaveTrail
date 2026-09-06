@@ -55,9 +55,9 @@ const CompositeSourceEventIdSchema = z
   .object({
     sourceColumns: z.array(z.string().min(1)).min(2),
     transform: z.literal("NUL_JOIN"),
-    confidence: z.number().min(0).max(1),
+    confidence: z.literal(1),
     evidence: z.string().min(1),
-    status: z.enum(["PROPOSED", "REVIEW_REQUIRED"]),
+    status: z.literal("PROPOSED"),
   })
   .strict()
   .refine(

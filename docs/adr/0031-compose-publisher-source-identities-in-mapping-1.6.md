@@ -35,6 +35,11 @@ already provide single-column identities. Acquisition declarations remain
 evidence metadata and do not enter the composite, approval hash indirectly, or
 canonical event data.
 
+Composite identity declarations are admitted only with `confidence: 1` and
+`status: PROPOSED`. An uncertain composite is rejected at the contract boundary
+rather than introducing a second override path that existing review clients do
+not render.
+
 The published expectation snapshot is regenerated because it inventories
 registered replay sources. That generated file is the only change under
 `apps/web`; no replay UI behavior or presentation changes here.
