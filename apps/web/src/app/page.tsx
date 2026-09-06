@@ -41,17 +41,16 @@ export default function HomePage() {
           Turn uncertain signals into <em>replayable evidence.</em>
         </h1>
         <p className="hero-copy">
-          After a market-surveillance alert, a reviewer needs to check which
-          executions support the pattern. Review a proposed field mapping,
-          approve the case scope, and let versioned code return a pattern result
-          with five checks and traceable source rows.
+          AI surveillance finds the candidate. WeaveTrail adds the gate between
+          that result and the judgement a person signs: a confirmed scope, a
+          re-verification by versioned code, and every source row it rests on.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/replay?mode=guided">
             Walk through a case
           </Link>
-          <Link className="button secondary" href="/architecture">
-            Read the architecture
+          <Link className="button secondary" href="/why">
+            Why the gate sits here
           </Link>
         </div>
         <div
@@ -99,11 +98,11 @@ export default function HomePage() {
           <span className="review-state">REVIEW_REQUIRED · pre-replay</span>
         </div>
         <p>
-          For a post-alert market-surveillance reviewer, WeaveTrail helps turn
-          an alert that has already fired into reviewable evidence for more
-          consistent, reviewable oversight. The displayed results are technical
-          hypothesis states—not a finding of guilt, a causal claim, investment
-          advice, an automated trading decision, or real-time surveillance.
+          The displayed results are technical hypothesis states—not a finding of
+          guilt, a causal claim, investment advice, an automated trading
+          decision, or real-time surveillance.{" "}
+          <Link href="/why">Where the gate sits</Link> gives the reasoning
+          behind the question and the boundaries of what it answers.
         </p>
       </section>
     </main>

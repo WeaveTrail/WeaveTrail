@@ -97,7 +97,9 @@ describe("Case Replay entry contract", () => {
       "utf8",
     );
     expect(home).toContain('href="/replay?mode=guided"');
-    expect(home).toContain('href="/architecture"');
+    // The entry's secondary action now carries the argument, which links on to
+    // the architecture in turn.
+    expect(home).toContain('href="/why"');
     expect(nav).toContain('["Case Replay", "/replay"]');
     expect(nav).toContain("Workbench");
     expect(home + nav).not.toContain('"/lab"');

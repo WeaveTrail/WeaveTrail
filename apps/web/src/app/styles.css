@@ -496,7 +496,8 @@ button:disabled {
 .journey-header h2,
 .source-evidence,
 .result-panel,
-.architecture-hash {
+.architecture-hash,
+.source-list li {
   scroll-margin-top: 110px;
 }
 .gate-description {
@@ -545,6 +546,79 @@ button:disabled {
   gap: 8px;
   margin: 0;
   padding-left: 20px;
+}
+.gate-diagram img {
+  min-width: 620px;
+}
+.attributed {
+  margin-block: 8px;
+  color: var(--text-body);
+}
+.page-heading > .lede-position {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--teal-700);
+  color: var(--text-strong);
+  font-weight: 500;
+}
+.cite {
+  font: var(--type-label);
+  vertical-align: super;
+  color: var(--text-link);
+  text-decoration: none;
+}
+.cite:hover,
+.cite:focus-visible {
+  text-decoration: underline;
+}
+.reasoning-mark {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 2px 6px;
+  border: var(--hairline);
+  border-radius: var(--radius-sm);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--state-review);
+  background: var(--state-review-bg);
+}
+.layer-authority p {
+  margin-block: 8px;
+}
+.layer-authorities > .panel-label {
+  display: block;
+}
+.layer-authorities .eval-list {
+  margin-top: 8px;
+}
+.layer-authority {
+  grid-template-columns: minmax(7rem, auto) 2fr 1fr;
+}
+.claim-boundary {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding-left: 20px;
+  color: var(--text-muted);
+}
+.source-list {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding-left: 0;
+  list-style: none;
+  color: var(--text-muted);
+}
+.source-marker {
+  font: var(--type-label);
+  color: var(--text-faint);
+}
+.source-list a {
+  color: var(--text-link);
+}
+.source-list + .button {
+  margin-top: 16px;
 }
 [hidden] {
   display: none !important;

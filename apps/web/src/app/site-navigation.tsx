@@ -14,6 +14,7 @@ const groups = [
   [
     "Reference",
     [
+      ["Why the gate", "/why"],
       ["Architecture", "/architecture"],
       ["Methodology", "/methodology"],
       ["Evals", "/evals"],

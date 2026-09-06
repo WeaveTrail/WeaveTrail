@@ -14,6 +14,7 @@ import EvalsPage from "./evals/page";
 import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
 import MethodologyPage from "./methodology/page";
 import HomePage from "./page";
+import WhyPage from "./why/page";
 
 const forbidden = [
   "2.1.0",
@@ -56,7 +57,7 @@ describe("canonical product presentation", () => {
     ).toThrow("unexpected: assets/unrecorded.svg");
   });
 
-  it("keeps all five routes in the common full-navigation shell", () => {
+  it("keeps all six routes in the common full-navigation shell", () => {
     const layout = readFileSync(
       resolve(process.cwd(), "apps/web/src/app/layout.tsx"),
       "utf8",
@@ -71,6 +72,7 @@ describe("canonical product presentation", () => {
       "/replay",
       "/evals",
       "/methodology",
+      "/why",
     ])
       expect(navigation).toContain(`"${href}"`);
     expect(navigation).toContain("Primary navigation");
@@ -79,7 +81,13 @@ describe("canonical product presentation", () => {
   });
 
   it("keeps forbidden design fixtures out of rendered public pages", () => {
-    const markup = [HomePage, ArchitecturePage, EvalsPage, MethodologyPage]
+    const markup = [
+      HomePage,
+      ArchitecturePage,
+      EvalsPage,
+      MethodologyPage,
+      WhyPage,
+    ]
       .map((Page) => renderToStaticMarkup(createElement(Page)))
       .join("\n");
     for (const value of forbidden) expect(markup).not.toContain(value);
