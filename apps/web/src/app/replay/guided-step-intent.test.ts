@@ -14,6 +14,7 @@ import {
   RapidPriceLiftEvaluation,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { NavigationLinks } from "../site-navigation";
 
 // The same persistent hook slots used by the lifecycle harness: this walks the
 // element tree of the real component so step navigation, completion and the
@@ -71,6 +72,7 @@ type ElementProps = {
   hidden?: boolean;
   href?: string;
   "aria-label"?: string;
+  "aria-current"?: string;
   "data-complete"?: boolean;
   "data-met"?: boolean;
 };
@@ -324,7 +326,7 @@ describe("guided step intent", () => {
       .render()
       .filter((element) => element.props.className === "journey-controls");
     expect(navigation.map((element) => element.props["aria-label"])).toEqual([
-      "Step navigation at the start of the step",
+      "Step navigation in the step rail",
       "Step navigation at the end of the step",
     ]);
     const content = ui.indexOf("replay-control panel");
@@ -386,6 +388,16 @@ describe("guided step intent", () => {
     disclosure().onEvidenceOpen!();
     expect(disclosure().advancesStep).toBe(false);
     expect(ui.requirement()!.props["data-met"]).toBe(true);
+  });
+
+  it("marks the guided entry current only while the guided query is set", () => {
+    const marked = (current: string | null) =>
+      elements(NavigationLinks({ current }))
+        .filter((element) => element.props["aria-current"] === "page")
+        .map((element) => element.props.href);
+    expect(marked("/replay?mode=guided")).toEqual(["/replay?mode=guided"]);
+    expect(marked("/replay")).toEqual(["/replay"]);
+    expect(marked(null)).toEqual([]);
   });
 
   it("offers the guided case from the navigation and above the working controls", async () => {

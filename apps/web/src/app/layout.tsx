@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import "./styles.css";
 
 import { getSiteUrl } from "./site-url";
-import { SiteNavigation } from "./site-navigation";
+import { NavigationLinks, SiteNavigation } from "./site-navigation";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -70,7 +71,11 @@ export default function RootLayout({
         </header>
         <div className="app-shell">
           <aside className="side-nav" aria-label="Workbench navigation">
-            <SiteNavigation />
+            {/* The presentation query is client-only, so the statically
+                prerendered rail carries no current entry until it resolves. */}
+            <Suspense fallback={<NavigationLinks current={null} />}>
+              <SiteNavigation />
+            </Suspense>
             <div className="side-nav-footer">
               <span>AI proposals</span>
               <span>Human approvals</span>

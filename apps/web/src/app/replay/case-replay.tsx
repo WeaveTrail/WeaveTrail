@@ -79,8 +79,9 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Read the source",
     purpose:
-      "Start with the committed supported case. No approval has been supplied. Read its columns and original values.",
-    action: "Read the committed source rows below, then continue.",
+      "Start with the committed supported case. No approval has been supplied. Read its columns and original values. These column names are the source's own dialect and carry no agreed meaning yet; establishing what they denote is the next step.",
+    action:
+      "Read the committed source rows, noting that nothing yet states what their columns mean, then continue.",
     actor: "Committed input",
     actorDetail:
       "Nothing has been proposed, approved or decided at this point.",
@@ -736,10 +737,14 @@ export function CaseReplay({
 
   // Rendered inline rather than as a nested component so the same controls open
   // and close the step without duplicating their disabled and blocked state.
-  function stepControls(place: "start" | "end") {
+  function stepControls(place: "rail" | "end") {
     return (
       <nav
-        aria-label={`Step navigation at the ${place} of the step`}
+        aria-label={
+          place === "rail"
+            ? "Step navigation in the step rail"
+            : "Step navigation at the end of the step"
+        }
         className="journey-controls"
       >
         <button
@@ -872,7 +877,13 @@ export function CaseReplay({
 
   return (
     <section
-      className={guided || mappingExample ? "replay-journey" : "replay-grid"}
+      className={
+        guided
+          ? "replay-journey guided-split"
+          : mappingExample
+            ? "replay-journey"
+            : "replay-grid"
+      }
     >
       {!mappingExample && (
         <header className="journey-header panel">
@@ -909,7 +920,7 @@ export function CaseReplay({
                           ? "Completed by you"
                           : chapter === index
                             ? "Current step · not completed"
-                            : "Not completed · readable"}
+                            : "Not completed · read ahead"}
                       </small>
                     </button>
                   </li>
@@ -939,24 +950,26 @@ export function CaseReplay({
                   {guideStep.refusal}
                 </p>
               ) : null}
-              <p
-                className="step-requirement"
-                data-met={canContinue && unmetEarlierStep === -1}
-                id="guide-requirement"
-                role="status"
-              >
-                {canContinue
-                  ? "The required action for this step is satisfied."
-                  : `Not satisfied yet · ${blockedReason}`}
-                {unmetEarlierStep === -1
-                  ? ""
-                  : ` Read-ahead · you have not completed step ${
-                      unmetEarlierStep + 1
-                    } · ${guideSteps[unmetEarlierStep]!.title}: ${
-                      stepBlockers[unmetEarlierStep]
-                    }`}
-              </p>
-              {stepControls("start")}
+              <div className="rail-actions">
+                <p
+                  className="step-requirement"
+                  data-met={canContinue && unmetEarlierStep === -1}
+                  id="guide-requirement"
+                  role="status"
+                >
+                  {canContinue
+                    ? "The required action for this step is satisfied."
+                    : `Not satisfied yet · ${blockedReason}`}
+                  {unmetEarlierStep === -1
+                    ? ""
+                    : ` Read-ahead · you have not completed step ${
+                        unmetEarlierStep + 1
+                      } · ${guideSteps[unmetEarlierStep]!.title}: ${
+                        stepBlockers[unmetEarlierStep]
+                      }`}
+                </p>
+                {stepControls("rail")}
+              </div>
             </>
           ) : (
             <>

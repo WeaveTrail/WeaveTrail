@@ -11,17 +11,25 @@ presents each step's artifacts without first stating what the step demonstrates
 or what the visitor must do to advance it, and it names no authority for the
 work shown. Its progress list is inert, so a visitor cannot read a later step
 without performing the earlier ones, and the condition blocking advancement is
-visible only beside the disabled control at the end of the step. The guide is
-reachable only from the overview, so a visitor who opens Case Replay from the
-navigation never meets it.
+visible only beside the disabled control at the end of the step. Its steps stack above the case they drive, so reading one means
+scrolling past the artifacts of the last. The guide is reachable only from the
+overview, so a visitor who opens Case Replay from the navigation never meets
+it.
 
 ## Decision
 
 Every guided step declares a purpose, the action the visitor must take to
 advance it, and the authority that acted in it. The authority vocabulary is
 closed: `Committed input`, `A model proposed it`, `A person approved it`, and
-`Versioned code decided it`. That declaration renders above the step's content,
-with the step controls repeated above and below it.
+`Versioned code decided it`.
+
+Guided mode is a two-column surface: a step rail beside the case content, in
+place of steps stacked above it. The rail holds the step list, the current
+step's declaration and its controls; it sticks below the header, scrolls on its
+own when a step says a lot, and keeps the unmet condition and the controls
+pinned at its bottom edge, so advancing never depends on either scroll. The end
+of the step content repeats the controls. Below the rail breakpoint the two
+columns stack and nothing sticks.
 
 The progress list is navigable. Selecting a step opens it for reading without
 performing it. A step counts as completed only when the visitor advanced past
@@ -37,7 +45,11 @@ controls.
 
 The navigation gains a `Guided case` entry to `/replay?mode=guided`, and working
 mode offers the guided case above its working controls. This adds an entry
-point; it does not reorder or regroup the navigation.
+point; it does not reorder or regroup the navigation. Because both modes share
+one route, the current navigation entry is the path with its presentation query,
+not the path alone; the query is read on the client inside a Suspense boundary
+so the statically prerendered routes stay static and render the rail without a
+current entry until it resolves.
 
 ## Consequences
 

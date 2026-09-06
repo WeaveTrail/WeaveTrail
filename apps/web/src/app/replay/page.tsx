@@ -27,11 +27,13 @@ export default async function ReplayPage({
           Review the executions behind an alert, approve their interpretation
           and scope, then inspect the versioned pattern result.
         </p>
-        <p>
-          In working mode, you can also review and normalize published daily
-          quotations. Their source provenance and limits on case approval remain
-          visible.
-        </p>
+        {guided ? null : (
+          <p>
+            In working mode, you can also review and normalize published daily
+            quotations. Their source provenance and limits on case approval
+            remain visible.
+          </p>
+        )}
       </div>
       <ReplayModeBoundary {...prepared} guided={guided} />
     </main>
