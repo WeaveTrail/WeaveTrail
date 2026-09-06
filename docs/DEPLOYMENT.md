@@ -162,8 +162,8 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/expectations`, `/evals`, and `/methodology` from the production
-origin. In `/replay`:
+`/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, and `/methodology`
+from the production origin. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve
@@ -175,6 +175,12 @@ origin. In `/replay`:
 2. Submit the committed rejected mapping path and confirm an HTTP `422`
    response with `status: REVIEW_REQUIRED`, a review workflow state, and no
    replay or canonical result hash.
+
+In `/case-2026-09-03`, approve the case scope, run the evidence analysis, and
+confirm the returned canonical result hash equals the value pinned by
+`apps/web/src/lib/published-case.test.ts` and the engine suite. Then post to
+`/api/case-2026-09-03` with an approval hash that does not cover that scope and
+confirm an HTTP `422` response carrying a case review code and no result.
 
 Inspect every production browser asset, any emitted browser source map, and the
 complete public build log. This is a disclosure check, not a check that provider
