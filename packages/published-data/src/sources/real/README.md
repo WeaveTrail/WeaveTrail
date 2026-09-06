@@ -6,6 +6,13 @@ All 15 returned columns and all items remain intact. See
 [fsc-stock-quotes-20260903.provenance.json](fsc-stock-quotes-20260903.provenance.json)
 for the complete request, permission, venue basis, interpretation and checksums.
 
+Its acquisition scope is `bounded-window`, recorded separately in
+[fsc-stock-quotes-20260903.acquisition.json](fsc-stock-quotes-20260903.acquisition.json).
+The original provenance and pinned bytes remain unchanged. The
+[complete-series acquisition contract](../../../../../docs/PUBLISHED_ACQUISITION.md)
+adds a separate manual mechanism for future sources; it does not change this
+first-page command or claim that this sample is complete.
+
 | Artifact          | SHA-256                                                            |
 | ----------------- | ------------------------------------------------------------------ |
 | Original response | `4ad9c1e1677a19b4fd28b766ae32883d82ec824b66a2687f1533198f18cc5b43` |

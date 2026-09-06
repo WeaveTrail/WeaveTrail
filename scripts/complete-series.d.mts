@@ -1,0 +1,65 @@
+export type CompleteSeriesDeclaration = {
+  scope: "complete-series";
+  date: string;
+  filter: { kind: "instrument" | "series" | "date"; value: string };
+  pageSize: string;
+  declaredAt: string;
+  permission: {
+    status: "UNRESTRICTED";
+    label: string;
+    checkedAt: string;
+    termsUrl: string;
+    attribution: string;
+  };
+};
+export type SeriesRequest = {
+  endpoint: string;
+  parameters: Record<string, string>;
+};
+export type SeriesAdapter = {
+  endpoint: string;
+  dateParameter: string;
+  pageParameter: string;
+  pageSizeParameter: string;
+  selectors: Partial<Record<"instrument" | "series", string>>;
+  format?: { parameter: string; value: string };
+  decodePage(
+    bytes: Uint8Array,
+    declaration: CompleteSeriesDeclaration,
+  ): {
+    pageNumber: string;
+    pageSize: string;
+    total: string;
+    rows: Record<string, string>[];
+  };
+};
+export type SeriesRecord = {
+  declaration: CompleteSeriesDeclaration;
+  retrievedAt: string;
+  pageCount: string;
+  publisherTotal: string;
+  rowCount: string;
+  pages: {
+    file: string;
+    request: SeriesRequest;
+    rowCount: string;
+    publisherTotal: string;
+    sha256: string;
+  }[];
+  sourceArtifactHash: string;
+  publisherObservations: never[];
+};
+export function validateCompleteSeriesDeclaration(
+  value: unknown,
+): CompleteSeriesDeclaration;
+export function completeSeriesRequest(
+  declaration: CompleteSeriesDeclaration,
+  adapter: SeriesAdapter,
+  pageNumber: string,
+): SeriesRequest;
+export function validateCompleteSeriesArtifact(
+  record: unknown,
+  rawPages: readonly Uint8Array[],
+  jsonl: string,
+  adapter: SeriesAdapter,
+): SeriesRecord;

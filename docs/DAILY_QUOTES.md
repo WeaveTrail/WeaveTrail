@@ -84,6 +84,12 @@ future case. Adding an actor alone cannot turn daily quotes into trades.
 
 ## Evidence and reproduction
 
+This artifact uses the `bounded-window` acquisition scope. Its adjacent
+`.acquisition.json` classifies the already recorded first-page policy without
+changing historical provenance or source hashes. The separate
+[complete-series mechanism](PUBLISHED_ACQUISITION.md) does not expand this window
+or acquire another real artifact.
+
 The [adjacent provenance and reproduction instructions](../packages/published-data/src/sources/real/README.md)
 record the response, licence, exact request and all artifact hashes. Acquisition
 occurred at `2026-09-05T19:31:27.527Z` (2026-09-06 KST), with unrestricted usage
