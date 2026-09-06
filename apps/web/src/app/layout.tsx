@@ -6,6 +6,9 @@ import "./styles.css";
 
 import { getSiteUrl } from "./site-url";
 import { SiteNavigation } from "./site-navigation";
+import { LanguageProvider } from "./i18n/language";
+import { LanguageSelector } from "./i18n/language-selector";
+import { ChromeText } from "./i18n/chrome-text";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -54,39 +57,50 @@ export default function RootLayout({
   return (
     <html className={`${plex.variable} ${mono.variable}`} lang="en">
       <body>
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
-        <header className="site-header">
-          <Link className="wordmark" href="/">
-            {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
-            {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
-            <img alt="" height="36" src="/brand/mark.svg" width="36" />
-            <span>WeaveTrail</span>
-          </Link>
-          <span className="header-context">
-            Deterministic fixture mode · recorded source provenance
-          </span>
-        </header>
-        <div className="app-shell">
-          <aside className="side-nav">
-            <SiteNavigation />
-            <div className="side-nav-footer">
-              <span>AI proposals</span>
-              <span>Human approvals</span>
-              <span>Versioned code</span>
+        <LanguageProvider>
+          <a className="skip-link" href="#main-content">
+            <ChromeText id="skipToContent" />
+          </a>
+          <header className="site-header">
+            <Link className="wordmark" href="/">
+              {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
+              <img alt="" height="36" src="/brand/mark.svg" width="36" />
+              <span>WeaveTrail</span>
+            </Link>
+            <span className="header-context">
+              <ChromeText id="headerContext" />
+            </span>
+            <LanguageSelector />
+          </header>
+          <div className="app-shell">
+            <aside className="side-nav">
+              <SiteNavigation />
+              <div className="side-nav-footer">
+                <span>
+                  <ChromeText id="roleProposals" />
+                </span>
+                <span>
+                  <ChromeText id="roleApprovals" />
+                </span>
+                <span>
+                  <ChromeText id="roleCode" />
+                </span>
+              </div>
+            </aside>
+            <div className="content-shell">
+              <div id="main-content">{children}</div>
+              <footer className="site-footer">
+                <span>
+                  <ChromeText id="footerTagline" />
+                </span>
+                <span>
+                  <ChromeText id="footerStatus" />
+                </span>
+              </footer>
             </div>
-          </aside>
-          <div className="content-shell">
-            <div id="main-content">{children}</div>
-            <footer className="site-footer">
-              <span>Weave signals into replayable evidence.</span>
-              <span>
-                Synthetic cases and published quotes · fixture provider
-              </span>
-            </footer>
           </div>
-        </div>
+        </LanguageProvider>
       </body>
     </html>
   );
