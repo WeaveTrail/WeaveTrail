@@ -51,7 +51,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
     headingLead: "AI raised the alert. ",
     headingEmphasis: "Verify it before you sign.",
     heroCopy:
-      "Market surveillance and AI analysis raise an unusual-trading candidate. WeaveTrail runs between that alert and the investigator's decision: a person confirms the scope, versioned code re-verifies against it, and every finding opens onto the source rows it rests on.",
+      "Market surveillance and AI analysis raise an unusual-trading candidate. A person confirms the scope, versioned code re-verifies it, and each finding opens onto its source rows.",
     walkThrough: "Walk through a case",
     whereItFits: "Where it fits",
     positionKicker: "Where it fits",
@@ -73,7 +73,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
       },
     ],
     positionNote:
-      "WeaveTrail detects nothing and replaces no part of that surveillance. It exists for the step after an alert has been raised and before a person decides what the case is.",
+      "It does not detect or replace surveillance. It verifies the alert before a person decides the case.",
     boundaryKicker: "Trust boundary",
     boundaryHeading: "AI proposes. Versioned code decides.",
     roles: [
@@ -113,7 +113,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
     headingLead: "AI를 믿지 않아도 ",
     headingEmphasis: "사용할 수 있는 금융 AI.",
     heroCopy:
-      "시장감시와 AI 분석이 이상거래 후보를 올립니다. WeaveTrail은 그 알림과 조사자의 판단 사이에서 일합니다. 사람이 범위를 확인하고, 버전이 고정된 코드가 그 범위대로 다시 검증하고, 모든 발견은 근거가 된 원본 행까지 열립니다.",
+      "시장감시와 AI 분석이 이상거래 후보를 올립니다. 그다음 사람이 범위를 확인하고, 버전이 고정된 코드가 다시 검증합니다. 발견은 원본 행까지 확인할 수 있습니다.",
     walkThrough: "사례 따라가기",
     whereItFits: "어디에 쓰이나",
     positionKicker: "쓰이는 자리",
@@ -135,7 +135,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
       },
     ],
     positionNote:
-      "WeaveTrail은 아무것도 탐지하지 않고, 그 감시를 대체하지도 않습니다. 알림이 이미 나온 뒤부터 사람이 사건을 정하기 전까지, 그 사이 한 단계를 맡습니다.",
+      "탐지 기능을 대체하지 않습니다. 알림이 나온 뒤부터 사람이 판단하기 전까지의 검증 단계입니다.",
     boundaryKicker: "신뢰 경계",
     boundaryHeading: "AI는 제안하고, 판정은 코드가 합니다.",
     roles: [

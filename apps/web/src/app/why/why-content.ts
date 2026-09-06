@@ -109,8 +109,8 @@ export const lede: Statement = {
 
 /** What the product is, stated before anything is drawn. */
 export const POSITION: Localized = {
-  en: "WeaveTrail does not detect. It adds one verification gate between what a process like that concludes and what a person signs.",
-  ko: "WeaveTrail은 탐지하지 않습니다. 그런 프로세스가 내린 결론과 사람이 서명할 판단 사이에 검증 단계 하나를 넣습니다.",
+  en: "It does not detect. A verification gate sits between that process's conclusion and a person's sign-off.",
+  ko: "탐지는 하지 않습니다. 프로세스의 결론과 사람이 서명할 판단 사이에서 한 번 더 검증합니다.",
 };
 
 /** The diagram is the project's own design, not a figure from a published source. */
@@ -147,8 +147,8 @@ export const upstreamStatements: readonly Statement[] = [
   },
   {
     text: {
-      en: "So detection is already fast, already analytical, and already inside a supervised scope. WeaveTrail assumes that layer and replaces no part of it.",
-      ko: "탐지는 이미 빠르고, 이미 분석적이고, 이미 감독 범위 안에 있습니다. WeaveTrail은 그 층을 전제로 두고, 그중 어느 것도 대체하지 않습니다.",
+      en: "Detection is already fast, analytical and supervised. This gate replaces none of it.",
+      ko: "탐지는 이미 빠르고 분석적이며 감독 범위 안에 있습니다. 이 단계는 그 기능을 대체하지 않습니다.",
     },
     reasoning: true,
   },
@@ -310,8 +310,8 @@ export const layerAuthorities: readonly LayerAuthority[] = [
 ];
 
 export const NON_AFFILIATION: Localized = {
-  en: "WeaveTrail is not affiliated with, endorsed by, integrated with, or connected to any system, venue, vendor or authority named on this page.",
-  ko: "WeaveTrail은 이 페이지에 이름이 나오는 어떤 시스템·거래소·업체·기관과도 제휴, 보증, 연동, 연결 관계가 없습니다.",
+  en: "No affiliation, endorsement, integration or connection exists with any system, venue, vendor or authority named on this page.",
+  ko: "이 페이지에 이름이 나오는 시스템·거래소·업체·기관과 제휴, 보증, 연동, 연결 관계가 없습니다.",
 };
 
 /** Section five: the boundary of the argument above. */
@@ -322,8 +322,8 @@ export const notClaimed: readonly Localized[] = [
     ko: "가이드라인이 요구하는 것을 조사 하나 안에서 실행하는 방법은 여럿입니다. 계층 분리는 그중 하나입니다. 설계상의 정합일 뿐 인증도, 승인도, 보증도 아닙니다. 여기 이름이 나오는 어떤 기관도 이 프로젝트를 검토하거나 평가하거나 승인한 적이 없습니다.",
   },
   {
-    en: "No system named here uses WeaveTrail, and WeaveTrail has not been evaluated against one. Naming a published source describes where the gate would sit, not a relationship with anyone.",
-    ko: "여기 이름이 나오는 어떤 시스템도 WeaveTrail을 쓰지 않고, WeaveTrail이 그 시스템을 기준으로 평가된 적도 없습니다. 공표 자료를 인용한 것은 이 단계가 놓일 자리를 설명하기 위해서이지, 누군가와의 관계를 말하는 것이 아닙니다.",
+    en: "No system named here uses this project or has evaluated it. Naming a published source describes where the gate would sit, not a relationship.",
+    ko: "여기 이름이 나오는 시스템이 이 프로젝트를 쓰거나 이를 기준으로 평가한 적은 없습니다. 공표 자료는 이 단계가 놓일 자리를 설명할 뿐, 관계를 뜻하지 않습니다.",
   },
   {
     en: "The surveillance process cited here covers virtual assets. This repository's committed sources are synthetic equity executions and published KOSPI daily quotations, so what is described is the shape of a position, not a connection to that process or coverage of that market.",
