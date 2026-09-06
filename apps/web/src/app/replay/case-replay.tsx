@@ -166,28 +166,28 @@ const guideStepsKo: readonly GuideStep[] = [
   {
     title: "소스 읽기",
     purpose:
-      "커밋된 supported 사례에서 시작합니다. 아직 아무 승인도 주어지지 않았습니다. 열과 원본 값을 그대로 읽어보세요. 이 열 이름은 소스 자신의 방언이라 아직 합의된 뜻이 없습니다. 무엇을 가리키는지 정하는 것이 다음 단계입니다.",
+      "커밋된 supported 사례에서 시작합니다. 아직 승인된 것은 아무것도 없습니다. 열 이름과 원본 값을 그대로 읽어보세요. 열 이름은 소스가 쓰는 말이라 아직 합의된 뜻이 없습니다. 무엇을 가리키는지 정하는 일이 다음 단계입니다.",
     action:
-      "커밋된 소스 행을 읽고, 그 열이 무엇을 뜻하는지 아직 아무것도 말해주지 않는다는 점을 확인한 뒤 계속하세요.",
+      "커밋된 소스 행을 읽어보세요. 열이 무엇을 뜻하는지는 아직 어디에도 적혀 있지 않습니다. 확인했으면 계속하세요.",
     actor: "Committed input",
     actorDetail: "이 시점에는 제안된 것도, 승인된 것도, 판정된 것도 없습니다.",
   },
   {
     title: "매핑 검토",
     purpose:
-      "아래 제안은 결정론적 fixture가 공급합니다. 실시간 모델 호출은 일어나지 않았습니다. 먼저 매핑되지 않은 필드에서 멈추는 별도 예시를 검토하고, 그다음 이 사례의 매핑을 승인하세요.",
+      "아래 제안은 결정론적 fixture가 내놓은 것입니다. 실시간 모델 호출은 없었습니다. 먼저 별도 예시를 검토하세요. 그 예시는 매핑되지 않은 필드에서 멈춥니다. 그다음 이 사례의 매핑을 승인하세요.",
     action:
       "예시에서 표시된 필드에 검토자 사유를 적어 승인한 다음, 이 사례의 매핑 제안을 승인하세요.",
     actor: "A model proposed it",
     actorDetail:
-      "fixture 매핑 provider는 대상 필드와 변환, 근거를 제안합니다. 승인은 하지 못합니다.",
+      "fixture 매핑 provider는 대상 필드와 변환, 근거를 제안합니다. 승인까지 하지는 못합니다.",
     refusal:
-      "거부는 이 경로에 그대로 남습니다. 표시된 모든 필드에 빈칸이 아닌 검토자 사유가 채워지기 전까지 예시는 REVIEW_REQUIRED에 머무릅니다.",
+      "거부는 이 경로에 그대로 남습니다. 표시된 필드마다 검토자 사유를 채우기 전까지, 예시는 REVIEW_REQUIRED에 머무릅니다.",
   },
   {
     title: "사례 승인",
     purpose:
-      "이 커밋된 사례에 제안된 범위와 임계값을 그대로 검토하고 승인하세요. 허용되는 파라미터 스키마와 수식, 비교는 버전이 찍힌 코드가 정합니다. 실시간 사례 제안은 아직 계획입니다.",
+      "이 사례에 제안된 범위와 임계값을 그대로 검토하고 승인하세요. 허용되는 파라미터 스키마와 수식, 비교는 버전이 고정된 코드가 정합니다. 실시간 사례 제안은 아직 계획입니다.",
     action:
       "종목과 구간, 임계값을 읽은 뒤 이 사례 manifest를 그대로 승인하세요.",
     actor: "A person approved it",
@@ -197,40 +197,41 @@ const guideStepsKo: readonly GuideStep[] = [
   {
     title: "리플레이 실행",
     purpose:
-      "서버가 승인과 소스 행이 정확한지 다시 확인한 뒤, 버전이 찍힌 코드가 판정합니다. 요청은 저마다 자기 워크플로 상태를 가집니다.",
-    action: "승인된 사례를 실행하고 반환되는 평가와 소스 추적을 기다리세요.",
+      "서버가 승인과 소스 행을 하나씩 다시 확인한 뒤, 버전이 고정된 코드가 판정합니다. 워크플로 상태는 요청마다 따로 있습니다.",
+    action:
+      "승인된 사례를 실행하고, 평가와 소스 추적이 돌아올 때까지 기다리세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "서버는 버전이 찍힌 규칙을 돌리기 전에 두 승인을 모두 다시 검증합니다.",
+      "서버는 버전이 고정된 규칙을 돌리기 전에 두 승인을 모두 다시 검증합니다.",
   },
   {
     title: "발견 확인",
     purpose:
-      "이 결과는 승인된 범위 아래에서 버전이 찍힌 패턴 가설 하나를 얼마나 지지하는지 말합니다. 다섯 개 gate를 모두 살펴본 뒤, 발견을 열어 원본 행까지 추적하세요.",
+      "이 결과가 말하는 것은 하나뿐입니다. 승인된 범위 안에서, 버전이 고정된 패턴 가설 하나를 데이터가 얼마나 지지하는가. 다섯 gate를 모두 살펴본 뒤 발견을 열어 원본 행까지 따라가세요.",
     action:
       "gate 아래의 소스 증거를 열어 정본 이벤트와 커밋된 소스 행까지 들어가세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "gate와 관측값, 소스 추적은 서버가 도출한 것이지 모델 출력이 아닙니다.",
+      "gate와 관측값, 소스 추적은 서버가 도출합니다. 모델이 내놓은 값이 아닙니다.",
   },
   {
     title: "사례 반복",
     purpose:
-      "같은 승인 입력을 한 번 더 실행합니다. 반환된 두 해시를 비교해서 확인되는 것은 같은 입력을 넣었을 때의 반복 가능성뿐입니다.",
+      "같은 승인 입력을 한 번 더 실행합니다. 돌아온 두 해시를 비교하면 같은 입력에 같은 답이 나오는지만 확인됩니다. 그 이상은 아닙니다.",
     action:
       "같은 승인 사례를 다시 실행하고 서버가 반환한 두 해시를 비교하세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "두 해시 모두 서버가 반환합니다. 브라우저는 문자열로 비교할 뿐입니다.",
+      "두 해시 모두 서버가 돌려준 값입니다. 브라우저는 문자열로 비교만 합니다.",
   },
   {
     title: "직접 조작",
     purpose:
-      "이 사례와 승인, 결과를 그대로 둔 채 이어갑니다. 새로고침하면 승인되지 않은 상태에서 시작합니다.",
+      "이 사례와 승인, 결과를 그대로 둔 채 이어갑니다. 새로고침하면 승인이 없는 상태로 다시 시작합니다.",
     action: "이 사례를 워킹 모드로 가져가 소스와 변형을 직접 고르세요.",
     actor: "A person approved it",
     actorDetail:
-      "당신이 한 승인은 그대로 남습니다. 어떤 승인도 이 브라우저 세션을 넘어 저장되지 않습니다.",
+      "지금까지 한 승인은 그대로 남습니다. 다만 어떤 승인도 이 브라우저 세션을 넘어 저장되지는 않습니다.",
   },
 ];
 
@@ -254,7 +255,7 @@ interface GuideUi {
   readonly controlsHeading: string;
 }
 
-const guideUi: Readonly<Record<Language, GuideUi>> = {
+export const guideUi: Readonly<Record<Language, GuideUi>> = {
   en: {
     blockers: [
       "",
@@ -287,7 +288,7 @@ const guideUi: Readonly<Record<Language, GuideUi>> = {
   ko: {
     blockers: [
       "",
-      "별도의 매핑 검토 예시와 이 사례의 매핑을 모두 승인해야 계속할 수 있습니다.",
+      "별도 매핑 검토 예시와 이 사례의 매핑을 모두 승인해야 계속할 수 있습니다.",
       "매핑을 먼저 승인하고, 이어서 이 사례 manifest를 승인하세요.",
       "승인된 사례를 실행하고 평가와 소스 추적이 나올 때까지 기다리세요.",
       "발견의 소스 증거를 열어야 계속할 수 있습니다.",
@@ -308,14 +309,16 @@ const guideUi: Readonly<Record<Language, GuideUi>> = {
     currentStep: "현재 단계",
     back: "이전",
     continueLabel: "계속",
-    navigationInRail: "단계 목록에서의 단계 이동",
-    navigationAtEnd: "단계 끝에서의 단계 이동",
+    navigationInRail: "단계 목록에서 단계 이동하기",
+    navigationAtEnd: "단계 끝에서 단계 이동하기",
     progressLabel: "사례 둘러보기 진행 상황",
     controlsHeading: "Case Replay 컨트롤",
   },
 };
 
-const guideStepsByLanguage: Readonly<Record<Language, readonly GuideStep[]>> = {
+export const guideStepsByLanguage: Readonly<
+  Record<Language, readonly GuideStep[]>
+> = {
   en: guideSteps,
   ko: guideStepsKo,
 };
@@ -333,7 +336,7 @@ const actorLabels: Readonly<
     "Committed input": "커밋된 입력",
     "A model proposed it": "모델이 제안했습니다",
     "A person approved it": "사람이 승인했습니다",
-    "Versioned code decided it": "버전이 찍힌 코드가 판정했습니다",
+    "Versioned code decided it": "버전이 고정된 코드가 판정했습니다",
   },
 };
 
@@ -348,7 +351,7 @@ const configuredProposalOverride: Readonly<
   },
   ko: {
     purpose:
-      "이 사례는 fixture 제안을 씁니다. 별도의 Dialect B 예시는 configured 제안을 요청하고 검증에 실패하면 멈춥니다. 승인하기 전에 각 제안에 표시된 provider와 근거를 확인하세요.",
+      "이 사례는 fixture 제안을 씁니다. 별도의 Dialect B 예시는 configured 제안을 요청하고, 검증에 실패하면 거기서 멈춥니다. 승인하기 전에 제안마다 표시된 provider와 근거를 확인하세요.",
     action: "별도 예시의 매핑을 요청해 검토한 뒤, 이 사례의 매핑을 승인하세요.",
   },
 };

@@ -54,15 +54,31 @@ metadata.
 
 ## Self-hosted fonts
 
-| Family         | Included files                              | Upstream                                              | License     |
-| -------------- | ------------------------------------------- | ----------------------------------------------------- | ----------- |
-| IBM Plex Sans  | Regular 400, Medium 500, SemiBold 600 WOFF2 | `IBM/plex`, `packages/plex-sans/fonts/complete/woff2` | SIL OFL 1.1 |
-| JetBrains Mono | Regular 400, Medium 500, Bold 700 WOFF2     | `JetBrains/JetBrainsMono`, `fonts/webfonts`           | SIL OFL 1.1 |
+| Family           | Included files                              | Upstream                                                        | License     |
+| ---------------- | ------------------------------------------- | --------------------------------------------------------------- | ----------- |
+| IBM Plex Sans    | Regular 400, Medium 500, SemiBold 600 WOFF2 | `IBM/plex`, `packages/plex-sans/fonts/complete/woff2`           | SIL OFL 1.1 |
+| IBM Plex Sans KR | Regular 400, Medium 500, SemiBold 600 WOFF2 | `IBM/plex`, `packages/plex-sans-kr/fonts/complete/woff2/hinted` | SIL OFL 1.1 |
+| JetBrains Mono   | Regular 400, Medium 500, Bold 700 WOFF2     | `JetBrains/JetBrainsMono`, `fonts/webfonts`                     | SIL OFL 1.1 |
 
-The license texts are copied to `third_party/fonts/ibm-plex-sans/OFL.txt` and
+The license texts are copied to `third_party/fonts/ibm-plex-sans/OFL.txt`,
+`third_party/fonts/ibm-plex-sans-kr/OFL.txt` and
 `third_party/fonts/jetbrains-mono/OFL.txt`. These files are served locally by
 Next.js; page rendering does not request Google Fonts, gstatic, or another font
 CDN.
+
+The committed IBM Plex Sans KR bytes are the upstream hinted WOFF2 files
+unchanged, and match the files the `@ibm/plex-sans-kr` 1.1.0 package publishes
+from the same source:
+
+| File                           | SHA-256                                                            |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `IBMPlexSansKR-Regular.woff2`  | `055a35664c3c3965161c92292504c5633ba9604ec904edc1ed799bf2a436276d` |
+| `IBMPlexSansKR-Medium.woff2`   | `c00dcd8a9c32a6b6ab8c6b3119e68b3d7aa6eba6f4441d5493019cc019dcdd1e` |
+| `IBMPlexSansKR-SemiBold.woff2` | `5ad7db28ba74d59fe14c260205c62ddb701320f4f098d8a45ef2757bebc29666` |
+
+Its license text is byte-identical to the IBM Plex Sans copy already recorded
+here: one SIL OFL 1.1 grant covers both families under the reserved font name
+"Plex".
 
 ## Published FSC stock quotations
 

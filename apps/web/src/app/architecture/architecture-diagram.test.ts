@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import ArchitecturePage from "./page";
+import { LANGUAGES } from "../i18n/language";
+import { howItWorksSvg } from "./how-it-works-diagram";
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path));
 
@@ -16,14 +18,45 @@ describe("architecture layer diagram", () => {
     expect(read(DIAGRAM_SERVED).equals(read(DIAGRAM_SOURCE))).toBe(true);
   });
 
-  it("renders the committed diagram with a text alternative", () => {
+  it("keeps both committed files equal to what the diagram module renders", () => {
+    // The words on the figure and the words the page draws come from one
+    // module. A copy change that reaches only one of them is the drift this
+    // catches; `pnpm diagram:build` is the fix.
+    const english = howItWorksSvg("en");
+    for (const file of [DIAGRAM_SOURCE, DIAGRAM_SERVED])
+      expect(read(file).toString("utf8"), file).toBe(english);
+  });
+
+  it("draws the diagram inline so its words follow the reader's language", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    expect(markup).toContain('src="/diagrams/how-it-works.svg"');
-    const alt = /<img[^>]*src="\/diagrams\/how-it-works\.svg"[^>]*>/.exec(
-      markup,
-    )?.[0];
-    expect(alt).toBeDefined();
-    expect(/alt="[^"]{40,}"/.test(alt!)).toBe(true);
+    expect(markup).not.toContain('src="/diagrams/how-it-works.svg"');
+    expect(markup).toContain('<svg xmlns="http://www.w3.org/2000/svg"');
+    // The figure names and describes itself, which is what replaces the alt
+    // text the committed image used to carry.
+    expect(markup).toContain('aria-labelledby="flowTitle flowDesc"');
+    expect(/<desc id="flowDesc">[^<]{40,}<\/desc>/.test(markup)).toBe(true);
+  });
+
+  it("draws every language from the same geometry", () => {
+    for (const language of LANGUAGES) {
+      const svg = howItWorksSvg(language);
+      expect(svg, language).toContain('viewBox="0 0 1200 520"');
+      // Contract vocabulary carries one spelling in both languages.
+      for (const identifier of [
+        "SUPPORTED",
+        "NOT_SUPPORTED",
+        "INCONCLUSIVE",
+        "INPUT_REVIEW_REQUIRED",
+        "MAPPING_REVIEW_REQUIRED",
+        "CASE_REVIEW_REQUIRED",
+        "approvedArtifactHash",
+        "eventId",
+        "rawRowHash",
+      ])
+        expect(svg, `${language} ${identifier}`).toContain(identifier);
+      expect(svg, language).toContain("<title");
+      expect(svg, language).toContain("<desc");
+    }
   });
 
   it("marks the trust boundary, the hash coverage and the end of a model's authority", () => {

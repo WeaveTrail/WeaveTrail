@@ -61,18 +61,18 @@ describe("where the gate sits", () => {
     ])
       expect(rendered).toContain(heading);
     for (const layer of layerAuthorities)
-      expect(rendered).toContain(escaped(layer.name));
+      expect(rendered).toContain(escaped(layer.name.en));
   });
 
   it("attributes every sentence about a system outside this repository", () => {
     for (const statement of attributed) {
       const hasSource = "source" in statement;
       const hasReasoning = "reasoning" in statement;
-      expect(hasSource !== hasReasoning, statement.text).toBe(true);
+      expect(hasSource !== hasReasoning, statement.text.en).toBe(true);
       if (hasSource)
         expect(
           sources.some((source) => source.id === statement.source),
-          statement.text,
+          statement.text.en,
         ).toBe(true);
     }
   });
@@ -80,7 +80,7 @@ describe("where the gate sits", () => {
   it("renders each statement with its citation or its own-reading mark", () => {
     const rendered = markup();
     for (const statement of attributed) {
-      expect(rendered).toContain(escaped(statement.text));
+      expect(rendered).toContain(escaped(statement.text.en));
       if ("source" in statement) {
         const source = sources.find((it) => it.id === statement.source)!;
         expect(rendered).toContain(`href="#source-${source.id}"`);
@@ -90,7 +90,7 @@ describe("where the gate sits", () => {
       (statement) => "reasoning" in statement,
     ).length;
     expect(reasoningCount).toBeGreaterThan(0);
-    expect(rendered.split(escaped(OWN_REASONING_MARK)).length - 1).toBe(
+    expect(rendered.split(escaped(OWN_REASONING_MARK.en)).length - 1).toBe(
       reasoningCount + 1,
     );
   });
@@ -100,7 +100,7 @@ describe("where the gate sits", () => {
     for (const source of sources) {
       expect(rendered).toContain(`id="source-${source.id}"`);
       expect(rendered).toContain(`href="${escaped(source.href)}"`);
-      expect(rendered).toContain(escaped(source.title));
+      expect(rendered).toContain(escaped(source.title.en));
       expect(
         attributed.some(
           (statement) =>
@@ -132,8 +132,8 @@ describe("where the gate sits", () => {
     // The narrative that explains why the gate exists is read first; the
     // diagram is the design that follows from it.
     for (const before of [
-      escaped(POSITION),
-      escaped(lede.text),
+      escaped(POSITION.en),
+      escaped(lede.text.en),
       "What upstream surveillance already does",
       "What it still hands to a person",
       "What this adds to it",
@@ -150,11 +150,11 @@ describe("where the gate sits", () => {
     const rendered = markup();
     expect(gateInputs).toHaveLength(3);
     for (const [name, detail] of gateInputs) {
-      expect(rendered).toContain(escaped(name));
-      expect(rendered).toContain(escaped(detail));
+      expect(rendered).toContain(escaped(name.en));
+      expect(rendered).toContain(escaped(detail.en));
     }
-    expect(rendered).toContain(escaped(CONCLUSION_NOT_METHOD));
-    expect(rendered).toContain(escaped(NO_UPSTREAM_INTEGRATION));
+    expect(rendered).toContain(escaped(CONCLUSION_NOT_METHOD.en));
+    expect(rendered).toContain(escaped(NO_UPSTREAM_INTEGRATION.en));
   });
 
   it("keeps the refusal to the path that actually refuses", () => {
@@ -167,14 +167,16 @@ describe("where the gate sits", () => {
 
   it("keeps engine abstention a result and a review state pre-replay", () => {
     const rendered = markup();
-    const decide = layerAuthorities.find(({ name }) => name.includes("Decide"));
+    const decide = layerAuthorities.find(({ name }) =>
+      name.en.includes("Decide"),
+    );
     expect(decide).toBeDefined();
-    expect(decide!.may).toContain("NOT_SUPPORTED");
-    expect(decide!.may).toContain("INCONCLUSIVE");
-    expect(decide!.may).toContain("both are results");
-    expect(decide!.mayNot).toContain("pre-replay");
+    expect(decide!.may.en).toContain("NOT_SUPPORTED");
+    expect(decide!.may.en).toContain("INCONCLUSIVE");
+    expect(decide!.may.en).toContain("both are results");
+    expect(decide!.mayNot.en).toContain("pre-replay");
     for (const layer of layerAuthorities)
-      expect(`${layer.may} ${layer.mayNot}`, layer.name).not.toContain(
+      expect(`${layer.may.en} ${layer.mayNot.en}`, layer.name.en).not.toContain(
         "returns a review state instead",
       );
     expect(rendered).toContain("never an engine verdict");
@@ -189,8 +191,8 @@ describe("where the gate sits", () => {
     const rendered = markup();
     expect(layerAuthorities).toHaveLength(4);
     for (const layer of layerAuthorities) {
-      expect(rendered).toContain(escaped(layer.may));
-      expect(rendered).toContain(escaped(layer.mayNot));
+      expect(rendered).toContain(escaped(layer.may.en));
+      expect(rendered).toContain(escaped(layer.mayNot.en));
     }
     expect(rendered).toContain("May.");
     expect(rendered).toContain("May not.");
@@ -214,7 +216,8 @@ describe("where the gate sits", () => {
   it("states the non-affiliation line and the boundary of the argument", () => {
     const rendered = markup();
     expect(notClaimed).toContain(NON_AFFILIATION);
-    for (const claim of notClaimed) expect(rendered).toContain(escaped(claim));
+    for (const claim of notClaimed)
+      expect(rendered).toContain(escaped(claim.en));
   });
 
   it("keeps the page to the product argument", () => {

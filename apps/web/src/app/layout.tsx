@@ -19,7 +19,8 @@ export const metadata: Metadata = {
     default: "WeaveTrail",
     template: "%s | WeaveTrail",
   },
-  description: "Weave signals into replayable evidence.",
+  description:
+    "WeaveTrail re-verifies a market-surveillance alert with versioned code before an investigator signs off, and traces every finding back to its source rows.",
 };
 
 const plex = localFont({
@@ -68,34 +69,20 @@ export default function RootLayout({
               <img alt="" height="36" src="/brand/mark.svg" width="36" />
               <span>WeaveTrail</span>
             </Link>
-            <span className="header-context">
-              <ChromeText id="headerContext" />
-            </span>
             <LanguageSelector />
           </header>
           <div className="app-shell">
             <aside className="side-nav">
               <SiteNavigation />
-              <div className="side-nav-footer">
-                <span>
-                  <ChromeText id="roleProposals" />
-                </span>
-                <span>
-                  <ChromeText id="roleApprovals" />
-                </span>
-                <span>
-                  <ChromeText id="roleCode" />
-                </span>
-              </div>
             </aside>
             <div className="content-shell">
               <div id="main-content">{children}</div>
               <footer className="site-footer">
                 <span>
-                  <ChromeText id="footerTagline" />
+                  <ChromeText id="footerStatus" />
                 </span>
                 <span>
-                  <ChromeText id="footerStatus" />
+                  <ChromeText id="footerPlanned" />
                 </span>
               </footer>
             </div>

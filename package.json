@@ -20,6 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "design:snapshot:verify": "node scripts/verify-design-snapshot.mjs",
+    "diagram:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-how-it-works-diagram.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check"
   },
   "devDependencies": {
