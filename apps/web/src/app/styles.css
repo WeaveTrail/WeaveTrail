@@ -703,6 +703,14 @@ details.step-action > summary {
 .expectation-card h2 {
   margin-top: 8px;
 }
+.expectation-hypothesis {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: var(--hairline);
+}
+.expectation-hypothesis > p {
+  margin-top: 8px;
+}
 .expectation-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

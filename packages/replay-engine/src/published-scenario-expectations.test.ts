@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { format } from "prettier";
 
 import {
   RapidPriceLiftResultSchema,
@@ -140,6 +141,20 @@ function publication() {
         canonicalDatasetHash: computeDatasetProfile(replay.events)
           .canonicalDatasetHash,
         canonicalResultHash: replay.canonicalResultHash,
+        hypothesis: manifest
+          ? {
+              manifestVersion: manifest.manifestVersion,
+              pattern: manifest.hypothesis.pattern,
+              instrumentIds: [manifest.hypothesis.instrumentId],
+              actorIds: manifest.hypothesis.actorIds,
+              startTime: manifest.hypothesis.startTime,
+              endTime: manifest.hypothesis.endTime,
+              rules: manifest.rules.map(({ ruleId, ruleVersion }) => ({
+                ruleId,
+                ruleVersion,
+              })),
+            }
+          : null,
         gates: rule
           ? gateParameters.map(([gate, parameter]) => {
               const finding = findings.get(gate);
@@ -163,9 +178,10 @@ describe("published scenario expectations", () => {
       ...Object.keys(committedReplayScenarios),
       ...Object.keys(publishedReplaySources),
     ]);
-    await expect(
-      `${JSON.stringify(publication(), null, 2)}\n`,
-    ).toMatchFileSnapshot(
+    const output = await format(JSON.stringify(publication(), null, 2), {
+      parser: "json",
+    });
+    await expect(output).toMatchFileSnapshot(
       "../../../apps/web/src/app/expectations/scenario-expectations.json",
     );
   });

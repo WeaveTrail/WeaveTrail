@@ -9,6 +9,7 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "d41938b51aac2ce0f38187a25fe4a9461c56f273c8b37fb64f7ee69f123a0de2",
       "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f",
+      "hypothesis": null,
       "gates": []
     },
     {
@@ -19,6 +20,7 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "d514dae6698ab079719c0e8970fb3813a63852b8f128ff09759548f2e10d9abb",
       "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
+      "hypothesis": null,
       "gates": []
     },
     {
@@ -29,6 +31,7 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "d514dae6698ab079719c0e8970fb3813a63852b8f128ff09759548f2e10d9abb",
       "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
+      "hypothesis": null,
       "gates": []
     },
     {
@@ -39,6 +42,20 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "9eeb45d15373e1222c8b7e1b147b5010d415a72109aca8a264f1da0a8ae4b706",
       "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["WT-RPL-SYNTH"],
+        "actorIds": ["participant-focus"],
+        "startTime": "2026-09-01T00:00:00Z",
+        "endTime": "2026-09-01T00:00:05Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
       "gates": [
         {
           "gate": "PRICE_CHANGE",
@@ -80,6 +97,20 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "704fb15495b7fb2c5b612ba9a9213d1a429342e408587a085cdf4e28e859100f",
       "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["WT-RPL-SYNTH"],
+        "actorIds": ["participant-focus"],
+        "startTime": "2026-09-01T00:00:00Z",
+        "endTime": "2026-09-01T00:00:05Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
       "gates": [
         {
           "gate": "PRICE_CHANGE",
@@ -121,6 +152,20 @@
       "inconclusiveReason": "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
       "canonicalDatasetHash": "0deca356833da2703b3a307b31b5426302a985ea91bdaad64218f5999a0965c2",
       "canonicalResultHash": "e9e7a01885d47f21d7372f9b4008418e7585dbdc35abe272adbc3f703a3408fc",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["WT-RPL-SYNTH"],
+        "actorIds": ["participant-focus"],
+        "startTime": "2026-09-01T00:00:00Z",
+        "endTime": "2026-09-01T00:00:03Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
       "gates": [
         {
           "gate": "PRICE_CHANGE",
@@ -162,6 +207,7 @@
       "inconclusiveReason": null,
       "canonicalDatasetHash": "2f70f316b6a7979b2472e2ebfc0da303c69961ed0833e060762e1567d39af939",
       "canonicalResultHash": "f8bb2a21d695aab89e826039861204ecb741d5f56ecab69e354c9b5840ae25fc",
+      "hypothesis": null,
       "gates": []
     }
   ]

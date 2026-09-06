@@ -54,11 +54,13 @@ export default function ExpectationsPage() {
             select <strong>Approve case manifest</strong>.
           </li>
           <li>
-            Select <strong>Run deterministic replay</strong>, or select
-            <strong> Normalize source</strong> when no case manifest exists.
-            Compare the final workflow state, result, gate readings, and
-            canonical result hash below. The case proposal shows the canonical
-            dataset hash for evaluated cases.
+            Select <strong>Run deterministic replay</strong> for mapping 1.4
+            sources, including Dialect A and Dialect B, even though those two
+            sources have no case manifest. Select{" "}
+            <strong>Normalize source</strong> for mapping 1.5 daily-quote
+            sources. Compare the final workflow state, result, gate readings,
+            and canonical result hash below. The case proposal shows the
+            canonical dataset hash for evaluated cases.
           </li>
         </ol>
         <p>
@@ -70,6 +72,14 @@ export default function ExpectationsPage() {
             packages/replay-engine/src/published-scenario-expectations.test.ts
           </code>
           .
+        </p>
+        <p>
+          This publication was captured at Git revision{" "}
+          <code>0ab7d3bf8f1016306f1c0225f5fa12a3415c2b79</code> with Node{" "}
+          <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
+          <code>4.1.11</code>, and Linux WSL2 x86_64. The test recomputes every
+          value with the environment in which it runs and reports drift from
+          this committed artifact.
         </p>
         <p>
           Approval hashing requires Web Crypto in a secure browser context.
@@ -135,6 +145,46 @@ export default function ExpectationsPage() {
                 inconclusive run; the thresholds below remain the values
                 declared by the approved manifest.
               </p>
+            ) : null}
+            {scenario.hypothesis !== null ? (
+              <section className="expectation-hypothesis">
+                <h3>Versioned hypothesis</h3>
+                <p>
+                  <code>{scenario.hypothesis.pattern}</code> evaluated by{" "}
+                  {scenario.hypothesis.rules.map((rule, index) => (
+                    <React.Fragment key={`${rule.ruleId}@${rule.ruleVersion}`}>
+                      {index > 0 ? ", " : ""}
+                      <code>
+                        {rule.ruleId}@{rule.ruleVersion}
+                      </code>
+                    </React.Fragment>
+                  ))}
+                  .
+                </p>
+                <dl className="expectation-facts">
+                  <div>
+                    <dt>Manifest version</dt>
+                    <dd>
+                      <code>{scenario.hypothesis.manifestVersion}</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Instrument</dt>
+                    <dd>{scenario.hypothesis.instrumentIds.join(", ")}</dd>
+                  </div>
+                  <div>
+                    <dt>Approved actor group</dt>
+                    <dd>{scenario.hypothesis.actorIds.join(", ")}</dd>
+                  </div>
+                  <div>
+                    <dt>Window</dt>
+                    <dd>
+                      <code>{scenario.hypothesis.startTime}</code> —{" "}
+                      <code>{scenario.hypothesis.endTime}</code>
+                    </dd>
+                  </div>
+                </dl>
+              </section>
             ) : null}
             <Hash
               label="Canonical dataset hash"
