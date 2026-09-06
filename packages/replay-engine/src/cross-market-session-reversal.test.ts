@@ -17,7 +17,11 @@ import {
 import { crossMarketSessionReversalSpecimens } from "@weavetrail/scenarios";
 
 import { computeDatasetProfile } from "./dataset-profile";
-import { mappingApprovalArtifact, replayApproved } from "./approval-validation";
+import {
+  caseManifestProposal,
+  mappingApprovalArtifact,
+  replayApproved,
+} from "./approval-validation";
 import { sha256Canonical } from "./canonical-hash";
 import {
   CrossMarketRuleError,
@@ -376,18 +380,64 @@ describe("cross-market session reversal", () => {
   it("refuses replay when a declared instrument is outside the dataset profile", () => {
     const specimen = crossMarketSessionReversalSpecimens.supported;
     const configured = manifest(specimen.events);
-    const outside = {
+    const outsideAttempt = {
       ...configured,
       hypothesis: {
         ...configured.hypothesis,
         instrumentIds: ["SYNTH-PRIMARY", "OUTSIDE-PROFILE"],
       },
     } as CaseManifestV14;
+    const outside = {
+      ...outsideAttempt,
+      approval: {
+        ...outsideAttempt.approval,
+        approvedArtifactHash: sha256Canonical(
+          caseManifestProposal(outsideAttempt),
+        ),
+      },
+    };
     expect(() =>
       replayCrossMarketSessionReversal(specimen.events, outside),
     ).toThrowError(
       expect.objectContaining<Partial<CrossMarketRuleError>>({
         code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+      }),
+    );
+  });
+
+  it("rejects rejected or hash-mismatched manifests before replay", () => {
+    const specimen = crossMarketSessionReversalSpecimens.supported;
+    const configured = manifest(specimen.events);
+    const configuredRule = configured.rules[0]!;
+    if (configuredRule.ruleId !== "CROSS_MARKET_SESSION_REVERSAL") {
+      throw new Error("Expected cross-market rule fixture");
+    }
+    expect(() =>
+      replayCrossMarketSessionReversal(specimen.events, {
+        ...configured,
+        approval: { ...configured.approval, decision: "REJECTED" },
+      }),
+    ).toThrowError(
+      expect.objectContaining<Partial<CrossMarketRuleError>>({
+        code: "APPROVAL_REJECTED",
+      }),
+    );
+    expect(() =>
+      replayCrossMarketSessionReversal(specimen.events, {
+        ...configured,
+        rules: [
+          {
+            ...configuredRule,
+            parameters: {
+              ...configuredRule.parameters,
+              maximumBaselineRank: "2",
+            },
+          },
+        ],
+      }),
+    ).toThrowError(
+      expect.objectContaining<Partial<CrossMarketRuleError>>({
+        code: "APPROVED_ARTIFACT_HASH_MISMATCH",
       }),
     );
   });

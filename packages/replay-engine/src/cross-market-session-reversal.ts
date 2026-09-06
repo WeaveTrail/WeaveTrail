@@ -15,6 +15,10 @@ import {
   type FoundationReplay,
 } from "./replay-foundation";
 import {
+  type ApprovalIssueCode,
+  validateCaseManifestApproval,
+} from "./approval-validation";
+import {
   compareExactRatioToDecimal,
   compareScaledDecimals,
   parseScaledDecimal,
@@ -50,7 +54,8 @@ type DerivedObservation = {
 
 export class CrossMarketRuleError extends Error {
   constructor(
-    readonly code: "RULE_CONFIGURATION_REQUIRED" | CaseProfileIssueCode,
+    readonly code:
+      "RULE_CONFIGURATION_REQUIRED" | ApprovalIssueCode | CaseProfileIssueCode,
     message: string,
   ) {
     super(message);
@@ -374,6 +379,15 @@ export function replayCrossMarketSessionReversal(
   input: readonly unknown[],
   manifest: CaseManifestV14,
 ): CrossMarketSessionReversalReplay {
+  const approval = validateCaseManifestApproval(manifest);
+  if (!approval.accepted) {
+    const issue = approval.issues[0]!;
+    throw new CrossMarketRuleError(
+      issue.code,
+      issue.message ??
+        `Case manifest approval failed at ${JSON.stringify(issue.path)}`,
+    );
+  }
   const { events, duplicateCount } = canonicalizeEvents(input);
   const validation = validateCaseAgainstProfile(
     manifest,

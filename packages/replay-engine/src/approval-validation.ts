@@ -1,14 +1,15 @@
 import type {
   ApprovalRecord,
   CaseManifest,
-  CaseManifestProposal,
   ReplayReviewResponse,
   SchemaMappingProposal,
+  VersionedCaseManifest,
+  VersionedCaseManifestProposal,
 } from "@weavetrail/contracts";
 import {
-  CaseManifestProposalSchema,
   requiresMappingOverride,
   SchemaMappingProposalSchema,
+  VersionedCaseManifestProposalSchema,
 } from "@weavetrail/contracts";
 
 import { sha256Canonical } from "./canonical-hash";
@@ -54,11 +55,11 @@ export type ApprovalValidation =
     };
 
 export function caseManifestProposal(
-  manifest: CaseManifest,
-): CaseManifestProposal {
+  manifest: VersionedCaseManifest,
+): VersionedCaseManifestProposal {
   const { approval, ...proposal } = manifest;
   void approval;
-  return CaseManifestProposalSchema.parse(proposal);
+  return VersionedCaseManifestProposalSchema.parse(proposal);
 }
 
 export function mappingApprovalArtifact(
@@ -117,22 +118,35 @@ export function validateReplayApprovals(
     ? []
     : [...mappingValidation.issues];
 
-  if (manifest === undefined) {
-    issues.push({
-      code: "APPROVAL_RECORD_REQUIRED",
-      path: [],
-      message: "Case manifest approval is required.",
-    });
-  } else {
-    issues.push(
-      ...validateApprovalRecord(
-        caseManifestProposal(manifest),
-        manifest.approval,
-        ["caseManifest", "approval"],
-      ),
-    );
-  }
+  const caseValidation = validateCaseManifestApproval(manifest);
+  if (!caseValidation.accepted) issues.push(...caseValidation.issues);
 
+  return issues.length === 0
+    ? { accepted: true }
+    : { accepted: false, status: "REVIEW_REQUIRED", issues };
+}
+
+export function validateCaseManifestApproval(
+  manifest: VersionedCaseManifest | undefined,
+): ApprovalValidation {
+  if (manifest === undefined) {
+    return {
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "APPROVAL_RECORD_REQUIRED",
+          path: [],
+          message: "Case manifest approval is required.",
+        },
+      ],
+    };
+  }
+  const issues = validateApprovalRecord(
+    caseManifestProposal(manifest),
+    manifest.approval,
+    ["caseManifest", "approval"],
+  );
   return issues.length === 0
     ? { accepted: true }
     : { accepted: false, status: "REVIEW_REQUIRED", issues };
