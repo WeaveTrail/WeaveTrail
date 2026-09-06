@@ -1021,9 +1021,12 @@ export function CaseReplay({
               <details>
                 <summary>Inspect the exact case proposal</summary>
                 <p className="machine-note">
-                  The exact artifact this approval binds to. Any hash inside it
-                  belongs to the artifact itself: the source artifact hash names
-                  the committed rows the case may read.
+                  The exact artifact this approval binds to. The{" "}
+                  <code>canonicalDatasetHash</code> inside it belongs to the
+                  artifact: it names the ordered canonical event projection the
+                  replay must reproduce, and the replay boundary refuses a
+                  request whose dataset does not match it. The source artifact
+                  hash belongs to the separately approved mapping.
                 </p>
                 <pre
                   className="artifact-json"

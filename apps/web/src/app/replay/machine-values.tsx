@@ -229,5 +229,6 @@ export const EVENT_FIELD_NOTES: Record<string, string> = {
   price:
     "Executed price per unit, as an exact decimal string. The source carries no currency.",
   quantity: "Executed quantity, in units, as an exact decimal string.",
-  sequence: "The source's own ordering value, not the canonical order.",
+  sequence:
+    "The source's own ordering value, and the canonical secondary sort key: canonical order sorts by event time, then by this value when two events share a time, then by canonical identity.",
 };

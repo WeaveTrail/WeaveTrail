@@ -9,6 +9,7 @@ import {
   bpsToPercent,
   readableCompactDate,
   readableInstant,
+  EVENT_FIELD_NOTES,
   HASH_SCOPES,
   HashValue,
   Instant,
@@ -237,5 +238,34 @@ describe("reported values against the exact comparison", () => {
     expect([
       ...markup.matchAll(/Rates are reported truncated to four decimals/g),
     ]).toHaveLength(2);
+  });
+});
+
+describe("field notes against what the engine does", () => {
+  it("names sequence as the secondary sort key the engine actually applies", async () => {
+    const { canonicalizeEvents } = await import("@weavetrail/replay-engine");
+    const event = (eventId: string, sequence: string) => ({
+      schemaVersion: "1.1",
+      eventId,
+      sourceEventId: eventId,
+      datasetId: "synthetic-tie",
+      venueId: "SYNTH-X",
+      eventTime: "2026-08-25T09:00:00.000+09:00",
+      sequence,
+      instrumentId: "WT-DEMO",
+      eventType: "TRADE",
+      rawRowHash: sequence.repeat(64).slice(0, 63) + "a",
+    });
+
+    // Same instant, and canonical identity ordered against the sequence, so
+    // only the secondary sort key can decide the order.
+    const { events } = canonicalizeEvents([
+      event("event:a", "9"),
+      event("event:z", "1"),
+    ]);
+
+    expect(events.map(({ sequence }) => sequence)).toEqual(["1", "9"]);
+    expect(EVENT_FIELD_NOTES.sequence).toMatch(/secondary sort key/);
+    expect(EVENT_FIELD_NOTES.sequence).toMatch(/share a time/);
   });
 });
