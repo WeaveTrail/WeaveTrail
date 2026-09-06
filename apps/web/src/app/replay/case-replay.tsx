@@ -37,6 +37,7 @@ import {
   REPORTED_VALUE_NOTE,
   type GateName,
 } from "./machine-values";
+import { type Language } from "../i18n/language";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -58,6 +59,8 @@ export type CaseReplayProps = {
   mappingExample?: boolean;
   onMappingApprovalChange?: (approved: boolean) => void;
   onGuideComplete?: () => void;
+  /** English unless a language-aware caller supplies otherwise. */
+  language?: Language;
 };
 
 const workedCase = "rapid-price-lift-supported.csv";
@@ -153,6 +156,121 @@ export const guideSteps: readonly GuideStep[] = [
       "The approvals you made stay loaded. No approval is persisted beyond this browser session.",
   },
 ];
+
+/**
+ * Korean narration for the same seven steps. `actor` stays the English
+ * discriminant so behaviour keyed on it, and the English suite that asserts on
+ * `guideSteps`, both stay unchanged; only the label shown for it is translated.
+ */
+const guideStepsKo: readonly GuideStep[] = [
+  {
+    title: "소스 읽기",
+    purpose:
+      "커밋된 supported 사례에서 시작합니다. 아직 아무 승인도 주어지지 않았습니다. 열과 원본 값을 그대로 읽어보세요. 이 열 이름은 소스 자신의 방언이라 아직 합의된 뜻이 없습니다. 무엇을 가리키는지 정하는 것이 다음 단계입니다.",
+    action:
+      "커밋된 소스 행을 읽고, 그 열이 무엇을 뜻하는지 아직 아무것도 말해주지 않는다는 점을 확인한 뒤 계속하세요.",
+    actor: "Committed input",
+    actorDetail: "이 시점에는 제안된 것도, 승인된 것도, 판정된 것도 없습니다.",
+  },
+  {
+    title: "매핑 검토",
+    purpose:
+      "아래 제안은 결정론적 fixture가 공급합니다. 실시간 모델 호출은 일어나지 않았습니다. 먼저 매핑되지 않은 필드에서 멈추는 별도 예시를 검토하고, 그다음 이 사례의 매핑을 승인하세요.",
+    action:
+      "예시에서 표시된 필드에 검토자 사유를 적어 승인한 다음, 이 사례의 매핑 제안을 승인하세요.",
+    actor: "A model proposed it",
+    actorDetail:
+      "fixture 매핑 provider는 대상 필드와 변환, 근거를 제안합니다. 승인은 하지 못합니다.",
+    refusal:
+      "거부는 이 경로에 그대로 남습니다. 표시된 모든 필드에 빈칸이 아닌 검토자 사유가 채워지기 전까지 예시는 REVIEW_REQUIRED에 머무릅니다.",
+  },
+  {
+    title: "사례 승인",
+    purpose:
+      "이 커밋된 사례에 제안된 범위와 임계값을 그대로 검토하고 승인하세요. 허용되는 파라미터 스키마와 수식, 비교는 버전이 찍힌 코드가 정합니다. 실시간 사례 제안은 아직 계획입니다.",
+    action:
+      "종목과 구간, 임계값을 읽은 뒤 이 사례 manifest를 그대로 승인하세요.",
+    actor: "A person approved it",
+    actorDetail:
+      "범위를 승인하는 것은 당신입니다. 승인은 아티팩트 해시 하나에 정확히 묶입니다.",
+  },
+  {
+    title: "리플레이 실행",
+    purpose:
+      "서버가 승인과 소스 행이 정확한지 다시 확인한 뒤, 버전이 찍힌 코드가 판정합니다. 요청은 저마다 자기 워크플로 상태를 가집니다.",
+    action: "승인된 사례를 실행하고 반환되는 평가와 소스 추적을 기다리세요.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "서버는 버전이 찍힌 규칙을 돌리기 전에 두 승인을 모두 다시 검증합니다.",
+  },
+  {
+    title: "발견 확인",
+    purpose:
+      "이 결과는 승인된 범위 아래에서 버전이 찍힌 패턴 가설 하나를 얼마나 지지하는지 말합니다. 다섯 개 gate를 모두 살펴본 뒤, 발견을 열어 원본 행까지 추적하세요.",
+    action:
+      "gate 아래의 소스 증거를 열어 정본 이벤트와 커밋된 소스 행까지 들어가세요.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "gate와 관측값, 소스 추적은 서버가 도출한 것이지 모델 출력이 아닙니다.",
+  },
+  {
+    title: "사례 반복",
+    purpose:
+      "같은 승인 입력을 한 번 더 실행합니다. 반환된 두 해시를 비교하는 것은 같은 입력에 대한 반복 가능성만 확인합니다.",
+    action:
+      "같은 승인 사례를 다시 실행하고 서버가 반환한 두 해시를 비교하세요.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "두 해시 모두 서버가 반환합니다. 브라우저는 문자열로 비교할 뿐입니다.",
+  },
+  {
+    title: "직접 조작",
+    purpose:
+      "이 사례와 승인, 결과를 그대로 둔 채 이어갑니다. 새로고침하면 승인되지 않은 상태에서 시작합니다.",
+    action: "이 사례를 워킹 모드로 가져가 소스와 변형을 직접 고르세요.",
+    actor: "A person approved it",
+    actorDetail:
+      "당신이 한 승인은 그대로 남습니다. 어떤 승인도 이 브라우저 세션을 넘어 저장되지 않습니다.",
+  },
+];
+
+const guideStepsByLanguage: Readonly<Record<Language, readonly GuideStep[]>> = {
+  en: guideSteps,
+  ko: guideStepsKo,
+};
+
+const actorLabels: Readonly<
+  Record<Language, Record<GuideStep["actor"], string>>
+> = {
+  en: {
+    "Committed input": "Committed input",
+    "A model proposed it": "A model proposed it",
+    "A person approved it": "A person approved it",
+    "Versioned code decided it": "Versioned code decided it",
+  },
+  ko: {
+    "Committed input": "커밋된 입력",
+    "A model proposed it": "모델이 제안했습니다",
+    "A person approved it": "사람이 승인했습니다",
+    "Versioned code decided it": "버전이 찍힌 코드가 판정했습니다",
+  },
+};
+
+const configuredProposalOverride: Readonly<
+  Record<Language, { purpose: string; action: string }>
+> = {
+  en: {
+    purpose:
+      "The worked case uses a fixture proposal. The separate Dialect B example requests a configured proposal and stops if validation fails. Review each proposal's displayed provider and evidence before approval.",
+    action:
+      "Request and review the separate example's mapping, then approve the worked case's own mapping.",
+  },
+  ko: {
+    purpose:
+      "이 사례는 fixture 제안을 씁니다. 별도의 Dialect B 예시는 configured 제안을 요청하고 검증에 실패하면 멈춥니다. 승인하기 전에 각 제안에 표시된 provider와 근거를 확인하세요.",
+    action: "별도 예시의 매핑을 요청해 검토한 뒤, 이 사례의 매핑을 승인하세요.",
+  },
+};
 
 export function ApprovalReceipt({ approval }: { approval: ApprovalRecord }) {
   return (
@@ -617,6 +735,7 @@ export function CaseReplay({
   mappingExample = false,
   onMappingApprovalChange,
   onGuideComplete,
+  language = "en",
 }: CaseReplayProps) {
   const requestGeneration = useRef(0);
   const focusPending = useRef(false);
@@ -748,16 +867,11 @@ export function CaseReplay({
     }
   }
 
+  const activeSteps = guideStepsByLanguage[language];
   const guideStep =
     chapter === 1 && exampleScenario?.mappingRequestRequired
-      ? {
-          ...guideSteps[1]!,
-          purpose:
-            "The worked case uses a fixture proposal. The separate Dialect B example requests a configured proposal and stops if validation fails. Review each proposal's displayed provider and evidence before approval.",
-          action:
-            "Request and review the separate example's mapping, then approve the worked case's own mapping.",
-        }
-      : guideSteps[chapter]!;
+      ? { ...activeSteps[1]!, ...configuredProposalOverride[language] }
+      : activeSteps[chapter]!;
   const panelLabel = (order: string, label: string) =>
     guided ? label : `${order} · ${label}`;
 
@@ -781,7 +895,7 @@ export function CaseReplay({
         >
           Back
         </button>
-        {chapter < guideSteps.length - 1 && (
+        {chapter < activeSteps.length - 1 && (
           <button
             aria-describedby={canContinue ? undefined : "guide-requirement"}
             className="button primary"
@@ -961,7 +1075,7 @@ export function CaseReplay({
                   className="journey-progress"
                   aria-label="Case walkthrough progress"
                 >
-                  {guideSteps.map((step, index) => (
+                  {activeSteps.map((step, index) => (
                     <li
                       key={step.title}
                       aria-current={chapter === index ? "step" : undefined}
@@ -1001,7 +1115,8 @@ export function CaseReplay({
                   <div>
                     <dt>Who acted</dt>
                     <dd>
-                      <strong>{guideStep.actor}</strong> {guideStep.actorDetail}
+                      <strong>{actorLabels[language][guideStep.actor]}</strong>{" "}
+                      {guideStep.actorDetail}
                     </dd>
                   </div>
                 </dl>
@@ -1025,7 +1140,7 @@ export function CaseReplay({
                     ? ""
                     : ` You are reading ahead: step ${
                         unmetEarlierStep + 1
-                      }, ${guideSteps[unmetEarlierStep]!.title}, is not
+                      }, ${activeSteps[unmetEarlierStep]!.title}, is not
                       completed.`.replace(/\s+/g, " ")}
                 </p>
                 {stepControls("rail")}
