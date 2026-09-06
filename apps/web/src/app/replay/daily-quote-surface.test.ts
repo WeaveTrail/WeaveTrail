@@ -82,7 +82,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     const markup = renderToStaticMarkup(
       createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
     );
-    expect(markup).toContain("case before replay");
+    expect(markup).toContain("case before running it");
     expect(markup).toContain("approve its mapping and case");
     expect(markup).toContain("Ready to replay");
     expect(markup).toContain("Repeat the same approved case");

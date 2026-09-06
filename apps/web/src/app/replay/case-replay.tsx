@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import type {
   ReplayResultResponse,
@@ -31,26 +25,27 @@ import {
   canonicalJson,
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
+import { scenarioOptionLabel } from "./scenario-labels";
 import { shuffleSourceRows } from "./shuffle-source-rows";
 import {
   Bps,
-  EVENT_FIELD_NOTES,
-  GATE_READINGS,
+  eventFieldNote,
+  gateReading,
   GateReading,
   HashValue,
   Instant,
   readableCompactDate,
-  REPORTED_VALUE_NOTE,
+  reportedValueNote,
   type GateName,
 } from "./machine-values";
+import {
+  ReplayLanguageContext,
+  replayText,
+  useReplayLanguage,
+} from "./replay-language";
 import { type Language } from "../i18n/language";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
-
-const ReplayLanguageContext = createContext<Language>("en");
-const useReplayLanguage = () => useContext(ReplayLanguageContext);
-const replayText = (language: Language, en: string, ko: string) =>
-  language === "ko" ? ko : en;
 
 export type ReplayScenarioOption = {
   value: ReplayScenario;
@@ -76,8 +71,13 @@ export type CaseReplayProps = {
 
 const workedCase = "rapid-price-lift-supported.csv";
 const reviewExample = "concentrated-buy-dialect-b.jsonl";
-// Each guided step opens with what it demonstrates, what the visitor must do
-// to advance it, and which authority acted in it: a model proposed, a person
+
+/** Where the rail sends a visitor whose step is performed in the case column. */
+export const GUIDE_TARGET_EXAMPLE = "guide-target-example";
+export const GUIDE_TARGET_EVIDENCE = "guide-target-evidence";
+
+// Each guided step opens with the one thing the visitor must do, then says why
+// the step exists and which authority acted in it: a model proposed, a person
 // approved, or versioned code decided. `Committed input` names the steps where
 // none of the three has acted yet.
 type GuideStep = {
@@ -97,9 +97,9 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Read the source",
     purpose:
-      "Start with the committed supported case. No approval has been supplied. Read its columns and original values. These column names are the source's own dialect and carry no agreed meaning yet; establishing what they denote is the next step.",
+      "The committed case, untouched. These column names are the source's own dialect and carry no agreed meaning yet; establishing what they denote is the next step.",
     action:
-      "Read the committed source rows, noting that nothing yet states what their columns mean, then continue.",
+      "Read the committed source rows and their original values, then continue.",
     actor: "Committed input",
     actorDetail:
       "Nothing has been proposed, approved or decided at this point.",
@@ -107,7 +107,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Review the mapping",
     purpose:
-      "A deterministic fixture supplies the proposal shown below. No live model call occurred. First review a separate example that stops on an unmapped field, then approve the worked case's own mapping.",
+      "A model proposes which columns mean the same thing; it cannot approve them. The proposal below comes from a deterministic fixture, so no live model call occurred.",
     action:
       "Give the example's flagged field a reviewer reason and approve it, then approve this case's own mapping proposal.",
     actor: "A model proposed it",
@@ -119,7 +119,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Approve the case",
     purpose:
-      "Review and approve the exact scope and threshold values proposed in this committed, authored case. Versioned code defines the allowed parameter schema, formulas and comparisons. Live case proposal is planned.",
+      "You decide how far this case is scoped. Versioned code defines the allowed parameter schema, formulas and comparisons; live case proposal is planned.",
     action:
       "Read the instrument, window and threshold values, then approve this exact case manifest.",
     actor: "A person approved it",
@@ -129,7 +129,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Run the replay",
     purpose:
-      "The server validates the exact approvals and source rows, then versioned code decides. Each request has its own workflow state.",
+      "The server revalidates the exact approvals and source rows, then versioned code recomputes the case. Each request has its own workflow state.",
     action:
       "Run the approved case and wait for its returned evaluation and source trace.",
     actor: "Versioned code decided it",
@@ -139,7 +139,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Inspect the finding",
     purpose:
-      "This result describes support for one versioned pattern hypothesis under the approved scope. Inspect all five gates, then open a finding to trace it to the original rows.",
+      "This result describes support for one versioned pattern hypothesis under the approved scope. Five checks are reported, each with the value observed and the threshold it is compared against.",
     action:
       "Open the source evidence under a gate to reach its canonical events and committed source rows.",
     actor: "Versioned code decided it",
@@ -159,7 +159,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Take the controls",
     purpose:
-      "Continue with this case, its approvals and result still loaded. A refresh starts unapproved.",
+      "From here you choose the source and the variations yourself, and load the published market data. A refresh starts unapproved.",
     action:
       "Carry this case into working mode, where you choose the source and the variations yourself.",
     actor: "A person approved it",
@@ -169,77 +169,77 @@ export const guideSteps: readonly GuideStep[] = [
 ];
 
 /**
- * Korean narration for the same seven steps. `actor` stays the English
- * discriminant so behaviour keyed on it, and the English suite that asserts on
- * `guideSteps`, both stay unchanged; only the label shown for it is translated.
+ * Korean narration for the same seven steps, written in the vocabulary the
+ * product uses for its own screens: 원본 거래자료, 데이터 항목 연결, 조사 범위,
+ * 분석 실행, 판단 항목, 판단 근거. `actor` stays the English discriminant so
+ * behaviour keyed on it, and the English suite that asserts on `guideSteps`,
+ * both stay unchanged; only the label shown for it is translated.
  */
 const guideStepsKo: readonly GuideStep[] = [
   {
-    title: "소스 읽기",
+    title: "원본 거래자료 확인",
     purpose:
-      "커밋된 supported 사례에서 시작합니다. 아직 승인된 것은 아무것도 없습니다. 열 이름과 원본 값을 그대로 읽어보세요. 열 이름은 소스가 쓰는 말이라 아직 합의된 뜻이 없습니다. 무엇을 가리키는지 정하는 일이 다음 단계입니다.",
-    action:
-      "커밋된 소스 행을 읽어보세요. 열이 무엇을 뜻하는지는 아직 어디에도 적혀 있지 않습니다. 확인했으면 계속하세요.",
+      "조사 대상이 된 거래자료를 손대지 않은 그대로 봅니다. 열 이름은 자료를 만든 쪽이 쓰던 말이라, 어떤 항목이 무엇을 뜻하는지는 아직 정해지지 않았습니다.",
+    action: "아래 원본 거래자료의 열 이름과 값을 훑어본 뒤 계속하세요.",
     actor: "Committed input",
     actorDetail: "이 시점에는 제안된 것도, 승인된 것도, 판정된 것도 없습니다.",
   },
   {
-    title: "매핑 검토",
+    title: "데이터 항목 연결 검토",
     purpose:
-      "아래 제안은 결정론적 fixture가 내놓은 것입니다. 실시간 모델 호출은 없었습니다. 먼저 별도 예시를 검토하세요. 그 예시는 매핑되지 않은 필드에서 멈춥니다. 그다음 이 사례의 매핑을 승인하세요.",
+      "어떤 항목끼리 같은 뜻인지는 AI가 초안만 제안합니다. 아래 제안은 미리 준비된 예시 제안이며, 실시간 모델 호출은 일어나지 않았습니다.",
     action:
-      "예시에서 표시된 필드에 검토자 사유를 적어 승인한 다음, 이 사례의 매핑 제안을 승인하세요.",
+      "먼저 아래 예시에서 표시된 항목에 확인 이유를 적어 승인한 다음, 이 사례의 연결 제안을 승인하세요.",
     actor: "A model proposed it",
     actorDetail:
-      "fixture 매핑 provider는 대상 필드와 변환, 근거를 제안합니다. 승인까지 하지는 못합니다.",
+      "제안까지가 AI의 몫입니다. 대상 항목과 변환, 근거를 내놓을 뿐 승인은 하지 못합니다.",
     refusal:
-      "거부는 이 경로에 그대로 남습니다. 표시된 필드마다 검토자 사유를 채우기 전까지, 예시는 REVIEW_REQUIRED에 머무릅니다.",
+      "확인이 필요한 항목에 이유를 적기 전까지, 예시는 REVIEW_REQUIRED에서 멈춘 채 진행되지 않습니다.",
   },
   {
-    title: "사례 승인",
+    title: "조사 범위 승인",
     purpose:
-      "이 사례에 제안된 범위와 임계값을 그대로 검토하고 승인하세요. 허용되는 파라미터 스키마와 수식, 비교는 버전이 고정된 코드가 정합니다. 실시간 사례 제안은 아직 계획입니다.",
+      "이 사례를 어떤 범위로 조사할지는 사람이 정합니다. 계산에 쓰는 항목과 수식, 비교 방식은 버전이 고정된 코드가 미리 정해 둔 것입니다.",
     action:
-      "종목과 구간, 임계값을 읽은 뒤 이 사례 manifest를 그대로 승인하세요.",
+      "종목과 기간, 판단 기준 값을 확인한 뒤 이 조사 범위를 그대로 승인하세요.",
     actor: "A person approved it",
     actorDetail:
-      "범위를 승인하는 것은 당신입니다. 승인은 아티팩트 해시 하나에 정확히 묶입니다.",
+      "범위를 승인하는 것은 사용자입니다. 승인은 지금 보고 있는 내용 하나에만 묶입니다.",
   },
   {
-    title: "리플레이 실행",
+    title: "분석 실행",
     purpose:
-      "서버가 승인과 소스 행을 하나씩 다시 확인한 뒤, 버전이 고정된 코드가 판정합니다. 워크플로 상태는 요청마다 따로 있습니다.",
-    action:
-      "승인된 사례를 실행하고, 평가와 소스 추적이 돌아올 때까지 기다리세요.",
+      "서버가 승인한 내용과 원본 행을 하나씩 다시 확인한 뒤, 미리 정해진 기준으로 거래 움직임을 다시 계산합니다.",
+    action: "승인한 사례를 실행하고 결과와 근거가 돌아올 때까지 기다리세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "서버는 버전이 고정된 규칙을 돌리기 전에 두 승인을 모두 다시 검증합니다.",
+      "판정하는 것은 AI의 답이 아니라 버전이 고정된 코드입니다. 서버는 실행 전에 두 승인을 다시 검증합니다.",
   },
   {
-    title: "발견 확인",
+    title: "판단 근거 확인",
     purpose:
-      "이 결과가 말하는 것은 하나뿐입니다. 승인된 범위 안에서, 버전이 고정된 패턴 가설 하나를 데이터가 얼마나 지지하는가. 다섯 gate를 모두 살펴본 뒤 발견을 열어 원본 행까지 따라가세요.",
+      "결과는 하나의 패턴 가설을 승인된 범위 안에서 얼마나 뒷받침하는지만 말합니다. 다섯 개 판단 항목마다 관측값과 기준 충족 여부가 함께 나옵니다.",
     action:
-      "gate 아래의 소스 증거를 열어 정본 이벤트와 커밋된 소스 행까지 들어가세요.",
+      "판단 항목 하나의 근거를 열어, 그 값이 나온 원본 거래자료까지 따라가 보세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "gate와 관측값, 소스 추적은 서버가 도출합니다. 모델이 내놓은 값이 아닙니다.",
+      "판단 항목과 관측값, 근거 추적은 모두 서버가 계산한 값이며 모델이 지어낸 문장이 아닙니다.",
   },
   {
-    title: "사례 반복",
+    title: "동일 사례 반복 확인",
     purpose:
-      "같은 승인 입력을 한 번 더 실행합니다. 돌아온 두 해시를 비교하면 같은 입력에 같은 답이 나오는지만 확인됩니다. 그 이상은 아닙니다.",
-    action:
-      "같은 승인 사례를 다시 실행하고 서버가 반환한 두 해시를 비교하세요.",
+      "같은 자료를 같은 조건으로 한 번 더 실행합니다. 두 결과 해시를 비교하는 것은 같은 입력에 대한 재현성만 확인하는 일입니다.",
+    action: "같은 사례를 다시 실행하고 두 결과 해시가 같은지 비교하세요.",
     actor: "Versioned code decided it",
     actorDetail:
-      "두 해시 모두 서버가 돌려준 값입니다. 브라우저는 문자열로 비교만 합니다.",
+      "두 해시 모두 서버가 반환한 값이고, 화면은 그 둘을 문자열로 비교합니다.",
   },
   {
-    title: "직접 조작",
+    title: "직접 조작으로 이동",
     purpose:
-      "이 사례와 승인, 결과를 그대로 둔 채 이어갑니다. 새로고침하면 승인이 없는 상태로 다시 시작합니다.",
-    action: "이 사례를 워킹 모드로 가져가 소스와 변형을 직접 고르세요.",
+      "여기서부터는 원본 자료를 직접 고르고 거래 순서를 바꾸는 등 입력을 바꿔 결과가 어떻게 달라지는지 볼 수 있습니다. 공개 시장데이터도 같은 화면에서 불러옵니다.",
+    action:
+      "이 사례와 승인 내용을 그대로 가지고 직접 조작 화면으로 넘어가세요.",
     actor: "A person approved it",
     actorDetail:
       "지금까지 한 승인은 그대로 남습니다. 다만 어떤 승인도 이 브라우저 세션을 넘어 저장되지는 않습니다.",
@@ -253,6 +253,7 @@ interface GuideUi {
   readonly toContinue: (reason: string) => string;
   readonly readingAhead: (step: number, title: string) => string;
   readonly stepHeading: (step: number, title: string) => string;
+  readonly stepOf: (step: number, total: number) => string;
   readonly whatThisShows: string;
   readonly whatYouDo: string;
   readonly whoActed: string;
@@ -264,6 +265,9 @@ interface GuideUi {
   readonly navigationAtEnd: string;
   readonly progressLabel: string;
   readonly controlsHeading: string;
+  readonly goToExample: string;
+  readonly goToEvidence: string;
+  readonly stepListLabel: string;
 }
 
 export const guideUi: Readonly<Record<Language, GuideUi>> = {
@@ -283,7 +287,8 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
     toContinue: (reason) => `To continue: ${reason}`,
     readingAhead: (step, title) =>
       ` You are reading ahead: step ${step}, ${title}, is not completed.`,
-    stepHeading: (step, title) => `Step ${step} \u00b7 ${title}`,
+    stepHeading: (step, title) => `Step ${step} · ${title}`,
+    stepOf: (step, total) => `Step ${step} of ${total}`,
     whatThisShows: "What this shows",
     whatYouDo: "What you do",
     whoActed: "Who acted",
@@ -295,26 +300,30 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
     navigationAtEnd: "Step navigation at the end of the step",
     progressLabel: "Case walkthrough progress",
     controlsHeading: "Case Replay controls",
+    goToExample: "Go to the review example",
+    goToEvidence: "Go to the finding evidence",
+    stepListLabel: "All steps",
   },
   ko: {
     blockers: [
       "",
-      "별도 매핑 검토 예시와 이 사례의 매핑을 모두 승인해야 계속할 수 있습니다.",
-      "매핑을 먼저 승인하고, 이어서 이 사례 manifest를 승인하세요.",
-      "승인된 사례를 실행하고 평가와 소스 추적이 나올 때까지 기다리세요.",
-      "발견의 소스 증거를 열어야 계속할 수 있습니다.",
-      "같은 승인 사례를 다시 실행해 반환된 해시를 비교하세요.",
+      "별도 검토 예시와 이 사례의 연결 제안을 모두 승인해야 계속할 수 있습니다.",
+      "연결 제안을 먼저 승인하고, 이어서 이 조사 범위를 승인하세요.",
+      "승인한 사례를 실행하고 결과와 근거가 나올 때까지 기다리세요.",
+      "판단 근거를 하나 열어야 계속할 수 있습니다.",
+      "같은 사례를 다시 실행해 두 결과 해시를 비교하세요.",
       "",
     ],
     hashesDiffer:
-      "반환된 해시가 서로 다릅니다. 같은 승인 사례를 다시 실행하거나 결과를 확인하세요.",
+      "두 결과 해시가 서로 다릅니다. 같은 사례를 다시 실행하거나 결과를 확인하세요.",
     readyToContinue: "계속할 수 있습니다.",
     toContinue: (reason) => `계속하려면: ${reason}`,
     readingAhead: (step, title) =>
       ` 앞서 읽고 있습니다. ${step}단계 "${title}"를 아직 완료하지 않았습니다.`,
-    stepHeading: (step, title) => `${step}단계 \u00b7 ${title}`,
-    whatThisShows: "무엇을 보여주는가",
-    whatYouDo: "무엇을 하는가",
+    stepHeading: (step, title) => `${step}단계 · ${title}`,
+    stepOf: (step, total) => `${total}단계 중 ${step}단계`,
+    whatThisShows: "이 단계가 필요한 이유",
+    whatYouDo: "이번에 할 일",
     whoActed: "누가 했는가",
     completed: "완료",
     currentStep: "현재 단계",
@@ -322,8 +331,11 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
     continueLabel: "계속",
     navigationInRail: "단계 목록에서 단계 이동하기",
     navigationAtEnd: "단계 끝에서 단계 이동하기",
-    progressLabel: "사례 둘러보기 진행 상황",
-    controlsHeading: "Case Replay 컨트롤",
+    progressLabel: "사례 따라가기 진행 상황",
+    controlsHeading: "직접 조작 컨트롤",
+    goToExample: "검토 예시로 이동",
+    goToEvidence: "판단 근거로 이동",
+    stepListLabel: "전체 단계",
   },
 };
 
@@ -362,8 +374,9 @@ const configuredProposalOverride: Readonly<
   },
   ko: {
     purpose:
-      "이 사례는 fixture 제안을 씁니다. 별도의 Dialect B 예시는 configured 제안을 요청하고, 검증에 실패하면 거기서 멈춥니다. 승인하기 전에 제안마다 표시된 provider와 근거를 확인하세요.",
-    action: "별도 예시의 매핑을 요청해 검토한 뒤, 이 사례의 매핑을 승인하세요.",
+      "이 사례는 미리 준비된 예시 제안을 씁니다. 별도의 Dialect B 예시는 설정된 제공자에게 제안을 요청하고, 검증에 실패하면 거기서 멈춥니다. 승인하기 전에 제안마다 표시된 제공자와 근거를 확인하세요.",
+    action:
+      "별도 예시의 연결 제안을 요청해 검토한 뒤, 이 사례의 연결 제안을 승인하세요.",
   },
 };
 
@@ -411,7 +424,7 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
   return (
     <section
       className="source-preview"
-      aria-label={t("Committed source rows", "커밋된 소스 행")}
+      aria-label={t("Committed source rows", "커밋된 원본 거래자료")}
     >
       <p>
         {t("Artifact", "아티팩트")}: <code>{scenario.value}</code>
@@ -420,7 +433,7 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
       <p>
         {t(
           `These ${scenario.provenance?.kind ?? "synthetic"} source records are fixed. Values below are the original strings, before mapping, shown in committed order.`,
-          "소스 레코드는 고정되어 있습니다. 아래는 매핑 전의 원본 값입니다.",
+          "이 원본 기록은 고정되어 있습니다. 아래 값은 항목을 연결하기 전의 원본 그대로입니다.",
         )}
       </p>
       {scenario.provenance && (
@@ -434,7 +447,7 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
           }
         >
           <summary>
-            {t("Source row", "소스 행")} {row.coordinate.rowNumber}
+            {t("Source row", "원본 행")} {row.coordinate.rowNumber}
           </summary>
           <dl className="source-values">
             {Object.entries(row.values).map(([column, value]) => (
@@ -459,9 +472,14 @@ export function SourceProvenanceDetails({
 }) {
   const language = useReplayLanguage();
   const t = (en: string, ko: string) => replayText(language, en, ko);
-  if (provenance.kind === "synthetic") return <p>{provenance.attribution}</p>;
+  if (provenance.kind === "synthetic")
+    return (
+      <p>
+        {t("Attribution", "출처 표기")}: {provenance.attribution}
+      </p>
+    );
   return (
-    <section aria-label={t("Published source provenance", "공개 소스 출처")}>
+    <section aria-label={t("Published source provenance", "공개 자료 출처")}>
       <h3>{provenance.title}</h3>
       <p>
         {provenance.titleEnglish} · {provenance.provider}
@@ -545,7 +563,7 @@ export function DailyQuoteSemantics() {
       <p>
         {t(
           "Price represents the daily closing price. Quantity represents daily aggregate volume. Each interpretation requires a nonblank reviewer reason before mapping approval.",
-          "가격은 일별 종가이고 수량은 일별 거래량입니다. 승인에는 검토 사유가 필요합니다.",
+          "가격은 일별 종가이고, 수량은 그날의 총 거래량입니다. 승인하려면 항목마다 확인 이유가 필요합니다.",
         )}
       </p>
     </section>
@@ -567,7 +585,7 @@ export function DailyQuoteCaseLimitation({
           ? t("Daily quotes normalized. ", "일별 시세를 정규화했습니다.")
           : t(
               "Mapping approval enables source normalization. ",
-              "매핑을 승인하면 소스를 정규화할 수 있습니다.",
+              "연결 제안을 승인하면 원본 자료를 정리할 수 있습니다.",
             )}{" "}
       </p>
       <p>
@@ -709,14 +727,17 @@ export function RapidPriceLiftEvaluation({
           </>
         ) : (
           <div className="gate-list">
-            <p className="machine-note">{REPORTED_VALUE_NOTE}</p>
-            {evaluation.findings.map((finding) => (
+            <p className="machine-note">{reportedValueNote(language)}</p>
+            {evaluation.findings.map((finding, index) => (
               <div
                 className="gate-row"
                 key={finding.gate}
                 id={`gate-${finding.gate}`}
               >
-                <strong>{finding.gate}</strong>
+                <strong>
+                  {gateReading(finding.gate as GateName, language).label}
+                </strong>
+                <code className="gate-id">{finding.gate}</code>
                 <GateReading
                   gate={finding.gate as GateName}
                   observedValue={finding.observedValue}
@@ -726,7 +747,7 @@ export function RapidPriceLiftEvaluation({
                   {finding.passed ? "PASS" : "FAIL"}
                 </b>
                 <p className="gate-description">
-                  {GATE_READINGS[finding.gate as GateName].tests}
+                  {gateReading(finding.gate as GateName, language).tests}
                 </p>
                 <small>{finding.referencedEventIds.join(" · ")}</small>
                 <details
@@ -739,10 +760,10 @@ export function RapidPriceLiftEvaluation({
                     if (event.currentTarget.open) onEvidenceOpen?.();
                   }}
                 >
-                  <summary>
+                  <summary id={index === 0 ? GUIDE_TARGET_EVIDENCE : undefined}>
                     {t(
                       `Inspect source evidence for ${finding.gate}`,
-                      `소스 증거 보기: ${finding.gate}`,
+                      `판단 근거 열기: ${gateReading(finding.gate as GateName, language).label}`,
                     )}
                   </summary>
                   {sourceTrace.entries
@@ -754,7 +775,7 @@ export function RapidPriceLiftEvaluation({
                         key={event.eventId}
                         aria-label={`Source evidence for ${event.eventId}`}
                       >
-                        <h3>{t("Canonical event", "정본 이벤트")}</h3>
+                        <h3>{t("Canonical event", "정리된 거래 기록")}</h3>
                         <dl>
                           {Object.entries(event).map(([field, value]) => (
                             <div key={field}>
@@ -770,16 +791,16 @@ export function RapidPriceLiftEvaluation({
                                 ) : (
                                   <code>{value}</code>
                                 )}
-                                {EVENT_FIELD_NOTES[field] ? (
+                                {eventFieldNote(field, language) ? (
                                   <small className="machine-note">
-                                    {EVENT_FIELD_NOTES[field]}
+                                    {eventFieldNote(field, language)}
                                   </small>
                                 ) : null}
                               </dd>
                             </div>
                           ))}
                         </dl>
-                        <h3>{t("Committed source row", "커밋된 소스 행")}</h3>
+                        <h3>{t("Committed source row", "커밋된 원본 행")}</h3>
                         <dl>
                           <div>
                             <dt>{t("Artifact", "아티팩트")}</dt>
@@ -795,7 +816,7 @@ export function RapidPriceLiftEvaluation({
                             </dd>
                           </div>
                           <div>
-                            <dt>{t("Source row number", "소스 행 번호")}</dt>
+                            <dt>{t("Source row number", "원본 행 번호")}</dt>
                             <dd>{sourceRow.coordinate.rowNumber}</dd>
                           </div>
                         </dl>
@@ -824,7 +845,9 @@ export function RapidPriceLiftEvaluation({
             <strong>
               {t("Mechanical sensitivity comparison", "기계적 민감도 비교")}
             </strong>
-            <small className="machine-note">{REPORTED_VALUE_NOTE}</small>
+            <small className="machine-note">
+              {reportedValueNote(language)}
+            </small>
             <a href="#gate-REMOVAL_SENSITIVITY">
               {t(
                 "Inspect removal sensitivity evidence",
@@ -868,20 +891,48 @@ export function WorkflowStateBadge({ state }: { state: WorkflowState }) {
   );
 }
 
-const options: Array<{ value: Mutation; label: string; detail: string }> = [
-  { value: "baseline", label: "Baseline", detail: "Original fixture order" },
-  {
-    value: "shuffle",
-    label: "Shuffle source rows",
-    detail:
-      "Change submitted order before mapping; coordinates and values stay fixed",
-  },
-  {
-    value: "duplicate",
-    label: "Duplicate a derived event",
-    detail: "Repeat one event after mapping; source rows stay fixed",
-  },
-];
+const mutationOptions: Readonly<
+  Record<
+    Language,
+    ReadonlyArray<{ value: Mutation; label: string; detail: string }>
+  >
+> = {
+  en: [
+    {
+      value: "baseline",
+      label: "Baseline",
+      detail: "Original committed order",
+    },
+    {
+      value: "shuffle",
+      label: "Shuffle source rows",
+      detail:
+        "Change submitted order before mapping; coordinates and values stay fixed",
+    },
+    {
+      value: "duplicate",
+      label: "Duplicate a derived event",
+      detail: "Repeat one event after mapping; source rows stay fixed",
+    },
+  ],
+  ko: [
+    {
+      value: "baseline",
+      label: "원본 그대로",
+      detail: "커밋된 원본 자료의 순서를 그대로 씁니다",
+    },
+    {
+      value: "shuffle",
+      label: "거래 순서 바꾸기",
+      detail: "제출하는 순서만 바꿉니다. 행의 위치와 값은 그대로입니다",
+    },
+    {
+      value: "duplicate",
+      label: "거래 하나 반복하기",
+      detail: "정리된 거래 기록 하나를 반복합니다. 원본 행은 그대로입니다",
+    },
+  ],
+};
 
 export function CaseReplay({
   proposals,
@@ -1056,6 +1107,113 @@ export function CaseReplay({
     );
   }
 
+  /**
+   * The one control that advances the current step, offered in the rail so
+   * performing a step never depends on finding its control in the case column.
+   * A step whose work happens inside the case content — writing a reviewer
+   * reason, opening a finding's evidence — gets a control that goes there and
+   * takes focus with it, rather than one that does the work for the visitor.
+   */
+  type StepAction = {
+    kind: "perform" | "locate";
+    label: string;
+    disabled: boolean;
+    /** A performing action returns its promise so a caller can await it. */
+    onClick: () => void | Promise<void>;
+  };
+
+  function revealTarget(id: string) {
+    if (typeof document === "undefined") return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    target.scrollIntoView({ block: "center", behavior: "smooth" });
+    target.focus({ preventScroll: true });
+  }
+
+  function completeGuide() {
+    if (!repeatMatches) return;
+    completeChapter(chapter);
+    focusPending.current = true;
+    onGuideComplete?.();
+  }
+
+  const normalizingOnly = "eventType" in proposal.constants;
+  const approveMappingLabel = approval
+    ? t("Mapping approved locally", "연결 제안을 승인했습니다")
+    : t("Approve executed mapping", "연결 제안 승인");
+  const approveCaseLabel = caseApproval
+    ? t("Case approved locally", "조사 범위를 승인했습니다")
+    : t("Approve case manifest", "조사 범위 승인");
+  const runLabel = normalizingOnly
+    ? running
+      ? t("Normalizing…", "자료 정리 중…")
+      : t("Normalize source", "원본 자료 정리")
+    : running
+      ? t("Replaying…", "분석 실행 중…")
+      : t("Run deterministic replay", "분석 실행");
+  const repeatLabel = running
+    ? t("Replaying…", "분석 실행 중…")
+    : t("Repeat the same approved case", "같은 사례 다시 실행");
+  const workingModeLabel = t("Continue in working mode", "직접 조작으로 이동");
+  const approveMappingBlocked =
+    unresolvedReview || proposalPending || requestingMapping;
+  const runBlocked =
+    running ||
+    approval === null ||
+    (selectedScenario.manifest !== undefined && caseApproval === null);
+  const repeatBlocked =
+    running || !approval || !caseApproval || (!completeResult && !previousHash);
+
+  const stepActions: readonly (StepAction | null)[] = [
+    null,
+    exampleApproved || !exampleScenario
+      ? {
+          kind: "perform",
+          label: approveMappingLabel,
+          disabled: approveMappingBlocked,
+          onClick: () => approveMapping(),
+        }
+      : {
+          kind: "locate",
+          label: ui.goToExample,
+          disabled: false,
+          onClick: () => revealTarget(GUIDE_TARGET_EXAMPLE),
+        },
+    {
+      kind: "perform",
+      label: approveCaseLabel,
+      disabled: !approval,
+      onClick: () => approveCase(),
+    },
+    {
+      kind: "perform",
+      label: runLabel,
+      disabled: runBlocked,
+      onClick: () => runReplay(),
+    },
+    completeResult
+      ? {
+          kind: "locate",
+          label: ui.goToEvidence,
+          disabled: false,
+          onClick: () => revealTarget(GUIDE_TARGET_EVIDENCE),
+        }
+      : null,
+    {
+      kind: "perform",
+      label: repeatLabel,
+      disabled: repeatBlocked,
+      onClick: () => runReplay(true),
+    },
+    {
+      kind: "perform",
+      label: workingModeLabel,
+      disabled: !repeatMatches,
+      onClick: completeGuide,
+    },
+  ];
+  const stepAction = guided ? (stepActions[chapter] ?? null) : null;
+
   function invalidateResult() {
     requestGeneration.current += 1;
     setResult(null);
@@ -1113,7 +1271,10 @@ export function CaseReplay({
       if (generation !== requestGeneration.current) return;
       setWorkflowState("MAPPING_REVIEW_REQUIRED");
       setError(
-        "REVIEW_REQUIRED: Mapping proposal unavailable or rejected. Request a new proposal before approval.",
+        t(
+          "REVIEW_REQUIRED: Mapping proposal unavailable or rejected. Request a new proposal before approval.",
+          "REVIEW_REQUIRED · 연결 제안을 받지 못했거나 거부되었습니다. 승인하기 전에 새 제안을 요청하세요.",
+        ),
       );
     } finally {
       if (generation === requestGeneration.current) setRequestingMapping(false);
@@ -1217,7 +1378,79 @@ export function CaseReplay({
           <header className="journey-header panel">
             {guided ? (
               <>
+                <div className="rail-lead">
+                  <p className="rail-progress">
+                    <span>{ui.stepOf(chapter + 1, activeSteps.length)}</span>
+                    <span
+                      aria-hidden="true"
+                      className="rail-meter"
+                      style={{
+                        // The bar is decoration for the count beside it, which
+                        // is what a screen reader announces.
+                        ["--rail-meter-fill" as string]: `${((chapter + 1) / activeSteps.length) * 100}%`,
+                      }}
+                    />
+                  </p>
+                  <h2 ref={focusChapterTitle} tabIndex={-1}>
+                    {ui.stepHeading(chapter + 1, guideStep.title)}
+                  </h2>
+                  <p className="step-instruction">{guideStep.action}</p>
+                  <div className="rail-actions">
+                    <p
+                      className="step-requirement"
+                      data-met={canContinue && unmetEarlierStep === -1}
+                      id="guide-requirement"
+                      role="status"
+                    >
+                      {canContinue
+                        ? ui.readyToContinue
+                        : ui.toContinue(blockedReason ?? "")}
+                      {unmetEarlierStep === -1
+                        ? ""
+                        : ui.readingAhead(
+                            unmetEarlierStep + 1,
+                            activeSteps[unmetEarlierStep]!.title,
+                          )}
+                    </p>
+                    {stepAction ? (
+                      <button
+                        className={
+                          stepAction.kind === "perform"
+                            ? "button primary step-action"
+                            : "button step-locate"
+                        }
+                        disabled={stepAction.disabled}
+                        onClick={stepAction.onClick}
+                        type="button"
+                      >
+                        {stepAction.label}
+                      </button>
+                    ) : null}
+                    {stepControls("rail")}
+                  </div>
+                </div>
                 <div className="rail-scroll">
+                  <dl className="step-intent">
+                    <div>
+                      <dt>{ui.whatThisShows}</dt>
+                      <dd>{guideStep.purpose}</dd>
+                    </div>
+                    <div>
+                      <dt>{ui.whoActed}</dt>
+                      <dd>
+                        <strong>
+                          {actorLabels[language][guideStep.actor]}
+                        </strong>{" "}
+                        {guideStep.actorDetail}
+                      </dd>
+                    </div>
+                  </dl>
+                  {guideStep.refusal ? (
+                    <p className="step-refusal" data-status="REVIEW_REQUIRED">
+                      {guideStep.refusal}
+                    </p>
+                  ) : null}
+                  <h3 className="rail-list-heading">{ui.stepListLabel}</h3>
                   <ol
                     className="journey-progress"
                     aria-label={ui.progressLabel}
@@ -1247,52 +1480,6 @@ export function CaseReplay({
                       </li>
                     ))}
                   </ol>
-                  <h2 ref={focusChapterTitle} tabIndex={-1}>
-                    {ui.stepHeading(chapter + 1, guideStep.title)}
-                  </h2>
-                  <dl className="step-intent">
-                    <div>
-                      <dt>{ui.whatThisShows}</dt>
-                      <dd>{guideStep.purpose}</dd>
-                    </div>
-                    <div>
-                      <dt>{ui.whatYouDo}</dt>
-                      <dd>{guideStep.action}</dd>
-                    </div>
-                    <div>
-                      <dt>{ui.whoActed}</dt>
-                      <dd>
-                        <strong>
-                          {actorLabels[language][guideStep.actor]}
-                        </strong>{" "}
-                        {guideStep.actorDetail}
-                      </dd>
-                    </div>
-                  </dl>
-                  {guideStep.refusal ? (
-                    <p className="step-refusal" data-status="REVIEW_REQUIRED">
-                      {guideStep.refusal}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="rail-actions">
-                  <p
-                    className="step-requirement"
-                    data-met={canContinue && unmetEarlierStep === -1}
-                    id="guide-requirement"
-                    role="status"
-                  >
-                    {canContinue
-                      ? ui.readyToContinue
-                      : ui.toContinue(blockedReason ?? "")}
-                    {unmetEarlierStep === -1
-                      ? ""
-                      : ui.readingAhead(
-                          unmetEarlierStep + 1,
-                          activeSteps[unmetEarlierStep]!.title,
-                        )}
-                  </p>
-                  {stepControls("rail")}
                 </div>
               </>
             ) : (
@@ -1302,10 +1489,18 @@ export function CaseReplay({
                 </h2>
                 <p>
                   {selectedScenario.manifest
-                    ? "Select a committed source, review its mapping and approve its case before replay."
-                    : "Review the source and approve its exact mapping to normalize it. This source has no case manifest or case evaluation."}{" "}
-                  Advanced controls change submitted source order or duplicate
-                  one derived event after mapping.
+                    ? t(
+                        "Select a committed source, review its mapping and approve its case before running it.",
+                        "원본 거래자료를 고르고, 데이터 항목 연결을 검토해 승인한 다음, 조사 범위를 승인하고 실행하세요.",
+                      )
+                    : t(
+                        "Review the source and approve its exact mapping to normalize it. This source has no case manifest or case evaluation.",
+                        "원본 자료를 검토하고 항목 연결을 그대로 승인하면 자료를 정리할 수 있습니다. 이 자료에는 조사 범위와 사례 평가가 없습니다.",
+                      )}{" "}
+                  {t(
+                    "The input-variation controls change submitted source order or repeat one derived event after mapping.",
+                    "입력 자료 변경 실험에서는 제출하는 거래 순서를 바꾸거나, 연결 후 만들어진 기록 하나를 반복할 수 있습니다.",
+                  )}
                 </p>
               </>
             )}
@@ -1317,10 +1512,12 @@ export function CaseReplay({
         >
           <div hidden={!show(0) || mappingExample}>
             <span className="panel-label">
-              {panelLabel("01", "Committed source")}
+              {panelLabel("01", t("Committed source", "원본 거래자료"))}
             </span>
             <label className="scenario-select">
-              <span>Committed source artifact</span>
+              <span>
+                {t("Committed source artifact", "커밋된 원본 거래자료")}
+              </span>
               <select
                 disabled={guided}
                 onChange={(event) => {
@@ -1343,7 +1540,12 @@ export function CaseReplay({
               >
                 {scenarios.map(({ label, value, provenance }) => (
                   <option key={value} value={value}>
-                    {label} · {provenance?.kind ?? "synthetic"}
+                    {scenarioOptionLabel(
+                      value,
+                      label,
+                      provenance?.kind ?? "synthetic",
+                      language,
+                    )}
                   </option>
                 ))}
               </select>
@@ -1355,16 +1557,16 @@ export function CaseReplay({
           {!guided && !mappingExample && (
             <details className="advanced-controls">
               <summary>
-                {t("Advanced replay variations", "고급 리플레이 변형")}
+                {t("Advanced replay variations", "입력 자료 변경 실험")}
               </summary>
               <p>
                 {t(
                   "Change source-row order or repeat one derived event. Original coordinates and values stay fixed.",
-                  "소스 행 순서를 바꾸거나 도출된 이벤트 하나를 반복합니다. 원본 좌표와 값은 그대로입니다.",
+                  "원본 행의 순서를 바꾸거나 정리된 거래 기록 하나를 반복합니다. 원본의 위치와 값은 그대로입니다.",
                 )}
               </p>
               <div className="option-list">
-                {options.map((option) => (
+                {mutationOptions[language].map((option) => (
                   <label
                     className={
                       mutation === option.value ? "option selected" : "option"
@@ -1392,11 +1594,11 @@ export function CaseReplay({
           )}
           {submittedOrder && (
             <section aria-label="Submitted source row order">
-              <h3>{t("Submitted source row order", "제출한 소스 행 순서")}</h3>
+              <h3>{t("Submitted source row order", "제출한 원본 행 순서")}</h3>
               <p>
                 {t(
                   "Request order before canonical event ordering.",
-                  "정본 이벤트 정렬 전의 요청 순서입니다.",
+                  "기록을 정렬하기 전, 요청에 담아 보낸 순서입니다.",
                 )}
               </p>
               <p>
@@ -1407,16 +1609,16 @@ export function CaseReplay({
           <div hidden={!show(1)}>
             {guided && exampleScenario && (
               <details className="mapping-example" open>
-                <summary>
+                <summary id={GUIDE_TARGET_EXAMPLE}>
                   {t(
                     "Separate mapping review example · Dialect B",
-                    "별도 매핑 검토 예시 · 방언 B",
+                    "별도 연결 검토 예시 · Dialect B",
                   )}
                 </summary>
                 <p>
                   {t(
                     "This is a different source without a rule manifest. Its approval cannot authorize the worked case.",
-                    "이 소스에는 규칙 manifest가 없습니다. 여기의 승인은 현재 사례에 적용되지 않습니다.",
+                    "이 자료에는 판단 기준이 없습니다. 여기서 한 승인은 지금 보고 있는 사례에 적용되지 않습니다.",
                   )}{" "}
                   {exampleScenario.mappingRequestRequired
                     ? t(
@@ -1425,13 +1627,14 @@ export function CaseReplay({
                       )
                     : t(
                         "A reason keeps the field unmapped. Removing it revokes this approval.",
-                        "사유를 쓰면 필드를 매핑하지 않은 채 유지합니다. 지우면 승인이 취소됩니다.",
+                        "이유를 적으면 해당 항목을 연결하지 않은 채 그대로 둡니다. 이유를 지우면 승인이 취소됩니다.",
                       )}
                 </p>
                 <CaseReplay
                   proposals={proposals}
                   providerMode={providerMode}
                   scenarios={[exampleScenario]}
+                  language={language}
                   mappingExample
                   onMappingApprovalChange={setExampleApproved}
                 />
@@ -1442,7 +1645,7 @@ export function CaseReplay({
                 <p>
                   {t(
                     "Request, review and approve a mapping proposal. A failed request blocks replay.",
-                    "매핑 제안을 요청해 검토하고 승인하세요. 요청이 실패하면 리플레이가 막힙니다.",
+                    "연결 제안을 요청해 검토하고 승인하세요. 요청이 실패하면 분석을 실행할 수 없습니다.",
                   )}
                 </p>
                 <button
@@ -1452,8 +1655,8 @@ export function CaseReplay({
                   type="button"
                 >
                   {requestingMapping
-                    ? t("Requesting mapping…", "매핑 요청 중…")
-                    : t("Request mapping proposal", "매핑 제안 요청")}
+                    ? t("Requesting mapping…", "연결 제안 요청 중…")
+                    : t("Request mapping proposal", "연결 제안 요청")}
                 </button>
               </div>
             )}
@@ -1462,15 +1665,15 @@ export function CaseReplay({
                 REVIEW_REQUIRED ·{" "}
                 {t(
                   "A validated mapping proposal is required before approval.",
-                  "승인 전에 검증된 매핑 제안이 필요합니다.",
+                  "승인하려면 검증을 통과한 연결 제안이 먼저 있어야 합니다.",
                 )}
               </p>
             ) : (
               <div className="mapping-preview">
                 <span className="panel-label">
                   {guided
-                    ? t("Proposed mapping", "매핑 제안")
-                    : `02 · ${t("Executed mapping proposal", "실행된 매핑 제안")} · ${displayedProviderMode} · ${selectedScenario.value}`}
+                    ? t("Proposed mapping", "데이터 항목 연결 제안")
+                    : `02 · ${t("Executed mapping proposal", "실행에 쓰인 연결 제안")} · ${displayedProviderMode} · ${selectedScenario.value}`}
                 </span>
                 <p>
                   {displayedProviderMode === "ai"
@@ -1480,7 +1683,13 @@ export function CaseReplay({
                 <p>
                   {t(
                     "Review the proposed fields, transforms and evidence. Approval binds to this exact proposal.",
-                    "제안된 필드, 변환, 근거를 검토하세요. 승인은 이 제안에만 묶입니다.",
+                    "제안된 항목과 변환, 근거를 검토하세요. 승인은 지금 보고 있는 이 제안 하나에만 묶입니다.",
+                  )}
+                </p>
+                <p className="machine-note">
+                  {t(
+                    "Each field's evidence sentence is the proposal's own text, shown exactly as it was proposed. The approval binds to these bytes, so it is never rewritten.",
+                    "항목마다 붙은 근거 문장은 제안이 스스로 적어 둔 원문이며, 제안된 그대로 보여 줍니다. 승인이 이 내용에 그대로 묶이기 때문에 다시 쓰지 않습니다.",
                   )}
                 </p>
                 {"eventType" in proposal.constants && <DailyQuoteSemantics />}
@@ -1489,14 +1698,14 @@ export function CaseReplay({
                     <section
                       aria-label={t(
                         "Composite source event identity",
-                        "복합 소스 이벤트 식별자",
+                        "여러 열을 합친 기록 식별자",
                       )}
                       className="mapping-row"
                     >
                       <strong>
                         {t(
                           "Composite source event identity",
-                          "복합 소스 이벤트 식별자",
+                          "여러 열을 합친 기록 식별자",
                         )}
                       </strong>
                       <span>
@@ -1549,11 +1758,11 @@ export function CaseReplay({
                     {requiresMappingOverride(field) ? (
                       <label>
                         <span>
-                          {t("Reviewer reason for", "검토 사유")}{" "}
+                          {t("Reviewer reason for", "확인 이유")}{" "}
                           {field.sourceColumn}
                         </span>
                         <input
-                          aria-label={`${t("Reviewer reason for", "검토 사유")} ${field.sourceColumn}`}
+                          aria-label={`${t("Reviewer reason for", "확인 이유")} ${field.sourceColumn}`}
                           onChange={(event) => {
                             invalidateResult();
                             setCaseApproval(null);
@@ -1578,7 +1787,7 @@ export function CaseReplay({
                     <span>
                       {t(
                         "Replay is blocked until every flagged field has a reviewer reason.",
-                        "표시된 필드마다 검토 사유를 적기 전까지 리플레이가 막힙니다.",
+                        "표시된 항목마다 확인 이유를 적기 전까지 분석을 실행할 수 없습니다.",
                       )}
                     </span>
                   </div>
@@ -1589,15 +1798,11 @@ export function CaseReplay({
               className={
                 guided && chapter === 1 ? "button step-action" : "button"
               }
-              disabled={
-                unresolvedReview || proposalPending || requestingMapping
-              }
+              disabled={approveMappingBlocked}
               onClick={approveMapping}
               type="button"
             >
-              {approval
-                ? t("Mapping approved locally", "매핑을 로컬에서 승인함")
-                : t("Approve executed mapping", "실행된 매핑 승인")}
+              {approveMappingLabel}
             </button>
             {approval && <ApprovalReceipt approval={approval} />}
           </div>
@@ -1653,11 +1858,18 @@ export function CaseReplay({
                     </h3>
                     <p>
                       {caseApproval
-                        ? "Threshold values approved with this case."
-                        : "Threshold values proposed in this authored case."}{" "}
-                      Versioned code defines the allowed parameter schema,
-                      formulas and comparisons. All values remain exact strings;
-                      shares and price changes use basis points (100 bps = 1%).
+                        ? t(
+                            "Threshold values approved with this case.",
+                            "이 사례와 함께 승인된 판단 기준 값입니다.",
+                          )
+                        : t(
+                            "Threshold values proposed in this authored case.",
+                            "이 사례에 제안된 판단 기준 값입니다.",
+                          )}{" "}
+                      {t(
+                        "Versioned code defines the allowed parameter schema, formulas and comparisons. All values remain exact strings; shares and price changes use basis points (100 bps = 1%).",
+                        "쓸 수 있는 항목과 수식, 비교 방식은 버전이 고정된 코드가 정합니다. 모든 값은 반올림 없는 문자열이며, 비중과 가격 변화는 bp 단위를 씁니다. 100bp가 1%입니다.",
+                      )}
                     </p>
                     <dl>
                       {Object.entries(rule.parameters).map(([name, value]) => (
@@ -1679,12 +1891,10 @@ export function CaseReplay({
                     )}
                   </summary>
                   <p className="machine-note">
-                    The exact artifact this approval binds to. The{" "}
-                    <code>canonicalDatasetHash</code> inside it belongs to the
-                    artifact: it names the ordered canonical event projection
-                    the replay must reproduce, and the replay boundary refuses a
-                    request whose dataset does not match it. The source artifact
-                    hash belongs to the separately approved mapping.
+                    {t(
+                      "The exact artifact this approval binds to. The canonicalDatasetHash inside it belongs to the artifact: it names the ordered canonical event projection the replay must reproduce, and the replay boundary refuses a request whose dataset does not match it. The source artifact hash belongs to the separately approved mapping.",
+                      "이 승인이 묶이는 내용 그 자체입니다. 안에 있는 canonicalDatasetHash는 이 내용에 속하며, 분석이 그대로 되살려야 할 정리된 거래 기록의 순서를 가리킵니다. 자료가 이 값과 맞지 않으면 요청을 거부합니다. 원본 자료 해시는 따로 승인한 항목 연결 쪽에 속합니다.",
+                    )}
                   </p>
                   <pre
                     className="artifact-json"
@@ -1697,7 +1907,7 @@ export function CaseReplay({
                   <p>
                     {t(
                       "Approve the mapping before approving the case.",
-                      "사례를 승인하기 전에 매핑을 승인하세요.",
+                      "조사 범위를 승인하기 전에 데이터 항목 연결을 먼저 승인하세요.",
                     )}
                   </p>
                 )}
@@ -1709,9 +1919,7 @@ export function CaseReplay({
                   onClick={approveCase}
                   type="button"
                 >
-                  {caseApproval
-                    ? t("Case approved locally", "사례를 로컬에서 승인함")
-                    : t("Approve case manifest", "사례 manifest 승인")}
+                  {approveCaseLabel}
                 </button>
                 {caseApproval && <ApprovalReceipt approval={caseApproval} />}
               </div>
@@ -1728,22 +1936,11 @@ export function CaseReplay({
                   ? "button primary run-button step-action"
                   : "button primary run-button"
               }
-              disabled={
-                running ||
-                approval === null ||
-                (selectedScenario.manifest !== undefined &&
-                  caseApproval === null)
-              }
+              disabled={runBlocked}
               onClick={() => runReplay()}
               type="button"
             >
-              {"eventType" in proposal.constants
-                ? running
-                  ? t("Normalizing…", "정규화 중…")
-                  : t("Normalize source", "소스 정규화")
-                : running
-                  ? t("Replaying…", "리플레이 실행 중…")
-                  : t("Run deterministic replay", "결정론적 리플레이 실행")}
+              {runLabel}
             </button>
             {guided && completeResult && (
               <WorkflowStateBadge state={result.workflowState} />
@@ -1768,7 +1965,7 @@ export function CaseReplay({
           aria-live="polite"
         >
           <span className="panel-label">
-            {panelLabel("04", t("Canonical result", "정본 결과"))}
+            {panelLabel("04", t("Canonical result", "분석 결과"))}
           </span>
           {result ? (
             <>
@@ -1777,7 +1974,7 @@ export function CaseReplay({
                 <p>
                   {t(
                     "Mapping and normalization only. No case has been approved or evaluated.",
-                    "매핑과 정규화만 마쳤습니다. 사례를 승인하거나 평가하지 않았습니다.",
+                    "항목 연결과 자료 정리까지만 마쳤습니다. 조사 범위를 승인하거나 평가하지는 않았습니다.",
                   )}
                 </p>
               )}
@@ -1802,7 +1999,7 @@ export function CaseReplay({
                   <strong>{result.replay.inputEventCount}</strong>
                 </div>
                 <div>
-                  <span>{t("Canonical", "정본")}</span>
+                  <span>{t("Canonical", "정리 후")}</span>
                   <strong>{result.replay.canonicalEventCount}</strong>
                 </div>
                 <div>
@@ -1811,9 +2008,9 @@ export function CaseReplay({
                 </div>
               </div>
               <div className="trace-block">
-                <span>{t("Canonical order", "정본 순서")}</span>
+                <span>{t("Canonical order", "정리된 기록 순서")}</span>
                 <small className="machine-note">
-                  {EVENT_FIELD_NOTES.eventId}
+                  {eventFieldNote("eventId", language)}
                 </small>
                 <div className="event-chain">
                   {result.replay.orderedEventIds.map((eventId) => (
@@ -1837,13 +2034,16 @@ export function CaseReplay({
                 />
               ) : null}
               <p>
-                Independent Evidence Bundle assembly and verification are
-                planned. Each displayed hash states what it covers where it is
-                shown.
+                {t(
+                  "Independent Evidence Bundle assembly and verification are planned. Each displayed hash states what it covers where it is shown.",
+                  "증거 묶음을 따로 만들고 검증하는 기능은 아직 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
+                )}
               </p>
               <p>
-                Pattern support is not a legal or causal conclusion. Actor
-                removal is a mechanical sensitivity comparison.
+                {t(
+                  "Pattern support is not a legal or causal conclusion. Actor removal is a mechanical sensitivity comparison.",
+                  "패턴을 뒷받침한다는 결과는 법적 판단도, 인과관계에 대한 결론도 아닙니다. 특정 거래 주체를 빼고 비교한 값은 기계적인 대조일 뿐입니다.",
+                )}
               </p>
               <div className="boundary-note">
                 <strong>{t("Fixture mode", "Fixture 모드")}</strong>
@@ -1857,13 +2057,19 @@ export function CaseReplay({
               </span>
               <h2>
                 {selectedScenario.manifest
-                  ? t("Ready to replay", "리플레이 준비 완료")
-                  : t("Ready to normalize", "정규화 준비 완료")}
+                  ? t("Ready to replay", "분석 실행 준비 완료")
+                  : t("Ready to normalize", "자료 정리 준비 완료")}
               </h2>
               <p>
                 {selectedScenario.manifest
-                  ? "Review the source and explicitly approve its mapping and case."
-                  : "Review the source and explicitly approve its mapping, including any required interpretation reasons. Normalization has no case evaluation."}
+                  ? t(
+                      "Review the source and explicitly approve its mapping and case.",
+                      "원본 자료를 검토하고, 데이터 항목 연결과 조사 범위를 직접 승인하세요.",
+                    )
+                  : t(
+                      "Review the source and explicitly approve its mapping, including any required interpretation reasons. Normalization has no case evaluation.",
+                      "원본 자료를 검토하고 항목 연결을 직접 승인하세요. 확인이 필요한 항목에는 이유를 함께 적어야 합니다. 자료 정리에는 사례 평가가 없습니다.",
+                    )}
               </p>
             </div>
           )}
@@ -1888,18 +2094,11 @@ export function CaseReplay({
                 className={
                   guided && chapter === 5 ? "button step-action" : "button"
                 }
-                disabled={
-                  running ||
-                  !approval ||
-                  !caseApproval ||
-                  (!completeResult && !previousHash)
-                }
+                disabled={repeatBlocked}
                 onClick={() => runReplay(true)}
                 type="button"
               >
-                {running
-                  ? t("Replaying…", "리플레이 실행 중…")
-                  : t("Repeat the same approved case", "같은 승인 사례 반복")}
+                {repeatLabel}
               </button>
               {previousHash && (
                 <div className="hash-block">
@@ -1938,7 +2137,7 @@ export function CaseReplay({
             <p>
               {t(
                 "Synthetic committed sources and one licensed published daily-quote source run with explicit approval and one versioned rule.",
-                "현재는 합성 소스, 공개 일별 시세 하나, 명시적 승인, 버전이 붙은 규칙 하나를 실행합니다.",
+                "현재는 시연용 가상 거래자료와 공개 일별 시세 하나를, 명시적 승인과 버전이 고정된 규칙 하나로 실행합니다.",
               )}
             </p>
             <p>
@@ -1956,14 +2155,9 @@ export function CaseReplay({
                 }
                 type="button"
                 disabled={!repeatMatches}
-                onClick={() => {
-                  if (!repeatMatches) return;
-                  completeChapter(chapter);
-                  focusPending.current = true;
-                  onGuideComplete?.();
-                }}
+                onClick={completeGuide}
               >
-                {t("Continue in working mode", "워킹 모드로 계속")}
+                {workingModeLabel}
               </button>
             )}
           </section>

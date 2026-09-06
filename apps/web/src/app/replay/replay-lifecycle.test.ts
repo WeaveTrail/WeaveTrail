@@ -9,6 +9,7 @@ import { committedReplayScenarios } from "@weavetrail/scenarios";
 import {
   CaseReplay,
   ApprovalReceipt,
+  guideSteps,
   RapidPriceLiftEvaluation,
   DailyQuoteCaseLimitation,
   type ReplayScenarioOption,
@@ -551,11 +552,9 @@ describe("replay result lifecycle", () => {
     await guide.button("Approve executed mapping");
     await guide.button("Continue");
 
-    expect(
-      guide.hasText(
-        "Review and approve the exact scope and threshold values proposed in this committed, authored case.",
-      ),
-    ).toBe(true);
+    // Read from the step table rather than restated here, so the rail and this
+    // assertion cannot drift apart.
+    expect(guide.hasText(guideSteps[2]!.purpose)).toBe(true);
     expect(
       guide.hasText("Threshold values proposed in this authored case."),
     ).toBe(true);

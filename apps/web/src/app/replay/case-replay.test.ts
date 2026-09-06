@@ -30,6 +30,7 @@ import {
   WorkflowStateBadge,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { scenarioOptionLabel } from "./scenario-labels";
 
 function renderedButton(markup: string, label: string): string {
   const button = markup.match(new RegExp(`<button[^>]*>${label}</button>`));
@@ -47,10 +48,46 @@ describe("replay mapping status boundary", () => {
     const markup = renderToStaticMarkup(
       createElement(CaseReplay, { ...prepared, guided: true, language: "ko" }),
     );
-    expect(markup).toContain("커밋된 소스 행");
-    expect(markup).toContain("매핑 제안");
-    expect(markup).toContain("실행된 매핑 승인");
-    expect(markup).toContain("결정론적 리플레이 실행");
+    // The Korean surface names each thing the way the product's own screens
+    // name it, so a Korean reader never meets a step in one vocabulary and the
+    // control that performs it in another.
+    expect(markup).toContain("커밋된 원본 거래자료");
+    expect(markup).toContain("데이터 항목 연결 제안");
+    expect(markup).toContain("연결 제안 승인");
+    expect(markup).toContain("분석 실행");
+    expect(markup).toContain("조사 범위 승인");
+    expect(markup).toContain("판단 근거 확인");
+    // The rail leads with where the visitor is and what to do here.
+    expect(markup).toContain("7단계 중 1단계");
+    expect(markup).toContain(
+      '<p class="step-instruction">아래 원본 거래자료의 열 이름과 값을 훑어본 뒤 계속하세요.</p>',
+    );
+  });
+
+  it("names every committed source in Korean in the source list", async () => {
+    // The visitor is told which source to pick. A source that keeps its
+    // English committed label in the Korean list is one they cannot find.
+    const { scenarios } = await prepareReplayScenarios();
+    expect(scenarios.length).toBeGreaterThan(0);
+    for (const { value, label, provenance } of scenarios) {
+      const korean = scenarioOptionLabel(
+        value,
+        label,
+        provenance?.kind ?? "synthetic",
+        "ko",
+      );
+      expect(/[가-힣]/.test(korean), value).toBe(true);
+      expect(korean, value).not.toContain(label);
+      expect(
+        scenarioOptionLabel(
+          value,
+          label,
+          provenance?.kind ?? "synthetic",
+          "en",
+        ),
+        value,
+      ).toContain(label);
+    }
   });
 
   it("attributes displayed threshold values to the authored case configuration", async () => {
@@ -388,8 +425,12 @@ describe("finding evidence disclosures", () => {
         ]).toHaveLength(1);
       evaluation.findings.forEach((finding, index) => {
         const disclosure = disclosures[index]!;
+        // The first disclosure carries the id the step rail sends a visitor
+        // to; the rest carry none.
         expect(disclosure).toContain(
-          `<summary>Inspect source evidence for ${finding.gate}</summary>`,
+          index === 0
+            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}</summary>`
+            : `<summary>Inspect source evidence for ${finding.gate}</summary>`,
         );
         for (const entry of sourceTrace.entries) {
           if (!finding.referencedEventIds.includes(entry.event.eventId)) {
