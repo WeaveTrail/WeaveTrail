@@ -288,6 +288,7 @@ describe("manual acquisition boundaries with mocked transport", () => {
       });
       expect(receipt).not.toContain("synthetic+test");
       await expect(retrieveFscStockQuotes(input, request)).rejects.toThrow();
+      expect(request).toHaveBeenCalledTimes(1);
       expect(await readFile(input.output)).toEqual(bytes);
     },
   );
@@ -297,11 +298,13 @@ describe("manual acquisition boundaries with mocked transport", () => {
     const input = await options();
     const existing = Buffer.from("already frozen response");
     await writeFile(input.output, existing);
+    const request = vi.fn(requestFor(encode(envelope())));
 
-    await expect(
-      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
-    ).rejects.toMatchObject({ code: "EEXIST" });
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
 
+    expect(request).not.toHaveBeenCalled();
     expect(await readFile(input.output)).toEqual(existing);
     await expectMissing(`${input.output}.receipt.json`);
   });
@@ -312,11 +315,13 @@ describe("manual acquisition boundaries with mocked transport", () => {
     const receiptPath = `${input.output}.receipt.json`;
     const existing = "already frozen receipt\n";
     await writeFile(receiptPath, existing);
+    const request = vi.fn(requestFor(encode(envelope())));
 
-    await expect(
-      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
-    ).rejects.toMatchObject({ code: "EEXIST" });
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
 
+    expect(request).not.toHaveBeenCalled();
     expect(await readFile(receiptPath, "utf8")).toBe(existing);
     await expectMissing(input.output);
 
@@ -333,11 +338,13 @@ describe("manual acquisition boundaries with mocked transport", () => {
     const existingReceipt = "already frozen receipt\n";
     await writeFile(input.output, existingResponse);
     await writeFile(receiptPath, existingReceipt);
+    const request = vi.fn(requestFor(encode(envelope())));
 
-    await expect(
-      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
-    ).rejects.toMatchObject({ code: "EEXIST" });
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
 
+    expect(request).not.toHaveBeenCalled();
     expect(await readFile(input.output)).toEqual(existingResponse);
     expect(await readFile(receiptPath, "utf8")).toBe(existingReceipt);
   });
@@ -419,6 +426,7 @@ describe("manual acquisition boundaries with mocked transport", () => {
         async () => new Response("synthetic-private-key"),
       ),
     ).rejects.toThrow("echoes credentials");
-    await expect(readFile(input.output)).rejects.toThrow();
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
   });
 });

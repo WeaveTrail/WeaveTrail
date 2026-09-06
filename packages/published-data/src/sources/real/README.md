@@ -65,17 +65,18 @@ quote columns, with that date and market, unique nonempty `srtnCd` and `isinCd`,
 and honest pagination. It never filters, sorts, deduplicates or repairs returned
 items. Freeze the first acceptable response regardless of prices.
 
-The request has a 30-second timeout, rejects redirects, checks HTTP and provider
-status independently, and checks for echoed credentials. Output uses exclusive
-creation; neither retrieval nor re-fetching can overwrite accepted bytes. The
-response and neighboring `.receipt.json` are both reserved before either is
-written. If ordinary caught reservation, write or close handling fails, the
-script attempts to close every handle and removes only files created by that
-invocation, preserving an existing counterpart so the same paths can be retried
-after the cause is removed. Cleanup failure remains a failed retrieval. This
-does not make the pair crash-atomic: forced process termination, power loss or
-filesystem failure can interrupt the sequence and require manual inspection
-before retrying.
+The response and neighboring `.receipt.json` are both reserved with exclusive
+handles before the request is issued. A collision consumes no API request and
+cannot discard an acceptable response. The request has a 30-second timeout,
+rejects redirects, checks HTTP and provider status independently, and checks for
+echoed credentials. Neither retrieval nor re-fetching can overwrite accepted
+bytes. If ordinary caught reservation, transport, validation, write or close
+handling fails, the script attempts to close every handle and removes only files
+created by that invocation, preserving an existing counterpart so the same paths
+can be retried after the cause is removed. Cleanup failure remains a failed
+retrieval. This does not make the pair crash-atomic: forced process termination,
+power loss or filesystem failure can interrupt the sequence and require manual
+inspection before retrying.
 The response is written from `arrayBuffer()` without reserialization, trimming
 or formatting. The receipt contains redacted request metadata and checksums,
 not a complete licence/provenance record.

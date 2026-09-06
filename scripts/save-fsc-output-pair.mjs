@@ -29,15 +29,10 @@ async function removeFiles(paths) {
   );
 }
 
-// Both paths are reserved with exclusive handles before bytes are written. On
+// Both paths are reserved with exclusive handles before the producer runs. On
 // ordinary caught failures, only paths created by this invocation are removed.
 // A forced process exit or storage failure can still interrupt this sequence.
-export async function saveFscOutputPair(
-  firstPath,
-  firstBytes,
-  secondPath,
-  secondBytes,
-) {
+export async function produceFscOutputPair(firstPath, secondPath, produce) {
   const files = [];
   const createdPaths = [];
   try {
@@ -48,6 +43,7 @@ export async function saveFscOutputPair(
     files.push({ handle: second, closed: false });
     createdPaths.push(secondPath);
 
+    const { firstBytes, secondBytes, result } = await produce();
     await first.writeFile(firstBytes);
     await second.writeFile(secondBytes);
 
@@ -55,9 +51,22 @@ export async function saveFscOutputPair(
     if (closeFailures.length) {
       throw new AggregateError(closeFailures, "Could not close output pair");
     }
+    return result;
   } catch (error) {
     const closeFailures = await closeFiles(files);
     const removeFailures = await removeFiles(createdPaths);
     throw cleanupError(error, [...closeFailures, ...removeFailures]);
   }
+}
+
+export async function saveFscOutputPair(
+  firstPath,
+  firstBytes,
+  secondPath,
+  secondBytes,
+) {
+  await produceFscOutputPair(firstPath, secondPath, async () => ({
+    firstBytes,
+    secondBytes,
+  }));
 }

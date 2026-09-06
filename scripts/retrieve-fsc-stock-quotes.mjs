@@ -1,4 +1,4 @@
-import { saveFscOutputPair } from "./save-fsc-output-pair.mjs";
+import { produceFscOutputPair } from "./save-fsc-output-pair.mjs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import process from "node:process";
@@ -51,61 +51,61 @@ export async function retrieveFscStockQuotes(
     ...parameters,
     serviceKey: key,
   }).toString();
-  let response;
-  let bytes;
-  try {
-    response = await fetchResponse(url, {
-      signal: AbortSignal.timeout(30_000),
-      redirect: "error",
-    });
-    if (!response.ok) throw new Error("HTTP failure");
-    bytes = new Uint8Array(await response.arrayBuffer());
-  } catch {
-    // Never expose fetch errors: they can include a credential-bearing URL.
-    throw new Error("Retrieval failed at the HTTP or transport boundary");
-  }
-  const text = new TextDecoder().decode(bytes);
-  const contentType = response.headers.get("content-type");
-  const disclosed = `${text}\n${contentType ?? ""}`;
-  const forms = [
-    suppliedKey,
-    key,
-    encodeURIComponent(key),
-    new URLSearchParams({ serviceKey: key })
-      .toString()
-      .slice("serviceKey=".length),
-  ];
-  if (
-    forms.some(
-      (secret) =>
-        secret && disclosed.toLowerCase().includes(secret.toLowerCase()),
-    )
-  ) {
-    throw new Error(
-      "Response echoes credentials; no response bytes were saved",
-    );
-  }
-  const artifact = deriveFscStockQuotes(bytes, { basDt, market });
-  const receipt = {
-    endpoint: FSC_STOCK_QUOTE_ENDPOINT,
-    parameters: { ...parameters, serviceKey: "REDACTED" },
-    retrievedAt: new Date().toISOString(),
-    permissionCheckedAt,
-    contentType,
-    rowCount: artifact.rows.length,
-    pagination: artifact.pagination,
-    rawResponseHash: artifact.rawResponseHash,
-    sourceArtifactHash: artifact.sourceArtifactHash,
-    generatedRowsHash: artifact.generatedRowsHash,
-    columns: artifact.columns,
-  };
-  await saveFscOutputPair(
-    output,
-    bytes,
-    `${output}.receipt.json`,
-    JSON.stringify(receipt, null, 2) + "\n",
-  );
-  return receipt;
+  return produceFscOutputPair(output, `${output}.receipt.json`, async () => {
+    let response;
+    let bytes;
+    try {
+      response = await fetchResponse(url, {
+        signal: AbortSignal.timeout(30_000),
+        redirect: "error",
+      });
+      if (!response.ok) throw new Error("HTTP failure");
+      bytes = new Uint8Array(await response.arrayBuffer());
+    } catch {
+      // Never expose fetch errors: they can include a credential-bearing URL.
+      throw new Error("Retrieval failed at the HTTP or transport boundary");
+    }
+    const text = new TextDecoder().decode(bytes);
+    const contentType = response.headers.get("content-type");
+    const disclosed = `${text}\n${contentType ?? ""}`;
+    const forms = [
+      suppliedKey,
+      key,
+      encodeURIComponent(key),
+      new URLSearchParams({ serviceKey: key })
+        .toString()
+        .slice("serviceKey=".length),
+    ];
+    if (
+      forms.some(
+        (secret) =>
+          secret && disclosed.toLowerCase().includes(secret.toLowerCase()),
+      )
+    ) {
+      throw new Error(
+        "Response echoes credentials; no response bytes were saved",
+      );
+    }
+    const artifact = deriveFscStockQuotes(bytes, { basDt, market });
+    const receipt = {
+      endpoint: FSC_STOCK_QUOTE_ENDPOINT,
+      parameters: { ...parameters, serviceKey: "REDACTED" },
+      retrievedAt: new Date().toISOString(),
+      permissionCheckedAt,
+      contentType,
+      rowCount: artifact.rows.length,
+      pagination: artifact.pagination,
+      rawResponseHash: artifact.rawResponseHash,
+      sourceArtifactHash: artifact.sourceArtifactHash,
+      generatedRowsHash: artifact.generatedRowsHash,
+      columns: artifact.columns,
+    };
+    return {
+      firstBytes: bytes,
+      secondBytes: JSON.stringify(receipt, null, 2) + "\n",
+      result: receipt,
+    };
+  });
 }
 
 if (
