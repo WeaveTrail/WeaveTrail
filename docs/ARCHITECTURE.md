@@ -14,7 +14,9 @@ for its server loader and replay route; the scenario package does not import
 or re-export published data. The fixture provider explicitly imports mappings
 from both owners. See [ADR 0023](adr/0023-separate-published-data-ownership.md).
 
-The overview links to `/replay?mode=guided` and `/architecture`. Case Replay
+The overview links to `/replay?mode=guided` and `/why`. `/why` states where the
+gate sits relative to an existing surveillance pipeline, cites the published
+sources its background rests on, and links on to `/architecture`. Case Replay
 at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
 approval serialization, request generation and server-derived result rendering.

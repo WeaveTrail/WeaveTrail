@@ -87,8 +87,8 @@ pnpm format:check
 pnpm build
 ```
 
-Then use a fresh browser session to load `/`, `/architecture`, `/replay`,
-`/evals`, and `/methodology` from the production origin. In `/replay`:
+Then use a fresh browser session to load `/`, `/why`, `/architecture`,
+`/replay`, `/evals`, and `/methodology` from the production origin. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve

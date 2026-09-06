@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -230,6 +230,34 @@ describe("where the gate sits", () => {
     const rule = /([^}]*)\{\s*scroll-margin-top: 110px;/.exec(styles);
     expect(rule).not.toBeNull();
     expect(rule![1]).toContain(".source-list li");
+  });
+
+  it("keeps the documented route lists complete", () => {
+    // Both documents enumerate the site's routes, and a new one silently
+    // missing from either is how the deployment check stops covering it.
+    const appDir = resolve(process.cwd(), "apps/web/src/app");
+    const routes = readdirSync(appDir, { withFileTypes: true })
+      .filter(
+        (entry) =>
+          entry.isDirectory() &&
+          entry.name !== "api" &&
+          existsSync(resolve(appDir, entry.name, "page.tsx")),
+      )
+      .map((entry) => `/${entry.name}`);
+    expect(routes).toContain("/why");
+    const deployment = readFileSync(
+      resolve(process.cwd(), "docs/DEPLOYMENT.md"),
+      "utf8",
+    );
+    for (const route of routes)
+      expect(deployment, route).toContain(`\`${route}\``);
+    const architecture = readFileSync(
+      resolve(process.cwd(), "docs/ARCHITECTURE.md"),
+      "utf8",
+    );
+    expect(architecture).toContain(
+      "The overview links to `/replay?mode=guided` and `/why`",
+    );
   });
 
   it("lists the page under the navigation Reference group", () => {
