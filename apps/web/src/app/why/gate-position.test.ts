@@ -9,10 +9,13 @@ import WhyPage from "./page";
 import {
   CONCLUSION_NOT_METHOD,
   NON_AFFILIATION,
+  NO_UPSTREAM_INTEGRATION,
   OWN_REASONING_MARK,
+  diagramAttribution,
   gateInputs,
   handoverStatements,
   layerAuthorities,
+  lede,
   notClaimed,
   sources,
   upstreamStatements,
@@ -34,7 +37,14 @@ const escaped = (text: string) =>
 
 const markup = () => renderToStaticMarkup(createElement(WhyPage));
 
-const attributed = [...upstreamStatements, ...handoverStatements];
+// Every outside-system claim the page renders, including the ones outside the
+// numbered sections: the lede and the caption under the diagram.
+const attributed = [
+  lede,
+  diagramAttribution,
+  ...upstreamStatements,
+  ...handoverStatements,
+];
 
 describe("where the gate sits", () => {
   it("states the five sections the page exists to carry", () => {
@@ -106,6 +116,35 @@ describe("where the gate sits", () => {
       expect(rendered).toContain(escaped(detail));
     }
     expect(rendered).toContain(escaped(CONCLUSION_NOT_METHOD));
+    expect(rendered).toContain(escaped(NO_UPSTREAM_INTEGRATION));
+  });
+
+  it("keeps the refusal to the path that actually refuses", () => {
+    const rendered = markup();
+    // A request without a case manifest reaches replayFoundation and returns a
+    // canonical result hash, so only pattern evaluation refuses on all three.
+    expect(rendered).toContain("foundation replay returns ordering");
+    expect(rendered).toContain("no pattern verdict");
+  });
+
+  it("keeps engine abstention a result and a review state pre-replay", () => {
+    const rendered = markup();
+    const decide = layerAuthorities.find(({ name }) => name.includes("Decide"));
+    expect(decide).toBeDefined();
+    expect(decide!.may).toContain("NOT_SUPPORTED");
+    expect(decide!.may).toContain("INCONCLUSIVE");
+    expect(decide!.may).toContain("both are results");
+    expect(decide!.mayNot).toContain("pre-replay");
+    for (const layer of layerAuthorities)
+      expect(`${layer.may} ${layer.mayNot}`, layer.name).not.toContain(
+        "returns a review state instead",
+      );
+    expect(rendered).toContain("never an engine verdict");
+
+    // The diagram states the same vocabulary, so it must not contradict it.
+    const svg = read(DIAGRAM_SOURCE).toString("utf8");
+    expect(svg).not.toContain("A gate that cannot be satisfied returns");
+    expect(svg).toContain("pre-replay validation or approval failure");
   });
 
   it("gives each of the four layers what it may and may not do", () => {
@@ -181,6 +220,16 @@ describe("where the gate sits", () => {
     expect(home).toContain('href="/why"');
     expect(home).not.toContain("reviewable evidence for more");
     expect(home).not.toContain("a reviewer needs to check which");
+  });
+
+  it("clears the sticky header when a citation jumps to its source", () => {
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    const rule = /([^}]*)\{\s*scroll-margin-top: 110px;/.exec(styles);
+    expect(rule).not.toBeNull();
+    expect(rule![1]).toContain(".source-list li");
   });
 
   it("lists the page under the navigation Reference group", () => {

@@ -4,10 +4,13 @@ import React from "react";
 
 import {
   CONCLUSION_NOT_METHOD,
+  NO_UPSTREAM_INTEGRATION,
   OWN_REASONING_MARK,
+  diagramAttribution,
   gateInputs,
   handoverStatements,
   layerAuthorities,
+  lede,
   notClaimed,
   sources,
   upstreamStatements,
@@ -58,10 +61,10 @@ export default function WhyPage() {
       <div className="page-heading">
         <span className="eyebrow">Why the gate</span>
         <h1>An alert arrives. Someone still has to justify it.</h1>
+        <Attributed statement={lede} />
         <p>
-          Detection already runs upstream and keeps running. This page states
-          where WeaveTrail sits relative to it, what it asks of it, and what it
-          refuses to do on its behalf.
+          This page states where WeaveTrail sits relative to that layer, what it
+          asks of it, and what it refuses to do on its behalf.
         </p>
       </div>
 
@@ -88,6 +91,7 @@ export default function WhyPage() {
             band concluded, never how it concluded it, and the decision stays in
             the lower band.
           </p>
+          <Attributed statement={diagramAttribution} />
         </figcaption>
       </figure>
 
@@ -113,8 +117,11 @@ export default function WhyPage() {
         <span className="panel-label">03 · Where the gate sits</span>
         <p>
           The gate sits after an alert or a referral and before an investigation
-          concludes. It asks an upstream for three declared inputs and refuses
-          to run without them.
+          concludes. Evaluating a pattern hypothesis needs all three declared
+          inputs below, and a request missing one is refused. Normalization is
+          the narrower path: with an approved mapping and no case manifest, a
+          foundation replay returns ordering, deduplication and a canonical
+          result hash, and no pattern verdict.
         </p>
         {gateInputs.map(([name, detail]) => (
           <div className="responsibility" key={name}>
@@ -123,6 +130,7 @@ export default function WhyPage() {
           </div>
         ))}
         <p>{CONCLUSION_NOT_METHOD}</p>
+        <p>{NO_UPSTREAM_INTEGRATION}</p>
       </section>
 
       <section className="layer-authorities" id="layer-authority">
@@ -170,9 +178,10 @@ export default function WhyPage() {
       <section className="panel" id="sources">
         <span className="panel-label">Sources</span>
         <p>
-          Every sentence above about a system outside this repository resolves
-          to one of these. Anything marked &ldquo;{OWN_REASONING_MARK}&rdquo; is
-          the project reasoning from them, not a published finding.
+          Every sentence on this page about a system outside this repository
+          resolves to one of these, in the lede and the diagram caption as well
+          as the sections above. Anything marked &ldquo;{OWN_REASONING_MARK}
+          &rdquo; is the project reasoning from them, not a published finding.
         </p>
         <ol className="source-list">
           {sources.map((source) => (

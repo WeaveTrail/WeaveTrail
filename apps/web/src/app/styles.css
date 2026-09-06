@@ -496,7 +496,8 @@ button:disabled {
 .journey-header h2,
 .source-evidence,
 .result-panel,
-.architecture-hash {
+.architecture-hash,
+.source-list li {
   scroll-margin-top: 110px;
 }
 .gate-description {

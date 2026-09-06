@@ -52,6 +52,18 @@ export const sources: readonly Source[] = [
   },
 ];
 
+/** The page lede. An outside-system claim, so it carries a source like the rest. */
+export const lede: Statement = {
+  text: "Market authorities already run surveillance over their markets, and most have implemented IOSCO's 2013 recommendations for doing so.",
+  source: "iosco-2025",
+};
+
+/** The diagram's upper band describes that layer in the sources' own general terms. */
+export const diagramAttribution: Statement = {
+  text: "The upper band describes a surveillance pipeline in the general terms the sources use; the two bands beneath it describe this repository.",
+  source: "iosco-2013",
+};
+
 /** Section one: what the layer above the gate already does. */
 export const upstreamStatements: readonly Statement[] = [
   {
@@ -108,12 +120,15 @@ export const gateInputs: readonly (readonly [string, string])[] = [
   ],
   [
     "A hypothesis and its thresholds",
-    "A versioned pattern with its gates, its thresholds and its abstention reasons declared before the run, so the result carries the conditions it is true under.",
+    "A versioned pattern with its gates, its thresholds and its abstention reasons declared before the run. The canonical result hash covers the engine version, the canonical events and the evaluation; the approved manifest and its approval records sit beside the result rather than inside that hash.",
   ],
 ];
 
 export const CONCLUSION_NOT_METHOD =
-  "The gate inspects an upstream's conclusion, not an upstream's method. It never reads a detection model, its parameters or its scoring, and it never searches for candidates.";
+  "The gate is positioned to inspect an upstream's conclusion, not an upstream's method: it reads no detection model, no parameters and no scoring, and it does not search for candidates.";
+
+export const NO_UPSTREAM_INTEGRATION =
+  "No upstream integration is implemented. A replay request carries a committed scenario, its rows, the approvals and an optional authored manifest, and has no alert, referral or score field, so an alert reaches the gate today only as the executions and the scope a person submits.";
 
 export interface LayerAuthority {
   readonly name: string;
@@ -140,9 +155,9 @@ export const layerAuthorities: readonly LayerAuthority[] = [
   },
   {
     name: "L3 · Decide",
-    may: "Order, deduplicate, compare exact decimals and evaluate the versioned rule across its declared gates.",
+    may: "Order, deduplicate, compare exact decimals and evaluate the versioned rule across its declared gates. A gate that does not pass reports NOT_SUPPORTED, and declared inputs that are insufficient report INCONCLUSIVE; both are results.",
     mayNot:
-      "Read anything outside the approved scope, or return a result when a required gate cannot be satisfied. It returns a review state instead.",
+      "Read anything outside the approved scope, or widen the scope it was given. It cannot return a review state as an outcome: a review state is a pre-replay validation or approval failure, never an engine verdict.",
   },
   {
     name: "L4 · Evidence",
