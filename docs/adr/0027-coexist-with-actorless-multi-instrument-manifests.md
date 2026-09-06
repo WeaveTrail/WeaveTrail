@@ -40,6 +40,8 @@ contract policy: rapid price lift requires at least one participant identifier,
 while cross-market session reversal permits an empty list. Both proposal and
 approved-manifest schemas apply that policy. An empty list means the source
 supplies no participant identities; it does not mean that nobody acted.
+Profile validation requires the canonical dataset's actor set to be empty for
+that declaration, preventing an actorless source claim over actor-bearing data.
 
 The committed synthetic actorless source contains two daily-quotation
 instruments and is registered with the deterministic fixture mapping provider.
@@ -51,7 +53,8 @@ gates, baseline declaration, result and abstention reasons remain planned.
 Existing `1.3` manifests, scenario bytes, approvals, rule evaluation and golden
 hashes remain unchanged. Consumers can opt into `1.4` explicitly or use the
 versioned union, then validate every declared instrument against one canonical
-dataset profile.
+dataset profile. Actorless declarations additionally validate that the profile
+itself supplies no actor identifiers.
 
 The current replay request and rapid-price evaluator continue to consume the
 direct `1.3` schema. A `1.4` manifest can be proposed, approved and checked

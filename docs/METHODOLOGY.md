@@ -93,7 +93,9 @@ vocabulary `RAPID_PRICE_LIFT` and `CROSS_MARKET_SESSION_REVERSAL`. Contract
 policy still requires a participant for rapid price lift but permits
 `actorIds: []` for cross-market session reversal. The empty list records that
 the source supplies no participant identities; it does not claim that nobody
-acted. The cross-market evaluation rule remains planned.
+acted. Profile validation rejects that declaration when the canonical dataset
+profile contains any actor identity. The cross-market evaluation rule remains
+planned.
 
 Case manifests carry an approval record instead of a writable approval status.
 Mapping approval uses a separate record. Both records retain an opaque

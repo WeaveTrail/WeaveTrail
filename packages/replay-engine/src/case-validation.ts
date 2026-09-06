@@ -9,6 +9,7 @@ export type CaseProfileIssueCode =
   | "CANONICAL_DATASET_HASH_MISMATCH"
   | "INSTRUMENT_OUTSIDE_DATASET_PROFILE"
   | "ACTOR_OUTSIDE_DATASET_PROFILE"
+  | "ACTORLESS_HYPOTHESIS_PROFILE_MISMATCH"
   | "TIME_WINDOW_OUTSIDE_DATASET_PROFILE";
 
 // Paths are relative to the validated manifest, not an HTTP request.
@@ -52,6 +53,16 @@ export function validateCaseAgainstProfile(
         path,
       });
     }
+  }
+  if (
+    manifest.manifestVersion === "1.4" &&
+    manifest.hypothesis.actorIds.length === 0 &&
+    profile.actorIds.length > 0
+  ) {
+    issues.push({
+      code: "ACTORLESS_HYPOTHESIS_PROFILE_MISMATCH",
+      path: ["hypothesis", "actorIds"],
+    });
   }
   for (const [index, actorId] of manifest.hypothesis.actorIds.entries()) {
     if (!profile.actorIds.includes(actorId)) {

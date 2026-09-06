@@ -98,7 +98,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       expect(markup).toContain(text);
     expect(markup).not.toContain("Approve case manifest");
     expect(markup).not.toContain("Pattern outcome:");
-    expect(markup).not.toContain("Published daily quotes normalized.");
+    expect(markup).not.toContain("Daily quotes normalized.");
     expect(markup).not.toContain("CASE_REVIEW_REQUIRED");
   });
 
@@ -106,7 +106,8 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     const markup = renderToStaticMarkup(
       createElement(DailyQuoteCaseLimitation, { normalized: true }),
     );
-    expect(markup).toContain("Published daily quotes normalized.");
+    expect(markup).toContain("Daily quotes normalized.");
+    expect(markup).not.toContain("Published daily quotes normalized.");
     expect(markup).toContain("Case approval unavailable");
     expect(markup).not.toContain("CASE_REVIEW_REQUIRED");
   });

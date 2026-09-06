@@ -169,7 +169,7 @@ describe("case validation against a dataset profile", () => {
       hypothesis: {
         pattern: "CROSS_MARKET_SESSION_REVERSAL",
         instrumentIds: ["WT-OUTSIDE-A", "WT-DEMO", "WT-OUTSIDE-B"],
-        actorIds: [],
+        actorIds: ["actor-a"],
         startTime: profile.earliestEventTime,
         endTime: profile.latestEventTime,
       },
@@ -201,6 +201,47 @@ describe("case validation against a dataset profile", () => {
         {
           code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
           path: ["hypothesis", "instrumentIds", 2],
+        },
+      ],
+    });
+  });
+
+  it("rejects an actorless hypothesis against an actorful profile", () => {
+    const manifest = CaseManifestV14Schema.parse({
+      manifestVersion: "1.4",
+      caseId: "synthetic-cross-market-case",
+      canonicalDatasetHash: profile.canonicalDatasetHash,
+      hypothesis: {
+        pattern: "CROSS_MARKET_SESSION_REVERSAL",
+        instrumentIds: ["WT-DEMO"],
+        actorIds: [],
+        startTime: profile.earliestEventTime,
+        endTime: profile.latestEventTime,
+      },
+      rules: [],
+      aiTrace: {
+        provider: "fixture",
+        model: "deterministic",
+        promptVersion: "cross-market-case-v1",
+        confidence: 1,
+        referencedEventIds: [],
+      },
+      approval: {
+        approvedArtifactHash: "a".repeat(64),
+        reviewerRef: "reviewer-fixture",
+        decision: "APPROVED",
+        overrides: [],
+        approvedAt: "2026-09-06T00:00:00Z",
+      },
+    });
+
+    expect(validateCaseAgainstProfile(manifest, profile)).toEqual({
+      accepted: false,
+      status: "REVIEW_REQUIRED",
+      issues: [
+        {
+          code: "ACTORLESS_HYPOTHESIS_PROFILE_MISMATCH",
+          path: ["hypothesis", "actorIds"],
         },
       ],
     });
