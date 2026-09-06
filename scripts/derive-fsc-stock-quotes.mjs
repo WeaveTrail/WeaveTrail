@@ -1,5 +1,6 @@
+import { saveFscOutputPair } from "./save-fsc-output-pair.mjs";
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import process from "node:process";
@@ -132,8 +133,12 @@ if (
       basDt,
       market,
     });
-    await writeFile(jsonlPath, result.jsonl, { flag: "wx" });
-    await writeFile(rowsPath, result.generatedRows, { flag: "wx" });
+    await saveFscOutputPair(
+      jsonlPath,
+      result.jsonl,
+      rowsPath,
+      result.generatedRows,
+    );
     process.stdout.write(
       JSON.stringify({
         rawResponseHash: result.rawResponseHash,

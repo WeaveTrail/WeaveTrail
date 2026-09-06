@@ -43,7 +43,7 @@ pnpm test
   sample is the first 40 FSC KOSPI quotations of 943 for 2026-09-03. It has no
   expected rule outcome and is not a detection benchmark. Exact source, licence,
   hashes and limitations are recorded in the
-  [source README](../packages/scenarios/src/sources/real/README.md).
+  [source README](../packages/published-data/src/sources/real/README.md).
 - **Row-order invariance** — all permutations of the committed four-event foundation
   fixture preserve canonical order and the result hash. Representative
   permutations of parsed source rows also pass the approved HTTP boundary for

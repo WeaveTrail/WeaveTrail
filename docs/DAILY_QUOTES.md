@@ -75,13 +75,16 @@ invalid case approval retains precedence over profile errors. A normal request
 without a manifest does not claim to have reached `CASE_REVIEW_REQUIRED`.
 
 The UI action is “Normalize source” for a daily proposal. The limitation panel
+and working-mode instructions require mapping approval only when no manifest
+exists. The empty result prompts normalization, and case repeat controls appear
+only for sources with a case manifest. The limitation panel
 explains that genuine admissible executions with time, side, actor identity,
 price and quantity, followed by separate case approval, would be needed for a
 future case. Adding an actor alone cannot turn daily quotes into trades.
 
 ## Evidence and reproduction
 
-The [adjacent provenance and reproduction instructions](../packages/scenarios/src/sources/real/README.md)
+The [adjacent provenance and reproduction instructions](../packages/published-data/src/sources/real/README.md)
 record the response, licence, exact request and all artifact hashes. Acquisition
 occurred at `2026-09-05T19:31:27.527Z` (2026-09-06 KST), with unrestricted usage
 permission verified on the same UTC date. One re-fetch at

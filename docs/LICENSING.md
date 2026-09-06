@@ -66,7 +66,7 @@ and distribution label state no specific attribution condition for this
 unrestricted distribution; provider/title/origin credit is retained under the
 repository's provenance rules. No CC0, Apache-2.0 or KOGL type is inferred.
 
-The [adjacent source record](../packages/scenarios/src/sources/real/README.md)
+The [adjacent source record](../packages/published-data/src/sources/real/README.md)
 links the official distribution, terms, recorded attribution and immutable bytes.
 [Third-party notices](../THIRD_PARTY_NOTICES.md) preserves that credit for source
 distribution. Future acquisitions must recheck permission on their own date.

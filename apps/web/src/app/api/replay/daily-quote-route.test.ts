@@ -15,20 +15,20 @@ import {
 } from "@weavetrail/replay-engine";
 import * as evaluator from "../../../../../../packages/replay-engine/src/rapid-price-lift";
 import { syntheticDailyQuoteSpecimen } from "../../../../../../packages/replay-engine/src/testing/daily-quotes";
-import { committedReplayScenarios } from "@weavetrail/scenarios";
+import { committedReplaySources } from "../../../lib/replay-sources";
 import { POST } from "./route";
 
 // Replace one existing synthetic registry entry only inside this isolated test.
 // No publisher data, real scenario key or public case is created by these tests.
 const key = "concentrated-buy-dialect-a.csv";
 const specimen = syntheticDailyQuoteSpecimen();
-const original = committedReplayScenarios[key];
+const original = committedReplaySources[key];
 
 function setup() {
   vi.spyOn(FixtureSchemaMappingProvider.prototype, "propose").mockResolvedValue(
     specimen.proposal,
   );
-  Object.assign(committedReplayScenarios, {
+  Object.assign(committedReplaySources, {
     [key]: {
       ...original,
       sourceArtifactHash: specimen.proposal.sourceArtifactHash,
@@ -52,7 +52,7 @@ const post = (body: unknown) =>
     }),
   );
 afterEach(() => {
-  Object.assign(committedReplayScenarios, { [key]: original });
+  Object.assign(committedReplaySources, { [key]: original });
   vi.restoreAllMocks();
 });
 

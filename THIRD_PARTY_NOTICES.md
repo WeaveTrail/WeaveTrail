@@ -80,6 +80,6 @@ repository provenance rules; no CC0, Apache-2.0 or KOGL type is inferred.
 
 The original response and deterministically derived JSONL retain every returned
 item and column. These data bytes are not relicensed under the code licence.
-See the [source README and adjacent provenance](packages/scenarios/src/sources/real/README.md)
+See the [source README and adjacent provenance](packages/published-data/src/sources/real/README.md)
 for the request, checksums, derivation and interpretation. No participant, trade
 side or pattern verdict is attached to a real instrument.

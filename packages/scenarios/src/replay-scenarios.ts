@@ -10,7 +10,6 @@ import {
 } from "./source-mappings";
 import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
 import { syntheticSourceProvenance } from "./source-provenance";
-import { realMarketDataScenarios } from "./real-market-data";
 
 const syntheticScenarios = {
   "concentrated-buy-dialect-a.csv": {
@@ -34,7 +33,7 @@ const syntheticScenarios = {
   ...rapidPriceLiftScenarios,
 } as const;
 
-const committedSyntheticScenarios = Object.fromEntries(
+export const committedReplayScenarios = Object.fromEntries(
   Object.entries(syntheticScenarios).map(([name, scenario]) => [
     name,
     { ...scenario, provenance: syntheticSourceProvenance },
@@ -46,8 +45,3 @@ const committedSyntheticScenarios = Object.fromEntries(
     provenance: typeof syntheticSourceProvenance;
   };
 };
-
-export const committedReplayScenarios = {
-  ...committedSyntheticScenarios,
-  ...realMarketDataScenarios,
-} as const;

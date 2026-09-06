@@ -7,6 +7,13 @@ import {
 } from "./source-mappings";
 
 describe("committed replay scenarios", () => {
+  it("exports only synthetic sources from the synthetic scenario registry", () => {
+    expect(
+      Object.values(committedReplayScenarios).map(
+        ({ provenance }) => provenance.kind,
+      ),
+    ).toEqual(Object.values(committedReplayScenarios).map(() => "synthetic"));
+  });
   it("binds dialect A to its artifact-derived committed event set", () => {
     const scenario = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
 

@@ -1,3 +1,4 @@
+import { fscStockQuotesProposal } from "@weavetrail/published-data";
 import {
   SchemaMappingProposalSchema,
   type AllowedTransform,
@@ -7,7 +8,6 @@ import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   rapidPriceLiftScenarios,
-  fscStockQuotesProposal,
 } from "@weavetrail/scenarios";
 
 import type { MappingInput, SchemaMappingProvider } from "./provider";

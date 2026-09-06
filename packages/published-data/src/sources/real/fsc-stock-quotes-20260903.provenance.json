@@ -65,7 +65,7 @@
     "itemValues": "Complete string-valued items; no coercion, trimming, field filtering, sorting, normalization or financial arithmetic.",
     "jsonlSerialization": "Compact JSON.stringify(item) in response order; UTF-8 without BOM; LF between items and exactly one final LF.",
     "generatedRowsSerialization": "JSON.stringify(rows, null, 2) plus one final LF; coordinates contain JSONL SHA-256 and one-based physical line numbers.",
-    "command": "node scripts/derive-fsc-stock-quotes.mjs packages/scenarios/src/sources/real/fsc-stock-quotes-20260903.response.json 20260903 KOSPI /tmp/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903-rows.json"
+    "command": "node scripts/derive-fsc-stock-quotes.mjs packages/published-data/src/sources/real/fsc-stock-quotes-20260903.response.json 20260903 KOSPI /tmp/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903-rows.json"
   },
   "artifacts": {
     "rawResponse": {

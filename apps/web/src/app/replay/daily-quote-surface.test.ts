@@ -1,10 +1,8 @@
+import type { SourceProvenance } from "@weavetrail/contracts";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import {
-  syntheticSourceProvenance,
-  type SourceProvenance,
-} from "@weavetrail/scenarios";
+import { syntheticSourceProvenance } from "@weavetrail/scenarios";
 import {
   mappingApprovalArtifact,
   sha256Canonical,
@@ -46,6 +44,25 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     expect(markup).not.toContain("Approve case manifest");
     expect(markup).not.toContain("Pattern outcome:");
     expect(markup).not.toContain("These synthetic source records");
+    expect(markup).not.toContain("case before replay");
+    expect(markup).not.toContain("approve its mapping and case");
+    expect(markup).toContain("Ready to normalize");
+    expect(markup).not.toContain("Repeat the same approved case");
+  });
+  it("keeps case approval and repeat guidance for a source with a manifest", async () => {
+    const prepared = await prepareReplayScenarios();
+    const scenario = prepared.scenarios.find(
+      ({ value }) => value === "rapid-price-lift-supported.csv",
+    )!;
+    expect(scenario).toHaveProperty("manifest");
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
+    );
+    expect(markup).toContain("case before replay");
+    expect(markup).toContain("approve its mapping and case");
+    expect(markup).toContain("Ready to replay");
+    expect(markup).toContain("Repeat the same approved case");
+    expect(markup).not.toContain("Ready to normalize");
   });
   it("shows daily semantics and required reasons before approval while leaving normalization as the action", () => {
     const { rows, proposal } = syntheticDailyQuoteSpecimen();

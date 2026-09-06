@@ -8,7 +8,7 @@ import {
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { committedReplayScenarios } from "@weavetrail/scenarios";
+import { committedReplaySources } from "../../lib/replay-sources";
 import ReplayPage, { metadata } from "./page";
 import { CaseReplay, SourceRows } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
@@ -29,7 +29,7 @@ describe("Case Replay entry contract", () => {
     const prepared = await prepareReplayScenarios();
     expect(prepared.providerMode).toBe("fixture");
     for (const scenario of prepared.scenarios) {
-      const committed = committedReplayScenarios[scenario.value];
+      const committed = committedReplaySources[scenario.value];
       expect(scenario.rows).toEqual(committed.rows);
       const proposal = prepared.proposals[scenario.sourceArtifactHash]!;
       expect(proposal.sourceArtifactHash).toBe(committed.sourceArtifactHash);

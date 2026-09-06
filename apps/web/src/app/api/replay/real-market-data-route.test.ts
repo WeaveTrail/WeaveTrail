@@ -9,8 +9,8 @@ import {
 } from "@weavetrail/contracts";
 import {
   fscStockQuotesProposal,
-  realMarketDataScenarios,
-} from "@weavetrail/scenarios";
+  publishedReplaySources,
+} from "@weavetrail/published-data";
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import {
   applyApprovedMapping,
@@ -25,7 +25,7 @@ import * as evaluator from "../../../../../../packages/replay-engine/src/rapid-p
 import { POST } from "./route";
 
 const key = "real/fsc-stock-quotes-20260903.jsonl";
-const source = realMarketDataScenarios[key];
+const source = publishedReplaySources[key];
 const proposal = fscStockQuotesProposal;
 const approval: ApprovalRecord = {
   approvedArtifactHash: sha256Canonical(mappingApprovalArtifact(proposal)),

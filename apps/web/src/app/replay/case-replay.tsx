@@ -17,7 +17,7 @@ import type {
   WorkflowState,
 } from "@weavetrail/contracts";
 import { requiresMappingOverride } from "@weavetrail/contracts";
-import type { SourceProvenance } from "@weavetrail/scenarios";
+import type { SourceProvenance } from "@weavetrail/contracts";
 import {
   canonicalJson,
   type CanonicalJsonInput,
@@ -746,9 +746,11 @@ export function CaseReplay({
                 Case Replay controls
               </h2>
               <p>
-                Select a committed source, review its mapping and approve its
-                case before replay. Advanced controls change submitted source
-                order or duplicate one derived event after mapping.
+                {selectedScenario.manifest
+                  ? "Select a committed source, review its mapping and approve its case before replay."
+                  : "Review the source and approve its exact mapping to normalize it. This source has no case manifest or case evaluation."}{" "}
+                Advanced controls change submitted source order or duplicate one
+                derived event after mapping.
               </p>
             </>
           )}
@@ -1128,54 +1130,61 @@ export function CaseReplay({
             <span className="empty-mark" aria-hidden="true">
               WT
             </span>
-            <h2>Ready to replay</h2>
+            <h2>
+              {selectedScenario.manifest
+                ? "Ready to replay"
+                : "Ready to normalize"}
+            </h2>
             <p>
-              Review the source and explicitly approve its mapping and case. A
-              foundation-only replay has no case evaluation.
+              {selectedScenario.manifest
+                ? "Review the source and explicitly approve its mapping and case."
+                : "Review the source and explicitly approve its mapping, including any required interpretation reasons. Normalization has no case evaluation."}
             </p>
           </div>
         )}
       </div>
-      {!mappingExample && (!guided || chapter === 5) && (
-        <section className="panel repeat-panel">
-          <h3>Same-input repeatability</h3>
-          <p>
-            Repeat the same approved case and compare the two server-returned
-            hashes as strings. This does not establish authenticity, real-market
-            accuracy or general mutation tolerance.
-          </p>
-          <button
-            className="button"
-            disabled={
-              running ||
-              !approval ||
-              !caseApproval ||
-              (!completeResult && !previousHash)
-            }
-            onClick={() => runReplay(true)}
-            type="button"
-          >
-            {running ? "Replaying…" : "Repeat the same approved case"}
-          </button>
-          {previousHash && (
-            <div className="hash-block">
-              <span>Previous returned hash</span>
-              <code>{previousHash}</code>
-              {completeResult && (
-                <>
-                  <span>Repeated returned hash</span>
-                  <code>{result.replay.canonicalResultHash}</code>
-                  <strong>
-                    {previousHash === result.replay.canonicalResultHash
-                      ? "MATCH · same-input repeatability"
-                      : "MISMATCH · retry or inspect the returned results"}
-                  </strong>
-                </>
-              )}
-            </div>
-          )}
-        </section>
-      )}
+      {!mappingExample &&
+        selectedScenario.manifest &&
+        (!guided || chapter === 5) && (
+          <section className="panel repeat-panel">
+            <h3>Same-input repeatability</h3>
+            <p>
+              Repeat the same approved case and compare the two server-returned
+              hashes as strings. This does not establish authenticity,
+              real-market accuracy or general mutation tolerance.
+            </p>
+            <button
+              className="button"
+              disabled={
+                running ||
+                !approval ||
+                !caseApproval ||
+                (!completeResult && !previousHash)
+              }
+              onClick={() => runReplay(true)}
+              type="button"
+            >
+              {running ? "Replaying…" : "Repeat the same approved case"}
+            </button>
+            {previousHash && (
+              <div className="hash-block">
+                <span>Previous returned hash</span>
+                <code>{previousHash}</code>
+                {completeResult && (
+                  <>
+                    <span>Repeated returned hash</span>
+                    <code>{result.replay.canonicalResultHash}</code>
+                    <strong>
+                      {previousHash === result.replay.canonicalResultHash
+                        ? "MATCH · same-input repeatability"
+                        : "MISMATCH · retry or inspect the returned results"}
+                    </strong>
+                  </>
+                )}
+              </div>
+            )}
+          </section>
+        )}
       {!mappingExample && (
         <section className="panel" hidden={guided && chapter !== 6}>
           <h3>What runs today</h3>

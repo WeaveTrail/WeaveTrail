@@ -92,10 +92,17 @@ selection or fallback date was used.
 
 ## Offline derivation
 
+The command reserves both output paths with exclusive handles before writing.
+On caught reservation, write or close failures it closes handles and removes
+only files created by that invocation. Existing outputs remain intact; after
+removing the conflicting file or correcting the storage failure, retry with
+the same paths. Cleanup failure remains an error. This is exception recovery,
+not atomic persistence across forced termination or storage failure.
+
 ```bash
-node scripts/derive-fsc-stock-quotes.mjs packages/scenarios/src/sources/real/fsc-stock-quotes-20260903.response.json 20260903 KOSPI /tmp/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903-rows.json
-cmp packages/scenarios/src/sources/real/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903.jsonl
-cmp packages/scenarios/src/generated/fsc-stock-quotes-20260903-rows.json /tmp/fsc-stock-quotes-20260903-rows.json
+node scripts/derive-fsc-stock-quotes.mjs packages/published-data/src/sources/real/fsc-stock-quotes-20260903.response.json 20260903 KOSPI /tmp/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903-rows.json
+cmp packages/published-data/src/sources/real/fsc-stock-quotes-20260903.jsonl /tmp/fsc-stock-quotes-20260903.jsonl
+cmp packages/published-data/src/generated/fsc-stock-quotes-20260903-rows.json /tmp/fsc-stock-quotes-20260903-rows.json
 ```
 
 This command makes no network requests. It validates `response.header` and

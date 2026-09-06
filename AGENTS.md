@@ -8,15 +8,16 @@ this file covers the judgment calls that process does not spell out.
 
 ## Repository shape
 
-| Path                     | Responsibility                                                         |
-| ------------------------ | ---------------------------------------------------------------------- |
-| `apps/web`               | The public explanation pages and guided Case Replay                    |
-| `packages/contracts`     | Versioned runtime contracts and shared types                           |
-| `packages/replay-engine` | Deterministic normalization, ordering, rules, and evidence hashes      |
-| `packages/ai-harness`    | Constrained provider adapters and deterministic fixtures               |
-| `packages/scenarios`     | Synthetic datasets and controlled input mutations                      |
-| `packages/evals`         | Versioned evaluation cases and aggregate runners                       |
-| `docs`                   | Public architecture, methodology, evaluation protocol, and limitations |
+| Path                      | Responsibility                                                         |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `apps/web`                | The public explanation pages and guided Case Replay                    |
+| `packages/contracts`      | Versioned runtime contracts and shared types                           |
+| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes      |
+| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures               |
+| `packages/scenarios`      | Synthetic datasets and controlled input mutations                      |
+| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings |
+| `packages/evals`          | Versioned evaluation cases and aggregate runners                       |
+| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations |
 
 Describe only behavior that exists. Mark planned work as planned until a
 reproducible check confirms it.

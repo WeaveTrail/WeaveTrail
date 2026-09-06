@@ -1,5 +1,5 @@
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
-import { committedReplayScenarios } from "@weavetrail/scenarios";
+import { committedReplaySources } from "../../lib/replay-sources";
 import type { SchemaMappingProposal } from "@weavetrail/contracts";
 import type { ReplayScenarioOption } from "./case-replay";
 
@@ -7,7 +7,7 @@ import type { ReplayScenarioOption } from "./case-replay";
 export async function prepareReplayScenarios() {
   const provider = new FixtureSchemaMappingProvider();
   const prepared = await Promise.all(
-    Object.entries(committedReplayScenarios).map(async ([value, source]) => {
+    Object.entries(committedReplaySources).map(async ([value, source]) => {
       let manifest: ReplayScenarioOption["manifest"];
       if ("manifest" in source) {
         const { approval: _, ...proposal } = source.manifest;

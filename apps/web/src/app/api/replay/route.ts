@@ -13,7 +13,7 @@ import {
   replayApproved,
   type SourceRow,
 } from "@weavetrail/replay-engine";
-import { committedReplayScenarios } from "@weavetrail/scenarios";
+import { committedReplaySources } from "../../../lib/replay-sources";
 import { NextResponse } from "next/server";
 
 import { existingRequestPath } from "./review-path";
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     mutation,
     scenario,
   } = parsed.data;
-  const scenarioConfig = committedReplayScenarios[scenario];
+  const scenarioConfig = committedReplaySources[scenario];
   const mappingProposal = await mappingProvider.propose({
     sourceArtifactHash: scenarioConfig.sourceArtifactHash,
     constants: scenarioConfig.constants,

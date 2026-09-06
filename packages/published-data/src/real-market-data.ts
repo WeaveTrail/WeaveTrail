@@ -4,7 +4,7 @@ import {
 } from "@weavetrail/contracts";
 import rows from "./generated/fsc-stock-quotes-20260903-rows.json";
 import provenance from "./sources/real/fsc-stock-quotes-20260903.provenance.json";
-import type { SourceProvenance } from "./source-provenance";
+import type { SourceProvenance } from "@weavetrail/contracts";
 
 export const fscStockQuotesProvenance = {
   ...provenance,
@@ -161,7 +161,7 @@ export const fscStockQuotesProposal = SchemaMappingProposalSchema.parse({
   fields,
 });
 
-export const realMarketDataScenarios = {
+export const publishedReplaySources = {
   "real/fsc-stock-quotes-20260903.jsonl": {
     label: "FSC · KOSPI daily quotes · 2026-09-03",
     sourceArtifactHash: fscStockQuotesProposal.sourceArtifactHash,

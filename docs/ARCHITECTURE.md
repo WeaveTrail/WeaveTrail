@@ -6,6 +6,14 @@ versioned code can produce a replay result.
 
 ## Entry and Case Replay
 
+`packages/scenarios` owns only synthetic datasets and controlled mutations.
+`packages/published-data` owns licensed published artifacts, their provenance,
+offline generated rows and declared mappings. It depends only on contracts.
+The web application's `src/lib/replay-sources.ts` combines the two registries
+for its server loader and replay route; the scenario package does not import
+or re-export published data. The fixture provider explicitly imports mappings
+from both owners. See [ADR 0023](adr/0023-separate-published-data-ownership.md).
+
 The overview links to `/replay?mode=guided` and `/architecture`. Case Replay
 at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
