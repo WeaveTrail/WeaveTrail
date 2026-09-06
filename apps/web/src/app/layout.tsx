@@ -65,7 +65,7 @@ export default function RootLayout({
             <span>WeaveTrail</span>
           </Link>
           <span className="header-context">
-            Deterministic fixture mode · synthetic data
+            Deterministic fixture mode · recorded source provenance
           </span>
         </header>
         <div className="app-shell">
@@ -81,7 +81,9 @@ export default function RootLayout({
             <div id="main-content">{children}</div>
             <footer className="site-footer">
               <span>Weave signals into replayable evidence.</span>
-              <span>Synthetic data only · fixture provider</span>
+              <span>
+                Synthetic cases and published quotes · fixture provider
+              </span>
             </footer>
           </div>
         </div>

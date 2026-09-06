@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-import { TradeEventSchema } from "./trade-event";
+import { LegacyTradeEventSchema } from "./trade-event";
 
 // Deliberate allowlist: new internal event fields must not leak into this view.
-export const SourceTraceEventSchema = TradeEventSchema.pick({
+export const SourceTraceEventSchema = LegacyTradeEventSchema.pick({
   schemaVersion: true,
   eventId: true,
   sourceEventId: true,
@@ -26,7 +26,7 @@ export const SourceTraceRowSchema = z
   .object({
     coordinate: z
       .object({
-        sourceArtifactHash: TradeEventSchema.shape.rawRowHash,
+        sourceArtifactHash: LegacyTradeEventSchema.shape.rawRowHash,
         rowNumber: z.string().regex(/^[1-9]\d*$/),
       })
       .strict(),

@@ -7,8 +7,8 @@ verification. It is not a production market-surveillance system.
 
 - The repository currently uses deterministic fixtures, not a live AI mapping
   provider.
-- The public deployment configuration uses fixture mode with synthetic data
-  only and contains no model-provider credential.
+- The deployment configuration uses fixture proposals over committed synthetic
+  and licensed published source artifacts; it contains no model-provider credential.
 - Case Replay uses a supported synthetic case and a separate Dialect B mapping
   review example. Dialect B has no rule manifest; its justified override cannot
   authorize the worked case. The guide is not a missing/conflicting-source
@@ -27,7 +27,8 @@ verification. It is not a production market-surveillance system.
   `INPUT_REVIEW_REQUIRED` starts a new request at `UPLOADED`.
 - Mapping-only foundation validation ends at `MAPPING_APPROVED`; only an
   approved case rule replay reaches `REPLAYED`.
-- All data is synthetic, so no result establishes real-market accuracy.
+- Rule evaluations use synthetic cases. The published daily quote artifact
+  demonstrates normalization only and does not establish real-market rule accuracy.
 - Rule thresholds are illustrative per-case configuration, not calibrated
   market thresholds. The three declared outcomes are synthetic-fixture
   results, not a detection-rate measurement.
@@ -53,3 +54,10 @@ verification. It is not a production market-surveillance system.
 Do not use this prototype to determine guilt, make legal findings, recommend or
 execute trades, process undisclosed personal data, or replace qualified human
 review.
+
+The published FSC KOSPI daily quotation window has no participant identities,
+execution side or individual execution time. It normalizes after explicit
+mapping approval, but an attempted case actor is refused before rule evaluation.
+Its first-page sample is not the entire market. No actor, side, order or pattern
+verdict is invented for a real instrument. See
+[daily quote normalization](DAILY_QUOTES.md) for exact provenance and reproduction.

@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     "@weavetrail/contracts",
     "@weavetrail/replay-engine",
     "@weavetrail/scenarios",
+    "@weavetrail/published-data",
   ],
 };
 

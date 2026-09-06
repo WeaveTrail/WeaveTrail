@@ -1,0 +1,432 @@
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { deriveFscStockQuotes } from "../../../scripts/derive-fsc-stock-quotes.mjs";
+import { retrieveFscStockQuotes } from "../../../scripts/retrieve-fsc-stock-quotes.mjs";
+import { saveFscOutputPair } from "../../../scripts/save-fsc-output-pair.mjs";
+import {
+  parseJsonLinesSourceArtifact,
+  sourceArtifactHash,
+} from "./source-ingest";
+
+// Synthetic values only. This is not captured publisher output.
+const window = { basDt: "20240229", market: "KOSPI" };
+const items = ["A", "B"].map((id) => ({
+  basDt: window.basDt,
+  srtnCd: `SYNTH-${id}`,
+  isinCd: `SYNTH-INSTRUMENT-${id}`,
+  itmsNm: `합성, "종목"\n${id}`,
+  mrktCtg: window.market,
+  clpr: "90071992547409931234567890.00100",
+  vs: "0",
+  fltRt: "0.0",
+  mkp: "90071992547409931234567890.00100",
+  hipr: "90071992547409931234567890.00100",
+  lopr: "90071992547409931234567890.00100",
+  trqu: "0001.0",
+  trPrc: "90071992547409931234567890.00100",
+  lstgStCnt: "1000",
+  mrktTotAmt: "90071992547409931234567890.00100",
+}));
+function envelope(value: unknown = items) {
+  return {
+    response: {
+      header: { resultCode: "00", resultMsg: "NORMAL SERVICE." },
+      body: { pageNo: 1, numOfRows: 40, totalCount: 2, items: { item: value } },
+    },
+  };
+}
+const encode = (value: unknown) =>
+  Buffer.from(JSON.stringify(value, null, 2) + "\n\n");
+const directories: string[] = [];
+afterEach(async () => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+  await Promise.all(
+    directories
+      .splice(0)
+      .map((path) => rm(path, { recursive: true, force: true })),
+  );
+});
+
+describe("offline response derivation with synthetic envelopes", () => {
+  it.each([1, 2])(
+    "cleans both derived outputs after a partial write at position %s and permits retry",
+    async (position) => {
+      const directory = await mkdtemp(
+        join(tmpdir(), "weavetrail-derivation-write-"),
+      );
+      directories.push(directory);
+      const jsonlPath = join(directory, "source.jsonl");
+      const rowsPath = join(directory, "rows.json");
+      const result = deriveFscStockQuotes(encode(envelope()), window);
+      const probe = await open(join(directory, "probe"), "wx");
+      const prototype = Object.getPrototypeOf(probe) as {
+        writeFile: typeof probe.writeFile;
+      };
+      const write = prototype.writeFile;
+      await probe.close();
+      let writes = 0;
+      vi.spyOn(prototype, "writeFile").mockImplementation(async function (
+        this: typeof probe,
+        ...args: Parameters<typeof write>
+      ) {
+        if (++writes === position) {
+          await this.write(Buffer.from("partial"));
+          throw new Error("synthetic derivation write failure");
+        }
+        return write.apply(this, args);
+      });
+      const save = () =>
+        saveFscOutputPair(
+          jsonlPath,
+          result.jsonl,
+          rowsPath,
+          result.generatedRows,
+        );
+      await expect(save()).rejects.toThrow(
+        "synthetic derivation write failure",
+      );
+      expect(writes).toBe(position);
+      await expect(readFile(jsonlPath)).rejects.toMatchObject({
+        code: "ENOENT",
+      });
+      await expect(readFile(rowsPath)).rejects.toMatchObject({
+        code: "ENOENT",
+      });
+      vi.restoreAllMocks();
+      await save();
+      expect(await readFile(jsonlPath, "utf8")).toBe(result.jsonl);
+      expect(await readFile(rowsPath, "utf8")).toBe(result.generatedRows);
+    },
+  );
+  it("keeps an existing rows output and leaves no orphan JSONL after CLI failure", async () => {
+    const directory = await mkdtemp(
+      join(tmpdir(), "weavetrail-derivation-test-"),
+    );
+    directories.push(directory);
+    const input = join(directory, "response.json");
+    const jsonlPath = join(directory, "source.jsonl");
+    const rowsPath = join(directory, "rows.json");
+    await writeFile(input, encode(envelope()));
+    await writeFile(rowsPath, "existing rows\n");
+    const run = () =>
+      spawnSync(
+        process.execPath,
+        [
+          "scripts/derive-fsc-stock-quotes.mjs",
+          input,
+          window.basDt,
+          window.market,
+          jsonlPath,
+          rowsPath,
+        ],
+        { encoding: "utf8" },
+      );
+    expect(run().status).toBe(1);
+    expect(await readFile(rowsPath, "utf8")).toBe("existing rows\n");
+    await expect(readFile(jsonlPath)).rejects.toMatchObject({ code: "ENOENT" });
+    await rm(rowsPath);
+    expect(run().status).toBe(0);
+    const expected = deriveFscStockQuotes(encode(envelope()), window);
+    expect(await readFile(jsonlPath, "utf8")).toBe(expected.jsonl);
+    expect(await readFile(rowsPath, "utf8")).toBe(expected.generatedRows);
+  });
+  it("reproduces full rows, ordered columns and exact JSONL/generated bytes through the existing parser", () => {
+    const bytes = encode(envelope());
+    const first = deriveFscStockQuotes(bytes, window);
+    const second = deriveFscStockQuotes(bytes, window);
+    expect(first).toEqual(second);
+    expect(first.jsonl).toBe(
+      items.map((item) => JSON.stringify(item)).join("\n") + "\n",
+    );
+    expect(first.rows.map(({ values }) => values)).toEqual(items);
+    expect(first.rows.map(({ values }) => Object.keys(values))).toEqual(
+      items.map(Object.keys),
+    );
+    expect(first.generatedRows).toBe(
+      JSON.stringify(first.rows, null, 2) + "\n",
+    );
+    expect(first.rows).toEqual(
+      parseJsonLinesSourceArtifact(
+        Buffer.from(first.jsonl),
+        first.sourceArtifactHash,
+      ),
+    );
+    expect(first.rows.map(({ coordinate }) => coordinate.rowNumber)).toEqual([
+      "1",
+      "2",
+    ]);
+    expect(first.rawResponseHash).toBe(sourceArtifactHash(bytes));
+    expect(first.generatedRowsHash).toBe(
+      sourceArtifactHash(Buffer.from(first.generatedRows)),
+    );
+    expect(first.rawResponseHash).not.toBe(first.sourceArtifactHash);
+  });
+
+  it.each([
+    null,
+    {},
+    [],
+    envelope([]),
+    envelope([items[0]]),
+    envelope(Array(41).fill(items[0])),
+    envelope([items[0], { ...items[1], trqu: 123 }]),
+    envelope([items[0], { ...items[1], clpr: null }]),
+    envelope([items[0], { ...items[1], extra: {} }]),
+    envelope([
+      items[0],
+      Object.fromEntries(
+        Object.entries(items[1]!).filter(([column]) => column !== "itmsNm"),
+      ),
+    ]),
+    envelope([items[0], { ...items[1], unexpected: "publisher drift" }]),
+    envelope([items[0], { ...items[1], basDt: "20240301" }]),
+    envelope([items[0], { ...items[1], mrktCtg: "KOSDAQ" }]),
+    envelope([items[0], { ...items[1], srtnCd: items[0]!.srtnCd }]),
+    envelope([items[0], { ...items[1], isinCd: items[0]!.isinCd }]),
+    envelope([items[0], { ...items[1], srtnCd: " " }]),
+    envelope([items[0], { ...items[1], isinCd: "" }]),
+  ])(
+    "fails closed on malformed envelopes and invalid complete windows",
+    (input) => {
+      expect(() => deriveFscStockQuotes(encode(input), window)).toThrow();
+    },
+  );
+
+  it("rejects provider errors separately from the shape and requires honest pagination", () => {
+    const failed = envelope();
+    failed.response.header.resultCode = "30";
+    expect(() => deriveFscStockQuotes(encode(failed), window)).toThrow(
+      "not successful",
+    );
+    const incomplete = envelope();
+    incomplete.response.body.totalCount = 100;
+    expect(() => deriveFscStockQuotes(encode(incomplete), window)).toThrow(
+      "pagination",
+    );
+    expect(() => deriveFscStockQuotes(Buffer.from([0xff]), window)).toThrow(
+      "UTF-8",
+    );
+  });
+});
+
+describe("manual acquisition boundaries with mocked transport", () => {
+  async function options() {
+    const directory = await mkdtemp(
+      join(tmpdir(), "weavetrail-acquisition-test-"),
+    );
+    directories.push(directory);
+    return {
+      ...window,
+      output: join(directory, "response.json"),
+      permissionCheckedAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  const requestFor = (bytes: Uint8Array) => async () =>
+    new Response(new Uint8Array(bytes).buffer, {
+      headers: { "content-type": "application/json" },
+    });
+
+  const expectMissing = async (path: string) => {
+    await expect(readFile(path)).rejects.toMatchObject({ code: "ENOENT" });
+  };
+
+  it("requires a key and same-day licence verification before any request", async () => {
+    const request = vi.fn();
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "");
+    const input = await options();
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toThrow(
+      "not configured",
+    );
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    await expect(
+      retrieveFscStockQuotes(
+        { ...input, permissionCheckedAt: "2000-01-01" },
+        request,
+      ),
+    ).rejects.toThrow("Recheck");
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it.each(["synthetic+test/key=", "synthetic%2Btest%2Fkey%3D"])(
+    "encodes the synthetic key once and preserves the entity bytes without overwrite (%s)",
+    async (key) => {
+      vi.stubEnv("DATA_GO_KR_SERVICE_KEY", key);
+      const input = await options();
+      const bytes = encode(envelope());
+      const request = vi.fn(async (url: URL | RequestInfo) => {
+        const parsed = new URL(String(url));
+        expect(parsed.searchParams.get("serviceKey")).toBe(
+          "synthetic+test/key=",
+        );
+        expect(
+          Object.fromEntries(
+            [...parsed.searchParams].filter(([name]) => name !== "serviceKey"),
+          ),
+        ).toEqual({
+          basDt: window.basDt,
+          resultType: "json",
+          pageNo: "1",
+          numOfRows: "40",
+          mrktCls: window.market,
+        });
+        return new Response(bytes, {
+          headers: { "content-type": "application/json" },
+        });
+      });
+      await retrieveFscStockQuotes(input, request);
+      expect(await readFile(input.output)).toEqual(bytes);
+      const receipt = await readFile(`${input.output}.receipt.json`, "utf8");
+      expect(JSON.parse(receipt)).toMatchObject({
+        parameters: { serviceKey: "REDACTED" },
+        rawResponseHash: createHash("sha256").update(bytes).digest("hex"),
+      });
+      expect(receipt).not.toContain("synthetic+test");
+      await expect(retrieveFscStockQuotes(input, request)).rejects.toThrow();
+      expect(request).toHaveBeenCalledTimes(1);
+      expect(await readFile(input.output)).toEqual(bytes);
+    },
+  );
+
+  it("preserves an existing original without creating a receipt", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const existing = Buffer.from("already frozen response");
+    await writeFile(input.output, existing);
+    const request = vi.fn(requestFor(encode(envelope())));
+
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
+
+    expect(request).not.toHaveBeenCalled();
+    expect(await readFile(input.output)).toEqual(existing);
+    await expectMissing(`${input.output}.receipt.json`);
+  });
+
+  it("preserves an existing receipt and removes this call's reserved original", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const receiptPath = `${input.output}.receipt.json`;
+    const existing = "already frozen receipt\n";
+    await writeFile(receiptPath, existing);
+    const request = vi.fn(requestFor(encode(envelope())));
+
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
+
+    expect(request).not.toHaveBeenCalled();
+    expect(await readFile(receiptPath, "utf8")).toBe(existing);
+    await expectMissing(input.output);
+
+    await rm(receiptPath);
+    await retrieveFscStockQuotes(input, requestFor(encode(envelope())));
+    expect(await readFile(input.output)).toEqual(encode(envelope()));
+  });
+
+  it("preserves both pre-existing acquisition outputs", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const receiptPath = `${input.output}.receipt.json`;
+    const existingResponse = Buffer.from("already frozen response");
+    const existingReceipt = "already frozen receipt\n";
+    await writeFile(input.output, existingResponse);
+    await writeFile(receiptPath, existingReceipt);
+    const request = vi.fn(requestFor(encode(envelope())));
+
+    await expect(retrieveFscStockQuotes(input, request)).rejects.toMatchObject({
+      code: "EEXIST",
+    });
+
+    expect(request).not.toHaveBeenCalled();
+    expect(await readFile(input.output)).toEqual(existingResponse);
+    expect(await readFile(receiptPath, "utf8")).toBe(existingReceipt);
+  });
+
+  it("rejects an incomplete quote row before freezing acquisition outputs", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const incomplete = Object.fromEntries(
+      Object.entries(items[1]!).filter(([column]) => column !== "itmsNm"),
+    );
+
+    await expect(
+      retrieveFscStockQuotes(
+        input,
+        requestFor(encode(envelope([items[0], incomplete]))),
+      ),
+    ).rejects.toThrow("complete declared quote column set");
+
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
+  });
+
+  it("removes both newly reserved files after an injected partial write failure", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const probe = await open(
+      join(input.output, "..", "file-handle-probe"),
+      "wx",
+    );
+    const fileHandlePrototype = Object.getPrototypeOf(probe) as {
+      writeFile: typeof probe.writeFile;
+    };
+    await probe.close();
+    let wrotePartialBytes = false;
+    vi.spyOn(fileHandlePrototype, "writeFile").mockImplementation(
+      async function (this: typeof probe) {
+        wrotePartialBytes = true;
+        await this.write(Buffer.from("partial"));
+        throw new Error("synthetic storage write failure");
+      } as typeof probe.writeFile,
+    );
+
+    await expect(
+      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
+    ).rejects.toThrow("synthetic storage write failure");
+    expect(wrotePartialBytes).toBe(true);
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
+
+    vi.restoreAllMocks();
+    await retrieveFscStockQuotes(input, requestFor(encode(envelope())));
+    expect(await readFile(input.output)).toEqual(encode(envelope()));
+  });
+
+  it("sanitizes transport failures and refuses HTTP errors, provider errors and echoed credentials", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-private-key");
+    const input = await options();
+    await expect(
+      retrieveFscStockQuotes(input, async () => {
+        throw new Error(
+          "https://example.invalid?serviceKey=synthetic-private-key",
+        );
+      }),
+    ).rejects.toThrow("Retrieval failed at the HTTP or transport boundary");
+    await expect(
+      retrieveFscStockQuotes(
+        input,
+        async () => new Response("", { status: 503 }),
+      ),
+    ).rejects.toThrow("HTTP or transport");
+    const failed = envelope();
+    failed.response.header.resultCode = "30";
+    await expect(
+      retrieveFscStockQuotes(input, async () => new Response(encode(failed))),
+    ).rejects.toThrow("not successful");
+    await expect(
+      retrieveFscStockQuotes(
+        input,
+        async () => new Response("synthetic-private-key"),
+      ),
+    ).rejects.toThrow("echoes credentials");
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
+  });
+});

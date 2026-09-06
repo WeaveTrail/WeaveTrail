@@ -11,7 +11,7 @@ const EventTimeSchema = z.iso
     "Expected an ISO datetime with an explicit offset and at most nanosecond precision",
   );
 
-export const TradeEventSchema = z
+export const LegacyTradeEventSchema = z
   .object({
     schemaVersion: z.literal("1.1"),
     eventId: z.string().min(1),
@@ -32,5 +32,15 @@ export const TradeEventSchema = z
     rawRowHash: z.string().regex(/^[a-f0-9]{64}$/),
   })
   .strict();
+
+export const DailyQuoteEventSchema = LegacyTradeEventSchema.extend({
+  schemaVersion: z.literal("1.2"),
+  eventType: z.literal("DAILY_QUOTE"),
+}).strict();
+
+export const TradeEventSchema = z.discriminatedUnion("schemaVersion", [
+  LegacyTradeEventSchema,
+  DailyQuoteEventSchema,
+]);
 
 export type TradeEvent = z.infer<typeof TradeEventSchema>;

@@ -44,6 +44,9 @@ importers:
       '@weavetrail/replay-engine':
         specifier: workspace:*
         version: link:../../packages/replay-engine
+      '@weavetrail/published-data':
+        specifier: workspace:*
+        version: link:../../packages/published-data
       '@weavetrail/scenarios':
         specifier: workspace:*
         version: link:../../packages/scenarios
@@ -69,6 +72,9 @@ importers:
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@weavetrail/published-data':
+        specifier: workspace:*
+        version: link:../published-data
       '@weavetrail/scenarios':
         specifier: workspace:*
         version: link:../scenarios
@@ -81,6 +87,12 @@ importers:
 
   packages/evals: {}
 
+  packages/published-data:
+    dependencies:
+      '@weavetrail/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/replay-engine:
     dependencies:
       '@weavetrail/contracts':
@@ -89,6 +101,11 @@ importers:
       '@weavetrail/scenarios':
         specifier: workspace:*
         version: link:../scenarios
+
+    devDependencies:
+      '@weavetrail/published-data':
+        specifier: workspace:*
+        version: link:../published-data
 
   packages/scenarios:
     dependencies:

@@ -11,9 +11,29 @@ import {
 
 const HASH = "a".repeat(64);
 
-function event(index: number, overrides: Partial<TradeEvent> = {}): TradeEvent {
+it("does not count synthetic daily quotes as eligible executions even with an actor and side", () => {
+  const daily = [0, 1, 2].map((index) => ({
+    ...event(index, { actorId: "actor-approved", side: "BUY" }),
+    schemaVersion: "1.2" as const,
+    eventType: "DAILY_QUOTE" as const,
+  }));
+  const result = evaluateRapidPriceLift(daily, manifest());
+  expect(result).toMatchObject({
+    result: "INCONCLUSIVE",
+    reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+    findings: [],
+    nonComparableEventCount: 0,
+  });
+});
+
+function event(
+  index: number,
+  overrides: Partial<Extract<TradeEvent, { schemaVersion: "1.1" }>> = {},
+): TradeEvent {
+  const base = concentratedBuyEvents[0]!;
+  if (base.schemaVersion !== "1.1") throw new Error("Expected legacy fixture");
   return {
-    ...concentratedBuyEvents[0]!,
+    ...base,
     eventId: `rule-event-${index}`,
     sourceEventId: `rule-source-${index}`,
     eventTime: `2026-08-25T00:00:0${index}Z`,

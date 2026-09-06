@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@weavetrail/contracts": "workspace:*",
+    "@weavetrail/published-data": "workspace:*",
     "@weavetrail/scenarios": "workspace:*"
   }
 }

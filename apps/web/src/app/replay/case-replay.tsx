@@ -17,6 +17,7 @@ import type {
   WorkflowState,
 } from "@weavetrail/contracts";
 import { requiresMappingOverride } from "@weavetrail/contracts";
+import type { SourceProvenance } from "@weavetrail/contracts";
 import {
   canonicalJson,
   type CanonicalJsonInput,
@@ -31,6 +32,7 @@ export type ReplayScenarioOption = {
   sourceArtifactHash: string;
   rows: ReplayRequest["rows"];
   manifest?: CaseManifestProposal;
+  provenance?: SourceProvenance;
 };
 
 export type CaseReplayProps = {
@@ -109,9 +111,13 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
         sourceArtifactHash: <code>{scenario.sourceArtifactHash}</code>
       </p>
       <p>
-        These synthetic source records are fixed. Values below are the original
-        strings, before mapping, shown in committed order.
+        These {scenario.provenance?.kind ?? "synthetic"} source records are
+        fixed. Values below are the original strings, before mapping, shown in
+        committed order.
       </p>
+      {scenario.provenance && (
+        <SourceProvenanceDetails provenance={scenario.provenance} />
+      )}
       {scenario.rows.map((row) => (
         <details
           key={row.coordinate.rowNumber}
@@ -132,6 +138,103 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
           </dl>
         </details>
       ))}
+    </section>
+  );
+}
+
+export function SourceProvenanceDetails({
+  provenance,
+}: {
+  provenance: SourceProvenance;
+}) {
+  if (provenance.kind === "synthetic") return <p>{provenance.attribution}</p>;
+  return (
+    <section aria-label="Published source provenance">
+      <h3>{provenance.title}</h3>
+      <p>
+        {provenance.titleEnglish} · {provenance.provider}
+      </p>
+      <dl>
+        <div>
+          <dt>Trading date (basDt)</dt>
+          <dd>{provenance.basDt}</dd>
+        </div>
+        <div>
+          <dt>Retrieved</dt>
+          <dd>{provenance.retrievedAt}</dd>
+        </div>
+        <div>
+          <dt>Venue scope</dt>
+          <dd>
+            {provenance.venue.value} · {provenance.venue.basis}
+          </dd>
+        </div>
+        <div>
+          <dt>Recorded usage permission</dt>
+          <dd>{provenance.licence.label}</dd>
+        </div>
+        <div>
+          <dt>Permission verified</dt>
+          <dd>{provenance.licence.checkedAt}</dd>
+        </div>
+        <div>
+          <dt>Attribution requirements</dt>
+          <dd>{provenance.licence.attributionRequirements}</dd>
+        </div>
+      </dl>
+      <p>{provenance.licence.attribution}</p>
+      <p>
+        <a href={provenance.originUrl}>Official source distribution</a> ·{" "}
+        <a href={provenance.licence.termsUrl}>Source terms</a>
+      </p>
+    </section>
+  );
+}
+
+export function DailyQuoteSemantics() {
+  return (
+    <section aria-label="Daily quote interpretation">
+      <h3>
+        Artifact kind: <code>DAILY_QUOTE</code>
+      </h3>
+      <p>
+        The trading date is interpreted as a day-start anchor at 00:00:00+09:00,
+        not an observed execution time or a publisher-returned offset.
+      </p>
+      <p>
+        Price represents the daily closing price. Quantity represents daily
+        aggregate volume. Each interpretation requires a nonblank reviewer
+        reason before mapping approval.
+      </p>
+    </section>
+  );
+}
+
+export function DailyQuoteCaseLimitation({
+  normalized,
+}: {
+  normalized: boolean;
+}) {
+  return (
+    <section aria-label="Daily quote case limitation">
+      <h3>Case approval unavailable</h3>
+      <p>
+        {normalized
+          ? "Published daily quotes normalized. "
+          : "Mapping approval enables source normalization. "}
+        This source supplies no participant identities or execution-side data.
+      </p>
+      <p>
+        The normalized actor profile is empty. Daily quotes supply a
+        trading-date anchor and daily aggregates, with no individual execution
+        time or detail.
+      </p>
+      <p>
+        A future case requires admissible genuine executions with execution
+        time, side, actor identity, price and quantity, followed by separately
+        reviewed case approval. Adding an actor alone cannot turn daily quotes
+        into trades.
+      </p>
     </section>
   );
 }
@@ -599,8 +702,9 @@ export function CaseReplay({
         <header className="journey-header panel">
           <div className="journey-links">
             <span className="panel-label">
-              {guided ? "Worked case · guided" : "Working mode"} · synthetic
-              data · fixture provider
+              {guided ? "Worked case · guided" : "Working mode"} ·{" "}
+              {selectedScenario.provenance?.kind ?? "synthetic"} data · fixture
+              provider
             </span>
             <Link href="/architecture">How it is built</Link>
           </div>
@@ -642,9 +746,11 @@ export function CaseReplay({
                 Case Replay controls
               </h2>
               <p>
-                Select a committed source, review its mapping and approve its
-                case before replay. Advanced controls change submitted source
-                order or duplicate one derived event after mapping.
+                {selectedScenario.manifest
+                  ? "Select a committed source, review its mapping and approve its case before replay."
+                  : "Review the source and approve its exact mapping to normalize it. This source has no case manifest or case evaluation."}{" "}
+                Advanced controls change submitted source order or duplicate one
+                derived event after mapping.
               </p>
             </>
           )}
@@ -676,9 +782,9 @@ export function CaseReplay({
               }}
               value={scenario}
             >
-              {scenarios.map(({ label, value }) => (
+              {scenarios.map(({ label, value, provenance }) => (
                 <option key={value} value={value}>
-                  {label}
+                  {label} · {provenance?.kind ?? "synthetic"}
                 </option>
               ))}
             </select>
@@ -762,6 +868,7 @@ export function CaseReplay({
               Proposed targets and allowlisted transforms, with confidence,
               evidence and review status. You approve this exact proposal.
             </p>
+            {proposal.mappingVersion === "1.5" && <DailyQuoteSemantics />}
             {proposal.fields.map((field, index) => (
               <div className="mapping-row" key={field.sourceColumn}>
                 <code>{field.sourceColumn}</code>
@@ -898,6 +1005,10 @@ export function CaseReplay({
               </button>
               {caseApproval && <ApprovalReceipt approval={caseApproval} />}
             </div>
+          ) : proposal.mappingVersion === "1.5" ? (
+            <DailyQuoteCaseLimitation
+              normalized={result?.workflowState === "MAPPING_APPROVED"}
+            />
           ) : null}
         </div>
         <div hidden={!show(3) || mappingExample}>
@@ -911,7 +1022,13 @@ export function CaseReplay({
             onClick={() => runReplay()}
             type="button"
           >
-            {running ? "Replaying…" : "Run deterministic replay"}
+            {proposal.mappingVersion === "1.5"
+              ? running
+                ? "Normalizing…"
+                : "Normalize source"
+              : running
+                ? "Replaying…"
+                : "Run deterministic replay"}
           </button>
           {guided && completeResult && (
             <WorkflowStateBadge state={result.workflowState} />
@@ -939,6 +1056,12 @@ export function CaseReplay({
         {result ? (
           <>
             <WorkflowStateBadge state={result.workflowState} />
+            {result.workflowState === "MAPPING_APPROVED" && (
+              <p>
+                Mapping and normalization only. No case has been approved or
+                evaluated.
+              </p>
+            )}
             <p>
               Engine version: <code>{result.replay.engineVersion}</code>
             </p>
@@ -1007,61 +1130,68 @@ export function CaseReplay({
             <span className="empty-mark" aria-hidden="true">
               WT
             </span>
-            <h2>Ready to replay</h2>
+            <h2>
+              {selectedScenario.manifest
+                ? "Ready to replay"
+                : "Ready to normalize"}
+            </h2>
             <p>
-              Review the source and explicitly approve its mapping and case. A
-              foundation-only replay has no case evaluation.
+              {selectedScenario.manifest
+                ? "Review the source and explicitly approve its mapping and case."
+                : "Review the source and explicitly approve its mapping, including any required interpretation reasons. Normalization has no case evaluation."}
             </p>
           </div>
         )}
       </div>
-      {!mappingExample && (!guided || chapter === 5) && (
-        <section className="panel repeat-panel">
-          <h3>Same-input repeatability</h3>
-          <p>
-            Repeat the same approved case and compare the two server-returned
-            hashes as strings. This does not establish authenticity, real-market
-            accuracy or general mutation tolerance.
-          </p>
-          <button
-            className="button"
-            disabled={
-              running ||
-              !approval ||
-              !caseApproval ||
-              (!completeResult && !previousHash)
-            }
-            onClick={() => runReplay(true)}
-            type="button"
-          >
-            {running ? "Replaying…" : "Repeat the same approved case"}
-          </button>
-          {previousHash && (
-            <div className="hash-block">
-              <span>Previous returned hash</span>
-              <code>{previousHash}</code>
-              {completeResult && (
-                <>
-                  <span>Repeated returned hash</span>
-                  <code>{result.replay.canonicalResultHash}</code>
-                  <strong>
-                    {previousHash === result.replay.canonicalResultHash
-                      ? "MATCH · same-input repeatability"
-                      : "MISMATCH · retry or inspect the returned results"}
-                  </strong>
-                </>
-              )}
-            </div>
-          )}
-        </section>
-      )}
+      {!mappingExample &&
+        selectedScenario.manifest &&
+        (!guided || chapter === 5) && (
+          <section className="panel repeat-panel">
+            <h3>Same-input repeatability</h3>
+            <p>
+              Repeat the same approved case and compare the two server-returned
+              hashes as strings. This does not establish authenticity,
+              real-market accuracy or general mutation tolerance.
+            </p>
+            <button
+              className="button"
+              disabled={
+                running ||
+                !approval ||
+                !caseApproval ||
+                (!completeResult && !previousHash)
+              }
+              onClick={() => runReplay(true)}
+              type="button"
+            >
+              {running ? "Replaying…" : "Repeat the same approved case"}
+            </button>
+            {previousHash && (
+              <div className="hash-block">
+                <span>Previous returned hash</span>
+                <code>{previousHash}</code>
+                {completeResult && (
+                  <>
+                    <span>Repeated returned hash</span>
+                    <code>{result.replay.canonicalResultHash}</code>
+                    <strong>
+                      {previousHash === result.replay.canonicalResultHash
+                        ? "MATCH · same-input repeatability"
+                        : "MISMATCH · retry or inspect the returned results"}
+                    </strong>
+                  </>
+                )}
+              </div>
+            )}
+          </section>
+        )}
       {!mappingExample && (
         <section className="panel" hidden={guided && chapter !== 6}>
           <h3>What runs today</h3>
           <p>
-            Synthetic committed sources, a deterministic fixture mapping
-            provider, explicit human approvals, one versioned rule and
-            server-resolved finding evidence.
+            Synthetic committed sources and one licensed published daily-quote
+            source, a deterministic fixture mapping provider, explicit human
+            approvals, one versioned rule and server-resolved finding evidence.
           </p>
           <p>
             A real deployment would additionally need governed data ingestion,
