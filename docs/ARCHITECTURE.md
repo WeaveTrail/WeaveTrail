@@ -69,17 +69,19 @@ than implemented today.
 
 Published artifacts declare `bounded-window` or `complete-series` beside their
 provenance. The existing FSC first-page window remains unchanged. A complete
-series fixes an exact instrument/series/date selector before retrieval, retains
-every returned page in order and requires row count equality with an unchanged
-publisher total. Value predicates and incomplete pagination are refused.
+series fixes a single date or half-open range and a closed identity, family or
+date selector before retrieval, retains every returned page in order and
+requires row count equality with an unchanged publisher total. Value predicates
+and incomplete pagination are refused.
 
-The manual collector uses reviewed publisher adapters; only synthetic transport
-fixtures are supplied for complete series today. Offline admission compares
-committed rows and requests with the original page bytes. Neither acquisition
+The manual collector uses reviewed publisher adapters; automated transport tests
+remain synthetic. Offline admission compares committed rows, generated source
+coordinates and requests with the original page bytes. Neither acquisition
 scope enters canonical events or approval hashes. Tests, CI, builds and runtime
 use no acquisition network transport. See
 [Published acquisition scopes](PUBLISHED_ACQUISITION.md) and
-[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md).
+[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
+[ADR 0026](adr/0026-declare-published-market-family-and-range-scopes.md).
 
 ### Layer boundaries
 

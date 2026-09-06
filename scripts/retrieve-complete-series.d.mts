@@ -1,5 +1,6 @@
 import type {
   CompleteSeriesDeclaration,
+  PublisherObservation,
   SeriesAdapter,
   SeriesRecord,
   SeriesRequest,
@@ -12,6 +13,10 @@ export type SeriesTransport = SeriesAdapter & {
   ): Promise<Response>;
 };
 export function retrieveCompleteSeries(
-  options: { declaration: CompleteSeriesDeclaration; output: string },
+  options: {
+    declaration: CompleteSeriesDeclaration;
+    output: string;
+    publisherObservations?: PublisherObservation[];
+  },
   adapter: SeriesTransport,
 ): Promise<SeriesRecord>;
