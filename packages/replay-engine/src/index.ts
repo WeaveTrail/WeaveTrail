@@ -6,6 +6,7 @@ export * from "./canonical-order";
 export * from "./canonicalize";
 export * from "./case-validation";
 export * from "./dataset-profile";
+export * from "./evidence-bundle-hash";
 export * from "./mapping-evaluation";
 export * from "./rapid-price-lift";
 export * from "./request-workflow";

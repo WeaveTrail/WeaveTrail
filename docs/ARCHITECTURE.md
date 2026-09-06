@@ -269,7 +269,9 @@ It never executes code written by a model.
 
 ### Evidence boundary
 
-Canonical hashes exclude volatile metadata. Findings refer to canonical
+Semantic canonical hashes exclude volatile metadata. The separately defined
+bundle hash covers the complete supplied approval records, including audit
+metadata. Findings refer to canonical
 `eventId` values, and those events retain `sourceEventId` and `rawRowHash` so a
 reviewer can reach the source row. The committed synthetic fixtures derive
 those identifiers from exact source-artifact bytes and raw rows rather than
@@ -299,13 +301,47 @@ establish attribution, guilt, or causation. Schema validation establishes the
 bundle's shape, not that metrics were recomputed or that evidence is authentic.
 
 Runtime replay behavior is unchanged. Bundle assembly, export, and independent
-verification remain planned. The declared bundle continues to require a
+verification remain planned. The 1.2 contract continues to require a
 sensitivity object, while the running rule result uses `null` for
-`INCONCLUSIVE`; result-specific bundle policy remains planned in
-[the public bundle-verification issue](https://github.com/WeaveTrail/WeaveTrail/issues/13).
+`INCONCLUSIVE`. The opt-in 1.3 contract below resolves this shape mismatch;
+1.2 consumers retain their explicit migration boundary.
 The contract regressions in
 [`evidence-bundle.test.ts`](../packages/contracts/src/evidence-bundle.test.ts)
 exercise these strict migration boundaries with illustrative synthetic inputs.
+
+### Evidence Bundle 1.3 hash scopes
+
+`EvidenceBundleV13Schema` is a separate, strict declaration for planned assembly
+and verification. `EvidenceBundleSchema` still validates only 1.2; there is no
+implicit conversion. Version 1.3 stores source-artifact declarations, complete
+mapping/case proposals and supplied approval records, workflow state, and an
+optional `replay` group. A present group contains canonical events, engine
+version, dataset/result hashes and an optional complete engine evaluation.
+Reusing that evaluation preserves finding `gate` and INCONCLUSIVE's reason,
+empty findings and null sensitivity. Missing normalization omits `replay`;
+normalization without a rule result omits only `replay.evaluation`.
+
+The FSC daily quotation artifact ends at `MAPPING_APPROVED` with a result hash
+but no evaluation or case manifest. Event 1.1/1.2, Proposal 1.4/1.5 and Manifest
+1.3 retain their own versions inside this declaration. Hashing converts none
+of them and invents no missing fields.
+
+`canonicalResultHash` protects exactly the engine version, 15-field canonical
+event projection and evaluation when present. It alone does not bind case
+scope, approved mappings or manifests. `bundleHash` covers every 1.3 field
+except itself, including the complete proposals, approvals, source-artifact
+declarations and event collection metadata. Audit metadata can change this
+enclosing hash without changing the semantic result hash.
+
+The normative preimages, exhaustive protected/excluded field table, canonical
+serialization and migration notes are published in
+[Evidence hash scopes](EVIDENCE_HASH_SCOPES.md), with the decision in
+[ADR 0024](adr/0024-define-evidence-hash-scopes.md). Schema and serialization
+coverage tests enforce their agreement. Only contracts and the pure bundle
+hash primitive are implemented here: assembly, export and independent
+verification remain planned in
+[#13](https://github.com/WeaveTrail/WeaveTrail/issues/13). Hashing a declaration
+does not validate its claimed relationships or authenticate its evidence.
 
 ## Package boundaries
 
@@ -337,8 +373,8 @@ For one validated dataset and approved manifest:
 - after exact duplicate collapse, canonical `eventId` values are unique across
   source identities or replay fails with `CONFLICTING_EVENT_IDENTIFIER` before
   ordering and hashing;
-- canonical hashes cover an explicit semantic event projection and exclude
-  collection metadata (`receivedAt` and `rawRowHash`);
+- canonical dataset and result hashes cover an explicit semantic event
+  projection and exclude collection metadata (`receivedAt` and `rawRowHash`);
 - equivalent approved CSV and JSON Lines dialects converge to the same
   `canonicalDatasetHash` and replay result while retaining distinct artifact
   and row hashes;
@@ -351,8 +387,20 @@ For one validated dataset and approved manifest:
 - ratio gates compare exact scaled-integer cross-products;
 - `canonicalResultHash` includes engine version and canonical events, plus the
   rule result, findings, and sensitivity when evaluation occurs;
+- that preimage contains the complete evaluation, including finding gates,
+  non-comparable event count and any INCONCLUSIVE reason; it contains no
+  mapping, manifest or approval hash, so the result hash alone does not bind
+  case scope;
 - response `workflowState` is outside `canonicalResultHash` input;
 - reruns produce the same `canonicalResultHash`.
+
+Both result hashing and the separately defined bundle hashing use recursive
+UTF-16 code-unit key sorting, omit undefined object properties, reject
+non-finite numbers and use RFC 8785 section 3.2.2.3 finite-number spelling.
+They preserve array order and hash the UTF-8 canonical JSON without a trailing
+newline. No full JCS compliance is claimed. The complete definition and scope
+table are in [Evidence hash scopes](EVIDENCE_HASH_SCOPES.md); the engine version
+remains `0.7.0-canonical-decimal` and existing literal goldens remain unchanged.
 
 Fixed-precision time normalization, locale-independent ordering, mixed-sequence
 rejection, every permutation of the committed four-event fixture,
@@ -375,8 +423,9 @@ for the rule formula and abstention boundary.
 ## Provenance contract migration
 
 Hash names identify one boundary rather than relying on context. Mapping
-proposal `1.4` uses `sourceArtifactHash`; case manifest `1.3` and Evidence
-Bundle `1.2` use `canonicalDatasetHash`; bundles additionally list the
+proposals `1.4`/`1.5` use `sourceArtifactHash`; case manifest `1.3` and Evidence
+Bundle `1.2` use `canonicalDatasetHash`, as does the optional `replay` group in
+Bundle `1.3`; bundles additionally list the
 `sourceArtifactHash` of every declared artifact. Legacy `datasetHash` fields are
 not accepted by the new strict contracts. See
 [ADR 0005](adr/0005-derive-source-provenance.md) for derivation and migration

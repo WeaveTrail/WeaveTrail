@@ -38,6 +38,17 @@ verification. It is not a production market-surveillance system.
 - Finite-number spelling is specified, but independent Evidence Bundle
   assembly and verification remain planned. The implementation does not claim
   full JSON Canonicalization Scheme compliance.
+- [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define contracts
+  and a pure declaration hash, not an exported or independently verified bundle.
+  Schema validation and hashing do not resolve source bytes, bind approval
+  records, recompute a replay or authenticate evidence; those checks remain
+  planned in #13. The legacy 1.2 schema stays available but cannot represent
+  normalization without a rule result or the complete engine evaluation.
+- `canonicalResultHash` alone does not bind case scope: approved mappings,
+  manifests and complete audit records belong to `bundleHash`. A changed
+  approval time can change the latter without changing the semantic result
+  hash. The published FSC artifact has a foundation result hash after mapping
+  approval, but no case or rule evaluation; it is not an INCONCLUSIVE rule run.
 
 ## Interpretation limits
 
