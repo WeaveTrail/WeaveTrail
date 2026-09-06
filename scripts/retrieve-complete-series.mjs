@@ -48,6 +48,27 @@ export async function retrieveCompleteSeries({ declaration, output }, adapter) {
         "Credential disclosure refused; no complete acquisition was saved",
       );
   };
+  const guardDecodedJson = (text) => {
+    let value;
+    try {
+      value = JSON.parse(text);
+    } catch {
+      return;
+    }
+    const visit = (child) => {
+      if (typeof child === "string") {
+        guard(child);
+      } else if (Array.isArray(child)) {
+        child.forEach(visit);
+      } else if (child !== null && typeof child === "object") {
+        for (const [key, nested] of Object.entries(child)) {
+          guard(key);
+          visit(nested);
+        }
+      }
+    };
+    visit(value);
+  };
   guard(JSON.stringify(state.declaration));
   // Reserve a new directory before any request; never reuse existing outputs.
   await mkdir(output);
@@ -90,11 +111,11 @@ export async function retrieveCompleteSeries({ declaration, output }, adapter) {
         if (!response.ok || response.redirected)
           throw new Error("HTTP failure");
         bytes = new Uint8Array(await response.arrayBuffer());
+        const responseText = new TextDecoder().decode(bytes);
         guard(
-          new TextDecoder().decode(bytes) +
-            "\n" +
-            (response.headers.get("content-type") ?? ""),
+          responseText + "\n" + (response.headers.get("content-type") ?? ""),
         );
+        guardDecodedJson(responseText);
       } catch {
         throw new Error(
           "Retrieval failed at the HTTP, transport or credential boundary",

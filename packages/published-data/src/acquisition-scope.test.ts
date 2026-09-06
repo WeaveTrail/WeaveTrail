@@ -243,6 +243,31 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     ).toEqual(record);
   });
 
+  it("preserves original response bytes when a decoder mutates its input", async () => {
+    clock();
+    const path = await output();
+    const client = transport();
+    client.decodePage = (bytes, fixed) => {
+      const decoded = adapter.decodePage(bytes, fixed);
+      bytes.fill(0);
+      return decoded;
+    };
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      client,
+    );
+    const originals = [pageBytes(1), pageBytes(2), pageBytes(3)];
+    const retained = await Promise.all(
+      record.pages.map(({ file }) => readFile(join(path, file))),
+    );
+    expect(retained).toEqual(originals);
+    expect(record.pages.map(({ sha256 }) => sha256)).toEqual(
+      originals.map((bytes) =>
+        createHash("sha256").update(bytes).digest("hex"),
+      ),
+    );
+  });
+
   it("rejects a truncated committed source even when its recorded hash and row count are rewritten", async () => {
     clock();
     const path = await output();
@@ -328,8 +353,16 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     for (const invalid of [
       { ...valid, provider: "" },
       { ...valid, originUrl: "http://example.invalid/source" },
+      { ...valid, originUrl: "https://token@example.invalid/source" },
       { ...valid, retrievedAt: "not-a-time" },
       { ...valid, licence: { ...valid.licence, label: "" } },
+      {
+        ...valid,
+        licence: {
+          ...valid.licence,
+          termsUrl: "https://token@example.invalid/terms",
+        },
+      },
       { ...valid, licence: { ...valid.licence, attribution: "" } },
       { ...valid, licence: { ...valid.licence, checkedAt: "not-a-time" } },
       { ...valid, retrievedAt: "2026-09-06T00:00:03.000Z" },
@@ -535,22 +568,29 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     },
   );
 
-  it("detects a JSON-escaped credential before saving a response", async () => {
-    clock();
-    const secret = 'synthetic"key\\line\nnext';
-    const client = transport();
-    client.secrets = () => [secret];
-    client.fetchPage = vi.fn(
-      async () => new Response(JSON.stringify({ echoedCredential: secret })),
-    );
-    const path = await output();
-    await expect(
-      retrieveCompleteSeries({ declaration, output: path }, client),
-    ).rejects.toThrow(
-      "Retrieval failed at the HTTP, transport or credential boundary",
-    );
-    await expect(access(path)).rejects.toMatchObject({ code: "ENOENT" });
-  });
+  it.each([
+    [
+      'synthetic"key\\line\nnext',
+      JSON.stringify({ echoedCredential: 'synthetic"key\\line\nnext' }),
+    ],
+    ["api/key", '{"metadata":"api\\/key"}'],
+    ["apiKey", '{"\\u0061piKey":"unrelated-value"}'],
+  ])(
+    "detects the decoded JSON credential %s before saving a response",
+    async (secret, responseBody) => {
+      clock();
+      const client = transport();
+      client.secrets = () => [secret];
+      client.fetchPage = vi.fn(async () => new Response(responseBody));
+      const path = await output();
+      await expect(
+        retrieveCompleteSeries({ declaration, output: path }, client),
+      ).rejects.toThrow(
+        "Retrieval failed at the HTTP, transport or credential boundary",
+      );
+      await expect(access(path)).rejects.toMatchObject({ code: "ENOENT" });
+    },
+  );
 });
 
 describe("committed acquisition scope inventory", () => {

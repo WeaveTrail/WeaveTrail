@@ -157,7 +157,7 @@ export function startCompleteSeries(declaration, adapter) {
 export function appendCompleteSeriesPage(state, bytes, adapter) {
   // Decoding all returned rows and checking provider success is adapter-owned;
   // adapters must expose the complete item array with no projection/filtering.
-  const page = adapter.decodePage(bytes, state.declaration);
+  const page = adapter.decodePage(bytes.slice(), state.declaration);
   const pageNumber = String(state.pages.length + 1);
   const total = count(page.total);
   if (

@@ -22,7 +22,8 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
   const text = (value) => typeof value === "string" && value.trim().length > 0;
   const https = (value) => {
     try {
-      return new URL(value).protocol === "https:";
+      const url = new URL(value);
+      return url.protocol === "https:" && !url.username && !url.password;
     } catch {
       return false;
     }

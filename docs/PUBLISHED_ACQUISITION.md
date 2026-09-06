@@ -80,7 +80,8 @@ honor the 30-second abort signal and `redirect: "error"`, and inject credentials
 from its environment without changing the declared selection. It exposes no
 credentials in the recorded request. `secrets()` supplies raw/decoded credential
 forms for the guard; the collector also checks percent, form and JSON-string
-escaping.
+escaping. When a response is valid JSON, it additionally walks every decoded
+object key and string value, covering equivalent slash and Unicode escape forms.
 Credential echoes, failed HTTP status, redirects and transport exceptions fail
 closed; transport/decode errors are replaced with messages without raw URLs.
 No real adapter semantics or publisher observations are asserted here. The
@@ -98,6 +99,8 @@ total, inconsistent page or missing row stops acquisition and requires review,
 not trimming or a fallback scope.
 
 Original entity bytes are saved to `page-N.response` without reserialization.
+The decoder receives a copy so adapter parsing cannot mutate the retained or
+hashed HTTP entity.
 `source.jsonl` concatenates every decoded item in page/item order, compact
 `JSON.stringify` per item with LF separators and a final LF for nonempty data.
 Values and column insertion order remain intact. Source hashing is ordinary
