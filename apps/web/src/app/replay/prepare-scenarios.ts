@@ -2,6 +2,7 @@ import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
 import { committedReplaySources } from "../../lib/replay-sources";
 import type { SchemaMappingProposal } from "@weavetrail/contracts";
 import type { ReplayScenarioOption } from "./case-replay";
+import { mappingRequestRequired } from "../../lib/mapping-provider";
 
 // Both modes receive the same server-prepared artifacts, never fixture approvals.
 export async function prepareReplayScenarios() {
@@ -20,6 +21,9 @@ export async function prepareReplayScenarios() {
         provenance: source.provenance,
         sourceArtifactHash: source.sourceArtifactHash,
         rows: source.rows,
+        mappingRequestRequired: mappingRequestRequired(
+          value as ReplayScenarioOption["value"],
+        ),
         ...(manifest ? { manifest } : {}),
       };
       const proposal = await provider.propose({

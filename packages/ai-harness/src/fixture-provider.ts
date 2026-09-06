@@ -74,6 +74,11 @@ export const fixtureMappingsByArtifact = new Map(
 
 export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
   readonly mode = "fixture" as const;
+  readonly trace = {
+    mode: this.mode,
+    model: "registered-mapping",
+    promptVersion: "fixture-mapping/1",
+  };
 
   async propose(input: MappingInput): Promise<SchemaMappingProposal> {
     const artifactMapping = fixtureMappingsByArtifact.get(

@@ -103,6 +103,8 @@ describe("provider client boundary", () => {
     ).toBe(true);
 
     for (const file of clientFiles) {
+      expect(file).not.toContain("/ai-harness/src/configured-provider");
+      expect(file).not.toContain("/lib/mapping-provider");
       const source = readFileSync(file, "utf8");
       for (const variable of forbiddenProviderVariables) {
         expect(source, `${variable} reached ${file}`).not.toContain(variable);

@@ -167,8 +167,12 @@ and that approval cannot authorize the worked case. Repeating the same approved
 case returns a second hash to compare against the first.
 
 Approvals and results live in the mounted view only, so a refresh starts
-unapproved; the walkthrough is one worked path, not a scenario suite. Live model
-proposals and independent bundle export remain planned. [Contributing](CONTRIBUTING.md)
+unapproved; the walkthrough is one worked path, not a scenario suite. An
+explicitly configured provider can propose mappings for the two synthetic
+dialects after a reviewer requests one; fixture mode remains the default.
+Transport checks are mocked, with no live vendor quality claim. See
+[deployment configuration](docs/DEPLOYMENT.md). Live case proposals and
+independent bundle export remain planned. [Contributing](CONTRIBUTING.md)
 covers running it locally.
 
 ## Documentation

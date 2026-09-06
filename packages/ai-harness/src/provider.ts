@@ -7,7 +7,14 @@ export type MappingInput = {
   sampleRows: Array<Record<string, unknown>>;
 };
 
+export type ProviderTrace = {
+  mode: "fixture" | "ai";
+  model: string;
+  promptVersion: string;
+};
+
 export interface SchemaMappingProvider {
   readonly mode: "fixture" | "ai";
+  readonly trace: ProviderTrace;
   propose(input: MappingInput): Promise<SchemaMappingProposal>;
 }

@@ -5,8 +5,12 @@ verification. It is not a production market-surveillance system.
 
 ## Current limitations
 
-- The repository currently uses deterministic fixtures, not a live AI mapping
-  provider.
+- Deterministic fixtures remain the default. The configured mapping adapter is
+  tested with mocked transport only; no live provider quality or compatibility
+  is claimed. Only the two committed synthetic source dialects are eligible.
+  Configured proposals expire after 30 minutes and need a new request and
+  approval; durable provider audit storage and identity/spending controls do
+  not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
 - The deployment configuration uses fixture proposals over committed synthetic
   and licensed published source artifacts; it contains no model-provider credential.
 - Case Replay uses a supported synthetic case and a separate Dialect B mapping

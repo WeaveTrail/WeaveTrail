@@ -14,8 +14,12 @@ import type {
   SchemaMappingProposal,
   SourceTrace,
   WorkflowState,
+  MappingResponse,
 } from "@weavetrail/contracts";
-import { requiresMappingOverride } from "@weavetrail/contracts";
+import {
+  MappingResponseSchema,
+  requiresMappingOverride,
+} from "@weavetrail/contracts";
 import type { SourceProvenance } from "@weavetrail/contracts";
 import {
   canonicalJson,
@@ -43,6 +47,7 @@ export type ReplayScenarioOption = {
   rows: ReplayRequest["rows"];
   manifest?: CaseManifestProposal;
   provenance?: SourceProvenance;
+  mappingRequestRequired?: boolean;
 };
 
 export type CaseReplayProps = {
@@ -639,8 +644,17 @@ export function CaseReplay({
   const [reviewReasons, setReviewReasons] = useState<Record<string, string>>(
     {},
   );
+  const [requestedMapping, setRequestedMapping] =
+    useState<MappingResponse | null>(null);
+  const [requestingMapping, setRequestingMapping] = useState(false);
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
-  const proposal = proposals[selectedScenario.sourceArtifactHash]!;
+  const proposal =
+    requestedMapping?.proposal ??
+    proposals[selectedScenario.sourceArtifactHash]!;
+  const proposalPending =
+    selectedScenario.mappingRequestRequired === true &&
+    requestedMapping === null;
+  const displayedProviderMode = requestedMapping?.mode ?? providerMode;
   const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
   const exampleScenario = scenarios.find(
     ({ value }) => value === reviewExample,
@@ -704,6 +718,8 @@ export function CaseReplay({
       setApproval(null);
       setCaseApproval(null);
       setReviewReasons({});
+      setRequestedMapping(null);
+      setRequestingMapping(false);
     }
     previousGuided.current = guided;
   }, [guided, guidedScenario]);
@@ -732,7 +748,16 @@ export function CaseReplay({
     }
   }
 
-  const guideStep = guideSteps[chapter]!;
+  const guideStep =
+    chapter === 1 && exampleScenario?.mappingRequestRequired
+      ? {
+          ...guideSteps[1]!,
+          purpose:
+            "The worked case uses a fixture proposal. The separate Dialect B example requests a configured proposal and stops if validation fails. Review each proposal's displayed provider and evidence before approval.",
+          action:
+            "Request and review the separate example's mapping, then approve the worked case's own mapping.",
+        }
+      : guideSteps[chapter]!;
   const panelLabel = (order: string, label: string) =>
     guided ? label : `${order} · ${label}`;
 
@@ -777,6 +802,7 @@ export function CaseReplay({
     setError(null);
     setWorkflowState(null);
     setRunning(false);
+    setRequestingMapping(false);
     setEvidenceOpened(false);
     setPreviousHash(null);
     setSubmittedOrder(null);
@@ -784,7 +810,7 @@ export function CaseReplay({
   }
 
   async function approveMapping() {
-    if (unresolvedReview) return;
+    if (unresolvedReview || proposalPending || requestingMapping) return;
     const generation = invalidateResult();
     setCaseApproval(null);
     setApproval(null);
@@ -797,6 +823,41 @@ export function CaseReplay({
     setApproval(attempt.approval);
     onMappingApprovalChange?.(attempt.approval !== null);
     setError(attempt.error);
+  }
+
+  async function requestMapping() {
+    const generation = invalidateResult();
+    setApproval(null);
+    setCaseApproval(null);
+    setReviewReasons({});
+    setRequestedMapping(null);
+    onMappingApprovalChange?.(false);
+    setRequestingMapping(true);
+    try {
+      const response = await fetch("/api/mapping", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ scenario }),
+      });
+      if (!response.ok) throw new Error("Mapping request rejected");
+      const mapping = MappingResponseSchema.parse(await response.json());
+      if (generation !== requestGeneration.current) return;
+      if (
+        mapping.proposal.sourceArtifactHash !==
+        selectedScenario.sourceArtifactHash
+      )
+        throw new Error("Mapping artifact mismatch");
+      setRequestedMapping(mapping);
+      setWorkflowState("MAPPING_PROPOSED");
+    } catch {
+      if (generation !== requestGeneration.current) return;
+      setWorkflowState("MAPPING_REVIEW_REQUIRED");
+      setError(
+        "REVIEW_REQUIRED: Mapping proposal unavailable or rejected. Request a new proposal before approval.",
+      );
+    } finally {
+      if (generation === requestGeneration.current) setRequestingMapping(false);
+    }
   }
 
   async function approveCase() {
@@ -813,6 +874,8 @@ export function CaseReplay({
     if (
       running ||
       !approval ||
+      proposalPending ||
+      requestingMapping ||
       unresolvedReview ||
       (repeat && !completeResult && previousHash === null) ||
       (selectedScenario.manifest && !caseApproval)
@@ -840,6 +903,9 @@ export function CaseReplay({
         mutation,
         rows,
         mappingApproval: approval,
+        ...(requestedMapping?.mode === "ai"
+          ? { mappingReceipt: requestedMapping.mappingReceipt }
+          : {}),
         ...(selectedScenario.manifest && caseApproval
           ? {
               caseManifest: {
@@ -1006,6 +1072,8 @@ export function CaseReplay({
                 setError(reset.error);
                 setWorkflowState(null);
                 setReviewReasons({});
+                setRequestedMapping(null);
+                setRequestingMapping(false);
               }}
               value={scenario}
             >
@@ -1073,9 +1141,10 @@ export function CaseReplay({
               <summary>Separate mapping review example · Dialect B</summary>
               <p>
                 This is a different source with no rule manifest. Its approval
-                cannot authorize the worked case. A reason retains the unmapped
-                field without inventing a transform. Clearing it revokes this
-                example&apos;s approval.
+                cannot authorize the worked case.{" "}
+                {exampleScenario.mappingRequestRequired
+                  ? "Request a validated proposal before approving this example. A rejected response cannot be approved."
+                  : "A reason retains the unmapped field without inventing a transform. Clearing it revokes this example's approval."}
               </p>
               <CaseReplay
                 proposals={proposals}
@@ -1086,69 +1155,100 @@ export function CaseReplay({
               />
             </details>
           )}
-          <div className="mapping-preview">
-            <span className="panel-label">
-              {guided
-                ? "Proposed mapping"
-                : `02 · Executed mapping proposal · ${providerMode} · ${selectedScenario.value}`}
-            </span>
-            <p>
-              Proposed targets and allowlisted transforms, with confidence,
-              evidence and review status. You approve this exact proposal.
+          {selectedScenario.mappingRequestRequired && (
+            <div>
+              <p>
+                Request a mapping proposal for this source, then review and
+                approve it. A failed request blocks approval and replay.
+              </p>
+              <button
+                className="button"
+                disabled={requestingMapping}
+                onClick={requestMapping}
+                type="button"
+              >
+                {requestingMapping
+                  ? "Requesting mapping…"
+                  : "Request mapping proposal"}
+              </button>
+            </div>
+          )}
+          {proposalPending ? (
+            <p data-status="REVIEW_REQUIRED">
+              REVIEW_REQUIRED · A validated mapping proposal is required before
+              approval.
             </p>
-            {proposal.mappingVersion === "1.5" && <DailyQuoteSemantics />}
-            {proposal.fields.map((field, index) => (
-              <div className="mapping-row" key={field.sourceColumn}>
-                <code>{field.sourceColumn}</code>
-                <span>→</span>
-                <code>{field.targetField ?? "unmapped"}</code>
-                <span>
-                  Transform: <code>{field.transform ?? "none"}</code>
-                </span>
-                <span>
-                  Confidence: {field.confidence.toFixed(2)} (fixture score, not
-                  a calibrated probability)
-                </span>
-                <span>Evidence: {field.evidence}</span>
-                <b data-status={field.status}>{field.status}</b>
-                {requiresMappingOverride(field) ? (
-                  <label>
-                    <span>Reviewer reason for {field.sourceColumn}</span>
-                    <input
-                      aria-label={`Reviewer reason for ${field.sourceColumn}`}
-                      onChange={(event) => {
-                        invalidateResult();
-                        setCaseApproval(null);
-                        setReviewReasons((current) => ({
-                          ...current,
-                          [`fields.${index}`]: event.target.value,
-                        }));
-                        setApproval(null);
-                        onMappingApprovalChange?.(false);
-                      }}
-                      required
-                      type="text"
-                      value={reviewReasons[`fields.${index}`] ?? ""}
-                    />
-                  </label>
-                ) : null}
-              </div>
-            ))}
-            {unresolvedReview ? (
-              <div className="review-message" data-status="REVIEW_REQUIRED">
-                <strong>REVIEW_REQUIRED</strong>
-                <span>
-                  Replay is blocked until every flagged field has a reviewer
-                  reason.
-                </span>
-              </div>
-            ) : null}
-          </div>
+          ) : (
+            <div className="mapping-preview">
+              <span className="panel-label">
+                {guided
+                  ? "Proposed mapping"
+                  : `02 · Executed mapping proposal · ${displayedProviderMode} · ${selectedScenario.value}`}
+              </span>
+              <p>
+                {displayedProviderMode === "ai"
+                  ? "Configured provider"
+                  : "Fixture provider"}
+              </p>
+              <p>
+                Proposed targets and allowlisted transforms, with confidence,
+                evidence and review status. You approve this exact proposal.
+              </p>
+              {proposal.mappingVersion === "1.5" && <DailyQuoteSemantics />}
+              {proposal.fields.map((field, index) => (
+                <div className="mapping-row" key={field.sourceColumn}>
+                  <code>{field.sourceColumn}</code>
+                  <span>→</span>
+                  <code>{field.targetField ?? "unmapped"}</code>
+                  <span>
+                    Transform: <code>{field.transform ?? "none"}</code>
+                  </span>
+                  <span>
+                    Confidence: {field.confidence.toFixed(2)} (
+                    {displayedProviderMode === "ai" ? "provider" : "fixture"}{" "}
+                    score, not a calibrated probability)
+                  </span>
+                  <span>Evidence: {field.evidence}</span>
+                  <b data-status={field.status}>{field.status}</b>
+                  {requiresMappingOverride(field) ? (
+                    <label>
+                      <span>Reviewer reason for {field.sourceColumn}</span>
+                      <input
+                        aria-label={`Reviewer reason for ${field.sourceColumn}`}
+                        onChange={(event) => {
+                          invalidateResult();
+                          setCaseApproval(null);
+                          setReviewReasons((current) => ({
+                            ...current,
+                            [`fields.${index}`]: event.target.value,
+                          }));
+                          setApproval(null);
+                          onMappingApprovalChange?.(false);
+                        }}
+                        required
+                        type="text"
+                        value={reviewReasons[`fields.${index}`] ?? ""}
+                      />
+                    </label>
+                  ) : null}
+                </div>
+              ))}
+              {unresolvedReview ? (
+                <div className="review-message" data-status="REVIEW_REQUIRED">
+                  <strong>REVIEW_REQUIRED</strong>
+                  <span>
+                    Replay is blocked until every flagged field has a reviewer
+                    reason.
+                  </span>
+                </div>
+              ) : null}
+            </div>
+          )}
           <button
             className={
               guided && chapter === 1 ? "button step-action" : "button"
             }
-            disabled={unresolvedReview}
+            disabled={unresolvedReview || proposalPending || requestingMapping}
             onClick={approveMapping}
             type="button"
           >
@@ -1460,9 +1560,10 @@ export function CaseReplay({
           <p>
             A real deployment would additionally need governed data ingestion,
             identity and access controls, durable approval records, validated
-            live provider adapters and domain evaluation. Live mapping and case
-            proposals, independent bundle export and aggregate evaluation are
-            planned.
+            provider evaluation and domain evaluation. Configured mapping is
+            available for the two synthetic source dialects when explicitly
+            enabled. Live case proposals, independent bundle export and
+            aggregate evaluation are planned.
           </p>
           {guided && (
             <button

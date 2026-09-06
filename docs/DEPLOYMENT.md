@@ -3,7 +3,7 @@
 The public WeaveTrail workbench is designed to run on Vercel in deterministic
 fixture mode. This checkout serves committed synthetic scenarios and a licensed
 published daily quotation artifact; it never retrieves source data at runtime.
-No configured model-provider adapter, provider credential, database, analytics,
+No provider credential, database, analytics,
 telemetry, or third-party script is part of the current deployment.
 
 Production is live at
@@ -47,41 +47,51 @@ this document does not claim that the current checkout has been deployed.
 
 ## Environment
 
-Fixture mode is enforced in code: both the Case Replay surface page and replay
-route construct the fixture provider unconditionally. The current checkout does
-not read model-provider configuration. Its supported configuration is:
+Fixture mode is the default. The checkout supports an explicitly selected
+server-only mapping adapter for the two synthetic source dialects; no live
+provider or configured deployment is validated by the mocked transport tests.
+Page preparation and builds never call the provider. Its configuration is:
 
-| Environment | Provider used today | Provider variables                                           |
-| ----------- | ------------------- | ------------------------------------------------------------ |
-| Local       | Fixture             | Unset; `.env.example` values are reserved and have no effect |
-| CI          | Fixture             | Unset                                                        |
-| Preview     | Fixture             | Unset                                                        |
-| Production  | Fixture             | Unset                                                        |
+| Environment | Provider used today | Provider variables                                    |
+| ----------- | ------------------- | ----------------------------------------------------- |
+| Local       | Fixture by default  | May opt in explicitly for a manual configured request |
+| CI          | Fixture             | Unset                                                 |
+| Preview     | Fixture             | Unset                                                 |
+| Production  | Fixture             | Unset                                                 |
 
-The planned configured adapter is not implemented in this checkout. Its binding
-configuration names are recorded now so the adapter and deployment settings
-cannot choose incompatible interfaces later:
+The adapter reads these binding configuration names only on the server:
 
-| Variable               | Planned meaning                                                  | Boundary                                                                              |
+| Variable               | Meaning                                                          | Boundary                                                                              |
 | ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `AI_MODE`              | `fixture` (the default) or `ai`                                  | Server-only selection; the presence of the other variables does not select a provider |
 | `AI_PROVIDER_BASE_URL` | HTTPS origin for an OpenAI-compatible structured-output endpoint | Server-only; never public-prefixed or sent to the browser                             |
 | `AI_PROVIDER_API_KEY`  | Credential for that endpoint                                     | Secret, server-only; never public-prefixed, logged, or sent to the browser            |
 | `AI_PROVIDER_MODEL`    | Provider model identifier                                        | Server-only configuration; never public-prefixed or sent to the browser               |
 
-The eventual adapter must read exactly those names. Do not create a
-`NEXT_PUBLIC_` variant of any of them. Until the adapter exists and a
-reproducible configured call has passed its checks, leave all four unset in CI,
-Preview, and Production. A future deployment may opt into `AI_MODE=ai` only as
+Do not create a `NEXT_PUBLIC_` variant of any of them. Leave all four unset in
+CI, Preview, and Production. A future deployment may opt into `AI_MODE=ai` only as
 an explicit environment choice; merely making provider configuration available
 must leave the default fixture reviewer path and its published expected results
 unchanged.
 
 Migration from the old reserved names requires no runtime compatibility:
 `OPENAI_API_KEY` and `OPENAI_MODEL` were never read. Remove them from local
-templates and use the `AI_PROVIDER_*` names above when preparing future adapter
-configuration. Do not add either the old or new names to a deployed environment
-while this checkout still supports fixture mode only.
+templates and use the `AI_PROVIDER_*` names above for local adapter configuration.
+Do not add either the old or new names to a deployed environment in this change.
+
+For a local configured request, set the selector and all three provider values
+in the server environment, run `pnpm dev`, open working mode, choose Dialect A
+or B, and select **Request mapping proposal**. The base URL must be an HTTPS
+origin with no credentials, path, query or fragment. The adapter appends
+`/v1/chat/completions` and requires strict JSON-schema structured output.
+No call happens on page load. A successful, validated response reveals its
+actual **Configured provider** label and enables explicit mapping approval.
+Provider mode is recorded with the model identifier and prompt version on the
+server; the model identifier is encrypted in the opaque receipt and never
+exposed as public configuration. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md)
+for sample limits, eligibility and receipt expiry. The public endpoint has no
+identity or spending controls yet; implement those before exposing configured
+mode in a shared deployment.
 
 `DATA_GO_KR_SERVICE_KEY` is a separate retrieval credential. The manual local
 retrieval script reads it once before an admitted artifact is committed; the
@@ -99,13 +109,13 @@ provider output, or a credential—is the mapping input to the canonical replay
 and its canonical result hash.
 
 The fixture path remains the deterministic default, even if provider variables
-are present. When the planned adapter is implemented, provider status must be
+are present. Provider status is
 reported as **fixture provider** for a fixture proposal and **configured
 provider** for an accepted configured proposal. Configuration presence alone
 must never produce the configured-provider label or a claim of live
 integration.
 
-The planned failure behavior is closed and observable:
+Failure behavior is closed and observable:
 
 - With no configured provider selected, use the registered deterministic
   fixture proposal.
@@ -114,6 +124,11 @@ The planned failure behavior is closed and observable:
   result hash. Do not silently relabel a fixture proposal as configured output.
 - If a response fails the strict mapping contract or is ambiguous, reject it as
   `REVIEW_REQUIRED` without an approval, replay, or canonical result hash.
+- For ineligible artifacts, use the registered fixture mapping without reading
+  credentials or calling the endpoint, even when configured mode is selected.
+- An unknown explicit selector, invalid HTTPS origin, refused or truncated
+  response, or missing/expired/tampered receipt also stops at `REVIEW_REQUIRED`.
+  No error response includes configuration or raw provider output.
 
 Vercel supplies the deployment origins used for canonical metadata:
 
@@ -173,7 +188,7 @@ for each exact term below and require zero matches:
 | `sk-[A-Za-z0-9_-]{20,}` and `Bearer [A-Za-z0-9._-]{20,}`                                                        | No recognizable API-key or bearer-token value                                                            |
 | `rawProviderTrace`, `raw_provider_trace`, `providerRequestBody`, `provider_request_body`                        | No raw-trace or request-body field in a public surface                                                   |
 
-For a configured-provider promotion after that adapter exists, also record one
+For a future configured-provider promotion, also record one
 distinctive, non-secret substring from the submitted provider request and one
 from the raw provider response, then search for those two exact substrings. Both
 must have zero matches in browser assets, browser source maps, and the public

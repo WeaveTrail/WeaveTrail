@@ -5,6 +5,7 @@ import { CaseManifestSchema } from "./case-manifest";
 import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 import { WorkflowStateSchema } from "./workflow";
 import { SourceTraceSchema } from "./source-trace";
+import { MappingReceiptSchema } from "./mapping-response";
 
 export const ReplayReviewWorkflowStateSchema = WorkflowStateSchema.extract([
   "MAPPING_REVIEW_REQUIRED",
@@ -54,6 +55,7 @@ export const ReplayRequestSchema = z
       .min(1)
       .max(64),
     mappingApproval: ApprovalRecordSchema.optional(),
+    mappingReceipt: MappingReceiptSchema.optional(),
     caseManifest: CaseManifestSchema.optional(),
   })
   .strict();
@@ -173,7 +175,7 @@ export const ReplayReviewResponseSchema = z.discriminatedUnion(
 );
 
 const ReplayResultResponseBaseSchema = z.object({
-  mode: z.literal("fixture"),
+  mode: z.enum(["fixture", "ai"]),
   scenario: ReplayScenarioSchema,
   mutation: ReplayMutationSchema,
   boundary: z.string().min(1),

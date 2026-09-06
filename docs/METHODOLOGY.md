@@ -249,6 +249,15 @@ Separately, the Case Replay walkthrough executes a deterministic fixture mapping
 the server. Its proposal is keyed by the exact source artifact hash and exposes
 source column, target field, transform, confidence, evidence, and proposal
 status. The fixture provider performs no network call and uses no credentials.
+An explicitly enabled configured provider can instead propose mappings for
+the two committed synthetic dialects through a reviewer-triggered request.
+Its first-eight-row sample is selected by committed position only. Columns and
+cell text remain data; the response is strictly validated, low-confidence or
+ambiguous output is refused, and the exact validated proposal is bound to a
+short-lived encrypted receipt for human approval and replay. This does not
+establish semantic accuracy or provider quality; tests use mocked transport.
+See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
+In default fixture mode,
 Both dialects produce declared fields. Dialect A is fully resolvable. Dialect
 B's `source_note` has a null target and transform and is presented for
 adjudication as `REVIEW_REQUIRED` at confidence `0`. The Case Replay surface will not create an
