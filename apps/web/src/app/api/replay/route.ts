@@ -5,7 +5,8 @@ import {
   ReplayReviewResponseSchema,
   type ReplayReviewResponse,
 } from "@weavetrail/contracts";
-import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
+import { PROVIDER_REVIEW_MESSAGE } from "@weavetrail/ai-harness/server";
+import { replayMapping } from "../../../lib/mapping-provider";
 import {
   CanonicalizationError,
   buildFindingSourceTrace,
@@ -19,8 +20,6 @@ import { NextResponse } from "next/server";
 import { existingRequestPath } from "./review-path";
 
 export const runtime = "nodejs";
-
-const mappingProvider = new FixtureSchemaMappingProvider();
 
 function sourceRowMismatchIssues(
   requestedRows: readonly SourceRow[],
@@ -117,17 +116,30 @@ export async function POST(request: Request) {
     caseManifest,
     rows: requestedRows,
     mappingApproval,
+    mappingReceipt,
     mutation,
     scenario,
   } = parsed.data;
   const scenarioConfig = committedReplaySources[scenario];
-  const mappingProposal = await mappingProvider.propose({
-    sourceArtifactHash: scenarioConfig.sourceArtifactHash,
-    constants: scenarioConfig.constants,
-    columns: [...scenarioConfig.columns],
-    sampleRows: [],
-  });
   workflow.requireTransition("MAPPING_PROPOSED");
+  let recorded;
+  try {
+    recorded = await replayMapping(scenario, mappingReceipt);
+  } catch {
+    workflow.requireTransition("MAPPING_REVIEW_REQUIRED");
+    return reviewResponse(
+      "MAPPING_REVIEW_REQUIRED",
+      [
+        {
+          code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+          path: ["mappingReceipt"],
+          message: PROVIDER_REVIEW_MESSAGE,
+        },
+      ],
+      body,
+    );
+  }
+  const mappingProposal = recorded.proposal;
   const rowIssues = sourceRowMismatchIssues(requestedRows, scenarioConfig.rows);
   if (rowIssues.length > 0) {
     workflow.requireTransition("INPUT_REVIEW_REQUIRED");
@@ -162,7 +174,7 @@ export async function POST(request: Request) {
         ? RapidPriceLiftResultSchema.parse(replay.evaluation)
         : undefined;
     const response = ReplayResultResponseSchema.parse({
-      mode: "fixture",
+      mode: recorded.trace.mode,
       workflowState: workflow.state,
       scenario,
       mutation,

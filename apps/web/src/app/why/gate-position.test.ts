@@ -198,7 +198,13 @@ describe("where the gate sits", () => {
 
   it("keeps unimplemented components labelled as planned", () => {
     const rendered = markup();
-    for (const planned of ["Live model adapters", "Evidence Bundle assembly"]) {
+    expect(rendered).toContain(
+      "Explicitly configured mapping for two synthetic dialects has mocked transport checks",
+    );
+    for (const planned of [
+      "a bounded case proposer",
+      "Evidence Bundle assembly",
+    ]) {
       const index = rendered.indexOf(planned);
       expect(index, planned).toBeGreaterThan(-1);
       expect(rendered.slice(index, index + 200)).toContain("planned");

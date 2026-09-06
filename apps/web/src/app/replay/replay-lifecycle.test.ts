@@ -16,6 +16,7 @@ import {
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import * as rowShuffle from "./shuffle-source-rows";
 import type { ReplayRequest } from "@weavetrail/contracts";
+import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { replayApproved } from "@weavetrail/replay-engine";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
@@ -233,6 +234,87 @@ function ok(hash = "a".repeat(64)) {
     replay: { ...result.replay, canonicalResultHash: hash },
   });
 }
+
+describe("configured mapping proposal lifecycle", () => {
+  async function configuredView() {
+    const prepared = await prepareReplayScenarios();
+    const dialect = prepared.scenarios.find(
+      (option) => option.value === "concentrated-buy-dialect-a.csv",
+    )!;
+    return setup({
+      ...prepared,
+      scenarios: [
+        { ...dialect, mappingRequestRequired: true },
+        ...prepared.scenarios.filter((option) => option.value === first),
+      ],
+    });
+  }
+  const mappingResponse = () =>
+    Response.json({
+      mode: "ai",
+      proposal: concentratedBuyDialectAProposal,
+      mappingReceipt: "synthetic_receipt",
+    });
+
+  it("labels the actual provider, requires new approval and sends the receipt with replay", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(mappingResponse())
+      .mockResolvedValueOnce(ok());
+    vi.stubGlobal("fetch", fetcher);
+    expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+    await view.button("Request mapping proposal");
+    expect(view.hasText("Configured provider")).toBe(true);
+    expect(view.buttonDisabled("Approve executed mapping")).toBe(false);
+    await view.button("Approve executed mapping");
+    await view.button("Run deterministic replay");
+    expect(JSON.parse(fetcher.mock.calls[1]![1].body)).toMatchObject({
+      mappingReceipt: "synthetic_receipt",
+      mappingApproval: { decision: "APPROVED" },
+    });
+    fetcher.mockResolvedValueOnce(
+      Response.json({ status: "REVIEW_REQUIRED" }, { status: 422 }),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+    expect(view.hasText("Configured provider")).toBe(false);
+    expect(view.hasText("Mapping approved locally")).toBe(false);
+    expect(view.hasText("REVIEW_REQUIRED")).toBe(true);
+  });
+
+  it("ignores late proposals after source changes and clears a proposal on guided re-entry", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const request = view.button("Request mapping proposal");
+    view.changeScenario(first);
+    pending.resolve(mappingResponse());
+    await request;
+    expect(view.hasText("Configured provider")).toBe(false);
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mappingResponse()));
+    await view.button("Request mapping proposal");
+    expect(view.hasText("Configured provider")).toBe(true);
+    view.setGuided(true);
+    expect(view.hasText("Configured provider")).toBe(false);
+  });
+
+  it("can retry when a variation invalidates a pending mapping request", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const request = view.button("Request mapping proposal");
+    view.changeMutation("shuffle");
+    pending.resolve(mappingResponse());
+    await request;
+    expect(view.buttonDisabled("Request mapping proposal")).toBe(false);
+    expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+  });
+});
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();

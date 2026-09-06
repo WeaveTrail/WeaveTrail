@@ -126,9 +126,27 @@ with a visible error if either step cannot complete.
 
 ### Replay HTTP boundary
 
+Configured mapping uses an explicit `POST /api/mapping` with only `{ scenario }`.
+The application selects the provider from server configuration and the closed
+artifact eligibility registry. Only the two synthetic source dialects are
+eligible; all other artifacts keep registered fixture mappings. A configured
+response must pass strict mapping validation before it is shown for approval.
+The response contains `mode`, `proposal`, and an opaque `mappingReceipt` for
+configured mode. Model identifier and prompt version are recorded server-side
+beside that proposal, encrypted in the receipt. Provider failures use the
+existing mapping-review response shape and status 422. Page preparation and
+replay do not call the configured provider. See
+[ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
+
+Migration: fixture clients are unchanged. Configured clients first request a
+proposal, explicitly approve its exact hash, then include `mappingReceipt` in
+the replay request. Receipts expire after 30 minutes and are revalidated before
+the approval gate. Neither a receipt nor model output is an approval.
+
 `POST /api/replay` accepts a strict object with a committed source-artifact
 scenario, one of `baseline`, `shuffle`, or `duplicate`, one to 64 declared
-source rows, an optional mapping approval record, and an optional approved
+source rows, an optional mapping approval record, an optional configured
+`mappingReceipt`, and an optional approved
 `CaseManifest`. Caller-authored canonical
 events are rejected. The server obtains the scenario proposal, verifies the
 approval against that exact proposal, derives the executable mapping as a pure
@@ -208,7 +226,8 @@ correction does not change approval artifacts, engine version, workflow states,
 HTTP status, rule verdicts, or canonical result hashes. See
 [ADR 0016](adr/0016-use-request-relative-review-paths.md).
 
-A successful response is contract-validated and includes fixture mode, scenario,
+A successful response is contract-validated and includes the actual mapping
+provider mode (`fixture` or `ai`), scenario,
 mutation, boundary text, final `workflowState`, engine version, event counts,
 ordered event identifiers, and the canonical result hash. A foundation request
 without a case manifest stops at `MAPPING_APPROVED` and has no `sourceTrace`.

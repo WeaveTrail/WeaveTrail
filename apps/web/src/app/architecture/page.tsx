@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const layers = [
   [
     "L1 · Interpret",
-    "A constrained mapper proposes targets, transforms, confidence and evidence. Today's provider is a deterministic fixture; live model adapters are planned. It cannot edit rows or decide results.",
+    "A constrained mapper proposes targets, transforms, confidence and evidence. A deterministic fixture is the default; explicitly configured mapping is available for two synthetic dialects, with mocked transport checks. It cannot edit rows or decide results.",
   ],
   [
     "L2 · Approve",

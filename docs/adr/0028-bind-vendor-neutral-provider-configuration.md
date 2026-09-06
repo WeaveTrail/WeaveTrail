@@ -3,6 +3,10 @@
 - Status: Accepted
 - Date: 2026-09-06
 
+Implementation follow-up: [ADR 0029](0029-bind-configured-mapping-proposals-to-review.md)
+implements this selection contract. References below to the planned adapter
+describe the state when this configuration decision was accepted.
+
 ## Context
 
 The repository currently constructs only the deterministic fixture mapping

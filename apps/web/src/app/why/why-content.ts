@@ -176,7 +176,7 @@ export const layerAuthorities: readonly LayerAuthority[] = [
     mayNot:
       "Edit a source row, compute a metric, or decide a result. Its output is untrusted until a contract and a person clear it.",
     status:
-      "A deterministic fixture provider today. Live model adapters and a bounded case proposer are planned.",
+      "A deterministic fixture is the default. Explicitly configured mapping for two synthetic dialects has mocked transport checks; a bounded case proposer is planned.",
   },
   {
     name: "L2 · Approve",
