@@ -554,6 +554,13 @@ button:disabled {
   margin-block: 8px;
   color: var(--text-body);
 }
+.page-heading > .lede-position {
+  margin-top: 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--teal-700);
+  color: var(--text-strong);
+  font-weight: 500;
+}
 .cite {
   font: var(--type-label);
   vertical-align: super;

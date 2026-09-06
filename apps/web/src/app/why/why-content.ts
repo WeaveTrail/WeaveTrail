@@ -6,7 +6,11 @@
  * and anything not implemented is labelled planned where it is named.
  */
 
-export type SourceId = "fsc-ai-guideline" | "fss-ai-rmf";
+export type SourceId =
+  | "fss-surveillance-automation"
+  | "fss-realtime-surveillance"
+  | "fsc-ai-guideline"
+  | "fss-ai-rmf";
 
 export interface Source {
   readonly id: SourceId;
@@ -23,55 +27,78 @@ export type Statement =
 
 export const OWN_REASONING_MARK = "WeaveTrail's own reading";
 
+const FSS = "Financial Supervisory Service (금융감독원)";
+
 export const sources: readonly Source[] = [
   {
-    id: "fsc-ai-guideline",
+    id: "fss-surveillance-automation",
     marker: "1",
-    publisher: "Financial Services Commission (\uae08\uc735\uc704\uc6d0\ud68c)",
+    publisher: FSS,
     title:
-      "Financial sector AI guideline (\uae08\uc735\ubd84\uc57c \uc778\uacf5\uc9c0\ub2a5 \uac00\uc774\ub4dc\ub77c\uc778)",
+      "Automating the market surveillance process for virtual asset unfair trading with AI (AI기반 가상자산 불공정거래 시장감시 프로세스 자동화)",
+    published: "20 August 2026",
+    href: "https://www.fss.or.kr/fss/bbs/B0000188/view.do?nttId=223852&menuNo=200218",
+  },
+  {
+    id: "fss-realtime-surveillance",
+    marker: "2",
+    publisher: FSS,
+    title:
+      "Targeting virtual asset unfair trading with real-time surveillance and AI-based analysis (실시간 감시와 AI 기반 분석으로 가상자산 불공정거래 정조준)",
+    published: "3 May 2026",
+    href: "https://www.fss.or.kr/fss/bbs/B0000188/view.do?nttId=217521&menuNo=200218",
+  },
+  {
+    id: "fsc-ai-guideline",
+    marker: "3",
+    publisher: "Financial Services Commission (금융위원회)",
+    title: "Financial sector AI guideline (금융분야 인공지능 가이드라인)",
     published: "announced 18 June 2026, in force 22 June 2026",
     href: "https://www.fsc.go.kr/no010101/87142",
   },
   {
     id: "fss-ai-rmf",
-    marker: "2",
-    publisher: "Financial Supervisory Service (\uae08\uc735\uac10\ub3c5\uc6d0)",
+    marker: "4",
+    publisher: FSS,
     title:
-      "Financial sector AI risk management framework (\uae08\uc735\ubd84\uc57c AI \uc704\ud5d8\uad00\ub9ac \ud504\ub808\uc784\uc6cc\ud06c), announced with the guideline in the release above",
+      "Financial sector AI risk management framework (금융분야 AI 위험관리 프레임워크), announced with the guideline in the release above",
     published: "June 2026",
     href: "https://www.fsc.go.kr/no010101/87142",
   },
 ];
 
-/** The page lede. An outside claim, so it carries a source like the rest. */
+/** The page lede. The fact the whole argument starts from. */
 export const lede: Statement = {
-  text: "Korea's financial sector AI guideline has been in force since 22 June 2026, and it reaches financial investment firms and any company whose AI output affects the provision of a financial service.",
-  source: "fsc-ai-guideline",
+  text: "In August 2026 the Financial Supervisory Service described an AI process that carries virtual asset market surveillance from detecting abnormal trading, through identifying the suspected interval, to drafting the review report, in one automated pass.",
+  source: "fss-surveillance-automation",
 };
 
-/** The diagram is the project's own sketch, not a figure from a published source. */
+/** What the product is, stated before anything is drawn. */
+export const POSITION =
+  "WeaveTrail does not detect. It adds one verification gate between what a process like that concludes and what a person signs.";
+
+/** The diagram is the project's own design, not a figure from a published source. */
 export const diagramAttribution: Statement = {
-  text: "The upper band is the project's own sketch of the layer it assumes, not a figure taken from a published source; the two bands beneath it describe this repository.",
+  text: "The diagram is the project's own design for that gate, not a figure taken from a published source; only the upper band describes something that exists outside this repository.",
   reasoning: true,
 };
 
 /** Section one: what the layer above the gate already does. */
 export const upstreamStatements: readonly Statement[] = [
   {
-    text: "The release announcing the guideline describes AI in finance being put to work catching signs of financial crime, naming voice phishing among them.",
+    text: "That process combines generative AI with machine learning: it detects manipulation and wash-trading patterns in real time across large transaction sets, scans public online material for front-running and posts inciting misconduct, and runs from a suspected anomaly through to a drafted report as one pass.",
+    source: "fss-surveillance-automation",
+  },
+  {
+    text: "It rests on real-time monitoring that collects and analyses domestic and overseas exchange data through public APIs, and on analysis that identifies suspected groups and narrows their suspected intervals to the second.",
+    source: "fss-realtime-surveillance",
+  },
+  {
+    text: "The financial sector AI guideline reaches financial investment firms, and reaches any company whose AI output affects the provision of a financial service directly or indirectly.",
     source: "fsc-ai-guideline",
   },
   {
-    text: "The guideline applies across banks, insurers, card and capital companies and financial investment firms, and reaches non-financial companies too wherever an AI system's output affects a financial service directly or indirectly.",
-    source: "fsc-ai-guideline",
-  },
-  {
-    text: "So the layer above the gate, the systems that watch trading and raise a candidate, is both increasingly AI-assisted and inside that scope. WeaveTrail assumes that layer and replaces no part of it.",
-    reasoning: true,
-  },
-  {
-    text: "This page makes no measurement of any detection system, and states nothing about how one scores, ranks or escalates.",
+    text: "So detection is already fast, already analytical, and already inside a supervised scope. WeaveTrail assumes that layer and replaces no part of it.",
     reasoning: true,
   },
 ];
@@ -79,11 +106,7 @@ export const upstreamStatements: readonly Statement[] = [
 /** Section two: the decision that layer still hands to a person. */
 export const handoverStatements: readonly Statement[] = [
   {
-    text: "The guideline sets seven principles for using AI in finance: governance, legality, the auxiliary role of AI, reliability, financial stability, good faith and security.",
-    source: "fsc-ai-guideline",
-  },
-  {
-    text: "Under the auxiliary-role principle, AI at this stage is a support tool: the final decision and the responsibility that follows it are carried out by the firm's own officers and employees, and human intervention is a stated principle.",
+    text: "In the same year, the financial authorities set the auxiliary-role principle among the guideline's seven principles: AI is a support tool, the final decision and the responsibility that follows it are carried out by the firm's own officers and employees, and human intervention is a stated principle.",
     source: "fsc-ai-guideline",
   },
   {
@@ -91,11 +114,27 @@ export const handoverStatements: readonly Statement[] = [
     source: "fss-ai-rmf",
   },
   {
-    text: "An alert names a candidate. It does not record which executions produced its number, under which field mapping, or under which rule version.",
+    text: "The further AI reaches into an investigation, the firmer the grounds the person who signs the judgement needs. A drafted report is a conclusion; what that person answers for is the reasoning under it.",
     reasoning: true,
   },
   {
-    text: "So the person who carries that decision has to reconstruct it first, and a second person has to be able to reach the same conclusion from the same executions. That reconstruction is the only work WeaveTrail does.",
+    text: "An automated pass names a candidate and a suspected interval. It does not, by itself, leave the executions, the field mapping and the rule version a second person would need to reach the same conclusion.",
+    reasoning: true,
+  },
+];
+
+/** Section three: what this project adds to the layer above it. */
+export const additionStatements: readonly Statement[] = [
+  {
+    text: "So the speed and the analytical reach of the existing surveillance are kept, and one gate is added before its result becomes an investigative judgement: a person confirms the scope the AI proposed, and versioned code re-verifies against that fixed scope.",
+    reasoning: true,
+  },
+  {
+    text: "The approved scope, the verification result and the executions it rests on are recorded together, so a different reviewer, or the same one later, can check the same grounds again rather than take the earlier conclusion on trust.",
+    reasoning: true,
+  },
+  {
+    text: "Nothing here proposes a faster detector or a better one. The gap this addresses is not finding the candidate; it is what a successor can re-derive from the candidate that was found.",
     reasoning: true,
   },
 ];
@@ -169,6 +208,7 @@ export const notClaimed: readonly string[] = [
   NON_AFFILIATION,
   "Layer separation is one way to carry out inside a single investigation what the guideline asks. It is a design alignment, not a certification, an approval, or an endorsement, and no authority named here has reviewed, assessed or approved this project.",
   "No system named here uses WeaveTrail, and WeaveTrail has not been evaluated against one. Naming a published source describes where the gate would sit, not a relationship with anyone.",
+  "The surveillance process cited here covers virtual assets. This repository's committed sources are synthetic equity executions and published KOSPI daily quotations, so what is described is the shape of a position, not a connection to that process or coverage of that market.",
   "A result is support for a versioned technical pattern. It is not a finding of guilt, a legal conclusion, a causal claim, investment advice, an automated trading decision, or real-time surveillance.",
   "The repository runs deterministic fixtures over committed synthetic cases and licensed published quotations. It is not a production market-surveillance system, and its rule thresholds are illustrative per-case configuration rather than calibrated market thresholds.",
   "Every statement here about anything outside this repository carries a source or the mark that says it is the project's own reading. A marked statement is a premise this project works from, not a published finding.",

@@ -11,6 +11,8 @@ import {
   NON_AFFILIATION,
   NO_UPSTREAM_INTEGRATION,
   OWN_REASONING_MARK,
+  POSITION,
+  additionStatements,
   diagramAttribution,
   gateInputs,
   handoverStatements,
@@ -44,6 +46,7 @@ const attributed = [
   diagramAttribution,
   ...upstreamStatements,
   ...handoverStatements,
+  ...additionStatements,
 ];
 
 describe("where the gate sits", () => {
@@ -96,7 +99,7 @@ describe("where the gate sits", () => {
     const rendered = markup();
     for (const source of sources) {
       expect(rendered).toContain(`id="source-${source.id}"`);
-      expect(rendered).toContain(`href="${source.href}"`);
+      expect(rendered).toContain(`href="${escaped(source.href)}"`);
       expect(rendered).toContain(escaped(source.title));
       expect(
         attributed.some(
@@ -108,12 +111,39 @@ describe("where the gate sits", () => {
     }
   });
 
-  it("cites only material the repository already stands on", () => {
-    // The page's background rests on the supervisory material the readme
-    // already records, not on sources introduced for this page alone.
+  it("cites only the supervisory bodies this project stands on", () => {
+    // The background rests on published material from the Korean financial
+    // authorities, not on sources introduced for this page alone.
+    for (const source of sources) {
+      const { host } = new URL(source.href);
+      expect(host, source.id).toMatch(/^www\.(fsc\.go\.kr|fss\.or\.kr)$/);
+    }
+    // The guideline the readme already records is among them.
     const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8");
-    for (const source of sources)
-      expect(readme, source.id).toContain(source.href);
+    const guideline = sources.find(({ id }) => id === "fsc-ai-guideline");
+    expect(guideline).toBeDefined();
+    expect(readme).toContain(guideline!.href);
+  });
+
+  it("leads with the position before it draws the design", () => {
+    const rendered = markup();
+    const diagram = rendered.indexOf('src="/diagrams/');
+    expect(diagram).toBeGreaterThan(-1);
+    // The narrative that explains why the gate exists is read first; the
+    // diagram is the design that follows from it.
+    for (const before of [
+      escaped(POSITION),
+      escaped(lede.text),
+      "What upstream surveillance already does",
+      "What it still hands to a person",
+      "What this adds to it",
+    ]) {
+      const index = rendered.indexOf(before);
+      expect(index, before.slice(0, 40)).toBeGreaterThan(-1);
+      expect(index, before.slice(0, 40)).toBeLessThan(diagram);
+    }
+    // The gate's mechanics follow the diagram.
+    expect(rendered.indexOf("Where the gate sits")).toBeGreaterThan(diagram);
   });
 
   it("names the three inputs the gate asks of an upstream, and inspects a conclusion", () => {

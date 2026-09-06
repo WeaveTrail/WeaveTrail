@@ -6,6 +6,8 @@ import {
   CONCLUSION_NOT_METHOD,
   NO_UPSTREAM_INTEGRATION,
   OWN_REASONING_MARK,
+  POSITION,
+  additionStatements,
   diagramAttribution,
   gateInputs,
   handoverStatements,
@@ -60,40 +62,15 @@ export default function WhyPage() {
     <main className="shell page-shell">
       <div className="page-heading">
         <span className="eyebrow">Why the gate</span>
-        <h1>An alert arrives. Someone still has to justify it.</h1>
+        <h1>AI already finds it. Someone still has to answer for it.</h1>
         <Attributed statement={lede} />
+        <p className="lede-position">{POSITION}</p>
         <p>
-          This page states where WeaveTrail sits relative to that layer, what it
-          asks of it, and what it refuses to do on its behalf.
+          This page states what that layer already does, what it still hands to
+          a person, what this project adds to it, and what it refuses to do on
+          its behalf.
         </p>
       </div>
-
-      <figure className="layer-diagram gate-diagram">
-        <div
-          aria-label="Diagram: where the gate sits"
-          className="diagram-frame"
-          role="group"
-          tabIndex={0}
-        >
-          {/* The SVG is served verbatim so the page and the repository documentation carry one committed diagram. */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the committed diagram asset. */}
-          <img
-            alt="Three bands top to bottom: an existing upstream pipeline carries order and trade data into a surveillance system that emits an alert; beneath that output sits the gate, which asks for source executions, an approved review scope and a versioned hypothesis, runs four single-authority layers, and returns one of three results or a review state; beneath the gate an investigator reads the result and the rows behind it and decides what the case is"
-            height={800}
-            src="/diagrams/where-the-gate-sits.svg"
-            width={960}
-          />
-        </div>
-        <figcaption>
-          <span className="panel-label">Reading the diagram</span>
-          <p>
-            The upper band is not part of WeaveTrail. The gate reads what that
-            band concluded, never how it concluded it, and the decision stays in
-            the lower band.
-          </p>
-          <Attributed statement={diagramAttribution} />
-        </figcaption>
-      </figure>
 
       <section className="panel" id="upstream">
         <span className="panel-label">
@@ -113,8 +90,42 @@ export default function WhyPage() {
         ))}
       </section>
 
+      <section className="panel" id="what-this-adds">
+        <span className="panel-label">03 · What this adds to it</span>
+        {additionStatements.map((statement) => (
+          <Attributed key={statement.text} statement={statement} />
+        ))}
+      </section>
+
+      <figure className="layer-diagram gate-diagram">
+        <div
+          aria-label="Diagram: where the gate sits"
+          className="diagram-frame"
+          role="group"
+          tabIndex={0}
+        >
+          {/* The SVG is served verbatim so the page and the repository documentation carry one committed diagram. */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the committed diagram asset. */}
+          <img
+            alt="Three bands top to bottom: an existing upstream pipeline carries order and trade data into an AI market surveillance process that detects, narrows and drafts, and emits an alert; beneath that output sits the gate, which asks for source executions, an approved review scope and a versioned hypothesis, runs four single-authority layers, and returns one of three results or a review state; beneath the gate an investigator reads the result and the rows behind it and decides what the case is"
+            height={800}
+            src="/diagrams/where-the-gate-sits.svg"
+            width={960}
+          />
+        </div>
+        <figcaption>
+          <span className="panel-label">Reading the diagram</span>
+          <p>
+            The upper band is not part of WeaveTrail. The gate reads what that
+            band concluded, never how it concluded it, and the decision stays in
+            the lower band.
+          </p>
+          <Attributed statement={diagramAttribution} />
+        </figcaption>
+      </figure>
+
       <section className="panel" id="gate-position">
-        <span className="panel-label">03 · Where the gate sits</span>
+        <span className="panel-label">04 · Where the gate sits</span>
         <p>
           The gate sits after an alert or a referral and before an investigation
           concludes. Evaluating a pattern hypothesis needs all three declared
@@ -135,7 +146,7 @@ export default function WhyPage() {
 
       <section className="layer-authorities" id="layer-authority">
         <span className="panel-label">
-          04 · What each of the four layers may and may not do
+          05 · What each of the four layers may and may not do
         </span>
         <div className="eval-list">
           {layerAuthorities.map((layer) => (
@@ -167,7 +178,7 @@ export default function WhyPage() {
       </section>
 
       <section className="panel" id="not-claimed">
-        <span className="panel-label">05 · What this page does not claim</span>
+        <span className="panel-label">06 · What this page does not claim</span>
         <ul className="claim-boundary">
           {notClaimed.map((claim) => (
             <li key={claim}>{claim}</li>
@@ -181,8 +192,8 @@ export default function WhyPage() {
           Every statement on this page about anything outside this repository
           carries one of these sources or the mark beside it, the lede and the
           diagram caption included. Anything marked &ldquo;
-          {OWN_REASONING_MARK}&rdquo; is the project&apos;s own reading, not a
-          published finding.
+          {OWN_REASONING_MARK}&rdquo; is a premise this project works from, not
+          a published finding.
         </p>
         <ol className="source-list">
           {sources.map((source) => (

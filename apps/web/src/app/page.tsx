@@ -41,9 +41,9 @@ export default function HomePage() {
           Turn uncertain signals into <em>replayable evidence.</em>
         </h1>
         <p className="hero-copy">
-          An investigation workbench for the step after a market-surveillance
-          alert: one bounded pattern question, answered by versioned code, with
-          every source row the answer rests on.
+          AI surveillance finds the candidate. WeaveTrail adds the gate between
+          that result and the judgement a person signs: a confirmed scope, a
+          re-verification by versioned code, and every source row it rests on.
         </p>
         <div className="hero-actions">
           <Link className="button primary" href="/replay?mode=guided">
