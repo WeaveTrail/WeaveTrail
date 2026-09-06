@@ -1,4 +1,7 @@
-import type { CaseManifest, DatasetProfile } from "@weavetrail/contracts";
+import type {
+  DatasetProfile,
+  VersionedCaseManifest,
+} from "@weavetrail/contracts";
 
 import { compareCanonicalEventTimes } from "./canonical-order";
 
@@ -6,6 +9,7 @@ export type CaseProfileIssueCode =
   | "CANONICAL_DATASET_HASH_MISMATCH"
   | "INSTRUMENT_OUTSIDE_DATASET_PROFILE"
   | "ACTOR_OUTSIDE_DATASET_PROFILE"
+  | "ACTORLESS_HYPOTHESIS_PROFILE_MISMATCH"
   | "TIME_WINDOW_OUTSIDE_DATASET_PROFILE";
 
 // Paths are relative to the validated manifest, not an HTTP request.
@@ -18,7 +22,7 @@ export type CaseProfileValidation =
     };
 
 export function validateCaseAgainstProfile(
-  manifest: CaseManifest,
+  manifest: VersionedCaseManifest,
   profile: DatasetProfile,
 ): CaseProfileValidation {
   const issues: { code: CaseProfileIssueCode; path: (string | number)[] }[] =
@@ -30,10 +34,34 @@ export function validateCaseAgainstProfile(
       path: ["canonicalDatasetHash"],
     });
   }
-  if (!profile.instrumentIds.includes(manifest.hypothesis.instrumentId)) {
+  const declaredInstruments =
+    manifest.manifestVersion === "1.3"
+      ? [
+          {
+            instrumentId: manifest.hypothesis.instrumentId,
+            path: ["hypothesis", "instrumentId"] as (string | number)[],
+          },
+        ]
+      : manifest.hypothesis.instrumentIds.map((instrumentId, index) => ({
+          instrumentId,
+          path: ["hypothesis", "instrumentIds", index] as (string | number)[],
+        }));
+  for (const { instrumentId, path } of declaredInstruments) {
+    if (!profile.instrumentIds.includes(instrumentId)) {
+      issues.push({
+        code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
+        path,
+      });
+    }
+  }
+  if (
+    manifest.manifestVersion === "1.4" &&
+    manifest.hypothesis.actorIds.length === 0 &&
+    profile.actorIds.length > 0
+  ) {
     issues.push({
-      code: "INSTRUMENT_OUTSIDE_DATASET_PROFILE",
-      path: ["hypothesis", "instrumentId"],
+      code: "ACTORLESS_HYPOTHESIS_PROFILE_MISMATCH",
+      path: ["hypothesis", "actorIds"],
     });
   }
   for (const [index, actorId] of manifest.hypothesis.actorIds.entries()) {

@@ -82,11 +82,23 @@ Workflow state exists only for the lifetime of one request. After an
 Canonical events deterministically produce the canonical dataset hash, sorted
 distinct instrument and actor identifiers, and normalized earliest/latest
 times. Case validation accepts only that `DatasetProfile`: a different dataset
-hash, an absent instrument or actor, an empty actor set, or an interval outside
-the profile stops before replay.
+hash, any absent declared instrument or actor, or an interval outside the
+profile stops before replay. Each absent instrument in a `1.4` declaration is
+reported at its own `hypothesis.instrumentIds[index]` path.
 
-Case Manifest `1.3` carries an approval record instead of a writable approval
-status. Mapping approval uses a separate record. Both records retain an opaque
+Case Manifest `1.3` remains the strict single-instrument form for
+`RAPID_PRICE_LIFT` and still requires a participant. Parallel strict `1.4`
+schemas declare a non-empty `instrumentIds` set and use the closed pattern
+vocabulary `RAPID_PRICE_LIFT` and `CROSS_MARKET_SESSION_REVERSAL`. Contract
+policy still requires a participant for rapid price lift but permits
+`actorIds: []` for cross-market session reversal. The empty list records that
+the source supplies no participant identities; it does not claim that nobody
+acted. Profile validation rejects that declaration when the canonical dataset
+profile contains any actor identity. The cross-market evaluation rule remains
+planned.
+
+Case manifests carry an approval record instead of a writable approval status.
+Mapping approval uses a separate record. Both records retain an opaque
 reviewer reference, decision, approval time, and justified override paths while
 binding to the immutable proposed artifact. Mapping confidence below the
 declared fixture threshold `1.0`, or a `REVIEW_REQUIRED` field, needs a matching

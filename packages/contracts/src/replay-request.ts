@@ -18,6 +18,7 @@ export const ReplayResultWorkflowStateSchema = WorkflowStateSchema.extract([
 ]);
 
 export const ReplayScenarioSchema = z.enum([
+  "actorless-multi-instrument-quotes.jsonl",
   "concentrated-buy-dialect-a.csv",
   "concentrated-buy-dialect-b.jsonl",
   "rapid-price-lift-supported.csv",

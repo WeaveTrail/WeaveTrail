@@ -14,6 +14,10 @@ function sha256(bytes: Uint8Array): string {
 describe("synthetic source artifacts", () => {
   it.each([
     [
+      "actorless-multi-instrument-quotes.jsonl",
+      "b1eae0149d9903a25e30f66e630d441035b3356b191d54e7c30327fe1853f094",
+    ],
+    [
       "concentrated-buy-dialect-a.csv",
       "d4bd80adf6a853adcf98f9ee08092f786b9b9276b349ad11fef6d0af078b867e",
     ],

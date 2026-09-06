@@ -309,7 +309,7 @@ export function DailyQuoteCaseLimitation({
       <h3>Case approval unavailable</h3>
       <p>
         {normalized
-          ? "Published daily quotes normalized. "
+          ? "Daily quotes normalized. "
           : "Mapping approval enables source normalization. "}
         This source supplies no participant identities or execution-side data.
       </p>

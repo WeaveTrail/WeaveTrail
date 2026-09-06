@@ -189,7 +189,7 @@ Illustrative paths:
 | Required mapping override               | `["mappingApproval", "overrides"]`                     |
 | Missing mapping approval                | `[]`                                                   |
 | Case approval hash mismatch             | `["caseManifest", "approval", "approvedArtifactHash"]` |
-| Case instrument outside profile         | `["caseManifest", "hypothesis", "instrumentId"]`       |
+| Case `1.3` instrument outside profile   | `["caseManifest", "hypothesis", "instrumentId"]`       |
 | Missing or duplicate rule configuration | `["caseManifest", "rules"]`                            |
 
 Source artifact hashes, source row numbers, missing column names, and required
@@ -289,6 +289,13 @@ Canonical events produce a deterministic `DatasetProfile` containing only the
 canonical dataset hash, sorted instrument and actor sets, and normalized time
 bounds. Case validation cannot widen those facts. Reviewer identity and
 approval time remain audit metadata and do not alter the semantic replay hash.
+The direct profile validator reports `1.4` instruments relative to the manifest
+at `["hypothesis", "instrumentIds", i]`. An actorless `1.4` hypothesis against
+a profile containing actors reports
+`["hypothesis", "actorIds"]`; this keeps the empty declaration's meaning tied
+to a source that supplies no participant identities. These engine-relative
+paths are not HTTP request paths until a request contract opts into the
+versioned manifest union.
 
 ### Decision boundary
 
@@ -465,7 +472,12 @@ rules.
 
 Case Manifest `1.3` retains the immutable approval record introduced by `1.2`,
 requires at least one actor, and accepts only registered rule parameters for
-the declared rule version. Mapping Proposal `1.4` retains the closed identity
+the declared rule version. Parallel Case Manifest `1.4` declares a non-empty
+instrument set and applies a closed pattern-to-participant policy; an empty
+actor list records identity absent from the source, not absence of actors.
+Profile validation therefore requires an empty actor profile for an empty
+`1.4` actor declaration. Existing `1.3` artifacts remain valid without
+migration. Mapping Proposal `1.4` retains the closed identity
 constants and transform pairs and makes `DECIMAL_STRING` produce canonical
 decimal spelling. Both artifact types use the shared RFC 8785 finite-number
 serialization rule for JSON numbers. Superseded artifacts are rejected and
@@ -477,6 +489,8 @@ artifacts retain their original version and migrate explicitly. See
 [ADR 0011](adr/0011-use-rfc-8785-number-serialization.md).
 Decimal-string normalization and its version migration are recorded in
 [ADR 0013](adr/0013-normalize-canonical-decimal-strings.md).
+Manifest coexistence and per-instrument validation are recorded in
+[ADR 0027](adr/0027-coexist-with-actorless-multi-instrument-manifests.md).
 
 ## Deployment boundary
 

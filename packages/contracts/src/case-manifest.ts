@@ -63,19 +63,22 @@ function caseWindowIsOrdered(hypothesis: {
   );
 }
 
-const CaseManifestFields = {
-  manifestVersion: z.literal("1.3"),
+export const CasePatternSchema = z.enum([
+  "RAPID_PRICE_LIFT",
+  "CROSS_MARKET_SESSION_REVERSAL",
+]);
+
+export const CASE_PATTERN_PARTICIPANT_REQUIREMENT = {
+  RAPID_PRICE_LIFT: "REQUIRED",
+  CROSS_MARKET_SESSION_REVERSAL: "OPTIONAL",
+} as const satisfies Record<
+  z.infer<typeof CasePatternSchema>,
+  "REQUIRED" | "OPTIONAL"
+>;
+
+const SharedCaseManifestFields = {
   caseId: z.string().min(1),
   canonicalDatasetHash: z.string().regex(/^[a-f0-9]{64}$/),
-  hypothesis: z
-    .object({
-      pattern: z.literal("RAPID_PRICE_LIFT"),
-      instrumentId: z.string().min(1),
-      actorIds: z.array(z.string().min(1)).min(1),
-      startTime: CaseEventTimeSchema,
-      endTime: CaseEventTimeSchema,
-    })
-    .strict(),
   rules: z.array(RuleConfigurationSchema),
   aiTrace: z
     .object({
@@ -88,22 +91,123 @@ const CaseManifestFields = {
     .strict(),
 } as const;
 
-export const CaseManifestProposalSchema = z
-  .object(CaseManifestFields)
-  .strict()
-  .refine(({ hypothesis }) => caseWindowIsOrdered(hypothesis), {
-    message: "The case start time must not be after its end time",
-  });
-
-export const CaseManifestSchema = z
+const LegacyHypothesisSchema = z
   .object({
-    ...CaseManifestFields,
-    approval: ApprovalRecordSchema,
+    pattern: z.literal("RAPID_PRICE_LIFT"),
+    instrumentId: z.string().min(1),
+    actorIds: z.array(z.string().min(1)).min(1),
+    startTime: CaseEventTimeSchema,
+    endTime: CaseEventTimeSchema,
   })
-  .strict()
-  .refine(({ hypothesis }) => caseWindowIsOrdered(hypothesis), {
-    message: "The case start time must not be after its end time",
-  });
+  .strict();
+
+const MultiInstrumentHypothesisSchema = z
+  .object({
+    pattern: CasePatternSchema,
+    instrumentIds: z
+      .array(z.string().min(1))
+      .min(1)
+      .refine(
+        (instrumentIds) => new Set(instrumentIds).size === instrumentIds.length,
+        { message: "Declared instrument identifiers must be unique" },
+      ),
+    actorIds: z.array(z.string().min(1)),
+    startTime: CaseEventTimeSchema,
+    endTime: CaseEventTimeSchema,
+  })
+  .strict();
+
+const LegacyCaseManifestProposalSchema = z
+  .object({
+    manifestVersion: z.literal("1.3"),
+    ...SharedCaseManifestFields,
+    hypothesis: LegacyHypothesisSchema,
+  })
+  .strict();
+
+const MultiInstrumentCaseManifestProposalSchema = z
+  .object({
+    manifestVersion: z.literal("1.4"),
+    ...SharedCaseManifestFields,
+    hypothesis: MultiInstrumentHypothesisSchema,
+  })
+  .strict();
+
+function validateCaseManifestPolicy(
+  manifest: {
+    manifestVersion: "1.3" | "1.4";
+    hypothesis: {
+      pattern: z.infer<typeof CasePatternSchema>;
+      actorIds: string[];
+      startTime: string;
+      endTime: string;
+    };
+  },
+  context: z.RefinementCtx,
+) {
+  if (!caseWindowIsOrdered(manifest.hypothesis)) {
+    context.addIssue({
+      code: "custom",
+      message: "The case start time must not be after its end time",
+    });
+  }
+  if (
+    manifest.manifestVersion === "1.4" &&
+    CASE_PATTERN_PARTICIPANT_REQUIREMENT[manifest.hypothesis.pattern] ===
+      "REQUIRED" &&
+    manifest.hypothesis.actorIds.length === 0
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["hypothesis", "actorIds"],
+      message: `${manifest.hypothesis.pattern} requires at least one participant identifier`,
+    });
+  }
+}
+
+export const VersionedCaseManifestProposalSchema = z
+  .discriminatedUnion("manifestVersion", [
+    LegacyCaseManifestProposalSchema,
+    MultiInstrumentCaseManifestProposalSchema,
+  ])
+  .superRefine(validateCaseManifestPolicy);
+
+const LegacyCaseManifestSchema = LegacyCaseManifestProposalSchema.extend({
+  approval: ApprovalRecordSchema,
+}).strict();
+const MultiInstrumentCaseManifestSchema =
+  MultiInstrumentCaseManifestProposalSchema.extend({
+    approval: ApprovalRecordSchema,
+  }).strict();
+
+export const VersionedCaseManifestSchema = z
+  .discriminatedUnion("manifestVersion", [
+    LegacyCaseManifestSchema,
+    MultiInstrumentCaseManifestSchema,
+  ])
+  .superRefine(validateCaseManifestPolicy);
+
+// Stable 1.3 entry points remain directly reachable and keep their prior types.
+export const CaseManifestProposalSchema =
+  LegacyCaseManifestProposalSchema.superRefine(validateCaseManifestPolicy);
+export const CaseManifestSchema = LegacyCaseManifestSchema.superRefine(
+  validateCaseManifestPolicy,
+);
+
+export const CaseManifestV14ProposalSchema =
+  MultiInstrumentCaseManifestProposalSchema.superRefine(
+    validateCaseManifestPolicy,
+  );
+export const CaseManifestV14Schema =
+  MultiInstrumentCaseManifestSchema.superRefine(validateCaseManifestPolicy);
 
 export type CaseManifestProposal = z.infer<typeof CaseManifestProposalSchema>;
 export type CaseManifest = z.infer<typeof CaseManifestSchema>;
+export type CaseManifestV14Proposal = z.infer<
+  typeof CaseManifestV14ProposalSchema
+>;
+export type CaseManifestV14 = z.infer<typeof CaseManifestV14Schema>;
+export type VersionedCaseManifestProposal = z.infer<
+  typeof VersionedCaseManifestProposalSchema
+>;
+export type VersionedCaseManifest = z.infer<typeof VersionedCaseManifestSchema>;
