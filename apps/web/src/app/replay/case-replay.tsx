@@ -216,7 +216,7 @@ const guideStepsKo: readonly GuideStep[] = [
   {
     title: "사례 반복",
     purpose:
-      "같은 승인 입력을 한 번 더 실행합니다. 반환된 두 해시를 비교하는 것은 같은 입력에 대한 반복 가능성만 확인합니다.",
+      "같은 승인 입력을 한 번 더 실행합니다. 반환된 두 해시를 비교해서 확인되는 것은 같은 입력을 넣었을 때의 반복 가능성뿐입니다.",
     action:
       "같은 승인 사례를 다시 실행하고 서버가 반환한 두 해시를 비교하세요.",
     actor: "Versioned code decided it",

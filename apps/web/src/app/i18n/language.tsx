@@ -2,11 +2,10 @@
 
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 /**
@@ -47,6 +46,43 @@ interface LanguageState {
   readonly setLanguage: (language: Language) => void;
 }
 
+/**
+ * The selection lives outside React so reading it needs no effect and no
+ * cascading render. The server snapshot is always English, so server output
+ * and the first hydrated render agree; a stored Korean preference is picked up
+ * when the store is first subscribed to, which happens after hydration.
+ */
+let current: Language = "en";
+const listeners = new Set<() => void>();
+
+function emit(): void {
+  for (const listener of listeners) listener();
+}
+
+function subscribe(listener: () => void): () => void {
+  if (listeners.size === 0) {
+    const stored = readStoredLanguage();
+    if (stored !== undefined && stored !== current) {
+      current = stored;
+      queueMicrotask(emit);
+    }
+  }
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+const getSnapshot = (): Language => current;
+const getServerSnapshot = (): Language => "en";
+
+function setLanguage(next: Language): void {
+  if (next === current) return;
+  current = next;
+  storeLanguage(next);
+  emit();
+}
+
 const LanguageContext = createContext<LanguageState | undefined>(undefined);
 
 export function LanguageProvider({
@@ -54,26 +90,17 @@ export function LanguageProvider({
 }: {
   readonly children: React.ReactNode;
 }) {
-  const [language, setLanguageState] = useState<Language>("en");
-
-  useEffect(() => {
-    const stored = readStoredLanguage();
-    if (stored !== undefined) setLanguageState(stored);
-  }, []);
+  const language = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const setLanguage = useCallback((next: Language) => {
-    setLanguageState(next);
-    storeLanguage(next);
-  }, []);
-
-  const value = useMemo(
-    () => ({ language, setLanguage }),
-    [language, setLanguage],
-  );
+  const value = useMemo(() => ({ language, setLanguage }), [language]);
 
   return (
     <LanguageContext.Provider value={value}>
