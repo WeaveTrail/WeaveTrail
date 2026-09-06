@@ -58,15 +58,96 @@ export type CaseReplayProps = {
 
 const workedCase = "rapid-price-lift-supported.csv";
 const reviewExample = "concentrated-buy-dialect-b.jsonl";
-const chapters = [
-  "Read the source",
-  "Review the mapping",
-  "Approve the case",
-  "Run the replay",
-  "Inspect the finding",
-  "Repeat the case",
-  "Take the controls",
-] as const;
+// Each guided step opens with what it demonstrates, what the visitor must do
+// to advance it, and which authority acted in it: a model proposed, a person
+// approved, or versioned code decided. `Committed input` names the steps where
+// none of the three has acted yet.
+type GuideStep = {
+  title: string;
+  purpose: string;
+  action: string;
+  actor:
+    | "Committed input"
+    | "A model proposed it"
+    | "A person approved it"
+    | "Versioned code decided it";
+  actorDetail: string;
+  refusal?: string;
+};
+
+export const guideSteps: readonly GuideStep[] = [
+  {
+    title: "Read the source",
+    purpose:
+      "Start with the committed supported case. No approval has been supplied. Read its columns and original values.",
+    action: "Read the committed source rows below, then continue.",
+    actor: "Committed input",
+    actorDetail:
+      "Nothing has been proposed, approved or decided at this point.",
+  },
+  {
+    title: "Review the mapping",
+    purpose:
+      "A deterministic fixture supplies the proposal shown below. No live model call occurred. First review a separate example that stops on an unmapped field, then approve the worked case's own mapping.",
+    action:
+      "Give the example's flagged field a reviewer reason and approve it, then approve this case's own mapping proposal.",
+    actor: "A model proposed it",
+    actorDetail:
+      "The fixture mapping provider proposes targets, transforms and evidence. It cannot approve them.",
+    refusal:
+      "This step keeps a refusal on the path: the review example holds at REVIEW_REQUIRED. A nonblank reviewer reason on every flagged field is the condition that clears it.",
+  },
+  {
+    title: "Approve the case",
+    purpose:
+      "Review and approve the exact scope and threshold values proposed in this committed, authored case. Versioned code defines the allowed parameter schema, formulas and comparisons. Live case proposal is planned.",
+    action:
+      "Read the instrument, window and threshold values, then approve this exact case manifest.",
+    actor: "A person approved it",
+    actorDetail:
+      "You approve the scope. An approval binds to one exact artifact hash.",
+  },
+  {
+    title: "Run the replay",
+    purpose:
+      "The server validates the exact approvals and source rows, then versioned code decides. Each request has its own workflow state.",
+    action:
+      "Run the approved case and wait for its returned evaluation and source trace.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "The server revalidates both approvals before the versioned rule runs.",
+  },
+  {
+    title: "Inspect the finding",
+    purpose:
+      "This result describes support for one versioned pattern hypothesis under the approved scope. Inspect all five gates, then open a finding to trace it to the original rows.",
+    action:
+      "Open the source evidence under a gate to reach its canonical events and committed source rows.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "Gates, observed values and the source trace are server-derived, not model output.",
+  },
+  {
+    title: "Repeat the case",
+    purpose:
+      "Execute the same approved input again. Comparing two returned hashes checks same-input repeatability only.",
+    action:
+      "Repeat the same approved case and compare the two server-returned hashes.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "Both hashes are returned by the server. The browser compares them as strings.",
+  },
+  {
+    title: "Take the controls",
+    purpose:
+      "Continue with this case, its approvals and result still loaded. A refresh starts unapproved.",
+    action:
+      "Carry this case into working mode, where you select sources and variations yourself.",
+    actor: "A person approved it",
+    actorDetail:
+      "The approvals you made stay loaded. No approval is persisted beyond this browser session.",
+  },
+];
 
 export function ApprovalReceipt({ approval }: { approval: ApprovalRecord }) {
   return (
@@ -337,11 +418,13 @@ export function RapidPriceLiftEvaluation({
   sourceTrace,
   scenario,
   onEvidenceOpen,
+  advancesStep = false,
 }: {
   evaluation: RapidPriceLiftResult;
   sourceTrace: SourceTrace;
   scenario: ReplayScenario;
   onEvidenceOpen?: () => void;
+  advancesStep?: boolean;
 }) {
   return (
     <section className="result-summary" aria-label="Pattern hypothesis result">
@@ -380,7 +463,11 @@ export function RapidPriceLiftEvaluation({
                 </p>
                 <small>{finding.referencedEventIds.join(" · ")}</small>
                 <details
-                  className="source-evidence"
+                  className={
+                    advancesStep
+                      ? "source-evidence step-action"
+                      : "source-evidence"
+                  }
                   onToggle={(event) => {
                     if (event.currentTarget.open) onEvidenceOpen?.();
                   }}
@@ -532,6 +619,7 @@ export function CaseReplay({
   const lastSubmittedRows = useRef<ReplayRequest["rows"] | null>(null);
   const [submittedOrder, setSubmittedOrder] = useState<string[] | null>(null);
   const [chapter, setChapter] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [exampleApproved, setExampleApproved] = useState(false);
   const [evidenceOpened, setEvidenceOpened] = useState(false);
   const [previousHash, setPreviousHash] = useState<string | null>(null);
@@ -565,7 +653,7 @@ export function CaseReplay({
     completeResult &&
     previousHash !== null &&
     previousHash === result.replay.canonicalResultHash;
-  const canContinue = [
+  const stepSatisfied = [
     true,
     approval !== null && exampleApproved,
     approval !== null && caseApproval !== null,
@@ -573,8 +661,8 @@ export function CaseReplay({
     completeResult && evidenceOpened,
     repeatMatches,
     true,
-  ][chapter];
-  const blockedReason = [
+  ];
+  const stepBlockers = [
     "",
     "Approve the separate mapping review example and this case's mapping to continue.",
     "Approve the mapping, then this exact case manifest.",
@@ -584,13 +672,24 @@ export function CaseReplay({
       ? "The returned hashes differ. Retry the same approved case or inspect the results."
       : "Repeat the same approved case to compare returned hashes.",
     "",
-  ][chapter];
+  ];
+  const canContinue = stepSatisfied[chapter];
+  const blockedReason = stepBlockers[chapter];
+  // Read-ahead is allowed, so an earlier step can still be unmet while the
+  // visitor reads a later one. Completion means the visitor satisfied the step
+  // themselves and it still holds.
+  const unmetEarlierStep = stepSatisfied
+    .slice(0, chapter)
+    .findIndex((satisfied) => !satisfied);
+  const stepCompleted = (step: number) =>
+    completedSteps.includes(step) && stepSatisfied[step] === true;
   const show = (step: number) => !guided || chapter === step;
 
   useEffect(() => {
     if (guided && !previousGuided.current) {
       requestGeneration.current += 1;
       setChapter(0);
+      setCompletedSteps([]);
       setExampleApproved(false);
       setEvidenceOpened(false);
       setPreviousHash(null);
@@ -614,11 +713,56 @@ export function CaseReplay({
     setChapter(next);
   }
 
+  function completeChapter(step: number) {
+    setCompletedSteps((current) =>
+      current.includes(step) ? current : [...current, step],
+    );
+  }
+
+  function advanceChapter() {
+    if (!canContinue) return;
+    completeChapter(chapter);
+    goToChapter(chapter + 1);
+  }
+
   function focusChapterTitle(node: HTMLHeadingElement | null) {
     if (node && focusPending.current) {
       node.focus();
       focusPending.current = false;
     }
+  }
+
+  const guideStep = guideSteps[chapter]!;
+
+  // Rendered inline rather than as a nested component so the same controls open
+  // and close the step without duplicating their disabled and blocked state.
+  function stepControls(place: "start" | "end") {
+    return (
+      <nav
+        aria-label={`Step navigation at the ${place} of the step`}
+        className="journey-controls"
+      >
+        <button
+          className="button"
+          disabled={chapter === 0}
+          onClick={() => goToChapter(chapter - 1)}
+          type="button"
+        >
+          Back
+        </button>
+        {chapter < guideSteps.length - 1 && (
+          <button
+            aria-describedby={canContinue ? undefined : "guide-requirement"}
+            className="button primary"
+            disabled={!canContinue}
+            onClick={advanceChapter}
+            type="button"
+          >
+            Continue
+          </button>
+        )}
+      </nav>
+    );
   }
 
   function invalidateResult() {
@@ -746,34 +890,85 @@ export function CaseReplay({
                 className="journey-progress"
                 aria-label="Case walkthrough progress"
               >
-                {chapters.map((title, index) => (
+                {guideSteps.map((step, index) => (
                   <li
-                    key={title}
+                    key={step.title}
                     aria-current={chapter === index ? "step" : undefined}
                   >
-                    {index + 1}. {title}
+                    <button
+                      className="journey-step"
+                      data-complete={stepCompleted(index)}
+                      onClick={() => goToChapter(index)}
+                      type="button"
+                    >
+                      <span>
+                        {index + 1}. {step.title}
+                      </span>
+                      <small>
+                        {stepCompleted(index)
+                          ? "Completed by you"
+                          : chapter === index
+                            ? "Current step · not completed"
+                            : "Not completed · readable"}
+                      </small>
+                    </button>
                   </li>
                 ))}
               </ol>
               <h2 ref={focusChapterTitle} tabIndex={-1}>
-                Step {chapter + 1} · {chapters[chapter]}
+                Step {chapter + 1} · {guideStep.title}
               </h2>
-              <p>
-                {
-                  [
-                    "Start with the committed supported case. No approval has been supplied. Read its columns and original values.",
-                    "A deterministic fixture supplies the proposal shown below. No live model call occurred. First review a separate example that stops on an unmapped field, then approve the worked case's own mapping.",
-                    "Review and approve the exact scope and threshold values proposed in this committed, authored case. Versioned code defines the allowed parameter schema, formulas and comparisons. Live case proposal is planned.",
-                    "The server validates the exact approvals and source rows, then versioned code decides. Each request has its own workflow state.",
-                    "This result describes support for one versioned pattern hypothesis under the approved scope. Inspect all five gates, then open a finding to trace it to the original rows.",
-                    "Execute the same approved input again. Comparing two returned hashes checks same-input repeatability only.",
-                    "Continue with this case, its approvals and result still loaded. A refresh starts unapproved.",
-                  ][chapter]
-                }
+              <dl className="step-intent">
+                <div>
+                  <dt>What this step demonstrates</dt>
+                  <dd>{guideStep.purpose}</dd>
+                </div>
+                <div>
+                  <dt>What you do to advance it</dt>
+                  <dd>{guideStep.action}</dd>
+                </div>
+                <div>
+                  <dt>Who acted</dt>
+                  <dd>
+                    <strong>{guideStep.actor}</strong> {guideStep.actorDetail}
+                  </dd>
+                </div>
+              </dl>
+              {guideStep.refusal ? (
+                <p className="step-refusal" data-status="REVIEW_REQUIRED">
+                  {guideStep.refusal}
+                </p>
+              ) : null}
+              <p
+                className="step-requirement"
+                data-met={canContinue && unmetEarlierStep === -1}
+                id="guide-requirement"
+                role="status"
+              >
+                {canContinue
+                  ? "The required action for this step is satisfied."
+                  : `Not satisfied yet · ${blockedReason}`}
+                {unmetEarlierStep === -1
+                  ? ""
+                  : ` Read-ahead · you have not completed step ${
+                      unmetEarlierStep + 1
+                    } · ${guideSteps[unmetEarlierStep]!.title}: ${
+                      stepBlockers[unmetEarlierStep]
+                    }`}
               </p>
+              {stepControls("start")}
             </>
           ) : (
             <>
+              <p className="guided-offer">
+                Following this case for the first time?{" "}
+                <Link className="button" href="/replay?mode=guided">
+                  Start the guided case
+                </Link>{" "}
+                Seven steps lead one committed source through both approvals to
+                a finding traced back to its rows. The working controls below
+                stay available.
+              </p>
               <h2 ref={focusChapterTitle} tabIndex={-1}>
                 Case Replay controls
               </h2>
@@ -949,7 +1144,9 @@ export function CaseReplay({
             ) : null}
           </div>
           <button
-            className="button"
+            className={
+              guided && chapter === 1 ? "button step-action" : "button"
+            }
             disabled={unresolvedReview}
             onClick={approveMapping}
             type="button"
@@ -1039,7 +1236,9 @@ export function CaseReplay({
                 <p>Approve the mapping before approving the case.</p>
               )}
               <button
-                className="button"
+                className={
+                  guided && chapter === 2 ? "button step-action" : "button"
+                }
                 disabled={!approval}
                 onClick={approveCase}
                 type="button"
@@ -1058,7 +1257,11 @@ export function CaseReplay({
         </div>
         <div hidden={!show(3) || mappingExample}>
           <button
-            className="button primary run-button"
+            className={
+              guided && chapter === 3
+                ? "button primary run-button step-action"
+                : "button primary run-button"
+            }
             disabled={
               running ||
               approval === null ||
@@ -1153,6 +1356,7 @@ export function CaseReplay({
             </div>
             {"evaluation" in result ? (
               <RapidPriceLiftEvaluation
+                advancesStep={guided && chapter === 4 && !evidenceOpened}
                 evaluation={result.evaluation}
                 sourceTrace={result.sourceTrace}
                 scenario={result.scenario}
@@ -1201,7 +1405,9 @@ export function CaseReplay({
               real-market accuracy or general mutation tolerance.
             </p>
             <button
-              className="button"
+              className={
+                guided && chapter === 5 ? "button step-action" : "button"
+              }
               disabled={
                 running ||
                 !approval ||
@@ -1255,11 +1461,14 @@ export function CaseReplay({
           </p>
           {guided && (
             <button
-              className="button primary"
+              className={
+                chapter === 6 ? "button primary step-action" : "button primary"
+              }
               type="button"
               disabled={!repeatMatches}
               onClick={() => {
                 if (!repeatMatches) return;
+                completeChapter(chapter);
                 focusPending.current = true;
                 onGuideComplete?.();
               }}
@@ -1270,29 +1479,7 @@ export function CaseReplay({
         </section>
       )}
       {guided && (
-        <footer className="journey-footer panel">
-          <button
-            className="button"
-            disabled={chapter === 0}
-            onClick={() => goToChapter(chapter - 1)}
-            type="button"
-          >
-            Back
-          </button>
-          {chapter < chapters.length - 1 && (
-            <button
-              className="button primary"
-              disabled={!canContinue}
-              onClick={() => {
-                if (canContinue) goToChapter(chapter + 1);
-              }}
-              type="button"
-            >
-              Continue
-            </button>
-          )}
-          {!canContinue && <p role="status">{blockedReason}</p>}
-        </footer>
+        <footer className="journey-footer panel">{stepControls("end")}</footer>
       )}
     </section>
   );

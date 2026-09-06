@@ -8,6 +8,7 @@ const groups = [
     "Investigate",
     [
       ["Overview", "/"],
+      ["Guided case", "/replay?mode=guided"],
       ["Case Replay", "/replay"],
     ],
   ],
