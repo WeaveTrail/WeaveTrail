@@ -33,11 +33,7 @@ export type SeriesAdapter = {
   pageSizeParameter: string;
   selectors: Partial<
     Record<
-      | "instrument"
-      | "index"
-      | "series"
-      | "index-family"
-      | "instrument-family",
+      "instrument" | "index" | "series" | "index-family" | "instrument-family",
       string
     >
   >;

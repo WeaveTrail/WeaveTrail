@@ -113,6 +113,11 @@ unknown fields instead of silently giving them a scope.
 | `mappings[].proposal.constants.schemaVersion`                        | N                   | P          |
 | `mappings[].proposal.constants.datasetId`                            | N                   | P          |
 | `mappings[].proposal.constants.venueId`                              | N                   | P          |
+| `mappings[].proposal.compositeSourceEventId.sourceColumns[]`         | N                   | P          |
+| `mappings[].proposal.compositeSourceEventId.transform`               | N                   | P          |
+| `mappings[].proposal.compositeSourceEventId.confidence`              | N                   | P          |
+| `mappings[].proposal.compositeSourceEventId.evidence`                | N                   | P          |
+| `mappings[].proposal.compositeSourceEventId.status`                  | N                   | P          |
 | `mappings[].proposal.constants.eventType`                            | N                   | P          |
 | `mappings[].proposal.fields[].sourceColumn`                          | N                   | P          |
 | `mappings[].proposal.fields[].targetField`                           | N                   | P          |
@@ -218,9 +223,10 @@ empty findings and null sensitivity; all of that evaluation is result-hashed.
 
 Event 1.1 and 1.2 use the same 15-field projection, including `schemaVersion`
 and `eventType`; optional absent fields are never filled in. No event-version
-conversion happens during hashing. Proposal 1.4 and 1.5 are covered in full by
+conversion happens during hashing. Proposals 1.4, 1.5 and 1.6 are covered in full by
 the bundle hash and never directly by the result hash; the daily proposal's
-constant `eventType` exists only in 1.5. Manifest 1.3 is stored as its complete
+constant `eventType` exists in 1.5 and 1.6, while the latter also binds the
+ordered composite source identity declaration. Manifest 1.3 is stored as its complete
 proposal plus the separate, optional approval record. Its case identity,
 hypothesis, rule parameters and AI trace are all bundle-only inputs. Thus one
 definition covers every committed source and case without version upgrades,

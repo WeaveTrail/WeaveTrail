@@ -2,18 +2,86 @@
   "kind": "real",
   "provider": "Financial Services Commission (금융위원회)",
   "title": "금융위원회_파생상품시세정보 — 코스피200 선물군",
+  "titleEnglish": "Financial Services Commission derivatives prices — KOSPI 200 futures",
   "originUrl": "https://www.data.go.kr/data/15094802/openapi.do",
   "operationUrl": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getStockFuturesPriceInfo",
   "retrievedAt": "2026-09-06T16:01:41.580Z",
+  "basDt": "20260903",
   "licence": {
-    "label": "이용허락범위 제한 없음", "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do", "checkedAt": "2026-09-06T16:00:27.013Z",
+    "label": "이용허락범위 제한 없음",
+    "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+    "checkedAt": "2026-09-06T16:00:27.013Z",
     "attributionRequirements": "No specific attribution condition is stated by the distribution's unrestricted permission label or linked portal policy. Provider credit is retained under repository provenance rules.",
-    "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_파생상품시세정보, via data.go.kr. KOSPI 200 futures family on 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+    "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_파생상품시세정보, via data.go.kr. KOSPI 200 futures family on trading date 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
   },
-  "venue": { "value": "KRX-DERIVATIVES", "basis": "The publisher classifies every row as a derivative futures product; this venue label is artifact metadata." },
+  "venue": {
+    "value": "KRX-DERIVATIVES",
+    "basis": "The publisher classifies every row as a derivative futures product; this venue label is artifact metadata."
+  },
   "rowCount": 13,
-  "crossChecks": [{ "statement": "Every futures sptPrc equals the separately published 코스피 200 index clpr for 2026-09-03.", "value": "1032.82", "status": "MATCH" }],
-  "derivation": { "version": "complete-series-json-pages-to-jsonl-v1", "columns": ["basDt", "prdCtg", "srtnCd", "isinCd", "itmsNm", "clpr", "vs", "mkp", "hipr", "lopr", "sptPrc", "stmPrc", "trqu", "trPrc", "opnint"], "itemValues": "Complete string-valued items in publisher order; no coercion or financial arithmetic.", "command": "node scripts/retrieve-fsc-market-source.mjs stock-futures declaration.json NEW_OUTPUT_DIRECTORY; node scripts/derive-published-rows.mjs source.jsonl /tmp/fsc-kospi-200-futures-rows.json" },
-  "artifacts": { "acquisition": { "path": "acquisition.json" }, "runtimeJsonl": { "path": "source.jsonl", "sha256": "49c1bb4fa3f703993308b0508212534e35133952df9be7c614651202f7626d1f" }, "generatedRows": { "path": "rows.json", "sha256": "5843577452c36a5c20986508e1c4dec99510cabfb9567feab75e872838f0f80e" } },
-  "interpretation": { "eventSchemaVersion": "1.2", "mappingVersion": "1.5", "eventType": "DAILY_QUOTE", "unmappedColumns": ["prdCtg", "itmsNm", "vs", "mkp", "hipr", "lopr", "sptPrc", "stmPrc", "trPrc", "opnint"], "absentFields": ["side", "actorId", "counterpartyId", "orderId", "sequence", "receivedAt"] }
+  "crossChecks": [
+    {
+      "statement": "Every futures sptPrc equals the separately published 코스피 200 index clpr for 2026-09-03.",
+      "value": "1032.82",
+      "status": "MATCH"
+    }
+  ],
+  "derivation": {
+    "version": "complete-series-json-pages-to-jsonl-v1",
+    "columns": [
+      "basDt",
+      "prdCtg",
+      "srtnCd",
+      "isinCd",
+      "itmsNm",
+      "clpr",
+      "vs",
+      "mkp",
+      "hipr",
+      "lopr",
+      "sptPrc",
+      "stmPrc",
+      "trqu",
+      "trPrc",
+      "opnint"
+    ],
+    "itemValues": "Complete string-valued items in publisher order; no coercion or financial arithmetic.",
+    "command": "node scripts/retrieve-fsc-market-source.mjs stock-futures declaration.json NEW_OUTPUT_DIRECTORY; node scripts/derive-published-rows.mjs source.jsonl /tmp/fsc-kospi-200-futures-rows.json"
+  },
+  "artifacts": {
+    "acquisition": { "path": "acquisition.json" },
+    "runtimeJsonl": {
+      "path": "source.jsonl",
+      "sha256": "49c1bb4fa3f703993308b0508212534e35133952df9be7c614651202f7626d1f"
+    },
+    "generatedRows": {
+      "path": "rows.json",
+      "sha256": "5843577452c36a5c20986508e1c4dec99510cabfb9567feab75e872838f0f80e"
+    }
+  },
+  "interpretation": {
+    "eventSchemaVersion": "1.2",
+    "mappingVersion": "1.5",
+    "eventType": "DAILY_QUOTE",
+    "unmappedColumns": [
+      "prdCtg",
+      "itmsNm",
+      "vs",
+      "mkp",
+      "hipr",
+      "lopr",
+      "sptPrc",
+      "stmPrc",
+      "trPrc",
+      "opnint"
+    ],
+    "absentFields": [
+      "side",
+      "actorId",
+      "counterpartyId",
+      "orderId",
+      "sequence",
+      "receivedAt"
+    ]
+  }
 }

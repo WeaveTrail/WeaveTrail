@@ -1,4 +1,4 @@
-# ADR 0026: Declare published market family and range scopes
+# ADR 0030: Declare published market family and range scopes
 
 ## Status
 

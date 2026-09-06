@@ -9,10 +9,7 @@ import {
   type RapidPriceLiftGate,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import {
-  fscStockQuotesProposal,
-  publishedReplaySources,
-} from "@weavetrail/published-data";
+import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   actorlessMultiInstrumentScenario,
@@ -60,10 +57,7 @@ const sources: Record<string, Source> = {
     mappingProposal: concentratedBuyDialectBProposal,
   },
   ...rapidPriceLiftScenarios,
-  "real/fsc-stock-quotes-20260903.jsonl": {
-    ...publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"],
-    mappingProposal: fscStockQuotesProposal,
-  },
+  ...publishedReplaySources,
 };
 
 function approvalFor(

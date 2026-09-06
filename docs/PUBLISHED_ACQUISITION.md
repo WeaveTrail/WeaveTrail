@@ -196,4 +196,4 @@ declared scope. It is not evidence of authenticity, a stable remote snapshot,
 coverage outside that scope, or a rule verdict. The count cannot compensate
 for a publisher whose totals or selector semantics cannot be trusted. See
 [ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
-[ADR 0026](adr/0026-declare-published-market-family-and-range-scopes.md).
+[ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md).

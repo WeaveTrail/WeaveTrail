@@ -181,6 +181,12 @@ const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
 const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
 const fscBundle = specimen(fsc.rows, fsc.mappingProposal);
+const compositeFsc =
+  publishedReplaySources["real/fsc-kospi-index-family-20260903/source.jsonl"];
+const compositeFscBundle = specimen(
+  compositeFsc.rows,
+  compositeFsc.mappingProposal,
+);
 const dialects = [
   ["concentrated-buy-dialect-a.csv", concentratedBuyDialectAProposal],
   ["concentrated-buy-dialect-b.jsonl", concentratedBuyDialectBProposal],
@@ -431,7 +437,12 @@ probe.case!.approval!.overrides = [
 probe.case!.proposal.aiTrace.referencedEventIds = [
   probe.replay!.events[0]!.eventId,
 ];
-const probes = [probe, syntheticDaily, ...cases.map(({ bundle }) => bundle)];
+const probes = [
+  probe,
+  syntheticDaily,
+  compositeFscBundle,
+  ...cases.map(({ bundle }) => bundle),
+];
 
 describe("each published field's serialization boundary", () => {
   it.each(table)("enforces $path (result=$result, bundle=$bundle)", (row) => {

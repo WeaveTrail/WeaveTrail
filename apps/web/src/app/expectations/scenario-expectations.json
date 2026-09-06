@@ -209,6 +209,50 @@
       "canonicalResultHash": "f8bb2a21d695aab89e826039861204ecb741d5f56ecab69e354c9b5840ae25fc",
       "hypothesis": null,
       "gates": []
+    },
+    {
+      "scenario": "real/fsc-kospi-index-family-20260903/source.jsonl",
+      "label": "FSC · KOSPI index family · 2026-09-03",
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "b0b42b61f5668bc23b5f622a4e9819263ce2554f4d900e547d3d28ce50dcf9da",
+      "canonicalResultHash": "e828a2671e5078bf77c153ea4af8638791dadd8771a1c8e222c5bad9d9bef9a5",
+      "hypothesis": null,
+      "gates": []
+    },
+    {
+      "scenario": "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+      "label": "FSC · KOSPI 200 baseline · 2026-07-01–2026-09-03",
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "b7364e750ab9bcdc2ecabd6877435d4efd2b8a1bc3ce80f0687b11f8bcecc9c7",
+      "canonicalResultHash": "7256b544b5a839a223ce0cebf8dd2132cf3a015452c355e11572c5478d475caf",
+      "hypothesis": null,
+      "gates": []
+    },
+    {
+      "scenario": "real/fsc-kospi-200-futures-20260903/source.jsonl",
+      "label": "FSC · KOSPI 200 futures · 2026-09-03",
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "9df726e18dc8c22596b55e28e0add89637dd77b35396096e5dc6b60466856f70",
+      "canonicalResultHash": "a36302c47a3449da7df30da82b64cbae20f6183b2a92f35f3dcce4a4d8f2c893",
+      "hypothesis": null,
+      "gates": []
+    },
+    {
+      "scenario": "real/fsc-weekly-options-20260903/source.jsonl",
+      "label": "FSC · weekly options · 2026-09-03",
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "b087b9b8311003d35a0051428f61eff0af25e348f76caa7470d5626c880158dc",
+      "canonicalResultHash": "e74d9316e8c329ab5732b73845ea3163a070541dd16071b81e12e39d652adbed",
+      "hypothesis": null,
+      "gates": []
     }
   ]
 }

@@ -16,6 +16,14 @@ synthetic.
 | Mapping Proposal | `mappingVersion: 1.4`, event schema `1.1` constants        | `mappingVersion: 1.5`, event schema `1.2` constants and required `eventType: DAILY_QUOTE` |
 | Date transform   | Existing transforms                                        | Adds `YYYYMMDD_TO_KST_DAY_START_ISO` for `eventTime` only                                 |
 
+Published index observations use the additional Mapping Proposal `1.6`
+branch. It retains the Event `1.2` constants and date transform while declaring
+an ordered `compositeSourceEventId`. The FSC natural key `(basDt, idxNm)` is
+joined with a reserved NUL separator only during approved normalization;
+neither source column nor any committed artifact is rewritten. Missing or
+NUL-containing components fail closed. Existing `1.4` and `1.5` proposals need
+no migration, and derivative sources with `srtnCd` remain on `1.5`.
+
 Every object branch remains strict. Existing payloads require no migration;
 new kinds and transforms cannot enter a legacy proposal. The daily kind is an
 artifact constant included in the exact proposal approval hash. A field mapping

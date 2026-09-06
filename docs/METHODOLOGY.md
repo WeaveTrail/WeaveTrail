@@ -372,9 +372,12 @@ normalization and its case-approval limit; it has no expected rule outcome.
 
 ## Daily quote contract support
 
-Trade Event `1.2` and Mapping Proposal `1.5` add a daily-only kind constant and
+Trade Event `1.2` and Mapping Proposals `1.5`/`1.6` add a daily-only kind constant and
 a reviewed trading-date anchor while retaining legacy `1.1`/`1.4` inputs and
 hashes. The published FSC KOSPI window for 2026-09-03 contains 40 quotations,
 with source/permission and derivation recorded beside it.
 [Daily quote normalization](DAILY_QUOTES.md) describes the exact command,
 environment, contracts, test evidence and published-field interpretation.
+Proposal `1.6` additionally permits only `sourceEventId` to be formed from an
+ordered, NUL-separated list of publisher columns when that list is the
+publisher's natural key.

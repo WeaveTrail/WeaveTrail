@@ -51,6 +51,22 @@ const MappingFieldSchema = z
     },
   );
 
+const CompositeSourceEventIdSchema = z
+  .object({
+    sourceColumns: z.array(z.string().min(1)).min(2),
+    transform: z.literal("NUL_JOIN"),
+    confidence: z.number().min(0).max(1),
+    evidence: z.string().min(1),
+    status: z.enum(["PROPOSED", "REVIEW_REQUIRED"]),
+  })
+  .strict()
+  .refine(
+    ({ sourceColumns }) => new Set(sourceColumns).size === sourceColumns.length,
+    {
+      message: "Composite source identity columns must be unique",
+    },
+  );
+
 const LegacyConstantsSchema = z
   .object({
     schemaVersion: z.literal("1.1"),
@@ -78,6 +94,26 @@ export const SchemaMappingProposalSchema = z.discriminatedUnion(
               transform === null ||
               LegacyAllowedTransformSchema.safeParse(transform).success,
             { message: "Legacy mappings accept only legacy transforms" },
+          ),
+        ),
+      })
+      .strict(),
+    z
+      .object({
+        mappingVersion: z.literal("1.6"),
+        sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+        constants: DailyConstantsSchema,
+        compositeSourceEventId: CompositeSourceEventIdSchema,
+        fields: z.array(
+          MappingFieldSchema.refine(
+            ({ targetField, transform }) =>
+              targetField !== "sourceEventId" &&
+              (transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
+                targetField === "eventTime"),
+            {
+              message:
+                "Version 1.6 reserves sourceEventId for the composite declaration and restricts the trading-date anchor to eventTime",
+            },
           ),
         ),
       })
@@ -125,5 +161,8 @@ export function deriveApprovedSourceMapping(proposal: SchemaMappingProposal) {
       ({ sourceColumn, targetField, transform }) =>
         [sourceColumn, targetField, transform] as const,
     ),
+    ...(proposal.mappingVersion === "1.6"
+      ? { compositeSourceEventId: proposal.compositeSourceEventId }
+      : {}),
   };
 }
