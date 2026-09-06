@@ -227,8 +227,8 @@
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
-      "canonicalDatasetHash": "b7364e750ab9bcdc2ecabd6877435d4efd2b8a1bc3ce80f0687b11f8bcecc9c7",
-      "canonicalResultHash": "7256b544b5a839a223ce0cebf8dd2132cf3a015452c355e11572c5478d475caf",
+      "canonicalDatasetHash": "a75e867995419eb2c144e03886405097c718e66f7eb00edc96ccd4178a55ea37",
+      "canonicalResultHash": "568ae50d81d18537ca1e537d2aedb204e3cc9aeb1e6dcc8ba06f661c5004f512",
       "hypothesis": null,
       "gates": []
     },
@@ -238,8 +238,8 @@
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
-      "canonicalDatasetHash": "9df726e18dc8c22596b55e28e0add89637dd77b35396096e5dc6b60466856f70",
-      "canonicalResultHash": "a36302c47a3449da7df30da82b64cbae20f6183b2a92f35f3dcce4a4d8f2c893",
+      "canonicalDatasetHash": "e6216cb956dcc9ba2ded19873b74fcffabab5db2cad530c4de4ba9ef5edc5e9a",
+      "canonicalResultHash": "5feffa3a3fd9c93489708e2d0d693e6f4f68283f1f77deccd5f8a282d5c6fdf9",
       "hypothesis": null,
       "gates": []
     },

@@ -6,8 +6,8 @@ import {
   RapidPriceLiftResultSchema,
   RapidPriceLiftSensitivitySchema,
 } from "./rapid-price-lift";
-import { SchemaMappingProposalSchema } from "./schema-mapping";
-import { TradeEventSchema } from "./trade-event";
+import { PreOhlcSchemaMappingProposalSchema } from "./schema-mapping";
+import { PreOhlcTradeEventSchema } from "./trade-event";
 import { WorkflowStateSchema } from "./workflow";
 
 const HashSchema = z.string().regex(/^[a-f0-9]{64}$/);
@@ -59,7 +59,7 @@ export const EvidenceBundleV13Schema = z
     mappings: z.array(
       z
         .object({
-          proposal: SchemaMappingProposalSchema,
+          proposal: PreOhlcSchemaMappingProposalSchema,
           approval: ApprovalRecordSchema.optional(),
         })
         .strict(),
@@ -76,7 +76,7 @@ export const EvidenceBundleV13Schema = z
       .object({
         engineVersion: z.literal("0.7.0-canonical-decimal"),
         canonicalDatasetHash: HashSchema,
-        events: z.array(TradeEventSchema),
+        events: z.array(PreOhlcTradeEventSchema),
         evaluation: RapidPriceLiftResultSchema.optional(),
         canonicalResultHash: HashSchema,
       })

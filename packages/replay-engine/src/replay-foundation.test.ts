@@ -12,6 +12,7 @@ import {
 import {
   CANONICAL_EVENT_FIELDS,
   COLLECTION_METADATA_FIELDS,
+  OHLC_DAILY_CANONICAL_EVENT_FIELDS,
   projectCanonicalEvent,
 } from "./canonicalize";
 import { ENGINE_VERSION, replayFoundation } from "./replay-foundation";
@@ -556,7 +557,13 @@ describe("canonical event projection", () => {
     ].sort();
 
     for (const branch of TradeEventSchema.options) {
-      expect(classifiedFields).toEqual([...branch.keyof().options].sort());
+      const branchFields = [...branch.keyof().options].sort();
+      const schemaVersion = branch.shape.schemaVersion.value;
+      expect(
+        schemaVersion === "1.3"
+          ? [...classifiedFields, ...OHLC_DAILY_CANONICAL_EVENT_FIELDS].sort()
+          : classifiedFields,
+      ).toEqual(branchFields);
     }
     expect(new Set(classifiedFields).size).toBe(classifiedFields.length);
   });

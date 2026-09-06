@@ -397,9 +397,9 @@ Reusing that evaluation preserves finding `gate` and INCONCLUSIVE's reason,
 empty findings and null sensitivity. Missing normalization omits `replay`;
 normalization without a rule result omits only `replay.evaluation`.
 
-The FSC daily quotation artifact ends at `MAPPING_APPROVED` with a result hash
-but no evaluation or case manifest. Event 1.1/1.2, Proposal 1.4/1.5/1.6 and Manifest
-1.3 retain their own versions inside this declaration. Hashing converts none
+The original FSC daily quotation artifact ends at `MAPPING_APPROVED` with a
+result hash but no evaluation or case manifest. Evidence Bundle `1.3` remains
+frozen to Event 1.1/1.2, Proposal 1.4/1.5/1.6 and Manifest 1.3. Hashing converts none
 of them and invents no missing fields.
 
 `canonicalResultHash` protects exactly the engine version, 15-field canonical
@@ -548,7 +548,7 @@ build or runtime dependency. Product copy and every visible evidence value stay
 owned by this repository's runtime responses and committed synthetic scenarios.
 See [ADR 0015](adr/0015-apply-the-canonical-design-reference.md).
 
-## Daily quote version coexistence
+## Daily quote and cross-market rule version coexistence
 
 The engine also accepts daily-only Event `1.2` and Mapping Proposals `1.5`/`1.6` with
 an approved `DAILY_QUOTE` constant and a trading-date anchor transform. Registry
@@ -561,3 +561,12 @@ Proposal `1.6` adds an injective ordered composite for `sourceEventId` only;
 the components remain original source columns and the ordinary mapping retains
 its duplicate-source and duplicate-target checks. See
 [ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md).
+
+Event `1.3` and Proposal `1.7` form a separate opt-in path that retains trading
+date, OHLC and the publisher's absolute net change. The
+`0.8.0-cross-market-session-reversal` engine evaluates one declared date over
+an approved Case Manifest `1.4`, using exact scaled-integer arithmetic, a
+declared baseline and per-leg gates. This entry point accepts combined canonical
+events from the declared published artifacts; the existing single-source HTTP
+Case Replay remains unchanged. See
+[ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md).

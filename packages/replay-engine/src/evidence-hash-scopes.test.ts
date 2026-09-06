@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   EvidenceBundleSchema,
   EvidenceBundleV13Schema,
+  SchemaMappingProposalSchema,
   requiresMappingOverride,
   type ApprovalRecord,
   type CaseManifest,
@@ -181,8 +182,42 @@ const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
 const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
 const fscBundle = specimen(fsc.rows, fsc.mappingProposal);
-const compositeFsc =
+const ohlcCompositeFsc =
   publishedReplaySources["real/fsc-kospi-index-family-20260903/source.jsonl"];
+const compositeFsc = {
+  ...ohlcCompositeFsc,
+  mappingProposal: SchemaMappingProposalSchema.parse({
+    mappingVersion: "1.6",
+    sourceArtifactHash: ohlcCompositeFsc.sourceArtifactHash,
+    constants: {
+      schemaVersion: "1.2",
+      datasetId: ohlcCompositeFsc.mappingProposal.constants.datasetId,
+      venueId: ohlcCompositeFsc.mappingProposal.constants.venueId,
+      eventType: "DAILY_QUOTE",
+    },
+    compositeSourceEventId: {
+      sourceColumns: ["basDt", "idxNm"],
+      transform: "NUL_JOIN",
+      confidence: 1,
+      status: "PROPOSED",
+      evidence:
+        "The publisher natural key is the ordered pair (basDt, idxNm). NUL cannot occur in admitted values and makes the join injective without modifying source rows.",
+    },
+    fields: ohlcCompositeFsc.mappingProposal.fields.map((field) => {
+      if (field.targetField === "closePrice") {
+        return { ...field, targetField: "price", transform: "DECIMAL_STRING" };
+      }
+      if (
+        ["openPrice", "highPrice", "lowPrice", "netChange"].includes(
+          field.targetField ?? "",
+        )
+      ) {
+        return { ...field, targetField: null, transform: null };
+      }
+      return field;
+    }),
+  }),
+};
 const compositeFscBundle = specimen(
   compositeFsc.rows,
   compositeFsc.mappingProposal,
@@ -276,7 +311,7 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
     expect(evidenceBundleHash(pending)).toBe(
       sha256Canonical(tableProjection(pending, "bundle")),
     );
-    const rejected = {
+    const rejected = EvidenceBundleV13Schema.parse({
       ...pending,
       mappings: [
         {
@@ -287,7 +322,7 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
           },
         },
       ],
-    };
+    });
     expect(EvidenceBundleV13Schema.safeParse(rejected).success).toBe(true);
     expect(evidenceBundleHash(rejected)).not.toBe(evidenceBundleHash(pending));
     expect(resultHash(rejected)).toBeUndefined();

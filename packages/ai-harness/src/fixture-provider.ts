@@ -69,7 +69,8 @@ export const fixtureMappingsByArtifact = new Map(
           mappingVersion: proposal.mappingVersion,
           constants: proposal.constants,
           fields: declaredFields(proposal.fields),
-          ...(proposal.mappingVersion === "1.6"
+          ...("compositeSourceEventId" in proposal &&
+          proposal.compositeSourceEventId !== undefined
             ? { compositeSourceEventId: proposal.compositeSourceEventId }
             : {}),
         },
@@ -91,14 +92,19 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
     );
     if (
       input.constants.schemaVersion === "1.2" ||
+      input.constants.schemaVersion === "1.3" ||
       artifactMapping?.mappingVersion === "1.5" ||
-      artifactMapping?.mappingVersion === "1.6"
+      artifactMapping?.mappingVersion === "1.6" ||
+      artifactMapping?.mappingVersion === "1.7"
     ) {
       if (
         (artifactMapping?.mappingVersion !== "1.5" &&
-          artifactMapping?.mappingVersion !== "1.6") ||
-        input.constants.schemaVersion !== "1.2" ||
-        artifactMapping.constants.schemaVersion !== "1.2" ||
+          artifactMapping?.mappingVersion !== "1.6" &&
+          artifactMapping?.mappingVersion !== "1.7") ||
+        (input.constants.schemaVersion !== "1.2" &&
+          input.constants.schemaVersion !== "1.3") ||
+        input.constants.schemaVersion !==
+          artifactMapping.constants.schemaVersion ||
         input.constants.datasetId !== artifactMapping.constants.datasetId ||
         input.constants.venueId !== artifactMapping.constants.venueId ||
         input.constants.eventType !== artifactMapping.constants.eventType
@@ -112,7 +118,9 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       mappingVersion: artifactMapping?.mappingVersion ?? "1.4",
       sourceArtifactHash: input.sourceArtifactHash,
       constants: input.constants,
-      ...(artifactMapping?.mappingVersion === "1.6"
+      ...(artifactMapping !== undefined &&
+      "compositeSourceEventId" in artifactMapping &&
+      artifactMapping.compositeSourceEventId !== undefined
         ? { compositeSourceEventId: artifactMapping.compositeSourceEventId }
         : {}),
       fields: input.columns.map((sourceColumn) => {

@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 import { ApprovalRecordSchema } from "./approval-record";
-import { RuleConfigurationSchema } from "./rule-parameters";
+import {
+  RapidPriceLiftRuleConfigurationSchema,
+  RuleConfigurationSchema,
+} from "./rule-parameters";
 
 const NANOSECONDS_PER_SECOND = 1_000_000_000n;
 const SECONDS_PER_DAY = 86_400n;
@@ -79,7 +82,6 @@ export const CASE_PATTERN_PARTICIPANT_REQUIREMENT = {
 const SharedCaseManifestFields = {
   caseId: z.string().min(1),
   canonicalDatasetHash: z.string().regex(/^[a-f0-9]{64}$/),
-  rules: z.array(RuleConfigurationSchema),
   aiTrace: z
     .object({
       provider: z.string().min(1),
@@ -121,6 +123,7 @@ const LegacyCaseManifestProposalSchema = z
   .object({
     manifestVersion: z.literal("1.3"),
     ...SharedCaseManifestFields,
+    rules: z.array(RapidPriceLiftRuleConfigurationSchema),
     hypothesis: LegacyHypothesisSchema,
   })
   .strict();
@@ -129,6 +132,7 @@ const MultiInstrumentCaseManifestProposalSchema = z
   .object({
     manifestVersion: z.literal("1.4"),
     ...SharedCaseManifestFields,
+    rules: z.array(RuleConfigurationSchema),
     hypothesis: MultiInstrumentHypothesisSchema,
   })
   .strict();

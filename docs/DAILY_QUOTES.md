@@ -5,24 +5,26 @@ quotes for `basDt=20260903`: 40 items from the first page of 943. Select
 `real/fsc-stock-quotes-20260903.jsonl`, inspect the original columns and source
 provenance, enter reasons for the date/close/volume interpretations, approve the
 exact mapping, and select **Normalize source**. Normalization succeeds without
-case approval or a pattern verdict. The guided case and rule evaluations remain
-synthetic.
+case approval or a pattern verdict. The guided case remains synthetic; a
+separate engine-level published-data golden now covers the cross-market rule.
 
 ## Contract coexistence
 
-| Input            | Existing branch                                            | Daily quote branch                                                                        |
-| ---------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Trade Event      | `schemaVersion: 1.1`, `ORDER_NEW`, `ORDER_CANCEL`, `TRADE` | `schemaVersion: 1.2`, `DAILY_QUOTE` only                                                  |
-| Mapping Proposal | `mappingVersion: 1.4`, event schema `1.1` constants        | `mappingVersion: 1.5`, event schema `1.2` constants and required `eventType: DAILY_QUOTE` |
-| Date transform   | Existing transforms                                        | Adds `YYYYMMDD_TO_KST_DAY_START_ISO` for `eventTime` only                                 |
+| Input            | Existing branch                                            | Daily normalization branch                                                 | Evaluation-capable daily branch                                                   |
+| ---------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Trade Event      | `schemaVersion: 1.1`, `ORDER_NEW`, `ORDER_CANCEL`, `TRADE` | `schemaVersion: 1.2`, `DAILY_QUOTE` only                                   | `schemaVersion: 1.3`, `DAILY_QUOTE` plus trading date, OHLC and net change        |
+| Mapping Proposal | `mappingVersion: 1.4`, event schema `1.1` constants        | `mappingVersion: 1.5`/`1.6`, event schema `1.2` and required `DAILY_QUOTE` | `mappingVersion: 1.7`, event schema `1.3` and direct-or-composite source identity |
+| Transforms       | Existing transforms                                        | Adds `YYYYMMDD_TO_KST_DAY_START_ISO` for `eventTime` only                  | Adds reviewed `PUBLISHER_DECIMAL_STRING` for publisher leading-dot decimals       |
 
-Published index observations use the additional Mapping Proposal `1.6`
-branch. It retains the Event `1.2` constants and date transform while declaring
-an ordered `compositeSourceEventId`. The FSC natural key `(basDt, idxNm)` is
+Published index observations use Mapping Proposal `1.6` for
+normalization-only output. The evaluation-capable KOSPI 200 baseline
+registration uses Event `1.3` and Proposal `1.7`, retaining the same ordered
+`compositeSourceEventId`. The FSC natural key `(basDt, idxNm)` is
 joined with a reserved NUL separator only during approved normalization;
 neither source column nor any committed artifact is rewritten. Missing or
-NUL-containing components fail closed. Existing `1.4` and `1.5` proposals need
-no migration, and derivative sources with `srtnCd` remain on `1.5`.
+NUL-containing components fail closed. Existing `1.4`, `1.5` and `1.6`
+proposals need no migration. The evaluation-capable futures registration maps
+its direct `srtnCd` identity through `1.7`; weekly options remain on `1.5`.
 
 Case Replay accepts a complete committed source in a request up to the contract
 limit of 1,000 rows. This admits the 546-row weekly-options series without
@@ -38,10 +40,14 @@ date in years 0001–9999. It returns `YYYY-MM-DDT00:00:00+09:00` without local-
 parsing or date rollover. This is a reviewer-approved trading-date anchor, not
 an observed execution timestamp, market opening time or publisher-returned
 offset. Existing canonicalization converts it to UTC nanosecond representation.
-Decimal-string normalization is unchanged; source strings are preserved.
+Existing decimal-string normalization is unchanged. Proposal `1.7` adds a
+publisher-specific reviewed transform that only canonicalizes a missing zero
+before a decimal point; source strings are preserved.
 
-Event schema `1.2` is daily-only. Existing optional event fields retain their
-contract definitions, but an actorless published quotation must leave `side`,
+Event schemas `1.2` and `1.3` are daily-only. Event `1.3` requires source
+`tradingDate`, OHLC and absolute `netChange`, all protected by its canonical
+projection. Existing optional event fields retain their contract definitions,
+but an actorless published quotation must leave `side`,
 `actorId`, `counterpartyId`, `orderId`, `sequence` and `receivedAt` absent. The
 `EVENT_TYPE_CODE` transform still accepts only the original execution/order codes.
 
@@ -131,9 +137,10 @@ parser edge cases, identity conflicts and rule ineligibility use wholly syntheti
 specimens. The negative real-data route test supplies an explicitly untrusted
 actor claim only in a refused request; it never evaluates that case.
 
-The engine stays `0.7.0-canonical-decimal`; this published source still has no
-case manifest, rule result or pattern verdict. Parallel Case Manifest `1.4`
-can state an actorless multi-instrument hypothesis, but its cross-market rule
-remains planned. See
+The original stock-quote window stays on engine `0.7.0-canonical-decimal` and
+still has no case manifest, rule result or pattern verdict. The complete KOSPI
+200 baseline and front-future registrations use Event `1.3`; the separate
+`0.8.0-cross-market-session-reversal` engine entry point evaluates an approved
+actorless Case Manifest `1.4` across their combined canonical events. See
 [ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
-[ADR 0027](adr/0027-coexist-with-actorless-multi-instrument-manifests.md).
+[ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md).

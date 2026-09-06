@@ -32,22 +32,40 @@ export const CANONICAL_EVENT_FIELDS = [
   "quantity",
 ] as const satisfies readonly (keyof TradeEvent)[];
 
+export const OHLC_DAILY_CANONICAL_EVENT_FIELDS = [
+  "tradingDate",
+  "openPrice",
+  "highPrice",
+  "lowPrice",
+  "closePrice",
+  "netChange",
+] as const;
+
 export const COLLECTION_METADATA_FIELDS = [
   "receivedAt",
   "rawRowHash",
 ] as const satisfies readonly (keyof TradeEvent)[];
 
-export type CanonicalEventProjection = {
-  [Field in (typeof CANONICAL_EVENT_FIELDS)[number]]?: JsonValue;
-};
+export type CanonicalEventProjection = Partial<
+  Record<
+    | (typeof CANONICAL_EVENT_FIELDS)[number]
+    | (typeof OHLC_DAILY_CANONICAL_EVENT_FIELDS)[number],
+    JsonValue
+  >
+>;
 
 export function projectCanonicalEvent(
   event: TradeEvent,
 ): CanonicalEventProjection {
   const projection: CanonicalEventProjection = {};
+  const fields = event as unknown as Record<string, JsonValue | undefined>;
 
-  for (const field of CANONICAL_EVENT_FIELDS) {
-    const value = event[field];
+  const protectedFields =
+    event.schemaVersion === "1.3"
+      ? [...CANONICAL_EVENT_FIELDS, ...OHLC_DAILY_CANONICAL_EVENT_FIELDS]
+      : CANONICAL_EVENT_FIELDS;
+  for (const field of protectedFields) {
+    const value = fields[field];
     if (value !== undefined) projection[field] = value;
   }
 

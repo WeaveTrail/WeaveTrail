@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
+import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentScenario,
   committedReplayScenarios,
@@ -30,6 +31,23 @@ describe("FixtureSchemaMappingProvider", () => {
     });
 
     expect(proposal).toEqual(scenario.mappingProposal);
+  });
+
+  it("serves direct and composite registered mapping 1.7 proposals", async () => {
+    for (const name of [
+      "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+      "real/fsc-kospi-200-futures-20260903/source.jsonl",
+    ] as const) {
+      const source = publishedReplaySources[name];
+      const proposal = await provider.propose({
+        sourceArtifactHash: source.sourceArtifactHash,
+        constants: source.constants,
+        columns: [...source.columns],
+        sampleRows: [],
+      });
+      expect(proposal).toEqual(source.mappingProposal);
+      expect(proposal.mappingVersion).toBe("1.7");
+    }
   });
 
   it("selects daily proposal metadata by registered artifact hash and checks constants", async () => {
@@ -98,6 +116,13 @@ describe("FixtureSchemaMappingProvider", () => {
     }
     await expect(
       provider.propose({ ...input, sourceArtifactHash: "e".repeat(64) }),
+    ).rejects.toThrow("registered");
+    await expect(
+      provider.propose({
+        ...input,
+        sourceArtifactHash: "e".repeat(64),
+        constants: { ...constants, schemaVersion: "1.3" },
+      }),
     ).rejects.toThrow("registered");
   });
 
