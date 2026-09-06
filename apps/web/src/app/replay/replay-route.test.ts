@@ -61,10 +61,15 @@ describe("Case Replay entry contract", () => {
         ]),
       );
       const escapedValues = new Map<string, string>();
+      const missingRows: string[] = [];
+      const missingTerms = new Set<string>();
+      const missingValues = new Set<string>();
       for (const row of committed.rows) {
-        expect(renderedRows).toContain(row.coordinate.rowNumber);
+        if (!renderedRows.has(row.coordinate.rowNumber))
+          missingRows.push(row.coordinate.rowNumber);
         for (const [column, value] of Object.entries(row.values)) {
-          expect(renderedTerms).toContain(escapedTerms.get(column));
+          const escapedTerm = escapedTerms.get(column)!;
+          if (!renderedTerms.has(escapedTerm)) missingTerms.add(escapedTerm);
           let escapedValue = escapedValues.get(value);
           if (escapedValue === undefined) {
             escapedValue = renderToStaticMarkup(
@@ -72,9 +77,13 @@ describe("Case Replay entry contract", () => {
             );
             escapedValues.set(value, escapedValue);
           }
-          expect(renderedValues).toContain(escapedValue);
+          if (!renderedValues.has(escapedValue))
+            missingValues.add(escapedValue);
         }
       }
+      expect(missingRows).toEqual([]);
+      expect([...missingTerms]).toEqual([]);
+      expect([...missingValues]).toEqual([]);
     }
   });
 
