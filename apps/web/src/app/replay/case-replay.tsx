@@ -1194,9 +1194,7 @@ export function CaseReplay({
                 Proposed targets and allowlisted transforms, with confidence,
                 evidence and review status. You approve this exact proposal.
               </p>
-              {proposal.constants.eventType === "DAILY_QUOTE" && (
-                <DailyQuoteSemantics />
-              )}
+              {"eventType" in proposal.constants && <DailyQuoteSemantics />}
               {proposal.fields.map((field, index) => (
                 <div className="mapping-row" key={field.sourceColumn}>
                   <code>{field.sourceColumn}</code>
@@ -1354,7 +1352,7 @@ export function CaseReplay({
               </button>
               {caseApproval && <ApprovalReceipt approval={caseApproval} />}
             </div>
-          ) : proposal.constants.eventType === "DAILY_QUOTE" ? (
+          ) : "eventType" in proposal.constants ? (
             <DailyQuoteCaseLimitation
               normalized={result?.workflowState === "MAPPING_APPROVED"}
             />
@@ -1375,7 +1373,7 @@ export function CaseReplay({
             onClick={() => runReplay()}
             type="button"
           >
-            {proposal.constants.eventType === "DAILY_QUOTE"
+            {"eventType" in proposal.constants
               ? running
                 ? "Normalizing…"
                 : "Normalize source"

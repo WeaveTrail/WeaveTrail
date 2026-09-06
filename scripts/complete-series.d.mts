@@ -88,6 +88,22 @@ export function completeSeriesRequest(
   adapter: SeriesAdapter,
   pageNumber: string,
 ): SeriesRequest;
+export function startCompleteSeries(
+  declaration: CompleteSeriesDeclaration,
+  adapter: SeriesAdapter,
+): {
+  declaration: CompleteSeriesDeclaration;
+  requestAdapter: Omit<SeriesAdapter, "decodePage">;
+  pages: SeriesRecord["pages"];
+  rows: Record<string, string>[];
+  identityKeys: Set<string>;
+  total?: bigint;
+};
+export function appendCompleteSeriesPage(
+  state: ReturnType<typeof startCompleteSeries>,
+  bytes: Uint8Array,
+  adapter: SeriesAdapter,
+): boolean;
 export function validateCompleteSeriesArtifact(
   record: unknown,
   rawPages: readonly Uint8Array[],
