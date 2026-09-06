@@ -7,7 +7,11 @@
 @import url("../design-reference/tokens/base.css");
 :root {
   color-scheme: light;
-  --font-sans: var(--font-sans-local), "Helvetica Neue", Helvetica, sans-serif;
+  /* Korean falls through to the reader's system Hangul face; the committed
+     Latin webfont carries no Hangul and no additional font is loaded. */
+  --font-sans:
+    var(--font-sans-local), "Helvetica Neue", Helvetica, "Pretendard",
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --font-mono: var(--font-mono-local), ui-monospace, monospace;
 }
 button,
@@ -1076,4 +1080,36 @@ code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Language selection in the site header. */
+.language-selector {
+  display: inline-flex;
+  gap: 0;
+  margin-left: auto;
+  border: 1px solid var(--rule, rgba(0, 0, 0, 0.16));
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.language-selector button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+
+.language-selector button[aria-current="true"] {
+  background: var(--ink, #111);
+  color: var(--paper, #fff);
+}
+
+.language-selector button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
