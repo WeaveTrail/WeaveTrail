@@ -363,10 +363,18 @@ describe("finding evidence disclosures", () => {
         expect(markup).not.toContain("rawRowHash");
         return;
       }
-      const disclosures = [
-        ...markup.matchAll(/<details[\s\S]*?<\/details>/g),
-      ].map(([value]) => value);
+      // Each gate row carries one evidence disclosure, which itself nests one
+      // full-value disclosure per displayed hash, so slice by gate row rather
+      // than by the first closing tag.
+      const disclosures = markup
+        .split('<div class="gate-row"')
+        .slice(1)
+        .map((chunk) => chunk);
       expect(disclosures).toHaveLength(5);
+      for (const disclosure of disclosures)
+        expect([
+          ...disclosure.matchAll(/<details class="source-evidence"/g),
+        ]).toHaveLength(1);
       evaluation.findings.forEach((finding, index) => {
         const disclosure = disclosures[index]!;
         expect(disclosure).toContain(
