@@ -59,8 +59,21 @@ function emit(): void {
   for (const listener of listeners) listener();
 }
 
+function adoptStoredLanguage(): void {
+  const stored = readStoredLanguage();
+  if (stored !== undefined && stored !== current) {
+    current = stored;
+    emit();
+  }
+}
+
+function handleStorage(event: StorageEvent): void {
+  if (event.key === STORAGE_KEY || event.key === null) adoptStoredLanguage();
+}
+
 function subscribe(listener: () => void): () => void {
   if (listeners.size === 0) {
+    window.addEventListener("storage", handleStorage);
     const stored = readStoredLanguage();
     if (stored !== undefined && stored !== current) {
       current = stored;
@@ -70,6 +83,9 @@ function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => {
     listeners.delete(listener);
+    if (listeners.size === 0) {
+      window.removeEventListener("storage", handleStorage);
+    }
   };
 }
 
@@ -77,9 +93,12 @@ const getSnapshot = (): Language => current;
 const getServerSnapshot = (): Language => "en";
 
 function setLanguage(next: Language): void {
+  // Persist before the equality check. Another tab may have written a different
+  // value that this tab has not adopted, and choosing the language already
+  // shown here must still mean "this one" on the next load.
+  storeLanguage(next);
   if (next === current) return;
   current = next;
-  storeLanguage(next);
   emit();
 }
 

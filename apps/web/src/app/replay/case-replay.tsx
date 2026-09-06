@@ -234,6 +234,87 @@ const guideStepsKo: readonly GuideStep[] = [
   },
 ];
 
+interface GuideUi {
+  readonly blockers: readonly string[];
+  readonly hashesDiffer: string;
+  readonly readyToContinue: string;
+  readonly toContinue: (reason: string) => string;
+  readonly readingAhead: (step: number, title: string) => string;
+  readonly stepHeading: (step: number, title: string) => string;
+  readonly whatThisShows: string;
+  readonly whatYouDo: string;
+  readonly whoActed: string;
+  readonly completed: string;
+  readonly currentStep: string;
+  readonly back: string;
+  readonly continueLabel: string;
+  readonly navigationInRail: string;
+  readonly navigationAtEnd: string;
+  readonly progressLabel: string;
+  readonly controlsHeading: string;
+}
+
+const guideUi: Readonly<Record<Language, GuideUi>> = {
+  en: {
+    blockers: [
+      "",
+      "Approve the separate mapping review example and this case's mapping to continue.",
+      "Approve the mapping, then this exact case manifest.",
+      "Run the approved case and wait for its evaluation and source trace.",
+      "Open a finding's source evidence to continue.",
+      "Repeat the same approved case to compare returned hashes.",
+      "",
+    ],
+    hashesDiffer:
+      "The returned hashes differ. Retry the same approved case or inspect the results.",
+    readyToContinue: "Ready to continue.",
+    toContinue: (reason) => `To continue: ${reason}`,
+    readingAhead: (step, title) =>
+      ` You are reading ahead: step ${step}, ${title}, is not completed.`,
+    stepHeading: (step, title) => `Step ${step} \u00b7 ${title}`,
+    whatThisShows: "What this shows",
+    whatYouDo: "What you do",
+    whoActed: "Who acted",
+    completed: "Completed",
+    currentStep: "Current step",
+    back: "Back",
+    continueLabel: "Continue",
+    navigationInRail: "Step navigation in the step rail",
+    navigationAtEnd: "Step navigation at the end of the step",
+    progressLabel: "Case walkthrough progress",
+    controlsHeading: "Case Replay controls",
+  },
+  ko: {
+    blockers: [
+      "",
+      "별도의 매핑 검토 예시와 이 사례의 매핑을 모두 승인해야 계속할 수 있습니다.",
+      "매핑을 먼저 승인하고, 이어서 이 사례 manifest를 승인하세요.",
+      "승인된 사례를 실행하고 평가와 소스 추적이 나올 때까지 기다리세요.",
+      "발견의 소스 증거를 열어야 계속할 수 있습니다.",
+      "같은 승인 사례를 다시 실행해 반환된 해시를 비교하세요.",
+      "",
+    ],
+    hashesDiffer:
+      "반환된 해시가 서로 다릅니다. 같은 승인 사례를 다시 실행하거나 결과를 확인하세요.",
+    readyToContinue: "계속할 수 있습니다.",
+    toContinue: (reason) => `계속하려면: ${reason}`,
+    readingAhead: (step, title) =>
+      ` 앞서 읽고 있습니다. ${step}단계 "${title}"를 아직 완료하지 않았습니다.`,
+    stepHeading: (step, title) => `${step}단계 \u00b7 ${title}`,
+    whatThisShows: "무엇을 보여주는가",
+    whatYouDo: "무엇을 하는가",
+    whoActed: "누가 했는가",
+    completed: "완료",
+    currentStep: "현재 단계",
+    back: "이전",
+    continueLabel: "계속",
+    navigationInRail: "단계 목록에서의 단계 이동",
+    navigationAtEnd: "단계 끝에서의 단계 이동",
+    progressLabel: "사례 둘러보기 진행 상황",
+    controlsHeading: "Case Replay 컨트롤",
+  },
+};
+
 const guideStepsByLanguage: Readonly<Record<Language, readonly GuideStep[]>> = {
   en: guideSteps,
   ko: guideStepsKo,
@@ -795,17 +876,10 @@ export function CaseReplay({
     repeatMatches,
     true,
   ];
-  const stepBlockers = [
-    "",
-    "Approve the separate mapping review example and this case's mapping to continue.",
-    "Approve the mapping, then this exact case manifest.",
-    "Run the approved case and wait for its evaluation and source trace.",
-    "Open a finding's source evidence to continue.",
-    previousHash && completeResult
-      ? "The returned hashes differ. Retry the same approved case or inspect the results."
-      : "Repeat the same approved case to compare returned hashes.",
-    "",
-  ];
+  const ui = guideUi[language];
+  const stepBlockers = ui.blockers.map((blocker, index) =>
+    index === 5 && previousHash && completeResult ? ui.hashesDiffer : blocker,
+  );
   const canContinue = stepSatisfied[chapter];
   const blockedReason = stepBlockers[chapter];
   // Read-ahead is allowed, so an earlier step can still be unmet while the
@@ -880,11 +954,7 @@ export function CaseReplay({
   function stepControls(place: "rail" | "end") {
     return (
       <nav
-        aria-label={
-          place === "rail"
-            ? "Step navigation in the step rail"
-            : "Step navigation at the end of the step"
-        }
+        aria-label={place === "rail" ? ui.navigationInRail : ui.navigationAtEnd}
         className="journey-controls"
       >
         <button
@@ -893,7 +963,7 @@ export function CaseReplay({
           onClick={() => goToChapter(chapter - 1)}
           type="button"
         >
-          Back
+          {ui.back}
         </button>
         {chapter < activeSteps.length - 1 && (
           <button
@@ -903,7 +973,7 @@ export function CaseReplay({
             onClick={advanceChapter}
             type="button"
           >
-            Continue
+            {ui.continueLabel}
           </button>
         )}
       </nav>
@@ -1071,10 +1141,7 @@ export function CaseReplay({
           {guided ? (
             <>
               <div className="rail-scroll">
-                <ol
-                  className="journey-progress"
-                  aria-label="Case walkthrough progress"
-                >
+                <ol className="journey-progress" aria-label={ui.progressLabel}>
                   {activeSteps.map((step, index) => (
                     <li
                       key={step.title}
@@ -1092,8 +1159,8 @@ export function CaseReplay({
                         {stepCompleted(index) || chapter === index ? (
                           <small>
                             {stepCompleted(index)
-                              ? "Completed"
-                              : "Current step"}
+                              ? ui.completed
+                              : ui.currentStep}
                           </small>
                         ) : null}
                       </button>
@@ -1101,19 +1168,19 @@ export function CaseReplay({
                   ))}
                 </ol>
                 <h2 ref={focusChapterTitle} tabIndex={-1}>
-                  Step {chapter + 1} · {guideStep.title}
+                  {ui.stepHeading(chapter + 1, guideStep.title)}
                 </h2>
                 <dl className="step-intent">
                   <div>
-                    <dt>What this shows</dt>
+                    <dt>{ui.whatThisShows}</dt>
                     <dd>{guideStep.purpose}</dd>
                   </div>
                   <div>
-                    <dt>What you do</dt>
+                    <dt>{ui.whatYouDo}</dt>
                     <dd>{guideStep.action}</dd>
                   </div>
                   <div>
-                    <dt>Who acted</dt>
+                    <dt>{ui.whoActed}</dt>
                     <dd>
                       <strong>{actorLabels[language][guideStep.actor]}</strong>{" "}
                       {guideStep.actorDetail}
@@ -1134,14 +1201,14 @@ export function CaseReplay({
                   role="status"
                 >
                   {canContinue
-                    ? "Ready to continue."
-                    : `To continue: ${blockedReason}`}
+                    ? ui.readyToContinue
+                    : ui.toContinue(blockedReason ?? "")}
                   {unmetEarlierStep === -1
                     ? ""
-                    : ` You are reading ahead: step ${
-                        unmetEarlierStep + 1
-                      }, ${activeSteps[unmetEarlierStep]!.title}, is not
-                      completed.`.replace(/\s+/g, " ")}
+                    : ui.readingAhead(
+                        unmetEarlierStep + 1,
+                        activeSteps[unmetEarlierStep]!.title,
+                      )}
                 </p>
                 {stepControls("rail")}
               </div>
@@ -1149,7 +1216,7 @@ export function CaseReplay({
           ) : (
             <>
               <h2 ref={focusChapterTitle} tabIndex={-1}>
-                Case Replay controls
+                {ui.controlsHeading}
               </h2>
               <p>
                 {selectedScenario.manifest
