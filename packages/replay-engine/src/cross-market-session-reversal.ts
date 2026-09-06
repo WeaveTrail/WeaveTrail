@@ -9,6 +9,7 @@ import {
 } from "@weavetrail/contracts";
 
 import { canonicalizeEvents } from "./canonicalize";
+import { compareCanonicalEventTimes } from "./canonical-order";
 import { computeDatasetProfile } from "./dataset-profile";
 import {
   canonicalReplayResultHash,
@@ -225,11 +226,17 @@ export function evaluateCrossMarketSessionReversal(
     return inconclusive("ANALYSED_DATE_OUTSIDE_BASELINE_RANGE");
   }
 
-  const groups = quoteGroups(canonicalEvents);
+  const caseEvents = canonicalEvents.filter(
+    ({ eventTime }) =>
+      compareCanonicalEventTimes(eventTime, manifest.hypothesis.startTime) >=
+        0 &&
+      compareCanonicalEventTimes(eventTime, manifest.hypothesis.endTime) <= 0,
+  );
+  const groups = quoteGroups(caseEvents);
   const baselineLeg = rule.parameters.legs.find(
     ({ legId }) => legId === rule.parameters.baselineLegId,
   )!;
-  const baselineEvents = canonicalEvents.filter(
+  const baselineEvents = caseEvents.filter(
     (event): event is DailyQuote =>
       event.schemaVersion === "1.3" &&
       event.instrumentId === baselineLeg.instrumentId &&

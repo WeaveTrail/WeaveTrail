@@ -378,9 +378,10 @@ the reported multiple is truncated toward zero to four fractional digits only
 after the gate has been decided.
 
 The baseline population is the comparable baseline-leg observations in the
-declared range. The analysed date's rank is `1 + count(multiple > analysed
-multiple)`; equal values share a rank. The result reports that position and the
-population size with the literal interpretation
+intersection of the declared baseline range and the approved Case Manifest
+time window. Events outside that case window cannot affect the result. The
+analysed date's rank is `1 + count(multiple > analysed multiple)`; equal values
+share a rank. The result reports that position and the population size with the literal interpretation
 `POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY`. A rank is a position within
 the declared range, not a probability.
 

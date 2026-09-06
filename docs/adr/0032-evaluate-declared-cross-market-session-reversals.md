@@ -45,12 +45,13 @@ publisher's absolute `netChange`, never its percentage field. The relation is
 `sessionReversal / abs(netChange)`.
 
 The baseline population contains comparable baseline-leg observations inside
-the declared range. Rank is one plus the number with a strictly greater exact
-multiple, so ties share a position. Rank is a position within that declared
-population, not a probability. Each leg produces its own gate even when it
-fails; a separate quorum gate counts passing legs. `SUPPORTED` requires both
-the rank gate and quorum gate, allowing a configured quorum to preserve a
-failed leg visibly in a supported result.
+both the declared range and the approved Case Manifest time window. Events
+outside the case window cannot affect the verdict. Rank is one plus the number
+with a strictly greater exact multiple, so ties share a position. Rank is a
+position within that declared population, not a probability. Each leg produces
+its own gate even when it fails; a separate quorum gate counts passing legs.
+`SUPPORTED` requires both the rank gate and quorum gate, allowing a configured
+quorum to preserve a failed leg visibly in a supported result.
 
 All arithmetic and comparisons use scaled integers and exact ratio
 cross-products. Rendered multiples are truncated toward zero to four fractional

@@ -334,6 +334,35 @@ describe("cross-market session reversal", () => {
     });
   });
 
+  it("limits baseline observations to the approved case window", () => {
+    const specimen = crossMarketSessionReversalSpecimens.supported;
+    const configured = manifest(specimen.events);
+    const narrowedAttempt = {
+      ...configured,
+      hypothesis: {
+        ...configured.hypothesis,
+        startTime: "2026-09-01T00:00:00Z",
+      },
+    } as CaseManifestV14;
+    const narrowed = {
+      ...narrowedAttempt,
+      approval: {
+        ...narrowedAttempt.approval,
+        approvedArtifactHash: sha256Canonical(
+          caseManifestProposal(narrowedAttempt),
+        ),
+      },
+    };
+    const replay = replayCrossMarketSessionReversal(specimen.events, narrowed);
+    expect(replay.evaluation).toMatchObject({
+      result: "SUPPORTED",
+      analysis: { rank: { populationSize: "2" } },
+    });
+    expect(replay.evaluation.findings[0]!.referencedEventIds).not.toContain(
+      specimen.events[0]!.eventId,
+    );
+  });
+
   it("covers empty and single-day baselines, zero change, a missing leg and an out-of-range date", () => {
     const supported = crossMarketSessionReversalSpecimens.supported.events;
     const configured = manifest(supported);
