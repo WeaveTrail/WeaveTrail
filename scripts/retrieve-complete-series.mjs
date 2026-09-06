@@ -38,6 +38,7 @@ export async function retrieveCompleteSeries({ declaration, output }, adapter) {
     secret,
     encodeURIComponent(secret),
     new URLSearchParams({ value: secret }).toString().slice(6),
+    JSON.stringify(secret).slice(1, -1),
   ]);
   const guard = (text) => {
     if (

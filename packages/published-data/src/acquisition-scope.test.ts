@@ -110,6 +110,30 @@ function clock() {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-09-06T00:00:02.000Z"));
 }
+function provenance(
+  record: Awaited<ReturnType<typeof retrieveCompleteSeries>>,
+) {
+  return {
+    kind: "real",
+    provider: "Synthetic publisher",
+    title: "Synthetic complete series",
+    originUrl: "https://example.invalid/source",
+    retrievedAt: record.retrievedAt,
+    licence: {
+      label: record.declaration.permission.label,
+      termsUrl: record.declaration.permission.termsUrl,
+      checkedAt: record.declaration.permission.checkedAt,
+      attributionRequirements: "Synthetic attribution required for tests",
+      attribution: record.declaration.permission.attribution,
+    },
+    artifacts: {
+      runtimeJsonl: {
+        path: "source.jsonl",
+        sha256: record.sourceArtifactHash,
+      },
+    },
+  };
+}
 
 describe("complete-series declaration", () => {
   it.each(["instrument", "series", "date"] as const)(
@@ -229,18 +253,7 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     const raw = [pageBytes(1), pageBytes(2), pageBytes(3)];
     await writeFile(
       join(path, "synthetic.provenance.json"),
-      JSON.stringify({
-        artifacts: {
-          runtimeJsonl: {
-            path: "source.jsonl",
-            sha256: record.sourceArtifactHash,
-          },
-        },
-      }),
-    );
-    await writeFile(
-      join(path, "synthetic.acquisition.json"),
-      JSON.stringify(record),
+      JSON.stringify(provenance(record)),
     );
     expect(
       await verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
@@ -263,6 +276,7 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     await writeFile(
       join(path, "synthetic.provenance.json"),
       JSON.stringify({
+        ...provenance(record),
         artifacts: {
           runtimeJsonl: {
             path: "source.jsonl",
@@ -270,10 +284,6 @@ describe("manual complete-series retrieval using synthetic transport", () => {
           },
         },
       }),
-    );
-    await writeFile(
-      join(path, "synthetic.acquisition.json"),
-      JSON.stringify(edited),
     );
     await expect(
       verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
@@ -299,6 +309,75 @@ describe("manual complete-series retrieval using synthetic transport", () => {
         adapter,
       ),
     ).toThrow();
+  });
+
+  it("requires the retained pre-request declaration and complete matching provenance", async () => {
+    clock();
+    const path = await output();
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      transport(),
+    );
+    const provenancePath = join(path, "synthetic.provenance.json");
+    const valid = provenance(record);
+    await writeFile(provenancePath, JSON.stringify(valid));
+    expect(
+      await verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+    ).toBe(1);
+
+    for (const invalid of [
+      { ...valid, provider: "" },
+      { ...valid, originUrl: "http://example.invalid/source" },
+      { ...valid, retrievedAt: "not-a-time" },
+      { ...valid, licence: { ...valid.licence, label: "" } },
+      { ...valid, licence: { ...valid.licence, attribution: "" } },
+      { ...valid, licence: { ...valid.licence, checkedAt: "not-a-time" } },
+      { ...valid, retrievedAt: "2026-09-06T00:00:03.000Z" },
+      {
+        ...valid,
+        licence: { ...valid.licence, checkedAt: "2026-09-06T00:00:01.000Z" },
+      },
+    ]) {
+      await writeFile(provenancePath, JSON.stringify(invalid));
+      await expect(
+        verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+      ).rejects.toThrow();
+    }
+
+    await writeFile(provenancePath, JSON.stringify(valid));
+    await writeFile(
+      join(path, "declaration.json"),
+      JSON.stringify({
+        ...declaration,
+        filter: { kind: "series", value: "SUBSTITUTED" },
+      }),
+    );
+    await expect(
+      verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+    ).rejects.toThrow("Pre-request declaration differs");
+    await rm(join(path, "declaration.json"));
+    await expect(
+      verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+    ).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("rejects an unclaimed real artifact without an adjacent provenance record", async () => {
+    clock();
+    const path = await output();
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      transport(),
+    );
+    await writeFile(
+      join(path, "synthetic.provenance.json"),
+      JSON.stringify(provenance(record)),
+    );
+    await writeFile(join(path, "orphan.response.json"), "{}\n");
+    await expect(
+      verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+    ).rejects.toThrow(
+      "Real artifact lacks adjacent provenance: orphan.response.json",
+    );
   });
 
   it.each([2, 5, 6])(
@@ -455,6 +534,23 @@ describe("manual complete-series retrieval using synthetic transport", () => {
       await expect(access(path)).rejects.toMatchObject({ code: "ENOENT" });
     },
   );
+
+  it("detects a JSON-escaped credential before saving a response", async () => {
+    clock();
+    const secret = 'synthetic"key\\line\nnext';
+    const client = transport();
+    client.secrets = () => [secret];
+    client.fetchPage = vi.fn(
+      async () => new Response(JSON.stringify({ echoedCredential: secret })),
+    );
+    const path = await output();
+    await expect(
+      retrieveCompleteSeries({ declaration, output: path }, client),
+    ).rejects.toThrow(
+      "Retrieval failed at the HTTP, transport or credential boundary",
+    );
+    await expect(access(path)).rejects.toMatchObject({ code: "ENOENT" });
+  });
 });
 
 describe("committed acquisition scope inventory", () => {
