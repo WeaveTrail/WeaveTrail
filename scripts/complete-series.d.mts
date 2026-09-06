@@ -1,7 +1,11 @@
 export type CompleteSeriesDeclaration = {
   scope: "complete-series";
-  date: string;
-  filter: { kind: "instrument" | "series" | "date"; value: string };
+  date: string | { kind: "range"; begin: string; endExclusive: string };
+  filter: {
+    kind:
+      "instrument" | "series" | "date" | "index-family" | "instrument-family";
+    value: string;
+  };
   pageSize: string;
   declaredAt: string;
   permission: {
@@ -19,9 +23,15 @@ export type SeriesRequest = {
 export type SeriesAdapter = {
   endpoint: string;
   dateParameter: string;
+  rangeParameters?: { begin: string; endExclusive: string };
   pageParameter: string;
   pageSizeParameter: string;
-  selectors: Partial<Record<"instrument" | "series", string>>;
+  selectors: Partial<
+    Record<
+      "instrument" | "series" | "index-family" | "instrument-family",
+      string
+    >
+  >;
   format?: { parameter: string; value: string };
   decodePage(
     bytes: Uint8Array,
@@ -47,8 +57,23 @@ export type SeriesRecord = {
     sha256: string;
   }[];
   sourceArtifactHash: string;
-  publisherObservations: never[];
+  publisherObservations: PublisherObservation[];
 };
+export type PublisherObservation =
+  | {
+      kind: "RANGE_END_EXCLUSIVE";
+      statement: string;
+      evidence: string;
+      checkedAt: string;
+    }
+  | {
+      kind: "ROUNDED_DECIMAL";
+      column: string;
+      decimalPlaces: string;
+      statement: string;
+      evidence: string;
+      checkedAt: string;
+    };
 export function validateCompleteSeriesDeclaration(
   value: unknown,
 ): CompleteSeriesDeclaration;

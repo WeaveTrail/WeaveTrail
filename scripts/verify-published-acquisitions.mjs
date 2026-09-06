@@ -10,6 +10,7 @@ import {
 } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { deriveFscStockQuotes } from "./derive-fsc-stock-quotes.mjs";
+import { derivePublishedRows } from "./derive-published-rows.mjs";
 import { validateCompleteSeriesArtifact } from "./complete-series.mjs";
 
 // Offline admission only. Adapters are passed by committed test code, never
@@ -127,7 +128,7 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
       );
       const bytes = await readFile(rawResponsePath);
       claim(rawResponsePath);
-      const generatedRowsPath = join(
+      const generatedRowsPath = resolve(
         artifactDirectory,
         provenance.artifacts.generatedRows.path,
       );
@@ -183,7 +184,22 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
       }
       validateCompleteSeriesArtifact(record, raw, jsonl, adapter);
       if (
-        record.sourceArtifactHash !== provenance.artifacts.runtimeJsonl.sha256
+        !text(provenance.artifacts?.generatedRows?.path) ||
+        !/^[a-f0-9]{64}$/.test(provenance.artifacts?.generatedRows?.sha256)
+      )
+        throw new Error("Complete-series generated rows lack provenance");
+      const generatedRowsPath = artifactPath(
+        artifactDirectory,
+        provenance.artifacts.generatedRows.path,
+      );
+      claim(generatedRowsPath);
+      const generatedRowsBytes = await readFile(generatedRowsPath);
+      const derived = derivePublishedRows(runtimeBytes);
+      if (
+        record.sourceArtifactHash !==
+          provenance.artifacts.runtimeJsonl.sha256 ||
+        derived.generatedRows !== generatedRowsBytes.toString("utf8") ||
+        derived.generatedRowsHash !== provenance.artifacts.generatedRows.sha256
       )
         throw new Error(
           "Complete-series source differs from recorded provenance",

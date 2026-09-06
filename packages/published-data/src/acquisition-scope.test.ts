@@ -24,6 +24,8 @@ import {
   type SeriesTransport,
 } from "../../../scripts/retrieve-complete-series.mjs";
 import { deriveFscStockQuotes } from "../../../scripts/derive-fsc-stock-quotes.mjs";
+import { derivePublishedRows } from "../../../scripts/derive-published-rows.mjs";
+import { fscMarketAdaptersByEndpoint } from "../../../scripts/fsc-market-adapters.mjs";
 import { verifyPublishedAcquisitions } from "../../../scripts/verify-published-acquisitions.mjs";
 
 // This protocol and every response below are synthetic, not publisher behaviour.
@@ -114,6 +116,9 @@ function clock() {
 function provenance(
   record: Awaited<ReturnType<typeof retrieveCompleteSeries>>,
 ) {
+  const generated = derivePublishedRows(
+    Buffer.from(rows.map((row) => JSON.stringify(row)).join("\n") + "\n"),
+  );
   return {
     kind: "real",
     provider: "Synthetic publisher",
@@ -131,6 +136,10 @@ function provenance(
       runtimeJsonl: {
         path: "source.jsonl",
         sha256: record.sourceArtifactHash,
+      },
+      generatedRows: {
+        path: "rows.json",
+        sha256: generated.generatedRowsHash,
       },
     },
   };
@@ -151,6 +160,37 @@ describe("complete-series declaration", () => {
       ).toBe(kind);
     },
   );
+  it("admits only closed family selectors and half-open date ranges", () => {
+    for (const filter of [
+      { kind: "index-family", value: "코스피 200" },
+      { kind: "instrument-family", value: "위클리" },
+    ])
+      expect(
+        validateCompleteSeriesDeclaration({
+          ...declaration,
+          date: {
+            kind: "range",
+            begin: "20260701",
+            endExclusive: "20260904",
+          },
+          filter,
+        }).filter,
+      ).toEqual(filter);
+    for (const date of [
+      { kind: "range", begin: "20260904", endExclusive: "20260904" },
+      { kind: "range", begin: "20260905", endExclusive: "20260904" },
+      { kind: "range", begin: "20260230", endExclusive: "20260904" },
+      {
+        kind: "range",
+        begin: "20260701",
+        endExclusive: "20260904",
+        price: "1",
+      },
+    ])
+      expect(() =>
+        validateCompleteSeriesDeclaration({ ...declaration, date }),
+      ).toThrow();
+  });
   it.each(["price", "volume", "outcome", "clpr", "trqu", "result"])(
     "rejects a %s filter",
     (kind) => {
@@ -194,6 +234,43 @@ describe("complete-series declaration", () => {
 });
 
 describe("manual complete-series retrieval using synthetic transport", () => {
+  it("retains only validated evidence-backed publisher observations", async () => {
+    clock();
+    const publisherObservations = [
+      {
+        kind: "RANGE_END_EXCLUSIVE" as const,
+        statement: "The synthetic range end is exclusive.",
+        evidence: "Synthetic transport evidence only.",
+        checkedAt: "2026-09-06T00:00:00.000Z",
+      },
+      {
+        kind: "ROUNDED_DECIMAL" as const,
+        column: "rate",
+        decimalPlaces: "2",
+        statement: "The synthetic rate is rounded.",
+        evidence: "Synthetic transport evidence only.",
+        checkedAt: "2026-09-06T00:00:00.000Z",
+      },
+    ];
+    const record = await retrieveCompleteSeries(
+      {
+        declaration,
+        output: await output(),
+        publisherObservations,
+      },
+      transport(),
+    );
+    expect(record.publisherObservations).toEqual(publisherObservations);
+    expect(() =>
+      validateCompleteSeriesArtifact(
+        { ...record, publisherObservations: [{ kind: "UNKNOWN" }] },
+        [pageBytes(1), pageBytes(2), pageBytes(3)],
+        rows.map((row) => JSON.stringify(row)).join("\n") + "\n",
+        adapter,
+      ),
+    ).toThrow();
+  });
+
   it("freezes the declaration before transport and saves every original byte and row in publisher order", async () => {
     clock();
     const path = await output();
@@ -692,7 +769,10 @@ describe("committed acquisition scope inventory", () => {
   it("classifies every existing real artifact without rewriting its provenance or source bytes", async () => {
     const directory = new URL("./sources/real/", import.meta.url);
     expect(
-      await verifyPublishedAcquisitions(fileURLToPath(directory)),
+      await verifyPublishedAcquisitions(
+        fileURLToPath(directory),
+        fscMarketAdaptersByEndpoint,
+      ),
     ).toBeGreaterThan(0);
     const files = await readdir(directory);
     const provenanceFiles = files.filter((file) =>
