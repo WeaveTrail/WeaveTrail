@@ -63,9 +63,10 @@ net change.
 
 The committed KOSPI 200 baseline and front-future source rows can now produce a
 pinned engine result without adding participant identity, trade side or an
-execution timestamp. Their source bytes and provenance do not change; their
-new normalized Event `1.3` projections and hashes intentionally differ from the
-earlier normalization-only projections.
+execution timestamp. Their source bytes and acquisition facts do not change;
+their adjacent interpretation metadata now records Event `1.3`, Mapping `1.7`,
+and the newly mapped OHLC/net-change columns. Their normalized projections and
+hashes intentionally differ from the earlier normalization-only projections.
 
 The engine entry point accepts a canonical event set assembled from the
 declared artifacts. The existing single-source Case Replay HTTP/UI path remains
