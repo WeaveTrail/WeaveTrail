@@ -10,11 +10,17 @@ import {
   readableCompactDate,
   readableInstant,
   EVENT_FIELD_NOTES,
+  EVENT_FIELD_NOTES_KO,
+  GATE_READINGS,
+  GATE_READINGS_KO,
   HASH_SCOPES,
+  HASH_SCOPES_KO,
   HashValue,
   Instant,
   REPORTED_VALUE_NOTE,
+  REPORTED_VALUE_NOTE_KO,
 } from "./machine-values";
+import { ReplayLanguageContext } from "./replay-language";
 
 describe("machine value rendering", () => {
   it("abbreviates a hash to a form that still identifies it", () => {
@@ -267,5 +273,53 @@ describe("field notes against what the engine does", () => {
     expect(events.map(({ sequence }) => sequence)).toEqual(["1", "9"]);
     expect(EVENT_FIELD_NOTES.sequence).toMatch(/secondary sort key/);
     expect(EVENT_FIELD_NOTES.sequence).toMatch(/share a time/);
+  });
+});
+
+describe("the machine readings carry the same statements in both languages", () => {
+  it("says what a hash covers and what a comparison proves in Korean", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        ReplayLanguageContext.Provider,
+        { value: "ko" as const },
+        createElement(HashValue, {
+          scope: "canonicalResult",
+          value: "a".repeat(64),
+        }),
+      ),
+    );
+    expect(markup).toContain("분석 결과 해시");
+    expect(markup).toContain("이 해시가 덮는 범위");
+    expect(markup).toContain("전체 값 보기");
+    expect(markup).not.toContain("Covers ");
+    expect(markup).not.toContain("Show the full");
+  });
+
+  it("names every hash scope, check and event field in both languages", () => {
+    // A reading present in one language and missing in the other would leave a
+    // Korean reader with an English sentence, or no sentence at all, exactly
+    // where the surface has to say what a value means.
+    expect(Object.keys(HASH_SCOPES_KO).sort()).toEqual(
+      Object.keys(HASH_SCOPES).sort(),
+    );
+    for (const [scope, korean] of Object.entries(HASH_SCOPES_KO)) {
+      expect(/[가-힣]/.test(korean.label), scope).toBe(true);
+      expect(/[가-힣]/.test(korean.covers), scope).toBe(true);
+      expect(/[가-힣]/.test(korean.proves), scope).toBe(true);
+    }
+    expect(Object.keys(GATE_READINGS_KO).sort()).toEqual(
+      Object.keys(GATE_READINGS).sort(),
+    );
+    for (const [gate, korean] of Object.entries(GATE_READINGS_KO)) {
+      expect(/[가-힣]/.test(korean.label), gate).toBe(true);
+      expect(/[가-힣]/.test(korean.tests), gate).toBe(true);
+    }
+    expect(Object.keys(EVENT_FIELD_NOTES_KO).sort()).toEqual(
+      Object.keys(EVENT_FIELD_NOTES).sort(),
+    );
+    for (const [field, korean] of Object.entries(EVENT_FIELD_NOTES_KO))
+      expect(/[가-힣]/.test(korean), field).toBe(true);
+    expect(/[가-힣]/.test(REPORTED_VALUE_NOTE_KO)).toBe(true);
+    expect(REPORTED_VALUE_NOTE_KO).not.toBe(REPORTED_VALUE_NOTE);
   });
 });

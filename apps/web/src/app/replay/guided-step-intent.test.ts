@@ -142,6 +142,17 @@ async function guide(guided = true) {
     const block = withClass("step-intent");
     return elements(block).filter((element) => element.type === "dd");
   }
+  function instruction() {
+    return withClass("step-instruction");
+  }
+  function railAction() {
+    return elements(withClass("rail-actions")).find(
+      (element) =>
+        element.type === "button" &&
+        (element.props.className === "button primary step-action" ||
+          element.props.className === "button step-locate"),
+    );
+  }
   function requirement() {
     return withClass("step-requirement");
   }
@@ -157,7 +168,9 @@ async function guide(guided = true) {
     stepButtons,
     openStep,
     heading,
+    instruction,
     intent,
+    railAction,
     requirement,
     nested,
   };
@@ -246,18 +259,54 @@ describe("guided step intent", () => {
     );
   });
 
-  it("opens each step with its purpose, action and actor above the step content", async () => {
+  it("leads each step with what to do, then why it exists and who acted", async () => {
     const ui = await guide();
     for (const [step, expected] of guideSteps.entries()) {
       ui.openStep(step);
       expect(ui.heading()).toBe(`Step ${step + 1} · ${expected.title}`);
-      const [purpose, action, actor] = ui.intent();
+      // The instruction is the sentence the visitor acts on, so it leads; the
+      // prose that explains the step follows the controls rather than
+      // standing between the visitor and them.
+      expect(textContent(ui.instruction())).toBe(expected.action);
+      const [purpose, actor] = ui.intent();
       expect(textContent(purpose)).toBe(expected.purpose);
-      expect(textContent(action)).toBe(expected.action);
       expect(textContent(actor)).toBe(
         `${expected.actor} ${expected.actorDetail}`,
       );
+      expect(ui.indexOf("step-instruction")).toBeLessThan(
+        ui.indexOf("rail-actions"),
+      );
+      expect(ui.indexOf("rail-actions")).toBeLessThan(
+        ui.indexOf("step-intent"),
+      );
       expect(ui.indexOf("step-intent")).toBeLessThan(
+        ui.indexOf("replay-control panel"),
+      );
+    }
+  });
+
+  it("offers the control that advances the step in the rail, above the case content", async () => {
+    const ui = await guide();
+    // A step whose work happens in the case content gets a control that goes
+    // there; a step that commits something gets the control that commits it.
+    // Step 1 is read-and-continue, and step 5 has nothing to reach until a
+    // result exists, so `Continue` is the advancing control on both.
+    const expected = [
+      undefined,
+      "Go to the review example",
+      "Approve case manifest",
+      "Run deterministic replay",
+      undefined,
+      "Repeat the same approved case",
+      "Continue in working mode",
+    ];
+    for (const [step, label] of expected.entries()) {
+      ui.openStep(step);
+      expect(
+        textContent(ui.railAction()?.props.children),
+        `step ${step + 1}`,
+      ).toBe(label === undefined ? "" : label);
+      expect(ui.indexOf("rail-actions")).toBeLessThan(
         ui.indexOf("replay-control panel"),
       );
     }
@@ -367,20 +416,28 @@ describe("guided step intent", () => {
         .render()
         .filter((element) => element.props.className?.includes("step-action"))
         .map((element) => textContent(element.props.children));
+    // One label per step, offered both in the rail and at the control itself,
+    // so the visitor can act from either without hunting for the other.
+    const markedLabels = () => [...new Set(marked())];
     expect(marked()).toEqual([]);
     ui.openStep(1);
+    // The rail still points at the review example here, so the marked control
+    // is the approval in the case content alone.
     expect(marked()).toEqual(["Approve executed mapping"]);
     ui.openStep(2);
-    expect(marked()).toEqual(["Approve case manifest"]);
+    expect(markedLabels()).toEqual(["Approve case manifest"]);
+    expect(marked()).toHaveLength(2);
     ui.openStep(3);
-    expect(marked()).toEqual(["Run deterministic replay"]);
+    expect(markedLabels()).toEqual(["Run deterministic replay"]);
+    expect(marked()).toHaveLength(2);
     ui.openStep(4);
     expect(marked()).toEqual([]);
     expect(
       ui.render().find((element) => element.props.className === "empty-result"),
     ).toBeDefined();
     ui.openStep(6);
-    expect(marked()).toEqual(["Continue in working mode"]);
+    expect(markedLabels()).toEqual(["Continue in working mode"]);
+    expect(marked()).toHaveLength(2);
   });
 
   it("marks the finding disclosure as the control that advances inspection", async () => {

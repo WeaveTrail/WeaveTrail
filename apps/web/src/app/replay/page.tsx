@@ -19,7 +19,9 @@ export default async function ReplayPage({
   const prepared = await prepareReplayScenarios();
   const guided = (await searchParams).mode !== "working";
   return (
-    <main className="shell page-shell">
+    <main
+      className={guided ? "shell page-shell guided-page" : "shell page-shell"}
+    >
       <ReplayHeading guided={guided} />
       <ReplayModeBoundary {...prepared} guided={guided} />
     </main>

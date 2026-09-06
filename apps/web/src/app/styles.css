@@ -483,9 +483,11 @@ button:disabled {
 .guided-split > * {
   grid-column: 2;
 }
-/* The rail is a column: the step and its explanation scroll inside their own
-   region, and the controls sit outside that region, so nothing ever scrolls
-   behind them. */
+/* The rail is a column whose first screenful is the step itself: where the
+   visitor is, what to do, whether they may continue, and the control that does
+   it. Everything that supports the step — why it exists, who acted, the whole
+   step list — scrolls in its own region below that, so the four things needed
+   to act are in view the moment the rail is, not after a scroll. */
 .guided-split > .journey-header {
   position: sticky;
   top: calc(var(--appbar-height) + 16px);
@@ -497,15 +499,57 @@ button:disabled {
   max-height: calc(100vh - var(--appbar-height) - 32px);
   overflow: hidden;
 }
+.guided-split .rail-lead {
+  flex: 0 0 auto;
+}
 .guided-split .rail-scroll {
   flex: 1 1 auto;
   min-height: 0;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: var(--hairline);
   overflow-y: auto;
 }
 .guided-split .journey-progress {
   grid-template-columns: minmax(0, 1fr);
   gap: 4px;
-  margin-block: 12px;
+  margin-block: 8px 0;
+}
+.rail-progress {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.rail-meter {
+  display: block;
+  height: 3px;
+  background: var(--ledger-rule);
+}
+.rail-meter::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--rail-meter-fill, 0%);
+  background: var(--teal-700);
+}
+.rail-list-heading {
+  margin: 16px 0 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+/* The instruction is the sentence the visitor acts on, so it is set apart from
+   the prose that explains the step rather than stacked inside it. */
+.step-instruction {
+  max-width: var(--prose-max);
+  margin: 8px 0 0;
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
 }
 .guided-split .journey-step {
   gap: 1px;
@@ -523,24 +567,30 @@ button:disabled {
 }
 .guided-split .step-intent {
   gap: 8px;
-  margin-block: 12px;
+  margin-block: 0 12px;
   font-size: 0.875rem;
+}
+.guided-split .step-instruction {
+  font-size: 0.9375rem;
 }
 .guided-split .step-refusal,
 .guided-split .step-requirement {
   padding: 8px 10px;
   font-size: 0.8125rem;
 }
-/* The rail scrolls on its own when a step says a lot, so the unmet condition
-   and the controls hold at its bottom edge and advancing never depends on that
-   scroll. */
-.guided-split > .journey-header .rail-actions {
-  flex: 0 0 auto;
+/* The condition and the controls sit directly under the instruction, above
+   everything that scrolls, so advancing never depends on any scroll. */
+.rail-actions {
   display: grid;
   gap: 8px;
   margin-top: 12px;
-  padding-top: 12px;
-  border-top: var(--hairline);
+}
+.rail-actions .button {
+  width: 100%;
+  justify-content: center;
+}
+.rail-actions .journey-controls .button {
+  width: auto;
 }
 .guided-split > .journey-header .journey-controls {
   margin-top: 0;
@@ -641,9 +691,18 @@ button:disabled {
 .journey-footer .journey-controls {
   margin-top: 0;
 }
+/* The control that advances the current step, wherever it is rendered. */
 .step-action {
   outline: var(--rule-accent);
   outline-offset: 3px;
+}
+/* Not the work itself: a way to the part of the case where the work happens. */
+.step-locate::after {
+  content: " \2193";
+}
+.gate-id {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 details.step-action > summary {
   font-weight: var(--weight-semibold);
@@ -673,6 +732,48 @@ details.step-action > summary {
 .mode-choice small {
   font: var(--type-small);
   color: var(--text-muted);
+}
+/* What the walkthrough is, before it starts: the shape of the thing, how long
+   it takes, and that it keeps nothing. Held to a few lines, because whatever
+   stands above the step rail is what pushes the current step off the screen. */
+.guided-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.guided-meta li + li::before {
+  content: "· ";
+}
+.guided-page {
+  padding-block: 20px 0;
+}
+.guided-page > .page-heading {
+  padding-bottom: 16px;
+}
+.guided-page > .page-heading h1 {
+  margin-top: 0;
+  font: var(--type-title);
+}
+.guided-page > .page-heading > p {
+  margin-top: 6px;
+  font: var(--type-body);
+}
+.guided-page .mode-choice {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.guided-page .mode-choice a {
+  padding: 5px 10px;
+  font: var(--type-small);
+}
+.guided-page .mode-choice small {
+  display: none;
 }
 .component-chain span {
   display: block;
@@ -1099,17 +1200,51 @@ code {
   .guided-split > .journey-header {
     grid-column: 1;
   }
-  .guided-split > .journey-header,
-  .guided-split > .journey-header .rail-actions {
-    position: static;
-  }
   .guided-split > .journey-header {
+    position: static;
     display: block;
     grid-row: auto;
     max-height: none;
     overflow: visible;
   }
+  /* Nothing sticks in one column, so the step's condition and its controls
+     become a bar pinned to the bottom of the screen: the visitor can read the
+     case and still act without travelling back up the page. Its space is
+     reserved below, so it covers nothing. */
+  .guided-split > .journey-header .rail-actions {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    margin: 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    max-height: 50vh;
+    overflow-y: auto;
+    border-top: var(--hairline-strong);
+    background: var(--surface-card);
+    box-shadow: 0 -8px 24px rgb(12 21 19 / 12%);
+  }
+  .guided-split {
+    padding-bottom: 13rem;
+  }
+  /* The supporting prose and the step list stay reachable without standing
+     between the visitor and the case content. */
   .guided-split .rail-scroll {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
+/* A viewport too short to hold the step block and any of the region below it
+   would clip the rail rather than scroll it, so the two columns stack there and
+   nothing sticks, exactly as they do on a narrow one. */
+@media (min-width: 64.0625rem) and (max-height: 40rem) {
+  .guided-split > .journey-header {
+    position: static;
+    grid-row: 1;
+    max-height: none;
+    overflow: visible;
+  }
+  .guided-split > .journey-header .rail-scroll {
     overflow-y: visible;
   }
 }

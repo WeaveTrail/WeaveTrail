@@ -101,25 +101,25 @@ export function ExpectationsContent({
             <>
               <li>
                 기본 fixture provider로{" "}
-                <Link href="/replay?mode=working">사례 리플레이 워킹 모드</Link>
-                를 새 브라우저 세션에서 열고, 고급 변형은{" "}
-                <strong>기준값</strong>으로 둡니다.
+                <Link href="/replay?mode=working">직접 조작 화면</Link>을 새
+                브라우저 세션에서 열고, 입력 자료 변경 실험은{" "}
+                <strong>원본 그대로</strong>에 둡니다.
               </li>
-              <li>아래 레코드에 적힌 커밋된 소스 아티팩트를 고릅니다.</li>
+              <li>아래 레코드에 적힌 커밋된 원본 거래자료를 고릅니다.</li>
               <li>
-                매핑 필드가 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
-                받아들이는 사유를 적고 <strong>실행된 매핑 승인</strong>을
+                연결된 항목이 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
+                받아들이는 확인 이유를 적고 <strong>연결 제안 승인</strong>을
                 누릅니다.
               </li>
               <li>
-                사례 manifest가 보이면 범위와 임계값을 검토하고{" "}
-                <strong>사례 manifest 승인</strong>을 누릅니다.
+                조사 범위가 보이면 종목과 기간, 판단 기준을 검토하고{" "}
+                <strong>조사 범위 승인</strong>을 누릅니다.
               </li>
               <li>
-                mapping 1.4 소스는 <strong>결정론적 리플레이 실행</strong>을,
-                mapping 1.5, 1.6, 1.7 일별 시세 소스는{" "}
-                <strong>소스 정규화</strong>를 누릅니다. 아래의 워크플로 상태,
-                결과, gate 관측값, 정본 결과 해시와 비교합니다.
+                mapping 1.4 자료는 <strong>분석 실행</strong>을, mapping 1.5,
+                1.6, 1.7 일별 시세 자료는 <strong>원본 자료 정리</strong>를
+                누릅니다. 아래의 워크플로 상태, 결과, 판단 항목 관측값, 분석
+                결과 해시와 비교합니다.
               </li>
             </>
           ) : (
@@ -156,7 +156,7 @@ export function ExpectationsContent({
             <>
               승인 해시는 보안 브라우저 환경의 Web Crypto가 필요합니다. HTTPS와{" "}
               <code>http://localhost</code>에서는 쓸 수 있습니다. 그 밖의
-              환경에서는 승인과 리플레이가 막히고 결과도 나오지 않습니다. 반복
+              환경에서는 승인과 분석 실행이 막히고 결과도 나오지 않습니다. 반복
               실행은 같은 입력의 반복 가능성만 확인합니다. 해석 범위는{" "}
               <Link href="/methodology">방법론</Link>과{" "}
               <a href="https://github.com/WeaveTrail/WeaveTrail/blob/main/docs/LIMITATIONS.md">
