@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { open, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import process from "node:process";
@@ -10,6 +10,67 @@ import {
 
 export const FSC_STOCK_QUOTE_ENDPOINT =
   "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo";
+
+const cleanupError = (error, failures) =>
+  failures.length
+    ? new AggregateError(
+        [error, ...failures],
+        "Acquisition failed and newly created output files could not be cleaned up",
+      )
+    : error;
+
+async function closeFiles(files) {
+  const openFiles = files.filter((file) => !file.closed);
+  const results = await Promise.allSettled(
+    openFiles.map(({ handle }) => handle.close()),
+  );
+  return results.flatMap((result, index) => {
+    if (result.status === "fulfilled") {
+      openFiles[index].closed = true;
+      return [];
+    }
+    return [result.reason];
+  });
+}
+
+async function removeFiles(paths) {
+  const results = await Promise.allSettled(paths.map((path) => unlink(path)));
+  return results.flatMap((result) =>
+    result.status === "rejected" ? [result.reason] : [],
+  );
+}
+
+// Both paths are reserved with exclusive handles before bytes are written. On
+// ordinary caught failures, only paths created by this invocation are removed.
+// A forced process exit or storage failure can still interrupt this sequence.
+async function saveRetrievalPair(output, bytes, receipt) {
+  const receiptPath = `${output}.receipt.json`;
+  const files = [];
+  const createdPaths = [];
+  try {
+    const response = await open(output, "wx");
+    files.push({ handle: response, closed: false });
+    createdPaths.push(output);
+    const receiptFile = await open(receiptPath, "wx");
+    files.push({ handle: receiptFile, closed: false });
+    createdPaths.push(receiptPath);
+
+    await response.writeFile(bytes);
+    await receiptFile.writeFile(JSON.stringify(receipt, null, 2) + "\n");
+
+    const closeFailures = await closeFiles(files);
+    if (closeFailures.length) {
+      throw new AggregateError(
+        closeFailures,
+        "Could not close acquisition outputs",
+      );
+    }
+  } catch (error) {
+    const closeFailures = await closeFiles(files);
+    const removeFailures = await removeFiles(createdPaths);
+    throw cleanupError(error, [...closeFailures, ...removeFailures]);
+  }
+}
 
 // Manual only: imports never read credentials or make a network request.
 export async function retrieveFscStockQuotes(
@@ -99,12 +160,7 @@ export async function retrieveFscStockQuotes(
     generatedRowsHash: artifact.generatedRowsHash,
     columns: artifact.columns,
   };
-  await writeFile(output, bytes, { flag: "wx" });
-  await writeFile(
-    `${output}.receipt.json`,
-    JSON.stringify(receipt, null, 2) + "\n",
-    { flag: "wx" },
-  );
+  await saveRetrievalPair(output, bytes, receipt);
   return receipt;
 }
 

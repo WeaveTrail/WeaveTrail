@@ -1,4 +1,5 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdtemp, open, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -128,6 +129,15 @@ describe("manual acquisition boundaries with mocked transport", () => {
     };
   }
 
+  const requestFor = (bytes: Uint8Array) => async () =>
+    new Response(new Uint8Array(bytes).buffer, {
+      headers: { "content-type": "application/json" },
+    });
+
+  const expectMissing = async (path: string) => {
+    await expect(readFile(path)).rejects.toMatchObject({ code: "ENOENT" });
+  };
+
   it("requires a key and same-day licence verification before any request", async () => {
     const request = vi.fn();
     vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "");
@@ -174,12 +184,97 @@ describe("manual acquisition boundaries with mocked transport", () => {
       await retrieveFscStockQuotes(input, request);
       expect(await readFile(input.output)).toEqual(bytes);
       const receipt = await readFile(`${input.output}.receipt.json`, "utf8");
-      expect(JSON.parse(receipt).parameters.serviceKey).toBe("REDACTED");
+      expect(JSON.parse(receipt)).toMatchObject({
+        parameters: { serviceKey: "REDACTED" },
+        rawResponseHash: createHash("sha256").update(bytes).digest("hex"),
+      });
       expect(receipt).not.toContain("synthetic+test");
       await expect(retrieveFscStockQuotes(input, request)).rejects.toThrow();
       expect(await readFile(input.output)).toEqual(bytes);
     },
   );
+
+  it("preserves an existing original without creating a receipt", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const existing = Buffer.from("already frozen response");
+    await writeFile(input.output, existing);
+
+    await expect(
+      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
+    ).rejects.toMatchObject({ code: "EEXIST" });
+
+    expect(await readFile(input.output)).toEqual(existing);
+    await expectMissing(`${input.output}.receipt.json`);
+  });
+
+  it("preserves an existing receipt and removes this call's reserved original", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const receiptPath = `${input.output}.receipt.json`;
+    const existing = "already frozen receipt\n";
+    await writeFile(receiptPath, existing);
+
+    await expect(
+      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
+    ).rejects.toMatchObject({ code: "EEXIST" });
+
+    expect(await readFile(receiptPath, "utf8")).toBe(existing);
+    await expectMissing(input.output);
+
+    await rm(receiptPath);
+    await retrieveFscStockQuotes(input, requestFor(encode(envelope())));
+    expect(await readFile(input.output)).toEqual(encode(envelope()));
+  });
+
+  it("preserves both pre-existing acquisition outputs", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const receiptPath = `${input.output}.receipt.json`;
+    const existingResponse = Buffer.from("already frozen response");
+    const existingReceipt = "already frozen receipt\n";
+    await writeFile(input.output, existingResponse);
+    await writeFile(receiptPath, existingReceipt);
+
+    await expect(
+      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
+    ).rejects.toMatchObject({ code: "EEXIST" });
+
+    expect(await readFile(input.output)).toEqual(existingResponse);
+    expect(await readFile(receiptPath, "utf8")).toBe(existingReceipt);
+  });
+
+  it("removes both newly reserved files after an injected partial write failure", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const probe = await open(
+      join(input.output, "..", "file-handle-probe"),
+      "wx",
+    );
+    const fileHandlePrototype = Object.getPrototypeOf(probe) as {
+      writeFile: typeof probe.writeFile;
+    };
+    await probe.close();
+    let wrotePartialBytes = false;
+    vi.spyOn(fileHandlePrototype, "writeFile").mockImplementation(
+      async function (this: typeof probe) {
+        wrotePartialBytes = true;
+        await this.write(Buffer.from("partial"));
+        throw new Error("synthetic storage write failure");
+      } as typeof probe.writeFile,
+    );
+
+    await expect(
+      retrieveFscStockQuotes(input, requestFor(encode(envelope()))),
+    ).rejects.toThrow("synthetic storage write failure");
+    expect(wrotePartialBytes).toBe(true);
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
+
+    vi.restoreAllMocks();
+    await retrieveFscStockQuotes(input, requestFor(encode(envelope())));
+    expect(await readFile(input.output)).toEqual(encode(envelope()));
+  });
 
   it("sanitizes transport failures and refuses HTTP errors, provider errors and echoed credentials", async () => {
     vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-private-key");
