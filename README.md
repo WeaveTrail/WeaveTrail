@@ -181,6 +181,9 @@ covers running it locally.
 - [Methodology](docs/METHODOLOGY.md) — result semantics and the implemented rule
 - [Evaluation](docs/EVALUATION.md) — how every published measurement is defined
   and reproduced
+- [Expected scenario results](https://weave-trail-web-flax.vercel.app/expectations)
+  — engine-derived workflow states, gate readings and canonical hashes for every
+  committed replay source
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
 - [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Contributing](CONTRIBUTING.md) — workflow and validation expectations

@@ -18,6 +18,7 @@ const groups = [
       ["Why the gate", "/why"],
       ["Architecture", "/architecture"],
       ["Methodology", "/methodology"],
+      ["Expected results", "/expectations"],
       ["Evals", "/evals"],
     ],
   ],

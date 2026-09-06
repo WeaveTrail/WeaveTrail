@@ -11,6 +11,7 @@ import {
 import { validateLocalPayloadPaths } from "../../../../scripts/verify-design-snapshot.mjs";
 import ArchitecturePage from "./architecture/page";
 import EvalsPage from "./evals/page";
+import ExpectationsPage from "./expectations/page";
 import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
 import MethodologyPage from "./methodology/page";
 import HomePage from "./page";
@@ -57,7 +58,7 @@ describe("canonical product presentation", () => {
     ).toThrow("unexpected: assets/unrecorded.svg");
   });
 
-  it("keeps all six routes in the common full-navigation shell", () => {
+  it("keeps all public routes in the common full-navigation shell", () => {
     const layout = readFileSync(
       resolve(process.cwd(), "apps/web/src/app/layout.tsx"),
       "utf8",
@@ -71,6 +72,7 @@ describe("canonical product presentation", () => {
       "/architecture",
       "/replay",
       "/evals",
+      "/expectations",
       "/methodology",
       "/why",
     ])
@@ -85,6 +87,7 @@ describe("canonical product presentation", () => {
       HomePage,
       ArchitecturePage,
       EvalsPage,
+      ExpectationsPage,
       MethodologyPage,
       WhyPage,
     ]
