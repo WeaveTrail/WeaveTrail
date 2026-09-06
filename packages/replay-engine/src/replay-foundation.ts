@@ -1,4 +1,8 @@
-import type { RapidPriceLiftResult, TradeEvent } from "@weavetrail/contracts";
+import type {
+  CrossMarketSessionReversalResult,
+  RapidPriceLiftResult,
+  TradeEvent,
+} from "@weavetrail/contracts";
 
 import { sha256Canonical } from "./canonical-hash";
 import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
@@ -17,10 +21,11 @@ export type FoundationReplay = {
 
 export function canonicalReplayResultHash(
   events: readonly TradeEvent[],
-  evaluation?: RapidPriceLiftResult,
+  evaluation?: RapidPriceLiftResult | CrossMarketSessionReversalResult,
+  engineVersion = ENGINE_VERSION,
 ): string {
   return sha256Canonical({
-    engineVersion: ENGINE_VERSION,
+    engineVersion,
     events: events.map(projectCanonicalEvent),
     ...(evaluation === undefined ? {} : { evaluation }),
   });

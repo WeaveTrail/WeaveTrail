@@ -90,7 +90,7 @@ export function validateApprovedMapping(
   const seenSources = new Set<string>();
   const seenTargets = new Set<MappedTargetField>();
   if ("eventType" in mapping.constants) seenTargets.add("eventType");
-  if (mapping.mappingVersion === "1.6") seenTargets.add("sourceEventId");
+  if ("compositeSourceEventId" in mapping) seenTargets.add("sourceEventId");
 
   for (const [sourceColumn, targetField, transform] of mapping.fields) {
     if (seenSources.has(sourceColumn)) {
@@ -113,10 +113,29 @@ export function validateApprovedMapping(
 
     if (
       !AllowedTransformSchema.safeParse(transform).success ||
+      ([
+        "openPrice",
+        "highPrice",
+        "lowPrice",
+        "closePrice",
+        "netChange",
+      ].includes(targetField ?? "") &&
+        (mapping.mappingVersion !== "1.7" ||
+          transform !== "PUBLISHER_DECIMAL_STRING")) ||
+      (transform === "PUBLISHER_DECIMAL_STRING" &&
+        ![
+          "openPrice",
+          "highPrice",
+          "lowPrice",
+          "closePrice",
+          "netChange",
+        ].includes(targetField ?? "")) ||
       (transform === "YYYYMMDD_TO_KST_DAY_START_ISO" &&
         ((mapping.mappingVersion !== "1.5" &&
-          mapping.mappingVersion !== "1.6") ||
-          mapping.constants.schemaVersion !== "1.2" ||
+          mapping.mappingVersion !== "1.6" &&
+          mapping.mappingVersion !== "1.7") ||
+          (mapping.constants.schemaVersion !== "1.2" &&
+            mapping.constants.schemaVersion !== "1.3") ||
           targetField !== "eventTime"))
     ) {
       issues.push({
@@ -138,6 +157,23 @@ export function validateApprovedMapping(
         code: "REQUIRED_TARGET_FIELD_MISSING",
         message: `Approved mapping does not assign required target field ${JSON.stringify(targetField)}`,
       });
+    }
+  }
+
+  if (mapping.constants.schemaVersion === "1.3") {
+    for (const targetField of [
+      "openPrice",
+      "highPrice",
+      "lowPrice",
+      "closePrice",
+      "netChange",
+    ] as const) {
+      if (!seenTargets.has(targetField)) {
+        issues.push({
+          code: "REQUIRED_TARGET_FIELD_MISSING",
+          message: `Approved mapping does not assign required target field ${JSON.stringify(targetField)}`,
+        });
+      }
     }
   }
 
@@ -179,6 +215,14 @@ function applyTransform(
       return value.toUpperCase();
     case "DECIMAL_STRING":
       return canonicalizeDecimalString(value);
+    case "PUBLISHER_DECIMAL_STRING":
+      return canonicalizeDecimalString(
+        value.startsWith("-.")
+          ? `-0${value.slice(1)}`
+          : value.startsWith(".")
+            ? `0${value}`
+            : value,
+      );
     case "BUY_SELL_CODE": {
       const sides: Record<string, string> = {
         B: "BUY",
@@ -320,6 +364,13 @@ export function applyApprovedMapping(
         continue;
       }
       candidate[fieldMapping.targetField] = transformed;
+      if (
+        mapping.constants.schemaVersion === "1.3" &&
+        fieldMapping.targetField === "eventTime" &&
+        transform === "YYYYMMDD_TO_KST_DAY_START_ISO"
+      ) {
+        candidate.tradingDate = `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+      }
     }
 
     if (approvedColumnMissing) continue;

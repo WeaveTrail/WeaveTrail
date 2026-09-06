@@ -195,7 +195,10 @@ Working mode includes a published FSC KOSPI daily quotation artifact for
 approve, then normalize its 40 rows. Participant and execution details are absent,
 so case approval is unavailable and no pattern verdict is produced. See
 [daily quote normalization](docs/DAILY_QUOTES.md) for source permission, exact
-reproduction and the approval boundary.
+reproduction and the approval boundary. Separately, the replay engine evaluates
+the committed KOSPI 200 baseline and front-future series through the actorless
+`CROSS_MARKET_SESSION_REVERSAL` rule; this engine-level golden does not add
+participant identity or scan the baseline for candidate dates.
 
 ## License
 

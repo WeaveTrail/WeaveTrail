@@ -177,6 +177,11 @@ const dailyField = (
     | "instrumentId"
     | "price"
     | "quantity"
+    | "openPrice"
+    | "highPrice"
+    | "lowPrice"
+    | "closePrice"
+    | "netChange"
     | null,
   evidence: string,
 ) => ({
@@ -187,59 +192,89 @@ const dailyField = (
       ? null
       : targetField === "eventTime"
         ? ("YYYYMMDD_TO_KST_DAY_START_ISO" as const)
-        : targetField === "price" || targetField === "quantity"
-          ? ("DECIMAL_STRING" as const)
+        : targetField === "price" ||
+            targetField === "quantity" ||
+            targetField === "openPrice" ||
+            targetField === "highPrice" ||
+            targetField === "lowPrice" ||
+            targetField === "closePrice" ||
+            targetField === "netChange"
+          ? targetField === "price" || targetField === "quantity"
+            ? ("DECIMAL_STRING" as const)
+            : ("PUBLISHER_DECIMAL_STRING" as const)
           : ("IDENTITY" as const),
   confidence:
     targetField === "eventTime" ||
     targetField === "price" ||
-    targetField === "quantity"
+    targetField === "quantity" ||
+    targetField === "openPrice" ||
+    targetField === "highPrice" ||
+    targetField === "lowPrice" ||
+    targetField === "closePrice" ||
+    targetField === "netChange"
       ? 0
       : 1,
   status:
     targetField === "eventTime" ||
     targetField === "price" ||
-    targetField === "quantity"
+    targetField === "quantity" ||
+    targetField === "openPrice" ||
+    targetField === "highPrice" ||
+    targetField === "lowPrice" ||
+    targetField === "closePrice" ||
+    targetField === "netChange"
       ? ("REVIEW_REQUIRED" as const)
       : ("PROPOSED" as const),
   evidence,
 });
 
 const indexColumns = indexProvenance.derivation.columns;
-const indexFields = indexColumns.map((column) => {
-  const target =
-    column === "basDt"
-      ? "eventTime"
-      : column === "idxNm"
-        ? "instrumentId"
-        : column === "clpr"
-          ? "price"
-          : column === "trqu"
-            ? "quantity"
-            : null;
-  return dailyField(
-    column,
-    target,
-    target === null
-      ? `Publisher column ${column} is retained verbatim but has no canonical daily-quote target; admission is deferred until a versioned consumer requires it.`
-      : column === "basDt"
-        ? "Publisher trading date is interpreted as Korean day start and also participates in the ordered publisher observation identity."
+const indexFields = (mapOhlc: boolean) =>
+  indexColumns.map((column) => {
+    const target =
+      column === "basDt"
+        ? "eventTime"
         : column === "idxNm"
-          ? "Publisher index name is the instrument identity and also participates in the ordered publisher observation identity."
-          : `Publisher ${column} is interpreted as the daily aggregate ${target}.`,
-  );
-});
+          ? "instrumentId"
+          : column === "mkp" && mapOhlc
+            ? "openPrice"
+            : column === "hipr" && mapOhlc
+              ? "highPrice"
+              : column === "lopr" && mapOhlc
+                ? "lowPrice"
+                : column === "clpr"
+                  ? mapOhlc
+                    ? "closePrice"
+                    : "price"
+                  : column === "vs" && mapOhlc
+                    ? "netChange"
+                    : column === "trqu"
+                      ? "quantity"
+                      : null;
+    return dailyField(
+      column,
+      target,
+      target === null
+        ? `Publisher column ${column} is retained verbatim but has no canonical daily-quote target; admission is deferred until a versioned consumer requires it.`
+        : column === "basDt"
+          ? "Publisher trading date is interpreted as Korean day start and also participates in the ordered publisher observation identity."
+          : column === "idxNm"
+            ? "Publisher index name is the instrument identity and also participates in the ordered publisher observation identity."
+            : `Publisher ${column} is interpreted as the daily aggregate ${target}.`,
+    );
+  });
 
 function indexProposal(
   artifactHash: string,
   datasetId: string,
   venueId: string,
+  mapOhlc: boolean,
 ) {
   return SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.6",
+    mappingVersion: mapOhlc ? "1.7" : "1.6",
     sourceArtifactHash: artifactHash,
     constants: {
-      schemaVersion: "1.2",
+      schemaVersion: mapOhlc ? "1.3" : "1.2",
       datasetId,
       venueId,
       eventType: "DAILY_QUOTE",
@@ -252,14 +287,11 @@ function indexProposal(
       evidence:
         "The publisher natural key is the ordered pair (basDt, idxNm). NUL cannot occur in admitted values and makes the join injective without modifying source rows.",
     },
-    fields: indexFields,
+    fields: indexFields(mapOhlc),
   });
 }
 
-const derivativeFields = (
-  columns: readonly string[],
-  mapClosingPrice: boolean,
-) =>
+const derivativeFields = (columns: readonly string[], mapOhlc: boolean) =>
   columns.map((column) => {
     const target =
       column === "basDt"
@@ -268,11 +300,19 @@ const derivativeFields = (
           ? "sourceEventId"
           : column === "isinCd"
             ? "instrumentId"
-            : column === "clpr" && mapClosingPrice
-              ? "price"
-              : column === "trqu"
-                ? "quantity"
-                : null;
+            : column === "mkp" && mapOhlc
+              ? "openPrice"
+              : column === "hipr" && mapOhlc
+                ? "highPrice"
+                : column === "lopr" && mapOhlc
+                  ? "lowPrice"
+                  : column === "clpr" && mapOhlc
+                    ? "closePrice"
+                    : column === "vs" && mapOhlc
+                      ? "netChange"
+                      : column === "trqu"
+                        ? "quantity"
+                        : null;
     return dailyField(
       column,
       target,
@@ -294,11 +334,12 @@ function derivativeProposal(
   venueId: string,
   fields: ReturnType<typeof derivativeFields>,
 ) {
+  const ohlc = fields.some(({ targetField }) => targetField === "openPrice");
   return SchemaMappingProposalSchema.parse({
-    mappingVersion: "1.5",
+    mappingVersion: ohlc ? "1.7" : "1.5",
     sourceArtifactHash: artifactHash,
     constants: {
-      schemaVersion: "1.2",
+      schemaVersion: ohlc ? "1.3" : "1.2",
       datasetId,
       venueId,
       eventType: "DAILY_QUOTE",
@@ -311,11 +352,13 @@ export const fscKospiIndexFamilyProposal = indexProposal(
   indexProvenance.artifacts.runtimeJsonl.sha256,
   "fsc-kospi-index-family-20260903-v1",
   indexProvenance.venue.value,
+  false,
 );
 export const fscKospi200BaselineProposal = indexProposal(
   baselineProvenance.artifacts.runtimeJsonl.sha256,
   "fsc-kospi-200-baseline-20260701-20260903-v1",
   baselineProvenance.venue.value,
+  true,
 );
 export const fscKospi200FuturesProposal = derivativeProposal(
   futuresProvenance.artifacts.runtimeJsonl.sha256,

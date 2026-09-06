@@ -117,9 +117,9 @@ export function ExpectationsContent({
               </li>
               <li>
                 mapping 1.4 소스는 <strong>결정론적 리플레이 실행</strong>을,
-                mapping 1.5와 1.6 일별 시세 소스는 <strong>소스 정규화</strong>
-                를 누릅니다. 아래의 워크플로 상태, 결과, gate 관측값, 정본 결과
-                해시와 비교합니다.
+                mapping 1.5, 1.6, 1.7 일별 시세 소스는{" "}
+                <strong>소스 정규화</strong>를 누릅니다. 아래의 워크플로 상태,
+                결과, gate 관측값, 정본 결과 해시와 비교합니다.
               </li>
             </>
           ) : (
@@ -144,7 +144,7 @@ export function ExpectationsContent({
               </li>
               <li>
                 Run mapping 1.4 sources deterministically, including Dialect A
-                and Dialect B, or normalize mapping 1.5 and 1.6 daily-quote
+                and Dialect B, or normalize mapping 1.5, 1.6 and 1.7 daily-quote
                 sources. Compare the final workflow state, result, gate
                 readings, and canonical result hash below.
               </li>

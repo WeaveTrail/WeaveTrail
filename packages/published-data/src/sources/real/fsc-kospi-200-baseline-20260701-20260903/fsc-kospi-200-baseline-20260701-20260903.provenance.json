@@ -62,17 +62,13 @@
     }
   },
   "interpretation": {
-    "eventSchemaVersion": "1.2",
-    "mappingVersion": "1.6",
+    "eventSchemaVersion": "1.3",
+    "mappingVersion": "1.7",
     "eventType": "DAILY_QUOTE",
     "unmappedColumns": [
       "idxCsf",
       "epyItmsCnt",
-      "vs",
       "fltRt",
-      "mkp",
-      "hipr",
-      "lopr",
       "trPrc",
       "lstgMrktTotAmt",
       "lsYrEdVsFltRg",

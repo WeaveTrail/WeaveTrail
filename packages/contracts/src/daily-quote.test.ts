@@ -35,6 +35,54 @@ const event = {
 };
 
 describe("daily-only version coexistence", () => {
+  it("admits reviewed OHLC and absolute net-change fields only in mapping 1.7", () => {
+    const fields = [
+      ["open", "openPrice"],
+      ["high", "highPrice"],
+      ["low", "lowPrice"],
+      ["close", "closePrice"],
+      ["change", "netChange"],
+    ].map(([sourceColumn, targetField]) => ({
+      sourceColumn,
+      targetField,
+      transform: "PUBLISHER_DECIMAL_STRING",
+      confidence: 0,
+      evidence: "Reviewed synthetic publisher decimal.",
+      status: "REVIEW_REQUIRED",
+    }));
+    const input = {
+      ...proposal,
+      mappingVersion: "1.7",
+      constants: { ...constants, schemaVersion: "1.3" },
+      fields: [
+        field,
+        {
+          sourceColumn: "id",
+          targetField: "sourceEventId",
+          transform: "IDENTITY",
+          confidence: 1,
+          evidence: "Publisher identity.",
+          status: "PROPOSED",
+        },
+        ...fields,
+      ],
+    };
+    expect(SchemaMappingProposalSchema.parse(input)).toEqual(input);
+    expect(
+      SchemaMappingProposalSchema.safeParse({
+        ...input,
+        mappingVersion: "1.5",
+      }).success,
+    ).toBe(false);
+    expect(
+      SchemaMappingProposalSchema.safeParse({
+        ...input,
+        mappingVersion: "1.5",
+        constants,
+      }).success,
+    ).toBe(false);
+  });
+
   it("admits an ordered composite publisher identity only in mapping 1.6", () => {
     const composite = {
       ...proposal,

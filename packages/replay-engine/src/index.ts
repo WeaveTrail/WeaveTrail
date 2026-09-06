@@ -5,6 +5,7 @@ export * from "./canonical-dataset";
 export * from "./canonical-order";
 export * from "./canonicalize";
 export * from "./case-validation";
+export * from "./cross-market-session-reversal";
 export * from "./dataset-profile";
 export * from "./evidence-bundle-hash";
 export * from "./mapping-evaluation";

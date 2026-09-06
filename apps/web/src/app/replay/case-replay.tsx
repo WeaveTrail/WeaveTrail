@@ -1484,45 +1484,46 @@ export function CaseReplay({
                   )}
                 </p>
                 {"eventType" in proposal.constants && <DailyQuoteSemantics />}
-                {"compositeSourceEventId" in proposal && (
-                  <section
-                    aria-label={t(
-                      "Composite source event identity",
-                      "복합 소스 이벤트 식별자",
-                    )}
-                    className="mapping-row"
-                  >
-                    <strong>
-                      {t(
+                {"compositeSourceEventId" in proposal &&
+                  proposal.compositeSourceEventId !== undefined && (
+                    <section
+                      aria-label={t(
                         "Composite source event identity",
                         "복합 소스 이벤트 식별자",
                       )}
-                    </strong>
-                    <span>
-                      {t("Ordered columns", "순서가 있는 열")}:{" "}
-                      <code>
-                        {proposal.compositeSourceEventId.sourceColumns.join(
-                          " + ",
+                      className="mapping-row"
+                    >
+                      <strong>
+                        {t(
+                          "Composite source event identity",
+                          "복합 소스 이벤트 식별자",
                         )}
-                      </code>
-                    </span>
-                    <span>
-                      {t("Transform", "변환")}:{" "}
-                      <code>{proposal.compositeSourceEventId.transform}</code>
-                    </span>
-                    <span>
-                      {t("Confidence", "확신도")}:{" "}
-                      {proposal.compositeSourceEventId.confidence.toFixed(2)}
-                    </span>
-                    <span>
-                      {t("Evidence", "근거")}:{" "}
-                      {proposal.compositeSourceEventId.evidence}
-                    </span>
-                    <b data-status={proposal.compositeSourceEventId.status}>
-                      {proposal.compositeSourceEventId.status}
-                    </b>
-                  </section>
-                )}
+                      </strong>
+                      <span>
+                        {t("Ordered columns", "순서가 있는 열")}:{" "}
+                        <code>
+                          {proposal.compositeSourceEventId.sourceColumns.join(
+                            " + ",
+                          )}
+                        </code>
+                      </span>
+                      <span>
+                        {t("Transform", "변환")}:{" "}
+                        <code>{proposal.compositeSourceEventId.transform}</code>
+                      </span>
+                      <span>
+                        {t("Confidence", "확신도")}:{" "}
+                        {proposal.compositeSourceEventId.confidence.toFixed(2)}
+                      </span>
+                      <span>
+                        {t("Evidence", "근거")}:{" "}
+                        {proposal.compositeSourceEventId.evidence}
+                      </span>
+                      <b data-status={proposal.compositeSourceEventId.status}>
+                        {proposal.compositeSourceEventId.status}
+                      </b>
+                    </section>
+                  )}
                 {proposal.fields.map((field, index) => (
                   <div className="mapping-row" key={field.sourceColumn}>
                     <code>{field.sourceColumn}</code>

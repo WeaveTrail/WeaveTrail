@@ -38,9 +38,25 @@ export const DailyQuoteEventSchema = LegacyTradeEventSchema.extend({
   eventType: z.literal("DAILY_QUOTE"),
 }).strict();
 
+export const OhlcDailyQuoteEventSchema = DailyQuoteEventSchema.extend({
+  schemaVersion: z.literal("1.3"),
+  tradingDate: z.iso.date(),
+  openPrice: DecimalStringSchema,
+  highPrice: DecimalStringSchema,
+  lowPrice: DecimalStringSchema,
+  closePrice: DecimalStringSchema,
+  netChange: DecimalStringSchema,
+}).strict();
+
+export const PreOhlcTradeEventSchema = z.discriminatedUnion("schemaVersion", [
+  LegacyTradeEventSchema,
+  DailyQuoteEventSchema,
+]);
+
 export const TradeEventSchema = z.discriminatedUnion("schemaVersion", [
   LegacyTradeEventSchema,
   DailyQuoteEventSchema,
+  OhlcDailyQuoteEventSchema,
 ]);
 
 export type TradeEvent = z.infer<typeof TradeEventSchema>;

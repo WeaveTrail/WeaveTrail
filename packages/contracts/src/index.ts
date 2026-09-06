@@ -1,5 +1,6 @@
 export * from "./approval-record";
 export * from "./case-manifest";
+export * from "./cross-market-session-reversal";
 export * from "./dataset-profile";
 export * from "./decimal-string";
 export * from "./evidence-bundle";

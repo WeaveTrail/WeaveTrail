@@ -1,4 +1,5 @@
 export * from "./actorless-multi-instrument";
+export * from "./cross-market-session-reversal-scenarios";
 export * from "./concentrated-buy";
 export * from "./rapid-price-lift-scenarios";
 export * from "./replay-scenarios";

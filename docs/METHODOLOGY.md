@@ -94,8 +94,8 @@ policy still requires a participant for rapid price lift but permits
 `actorIds: []` for cross-market session reversal. The empty list records that
 the source supplies no participant identities; it does not claim that nobody
 acted. Profile validation rejects that declaration when the canonical dataset
-profile contains any actor identity. The cross-market evaluation rule remains
-planned.
+profile contains any actor identity. The actorless declaration is consumed by
+the separately versioned cross-market session-reversal rule described below.
 
 Case manifests carry an approval record instead of a writable approval status.
 Mapping approval uses a separate record. Both records retain an opaque
@@ -351,6 +351,71 @@ failed gate produces `NOT_SUPPORTED`. Each finding includes its observed
 string, configured threshold, pass state, and non-empty canonical event
 references.
 
+## `CROSS_MARKET_SESSION_REVERSAL` version `1.0`
+
+This actorless rule evaluates one declared `analysedDate`; it does not scan the
+baseline to find candidate dates. Its approved parameters name an inclusive
+`baselineRange`, a `baselineLegId`, at least two unique instrument legs, a
+minimum reversal multiple for every leg, a maximum baseline rank and a minimum
+agreeing-leg count. Every configured instrument must also appear in the Case
+Manifest `1.4` instrument set and canonical dataset profile.
+
+Event `1.3` retains the publisher's open, high, low, close and absolute net
+change as canonical decimal strings. For each daily observation:
+
+| Observation       | Exact definition                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| Session direction | Sign of `closePrice - openPrice`                                                                       |
+| Session reversal  | `highPrice - closePrice` for a down session; `closePrice - lowPrice` for an up session; zero when flat |
+| Net direction     | Sign of the absolute published `netChange` field                                                       |
+| Relation          | `OPPOSED`, `ALIGNED` or `FLAT` from the two directions                                                 |
+| Reversal multiple | `sessionReversal / abs(netChange)`                                                                     |
+
+The engine never derives net change from the publisher's rounded percentage.
+It validates positive OHLC values and `low <= open, close <= high`. Every price,
+threshold and ratio comparison uses scaled integers and exact cross-products;
+the reported multiple is truncated toward zero to four fractional digits only
+after the gate has been decided.
+
+The baseline population is the comparable baseline-leg observations in the
+intersection of the declared baseline range and the approved Case Manifest
+time window. Events outside that case window cannot affect the result. The
+analysed date's rank is `1 + count(multiple > analysed multiple)`; equal values
+share a rank. The result reports that position and the population size with the literal interpretation
+`POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY`. A rank is a position within
+the declared range, not a probability.
+
+The `BASELINE_RANK` finding passes at or above the configured position (a
+numeric rank no greater than `maximumBaselineRank`). Each declared leg has a
+separate `LEG_REVERSAL_MULTIPLE` finding that passes only when its relation is
+`OPPOSED` and its exact multiple meets that leg's threshold. `AGREEING_LEGS`
+counts those passing leg gates. `SUPPORTED` requires the rank and agreeing-leg
+gates to pass; other configurations return `NOT_SUPPORTED`. Every gate reports
+its observed value, threshold, pass state and canonical event references, so a
+failed leg remains visible even when a configured quorum supports the result.
+
+Preconditions fail closed as `INCONCLUSIVE` with an explicit reason. The
+vocabulary covers an empty or single-day comparable baseline, an analysed date
+outside the range or absent from the baseline, an absent declared leg,
+ambiguous observations, incomplete or invalid OHLC values, and zero analysed
+net change. An inconclusive result has no findings or analysis payload.
+
+The committed published-data golden declares 2026-09-03 over the inclusive
+2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and September 2026
+front-future legs. It reports the baseline leg at `13.9147` and position `1` of
+`45`, the future leg at `25.4705`, and a `SUPPORTED` result hash of
+`ffd7110a1c1fb2b18e9200e3a103b03572cb5b97b5f5d6db81689821de63bb55`.
+Reproduce it with:
+
+```bash
+pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal.test.ts
+```
+
+The captured environment is Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64.
+This is one deterministic worked case over fixed licensed artifacts. It does
+not estimate detection quality, probability, causality, legal status or
+investment suitability, and it does not search the range for candidate dates.
+
 ## Sensitivity interpretation
 
 The comparison asks, “What metric does the same deterministic replay produce
@@ -365,19 +430,25 @@ must not fill a missing safety-critical value from a model guess.
 
 ## Synthetic data
 
-The guided case and evaluation fixtures are synthetic. They test contracts,
-failure handling, determinism and traceability, without estimating performance
-in a real market. The separate published quotation artifact demonstrates
-normalization and its case-approval limit; it has no expected rule outcome.
+Synthetic fixtures reach all three result states and test contracts, failure
+handling, determinism and traceability without estimating performance in a real
+market. Separately, the committed published KOSPI 200 baseline and front-future
+rows pin one `SUPPORTED` rule result. That golden is a deterministic worked
+case over fixed licensed artifacts, not a performance estimate or a general
+detection claim.
 
 ## Daily quote contract support
 
-Trade Event `1.2` and Mapping Proposals `1.5`/`1.6` add a daily-only kind constant and
-a reviewed trading-date anchor while retaining legacy `1.1`/`1.4` inputs and
-hashes. The published FSC KOSPI window for 2026-09-03 contains 40 quotations,
-with source/permission and derivation recorded beside it.
+Trade Events `1.2`/`1.3` and Mapping Proposals `1.5`/`1.6`/`1.7` add daily-only
+branches and a reviewed trading-date anchor while retaining legacy `1.1`/`1.4`
+inputs and hashes. Event `1.3` and Proposal `1.7` additionally retain OHLC,
+absolute net change and the source trading date for deterministic evaluation.
+The published FSC KOSPI window for 2026-09-03 contains 40 quotations, with
+source/permission and derivation recorded beside it.
 [Daily quote normalization](DAILY_QUOTES.md) describes the exact command,
 environment, contracts, test evidence and published-field interpretation.
 Proposal `1.6` additionally permits only `sourceEventId` to be formed from an
 ordered, NUL-separated list of publisher columns when that list is the
 publisher's natural key.
+Proposal `1.7` permits either that composite identity or one directly mapped
+publisher identity, never both.

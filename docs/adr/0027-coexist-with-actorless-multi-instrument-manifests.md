@@ -45,8 +45,9 @@ that declaration, preventing an actorless source claim over actor-bearing data.
 
 The committed synthetic actorless source contains two daily-quotation
 instruments and is registered with the deterministic fixture mapping provider.
-It has no committed pattern verdict. The cross-market rule, its parameters,
-gates, baseline declaration, result and abstention reasons remain planned.
+It has no committed pattern verdict. The later cross-market rule, its
+parameters, gates, baseline declaration, result and abstention reasons are
+defined in [ADR 0032](0032-evaluate-declared-cross-market-session-reversals.md).
 
 ## Consequences
 
@@ -57,8 +58,7 @@ dataset profile. Actorless declarations additionally validate that the profile
 itself supplies no actor identifiers.
 
 The current replay request and rapid-price evaluator continue to consume the
-direct `1.3` schema. A `1.4` manifest can be proposed, approved and checked
-against a profile, but it has no executable rule result until the corresponding
-versioned rule is implemented. The synthetic source can still be normalized
-without a case, exercising its actorless multi-instrument dataset profile
-without presenting planned evaluation behavior as implemented.
+direct `1.3` schema. A `1.4` manifest can be proposed, approved, checked against
+a profile and passed to the cross-market engine entry point. The existing
+single-source replay request remains unchanged; combined-artifact orchestration
+and its guided surface are separate work.

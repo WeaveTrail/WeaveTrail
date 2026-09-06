@@ -15,6 +15,7 @@ const LegacyAllowedTransformSchema = z.enum([
 export const AllowedTransformSchema = z.enum([
   ...LegacyAllowedTransformSchema.options,
   "YYYYMMDD_TO_KST_DAY_START_ISO",
+  "PUBLISHER_DECIMAL_STRING",
 ]);
 
 export const MappedTargetFieldSchema = z.enum([
@@ -30,6 +31,11 @@ export const MappedTargetFieldSchema = z.enum([
   "orderId",
   "price",
   "quantity",
+  "openPrice",
+  "highPrice",
+  "lowPrice",
+  "closePrice",
+  "netChange",
 ]);
 
 const MappingFieldSchema = z
@@ -80,62 +86,139 @@ const DailyConstantsSchema = LegacyConstantsSchema.extend({
   eventType: z.literal("DAILY_QUOTE"),
 }).strict();
 
+const OhlcDailyConstantsSchema = LegacyConstantsSchema.extend({
+  schemaVersion: z.literal("1.3"),
+  eventType: z.literal("DAILY_QUOTE"),
+}).strict();
+
+const OHLC_TARGET_FIELDS = [
+  "openPrice",
+  "highPrice",
+  "lowPrice",
+  "closePrice",
+  "netChange",
+] as const;
+
+function isOhlcTargetField(targetField: string | null): boolean {
+  return OHLC_TARGET_FIELDS.some((field) => field === targetField);
+}
+
+const LegacyMappingProposalSchema = z
+  .object({
+    mappingVersion: z.literal("1.4"),
+    sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+    constants: LegacyConstantsSchema,
+    fields: z.array(
+      MappingFieldSchema.refine(
+        ({ transform }) =>
+          transform === null ||
+          LegacyAllowedTransformSchema.safeParse(transform).success,
+        { message: "Legacy mappings accept only legacy transforms" },
+      ).refine(({ targetField }) => !isOhlcTargetField(targetField), {
+        message: "Legacy mappings cannot target OHLC daily fields",
+      }),
+    ),
+  })
+  .strict();
+const CompositeDailyMappingProposalSchema = z
+  .object({
+    mappingVersion: z.literal("1.6"),
+    sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+    constants: DailyConstantsSchema,
+    compositeSourceEventId: CompositeSourceEventIdSchema,
+    fields: z.array(
+      MappingFieldSchema.refine(
+        ({ targetField, transform }) =>
+          targetField !== "sourceEventId" &&
+          !isOhlcTargetField(targetField) &&
+          transform !== "PUBLISHER_DECIMAL_STRING" &&
+          (transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
+            targetField === "eventTime"),
+        {
+          message:
+            "Version 1.6 reserves sourceEventId for the composite declaration and restricts the trading-date anchor to eventTime",
+        },
+      ),
+    ),
+  })
+  .strict();
+const DailyMappingProposalSchema = z
+  .object({
+    mappingVersion: z.literal("1.5"),
+    sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+    constants: DailyConstantsSchema,
+    fields: z.array(
+      MappingFieldSchema.refine(
+        ({ targetField, transform }) =>
+          !isOhlcTargetField(targetField) &&
+          transform !== "PUBLISHER_DECIMAL_STRING" &&
+          (transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
+            targetField === "eventTime"),
+        {
+          message:
+            "The trading-date anchor transform is only valid for eventTime",
+        },
+      ),
+    ),
+  })
+  .strict();
+const OhlcDailyMappingProposalSchema = z
+  .object({
+    mappingVersion: z.literal("1.7"),
+    sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
+    constants: OhlcDailyConstantsSchema,
+    compositeSourceEventId: CompositeSourceEventIdSchema.optional(),
+    fields: z.array(
+      MappingFieldSchema.refine(
+        ({ targetField, transform }) =>
+          (transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
+            targetField === "eventTime") &&
+          !(
+            isOhlcTargetField(targetField) &&
+            transform !== "PUBLISHER_DECIMAL_STRING"
+          ) &&
+          !(
+            transform === "PUBLISHER_DECIMAL_STRING" &&
+            !isOhlcTargetField(targetField)
+          ),
+        {
+          message:
+            "Version 1.7 restricts the trading-date anchor and requires publisher-decimal transforms for OHLC/net-change fields",
+        },
+      ),
+    ),
+  })
+  .strict()
+  .superRefine((proposal, context) => {
+    const mapsSourceEventId = proposal.fields.some(
+      ({ targetField }) => targetField === "sourceEventId",
+    );
+    if (mapsSourceEventId === (proposal.compositeSourceEventId !== undefined)) {
+      context.addIssue({
+        code: "custom",
+        path: ["fields"],
+        message:
+          "Version 1.7 requires exactly one direct or composite source event identity",
+      });
+    }
+  });
+
+export const PreOhlcSchemaMappingProposalSchema = z.discriminatedUnion(
+  "mappingVersion",
+  [
+    LegacyMappingProposalSchema,
+    CompositeDailyMappingProposalSchema,
+    DailyMappingProposalSchema,
+  ],
+);
+
 export const SchemaMappingProposalSchema = z.discriminatedUnion(
   "mappingVersion",
   [
-    z
-      .object({
-        mappingVersion: z.literal("1.4"),
-        sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
-        constants: LegacyConstantsSchema,
-        fields: z.array(
-          MappingFieldSchema.refine(
-            ({ transform }) =>
-              transform === null ||
-              LegacyAllowedTransformSchema.safeParse(transform).success,
-            { message: "Legacy mappings accept only legacy transforms" },
-          ),
-        ),
-      })
-      .strict(),
-    z
-      .object({
-        mappingVersion: z.literal("1.6"),
-        sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
-        constants: DailyConstantsSchema,
-        compositeSourceEventId: CompositeSourceEventIdSchema,
-        fields: z.array(
-          MappingFieldSchema.refine(
-            ({ targetField, transform }) =>
-              targetField !== "sourceEventId" &&
-              (transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
-                targetField === "eventTime"),
-            {
-              message:
-                "Version 1.6 reserves sourceEventId for the composite declaration and restricts the trading-date anchor to eventTime",
-            },
-          ),
-        ),
-      })
-      .strict(),
-    z
-      .object({
-        mappingVersion: z.literal("1.5"),
-        sourceArtifactHash: z.string().regex(/^[a-f0-9]{64}$/),
-        constants: DailyConstantsSchema,
-        fields: z.array(
-          MappingFieldSchema.refine(
-            ({ targetField, transform }) =>
-              transform !== "YYYYMMDD_TO_KST_DAY_START_ISO" ||
-              targetField === "eventTime",
-            {
-              message:
-                "The trading-date anchor transform is only valid for eventTime",
-            },
-          ),
-        ),
-      })
-      .strict(),
+    LegacyMappingProposalSchema,
+    CompositeDailyMappingProposalSchema,
+    DailyMappingProposalSchema,
+    OhlcDailyMappingProposalSchema,
   ],
 );
 
@@ -161,7 +244,8 @@ export function deriveApprovedSourceMapping(proposal: SchemaMappingProposal) {
       ({ sourceColumn, targetField, transform }) =>
         [sourceColumn, targetField, transform] as const,
     ),
-    ...(proposal.mappingVersion === "1.6"
+    ...("compositeSourceEventId" in proposal &&
+    proposal.compositeSourceEventId !== undefined
       ? { compositeSourceEventId: proposal.compositeSourceEventId }
       : {}),
   };
