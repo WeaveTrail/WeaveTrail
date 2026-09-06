@@ -204,6 +204,7 @@ button:disabled {
   max-width: var(--prose-max);
   margin-top: 16px;
   font: var(--type-body-lg);
+  line-height: 1.7;
   color: var(--text-muted);
 }
 .page-heading {
@@ -815,7 +816,9 @@ details.step-action > summary {
   min-width: 620px;
 }
 .attributed {
-  margin-block: 8px;
+  max-width: var(--prose-max);
+  margin-block: 12px;
+  line-height: 1.72;
   color: var(--text-body);
 }
 .page-heading > .lede-position {
@@ -861,10 +864,11 @@ details.step-action > summary {
 }
 .claim-boundary {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   margin: 8px 0 0;
   padding-left: 20px;
   color: var(--text-muted);
+  line-height: 1.68;
 }
 .source-list {
   display: grid;
