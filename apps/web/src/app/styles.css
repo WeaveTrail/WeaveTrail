@@ -458,7 +458,8 @@ button:disabled {
 }
 .journey-header h2,
 .source-evidence,
-.result-panel {
+.result-panel,
+.architecture-hash {
   scroll-margin-top: 110px;
 }
 .gate-description {

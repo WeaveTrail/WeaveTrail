@@ -63,15 +63,18 @@ export default function ArchitecturePage() {
           </p>
           <ul>
             <li>
-              <strong>Where a model&apos;s authority ends.</strong> L1 proposes
-              a field mapping and nothing else. No later layer accepts a value a
-              model computed.
+              <strong>Where a model&apos;s authority ends.</strong> L1 proposes.
+              Today that is a field mapping; the bounded case proposer below is
+              planned. It never computes a value, edits a row, or decides a
+              result.
             </li>
             <li>
               <strong>The trust boundary.</strong> It runs between L2 and L3.
               Nothing reaches the deterministic core without an approval bound
-              to the exact proposal hash, and a gate that cannot be satisfied
-              returns a review state instead of a result.
+              to the exact proposal hash, and a validation or approval gate that
+              cannot be satisfied returns a review state instead of a result.
+              The engine&apos;s five rule gates sit inside the boundary: a
+              failed one produces <code>NOT_SUPPORTED</code>, which is a result.
             </li>
             <li>
               <strong>What the canonical hash covers.</strong> The result
