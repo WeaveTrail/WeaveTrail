@@ -118,6 +118,16 @@ describe("reviewed FSC market adapters", () => {
         },
       }),
     ).toThrow();
+    expect(
+      completeSeriesRequest(
+        validateCompleteSeriesDeclaration({
+          ...indexDeclaration,
+          filter: { kind: "index", value: "코스피 200" },
+        }),
+        fscStockIndexAdapter,
+        "1",
+      ).parameters,
+    ).toMatchObject({ idxNm: "코스피 200" });
   });
 
   it("exposes every documented index, futures and option column unchanged", () => {

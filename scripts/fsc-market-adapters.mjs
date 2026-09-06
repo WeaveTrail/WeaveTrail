@@ -152,7 +152,7 @@ const common = {
 export const fscStockIndexAdapter = {
   ...common,
   endpoint: FSC_STOCK_INDEX_ENDPOINT,
-  selectors: { "index-family": "likeIdxNm" },
+  selectors: { index: "idxNm", "index-family": "likeIdxNm" },
   decodePage: decoder({
     columns: stockIndexColumns,
     filterColumn: "idxNm",

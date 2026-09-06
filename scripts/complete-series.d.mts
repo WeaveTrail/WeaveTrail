@@ -3,7 +3,12 @@ export type CompleteSeriesDeclaration = {
   date: string | { kind: "range"; begin: string; endExclusive: string };
   filter: {
     kind:
-      "instrument" | "series" | "date" | "index-family" | "instrument-family";
+      | "instrument"
+      | "index"
+      | "series"
+      | "date"
+      | "index-family"
+      | "instrument-family";
     value: string;
   };
   pageSize: string;
@@ -28,7 +33,11 @@ export type SeriesAdapter = {
   pageSizeParameter: string;
   selectors: Partial<
     Record<
-      "instrument" | "series" | "index-family" | "instrument-family",
+      | "instrument"
+      | "index"
+      | "series"
+      | "index-family"
+      | "instrument-family",
       string
     >
   >;

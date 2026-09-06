@@ -146,7 +146,7 @@ function provenance(
 }
 
 describe("complete-series declaration", () => {
-  it.each(["instrument", "series", "date"] as const)(
+  it.each(["instrument", "index", "series", "date"] as const)(
     "admits a single exact %s selector",
     (kind) => {
       expect(

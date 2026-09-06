@@ -96,17 +96,18 @@ export function validateCompleteSeriesDeclaration(value) {
   timestamp(value.declaredAt);
   keys(value.filter, ["kind", "value"]);
   const { kind, value: identifier } = value.filter;
-  const family = ["index-family", "instrument-family"].includes(kind);
+  const named = ["index", "index-family", "instrument-family"].includes(kind);
   if (
     ![
       "instrument",
+      "index",
       "series",
       "date",
       "index-family",
       "instrument-family",
     ].includes(kind) ||
     typeof identifier !== "string" ||
-    !(family
+    !(named
       ? /^[\p{L}\p{N}][\p{L}\p{N} ._():+-]{0,127}$/u.test(identifier)
       : /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(identifier))
   )

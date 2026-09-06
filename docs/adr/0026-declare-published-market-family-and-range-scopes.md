@@ -19,10 +19,10 @@ reproducible from committed response pages without network access.
 
 ## Decision
 
-Extend the declaration with two closed logical filters, `index-family` and
-`instrument-family`, and with a strict half-open date range
+Extend the declaration with a closed exact `index` filter, two closed logical
+filters, `index-family` and `instrument-family`, and with a strict half-open date range
 `[begin, endExclusive)`. Reviewed adapters alone bind those logical fields to
-publisher parameter names. The FSC adapters bind them to `likeIdxNm`,
+publisher parameter names. The FSC adapters bind them to `idxNm`, `likeIdxNm`,
 `likeItmsNm`, `beginBasDt` and `endBasDt`, validate every returned row against
 the declared literal/date scope, and require the complete documented column set.
 No value filter or arbitrary query field is admitted.

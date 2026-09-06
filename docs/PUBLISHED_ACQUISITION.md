@@ -35,8 +35,9 @@ strict declaration with:
 - `scope: "complete-series"`;
 - `date`: one completed Gregorian date as `YYYYMMDD`, or exactly
   `{ kind: "range", begin, endExclusive }` for a nonempty half-open date range;
-- `filter`: exactly `{ kind, value }`, naming one exact `instrument`, `series`
-  or `date`, or one publisher-matched `index-family` or `instrument-family`;
+- `filter`: exactly `{ kind, value }`, naming one exact `instrument`, `index`,
+  `series` or `date`, or one publisher-matched `index-family` or
+  `instrument-family`;
   a date selector must equal the declared single date;
 - `pageSize`: a positive integer string fixed before retrieval, not a total-row
   ceiling;
@@ -91,7 +92,7 @@ Credential echoes, failed HTTP status, redirects and transport exceptions fail
 closed; transport/decode errors are replaced with messages without raw URLs.
 The reviewed Financial Services Commission adapters bind only the official
 `getStockMarketIndex`, `getStockFuturesPriceInfo` and `getOptionsPriceInfo`
-operations. Their family selectors bind the documented `likeIdxNm` and
+operations. Their exact index selector binds `idxNm`; family selectors bind the documented `likeIdxNm` and
 `likeItmsNm` literal-inclusion parameters. Their decoders require provider
 success, the complete operation-specific column set, the declared date/family
 scope and nonduplicated publisher identities. Imports do not read credentials

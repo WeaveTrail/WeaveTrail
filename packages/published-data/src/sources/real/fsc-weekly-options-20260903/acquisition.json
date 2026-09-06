@@ -1,0 +1,907 @@
+{
+  "declaration": {
+    "scope": "complete-series",
+    "date": "20260903",
+    "filter": {
+      "kind": "instrument-family",
+      "value": "위클리"
+    },
+    "pageSize": "10",
+    "declaredAt": "2026-09-06T16:00:27.013Z",
+    "permission": {
+      "status": "UNRESTRICTED",
+      "label": "이용허락범위 제한 없음",
+      "checkedAt": "2026-09-06T16:00:27.013Z",
+      "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+      "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_파생상품시세정보, via data.go.kr. Weekly option family on trading date 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+    }
+  },
+  "retrievedAt": "2026-09-06T16:01:57.018Z",
+  "pageCount": "55",
+  "publisherTotal": "546",
+  "rowCount": "546",
+  "pages": [
+    {
+      "file": "page-1.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "1",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "86fa3c6691143eea87518fc049391e1d4ba7ee1cc6cd9f39c5055ca41e2b4c60"
+    },
+    {
+      "file": "page-2.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "2",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a490ddd6e25189fa445f36abb89a99923e0f7ba1dd67f1fd14b8180fc1c65a1b"
+    },
+    {
+      "file": "page-3.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "3",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "b74986ca772e26c987ddb73c5e67df8daf91283608f6a793aed3fbd568d02dfe"
+    },
+    {
+      "file": "page-4.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "4",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "b7ff521033473d0d2332c7d14f6b7d8b81f609ce6528120d2cf47682b19d701e"
+    },
+    {
+      "file": "page-5.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "5",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "9f99e72e2a2a3b310166cb0ce167b2a005380a1fd7370f6238607000560889d9"
+    },
+    {
+      "file": "page-6.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "6",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "c0558a56450dfe43dd185c416abe8dba4a94b432c0f3cea27557c2bf2c08a766"
+    },
+    {
+      "file": "page-7.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "7",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "caa771659266826dfd10b86485c0408453a981397cdd858bbf40bfa15b6bfc40"
+    },
+    {
+      "file": "page-8.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "8",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "392be06da47e911d5a8873747430aa3f71b7d2ee723d3af1242ae8219eda32b4"
+    },
+    {
+      "file": "page-9.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "9",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "f3a14bc7415d399739ca135a4da1f64b81cef6e4db17bbfabcf047d9a0a6c015"
+    },
+    {
+      "file": "page-10.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "10",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "7858579a5e1e752321aa7bb297b805f1fe720fac3f6bf68379eafc0286fd74f1"
+    },
+    {
+      "file": "page-11.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "11",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "07269d5c64af0437ad41883b2dfe7898d1ef67b2e5b962d0cf11a90d21d2b462"
+    },
+    {
+      "file": "page-12.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "12",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "8cdad28d974140259d4477e37e87967acbc00c7fbe5a0cec11c75858206ec398"
+    },
+    {
+      "file": "page-13.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "13",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "5a5cc1d1b342e4e983053db349d2357480a41c108340ce0a053cccb313dfe6d5"
+    },
+    {
+      "file": "page-14.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "14",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "d57d3da0c3ff7a7d96187257fa8f240e05b36ee7b3718db9aa7ab0ffb42e0b75"
+    },
+    {
+      "file": "page-15.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "15",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "5aa1f34755a435a6d8a870bb9ee7a6749e083677a7dfc3979776d2299d3d904a"
+    },
+    {
+      "file": "page-16.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "16",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "5dfe0e6c910d2b355a5044830540dda4bde25433b602833acc6360cec18bf339"
+    },
+    {
+      "file": "page-17.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "17",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "7429ecccd94cefed091123cd61b3122a2396b46c80797e32b8ff4e55d0d8f761"
+    },
+    {
+      "file": "page-18.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "18",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "f601aa7c4c2e3803da03f9570e9a7c0697c7ce50e30c9edcc78ffa8e4ec18e4e"
+    },
+    {
+      "file": "page-19.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "19",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "cdd0a3cd2cc7b96362ed6035998a133833cc679820586ca534607486f7bf229c"
+    },
+    {
+      "file": "page-20.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "20",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "67feabaac0c795c856debe7782d9e3e0eaf37c82e74b190451a2f503a18ace1f"
+    },
+    {
+      "file": "page-21.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "21",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "4ae828cdedf056cde900d4efd3b8bd665a3ff1a599faed86c75deecbb55ed4a9"
+    },
+    {
+      "file": "page-22.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "22",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "e91973ff884d520123a77c17eaed87dc594721eed41befbee2f357b7d788b3cf"
+    },
+    {
+      "file": "page-23.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "23",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "0ada438dc0be03e9fec6a3e66b8399f6f4fa1d044664162f3dc1c9b1942c1ef6"
+    },
+    {
+      "file": "page-24.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "24",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "3aeb0437c0f06d55e6f1469e5fbcc530559bf1f3e175677f342340cfc626c902"
+    },
+    {
+      "file": "page-25.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "25",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a3acfaca6490288b75e70df650458ca9423ef0966d530a1cbb7188117b5be774"
+    },
+    {
+      "file": "page-26.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "26",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "29ff037c8aeda4a77b00c8baec663e4ca91f0260a0a2750f8dd51967f99950fb"
+    },
+    {
+      "file": "page-27.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "27",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "801b810c1dd7dbe3519821ca3d9ff1cbd2842138e59e5f03a50ae31fad617b16"
+    },
+    {
+      "file": "page-28.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "28",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "283ea3aaa7005acad3bce35261eaa4452d497c6fa6024b1511ca6b3e116a0bf6"
+    },
+    {
+      "file": "page-29.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "29",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "699b02796a8ce555653f525819cca3dfdd49a090f9c928af05cb8ea4bde1a040"
+    },
+    {
+      "file": "page-30.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "30",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "e0fc8f7b402b8ea36b2ee5ba7f73f17072a2ad06eaaa381ad70ceb1eb03c2c40"
+    },
+    {
+      "file": "page-31.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "31",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "150438821243ca47b3d3356c1d85f7740faf111638579b4439b78835289635b4"
+    },
+    {
+      "file": "page-32.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "32",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "ca1412a059f10eafac999b743b9d3974f65eaa6e3c91e6895a5929b2cd022c40"
+    },
+    {
+      "file": "page-33.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "33",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a0581b247eacfb1ce09df51baf7975e395fad54185d0972bc14b5b7ab3a39020"
+    },
+    {
+      "file": "page-34.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "34",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "21bf27f649c449dc158d25645afb6443c952c8f54b8e61bc417918ea0b94c941"
+    },
+    {
+      "file": "page-35.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "35",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "1bb5d95ae21e71e78c788d8115511f9a87dbfef2537d047e18841cb5ac5a581c"
+    },
+    {
+      "file": "page-36.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "36",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "484c475389a62a85eb3761951eb1773354af166c1464c916f416db47a5bb9650"
+    },
+    {
+      "file": "page-37.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "37",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "6119b8372ef397c9315a88ebe4228729aee823d8ba0a1afef65b2c1736818401"
+    },
+    {
+      "file": "page-38.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "38",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "f6228eac99e422d207b11fb3b8c871be2fd27ad58d74b5d279a2adfa4e828628"
+    },
+    {
+      "file": "page-39.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "39",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "56f548aac43bec10eadc5f185397ea33808afa787b345d6fa88556bd49680fe9"
+    },
+    {
+      "file": "page-40.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "40",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "33ea3b0b9e03f14f5fdf45b3a1669e7f6e34c92102a31ce40fb0d680721fb31c"
+    },
+    {
+      "file": "page-41.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "41",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "c3b2f714aaf61560b0cf774e773a3ed235d8a574d7ef27995707c1a62769053a"
+    },
+    {
+      "file": "page-42.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "42",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "198b2e018fb2876718e72b5abb2275c2e6f4c5124584fab1d172b55d6812b71a"
+    },
+    {
+      "file": "page-43.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "43",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "f07e5a41c73bf3a95d2a97187c3f806e58de4822443426cd107402be4e3aff7a"
+    },
+    {
+      "file": "page-44.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "44",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "82f1aec40fb08b95971908951c935f5d53a663fd4d87e4707c62af87d3c6a049"
+    },
+    {
+      "file": "page-45.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "45",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "1aa447e9fbb20d185ae5abb44729991b6729435e3f1f4e21dc8e3b4503e4ade1"
+    },
+    {
+      "file": "page-46.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "46",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "873ed785c92a61fd24a69c65fab9cb6222702c4b2870b3dd2e1b58599381beb8"
+    },
+    {
+      "file": "page-47.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "47",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "2d6297441c02b55228b7a203011dd61329bf53cada8cb04678a5611f9917de1c"
+    },
+    {
+      "file": "page-48.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "48",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a716283c846abf1ea58a680057a919910cf63b6ede7cd20410c34f811df27f34"
+    },
+    {
+      "file": "page-49.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "49",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "46dfa2f18d32cdca2b07b84b6302ae36b57cb42d0f46e1562200e6131f83e996"
+    },
+    {
+      "file": "page-50.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "50",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a287a2e073915078b59d6744f4d05708c4cdb835efc0d73a17d3f4297188750d"
+    },
+    {
+      "file": "page-51.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "51",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "90aa13093908bd3f061e6f72f40cc39670b623da3da406c8cd23af1dae57855b"
+    },
+    {
+      "file": "page-52.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "52",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "a5a282f1f782651d05ff364484353e9b45d9b5bbefd41817e58383816975768f"
+    },
+    {
+      "file": "page-53.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "53",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "d388f3ae08c414027b2f240fea6fd91b4264dd6b75daf6ab7a97ff39f65ae232"
+    },
+    {
+      "file": "page-54.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "54",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "546",
+      "sha256": "f28dfccf666b0128695732ee9faccbd138ca1f3671b7f6787ad82ed855af7454"
+    },
+    {
+      "file": "page-55.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetDerivativeProductInfoService/getOptionsPriceInfo",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "55",
+          "numOfRows": "10",
+          "likeItmsNm": "위클리",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "6",
+      "publisherTotal": "546",
+      "sha256": "ec57fd6c4c363fe37ef2af2fa1df2911e89db8ce4e2e29d492f1e1a5925aba4c"
+    }
+  ],
+  "sourceArtifactHash": "70ee7e832071df6b8e3f073cb148275aa123402c53e078ba8e6b0909487d0458",
+  "publisherObservations": []
+}

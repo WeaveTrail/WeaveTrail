@@ -1,0 +1,100 @@
+{
+  "declaration": {
+    "scope": "complete-series",
+    "date": "20260903",
+    "filter": {
+      "kind": "index-family",
+      "value": "코스피"
+    },
+    "pageSize": "10",
+    "declaredAt": "2026-09-06T16:00:27.013Z",
+    "permission": {
+      "status": "UNRESTRICTED",
+      "label": "이용허락범위 제한 없음",
+      "checkedAt": "2026-09-06T16:00:27.013Z",
+      "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+      "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_지수시세정보, via data.go.kr. Trading date 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+    }
+  },
+  "retrievedAt": "2026-09-06T16:01:16.642Z",
+  "pageCount": "4",
+  "publisherTotal": "32",
+  "rowCount": "32",
+  "pages": [
+    {
+      "file": "page-1.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "1",
+          "numOfRows": "10",
+          "likeIdxNm": "코스피",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "32",
+      "sha256": "5fc0ae58fa921305aaec1574726503a1320c59a9867b0bc650c70411f28b1cc0"
+    },
+    {
+      "file": "page-2.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "2",
+          "numOfRows": "10",
+          "likeIdxNm": "코스피",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "32",
+      "sha256": "ce42681e2b18a364ce9af70ba3e2c4322ae0221c81c8d39cc06191586deebe3b"
+    },
+    {
+      "file": "page-3.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "3",
+          "numOfRows": "10",
+          "likeIdxNm": "코스피",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "10",
+      "publisherTotal": "32",
+      "sha256": "01f7127874ec9bf79225c6f86ce99a4d98a7956387e82268ae247fecba111f05"
+    },
+    {
+      "file": "page-4.response",
+      "request": {
+        "endpoint": "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex",
+        "parameters": {
+          "basDt": "20260903",
+          "pageNo": "4",
+          "numOfRows": "10",
+          "likeIdxNm": "코스피",
+          "resultType": "json"
+        }
+      },
+      "rowCount": "2",
+      "publisherTotal": "32",
+      "sha256": "c346c1aab75127dce0c6670d2e283089348d7d618fb685166fa92a3271d27d1e"
+    }
+  ],
+  "sourceArtifactHash": "e74903d528a94ce35bab66e25e8b6a784d1e8679195d6ef99aafcf4b3efdcff4",
+  "publisherObservations": [
+    {
+      "kind": "ROUNDED_DECIMAL",
+      "column": "fltRt",
+      "decimalPlaces": "2",
+      "statement": "The publisher supplies fltRt rounded to two decimal places; it is a convenience percentage, not a precise derived rate.",
+      "evidence": "The returned fltRt strings use at most two fractional digits; net change must instead be derived later from clpr and vs.",
+      "checkedAt": "2026-09-06T16:00:27.013Z"
+    }
+  ]
+}
