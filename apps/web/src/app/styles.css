@@ -691,6 +691,45 @@ details.step-action > summary {
 .architecture-hash {
   margin-top: 24px;
 }
+.expectations-guide,
+.expectations-list {
+  margin-top: 24px;
+}
+.expectations-guide li,
+.expectations-guide p,
+.expectation-card > p {
+  margin-top: 12px;
+}
+.expectations-list {
+  display: grid;
+  gap: 16px;
+}
+.expectation-card h2 {
+  margin-top: 8px;
+}
+.expectation-hypothesis {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: var(--hairline);
+}
+.expectation-hypothesis > p {
+  margin-top: 8px;
+}
+.expectation-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.expectation-facts > div {
+  min-width: 0;
+  padding: 12px;
+  border: var(--hairline);
+}
+.expectation-facts dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
 .layer-diagram {
   margin: 0 0 24px;
   padding: 20px;
@@ -1052,6 +1091,7 @@ code {
   .role-grid,
   .method-grid,
   .metric-grid,
+  .expectation-facts,
   .eval-row {
     grid-template-columns: 1fr;
   }

@@ -521,7 +521,7 @@ justify it.
 
 ## Presentation boundary
 
-The five public routes use a product-local snapshot of the paper-first design
+The seven public routes use a product-local snapshot of the paper-first design
 tokens and original brand mark pinned to `WeaveTrail/design-reference` revision
 `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is not a
 build or runtime dependency. Product copy and every visible evidence value stay

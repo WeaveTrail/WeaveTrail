@@ -162,7 +162,8 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/evals`, and `/methodology` from the production origin. In `/replay`:
+`/replay`, `/expectations`, `/evals`, and `/methodology` from the production
+origin. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve
@@ -214,7 +215,7 @@ To roll back without rewriting Git history:
    deployment whose Git SHA matches the recorded revision.
 2. Use the deployment's rollback action to restore it as production.
 3. Confirm the production alias points to that immutable deployment URL.
-4. Repeat the five-route fresh-browser smoke check and both Case Replay checks.
+4. Repeat the seven-route fresh-browser smoke check and both Case Replay checks.
 5. Record the restored SHA, immutable deployment URL, time, check results, and
    whether any check was skipped.
 
