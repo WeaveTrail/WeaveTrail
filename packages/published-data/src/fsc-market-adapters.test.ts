@@ -216,6 +216,7 @@ describe("reviewed FSC market adapters", () => {
   it.each([
     [{ ...indexRow, extra: "not-declared" }],
     [{ ...indexRow, basDt: "20260904" }],
+    [{ ...indexRow, basDt: "202607011" }],
     [{ ...indexRow, idxNm: "코스닥 150" }],
     [indexRow, indexRow],
   ])("refuses rows outside the declared index scope", (...rows) => {

@@ -1,5 +1,7 @@
 import process from "node:process";
 
+import { validTradingDate } from "./derive-fsc-stock-quotes.mjs";
+
 export const FSC_STOCK_INDEX_ENDPOINT =
   "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex";
 export const FSC_STOCK_FUTURES_ENDPOINT =
@@ -118,6 +120,7 @@ function decoder({ columns, filterColumn, identity }) {
         !object(row) ||
         Object.values(row).some((value) => typeof value !== "string") ||
         !sameColumns(row, columns) ||
+        !validTradingDate(row.basDt) ||
         row.basDt < dates.begin ||
         (dates.endExclusive === undefined
           ? row.basDt !== dates.begin
