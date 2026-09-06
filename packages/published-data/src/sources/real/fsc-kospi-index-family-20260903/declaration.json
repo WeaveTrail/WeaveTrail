@@ -1,0 +1,17 @@
+{
+  "scope": "complete-series",
+  "date": "20260903",
+  "filter": {
+    "kind": "index-family",
+    "value": "코스피"
+  },
+  "pageSize": "10",
+  "declaredAt": "2026-09-06T16:00:27.013Z",
+  "permission": {
+    "status": "UNRESTRICTED",
+    "label": "이용허락범위 제한 없음",
+    "checkedAt": "2026-09-06T16:00:27.013Z",
+    "termsUrl": "https://www.data.go.kr/ugs/selectPortalPolicyView.do",
+    "attribution": "Source: Financial Services Commission (금융위원회), 금융위원회_지수시세정보, via data.go.kr. Trading date 2026-09-03; retrieved 2026-09-06 UTC (2026-09-07 KST)."
+  }
+}

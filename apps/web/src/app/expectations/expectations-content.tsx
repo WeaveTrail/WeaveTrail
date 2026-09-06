@@ -66,6 +66,13 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
   "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
   "published-daily-quotes.csv": "공개 일별 시세 · 정규화",
+  "real/fsc-kospi-index-family-20260903/source.jsonl":
+    "FSC · 코스피 지수군 · 정규화",
+  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl":
+    "FSC · 코스피 200 기준선 · 정규화",
+  "real/fsc-kospi-200-futures-20260903/source.jsonl":
+    "FSC · 코스피 200 선물 · 정규화",
+  "real/fsc-weekly-options-20260903/source.jsonl": "FSC · 위클리 옵션 · 정규화",
 };
 
 export function ExpectationsContent({
@@ -110,8 +117,8 @@ export function ExpectationsContent({
               </li>
               <li>
                 mapping 1.4 소스는 <strong>결정론적 리플레이 실행</strong>을,
-                mapping 1.5 일별 시세 소스는 <strong>소스 정규화</strong>를
-                누릅니다. 아래의 워크플로 상태, 결과, gate 관측값, 정본 결과
+                mapping 1.5와 1.6 일별 시세 소스는 <strong>소스 정규화</strong>
+                를 누릅니다. 아래의 워크플로 상태, 결과, gate 관측값, 정본 결과
                 해시와 비교합니다.
               </li>
             </>
@@ -137,9 +144,9 @@ export function ExpectationsContent({
               </li>
               <li>
                 Run mapping 1.4 sources deterministically, including Dialect A
-                and Dialect B, or normalize mapping 1.5 daily-quote sources.
-                Compare the final workflow state, result, gate readings, and
-                canonical result hash below.
+                and Dialect B, or normalize mapping 1.5 and 1.6 daily-quote
+                sources. Compare the final workflow state, result, gate
+                readings, and canonical result hash below.
               </li>
             </>
           )}
@@ -175,7 +182,7 @@ export function ExpectationsContent({
         {!korean && (
           <p>
             This publication was captured at Git revision{" "}
-            <code>0ab7d3bf8f1016306f1c0225f5fa12a3415c2b79</code> with Node{" "}
+            <code>2a438d04b3f5f04ad847d3207b72a70eb0a76b39</code> with Node{" "}
             <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
             <code>4.1.11</code>, and Linux WSL2 x86_64.
           </p>

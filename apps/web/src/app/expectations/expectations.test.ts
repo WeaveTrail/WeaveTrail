@@ -14,7 +14,7 @@ describe("published scenario expectations page", () => {
     expect(markup).toContain("same-input repeatability only");
     expect(markup).toContain("including Dialect A and Dialect B");
     expect(markup).toContain("Git revision");
-    expect(markup).toContain("0ab7d3bf8f1016306f1c0225f5fa12a3415c2b79");
+    expect(markup).toContain("2a438d04b3f5f04ad847d3207b72a70eb0a76b39");
     expect(markup).toContain("Linux WSL2 x86_64");
     for (const scenario of publication.scenarios) {
       expect(markup).toContain(scenario.scenario);

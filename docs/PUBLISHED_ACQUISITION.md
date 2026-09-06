@@ -6,10 +6,10 @@ verified manually on the acquisition date. Missing, restricted, inaccessible or
 contradictory permission stops acquisition. Neither scope permits inventing a
 field, changing original source values or selecting rows after seeing them.
 
-| Scope             | Selection guarantee                                                          | Completion evidence                                                                        |
-| ----------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `bounded-window`  | A small first-page window, fixed before inspecting values                    | The existing provider-specific window checks; this is not the whole series                 |
-| `complete-series` | Every row returned for one exact predeclared identity/date scope is retained | Consecutive pages, an unchanged publisher total, and derived row count equal to that total |
+| Scope             | Selection guarantee                                                                | Completion evidence                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `bounded-window`  | A small first-page window, fixed before inspecting values                          | The existing provider-specific window checks; this is not the whole series                 |
+| `complete-series` | Every row returned for one predeclared identity, family and date scope is retained | Consecutive pages, an unchanged publisher total, and derived row count equal to that total |
 
 Use the bounded window for a deliberately limited normalization example. Use a
 complete series when the declared source exceeds that window and completeness
@@ -33,40 +33,46 @@ offline derivation commands remain in the
 strict declaration with:
 
 - `scope: "complete-series"`;
-- `date`: one completed Gregorian date as `YYYYMMDD`;
-- `filter`: exactly `{ kind, value }`, naming one `instrument`, `series` or
-  `date`; a date selector must equal the declared date;
+- `date`: one completed Gregorian date as `YYYYMMDD`, or exactly
+  `{ kind: "range", begin, endExclusive }` for a nonempty half-open date range;
+- `filter`: exactly `{ kind, value }`, naming one exact `instrument`, `index`,
+  `series` or `date`, or one publisher-matched `index-family` or
+  `instrument-family`;
+  a date selector must equal the declared single date;
 - `pageSize`: a positive integer string fixed before retrieval, not a total-row
   ceiling;
 - `declaredAt`: a UTC ISO timestamp with millisecond precision;
 - `permission`: the operator's `UNRESTRICTED` determination, exact permission
   label, `checkedAt`, HTTPS `termsUrl` and attribution text.
 
-Identity values are single ASCII tokens (letters/digits followed by
-letters/digits, `.`, `_`, `:` or `-`, at most 128 characters). Lists, wildcards,
-expressions, comparison operators and additional fields are rejected. Price,
-volume and outcome are not filter kinds. The filter declaration cannot supply
-publisher parameter names or arbitrary query parameters. Permission checking
-remains manual: validating this record does not independently establish legal
-permission or authenticate the operator's timestamp.
+Exact identity values remain single ASCII tokens (letters/digits followed by
+letters/digits, `.`, `_`, `:` or `-`, at most 128 characters). Family values may
+also use Unicode letters and spaces, but not lists, wildcards, expressions or
+comparison operators. Price, volume and outcome are not filter kinds. The date
+range admits only dates; it cannot carry a value predicate. The filter
+declaration cannot supply publisher parameter names or arbitrary query
+parameters. Permission checking remains manual: validating this record does not
+independently establish legal permission or authenticate the operator's
+timestamp.
 
 ## Manual retrieval API and adapter boundary
 
 `retrieveCompleteSeries({ declaration, output }, adapter)` in
 `scripts/retrieve-complete-series.mjs` is a manual library entry point. It has
-no default endpoint, transport, credentials or production complete-series
-adapter. No real complete series is acquired or committed by this change.
+no default endpoint, transport or credentials.
 
 A publisher adapter is reviewed repository code, not an operator/model
 declaration or a file loaded from artifact metadata. Its request specification
-binds the fixed endpoint and publisher parameter names for date, exact identity,
-page number, page size and, optionally, response format. The only parameter
+binds the fixed endpoint and publisher parameter names for a single date or
+half-open date range, identity or family selector, page number, page size and,
+optionally, response format. The only parameter
 changed during retrieval is the page number. Request settings and the logical
 declaration are copied and frozen before transport; each request is immutable.
 The endpoint must be HTTPS with no embedded query, fragment or credentials.
 
-Adapter review must establish that selectors mean exact equality, that a
-format control is not a selection predicate, and that the response decoder
+Adapter review must establish whether each selector means exact equality or a
+literal family-name match, that a format control is not a selection predicate,
+and that the response decoder
 checks provider success and exposes the complete original item array. The
 decoder receives the frozen declaration so it can check returned scope
 identities against it where the publisher supplies them. It returns page
@@ -84,8 +90,14 @@ escaping. When a response is valid JSON, it additionally walks every decoded
 object key and string value, covering equivalent slash and Unicode escape forms.
 Credential echoes, failed HTTP status, redirects and transport exceptions fail
 closed; transport/decode errors are replaced with messages without raw URLs.
-No real adapter semantics or publisher observations are asserted here. The
-next source acquisition needs its reviewed adapter and provenance evidence.
+The reviewed Financial Services Commission adapters bind only the official
+`getStockMarketIndex`, `getStockFuturesPriceInfo` and `getOptionsPriceInfo`
+operations. Their exact index selector binds `idxNm`; family selectors bind the documented `likeIdxNm` and
+`likeItmsNm` literal-inclusion parameters. Their decoders require provider
+success, the complete operation-specific column set, the declared date/family
+scope and nonduplicated publisher identities. Imports do not read credentials
+or make requests. The manual transport reads `DATA_GO_KR_SERVICE_KEY` inside the
+process and adds it only to the outgoing request.
 
 Before the first request, the collector checks today's UTC permission and
 declaration dates, checks that the requested date is completed, reserves a new
@@ -103,8 +115,11 @@ The decoder receives a copy so adapter parsing cannot mutate the retained or
 hashed HTTP entity.
 `source.jsonl` concatenates every decoded item in page/item order, compact
 `JSON.stringify` per item with LF separators and a final LF for nonempty data.
-Values and column insertion order remain intact. Source hashing is ordinary
-SHA-256 of those UTF-8 bytes. No financial arithmetic takes place. The current
+Values and column insertion order remain intact. `rows.json` adds only source
+coordinates: the source SHA-256 and one-based physical line number. It is
+reproducible offline with `scripts/derive-published-rows.mjs`. Source and
+generated-row hashing use ordinary SHA-256 of their UTF-8 bytes. No financial
+arithmetic takes place. The current
 collector holds rows in memory; storage or memory failure is an acquisition
 failure, never permission to admit a partial series.
 
@@ -117,14 +132,15 @@ an incomplete directory requiring inspection.
 
 ## Recorded evidence and offline admission
 
-The collector writes `acquisition.json` only after complete responses and the
-derived source. It records the frozen declaration, retrieval timestamp, page
+The collector writes `acquisition.json` only after complete responses, the
+derived source and deterministic `rows.json`. It records the frozen declaration, retrieval timestamp, page
 count, row count, publisher total, each original page filename and checksum,
 each exact public endpoint/parameter request, per-page count/total, and the
 derived `sourceArtifactHash`. Authentication values are excluded from request
-records. `publisherObservations` is an empty reserved slot; this change records
-no provider-specific behaviour. Supporting nonempty observations requires the
-next acquisition's evidence and a corresponding validator update.
+records. `publisherObservations` accepts only closed, evidence-bearing records
+for an exclusive range end or a rounded decimal column. Each record carries a
+verification time, statement and evidence; arbitrary observation shapes are
+refused during offline admission.
 
 Before committing a source, retain the original pages, `declaration.json` and
 `acquisition.json` in one source directory beside its complete
@@ -147,8 +163,8 @@ Bounded-window admission reuses the original FSC derivation and checks
 source/generated bytes against recorded hashes.
 Complete-series admission requires an explicitly registered offline adapter;
 an unknown adapter is refused. `validateCompleteSeriesArtifact` re-decodes
-every original page, checks page sequence and totals, reproduces the JSONL in
-returned order and compares the complete record. A source with fewer rows than
+every original page, checks page sequence and totals, reproduces the JSONL and
+generated rows in returned order and compares the complete record. A source with fewer rows than
 the reported total is rejected even if its source checksum and declared row
 count have been rewritten to match the truncation. Missing pages, reordered
 data and mismatched recorded requests also fail. No verifier fetches data.
@@ -179,4 +195,5 @@ Completeness here means equality with the publisher-reported total for the
 declared scope. It is not evidence of authenticity, a stable remote snapshot,
 coverage outside that scope, or a rule verdict. The count cannot compensate
 for a publisher whose totals or selector semantics cannot be trusted. See
-[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md).
+[ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
+[ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md).

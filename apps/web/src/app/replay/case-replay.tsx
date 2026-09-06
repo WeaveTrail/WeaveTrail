@@ -467,13 +467,26 @@ export function SourceProvenanceDetails({
         {provenance.titleEnglish} · {provenance.provider}
       </p>
       <dl>
-        <div>
-          <dt>{t("Trading date", "거래일")} (basDt)</dt>
-          <dd>
-            {readableCompactDate(provenance.basDt)}{" "}
-            <code>{provenance.basDt}</code>
-          </dd>
-        </div>
+        {provenance.basDtRange ? (
+          <div>
+            <dt>{t("Trading date range", "거래일 범위")} (basDt)</dt>
+            <dd>
+              {readableCompactDate(provenance.basDtRange.begin)}{" "}
+              {t("through", "부터")}{" "}
+              {readableCompactDate(provenance.basDtRange.endInclusive)}{" "}
+              <code>{provenance.basDtRange.begin}</code> {t("through", "부터")}{" "}
+              <code>{provenance.basDtRange.endInclusive}</code>
+            </dd>
+          </div>
+        ) : (
+          <div>
+            <dt>{t("Trading date", "거래일")} (basDt)</dt>
+            <dd>
+              {readableCompactDate(provenance.basDt)}{" "}
+              <code>{provenance.basDt}</code>
+            </dd>
+          </div>
+        )}
         <div>
           <dt>{t("Retrieved", "수집 시각")}</dt>
           <dd>
@@ -1470,7 +1483,46 @@ export function CaseReplay({
                     "제안된 필드, 변환, 근거를 검토하세요. 승인은 이 제안에만 묶입니다.",
                   )}
                 </p>
-                {proposal.mappingVersion === "1.5" && <DailyQuoteSemantics />}
+                {"eventType" in proposal.constants && <DailyQuoteSemantics />}
+                {"compositeSourceEventId" in proposal && (
+                  <section
+                    aria-label={t(
+                      "Composite source event identity",
+                      "복합 소스 이벤트 식별자",
+                    )}
+                    className="mapping-row"
+                  >
+                    <strong>
+                      {t(
+                        "Composite source event identity",
+                        "복합 소스 이벤트 식별자",
+                      )}
+                    </strong>
+                    <span>
+                      {t("Ordered columns", "순서가 있는 열")}:{" "}
+                      <code>
+                        {proposal.compositeSourceEventId.sourceColumns.join(
+                          " + ",
+                        )}
+                      </code>
+                    </span>
+                    <span>
+                      {t("Transform", "변환")}:{" "}
+                      <code>{proposal.compositeSourceEventId.transform}</code>
+                    </span>
+                    <span>
+                      {t("Confidence", "확신도")}:{" "}
+                      {proposal.compositeSourceEventId.confidence.toFixed(2)}
+                    </span>
+                    <span>
+                      {t("Evidence", "근거")}:{" "}
+                      {proposal.compositeSourceEventId.evidence}
+                    </span>
+                    <b data-status={proposal.compositeSourceEventId.status}>
+                      {proposal.compositeSourceEventId.status}
+                    </b>
+                  </section>
+                )}
                 {proposal.fields.map((field, index) => (
                   <div className="mapping-row" key={field.sourceColumn}>
                     <code>{field.sourceColumn}</code>
@@ -1662,7 +1714,7 @@ export function CaseReplay({
                 </button>
                 {caseApproval && <ApprovalReceipt approval={caseApproval} />}
               </div>
-            ) : proposal.mappingVersion === "1.5" ? (
+            ) : "eventType" in proposal.constants ? (
               <DailyQuoteCaseLimitation
                 normalized={result?.workflowState === "MAPPING_APPROVED"}
               />
@@ -1684,7 +1736,7 @@ export function CaseReplay({
               onClick={() => runReplay()}
               type="button"
             >
-              {proposal.mappingVersion === "1.5"
+              {"eventType" in proposal.constants
                 ? running
                   ? t("Normalizing…", "정규화 중…")
                   : t("Normalize source", "소스 정규화")

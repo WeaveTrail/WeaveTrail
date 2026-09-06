@@ -4,6 +4,14 @@ import {
 } from "@weavetrail/contracts";
 import rows from "./generated/fsc-stock-quotes-20260903-rows.json";
 import provenance from "./sources/real/fsc-stock-quotes-20260903.provenance.json";
+import indexRows from "./sources/real/fsc-kospi-index-family-20260903/rows.json";
+import indexProvenance from "./sources/real/fsc-kospi-index-family-20260903/fsc-kospi-index-family-20260903.provenance.json";
+import baselineRows from "./sources/real/fsc-kospi-200-baseline-20260701-20260903/rows.json";
+import baselineProvenance from "./sources/real/fsc-kospi-200-baseline-20260701-20260903/fsc-kospi-200-baseline-20260701-20260903.provenance.json";
+import futuresRows from "./sources/real/fsc-kospi-200-futures-20260903/rows.json";
+import futuresProvenance from "./sources/real/fsc-kospi-200-futures-20260903/fsc-kospi-200-futures-20260903.provenance.json";
+import optionsRows from "./sources/real/fsc-weekly-options-20260903/rows.json";
+import optionsProvenance from "./sources/real/fsc-weekly-options-20260903/fsc-weekly-options-20260903.provenance.json";
 import type { SourceProvenance } from "@weavetrail/contracts";
 
 export const fscStockQuotesProvenance = {
@@ -161,6 +169,167 @@ export const fscStockQuotesProposal = SchemaMappingProposalSchema.parse({
   fields,
 });
 
+const dailyField = (
+  sourceColumn: string,
+  targetField:
+    | "eventTime"
+    | "sourceEventId"
+    | "instrumentId"
+    | "price"
+    | "quantity"
+    | null,
+  evidence: string,
+) => ({
+  sourceColumn,
+  targetField,
+  transform:
+    targetField === null
+      ? null
+      : targetField === "eventTime"
+        ? ("YYYYMMDD_TO_KST_DAY_START_ISO" as const)
+        : targetField === "price" || targetField === "quantity"
+          ? ("DECIMAL_STRING" as const)
+          : ("IDENTITY" as const),
+  confidence:
+    targetField === "eventTime" ||
+    targetField === "price" ||
+    targetField === "quantity"
+      ? 0
+      : 1,
+  status:
+    targetField === "eventTime" ||
+    targetField === "price" ||
+    targetField === "quantity"
+      ? ("REVIEW_REQUIRED" as const)
+      : ("PROPOSED" as const),
+  evidence,
+});
+
+const indexColumns = indexProvenance.derivation.columns;
+const indexFields = indexColumns.map((column) => {
+  const target =
+    column === "basDt"
+      ? "eventTime"
+      : column === "idxNm"
+        ? "instrumentId"
+        : column === "clpr"
+          ? "price"
+          : column === "trqu"
+            ? "quantity"
+            : null;
+  return dailyField(
+    column,
+    target,
+    target === null
+      ? `Publisher column ${column} is retained verbatim but has no canonical daily-quote target; admission is deferred until a versioned consumer requires it.`
+      : column === "basDt"
+        ? "Publisher trading date is interpreted as Korean day start and also participates in the ordered publisher observation identity."
+        : column === "idxNm"
+          ? "Publisher index name is the instrument identity and also participates in the ordered publisher observation identity."
+          : `Publisher ${column} is interpreted as the daily aggregate ${target}.`,
+  );
+});
+
+function indexProposal(
+  artifactHash: string,
+  datasetId: string,
+  venueId: string,
+) {
+  return SchemaMappingProposalSchema.parse({
+    mappingVersion: "1.6",
+    sourceArtifactHash: artifactHash,
+    constants: {
+      schemaVersion: "1.2",
+      datasetId,
+      venueId,
+      eventType: "DAILY_QUOTE",
+    },
+    compositeSourceEventId: {
+      sourceColumns: ["basDt", "idxNm"],
+      transform: "NUL_JOIN",
+      confidence: 1,
+      status: "PROPOSED",
+      evidence:
+        "The publisher natural key is the ordered pair (basDt, idxNm). NUL cannot occur in admitted values and makes the join injective without modifying source rows.",
+    },
+    fields: indexFields,
+  });
+}
+
+const derivativeFields = (
+  columns: readonly string[],
+  mapClosingPrice: boolean,
+) =>
+  columns.map((column) => {
+    const target =
+      column === "basDt"
+        ? "eventTime"
+        : column === "srtnCd"
+          ? "sourceEventId"
+          : column === "isinCd"
+            ? "instrumentId"
+            : column === "clpr" && mapClosingPrice
+              ? "price"
+              : column === "trqu"
+                ? "quantity"
+                : null;
+    return dailyField(
+      column,
+      target,
+      target === null
+        ? `Publisher column ${column} is retained verbatim but has no canonical daily-quote target; admission is deferred until a versioned consumer requires it.`
+        : column === "basDt"
+          ? "Publisher trading date is interpreted as Korean day start."
+          : column === "srtnCd"
+            ? "Publisher short code uniquely identifies the returned derivative series on this trading date."
+            : column === "isinCd"
+              ? "Publisher ISIN is the canonical instrument identity."
+              : `Publisher ${column} is interpreted as the daily aggregate ${target}.`,
+    );
+  });
+
+function derivativeProposal(
+  artifactHash: string,
+  datasetId: string,
+  venueId: string,
+  fields: ReturnType<typeof derivativeFields>,
+) {
+  return SchemaMappingProposalSchema.parse({
+    mappingVersion: "1.5",
+    sourceArtifactHash: artifactHash,
+    constants: {
+      schemaVersion: "1.2",
+      datasetId,
+      venueId,
+      eventType: "DAILY_QUOTE",
+    },
+    fields,
+  });
+}
+
+export const fscKospiIndexFamilyProposal = indexProposal(
+  indexProvenance.artifacts.runtimeJsonl.sha256,
+  "fsc-kospi-index-family-20260903-v1",
+  indexProvenance.venue.value,
+);
+export const fscKospi200BaselineProposal = indexProposal(
+  baselineProvenance.artifacts.runtimeJsonl.sha256,
+  "fsc-kospi-200-baseline-20260701-20260903-v1",
+  baselineProvenance.venue.value,
+);
+export const fscKospi200FuturesProposal = derivativeProposal(
+  futuresProvenance.artifacts.runtimeJsonl.sha256,
+  "fsc-kospi-200-futures-20260903-v1",
+  futuresProvenance.venue.value,
+  derivativeFields(futuresProvenance.derivation.columns, true),
+);
+export const fscWeeklyOptionsProposal = derivativeProposal(
+  optionsProvenance.artifacts.runtimeJsonl.sha256,
+  "fsc-weekly-options-20260903-v1",
+  optionsProvenance.venue.value,
+  derivativeFields(optionsProvenance.derivation.columns, false),
+);
+
 export const publishedReplaySources = {
   "real/fsc-stock-quotes-20260903.jsonl": {
     label: "FSC · KOSPI daily quotes · 2026-09-03",
@@ -170,5 +339,41 @@ export const publishedReplaySources = {
     rows,
     mappingProposal: fscStockQuotesProposal,
     provenance: fscStockQuotesProvenance,
+  },
+  "real/fsc-kospi-index-family-20260903/source.jsonl": {
+    label: "FSC · KOSPI index family · 2026-09-03",
+    sourceArtifactHash: fscKospiIndexFamilyProposal.sourceArtifactHash,
+    constants: fscKospiIndexFamilyProposal.constants,
+    columns: indexColumns,
+    rows: indexRows,
+    mappingProposal: fscKospiIndexFamilyProposal,
+    provenance: { ...indexProvenance, kind: "real" as const },
+  },
+  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl": {
+    label: "FSC · KOSPI 200 baseline · 2026-07-01–2026-09-03",
+    sourceArtifactHash: fscKospi200BaselineProposal.sourceArtifactHash,
+    constants: fscKospi200BaselineProposal.constants,
+    columns: indexColumns,
+    rows: baselineRows,
+    mappingProposal: fscKospi200BaselineProposal,
+    provenance: { ...baselineProvenance, kind: "real" as const },
+  },
+  "real/fsc-kospi-200-futures-20260903/source.jsonl": {
+    label: "FSC · KOSPI 200 futures · 2026-09-03",
+    sourceArtifactHash: fscKospi200FuturesProposal.sourceArtifactHash,
+    constants: fscKospi200FuturesProposal.constants,
+    columns: futuresProvenance.derivation.columns,
+    rows: futuresRows,
+    mappingProposal: fscKospi200FuturesProposal,
+    provenance: { ...futuresProvenance, kind: "real" as const },
+  },
+  "real/fsc-weekly-options-20260903/source.jsonl": {
+    label: "FSC · weekly options · 2026-09-03",
+    sourceArtifactHash: fscWeeklyOptionsProposal.sourceArtifactHash,
+    constants: fscWeeklyOptionsProposal.constants,
+    columns: optionsProvenance.derivation.columns,
+    rows: optionsRows,
+    mappingProposal: fscWeeklyOptionsProposal,
+    provenance: { ...optionsProvenance, kind: "real" as const },
   },
 } as const;

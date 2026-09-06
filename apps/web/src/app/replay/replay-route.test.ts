@@ -49,17 +49,41 @@ describe("Case Replay entry contract", () => {
       );
       expect(markup).toContain(scenario.sourceArtifactHash);
       expect(markup).toContain(scenario.value);
+      const renderedTerms = new Set(markup.match(/<dt>.*?<\/dt>/g) ?? []);
+      const renderedValues = new Set(markup.match(/<code>.*?<\/code>/g) ?? []);
+      const renderedRows = new Set(
+        [...markup.matchAll(/Source row ([^<]+)/g)].map((match) => match[1]),
+      );
+      const escapedTerms = new Map(
+        committed.columns.map((column) => [
+          column,
+          renderToStaticMarkup(createElement("dt", null, column)),
+        ]),
+      );
+      const escapedValues = new Map<string, string>();
+      const missingRows: string[] = [];
+      const missingTerms = new Set<string>();
+      const missingValues = new Set<string>();
       for (const row of committed.rows) {
-        expect(markup).toContain(`Source row ${row.coordinate.rowNumber}`);
+        if (!renderedRows.has(row.coordinate.rowNumber))
+          missingRows.push(row.coordinate.rowNumber);
         for (const [column, value] of Object.entries(row.values)) {
-          expect(markup).toContain(
-            renderToStaticMarkup(createElement("dt", null, column)),
-          );
-          expect(markup).toContain(
-            renderToStaticMarkup(createElement("code", null, value)),
-          );
+          const escapedTerm = escapedTerms.get(column)!;
+          if (!renderedTerms.has(escapedTerm)) missingTerms.add(escapedTerm);
+          let escapedValue = escapedValues.get(value);
+          if (escapedValue === undefined) {
+            escapedValue = renderToStaticMarkup(
+              createElement("code", null, value),
+            );
+            escapedValues.set(value, escapedValue);
+          }
+          if (!renderedValues.has(escapedValue))
+            missingValues.add(escapedValue);
         }
       }
+      expect(missingRows).toEqual([]);
+      expect([...missingTerms]).toEqual([]);
+      expect([...missingValues]).toEqual([]);
     }
   });
 

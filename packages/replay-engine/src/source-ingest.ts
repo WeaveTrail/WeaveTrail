@@ -90,6 +90,7 @@ export function validateApprovedMapping(
   const seenSources = new Set<string>();
   const seenTargets = new Set<MappedTargetField>();
   if ("eventType" in mapping.constants) seenTargets.add("eventType");
+  if (mapping.mappingVersion === "1.6") seenTargets.add("sourceEventId");
 
   for (const [sourceColumn, targetField, transform] of mapping.fields) {
     if (seenSources.has(sourceColumn)) {
@@ -113,7 +114,8 @@ export function validateApprovedMapping(
     if (
       !AllowedTransformSchema.safeParse(transform).success ||
       (transform === "YYYYMMDD_TO_KST_DAY_START_ISO" &&
-        (mapping.mappingVersion !== "1.5" ||
+        ((mapping.mappingVersion !== "1.5" &&
+          mapping.mappingVersion !== "1.6") ||
           mapping.constants.schemaVersion !== "1.2" ||
           targetField !== "eventTime"))
     ) {
@@ -252,6 +254,33 @@ export function applyApprovedMapping(
       continue;
     }
     const candidate: Record<string, string> = { ...mapping.constants };
+    if ("compositeSourceEventId" in mapping) {
+      const values = mapping.compositeSourceEventId.sourceColumns.map(
+        (sourceColumn) => row.values[sourceColumn],
+      );
+      const invalidIndex = values.findIndex(
+        (value) => value === undefined || value.includes("\0"),
+      );
+      if (invalidIndex >= 0) {
+        const sourceColumn =
+          mapping.compositeSourceEventId.sourceColumns[invalidIndex]!;
+        issues.push({
+          code:
+            values[invalidIndex] === undefined
+              ? "APPROVED_SOURCE_COLUMN_MISSING"
+              : "TRANSFORM_REJECTED_VALUE",
+          rowIndex,
+          rowNumber: row.coordinate.rowNumber,
+          sourceColumn,
+          message:
+            values[invalidIndex] === undefined
+              ? `Composite source identity column ${JSON.stringify(sourceColumn)} is missing from row ${row.coordinate.rowNumber}`
+              : `Composite source identity column ${JSON.stringify(sourceColumn)} contains the reserved NUL separator`,
+        });
+      } else {
+        candidate.sourceEventId = values.join("\0");
+      }
+    }
     let approvedColumnMissing = false;
     for (const sourceColumn of fieldMappings.keys()) {
       if (!Object.hasOwn(row.values, sourceColumn)) {

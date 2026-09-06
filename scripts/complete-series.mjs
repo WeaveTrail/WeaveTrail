@@ -28,6 +28,58 @@ function timestamp(value) {
     fail();
 }
 
+function dateScope(value) {
+  if (typeof value === "string") {
+    if (!validTradingDate(value)) fail();
+    return { begin: value, endExclusive: undefined };
+  }
+  keys(value, ["kind", "begin", "endExclusive"]);
+  if (
+    value.kind !== "range" ||
+    !validTradingDate(value.begin) ||
+    !validTradingDate(value.endExclusive) ||
+    value.begin >= value.endExclusive
+  )
+    fail();
+  return { begin: value.begin, endExclusive: value.endExclusive };
+}
+
+function publisherObservations(value) {
+  if (!Array.isArray(value)) fail();
+  for (const observation of value) {
+    if (observation?.kind === "RANGE_END_EXCLUSIVE") {
+      keys(observation, ["kind", "statement", "evidence", "checkedAt"]);
+    } else if (observation?.kind === "ROUNDED_DECIMAL") {
+      keys(observation, [
+        "kind",
+        "column",
+        "decimalPlaces",
+        "statement",
+        "evidence",
+        "checkedAt",
+      ]);
+      if (
+        typeof observation.column !== "string" ||
+        !/^[A-Za-z][A-Za-z0-9_]*$/.test(observation.column) ||
+        typeof observation.decimalPlaces !== "string" ||
+        !/^(0|[1-9]\d*)$/.test(observation.decimalPlaces)
+      )
+        fail();
+    } else {
+      fail();
+    }
+    if (
+      typeof observation.statement !== "string" ||
+      !observation.statement.trim() ||
+      typeof observation.evidence !== "string" ||
+      !observation.evidence.trim()
+    )
+      fail();
+    timestamp(observation.checkedAt);
+  }
+  return value;
+}
+
 // Closed logical filters. Publisher parameter names are owned by reviewed
 // adapters, never supplied as filter fields by the operator.
 export function validateCompleteSeriesDeclaration(value) {
@@ -39,22 +91,32 @@ export function validateCompleteSeriesDeclaration(value) {
     "declaredAt",
     "permission",
   ]);
-  if (
-    value.scope !== "complete-series" ||
-    !validTradingDate(value.date) ||
-    count(value.pageSize) < 1n
-  )
-    fail();
+  if (value.scope !== "complete-series" || count(value.pageSize) < 1n) fail();
+  const selectedDates = dateScope(value.date);
   timestamp(value.declaredAt);
   keys(value.filter, ["kind", "value"]);
   const { kind, value: identifier } = value.filter;
+  const named = ["index", "index-family", "instrument-family"].includes(kind);
   if (
-    !["instrument", "series", "date"].includes(kind) ||
+    ![
+      "instrument",
+      "index",
+      "series",
+      "date",
+      "index-family",
+      "instrument-family",
+    ].includes(kind) ||
     typeof identifier !== "string" ||
-    !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(identifier)
+    !(named
+      ? /^[\p{L}\p{N}][\p{L}\p{N} ._():+-]{0,127}$/u.test(identifier)
+      : /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(identifier))
   )
     fail();
-  if (kind === "date" && identifier !== value.date) fail();
+  if (
+    kind === "date" &&
+    (selectedDates.endExclusive !== undefined || identifier !== value.date)
+  )
+    fail();
   keys(value.permission, [
     "status",
     "label",
@@ -106,8 +168,15 @@ export function completeSeriesRequest(declaration, adapter, pageNumber) {
       ? undefined
       : adapter.selectors[declaration.filter.kind];
   if (declaration.filter.kind !== "date" && !selector) fail();
+  const selectedDates = dateScope(declaration.date);
+  const dateEntries = selectedDates.endExclusive
+    ? [
+        [adapter.rangeParameters?.begin, selectedDates.begin],
+        [adapter.rangeParameters?.endExclusive, selectedDates.endExclusive],
+      ]
+    : [[adapter.dateParameter, selectedDates.begin]];
   const entries = [
-    [adapter.dateParameter, declaration.date],
+    ...dateEntries,
     [adapter.pageParameter, pageNumber],
     [adapter.pageSizeParameter, declaration.pageSize],
     ...(selector ? [[selector, declaration.filter.value]] : []),
@@ -138,6 +207,7 @@ export function startCompleteSeries(declaration, adapter) {
     structuredClone({
       endpoint: adapter.endpoint,
       dateParameter: adapter.dateParameter,
+      rangeParameters: adapter.rangeParameters,
       pageParameter: adapter.pageParameter,
       pageSizeParameter: adapter.pageSizeParameter,
       selectors: adapter.selectors,
@@ -150,6 +220,7 @@ export function startCompleteSeries(declaration, adapter) {
     requestAdapter,
     pages: [],
     rows: [],
+    identityKeys: new Set(),
     total: undefined,
   };
 }
@@ -193,6 +264,20 @@ export function appendCompleteSeriesPage(state, bytes, adapter) {
     )
       fail();
   }
+  if (page.identityKeys !== undefined) {
+    if (
+      !Array.isArray(page.identityKeys) ||
+      page.identityKeys.length !== page.rows.length ||
+      page.identityKeys.some(
+        (identity) =>
+          typeof identity !== "string" ||
+          !identity ||
+          state.identityKeys.has(identity),
+      )
+    )
+      throw new Error("Publisher row identity is missing or duplicated");
+    page.identityKeys.forEach((identity) => state.identityKeys.add(identity));
+  }
   state.total = total;
   for (const row of page.rows) state.rows.push(structuredClone(row));
   state.pages.push({
@@ -209,8 +294,12 @@ export function appendCompleteSeriesPage(state, bytes, adapter) {
   return BigInt(state.rows.length) === total;
 }
 
-export function finishCompleteSeries(state, retrievedAt) {
+export function finishCompleteSeries(state, retrievedAt, observations = []) {
   timestamp(retrievedAt);
+  publisherObservations(observations);
+  const selectedDates = dateScope(state.declaration.date);
+  const latestSelectedDate = selectedDates.endExclusive ?? selectedDates.begin;
+  const retrievalDate = retrievedAt.slice(0, 10).replaceAll("-", "");
   if (
     !state.pages.length ||
     BigInt(state.rows.length) !== state.total ||
@@ -218,7 +307,9 @@ export function finishCompleteSeries(state, retrievedAt) {
     retrievedAt.slice(0, 10) !== state.declaration.declaredAt.slice(0, 10) ||
     retrievedAt.slice(0, 10) !==
       state.declaration.permission.checkedAt.slice(0, 10) ||
-    state.declaration.date >= retrievedAt.slice(0, 10).replaceAll("-", "")
+    latestSelectedDate > retrievalDate ||
+    (selectedDates.endExclusive === undefined &&
+      latestSelectedDate === retrievalDate)
   )
     fail();
   const jsonl = state.rows.length
@@ -234,8 +325,7 @@ export function finishCompleteSeries(state, retrievedAt) {
       rowCount: String(state.rows.length),
       pages: state.pages,
       sourceArtifactHash: digest(jsonl),
-      // Reserved for future evidence-backed observations; none are inferred.
-      publisherObservations: [],
+      publisherObservations: structuredClone(observations),
     },
   };
 }
@@ -258,14 +348,14 @@ export function validateCompleteSeriesArtifact(
     "sourceArtifactHash",
     "publisherObservations",
   ]);
-  if (
-    !Array.isArray(record.publisherObservations) ||
-    record.publisherObservations.length
-  )
-    fail();
+  publisherObservations(record.publisherObservations);
   const state = startCompleteSeries(record.declaration, adapter);
   for (const bytes of rawPages) appendCompleteSeriesPage(state, bytes, adapter);
-  const expected = finishCompleteSeries(state, record.retrievedAt);
+  const expected = finishCompleteSeries(
+    state,
+    record.retrievedAt,
+    record.publisherObservations,
+  );
   const equal = (left, right) => {
     if (
       left === null ||

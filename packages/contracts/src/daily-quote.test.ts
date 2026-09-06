@@ -35,6 +35,50 @@ const event = {
 };
 
 describe("daily-only version coexistence", () => {
+  it("admits an ordered composite publisher identity only in mapping 1.6", () => {
+    const composite = {
+      ...proposal,
+      mappingVersion: "1.6",
+      compositeSourceEventId: {
+        sourceColumns: ["date", "index_name"],
+        transform: "NUL_JOIN",
+        confidence: 1,
+        evidence: "Publisher natural key.",
+        status: "PROPOSED",
+      },
+    };
+    const parsed = SchemaMappingProposalSchema.parse(composite);
+    expect(deriveApprovedSourceMapping(parsed)).toMatchObject({
+      mappingVersion: "1.6",
+      compositeSourceEventId: composite.compositeSourceEventId,
+    });
+    expect(
+      SchemaMappingProposalSchema.safeParse({
+        ...composite,
+        compositeSourceEventId: {
+          ...composite.compositeSourceEventId,
+          sourceColumns: ["date", "date"],
+        },
+      }).success,
+    ).toBe(false);
+    for (const compositeSourceEventId of [
+      { ...composite.compositeSourceEventId, confidence: 0 },
+      { ...composite.compositeSourceEventId, status: "REVIEW_REQUIRED" },
+    ]) {
+      expect(
+        SchemaMappingProposalSchema.safeParse({
+          ...composite,
+          compositeSourceEventId,
+        }).success,
+      ).toBe(false);
+    }
+    expect(
+      SchemaMappingProposalSchema.safeParse({
+        ...proposal,
+        compositeSourceEventId: composite.compositeSourceEventId,
+      }).success,
+    ).toBe(false);
+  });
   it("preserves accepted payloads and the executable version/constants verbatim", () => {
     const parsed = SchemaMappingProposalSchema.parse(proposal);
     expect(parsed).toEqual(proposal);

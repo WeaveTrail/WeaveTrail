@@ -269,3 +269,60 @@ describe("committed FSC daily quotation artifact", () => {
     );
   });
 });
+
+describe("committed FSC complete-series artifacts", () => {
+  const names = [
+    "real/fsc-kospi-index-family-20260903/source.jsonl",
+    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+    "real/fsc-kospi-200-futures-20260903/source.jsonl",
+    "real/fsc-weekly-options-20260903/source.jsonl",
+  ] as const;
+
+  it.each(names)(
+    "reproduces %s rows and pins its canonical dataset hash",
+    (name) => {
+      const source = publishedReplaySources[name];
+      const jsonl = read(`sources/${name}`);
+      expect(sourceArtifactHash(jsonl)).toBe(source.sourceArtifactHash);
+      expect(
+        parseJsonLinesSourceArtifact(jsonl, source.sourceArtifactHash),
+      ).toEqual(source.rows);
+      const normalized = applyApprovedMapping(
+        source.rows,
+        approvedSourceMapping(source.mappingProposal),
+      );
+      if (normalized.status !== "APPROVED")
+        throw new Error(
+          `Expected ${name} to normalize: ${JSON.stringify(normalized.issues)}`,
+        );
+      expect(
+        computeDatasetProfile(normalized.events).canonicalDatasetHash,
+      ).toMatchSnapshot();
+    },
+  );
+
+  it.each(names)("accounts for every returned column in %s", (name) => {
+    const source = publishedReplaySources[name];
+    expect(
+      source.mappingProposal.fields.map(({ sourceColumn }) => sourceColumn),
+    ).toEqual(source.columns);
+    expect(
+      source.rows.every(
+        ({ values }) =>
+          Object.keys(values).join("\0") === source.columns.join("\0"),
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps the existing bounded-window artifact and mapping version byte-identical", () => {
+    expect(fscStockQuotesProposal.mappingVersion).toBe("1.5");
+    expect(
+      sourceArtifactHash(
+        read("sources/real/fsc-stock-quotes-20260903.response.json"),
+      ),
+    ).toBe("4ad9c1e1677a19b4fd28b766ae32883d82ec824b66a2687f1533198f18cc5b43");
+    expect(
+      sourceArtifactHash(read("sources/real/fsc-stock-quotes-20260903.jsonl")),
+    ).toBe("17d3e9462f2322b0227554d76a4c7c4022261b4976727b3884f452d68f075eea");
+  });
+});

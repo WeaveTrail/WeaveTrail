@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
+import { SchemaMappingProposalSchema } from "@weavetrail/contracts";
 
 import {
   committedReplayScenarios,
@@ -15,6 +16,7 @@ import { replayFoundation } from "./replay-foundation";
 
 import {
   applyApprovedMapping,
+  approvedSourceMapping,
   canonicalRawRow,
   deriveEventId,
   deriveRawRowHash,
@@ -250,6 +252,57 @@ describe("source provenance", () => {
       expect(result).not.toHaveProperty("canonicalResultHash");
     }
     expect(results[0]!.issues).toEqual(results[1]!.issues);
+  });
+
+  it("derives an injective ordered composite sourceEventId without materializing a source column", () => {
+    const hash = "f".repeat(64);
+    const proposal = SchemaMappingProposalSchema.parse({
+      mappingVersion: "1.6",
+      sourceArtifactHash: hash,
+      constants: {
+        schemaVersion: "1.2",
+        datasetId: "index-observations-v1",
+        venueId: "KRX-INDEX",
+        eventType: "DAILY_QUOTE",
+      },
+      compositeSourceEventId: {
+        sourceColumns: ["date", "name"],
+        transform: "NUL_JOIN",
+        confidence: 1,
+        evidence: "Publisher natural key.",
+        status: "PROPOSED",
+      },
+      fields: [
+        {
+          sourceColumn: "date",
+          targetField: "eventTime",
+          transform: "YYYYMMDD_TO_KST_DAY_START_ISO",
+          confidence: 1,
+          evidence: "Date.",
+          status: "PROPOSED",
+        },
+        {
+          sourceColumn: "name",
+          targetField: "instrumentId",
+          transform: "IDENTITY",
+          confidence: 1,
+          evidence: "Index.",
+          status: "PROPOSED",
+        },
+      ],
+    });
+    const row = {
+      coordinate: { sourceArtifactHash: hash, rowNumber: "1" },
+      values: { date: "20260903", name: "코스피 200" },
+    };
+    const result = applyApprovedMapping([row], approvedSourceMapping(proposal));
+    expect(result).toMatchObject({
+      status: "APPROVED",
+      events: [
+        { sourceEventId: "20260903\0코스피 200", instrumentId: "코스피 200" },
+      ],
+    });
+    expect(row.values).toEqual({ date: "20260903", name: "코스피 200" });
   });
 
   it.each([

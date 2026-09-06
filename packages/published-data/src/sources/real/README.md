@@ -154,3 +154,46 @@ pnpm exec vitest run packages/replay-engine/src/real-market-data.test.ts apps/we
 This dataset has no case manifest or expected rule outcome. The tests verify
 normalization and refusal of an explicitly untrusted actor claim, without
 evaluating a real-instrument case.
+
+## Complete-series FSC market sources
+
+Four additional sources were manually acquired on 2026-09-07 KST after the
+distribution pages reported `이용허락범위 제한 없음`. Each directory contains
+the pre-request declaration, every original `page-N.response`, the acquisition
+receipt, deterministic `source.jsonl` and `rows.json`, and provenance. The key
+was read inside the process and is absent from recorded requests and artifacts.
+
+| Source                                            | Declared selector                                  | Rows / pages | Mapping                          |
+| ------------------------------------------------- | -------------------------------------------------- | -----------: | -------------------------------- |
+| KOSPI index family, 2026-09-03                    | `likeIdxNm=코스피`                                 |       32 / 4 | `1.6`; `(basDt, idxNm)` identity |
+| KOSPI 200 baseline, 2026-07-01 through 2026-09-03 | exact `idxNm=코스피 200`, half-open end 2026-09-04 |       45 / 5 | `1.6`; `(basDt, idxNm)` identity |
+| KOSPI 200 futures, 2026-09-03                     | `likeItmsNm=코스피200`                             |       13 / 2 | `1.5`; publisher codes           |
+| Weekly options, 2026-09-03                        | `likeItmsNm=위클리`                                |     546 / 55 | `1.5`; publisher codes           |
+
+Every request used `numOfRows=10`. The baseline records that `endBasDt` is
+exclusive and both index sources record that `fltRt` is rounded to two decimal
+places. The 13 futures `sptPrc` values equal the KOSPI 200 index `clpr` value
+`1032.82`; this is a captured cross-check, not a causal or authenticity claim.
+All 546 options carry a nonempty published close, but 41 distinct values use
+the publisher's noncanonical leading-dot spelling (for example `.33`). The
+current `DECIMAL_STRING` transform rejects that spelling, so `clpr` remains
+explicitly unmapped rather than being selectively omitted or rewritten. All
+returned columns remain present and are mapped or explicitly unmapped in the
+registered proposal.
+
+Reproduce rows offline for any directory without network access:
+
+```bash
+node scripts/derive-published-rows.mjs packages/published-data/src/sources/real/<directory>/source.jsonl /tmp/<directory>-rows.json
+cmp packages/published-data/src/sources/real/<directory>/rows.json /tmp/<directory>-rows.json
+pnpm exec vitest run packages/published-data/src/acquisition-scope.test.ts packages/replay-engine/src/real-market-data.test.ts
+```
+
+The original manual command shape was:
+
+```bash
+node --env-file=.env.local scripts/retrieve-fsc-market-source.mjs <stock-index|stock-futures|options> /tmp/declaration.json NEW_OUTPUT_DIRECTORY /tmp/observations.json
+```
+
+Output directories are exclusive and frozen after success. Do not re-run that
+command against a committed directory or from tests, CI, builds or runtime.
