@@ -134,6 +134,12 @@ Before committing a source, retain the original pages, `declaration.json` and
 not a substitute for provider, origin, retrieval time, licence, attribution and
 reproducible derivation instructions.
 
+The runtime JSONL path must resolve inside that same source directory. Admission
+hashes its committed bytes before decoding them, requires exact UTF-8, and then
+compares the decoded JSONL with the rows reconstructed from the original pages.
+Offline adapter registry endpoints are normalized as URLs before matching the
+canonical request endpoint recorded in the receipt.
+
 `verifyPublishedAcquisitions` scans committed provenance records and requires
 each adjacent scope declaration. It also rejects any unclaimed file in the real
 source tree, so an artifact cannot evade checks by omitting provenance entirely.

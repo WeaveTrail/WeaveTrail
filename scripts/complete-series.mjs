@@ -157,7 +157,10 @@ export function startCompleteSeries(declaration, adapter) {
 export function appendCompleteSeriesPage(state, bytes, adapter) {
   // Decoding all returned rows and checking provider success is adapter-owned;
   // adapters must expose the complete item array with no projection/filtering.
-  const page = adapter.decodePage(bytes.slice(), state.declaration);
+  // Buffer.prototype.slice() aliases its input, unlike Uint8Array.prototype
+  // .slice(). Always construct a Uint8Array so offline admission cannot let a
+  // decoder mutate the retained response bytes read from disk.
+  const page = adapter.decodePage(Uint8Array.from(bytes), state.declaration);
   const pageNumber = String(state.pages.length + 1);
   const total = count(page.total);
   if (

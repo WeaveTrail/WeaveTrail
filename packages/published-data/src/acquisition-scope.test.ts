@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   mkdtemp,
+  mkdir,
   readFile,
   readdir,
   rm,
@@ -266,6 +267,44 @@ describe("manual complete-series retrieval using synthetic transport", () => {
         createHash("sha256").update(bytes).digest("hex"),
       ),
     );
+
+    await writeFile(
+      join(path, "synthetic.provenance.json"),
+      JSON.stringify(provenance(record)),
+    );
+    const mutatingAdapter = {
+      ...adapter,
+      decodePage(bytes: Uint8Array, fixed: CompleteSeriesDeclaration) {
+        const decoded = adapter.decodePage(bytes, fixed);
+        bytes.fill(0);
+        return decoded;
+      },
+    };
+    await expect(
+      verifyPublishedAcquisitions(path, {
+        [mutatingAdapter.endpoint]: mutatingAdapter,
+      }),
+    ).resolves.toBe(1);
+  });
+
+  it("canonicalizes adapter registry endpoints during offline admission", async () => {
+    clock();
+    const path = await output();
+    const endpointAdapter = { ...adapter, endpoint: "https://example.invalid" };
+    const client = { ...transport(), endpoint: endpointAdapter.endpoint };
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      client,
+    );
+    await writeFile(
+      join(path, "synthetic.provenance.json"),
+      JSON.stringify(provenance(record)),
+    );
+    await expect(
+      verifyPublishedAcquisitions(path, {
+        [endpointAdapter.endpoint]: endpointAdapter,
+      }),
+    ).resolves.toBe(1);
   });
 
   it("rejects a truncated committed source even when its recorded hash and row count are rewritten", async () => {
@@ -392,6 +431,62 @@ describe("manual complete-series retrieval using synthetic transport", () => {
     await expect(
       verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
     ).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
+  it("keeps the runtime artifact inside its provenance directory", async () => {
+    clock();
+    const root = await output();
+    await mkdir(root);
+    const path = join(root, "artifact");
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      transport(),
+    );
+    const outside = join(root, "outside.jsonl");
+    await writeFile(outside, await readFile(join(path, "source.jsonl")));
+    await writeFile(
+      join(path, "synthetic.provenance.json"),
+      JSON.stringify({
+        ...provenance(record),
+        artifacts: {
+          runtimeJsonl: {
+            ...provenance(record).artifacts.runtimeJsonl,
+            path: "../outside.jsonl",
+          },
+        },
+      }),
+    );
+    await expect(
+      verifyPublishedAcquisitions(root, { [adapter.endpoint]: adapter }),
+    ).rejects.toThrow(
+      "Artifact path must stay within its provenance directory",
+    );
+  });
+
+  it("checks committed runtime bytes before decoding UTF-8", async () => {
+    clock();
+    const path = await output();
+    const record = await retrieveCompleteSeries(
+      { declaration, output: path },
+      transport(),
+    );
+    const invalid = Buffer.from([0xff]);
+    await writeFile(join(path, "source.jsonl"), invalid);
+    await writeFile(
+      join(path, "synthetic.provenance.json"),
+      JSON.stringify({
+        ...provenance(record),
+        artifacts: {
+          runtimeJsonl: {
+            path: "source.jsonl",
+            sha256: createHash("sha256").update(invalid).digest("hex"),
+          },
+        },
+      }),
+    );
+    await expect(
+      verifyPublishedAcquisitions(path, { [adapter.endpoint]: adapter }),
+    ).rejects.toThrow("Runtime artifact is not exact UTF-8");
   });
 
   it("rejects an unclaimed real artifact without an adjacent provenance record", async () => {

@@ -1,5 +1,13 @@
+import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
-import { join, dirname, basename, relative } from "node:path";
+import {
+  join,
+  dirname,
+  basename,
+  relative,
+  resolve,
+  isAbsolute,
+} from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { deriveFscStockQuotes } from "./derive-fsc-stock-quotes.mjs";
 import { validateCompleteSeriesArtifact } from "./complete-series.mjs";
@@ -7,6 +15,12 @@ import { validateCompleteSeriesArtifact } from "./complete-series.mjs";
 // Offline admission only. Adapters are passed by committed test code, never
 // loaded from a path or executable content supplied in artifact metadata.
 export async function verifyPublishedAcquisitions(directory, adapters = {}) {
+  const registeredAdapters = new Map(
+    Object.entries(adapters).map(([endpoint, adapter]) => [
+      new URL(endpoint).href,
+      adapter,
+    ]),
+  );
   const inventory = (
     await readdir(directory, { recursive: true, withFileTypes: true })
   )
@@ -18,6 +32,15 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
     const name = relative(directory, path);
     if (name.startsWith("..")) return;
     claimed.add(name);
+  };
+  const artifactPath = (artifactDirectory, path) => {
+    const resolved = resolve(artifactDirectory, path);
+    const name = relative(artifactDirectory, resolved);
+    if (!name || name === ".." || name.startsWith("../") || isAbsolute(name))
+      throw new Error(
+        "Artifact path must stay within its provenance directory",
+      );
+    return resolved;
   };
   const text = (value) => typeof value === "string" && value.trim().length > 0;
   const https = (value) => {
@@ -70,11 +93,26 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
     validateProvenance(provenance);
     claim(join(directory, file));
     claim(recordPath);
-    claim(join(artifactDirectory, provenance.artifacts.runtimeJsonl.path));
-    const jsonl = await readFile(
-      join(artifactDirectory, provenance.artifacts.runtimeJsonl.path),
-      "utf8",
+    const runtimePath = artifactPath(
+      artifactDirectory,
+      provenance.artifacts.runtimeJsonl.path,
     );
+    claim(runtimePath);
+    const runtimeBytes = await readFile(runtimePath);
+    const runtimeHash = createHash("sha256").update(runtimeBytes).digest("hex");
+    if (runtimeHash !== provenance.artifacts.runtimeJsonl.sha256)
+      throw new Error("Runtime bytes disagree with recorded provenance");
+    let jsonl;
+    try {
+      jsonl = new TextDecoder("utf-8", {
+        fatal: true,
+        ignoreBOM: true,
+      }).decode(runtimeBytes);
+    } catch {
+      throw new Error("Runtime artifact is not exact UTF-8");
+    }
+    if (!Buffer.from(jsonl, "utf8").equals(runtimeBytes))
+      throw new Error("Runtime artifact is not exact UTF-8");
     if (record.scope === "bounded-window") {
       if (
         Object.keys(record).sort().join() !==
@@ -83,10 +121,17 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
         record.sourceArtifactHash !== provenance.artifacts.runtimeJsonl.sha256
       )
         throw new Error("Invalid bounded-window classification");
-      const bytes = await readFile(
-        join(artifactDirectory, provenance.artifacts.rawResponse.path),
+      const rawResponsePath = artifactPath(
+        artifactDirectory,
+        provenance.artifacts.rawResponse.path,
       );
-      claim(join(artifactDirectory, provenance.artifacts.rawResponse.path));
+      const bytes = await readFile(rawResponsePath);
+      claim(rawResponsePath);
+      const generatedRowsPath = join(
+        artifactDirectory,
+        provenance.artifacts.generatedRows.path,
+      );
+      claim(generatedRowsPath);
       const derived = deriveFscStockQuotes(bytes, {
         basDt: provenance.basDt,
         market: provenance.request.mrktCls,
@@ -97,11 +142,7 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
         derived.sourceArtifactHash !== record.sourceArtifactHash ||
         derived.generatedRowsHash !==
           provenance.artifacts.generatedRows.sha256 ||
-        derived.generatedRows !==
-          (await readFile(
-            join(artifactDirectory, provenance.artifacts.generatedRows.path),
-            "utf8",
-          ))
+        derived.generatedRows !== (await readFile(generatedRowsPath, "utf8"))
       )
         throw new Error(
           "Bounded-window bytes disagree with recorded provenance",
@@ -128,7 +169,8 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
           "Complete-series receipt disagrees with provenance metadata",
         );
       const endpoint = record.pages?.[0]?.request?.endpoint;
-      if (!Object.hasOwn(adapters, endpoint))
+      const adapter = registeredAdapters.get(endpoint);
+      if (!adapter)
         throw new Error(
           "Complete-series artifact requires a committed offline publisher adapter",
         );
@@ -139,7 +181,7 @@ export async function verifyPublishedAcquisitions(directory, adapters = {}) {
         raw.push(await readFile(join(artifactDirectory, page.file)));
         claim(join(artifactDirectory, page.file));
       }
-      validateCompleteSeriesArtifact(record, raw, jsonl, adapters[endpoint]);
+      validateCompleteSeriesArtifact(record, raw, jsonl, adapter);
       if (
         record.sourceArtifactHash !== provenance.artifacts.runtimeJsonl.sha256
       )
