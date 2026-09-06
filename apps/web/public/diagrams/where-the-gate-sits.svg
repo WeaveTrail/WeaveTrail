@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 800" role="img" aria-labelledby="gateTitle gateDesc">
+  <title id="gateTitle">Where the gate sits: an existing surveillance pipeline produces an alert, the gate re-derives that alert into a result, and a person decides</title>
+  <desc id="gateDesc">Three bands run top to bottom. The top band is an upstream surveillance pipeline that already exists and is not part of WeaveTrail: order and trade data reach a surveillance system, which emits an alert or a referral. An arrow carries that conclusion down into the middle band, the gate. The gate asks an upstream for three declared inputs: the source executions behind the alert, an approved review scope bound to its exact hash, and a versioned hypothesis with its thresholds. Inside it, four layers hold one authority each: layer one interprets and proposes, layer two is a person approving by hash, layer three is versioned code deciding, layer four resolves every finding back to its source rows. It returns one of three results, SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, or a review state that is not a result and carries no result hash. An arrow carries that down to the bottom band, where an investigator reads the result, the gates and the rows behind them, and decides what the case is. The gate inspects an upstream's conclusion, not an upstream's method, and it does not search for candidates.</desc>
+  <!--
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    An opaque paper rectangle covers the whole canvas so the diagram stays legible
+    on a dark ground as well as a light one.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 paper-3
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint
+    #4f6270 authorship-ai state-review | #eef1f2 slate-tint state-review-bg
+    #8a6a12 result-inconclusive | #fbf4e4 amber-tint
+    #d0d7de ledger-rule
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:24px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:13px;fill:#566461}
+      .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .stage{font-size:15px;font-weight:600;fill:#0c1513}
+      .body{font-size:12px;fill:#263230}
+      .foot{font-size:11px;fill:#566461}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="960" height="800" fill="#f7faf9"/>
+  <rect width="960" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="959" height="799" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="44">WHERE THE GATE SITS</text>
+    <text class="title" x="40" y="76">Between an alert that has already fired and the person who decides.</text>
+    <text class="sub" x="40" y="100">The upper band already exists and keeps running. The gate does not detect, and it does not decide.</text>
+    <text class="sub" x="40" y="118">It re-derives one stated conclusion from the executions it rests on, so a second person can check it.</text>
+  </g>
+  <line class="rule" x1="40" y1="136" x2="920" y2="136"/>
+
+  <!-- band A : the upstream pipeline -->
+  <rect x="40" y="156" width="880" height="132" fill="#f0f5f4" stroke="#d0d7de"/>
+  <text class="s band" x="56" y="180">UPSTREAM SURVEILLANCE &#183; ALREADY RUNNING, NOT PART OF WEAVETRAIL</text>
+  <g>
+    <rect x="56" y="196" width="258" height="72" fill="#ffffff" stroke="#566461"/>
+    <text class="s stage" x="72" y="228">Order and trade data</text>
+    <text class="s body" x="72" y="250">Audit trail and venue feeds.</text>
+  </g>
+  <g>
+    <rect x="351" y="196" width="258" height="72" fill="#ffffff" stroke="#566461"/>
+    <text class="s stage" x="367" y="228">Surveillance system</text>
+    <text class="s body" x="367" y="250">Monitors, scores, escalates.</text>
+  </g>
+  <g>
+    <rect x="646" y="196" width="258" height="72" fill="#ffffff" stroke="#14211f"/>
+    <text class="s stage" x="662" y="228">Alert or referral</text>
+    <text class="s body" x="662" y="250">Its output. A candidate.</text>
+  </g>
+  <g fill="#566461">
+    <path d="M318 228l10 4-10 4z"/>
+    <path d="M613 228l10 4-10 4z"/>
+  </g>
+
+  <path d="M775 288v24" stroke="#0b6e6a" stroke-width="1.5" fill="none"/>
+  <path d="M771 312l4 8 4-8z" fill="#0b6e6a"/>
+  <text class="s foot" x="755" y="306" text-anchor="end">the gate reads an upstream&#8217;s conclusion, never its method</text>
+
+  <!-- band B : the gate -->
+  <rect x="40" y="320" width="880" height="320" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s band" x="56" y="344" fill="#0b6e6a">THE GATE &#183; WEAVETRAIL</text>
+
+  <text class="s band" x="56" y="372">WHAT IT ASKS OF AN UPSTREAM</text>
+  <g>
+    <rect x="56" y="382" width="300" height="46" fill="#f7faf9" stroke="#d0d7de"/>
+    <text class="s stage" x="70" y="404">Source executions</text>
+    <text class="s body" x="70" y="420">The rows the alert&#8217;s number rests on.</text>
+  </g>
+  <g>
+    <rect x="56" y="438" width="300" height="46" fill="#f7faf9" stroke="#d0d7de"/>
+    <text class="s stage" x="70" y="460">An approved review scope</text>
+    <text class="s body" x="70" y="476">Bound to the exact proposal hash.</text>
+  </g>
+  <g>
+    <rect x="56" y="494" width="300" height="46" fill="#f7faf9" stroke="#d0d7de"/>
+    <text class="s stage" x="70" y="516">A hypothesis and its thresholds</text>
+    <text class="s body" x="70" y="532">Versioned, with abstention declared.</text>
+  </g>
+
+  <text class="s band" x="392" y="372">ONE AUTHORITY PER LAYER</text>
+  <g>
+    <rect x="392" y="382" width="512" height="36" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="s chip" x="406" y="399" fill="#4f6270">L1 &#183; INTERPRET</text>
+    <text class="s body" x="406" y="413">Proposes a mapping. Never computes, edits a row, or decides.</text>
+  </g>
+  <g>
+    <rect x="392" y="424" width="512" height="36" fill="#e6f2f1" stroke="#0b6e6a"/>
+    <text class="s chip" x="406" y="441" fill="#0b6e6a">L2 &#183; APPROVE</text>
+    <text class="s body" x="406" y="455">A person approves that exact proposal. Never edits a result.</text>
+  </g>
+  <g>
+    <rect x="392" y="466" width="512" height="36" fill="#f0f5f4" stroke="#14211f"/>
+    <text class="s chip" x="406" y="483" fill="#14211f">L3 &#183; DECIDE</text>
+    <text class="s body" x="406" y="497">Versioned code orders, computes and evaluates the approved scope.</text>
+  </g>
+  <g>
+    <rect x="392" y="508" width="512" height="36" fill="#f0f5f4" stroke="#14211f"/>
+    <text class="s chip" x="406" y="525" fill="#14211f">L4 &#183; EVIDENCE</text>
+    <text class="s body" x="406" y="539">Resolves every finding to its canonical events and source rows.</text>
+  </g>
+
+  <line class="rule" x1="56" y1="556" x2="904" y2="556"/>
+  <text class="s band" x="56" y="576">WHAT IT RETURNS</text>
+  <g>
+    <rect x="56" y="584" width="200" height="24" fill="#e6f2f1" stroke="#0b6e6a"/>
+    <text class="m chip" x="68" y="600" fill="#0b6e6a">SUPPORTED</text>
+    <rect x="272" y="584" width="200" height="24" fill="#f0f5f4" stroke="#263230"/>
+    <text class="m chip" x="284" y="600" fill="#263230">NOT_SUPPORTED</text>
+    <rect x="488" y="584" width="200" height="24" fill="#fbf4e4" stroke="#8a6a12"/>
+    <text class="m chip" x="500" y="600" fill="#8a6a12">INCONCLUSIVE</text>
+    <rect x="704" y="584" width="200" height="24" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="716" y="600" fill="#4f6270">REVIEW_REQUIRED</text>
+  </g>
+  <text class="s foot" x="56" y="626">Three results, and only three. A gate that cannot be satisfied returns a review state, which is not a result and carries no result hash.</text>
+
+  <path d="M480 640v24" stroke="#0b6e6a" stroke-width="1.5" fill="none"/>
+  <path d="M476 664l4 8 4-8z" fill="#0b6e6a"/>
+
+  <!-- band C : the person who decides -->
+  <rect x="40" y="672" width="880" height="96" fill="#ebf3f3" stroke="#0b6e6a"/>
+  <text class="s band" x="56" y="696" fill="#0b6e6a">THE INVESTIGATOR &#183; DECIDES</text>
+  <text class="s body" x="56" y="722">A person reads the result, every gate&#8217;s observed value and threshold, and the rows behind them, and decides what the case is.</text>
+  <text class="s body" x="56" y="744">That decision, and the responsibility for it, stay with the person. The gate does not make it, and does not search for candidates.</text>
+</svg>
