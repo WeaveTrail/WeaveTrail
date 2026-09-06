@@ -33,6 +33,13 @@ verification. It is not a production market-surveillance system.
   market thresholds. The three declared outcomes are synthetic-fixture
   results, not a detection-rate measurement.
 - No large-scale performance benchmark has been run.
+- Complete-series acquisition has a manual collector and offline admission
+  checks tested with synthetic transport. It has no production publisher
+  adapter or committed complete real series yet. Completeness is relative to
+  an unchanged publisher-reported total for the predeclared scope, not a claim
+  of stable remote snapshots or coverage outside that scope. The existing FSC
+  artifact remains a bounded window. See
+  [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
 - Finite-number spelling is specified, but independent Evidence Bundle
