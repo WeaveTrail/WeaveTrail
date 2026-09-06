@@ -7,6 +7,8 @@ import { navigationCopy } from "../site-navigation";
 import { architectureCopy } from "../architecture/architecture-content";
 import { whyCopy } from "../why/why-view";
 import { guideStepsByLanguage, guideUi } from "../replay/case-replay";
+import { methodologyCopy } from "../methodology/methodology-content";
+import { checks } from "../evals/page";
 import { howItWorksSvg } from "../architecture/how-it-works-diagram";
 import {
   CONCLUSION_NOT_METHOD,
@@ -69,6 +71,28 @@ const surfaces: readonly (readonly [
   ["why", whyCopy],
   ["guide UI", guideUi],
   ["guide steps", guideStepsByLanguage],
+  ["methodology", methodologyCopy],
+];
+
+const koreanEvaluationCheckNames = [
+  "공개 시세의 도출과 정규화",
+  "행 순서 불변성",
+  "리터럴 골든 해시",
+  "완전히 같은 중복 행 허용",
+  "식별자 충돌 거부",
+  "시각 형식 동등성",
+  "밀리초 미만 순서",
+  "로캘과 무관한 순서",
+  "변동 메타데이터 제외",
+  "혼합 sequence 정책",
+  "방언 수렴",
+  "데이터셋 프로파일 결정성",
+  "매핑 승인 결속",
+  "레코드 집합 완전성",
+  "매핑 일치 보고",
+  "도달 가능한 매핑 검토",
+  "사례 분류",
+  "증거 완전성",
 ];
 
 /** The `why` argument, whose statements are localized one string at a time. */
@@ -232,5 +256,11 @@ describe("the two languages carry the same claims", () => {
     }
     for (const value of whyLocalized)
       expect(value.ko, value.en).not.toBe(value.en);
+  });
+
+  it("keeps a Korean name for every evaluation check", () => {
+    expect(koreanEvaluationCheckNames).toHaveLength(checks.length);
+    for (const name of koreanEvaluationCheckNames)
+      expect(/[가-힣]/.test(name), name).toBe(true);
   });
 });
