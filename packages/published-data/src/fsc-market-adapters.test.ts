@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  appendCompleteSeriesPage,
   completeSeriesRequest,
+  startCompleteSeries,
   validateCompleteSeriesDeclaration,
   type CompleteSeriesDeclaration,
 } from "../../../scripts/complete-series.mjs";
@@ -72,15 +74,20 @@ const derivativeBase = {
   opnint: "56",
 };
 
-const envelope = (rows: Record<string, string>[]) =>
+const envelope = (
+  rows: Record<string, string>[],
+  pageNo = 1,
+  numOfRows = 200,
+  totalCount = rows.length,
+) =>
   new TextEncoder().encode(
     JSON.stringify({
       response: {
         header: { resultCode: "00", resultMsg: "NORMAL SERVICE." },
         body: {
-          numOfRows: 200,
-          pageNo: 1,
-          totalCount: rows.length,
+          numOfRows,
+          pageNo,
+          totalCount,
           items: { item: rows },
         },
       },
@@ -168,6 +175,42 @@ describe("reviewed FSC market adapters", () => {
       fscOptionsAdapter.decodePage(envelope([optionRow]), optionDeclaration)
         .rows,
     ).toEqual([optionRow]);
+  });
+
+  it("requires equality for an exact index selector", () => {
+    expect(() =>
+      fscStockIndexAdapter.decodePage(
+        envelope([{ ...indexRow, idxNm: "코스피 200 정보기술" }]),
+        {
+          ...indexDeclaration,
+          filter: { kind: "index", value: "코스피 200" },
+        },
+      ),
+    ).toThrow("declared date, family or column scope");
+  });
+
+  it("rejects a publisher identity repeated across page boundaries", () => {
+    const declaration = validateCompleteSeriesDeclaration({
+      ...indexDeclaration,
+      date: "20260903",
+      filter: { kind: "index-family", value: "코스피" },
+      pageSize: "1",
+    });
+    const state = startCompleteSeries(declaration, fscStockIndexAdapter);
+    expect(
+      appendCompleteSeriesPage(
+        state,
+        envelope([indexRow], 1, 1, 2),
+        fscStockIndexAdapter,
+      ),
+    ).toBe(false);
+    expect(() =>
+      appendCompleteSeriesPage(
+        state,
+        envelope([{ ...indexRow, clpr: "501.00" }], 2, 1, 2),
+        fscStockIndexAdapter,
+      ),
+    ).toThrow("identity is missing or duplicated");
   });
 
   it.each([

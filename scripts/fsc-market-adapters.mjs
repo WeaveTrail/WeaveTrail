@@ -122,7 +122,9 @@ function decoder({ columns, filterColumn, identity }) {
         (dates.endExclusive === undefined
           ? row.basDt !== dates.begin
           : row.basDt >= dates.endExclusive) ||
-        !row[filterColumn]?.includes(declaration.filter.value)
+        (declaration.filter.kind === "index"
+          ? row[filterColumn] !== declaration.filter.value
+          : !row[filterColumn]?.includes(declaration.filter.value))
       )
         throw new Error(
           "Publisher row violates the declared date, family or column scope",
@@ -137,6 +139,7 @@ function decoder({ columns, filterColumn, identity }) {
       pageSize: integerString(body.numOfRows),
       total: integerString(body.totalCount),
       rows,
+      identityKeys: rows.map(identity),
     };
   };
 }

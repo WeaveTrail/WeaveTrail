@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import {
   mkdtemp,
   mkdir,
@@ -234,6 +235,34 @@ describe("complete-series declaration", () => {
 });
 
 describe("manual complete-series retrieval using synthetic transport", () => {
+  it("does not delete a pre-existing offline derivation output", async () => {
+    const directory = await mkdtemp(
+      join(tmpdir(), "weavetrail-derive-collision-"),
+    );
+    directories.push(directory);
+    const input = join(directory, "source.jsonl");
+    const existing = join(directory, "rows.json");
+    await writeFile(input, '{"id":"one"}\n');
+    await writeFile(existing, "pre-existing\n");
+    expect(() =>
+      execFileSync(
+        process.execPath,
+        [
+          fileURLToPath(
+            new URL(
+              "../../../scripts/derive-published-rows.mjs",
+              import.meta.url,
+            ),
+          ),
+          input,
+          existing,
+        ],
+        { stdio: "pipe" },
+      ),
+    ).toThrow();
+    expect(await readFile(existing, "utf8")).toBe("pre-existing\n");
+  });
+
   it("retains only validated evidence-backed publisher observations", async () => {
     clock();
     const publisherObservations = [

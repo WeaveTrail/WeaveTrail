@@ -46,6 +46,7 @@ export type SeriesAdapter = {
     pageSize: string;
     total: string;
     rows: Record<string, string>[];
+    identityKeys?: string[];
   };
 };
 export type SeriesRecord = {

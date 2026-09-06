@@ -220,6 +220,7 @@ export function startCompleteSeries(declaration, adapter) {
     requestAdapter,
     pages: [],
     rows: [],
+    identityKeys: new Set(),
     total: undefined,
   };
 }
@@ -262,6 +263,20 @@ export function appendCompleteSeriesPage(state, bytes, adapter) {
       Object.values(row).some((value) => typeof value !== "string")
     )
       fail();
+  }
+  if (page.identityKeys !== undefined) {
+    if (
+      !Array.isArray(page.identityKeys) ||
+      page.identityKeys.length !== page.rows.length ||
+      page.identityKeys.some(
+        (identity) =>
+          typeof identity !== "string" ||
+          !identity ||
+          state.identityKeys.has(identity),
+      )
+    )
+      throw new Error("Publisher row identity is missing or duplicated");
+    page.identityKeys.forEach((identity) => state.identityKeys.add(identity));
   }
   state.total = total;
   for (const row of page.rows) state.rows.push(structuredClone(row));

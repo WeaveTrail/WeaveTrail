@@ -63,6 +63,7 @@ if (
 ) {
   let output;
   let handle;
+  let created = false;
   try {
     const [input, outputPath, ...extra] = process.argv.slice(2);
     if (!input || !outputPath || extra.length)
@@ -70,6 +71,7 @@ if (
     output = outputPath;
     const result = derivePublishedRows(await readFile(input));
     handle = await open(output, "wx");
+    created = true;
     await handle.writeFile(result.generatedRows);
     await handle.close();
     handle = undefined;
@@ -83,7 +85,7 @@ if (
   } catch {
     try {
       await handle?.close();
-      if (output) await unlink(output);
+      if (output && created) await unlink(output);
     } catch {
       process.stderr.write(
         "Offline row derivation cleanup requires inspection.\n",
