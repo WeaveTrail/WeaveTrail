@@ -178,10 +178,11 @@ export default function WhyPage() {
       <section className="panel" id="sources">
         <span className="panel-label">Sources</span>
         <p>
-          Every sentence on this page about a system outside this repository
-          resolves to one of these, in the lede and the diagram caption as well
-          as the sections above. Anything marked &ldquo;{OWN_REASONING_MARK}
-          &rdquo; is the project reasoning from them, not a published finding.
+          Every statement on this page about anything outside this repository
+          carries one of these sources or the mark beside it, the lede and the
+          diagram caption included. Anything marked &ldquo;
+          {OWN_REASONING_MARK}&rdquo; is the project&apos;s own reading, not a
+          published finding.
         </p>
         <ol className="source-list">
           {sources.map((source) => (

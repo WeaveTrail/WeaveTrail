@@ -6,7 +6,7 @@
  * and anything not implemented is labelled planned where it is named.
  */
 
-export type SourceId = "iosco-2013" | "iosco-2025" | "fsc-ai-guideline";
+export type SourceId = "fsc-ai-guideline" | "fss-ai-rmf";
 
 export interface Source {
   readonly id: SourceId;
@@ -25,65 +25,53 @@ export const OWN_REASONING_MARK = "WeaveTrail's own reading";
 
 export const sources: readonly Source[] = [
   {
-    id: "iosco-2013",
-    marker: "1",
-    publisher: "IOSCO",
-    title:
-      "Technological Challenges to Effective Market Surveillance: Issues and Regulatory Tools",
-    published: "2013",
-    href: "https://www.iosco.org/library/pubdocs/pdf/ioscopd412.pdf",
-  },
-  {
-    id: "iosco-2025",
-    marker: "2",
-    publisher: "IOSCO",
-    title:
-      "Thematic Review on Technological Challenges to Effective Market Surveillance",
-    published: "19 February 2025",
-    href: "https://www.iosco.org/library/pubdocs/pdf/IOSCOPD786.pdf",
-  },
-  {
     id: "fsc-ai-guideline",
-    marker: "3",
-    publisher: "Financial Services Commission, Korea",
-    title: "Financial AI guideline",
+    marker: "1",
+    publisher: "Financial Services Commission (\uae08\uc735\uc704\uc6d0\ud68c)",
+    title:
+      "Financial sector AI guideline (\uae08\uc735\ubd84\uc57c \uc778\uacf5\uc9c0\ub2a5 \uac00\uc774\ub4dc\ub77c\uc778)",
+    published: "announced 18 June 2026, in force 22 June 2026",
+    href: "https://www.fsc.go.kr/no010101/87142",
+  },
+  {
+    id: "fss-ai-rmf",
+    marker: "2",
+    publisher: "Financial Supervisory Service (\uae08\uc735\uac10\ub3c5\uc6d0)",
+    title:
+      "Financial sector AI risk management framework (\uae08\uc735\ubd84\uc57c AI \uc704\ud5d8\uad00\ub9ac \ud504\ub808\uc784\uc6cc\ud06c), announced with the guideline in the release above",
     published: "June 2026",
     href: "https://www.fsc.go.kr/no010101/87142",
   },
 ];
 
-/** The page lede. An outside-system claim, so it carries a source like the rest. */
+/** The page lede. An outside claim, so it carries a source like the rest. */
 export const lede: Statement = {
-  text: "Market authorities already run surveillance over their markets, and most have implemented IOSCO's 2013 recommendations for doing so.",
-  source: "iosco-2025",
+  text: "Korea's financial sector AI guideline has been in force since 22 June 2026, and it reaches financial investment firms and any company whose AI output affects the provision of a financial service.",
+  source: "fsc-ai-guideline",
 };
 
-/** The diagram's upper band describes that layer in the sources' own general terms. */
+/** The diagram is the project's own sketch, not a figure from a published source. */
 export const diagramAttribution: Statement = {
-  text: "The upper band describes a surveillance pipeline in the general terms the sources use; the two bands beneath it describe this repository.",
-  source: "iosco-2013",
+  text: "The upper band is the project's own sketch of the layer it assumes, not a figure taken from a published source; the two bands beneath it describe this repository.",
+  reasoning: true,
 };
 
 /** Section one: what the layer above the gate already does. */
 export const upstreamStatements: readonly Statement[] = [
   {
-    text: "IOSCO's 2013 report on technological challenges to market surveillance treats surveillance tools such as the audit trail system as one of the more significant problems facing markets as execution speed and order volume rise.",
-    source: "iosco-2013",
+    text: "The release announcing the guideline describes AI in finance being put to work catching signs of financial crime, naming voice phishing among them.",
+    source: "fsc-ai-guideline",
   },
   {
-    text: "The same report records that order information from away markets may not reach a regulator electronically within a reasonable time.",
-    source: "iosco-2013",
+    text: "The guideline applies across banks, insurers, card and capital companies and financial investment firms, and reaches non-financial companies too wherever an AI system's output affects a financial service directly or indirectly.",
+    source: "fsc-ai-guideline",
   },
   {
-    text: "IOSCO's 2025 thematic review of those recommendations reports that most market authorities have implemented them and made significant progress, while some regulators still lack the organisational and technical capabilities to surveil their markets effectively.",
-    source: "iosco-2025",
+    text: "So the layer above the gate, the systems that watch trading and raise a candidate, is both increasingly AI-assisted and inside that scope. WeaveTrail assumes that layer and replaces no part of it.",
+    reasoning: true,
   },
   {
-    text: "That review also records difficulties collecting and comparing data across multiple trading venues, and that most market authorities have not mapped their cross-border surveillance capabilities.",
-    source: "iosco-2025",
-  },
-  {
-    text: "Detection, then, is a layer that already exists, is already supervised, and already produces candidates. WeaveTrail assumes that layer and replaces no part of it.",
+    text: "This page makes no measurement of any detection system, and states nothing about how one scores, ranks or escalates.",
     reasoning: true,
   },
 ];
@@ -91,19 +79,23 @@ export const upstreamStatements: readonly Statement[] = [
 /** Section two: the decision that layer still hands to a person. */
 export const handoverStatements: readonly Statement[] = [
   {
-    text: "Korea's financial AI guideline holds that AI at this stage is a support tool: the final decision, and the responsibility for it, stay with the person making it.",
+    text: "The guideline sets seven principles for using AI in finance: governance, legality, the auxiliary role of AI, reliability, financial stability, good faith and security.",
     source: "fsc-ai-guideline",
+  },
+  {
+    text: "Under the auxiliary-role principle, AI at this stage is a support tool: the final decision and the responsibility that follows it are carried out by the firm's own officers and employees, and human intervention is a stated principle.",
+    source: "fsc-ai-guideline",
+  },
+  {
+    text: "The supervisory AI risk management framework issued alongside the guideline develops its governance principle into governance, risk assessment and risk control across an AI system's life cycle.",
+    source: "fss-ai-rmf",
   },
   {
     text: "An alert names a candidate. It does not record which executions produced its number, under which field mapping, or under which rule version.",
     reasoning: true,
   },
   {
-    text: "So whoever picks the alert up has to reconstruct that before a candidate becomes a finding, and a second person has to be able to reach the same conclusion from the same executions.",
-    reasoning: true,
-  },
-  {
-    text: "That reconstruction is the work between a detection system and a decision. It is the only work WeaveTrail does.",
+    text: "So the person who carries that decision has to reconstruct it first, and a second person has to be able to reach the same conclusion from the same executions. That reconstruction is the only work WeaveTrail does.",
     reasoning: true,
   },
 ];
@@ -175,8 +167,9 @@ export const NON_AFFILIATION =
 /** Section five: the boundary of the argument above. */
 export const notClaimed: readonly string[] = [
   NON_AFFILIATION,
+  "Layer separation is one way to carry out inside a single investigation what the guideline asks. It is a design alignment, not a certification, an approval, or an endorsement, and no authority named here has reviewed, assessed or approved this project.",
   "No system named here uses WeaveTrail, and WeaveTrail has not been evaluated against one. Naming a published source describes where the gate would sit, not a relationship with anyone.",
   "A result is support for a versioned technical pattern. It is not a finding of guilt, a legal conclusion, a causal claim, investment advice, an automated trading decision, or real-time surveillance.",
   "The repository runs deterministic fixtures over committed synthetic cases and licensed published quotations. It is not a production market-surveillance system, and its rule thresholds are illustrative per-case configuration rather than calibrated market thresholds.",
-  "Sentences on this page about systems outside this repository carry a source. Sentences that are the project's reading of those sources are marked as such, and are not published findings.",
+  "Every statement here about anything outside this repository carries a source or the mark that says it is the project's own reading. A marked statement is a premise this project works from, not a published finding.",
 ];

@@ -108,6 +108,14 @@ describe("where the gate sits", () => {
     }
   });
 
+  it("cites only material the repository already stands on", () => {
+    // The page's background rests on the supervisory material the readme
+    // already records, not on sources introduced for this page alone.
+    const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8");
+    for (const source of sources)
+      expect(readme, source.id).toContain(source.href);
+  });
+
   it("names the three inputs the gate asks of an upstream, and inspects a conclusion", () => {
     const rendered = markup();
     expect(gateInputs).toHaveLength(3);
