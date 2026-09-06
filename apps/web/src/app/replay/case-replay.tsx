@@ -23,6 +23,17 @@ import {
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
 import { shuffleSourceRows } from "./shuffle-source-rows";
+import {
+  Bps,
+  EVENT_FIELD_NOTES,
+  GATE_READINGS,
+  GateReading,
+  HashValue,
+  Instant,
+  readableCompactDate,
+  REPORTED_VALUE_NOTE,
+  type GateName,
+} from "./machine-values";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -57,26 +68,16 @@ const chapters = [
   "Take the controls",
 ] as const;
 
-const gateDescriptions = {
-  PRICE_CHANGE:
-    "Peak price rise from the first eligible trade, in basis points (100 bps = 1%).",
-  AGGRESSIVE_BUY_SHARE:
-    "Share of eligible trade value (price × quantity) from BUY events, in basis points.",
-  ACTOR_CONCENTRATION:
-    "Share of BUY trade value from the approved actor group, in basis points.",
-  REPEATED_EXECUTION:
-    "Number of approved-actor aggressive buys above the reference price.",
-  REMOVAL_SENSITIVITY:
-    "Difference in price-rise basis points when the approved actor group's trades are removed; a mechanical comparison.",
-} as const;
-
 export function ApprovalReceipt({ approval }: { approval: ApprovalRecord }) {
   return (
     <dl className="approval-receipt">
       <div>
         <dt>Approved artifact hash</dt>
         <dd>
-          <code>{approval.approvedArtifactHash}</code>
+          <HashValue
+            scope="approvedArtifact"
+            value={approval.approvedArtifactHash}
+          />
         </dd>
       </div>
       <div>
@@ -89,7 +90,9 @@ export function ApprovalReceipt({ approval }: { approval: ApprovalRecord }) {
       </div>
       <div>
         <dt>Approved at</dt>
-        <dd>{approval.approvedAt}</dd>
+        <dd>
+          <Instant value={approval.approvedAt} />
+        </dd>
       </div>
       {approval.overrides.map(({ fieldPath, reason }) => (
         <div key={fieldPath}>
@@ -107,9 +110,7 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
       <p>
         Artifact: <code>{scenario.value}</code>
       </p>
-      <p>
-        sourceArtifactHash: <code>{scenario.sourceArtifactHash}</code>
-      </p>
+      <HashValue scope="sourceArtifact" value={scenario.sourceArtifactHash} />
       <p>
         These {scenario.provenance?.kind ?? "synthetic"} source records are
         fixed. Values below are the original strings, before mapping, shown in
@@ -157,11 +158,16 @@ export function SourceProvenanceDetails({
       <dl>
         <div>
           <dt>Trading date (basDt)</dt>
-          <dd>{provenance.basDt}</dd>
+          <dd>
+            {readableCompactDate(provenance.basDt)}{" "}
+            <code>{provenance.basDt}</code>
+          </dd>
         </div>
         <div>
           <dt>Retrieved</dt>
-          <dd>{provenance.retrievedAt}</dd>
+          <dd>
+            <Instant value={provenance.retrievedAt} />
+          </dd>
         </div>
         <div>
           <dt>Venue scope</dt>
@@ -175,7 +181,9 @@ export function SourceProvenanceDetails({
         </div>
         <div>
           <dt>Permission verified</dt>
-          <dd>{provenance.licence.checkedAt}</dd>
+          <dd>
+            <Instant value={provenance.licence.checkedAt} />
+          </dd>
         </div>
         <div>
           <dt>Attribution requirements</dt>
@@ -351,6 +359,7 @@ export function RapidPriceLiftEvaluation({
           </>
         ) : (
           <div className="gate-list">
+            <p className="machine-note">{REPORTED_VALUE_NOTE}</p>
             {evaluation.findings.map((finding) => (
               <div
                 className="gate-row"
@@ -358,14 +367,16 @@ export function RapidPriceLiftEvaluation({
                 id={`gate-${finding.gate}`}
               >
                 <strong>{finding.gate}</strong>
-                <span>
-                  {finding.observedValue} / threshold {finding.threshold}
-                </span>
+                <GateReading
+                  gate={finding.gate as GateName}
+                  observedValue={finding.observedValue}
+                  threshold={finding.threshold}
+                />
                 <b data-passed={finding.passed}>
                   {finding.passed ? "PASS" : "FAIL"}
                 </b>
                 <p className="gate-description">
-                  {gateDescriptions[finding.gate]}
+                  {GATE_READINGS[finding.gate as GateName].tests}
                 </p>
                 <small>{finding.referencedEventIds.join(" · ")}</small>
                 <details
@@ -390,7 +401,21 @@ export function RapidPriceLiftEvaluation({
                             <div key={field}>
                               <dt>{field}</dt>
                               <dd>
-                                <code>{value}</code>
+                                {value !== undefined &&
+                                field === "rawRowHash" ? (
+                                  <HashValue scope="rawRow" value={value} />
+                                ) : value !== undefined &&
+                                  (field === "eventTime" ||
+                                    field === "receivedAt") ? (
+                                  <Instant value={value} />
+                                ) : (
+                                  <code>{value}</code>
+                                )}
+                                {EVENT_FIELD_NOTES[field] ? (
+                                  <small className="machine-note">
+                                    {EVENT_FIELD_NOTES[field]}
+                                  </small>
+                                ) : null}
                               </dd>
                             </div>
                           ))}
@@ -404,9 +429,10 @@ export function RapidPriceLiftEvaluation({
                           <div>
                             <dt>sourceArtifactHash</dt>
                             <dd>
-                              <code>
-                                {sourceRow.coordinate.sourceArtifactHash}
-                              </code>
+                              <HashValue
+                                scope="sourceArtifact"
+                                value={sourceRow.coordinate.sourceArtifactHash}
+                              />
                             </dd>
                           </div>
                           <div>
@@ -437,19 +463,25 @@ export function RapidPriceLiftEvaluation({
         {evaluation.sensitivity ? (
           <div className="sensitivity-block">
             <strong>Mechanical sensitivity comparison</strong>
+            <small className="machine-note">{REPORTED_VALUE_NOTE}</small>
             <a href="#gate-REMOVAL_SENSITIVITY">
               Inspect removal sensitivity evidence
             </a>
             <span>
-              Price change: {evaluation.sensitivity.priceChangeBps} bps
+              Price change:{" "}
+              <Bps value={evaluation.sensitivity.priceChangeBps} />
             </span>
             <span>
               Without approved actor group:{" "}
-              {evaluation.sensitivity.priceChangeBpsWithoutApprovedActors} bps
+              <Bps
+                value={
+                  evaluation.sensitivity.priceChangeBpsWithoutApprovedActors
+                }
+              />
             </span>
             <span>
-              Metric difference: {evaluation.sensitivity.removalSensitivityBps}{" "}
-              bps
+              Metric difference:{" "}
+              <Bps value={evaluation.sensitivity.removalSensitivityBps} />
             </span>
           </div>
         ) : null}
@@ -761,7 +793,7 @@ export function CaseReplay({
         hidden={guided && chapter >= 4 && !error}
       >
         <div hidden={!show(0) || mappingExample}>
-          <span className="panel-label">Committed source</span>
+          <span className="panel-label">01 · Committed source</span>
           <label className="scenario-select">
             <span>Committed source artifact</span>
             <select
@@ -861,7 +893,7 @@ export function CaseReplay({
           )}
           <div className="mapping-preview">
             <span className="panel-label">
-              Executed mapping proposal · {providerMode} ·{" "}
+              02 · Executed mapping proposal · {providerMode} ·{" "}
               {selectedScenario.value}
             </span>
             <p>
@@ -944,8 +976,13 @@ export function CaseReplay({
                 <div>
                   <dt>Window</dt>
                   <dd>
-                    {selectedScenario.manifest.hypothesis.startTime} —{" "}
-                    {selectedScenario.manifest.hypothesis.endTime}
+                    <Instant
+                      value={selectedScenario.manifest.hypothesis.startTime}
+                    />{" "}
+                    —{" "}
+                    <Instant
+                      value={selectedScenario.manifest.hypothesis.endTime}
+                    />
                   </dd>
                 </div>
               </dl>
@@ -983,6 +1020,14 @@ export function CaseReplay({
               ))}
               <details>
                 <summary>Inspect the exact case proposal</summary>
+                <p className="machine-note">
+                  The exact artifact this approval binds to. The{" "}
+                  <code>canonicalDatasetHash</code> inside it belongs to the
+                  artifact: it names the ordered canonical event projection the
+                  replay must reproduce, and the replay boundary refuses a
+                  request whose dataset does not match it. The source artifact
+                  hash belongs to the separately approved mapping.
+                </p>
                 <pre
                   className="artifact-json"
                   aria-label="Exact case manifest proposal"
@@ -1091,6 +1136,9 @@ export function CaseReplay({
             </div>
             <div className="trace-block">
               <span>Canonical order</span>
+              <small className="machine-note">
+                {EVENT_FIELD_NOTES.eventId}
+              </small>
               <div className="event-chain">
                 {result.replay.orderedEventIds.map((eventId) => (
                   <code key={eventId}>{eventId}</code>
@@ -1098,8 +1146,10 @@ export function CaseReplay({
               </div>
             </div>
             <div className="hash-block">
-              <span>Canonical result hash</span>
-              <code>{result.replay.canonicalResultHash}</code>
+              <HashValue
+                scope="canonicalResult"
+                value={result.replay.canonicalResultHash}
+              />
             </div>
             {"evaluation" in result ? (
               <RapidPriceLiftEvaluation
@@ -1110,11 +1160,8 @@ export function CaseReplay({
               />
             ) : null}
             <p>
-              The canonical hash covers the engine version, semantic event
-              projection and evaluation when present. It does not protect
-              complete approvals, every mapping or manifest field, or the source
-              trace. Independent Evidence Bundle assembly and verification are
-              planned.
+              Independent Evidence Bundle assembly and verification are planned.
+              Each displayed hash states what it covers where it is shown.
             </p>
             <p>
               Pattern support is not a legal or causal conclusion. Actor removal
@@ -1147,7 +1194,7 @@ export function CaseReplay({
         selectedScenario.manifest &&
         (!guided || chapter === 5) && (
           <section className="panel repeat-panel">
-            <h3>Same-input repeatability</h3>
+            <h3>05 · Same-input repeatability</h3>
             <p>
               Repeat the same approved case and compare the two server-returned
               hashes as strings. This does not establish authenticity,
@@ -1168,12 +1215,18 @@ export function CaseReplay({
             </button>
             {previousHash && (
               <div className="hash-block">
-                <span>Previous returned hash</span>
-                <code>{previousHash}</code>
+                <HashValue
+                  label="Previous returned hash"
+                  scope="canonicalResult"
+                  value={previousHash}
+                />
                 {completeResult && (
                   <>
-                    <span>Repeated returned hash</span>
-                    <code>{result.replay.canonicalResultHash}</code>
+                    <HashValue
+                      label="Repeated returned hash"
+                      scope="canonicalResult"
+                      value={result.replay.canonicalResultHash}
+                    />
                     <strong>
                       {previousHash === result.replay.canonicalResultHash
                         ? "MATCH · same-input repeatability"
@@ -1187,7 +1240,7 @@ export function CaseReplay({
         )}
       {!mappingExample && (
         <section className="panel" hidden={guided && chapter !== 6}>
-          <h3>What runs today</h3>
+          <h3>06 · What runs today</h3>
           <p>
             Synthetic committed sources and one licensed published daily-quote
             source, a deterministic fixture mapping provider, explicit human

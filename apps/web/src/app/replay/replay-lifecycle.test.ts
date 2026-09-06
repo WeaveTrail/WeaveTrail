@@ -72,6 +72,7 @@ type ElementProps = {
   name?: string;
   className?: string;
   disabled?: boolean;
+  label?: string;
   "aria-label"?: string;
 };
 function elements(node: ReactNode): ReactElement<ElementProps>[] {
@@ -188,9 +189,14 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
         element.type === "button" && element.props.children === label,
     )?.props.disabled;
   }
+  // This harness walks the element tree without rendering function components,
+  // so a machine-value component carries its heading in a `label` prop rather
+  // than in children.
   function hasText(text: string) {
-    return render().some((element) =>
-      textContent(element.props.children).includes(text),
+    return render().some(
+      (element) =>
+        textContent(element.props.children).includes(text) ||
+        (element.props.label?.includes(text) ?? false),
     );
   }
   return {
