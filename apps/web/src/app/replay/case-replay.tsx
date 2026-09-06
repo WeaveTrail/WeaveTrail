@@ -242,13 +242,25 @@ export function SourceProvenanceDetails({
         {provenance.titleEnglish} · {provenance.provider}
       </p>
       <dl>
-        <div>
-          <dt>Trading date (basDt)</dt>
-          <dd>
-            {readableCompactDate(provenance.basDt)}{" "}
-            <code>{provenance.basDt}</code>
-          </dd>
-        </div>
+        {provenance.basDtRange ? (
+          <div>
+            <dt>Trading date range (basDt)</dt>
+            <dd>
+              {readableCompactDate(provenance.basDtRange.begin)} through{" "}
+              {readableCompactDate(provenance.basDtRange.endInclusive)}{" "}
+              <code>{provenance.basDtRange.begin}</code> through{" "}
+              <code>{provenance.basDtRange.endInclusive}</code>
+            </dd>
+          </div>
+        ) : (
+          <div>
+            <dt>Trading date (basDt)</dt>
+            <dd>
+              {readableCompactDate(provenance.basDt)}{" "}
+              <code>{provenance.basDt}</code>
+            </dd>
+          </div>
+        )}
         <div>
           <dt>Retrieved</dt>
           <dd>
@@ -1195,6 +1207,36 @@ export function CaseReplay({
                 evidence and review status. You approve this exact proposal.
               </p>
               {"eventType" in proposal.constants && <DailyQuoteSemantics />}
+              {"compositeSourceEventId" in proposal && (
+                <section
+                  aria-label="Composite source event identity"
+                  className="mapping-row"
+                >
+                  <strong>Composite source event identity</strong>
+                  <span>
+                    Ordered columns:{" "}
+                    <code>
+                      {proposal.compositeSourceEventId.sourceColumns.join(
+                        " + ",
+                      )}
+                    </code>
+                  </span>
+                  <span>
+                    Transform:{" "}
+                    <code>{proposal.compositeSourceEventId.transform}</code>
+                  </span>
+                  <span>
+                    Confidence:{" "}
+                    {proposal.compositeSourceEventId.confidence.toFixed(2)}
+                  </span>
+                  <span>
+                    Evidence: {proposal.compositeSourceEventId.evidence}
+                  </span>
+                  <b data-status={proposal.compositeSourceEventId.status}>
+                    {proposal.compositeSourceEventId.status}
+                  </b>
+                </section>
+              )}
               {proposal.fields.map((field, index) => (
                 <div className="mapping-row" key={field.sourceColumn}>
                   <code>{field.sourceColumn}</code>

@@ -96,6 +96,12 @@ future case. Adding an actor alone cannot turn daily quotes into trades.
 
 ## Evidence and reproduction
 
+Display provenance represents a single published trading day with `basDt`. A
+complete series spanning multiple trading days instead uses `basDtRange` with
+an inclusive `begin` and `endInclusive`; range records must not overload the
+single-date field. Existing single-day provenance requires no migration, while
+an existing range string must be split into those two explicit endpoints.
+
 This artifact uses the `bounded-window` acquisition scope. Its adjacent
 `.acquisition.json` classifies the already recorded first-page policy without
 changing historical provenance or source hashes. The separate

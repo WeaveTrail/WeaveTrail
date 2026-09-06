@@ -63,6 +63,12 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
     );
     expect(markup).toContain("DAILY_QUOTE");
+    expect(markup).toContain("Composite source event identity");
+    expect(markup).toContain("basDt + idxNm");
+    expect(markup).toContain("NUL_JOIN");
+    expect(markup.indexOf("Composite source event identity")).toBeLessThan(
+      markup.indexOf("Approve executed mapping"),
+    );
     expect(markup).toContain("Normalize source");
     expect(markup).toContain("Case approval unavailable");
     expect(markup).not.toContain("Run deterministic replay");
@@ -161,6 +167,32 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       expect(markup).toContain(text);
     expect(markup).not.toContain("CC0");
     expect(markup).not.toContain("Apache");
+  });
+
+  it("renders an inclusive published trading-date range as two dates", () => {
+    const provenance: SourceProvenance = {
+      kind: "real",
+      provider: "Synthetic test provider",
+      title: "합성 기간 출처 표시 테스트",
+      titleEnglish: "Synthetic range provenance display test",
+      originUrl: "https://example.invalid/distribution",
+      retrievedAt: "2024-03-02T00:00:00Z",
+      basDtRange: { begin: "20240201", endInclusive: "20240229" },
+      venue: { value: "SYNTH-X", basis: "Synthetic venue basis" },
+      licence: {
+        label: "Synthetic permission label",
+        termsUrl: "https://example.invalid/terms",
+        checkedAt: "2024-03-02T00:00:00Z",
+        attributionRequirements: "Synthetic attribution condition",
+        attribution: "Synthetic provider credit",
+      },
+    };
+    const markup = renderToStaticMarkup(
+      createElement(SourceProvenanceDetails, { provenance }),
+    );
+    expect(markup).toContain("Trading date range (basDt)");
+    expect(markup).toContain("2024-02-01 through 2024-02-29");
+    expect(markup).toContain("20240201</code> through <code>20240229");
   });
 
   it("prepares scenario provenance outside protected mapping artifacts", async () => {
