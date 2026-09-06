@@ -29,8 +29,8 @@ The source distribution includes:
 
 It also includes a minimal snapshot from `WeaveTrail/design-reference` under
 Apache-2.0, with its license copied to `third_party/design-reference-LICENSE.txt`,
-and self-hosted IBM Plex Sans and JetBrains Mono font files under the SIL Open
-Font License 1.1. Exact sources and included weights are recorded in
+and self-hosted IBM Plex Sans, IBM Plex Sans KR and JetBrains Mono font files
+under the SIL Open Font License 1.1. Exact sources and included weights are recorded in
 `THIRD_PARTY_NOTICES.md`; the corresponding license texts are under
 `third_party/fonts/`.
 
