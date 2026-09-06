@@ -309,14 +309,15 @@ exercise these strict migration boundaries with illustrative synthetic inputs.
 
 ## Package boundaries
 
-| Package         | Owns                                                            | Must not own                             |
-| --------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| `contracts`     | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic          |
-| `ai-harness`    | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval |
-| `replay-engine` | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
-| `scenarios`     | Provenanced source datasets and mutations                       | Production or personal data              |
-| `evals`         | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
-| `web`           | Human review flow and export surface                            | A second implementation of replay logic  |
+| Package          | Owns                                                            | Must not own                             |
+| ---------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| `contracts`      | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic          |
+| `ai-harness`     | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval |
+| `replay-engine`  | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
+| `scenarios`      | Synthetic datasets and controlled mutations                     | Published, production, or personal data  |
+| `published-data` | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data   |
+| `evals`          | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
+| `web`            | Human review flow and export surface                            | A second implementation of replay logic  |
 
 ## Determinism contract
 

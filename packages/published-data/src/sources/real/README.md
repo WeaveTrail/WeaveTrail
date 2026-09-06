@@ -60,9 +60,10 @@ The final argument is today's UTC permission-verification date. Use one known
 published completed `basDt`; the portal describes next-business-day publication
 after 13:00, rather than a live feed. The script requests `pageNo=1`,
 `numOfRows=40`, `resultType=json`, and the documented `mrktCls` filter. It accepts
-2–40 complete rows with that date and market, unique nonempty `srtnCd` and
-`isinCd`, and honest pagination. It never filters, sorts, deduplicates or repairs
-returned items. Freeze the first acceptable response regardless of prices.
+2–40 rows only when every row contains the same complete set of the 15 declared
+quote columns, with that date and market, unique nonempty `srtnCd` and `isinCd`,
+and honest pagination. It never filters, sorts, deduplicates or repairs returned
+items. Freeze the first acceptable response regardless of prices.
 
 The request has a 30-second timeout, rejects redirects, checks HTTP and provider
 status independently, and checks for echoed credentials. Output uses exclusive

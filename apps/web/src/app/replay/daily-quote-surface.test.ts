@@ -48,6 +48,10 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     expect(markup).not.toContain("approve its mapping and case");
     expect(markup).toContain("Ready to normalize");
     expect(markup).not.toContain("Repeat the same approved case");
+    expect(markup).toContain("one licensed published daily-quote source");
+    expect(markup).not.toContain(
+      "Synthetic committed sources, a deterministic fixture mapping",
+    );
   });
   it("keeps case approval and repeat guidance for a source with a manifest", async () => {
     const prepared = await prepareReplayScenarios();

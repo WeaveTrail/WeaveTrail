@@ -18,11 +18,18 @@ const items = ["A", "B"].map((id) => ({
   basDt: window.basDt,
   srtnCd: `SYNTH-${id}`,
   isinCd: `SYNTH-INSTRUMENT-${id}`,
+  itmsNm: `합성, "종목"\n${id}`,
   mrktCtg: window.market,
   clpr: "90071992547409931234567890.00100",
+  vs: "0",
+  fltRt: "0.0",
+  mkp: "90071992547409931234567890.00100",
+  hipr: "90071992547409931234567890.00100",
+  lopr: "90071992547409931234567890.00100",
   trqu: "0001.0",
-  note: '합성, "문자"\n다음 줄',
-  empty: "",
+  trPrc: "90071992547409931234567890.00100",
+  lstgStCnt: "1000",
+  mrktTotAmt: "90071992547409931234567890.00100",
 }));
 function envelope(value: unknown = items) {
   return {
@@ -170,6 +177,13 @@ describe("offline response derivation with synthetic envelopes", () => {
     envelope([items[0], { ...items[1], trqu: 123 }]),
     envelope([items[0], { ...items[1], clpr: null }]),
     envelope([items[0], { ...items[1], extra: {} }]),
+    envelope([
+      items[0],
+      Object.fromEntries(
+        Object.entries(items[1]!).filter(([column]) => column !== "itmsNm"),
+      ),
+    ]),
+    envelope([items[0], { ...items[1], unexpected: "publisher drift" }]),
     envelope([items[0], { ...items[1], basDt: "20240301" }]),
     envelope([items[0], { ...items[1], mrktCtg: "KOSDAQ" }]),
     envelope([items[0], { ...items[1], srtnCd: items[0]!.srtnCd }]),
@@ -326,6 +340,24 @@ describe("manual acquisition boundaries with mocked transport", () => {
 
     expect(await readFile(input.output)).toEqual(existingResponse);
     expect(await readFile(receiptPath, "utf8")).toBe(existingReceipt);
+  });
+
+  it("rejects an incomplete quote row before freezing acquisition outputs", async () => {
+    vi.stubEnv("DATA_GO_KR_SERVICE_KEY", "synthetic-test-key");
+    const input = await options();
+    const incomplete = Object.fromEntries(
+      Object.entries(items[1]!).filter(([column]) => column !== "itmsNm"),
+    );
+
+    await expect(
+      retrieveFscStockQuotes(
+        input,
+        requestFor(encode(envelope([items[0], incomplete]))),
+      ),
+    ).rejects.toThrow("complete declared quote column set");
+
+    await expectMissing(input.output);
+    await expectMissing(`${input.output}.receipt.json`);
   });
 
   it("removes both newly reserved files after an injected partial write failure", async () => {

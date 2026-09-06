@@ -1189,9 +1189,9 @@ export function CaseReplay({
         <section className="panel" hidden={guided && chapter !== 6}>
           <h3>What runs today</h3>
           <p>
-            Synthetic committed sources, a deterministic fixture mapping
-            provider, explicit human approvals, one versioned rule and
-            server-resolved finding evidence.
+            Synthetic committed sources and one licensed published daily-quote
+            source, a deterministic fixture mapping provider, explicit human
+            approvals, one versioned rule and server-resolved finding evidence.
           </p>
           <p>
             A real deployment would additionally need governed data ingestion,

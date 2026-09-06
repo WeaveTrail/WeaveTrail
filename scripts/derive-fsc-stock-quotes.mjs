@@ -8,6 +8,23 @@ import process from "node:process";
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const object = (value) =>
   value !== null && typeof value === "object" && !Array.isArray(value);
+const fscStockQuoteColumns = [
+  "basDt",
+  "srtnCd",
+  "isinCd",
+  "itmsNm",
+  "mrktCtg",
+  "clpr",
+  "vs",
+  "fltRt",
+  "mkp",
+  "hipr",
+  "lopr",
+  "trqu",
+  "trPrc",
+  "lstgStCnt",
+  "mrktTotAmt",
+];
 
 export function validTradingDate(value) {
   if (typeof value !== "string" || !/^\d{8}$/.test(value)) return false;
@@ -77,13 +94,20 @@ export function deriveFscStockQuotes(bytes, { basDt, market }) {
         "Every complete item must contain only string values; coercion is forbidden",
       );
     }
+    const itemColumns = Object.keys(item);
+    if (
+      itemColumns.length !== fscStockQuoteColumns.length ||
+      fscStockQuoteColumns.some((column) => !Object.hasOwn(item, column))
+    ) {
+      throw new Error(
+        "Every response item must contain the complete declared quote column set",
+      );
+    }
     if (
       item.basDt !== basDt ||
       item.mrktCtg !== market ||
       !item.srtnCd?.trim() ||
       !item.isinCd?.trim() ||
-      !Object.hasOwn(item, "clpr") ||
-      !Object.hasOwn(item, "trqu") ||
       sourceIds.has(item.srtnCd) ||
       instrumentIds.has(item.isinCd)
     ) {
@@ -108,7 +132,7 @@ export function deriveFscStockQuotes(bytes, { basDt, market }) {
     rawResponseHash: digest(bytes),
     sourceArtifactHash,
     generatedRowsHash: digest(generatedRows),
-    columns: [...new Set(items.flatMap((item) => Object.keys(item)))],
+    columns: Object.keys(items[0]),
     pagination: {
       pageNo: body.pageNo,
       numOfRows: body.numOfRows,
