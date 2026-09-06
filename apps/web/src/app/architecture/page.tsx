@@ -39,6 +39,53 @@ export default function ArchitecturePage() {
           Invalid or unapproved proposals stop before deterministic execution.
         </p>
       </div>
+      <figure className="layer-diagram">
+        <div
+          aria-label="Layer separation diagram"
+          className="diagram-frame"
+          role="group"
+          tabIndex={0}
+        >
+          {/* The SVG is served verbatim so the page and the repository documentation carry one committed diagram. */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the committed diagram asset. */}
+          <img
+            alt="Four layers between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code decides the outcome, and the evidence layer resolves every finding back to its source rows"
+            height={520}
+            src="/diagrams/how-it-works.svg"
+            width={1200}
+          />
+        </div>
+        <figcaption>
+          <span className="panel-label">Reading the diagram</span>
+          <p>
+            The diagram shows the layer model. The chain below marks which
+            components are implemented and which are planned.
+          </p>
+          <ul>
+            <li>
+              <strong>Where a model&apos;s authority ends.</strong> L1 proposes.
+              Today that is a field mapping; the bounded case proposer below is
+              planned. It never computes a value, edits a row, or decides a
+              result.
+            </li>
+            <li>
+              <strong>The trust boundary.</strong> It runs between L2 and L3.
+              Nothing reaches the deterministic core without an approval bound
+              to the exact proposal hash, and a validation or approval gate that
+              cannot be satisfied returns a review state instead of a result.
+              The engine&apos;s five rule gates sit inside the boundary: a
+              failed one produces <code>NOT_SUPPORTED</code>, which is a result.
+            </li>
+            <li>
+              <strong>What the canonical hash covers.</strong> The result
+              carries the engine version, the semantic event projection and the
+              evaluation.{" "}
+              <a href="#canonical-hash">What it leaves unprotected</a> is stated
+              below.
+            </li>
+          </ul>
+        </figcaption>
+      </figure>
       <section className="panel">
         <h2>From source rows to evidence</h2>
         <ol className="component-chain">
@@ -86,7 +133,7 @@ export default function ArchitecturePage() {
           </article>
         ))}
       </section>
-      <section className="panel architecture-hash">
+      <section className="panel architecture-hash" id="canonical-hash">
         <h2>What the canonical hash covers</h2>
         <p>
           <code>canonicalReplayResultHash</code> hashes the engine version,
