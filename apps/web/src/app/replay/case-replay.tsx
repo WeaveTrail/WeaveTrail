@@ -1194,7 +1194,9 @@ export function CaseReplay({
                 Proposed targets and allowlisted transforms, with confidence,
                 evidence and review status. You approve this exact proposal.
               </p>
-              {proposal.mappingVersion === "1.5" && <DailyQuoteSemantics />}
+              {proposal.constants.eventType === "DAILY_QUOTE" && (
+                <DailyQuoteSemantics />
+              )}
               {proposal.fields.map((field, index) => (
                 <div className="mapping-row" key={field.sourceColumn}>
                   <code>{field.sourceColumn}</code>
@@ -1352,7 +1354,7 @@ export function CaseReplay({
               </button>
               {caseApproval && <ApprovalReceipt approval={caseApproval} />}
             </div>
-          ) : proposal.mappingVersion === "1.5" ? (
+          ) : proposal.constants.eventType === "DAILY_QUOTE" ? (
             <DailyQuoteCaseLimitation
               normalized={result?.workflowState === "MAPPING_APPROVED"}
             />
@@ -1373,7 +1375,7 @@ export function CaseReplay({
             onClick={() => runReplay()}
             type="button"
           >
-            {proposal.mappingVersion === "1.5"
+            {proposal.constants.eventType === "DAILY_QUOTE"
               ? running
                 ? "Normalizing…"
                 : "Normalize source"

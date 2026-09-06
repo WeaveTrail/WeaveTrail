@@ -11,6 +11,10 @@ describe("ReplayRequestSchema", () => {
   it.each([
     "concentrated-buy-dialect-a.csv",
     "concentrated-buy-dialect-b.jsonl",
+    "real/fsc-kospi-index-family-20260903/source.jsonl",
+    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+    "real/fsc-kospi-200-futures-20260903/source.jsonl",
+    "real/fsc-weekly-options-20260903/source.jsonl",
   ] as const)("accepts the committed scenario %s", (scenario) => {
     expect(
       ReplayRequestSchema.parse({
@@ -37,7 +41,7 @@ describe("ReplayRequestSchema", () => {
     ).toThrow();
   });
 
-  it("accepts up to 64 rows and rejects larger requests", () => {
+  it("accepts complete published series up to 1,000 rows and rejects larger requests", () => {
     const request = (length: number) => ({
       scenario: "concentrated-buy-dialect-a.csv",
       mutation: "baseline",
@@ -50,8 +54,8 @@ describe("ReplayRequestSchema", () => {
       })),
     });
 
-    expect(ReplayRequestSchema.safeParse(request(64)).success).toBe(true);
-    expect(() => ReplayRequestSchema.parse(request(65))).toThrow();
+    expect(ReplayRequestSchema.safeParse(request(1_000)).success).toBe(true);
+    expect(() => ReplayRequestSchema.parse(request(1_001))).toThrow();
   });
 });
 

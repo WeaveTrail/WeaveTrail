@@ -24,6 +24,10 @@ neither source column nor any committed artifact is rewritten. Missing or
 NUL-containing components fail closed. Existing `1.4` and `1.5` proposals need
 no migration, and derivative sources with `srtnCd` remain on `1.5`.
 
+Case Replay accepts a complete committed source in a request up to the contract
+limit of 1,000 rows. This admits the 546-row weekly-options series without
+trimming while retaining a finite request bound.
+
 Every object branch remains strict. Existing payloads require no migration;
 new kinds and transforms cannot enter a legacy proposal. The daily kind is an
 artifact constant included in the exact proposal approval hash. A field mapping

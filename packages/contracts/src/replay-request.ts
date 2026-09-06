@@ -26,7 +26,13 @@ export const ReplayScenarioSchema = z.enum([
   "rapid-price-lift-broad-participation.csv",
   "rapid-price-lift-insufficient-evidence.csv",
   "real/fsc-stock-quotes-20260903.jsonl",
+  "real/fsc-kospi-index-family-20260903/source.jsonl",
+  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+  "real/fsc-kospi-200-futures-20260903/source.jsonl",
+  "real/fsc-weekly-options-20260903/source.jsonl",
 ]);
+
+export const MAX_REPLAY_ROWS = 1_000;
 
 export const ReplayMutationSchema = z.enum([
   "baseline",
@@ -53,7 +59,7 @@ export const ReplayRequestSchema = z
           .strict(),
       )
       .min(1)
-      .max(64),
+      .max(MAX_REPLAY_ROWS),
     mappingApproval: ApprovalRecordSchema.optional(),
     mappingReceipt: MappingReceiptSchema.optional(),
     caseManifest: CaseManifestSchema.optional(),

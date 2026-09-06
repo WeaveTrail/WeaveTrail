@@ -53,6 +53,20 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       "Synthetic committed sources, a deterministic fixture mapping",
     );
   });
+  it("treats mapping 1.6 index observations as daily normalization", async () => {
+    const prepared = await prepareReplayScenarios();
+    const scenario = prepared.scenarios.find(
+      ({ value }) =>
+        value === "real/fsc-kospi-index-family-20260903/source.jsonl",
+    )!;
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
+    );
+    expect(markup).toContain("DAILY_QUOTE");
+    expect(markup).toContain("Normalize source");
+    expect(markup).toContain("Case approval unavailable");
+    expect(markup).not.toContain("Run deterministic replay");
+  });
   it("keeps case approval and repeat guidance for a source with a manifest", async () => {
     const prepared = await prepareReplayScenarios();
     const scenario = prepared.scenarios.find(
