@@ -16,6 +16,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
+    "expectations:update": "vitest run packages/replay-engine/src/published-scenario-expectations.test.ts -u",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "design:snapshot:verify": "node scripts/verify-design-snapshot.mjs",
