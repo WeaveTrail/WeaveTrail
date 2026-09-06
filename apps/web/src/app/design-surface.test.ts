@@ -76,7 +76,7 @@ describe("canonical product presentation", () => {
     ])
       expect(navigation).toContain(`"${href}"`);
     expect(navigation).toContain("Primary navigation");
-    expect(navigation).toContain('aria-current={current === href ? "page"');
+    expect(navigation).toContain('aria-current={pathname === href ? "page"');
     expect(layout).toContain("skip-link");
   });
 

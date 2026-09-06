@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 const groups = [
@@ -9,7 +9,6 @@ const groups = [
     "Investigate",
     [
       ["Overview", "/"],
-      ["Guided case", "/replay?mode=guided"],
       ["Case Replay", "/replay"],
     ],
   ],
@@ -24,10 +23,9 @@ const groups = [
   ],
 ] as const;
 
-// Guided and working Case Replay share one route and differ only by the
-// presentation query, so the current entry is the path with that query, not the
-// path alone. Rendered without it while the query is still unavailable.
-export function NavigationLinks({ current }: { current: string | null }) {
+export function SiteNavigation() {
+  const pathname = usePathname();
+
   return (
     <nav aria-label="Primary navigation">
       <span className="nav-label">Workbench</span>
@@ -38,7 +36,7 @@ export function NavigationLinks({ current }: { current: string | null }) {
           </span>
           {items.map(([label, href]) => (
             <Link
-              aria-current={current === href ? "page" : undefined}
+              aria-current={pathname === href ? "page" : undefined}
               href={href}
               key={href}
             >
@@ -48,16 +46,5 @@ export function NavigationLinks({ current }: { current: string | null }) {
         </div>
       ))}
     </nav>
-  );
-}
-
-export function SiteNavigation() {
-  const pathname = usePathname();
-  const mode = useSearchParams().get("mode");
-
-  return (
-    <NavigationLinks
-      current={mode === "guided" ? `${pathname}?mode=guided` : pathname}
-    />
   );
 }

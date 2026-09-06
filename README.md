@@ -153,7 +153,8 @@ gates, and the [ADRs](docs/adr) the reason behind each choice.
 ## A worked case
 
 The [deployed workbench](https://weave-trail-web-flax.vercel.app) opens on a
-guided walkthrough of one supported case at `/replay?mode=guided`. Its deployed
+guided walkthrough of one supported case at `/replay`, also addressable as
+`/replay?mode=guided`. Its deployed
 revision may differ from this checkout, and nothing here is a claim that this
 revision has been deployed.
 

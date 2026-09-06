@@ -143,7 +143,7 @@ export const guideSteps: readonly GuideStep[] = [
     purpose:
       "Continue with this case, its approvals and result still loaded. A refresh starts unapproved.",
     action:
-      "Carry this case into working mode, where you select sources and variations yourself.",
+      "Carry this case into working mode, where you choose the source and the variations yourself.",
     actor: "A person approved it",
     actorDetail:
       "The approvals you made stay loaded. No approval is persisted beyond this browser session.",
@@ -973,15 +973,6 @@ export function CaseReplay({
             </>
           ) : (
             <>
-              <p className="guided-offer">
-                Following this case for the first time?{" "}
-                <Link className="button" href="/replay?mode=guided">
-                  Start the guided case
-                </Link>{" "}
-                Seven steps lead one committed source through both approvals to
-                a finding traced back to its rows. The working controls below
-                stay available.
-              </p>
               <h2 ref={focusChapterTitle} tabIndex={-1}>
                 Case Replay controls
               </h2>
@@ -1486,7 +1477,7 @@ export function CaseReplay({
                 onGuideComplete?.();
               }}
             >
-              Continue in Case Replay
+              Continue in working mode
             </button>
           )}
         </section>

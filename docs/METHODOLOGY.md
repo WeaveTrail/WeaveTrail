@@ -254,8 +254,9 @@ approval, and keeps replay blocked.
 
 ### Worked-case interpretation
 
-The entry action opens `/replay?mode=guided`, which the navigation also reaches
-directly. Each step states what it demonstrates, what the visitor must do to
+The entry action opens `/replay?mode=guided`, and `/replay` itself opens the
+same walkthrough; working mode is the named alternative beside it. Each step
+states what it demonstrates, what the visitor must do to
 advance it, and whether a model proposed, a person approved or versioned code
 decided the work it shows. A visitor may open any step to read it; completion is
 recorded only for a step the visitor satisfied, and it is withdrawn when a later

@@ -11,10 +11,12 @@ presents each step's artifacts without first stating what the step demonstrates
 or what the visitor must do to advance it, and it names no authority for the
 work shown. Its progress list is inert, so a visitor cannot read a later step
 without performing the earlier ones, and the condition blocking advancement is
-visible only beside the disabled control at the end of the step. Its steps stack above the case they drive, so reading one means
-scrolling past the artifacts of the last. The guide is reachable only from the
-overview, so a visitor who opens Case Replay from the navigation never meets
-it.
+visible only beside the disabled control at the end of the step. Its steps
+stack above the case they drive, so reading one means scrolling past the
+artifacts of the last. The guide is reachable only from the overview, so a
+visitor who opens Case Replay from the navigation never meets it, and listing
+the guide and the surface as two navigation entries would state no difference
+between them.
 
 ## Decision
 
@@ -43,13 +45,13 @@ path and states the reviewer reason that clears it. The single control that
 advances the current step is marked, distinguishing it from the surrounding
 controls.
 
-The navigation gains a `Guided case` entry to `/replay?mode=guided`, and working
-mode offers the guided case above its working controls. This adds an entry
-point; it does not reorder or regroup the navigation. Because both modes share
-one route, the current navigation entry is the path with its presentation query,
-not the path alone; the query is read on the client inside a Suspense boundary
-so the statically prerendered routes stay static and render the rail without a
-current entry until it resolves.
+Case Replay keeps one navigation entry. The two ways to use it are named and
+chosen inside the surface, above it, as `Guided walkthrough` and `Working mode`,
+each stating what it does and marking which one is running. `/replay` opens the
+guided walkthrough, `mode=working` selects working mode, and `mode=guided`
+remains explicit. The query stays the only presentation-mode source of truth,
+and the guide's completion hands off to `mode=working` rather than restarting
+itself.
 
 ## Consequences
 
@@ -59,4 +61,6 @@ step's purpose, action and authority stay together. Guide progress remains
 presentation state: it grants no approval, and the server continues to revalidate
 every approval on each request. Marked completion depends on live state, so an
 input change that invalidates an approval also visibly withdraws that step's
-completion.
+completion. One entry means the navigation no longer distinguishes the two
+modes; the surface does, and a visitor who wants the plain controls reaches
+them in one click from the same page.

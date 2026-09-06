@@ -589,16 +589,30 @@ details.step-action > summary {
   font-weight: var(--weight-semibold);
   color: var(--teal-800);
 }
-.guided-offer {
-  display: flex;
-  flex-wrap: wrap;
+/* One surface, two named ways to use it. The choice states what each does and
+   which one is running, so the modes are never two unexplained destinations. */
+.mode-choice {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 8px;
-  align-items: center;
-  max-width: var(--prose-max);
-  padding: 12px;
-  border: var(--border-approved);
+  margin-top: 16px;
+}
+.mode-choice a {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: var(--hairline);
   border-radius: var(--radius-md);
+  color: var(--text-body);
+  text-decoration: none;
+}
+.mode-choice a[aria-current="page"] {
+  border: var(--border-approved);
   background: var(--selected-bg);
+}
+.mode-choice small {
+  font: var(--type-small);
+  color: var(--text-muted);
 }
 .component-chain span {
   display: block;

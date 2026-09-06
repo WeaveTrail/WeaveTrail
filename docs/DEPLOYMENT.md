@@ -15,8 +15,9 @@ WeaveTrail GitHub organization.
 
 ## Vercel project settings
 
-This checkout names the core surface **Case Replay** at `/replay`, with the
-entry walkthrough at `/replay?mode=guided`. The former `/lab` route has no
+This checkout names the core surface **Case Replay** at `/replay`, which opens
+the guided walkthrough; `/replay?mode=guided` names it explicitly and
+`/replay?mode=working` selects working mode. The former `/lab` route has no
 alias and returns not found. Verify the promoted revision before expecting the
 new route on production; this documentation does not confirm its deployment.
 

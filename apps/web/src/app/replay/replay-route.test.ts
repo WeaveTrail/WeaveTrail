@@ -75,7 +75,7 @@ describe("Case Replay entry contract", () => {
         }),
       });
       const props = replayProps(page)!;
-      expect(props.guided).toBe(mode === "guided");
+      expect(props.guided).toBe(mode !== "working");
       expect(props).not.toHaveProperty("approval");
       expect(props).not.toHaveProperty("result");
       const markup = renderToStaticMarkup(createElement(CaseReplay, props));
@@ -101,6 +101,8 @@ describe("Case Replay entry contract", () => {
     // the architecture in turn.
     expect(home).toContain('href="/why"');
     expect(nav).toContain('["Case Replay", "/replay"]');
+    // One entry: the guided and working modes are chosen inside the surface.
+    expect(nav).not.toContain("mode=");
     expect(nav).toContain("Workbench");
     expect(home + nav).not.toContain('"/lab"');
   });

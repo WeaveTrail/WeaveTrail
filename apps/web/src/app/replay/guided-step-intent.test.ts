@@ -14,7 +14,8 @@ import {
   RapidPriceLiftEvaluation,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
-import { NavigationLinks } from "../site-navigation";
+import ReplayPage from "./page";
+import { ReplayModeBoundary } from "./replay-mode-boundary";
 
 // The same persistent hook slots used by the lifecycle harness: this walks the
 // element tree of the real component so step navigation, completion and the
@@ -347,6 +348,14 @@ describe("guided step intent", () => {
     expect(advance[0]!.props.disabled).toBe(advance[1]!.props.disabled);
   });
 
+  it("keeps the guided surface free of the mode choice", async () => {
+    const ui = await guide();
+    expect(ui.withClass("mode-choice")).toBeUndefined();
+    expect(ui.withClass("guided-offer")).toBeUndefined();
+    expect(ui.withClass("journey-progress")).toBeDefined();
+    expect((await guide(false)).withClass("journey-progress")).toBeUndefined();
+  });
+
   it("distinguishes the control that advances the current step", async () => {
     const ui = await guide();
     const marked = () =>
@@ -367,7 +376,7 @@ describe("guided step intent", () => {
       ui.render().find((element) => element.props.className === "empty-result"),
     ).toBeDefined();
     ui.openStep(6);
-    expect(marked()).toEqual(["Continue in Case Replay"]);
+    expect(marked()).toEqual(["Continue in working mode"]);
   });
 
   it("marks the finding disclosure as the control that advances inspection", async () => {
@@ -390,32 +399,42 @@ describe("guided step intent", () => {
     expect(ui.requirement()!.props["data-met"]).toBe(true);
   });
 
-  it("marks the guided entry current only while the guided query is set", () => {
-    const marked = (current: string | null) =>
-      elements(NavigationLinks({ current }))
-        .filter((element) => element.props["aria-current"] === "page")
-        .map((element) => element.props.href);
-    expect(marked("/replay?mode=guided")).toEqual(["/replay?mode=guided"]);
-    expect(marked("/replay")).toEqual(["/replay"]);
-    expect(marked(null)).toEqual([]);
-  });
-
-  it("offers the guided case from the navigation and above the working controls", async () => {
+  it("names both modes as one choice above the single navigation entry's surface", async () => {
     const navigation = readFileSync(
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    expect(navigation).toContain('["Guided case", "/replay?mode=guided"]');
+    expect(navigation).toContain('["Case Replay", "/replay"]');
+    expect(navigation).not.toContain("mode=");
 
-    const working = await guide(false);
-    const offer = working.withClass("guided-offer");
-    expect(offer).toBeDefined();
-    expect(
-      elements(offer).find((element) => element.props.href)!.props.href,
-    ).toBe("/replay?mode=guided");
-    expect(working.indexOf("guided-offer")).toBeLessThan(
-      working.indexOf("replay-control panel"),
-    );
-    expect(working.withClass("journey-progress")).toBeUndefined();
+    for (const [mode, current] of [
+      [undefined, "/replay?mode=guided"],
+      ["working", "/replay?mode=working"],
+    ] as const) {
+      const rendered = elements(
+        await ReplayPage({ searchParams: Promise.resolve({ mode }) }),
+      );
+      const choice = elements(
+        rendered.find((element) => element.props.className === "mode-choice"),
+      ).filter((element) => element.props.href);
+      expect(choice.map((element) => element.props.href)).toEqual([
+        "/replay?mode=guided",
+        "/replay?mode=working",
+      ]);
+      expect(
+        choice
+          .filter((element) => element.props["aria-current"] === "page")
+          .map((element) => element.props.href),
+      ).toEqual([current]);
+      expect(textContent(choice[0])).toContain("Guided walkthrough");
+      expect(textContent(choice[1])).toContain("Working mode");
+      expect(
+        rendered.findIndex(
+          (element) => element.props.className === "mode-choice",
+        ),
+      ).toBeLessThan(
+        rendered.findIndex((element) => element.type === ReplayModeBoundary),
+      );
+    }
   });
 });
