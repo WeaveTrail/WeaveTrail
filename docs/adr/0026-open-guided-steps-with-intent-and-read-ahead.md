@@ -2,7 +2,11 @@
 
 ## Status
 
-Accepted
+Accepted. Its rail layout and step ordering are superseded by
+[ADR 0033](0033-lead-each-guided-step-with-its-action.md), which leads each step
+with its action and moves the condition and controls to the rail's top edge.
+Its step declaration, closed authority vocabulary and read-ahead progress list
+stand.
 
 ## Context
 

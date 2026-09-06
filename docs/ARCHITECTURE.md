@@ -43,11 +43,18 @@ Case Replay is one navigation entry, labelled `Walk through a case`. Above the s
 `Working mode` name the two ways to use it, state what each does and mark the
 running one. `/replay` opens the guided walkthrough, `mode=working` selects
 working mode, and the guide hands off to `mode=working`. Guided mode places a
-step rail beside the case content. Each step opens with its purpose, the action that advances it and
-the authority that acted in it, and the rail keeps the unmet condition and the
-step controls at its bottom edge while the step content repeats them at its end.
-The step list is navigable for reading; a step counts as completed only while the
-visitor's own work still satisfies it. See [ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md).
+step rail beside the case content. The rail leads with the step position, the
+step title, the imperative instruction, the unmet condition and the one control
+that advances the step; why the step exists, the authority that acted in it and
+the step list follow in a region that scrolls on its own. Where a step commits
+something the rail renders that control itself, sharing one handler and one
+disabled state with the control in the case column; where the step's work
+happens inside the case content the rail's control scrolls there and takes
+focus. Below the rail breakpoint the action block becomes a bar fixed to the
+bottom of the viewport. The step list is navigable for reading; a step counts as
+completed only while the visitor's own work still satisfies it. See
+[ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md) and
+[ADR 0033](adr/0033-lead-each-guided-step-with-its-action.md).
 
 The guided source is `rapid-price-lift-supported.csv` with baseline mutation.
 Its mapping chapter embeds a separate `concentrated-buy-dialect-b.jsonl`
