@@ -24,7 +24,8 @@ const rows = await response.json();
 /** Exact decimal strings only: no displayed value passes through a float. */
 const decimal = (value) => {
   const text = String(value);
-  if (!/^-?\d+(\.\d+)?$/.test(text)) throw new Error(`Unexpected value ${text}`);
+  if (!/^-?\d+(\.\d+)?$/.test(text))
+    throw new Error(`Unexpected value ${text}`);
   return text;
 };
 
