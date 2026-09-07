@@ -61,6 +61,27 @@ export type CaseCopy = {
   failed: string;
   rankReading: (position: string, population: string) => string;
   rankCaveat: string;
+  /** The rank strip and the values it marks. */
+  rankFigureCaption: (leg: string) => string;
+  rankMostExtreme: string;
+  rankLeastExtreme: string;
+  rankPositionLabel: string;
+  rankPopulationLabel: string;
+  rankBaselineLabel: string;
+  /** The denominator comparison and the values it draws. */
+  divergenceTitle: string;
+  divergenceLede: string;
+  divergenceCaption: (leg: string) => string;
+  divergenceCaveat: string;
+  denominatorNames: Readonly<Record<string, string>>;
+  denominatorMeanings: Readonly<Record<string, string>>;
+  approvedDenominatorTag: string;
+  alternativeDenominatorTag: string;
+  denominatorValueLabel: string;
+  metricValueLabel: string;
+  metricRatioLabel: string;
+  metricRatioUnavailable: string;
+  thresholdMarkerLabel: (threshold: string) => string;
   evidenceTitle: string;
   evidenceLede: string;
   stopTitle: string;
@@ -236,13 +257,43 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       `기준선 ${population}거래일 가운데 ${position}번째`,
     rankCaveat:
       "선언된 기간 안에서의 순위일 뿐이며, 확률이 아닙니다. 기간을 바꾸면 순위도 바뀝니다.",
+    rankFigureCaption: (leg) => `${leg} · 기준선 안에서의 위치`,
+    rankMostExtreme: "되돌림 배수가 가장 큰 날",
+    rankLeastExtreme: "가장 작은 날",
+    rankPositionLabel: "분석 대상일의 위치",
+    rankPopulationLabel: "기준선 거래일 수",
+    rankBaselineLabel: "기준선 기간",
+    divergenceTitle: "분모를 바꾸면 어떻게 달라지나",
+    divergenceLede:
+      "되돌림 배수는 비율입니다. 무엇으로 나누는지 정하지 않으면 아무 뜻도 없습니다. 아래는 승인된 범위가 선언한 분모마다 같은 하루를 다시 나눈 값입니다. 승인된 분모에서는 두 시장 모두 기준을 넘지만, 그날 종가로 나누면 어느 쪽도 근처에 가지 못합니다.",
+    divergenceCaption: (leg) => `${leg} · 분모별 되돌림 배수`,
+    divergenceCaveat:
+      "같은 관측값을 다른 분모로 다시 계산한 것뿐입니다. 어느 분모가 옳은지도, 무엇이 원인인지도 말하지 않습니다.",
+    denominatorNames: {
+      "session-net-change": "전일 대비 변화",
+      "session-closing-level": "그날 종가",
+    },
+    denominatorMeanings: {
+      OBSERVED_PRICE_CHANGE: "관측된 가격 변화",
+      OBSERVED_PRICE_LEVEL: "관측된 가격 수준",
+      INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL:
+        "종목 명세상의 최소 호가 단위이며, 거래가 형성한 값이 아님",
+    },
+    approvedDenominatorTag: "승인됨",
+    alternativeDenominatorTag: "대안",
+    denominatorValueLabel: "분모 값",
+    metricValueLabel: "되돌림 배수",
+    metricRatioLabel: "승인된 배수 대비",
+    metricRatioUnavailable: "두 값이 모두 0이라 비율 없음",
+    thresholdMarkerLabel: (threshold) =>
+      `세로선은 이 시장에 정해 둔 기준 ${threshold}입니다.`,
     evidenceTitle: "판단 근거가 나온 원본 행",
     evidenceLede:
       "각 판단이 참조한 기록을, 공개 자료의 원래 행과 열 값까지 그대로 펼쳐 봅니다.",
     stopTitle: "여기서 멈춥니다",
     saysTitle: "이 결과가 말하는 것",
     says: (position, population) => [
-      `승인된 기간과 규칙 1.0 안에서, 2026-09-03은 현물 지수의 되돌림 배수가 기준선 ${population}거래일 가운데 ${position}번째였습니다.`,
+      `승인된 기간과 규칙 1.1 안에서, 2026-09-03은 현물 지수의 되돌림 배수가 기준선 ${population}거래일 가운데 ${position}번째였습니다.`,
       "그날 현물과 선물 모두, 전일 대비로는 올랐지만 그날 안에서는 시가보다 낮게 끝났습니다.",
       "위 문장은 모두 커밋된 공개 값에서 다시 계산할 수 있고, 결과 해시로 재현을 확인할 수 있습니다.",
     ],
@@ -420,13 +471,44 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       `Position ${position} of ${population} trading days in the baseline`,
     rankCaveat:
       "A position within the declared range, not a probability. Change the range and the position changes.",
+    rankFigureCaption: (leg) => `${leg} · position within the baseline`,
+    rankMostExtreme: "largest reversal multiple",
+    rankLeastExtreme: "smallest",
+    rankPositionLabel: "Position of the analysed date",
+    rankPopulationLabel: "Baseline trading days",
+    rankBaselineLabel: "Baseline range",
+    divergenceTitle: "What changes when the denominator changes",
+    divergenceLede:
+      "A reversal multiple is a ratio, and a ratio means nothing until someone settles what it is divided by. Below is the same session divided by each denominator the approved scope declared. Under the approved one both markets clear their threshold; divided by the day's own close, neither comes near it.",
+    divergenceCaption: (leg) =>
+      `${leg} · reversal multiple under each declared denominator`,
+    divergenceCaveat:
+      "This is the same observation recomputed under a different denominator. It does not say which denominator is right, and it is not a causal claim.",
+    denominatorNames: {
+      "session-net-change": "Change against the previous close",
+      "session-closing-level": "That day's close",
+    },
+    denominatorMeanings: {
+      OBSERVED_PRICE_CHANGE: "An observed price change",
+      OBSERVED_PRICE_LEVEL: "An observed price level",
+      INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL:
+        "An instrument's minimum price increment, not a level a trade established",
+    },
+    approvedDenominatorTag: "Approved",
+    alternativeDenominatorTag: "Alternative",
+    denominatorValueLabel: "Denominator value",
+    metricValueLabel: "Reversal multiple",
+    metricRatioLabel: "As a multiple of the approved metric",
+    metricRatioUnavailable: "No ratio: both metrics are zero",
+    thresholdMarkerLabel: (threshold) =>
+      `The vertical line is this market's threshold, ${threshold}.`,
     evidenceTitle: "The committed rows each check rests on",
     evidenceLede:
       "Every record a check referenced, opened back to the published row and its original column values.",
     stopTitle: "This is where it stops",
     saysTitle: "What this result says",
     says: (position, population) => [
-      `Within the approved range and rule 1.0, 2026-09-03 sits at position ${position} of the ${population} baseline trading days by the spot index's reversal multiple.`,
+      `Within the approved range and rule 1.1, 2026-09-03 sits at position ${position} of the ${population} baseline trading days by the spot index's reversal multiple.`,
       "On that date both the spot index and the front-month future closed above the previous day yet below their own open.",
       "Every sentence above can be recomputed from the committed published values, and the result hash checks that recomputation.",
     ],

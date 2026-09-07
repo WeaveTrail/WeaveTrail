@@ -55,3 +55,44 @@ export function verticalScale(
     return bottom - fraction * height;
   };
 }
+
+/**
+ * Maps a set of nonnegative decimal strings onto a span that starts at zero, so
+ * a bar's length is proportional to its value rather than to its distance from
+ * the smallest value in the set. A comparison whose whole point is that two
+ * metrics differ by orders of magnitude has to keep that difference visible, and
+ * a scale anchored anywhere but zero would flatten it.
+ *
+ * Integer arithmetic throughout; the one division produces the unitless
+ * fraction a coordinate needs.
+ */
+export function proportionalScale(
+  values: readonly string[],
+  zero: number,
+  full: number,
+): Scale {
+  let high = 0n;
+  for (const value of values) {
+    const scaled = scaledPrice(value);
+    if (scaled > high) high = scaled;
+  }
+  const span = high === 0n ? 1n : high;
+  return (value) => {
+    const fraction =
+      Number((scaledPrice(value) * RATIO_UNITS) / span) / Number(RATIO_UNITS);
+    return zero + fraction * (full - zero);
+  };
+}
+
+/**
+ * Where a one-based position falls across a population of `size`, as a
+ * unitless fraction. Counts, not prices, but the same integer-then-divide
+ * discipline keeps a large population from collapsing two adjacent positions
+ * onto one coordinate.
+ */
+export function positionFraction(position: string, size: string): number {
+  const total = BigInt(size);
+  if (total <= 1n) return 0;
+  const offset = BigInt(position) - 1n;
+  return Number((offset * RATIO_UNITS) / (total - 1n)) / Number(RATIO_UNITS);
+}
