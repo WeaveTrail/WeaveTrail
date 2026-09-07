@@ -73,14 +73,15 @@ and the futures contract on it gave back roughly twenty-five times. Nothing in a
 closing price says so. Suppose someone hands you the date and asks whether it is
 worth a second look.
 
-![One day re-derived from published records: the published prices for the index and its futures contract, the scope a person fixes before anything runs, and what fixed code returns afterwards, with every number opening onto the row it came from](docs/assets/worked-case.svg)
+![One day re-derived from published records: the published prices for the index and its futures contract, the scope a person fixes before anything runs, and what fixed code returns afterwards, with each observed value opening onto the published row it was read from](docs/assets/worked-case.svg)
 
 The published records are read exactly as published. A person fixes what will be
 examined — the date, the period it is compared against, how large a pull-back
 has to be — and fixes it before anything runs. Then fixed code does the
-arithmetic and reports where the day stands within that period. Every number
-opens onto the row it came from, and running it again on the same inputs
-produces the same result.
+arithmetic and reports where the day stands within that period. Each observed
+value opens onto the published row it was read from; the thresholds are a
+person's and say so, and the standing is computed across the whole approved
+period. Running it again on the same inputs produces the same result.
 
 What it does not say: who traded, why, or whether anything was wrong. The
 comparison period and the thresholds were chosen by a person who had already
@@ -101,8 +102,9 @@ behind.
 
 The first case the workbench answers is deliberately narrow:
 
-> Did a short burst of buying by one approved group of accounts lift a price,
-> and how much of that move remains when their trades are taken out?
+> Does a short run-up in price match a declared pattern of repeated,
+> concentrated buying by one approved group of accounts — and what do the same
+> numbers look like with that group's trades taken out?
 
 ![Four layers between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code decides the outcome, and the evidence layer resolves every finding back to its source rows](docs/assets/how-it-works.svg)
 
@@ -157,10 +159,11 @@ fixed choices, written down and tested.
 - **No floating point where it matters ·** prices and thresholds are compared
   exactly, never through a rounded quotient.
 - **The fingerprint covers the answer, not the run ·** shuffling the same rows
-  leaves it unchanged, while changing what was approved changes it, and that
-  change is on the record.
-- **Refusal is a result ·** a check that cannot be satisfied stops and returns
-  no answer, rather than returning a weaker one.
+  leaves it unchanged. Change the scope or the thresholds and the answer moves
+  with them; change who approved and when, and that is kept in the approval
+  record instead, where it can still be read.
+- **Refusal is explicit ·** a check that cannot be satisfied stops there and
+  returns no answer at all, rather than a weaker one.
 
 The model behind the reading step is defined by what it is allowed to hand over,
 so it can be replaced without moving the boundary.

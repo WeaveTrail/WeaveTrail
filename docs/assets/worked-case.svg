@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="workedCaseTitle workedCaseDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 492" role="img" aria-labelledby="workedCaseTitle workedCaseDesc">
   <title id="workedCaseTitle">One day, re-derived from the published record</title>
-  <desc id="workedCaseDesc">Three panels. The published record for 3 September 2026 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, how large a pull-back counts and how many markets must agree. Fixed code then returns that the index gave back about fourteen times the day's net move and the future about twenty-five times, placing the day first among the forty-five trading days compared. A rank is a position inside the chosen period, not a probability, and every number opens onto the published row it came from.</desc>
+  <desc id="workedCaseDesc">Three panels. The published record for 3 September 2026 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, how large a pull-back counts and how many markets must agree. Fixed code then returns that the index gave back about fourteen times the day's net move and the future about twenty-five times, placing the day first among the forty-five trading days compared. A rank is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from; the thresholds are a person's, and the standing is computed across the whole approved period.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
@@ -27,9 +27,9 @@
     </style>
   </defs>
 
-  <rect width="1200" height="470" fill="#f7faf9"/>
+  <rect width="1200" height="492" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="469" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="491" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">A WORKED CASE</text>
@@ -109,5 +109,6 @@
   </g>
 
   <line class="rule" x1="40" y1="434" x2="1160" y2="434"/>
-  <text class="foot s" x="40" y="454">Published values: Financial Services Commission open data. Every number opens onto the row it came from; the result is a rule output bound to an approved scope, not a judgement about anyone.</text>
+  <text class="foot s" x="40" y="454">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
+  <text class="foot s" x="40" y="472">Each observed value opens onto its published row. The multiples and the standing are rule output bound to an approved scope, not a judgement about anyone.</text>
 </svg>

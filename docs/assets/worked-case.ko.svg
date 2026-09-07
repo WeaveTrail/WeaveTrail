@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="workedCaseKoTitle workedCaseKoDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 492" role="img" aria-labelledby="workedCaseKoTitle workedCaseKoDesc">
   <title id="workedCaseKoTitle">공개된 기록만으로 하루를 다시 계산한 사례</title>
-  <desc id="workedCaseKoDesc">세 부분으로 나뉜 그림입니다. 왼쪽은 2026년 9월 3일 코스피 200 지수와 그 최근월 선물의 발행된 하루 가격 범위로, 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 가운데는 실행 전에 사람이 확정하는 항목으로 분석 대상일, 비교할 기준선 기간, 되돌림을 얼마나 크게 볼지, 몇 개 시장이 같은 모양이어야 하는지입니다. 오른쪽은 고정된 코드가 내놓은 값으로, 지수는 전일 대비 변화폭의 약 14배, 선물은 약 25배를 같은 날 안에서 되돌렸고 그날은 비교한 기준선 45거래일 가운데 1번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아니며, 모든 숫자는 그 값이 나온 공개 원본 행까지 열어 볼 수 있습니다.</desc>
+  <desc id="workedCaseKoDesc">세 부분으로 나뉜 그림입니다. 왼쪽은 2026년 9월 3일 코스피 200 지수와 그 최근월 선물의 발행된 하루 가격 범위로, 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 가운데는 실행 전에 사람이 확정하는 항목으로 분석 대상일, 비교할 기준선 기간, 되돌림을 얼마나 크게 볼지, 몇 개 시장이 같은 모양이어야 하는지입니다. 오른쪽은 고정된 코드가 내놓은 값으로, 지수는 전일 대비 변화폭의 약 14배, 선물은 약 25배를 같은 날 안에서 되돌렸고 그날은 비교한 기준선 45거래일 가운데 1번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아닙니다. 관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있고, 기준값은 사람이 정한 것이며, 순위는 승인된 기간 전체를 가로질러 계산합니다.</desc>
   <!--
     WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
@@ -27,9 +27,9 @@
     </style>
   </defs>
 
-  <rect width="1200" height="470" fill="#f7faf9"/>
+  <rect width="1200" height="492" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="469" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="491" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">실제 사례</text>
@@ -109,5 +109,6 @@
   </g>
 
   <line class="rule" x1="40" y1="434" x2="1160" y2="434"/>
-  <text class="foot s" x="40" y="454">발행처 값: 금융위원회 공개 데이터. 모든 숫자는 그 값이 나온 원본 행까지 열어 볼 수 있으며, 결과는 승인된 범위 안에서의 규칙 출력일 뿐 누군가에 대한 판단이 아닙니다.</text>
+  <text class="foot s" x="40" y="454">발행처 값: 금융위원회 공개 데이터. 저장소에는 fsc-kospi-200-baseline-20260701-20260903, fsc-kospi-200-futures-20260903으로 커밋되어 있습니다.</text>
+  <text class="foot s" x="40" y="472">관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있습니다. 배수와 순위는 승인된 범위 안에서의 규칙 출력일 뿐, 누군가에 대한 판단이 아닙니다.</text>
 </svg>
