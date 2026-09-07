@@ -363,4 +363,97 @@ describe("the 2026-09-03 case surface", () => {
     );
     expect(navigation).not.toContain("9월 3일 사례");
   });
+  it("serves every chapter but shows one at a time", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const chapters = markup.match(/class="case-chapter"/g) ?? [];
+      expect(chapters, language).toHaveLength(
+        caseCopy[language].chapters.length,
+      );
+      // Every chapter stays in the served markup. Hiding the rest is what
+      // makes it a procedure to step through rather than a page to scroll,
+      // and it keeps the whole case readable to anything that reads the
+      // markup instead of running the page.
+      const hidden = markup.match(/class="case-chapter" hidden/g) ?? [];
+      expect(hidden, language).toHaveLength(chapters.length - 1);
+      expect(markup.indexOf('class="case-chapter"'), language).toBeLessThan(
+        markup.indexOf('class="case-chapter" hidden'),
+      );
+    }
+  });
+
+  it("names every chapter on the rail and marks the one being read", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      const markup = surface(language);
+      expect(markup, language).toContain(
+        `aria-label="${text.chapterListLabel}"`,
+      );
+      text.chapters.forEach((chapter, index) => {
+        expect(markup, `${language} ${chapter.title}`).toContain(
+          `${index + 1}. ${chapter.title}`,
+        );
+      });
+      // Exactly one entry is the reader's position, or the rail says nothing
+      // about where they are.
+      const current = markup.match(/aria-current="step"/g) ?? [];
+      expect(current, language).toHaveLength(1);
+      expect(markup, language).toContain(text.chapterCurrentTag);
+      expect(markup, language).toContain(
+        text.chapterPositionOf(1, text.chapters.length),
+      );
+      expect(markup, language).toContain(text.previousChapter);
+      expect(markup, language).toContain(text.nextChapter);
+    }
+  });
+
+  it("leaves the day's chart and premise outside the stepped chapters", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      const markup = surface(language);
+      // The chart and what the page refuses to claim are the frame the
+      // chapters are read inside, so stepping must never hide them.
+      const opening = markup.indexOf('class="case-opening"');
+      const chapters = markup.indexOf('class="case-chapters"');
+      expect(opening, language).toBeGreaterThan(-1);
+      expect(chapters, language).toBeGreaterThan(opening);
+      expect(markup.indexOf(text.intradayCaption), language).toBeLessThan(
+        chapters,
+      );
+      expect(markup.indexOf(text.notOurJobTitle), language).toBeLessThan(
+        chapters,
+      );
+    }
+  });
+
+  it("gives up the stepping rather than the case when scripting is off", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      expect(markup, language).toContain("<noscript>");
+      // Without scripting no control can advance a chapter, so the hiding is
+      // undone instead of stranding the reader on chapter one.
+      expect(markup, language).toContain(
+        ".case-chapter[hidden]{display:block!important}",
+      );
+      expect(markup, language).toContain(
+        caseCopy[language].chaptersWithoutScript,
+      );
+    }
+  });
+
+  it("counts the same chapters in both languages", () => {
+    expect(caseCopy.ko.chapters).toHaveLength(caseCopy.en.chapters.length);
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      for (const chapter of text.chapters) {
+        expect(chapter.title, language).toBeTruthy();
+        expect(chapter.purpose, language).toBeTruthy();
+      }
+      // A position reads differently in the two languages, but it has to name
+      // both numbers in each.
+      const position = text.chapterPositionOf(3, text.chapters.length);
+      expect(position, language).toContain("3");
+      expect(position, language).toContain(String(text.chapters.length));
+    }
+  });
 });
