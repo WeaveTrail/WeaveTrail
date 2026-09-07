@@ -1,6 +1,25 @@
 import { type Language } from "../i18n/language";
 
+export type Chapter = { title: string; purpose: string };
+
 export type CaseCopy = {
+  chapters: readonly Chapter[];
+  columnsLede: string;
+  columnHeaders: readonly [string, string, string];
+  legTableTitles: Readonly<Record<string, string>>;
+  awaitingRun: string;
+  intradayLink: string;
+  intradayNote: string;
+  intradayCaption: string;
+  intradayChartNote: string;
+  intradayLabels: { low: string; high: string; close: string };
+  columnGloss: Readonly<Record<string, string>>;
+  didTitle: string;
+  did: readonly string[];
+  /** The same procedure before it has run, so nothing claims a completed run. */
+  willDoTitle: string;
+  willDo: readonly string[];
+  closing: string;
   heading: string;
   lede: string;
   meta: readonly string[];
@@ -54,19 +73,94 @@ export type CaseCopy = {
   dayCaptionSpot: string;
   dayCaptionFuture: string;
   baselineCaption: string;
-  chartNote: string;
-  chartNoteAfterRun: string;
   thresholdOrigin: string;
   artifactHash: string;
 };
 
 export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
   ko: {
+    chapters: [
+      {
+        title: "이 자료가 어디서 왔나",
+        purpose:
+          "결과를 의심하려면 자료부터 의심할 수 있어야 합니다. 무엇을 읽었고, 그 파일이 바뀌지 않았다는 건 어떻게 아는지 먼저 봅니다.",
+      },
+      {
+        title: "열 이름의 뜻을 정한다",
+        purpose:
+          "발행처가 쓰는 말과 조사에서 쓰는 말은 다릅니다. 이 사례의 대응은 자료를 들여올 때 사람이 직접 작성하고 검토한 것입니다. 모델이 초안을 내는 경로는 사례 따라가기 쪽이고, 거기서도 모델은 승인하지 못합니다.",
+      },
+      {
+        title: "무엇을 어떤 기준으로 볼지 정한다",
+        purpose:
+          "기간이나 기준을 넓히면 다른 결과가 나옵니다. 그래서 실행 전에 먼저 못 박고, 승인한 그 내용에만 결과를 묶습니다.",
+      },
+      {
+        title: "정해진 기준으로 다시 계산한다",
+        purpose:
+          "여기서부터는 사람도 AI도 개입하지 않습니다. 버전이 고정된 코드가 승인된 자료만 읽고 계산합니다.",
+      },
+      {
+        title: "결과를 원본까지 되짚는다",
+        purpose:
+          "숫자를 믿으라고 하지 않습니다. 각 판단이 어느 행에서 나왔는지 열어서 직접 확인하세요.",
+      },
+      {
+        title: "여기서 멈춥니다",
+        purpose:
+          "더 말할 수 있는 자료가 없기 때문입니다. 어디까지 말했고 어디부터 말하지 않는지 분명히 합니다.",
+      },
+    ],
+    columnsLede:
+      "발행처는 자기 약어를 씁니다. 아래가 그 약어와, 조사에서 쓰는 이름의 대응입니다. 두 자료는 서로 다르게 대응합니다. 지수는 이름으로, 선물은 표준코드로 종목을 가립니다. 이 대응은 이미 검토·기록되어 있고, 이 페이지에서 사용자가 승인하는 것은 다음 단계의 조사 범위입니다.",
+    legTableTitles: {
+      "spot-index": "현물 지수 · 코스피 200",
+      "front-future": "선물 · 코스피200 F 202609",
+    },
+    awaitingRun: "위에서 분석을 실행하면 결과가 여기에 나옵니다.",
+    intradayCaption: "2026-09-03 코스피 200 · 09:00–15:30 · 1분 간격",
+    intradayChartNote:
+      "이 그래프는 그날의 분 단위 지수값으로 저희가 직접 그린 것입니다. 아래 판단에는 쓰이지 않습니다. 판단은 금융위원회가 공개한 일별 값으로만 합니다. 다만 이 그래프가 닿는 고가 1050.77, 저가 1009.7, 종가 1032.82는 그 일별 기록과 정확히 같은 값입니다.",
+    intradayLabels: { low: "저가", high: "고가", close: "종가" },
+    intradayLink: "네이버 증권에서 장중 흐름 보기",
+    intradayNote:
+      "분 단위로 그날이 어떻게 움직였는지는 증권 포털에서 볼 수 있습니다. 그 화면의 값은 재배포가 허용되지 않아 이 서비스로 가져오지 않았고, 아래 판단에도 쓰이지 않습니다. 여기서 쓰는 것은 금융위원회가 공개한 일별 값뿐입니다.",
+    columnHeaders: ["발행처 열 이름", "무슨 값인가", "조사에서 쓰는 이름"],
+    columnGloss: {
+      basDt: "거래일",
+      idxNm: "지수 이름",
+      srtnCd: "선물 단축코드",
+      isinCd: "선물 표준코드",
+      clpr: "종가",
+      vs: "전일 대비 변화",
+      mkp: "시가",
+      hipr: "장중 고가",
+      lopr: "장중 저가",
+      trqu: "거래량",
+    },
+    willDoTitle: "이 서비스가 하는 일",
+    willDo: [
+      "공개된 원본 자료를 그대로 읽고, 파일이 바뀌지 않았음을 해시로 확인합니다.",
+      "열 이름의 뜻은 사람이 검토한 대로만 적용합니다.",
+      "무엇을 어떤 기준으로 볼지 사용자가 승인한 뒤에야 계산합니다.",
+      "판정은 AI가 아니라 버전이 고정된 코드가 하고, 같은 입력이면 같은 해시가 나옵니다.",
+      "관측값은 그 값이 나온 공개 원본 행까지 열어서 확인할 수 있습니다. 기준값은 사람이 정한 것이고, 규칙·엔진 버전과 결과 해시는 실행 전체를 가리키며, 순위는 승인된 기준선 전체를 가로질러 계산합니다.",
+    ],
+    didTitle: "이 서비스가 한 일",
+    did: [
+      "공개된 원본 자료를 그대로 읽었고, 파일이 바뀌지 않았음을 해시로 확인했습니다.",
+      "열 이름의 뜻을 사람이 검토한 대로만 적용했습니다.",
+      "무엇을 어떤 기준으로 볼지 사용자가 승인한 뒤에야 계산했습니다.",
+      "판정은 AI가 아니라 버전이 고정된 코드가 했고, 같은 입력이면 같은 해시가 나옵니다.",
+      "관측값은 그 값이 나온 공개 원본 행까지 열어서 확인할 수 있습니다. 기준값은 사람이 정한 것이고, 규칙·엔진 버전과 결과 해시는 실행 전체를 가리키며, 순위는 승인된 기준선 전체를 가로질러 계산한 값입니다.",
+    ],
+    closing:
+      "이상거래를 찾아내는 일은 이 서비스가 하지 않습니다. 이미 지목된 사례를 두고, 그 근거를 처음부터 다시 밟아 확인할 수 있게 하는 것까지가 여기서 보여 드리는 범위입니다.",
     heading: "2026년 9월 3일, 코스피200에 무슨 일이 있었나",
-    lede: "그날 지수는 전일보다 올라서 끝났습니다. 종가만 보면 평범한 하루입니다. 그런데 시가 1046.17보다 낮은 1032.82로 끝났고, 장중에는 1050.77까지 올랐다가 1009.7까지 내려갔습니다. 같은 날 선물도 같은 모양이었습니다. 아래 값은 전부 금융위원회가 공개한 원본 그대로입니다.",
+    lede: "종가만 보면 평범한 하루입니다. 그런데 그날 안에서는 시가보다 낮게 끝났고, 선물도 같은 모양이었습니다. 아래는 그 하루를 처음부터 다시 확인하는 절차입니다. 여섯 단계를 순서대로 따라가면 됩니다.",
     meta: [
+      "여섯 단계",
       "금융위원회 공개 데이터",
-      "45거래일 기준선",
       "승인해야 실행",
       "결과는 판정이 아님",
     ],
@@ -163,20 +257,93 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     dayCaptionFuture: "코스피200 F 202609 · 2026-09-03 · 발행처 공개 값",
     baselineCaption:
       "코스피 200 · 기준선 45거래일의 고가–저가 구간과 종가 · 발행처 공개 값",
-    chartNote:
-      "그림에 그려진 값은 전부 발행처가 공개한 원본입니다. 순위와 배수는 아직 계산하지 않았습니다. 그것은 아래에서 규칙이 합니다.",
-    chartNoteAfterRun:
-      "그림은 실행 뒤에도 그대로입니다. 여기에 그려진 값은 여전히 발행처가 공개한 원본뿐이고, 순위와 배수는 아래 결과에만 있습니다.",
     thresholdOrigin:
       "이 기준값은 표준이 아닙니다. 이 사례를 만들면서 사람이 정한 값이고, 그때 이미 이 날의 관측값을 보고 있었습니다. 그래서 아래 결과에서는 관측값과 기준을 나란히 보여 줍니다. 둘의 간격이 얼마나 좁은지 직접 확인하세요.",
     artifactHash: "자료 해시",
   },
   en: {
+    chapters: [
+      {
+        title: "Where this data came from",
+        purpose:
+          "Doubting a result means being able to doubt the data first. What was read, and how you know the file has not changed.",
+      },
+      {
+        title: "Deciding what the column names mean",
+        purpose:
+          "The publisher's words and an investigation's words are not the same. For this case the join was written and reviewed by a person when the data was brought in. The path where a model drafts one is the guided walkthrough, and even there it cannot approve.",
+      },
+      {
+        title: "Settling what is examined, and against what",
+        purpose:
+          "A wider range or a looser threshold gives a different result, so the scope is fixed before the run and the result binds to what was approved.",
+      },
+      {
+        title: "Recomputing it under fixed rules",
+        purpose:
+          "From here neither a person nor a model intervenes. Versioned code reads only the approved data and computes.",
+      },
+      {
+        title: "Tracing the result back to the source",
+        purpose:
+          "You are not asked to trust the numbers. Open each check and see the row it came from.",
+      },
+      {
+        title: "Where this stops",
+        purpose:
+          "Because the data runs out. What was said, and what is deliberately not said.",
+      },
+    ],
+    columnsLede:
+      "The publisher uses its own abbreviations. Below is each one, what it holds, and the name an investigation gives it. The two artifacts do not map the same way: the index identifies its instrument by name, the future by standard code. This join was reviewed and recorded already; what you approve on this page is the scope in the next chapter.",
+    legTableTitles: {
+      "spot-index": "Spot index · KOSPI 200",
+      "front-future": "Future · KOSPI 200 F 202609",
+    },
+    awaitingRun: "Run the analysis above and the result appears here.",
+    intradayCaption: "KOSPI 200 on 2026-09-03 · 09:00–15:30 · one-minute steps",
+    intradayChartNote:
+      "This chart is drawn by us from that day's minute-by-minute index levels. It takes no part in the checks below: those run on the FSC's published daily record alone. The three values it reaches — high 1050.77, low 1009.7, close 1032.82 — are the same three that record carries.",
+    intradayLabels: { low: "low", high: "high", close: "close" },
+    intradayLink: "See the intraday chart on Naver Finance",
+    intradayNote:
+      "How the day moved minute by minute can be seen on a market portal. Those values are not redistributable, so they were not brought into this service and take no part in the checks below. What is used here is the daily record the FSC publishes.",
+    columnHeaders: ["Publisher column", "What it holds", "Investigation name"],
+    columnGloss: {
+      basDt: "Trading date",
+      idxNm: "Index name",
+      srtnCd: "Future short code",
+      isinCd: "Future standard code",
+      clpr: "Closing price",
+      vs: "Change against the previous close",
+      mkp: "Opening price",
+      hipr: "Session high",
+      lopr: "Session low",
+      trqu: "Traded volume",
+    },
+    willDoTitle: "What this service does",
+    willDo: [
+      "Reads the published artifacts as distributed, and checks by hash that the files have not changed.",
+      "Applies the column meanings only as a person has reviewed them.",
+      "Computes nothing until you approve what will be examined and against what.",
+      "Lets versioned code decide rather than a model, and returns the same hash for the same input.",
+      "Lets each observed value open onto the published row it was derived from. The thresholds are a person's, the rule and engine versions and the result hash cover the run itself, and the rank is computed across the whole approved baseline.",
+    ],
+    didTitle: "What this service did",
+    did: [
+      "Read the published artifacts as distributed, and checked by hash that the files had not changed.",
+      "Applied the column meanings only as a person had reviewed them.",
+      "Computed nothing until you approved what would be examined and against what.",
+      "Let versioned code decide rather than a model, and returned the same hash for the same input.",
+      "Let each observed value open onto the published row it was derived from. The thresholds are a person's, the rule and engine versions and the result hash cover the run itself, and the rank is computed across the whole approved baseline.",
+    ],
+    closing:
+      "Finding unusual trading is not this service's job. Taking a session someone has already named, and letting you walk its evidence from the beginning, is the whole of what is shown here.",
     heading: "What happened to the KOSPI 200 on 3 September 2026",
-    lede: "The index finished the day above the day before. On the close alone it is an ordinary session. It also finished at 1032.82, below its open of 1046.17, after reaching 1050.77 and falling to 1009.7 inside the same day. The front-month future did the same thing. Every figure below is the published value, as distributed.",
+    lede: "On the close alone it is an ordinary session. Inside that same day it finished below its own open, and the front-month future did the same thing. What follows is the procedure for checking that day from the beginning, in six steps.",
     meta: [
+      "Six steps",
       "Published FSC data",
-      "45 trading days of baseline",
       "runs only once approved",
       "a result is not a verdict",
     ],
@@ -273,10 +440,6 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     dayCaptionFuture: "KOSPI 200 F 202609 · 2026-09-03 · published values",
     baselineCaption:
       "KOSPI 200 · high-to-low span and close for 45 baseline trading days · published values",
-    chartNote:
-      "Everything drawn here is a published value. No rank and no multiple has been computed yet; that is the rule's work, below.",
-    chartNoteAfterRun:
-      "The charts are unchanged by the run. What they draw is still published values alone; the rank and the multiples live in the result below.",
     thresholdOrigin:
       "These thresholds are not a standard. A person set them while authoring this case, with this session's observations already in view. The result below therefore prints each observed value beside its threshold, so you can see how narrow the margin is.",
     artifactHash: "Artifact hash",

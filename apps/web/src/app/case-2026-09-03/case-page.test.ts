@@ -5,11 +5,18 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import {
+  publishedCaseColumns,
   publishedCaseProposal,
   publishedCaseSeries,
 } from "../../lib/published-case";
 import { PublishedCaseSurface } from "./case-surface";
 import { caseCopy } from "./case-copy";
+import {
+  INTRADAY_HIGH,
+  INTRADAY_LOW,
+  INTRADAY_RETRIEVED_AT,
+  INTRADAY_SESSION,
+} from "./intraday-session";
 import { scaledPrice, verticalScale } from "./session-chart";
 
 /**
@@ -26,15 +33,13 @@ const decode = (markup: string) =>
 
 function surface(language: "ko" | "en") {
   const { proposal } = publishedCaseProposal();
-  const { spot, future, spotArtifactHash, futureArtifactHash } =
-    publishedCaseSeries();
+  const { spot, spotArtifactHash, futureArtifactHash } = publishedCaseSeries();
   return decode(
     renderToStaticMarkup(
       createElement(PublishedCaseSurface, {
+        columns: publishedCaseColumns(),
         proposal,
         spot,
-        future,
-        previousClose: spot.at(-2)!.close,
         spotArtifactHash,
         futureArtifactHash,
         language,
@@ -44,17 +49,14 @@ function surface(language: "ko" | "en") {
 }
 
 describe("the 2026-09-03 case surface", () => {
-  it("draws the analysed day from the committed published strings", () => {
+  it("prints the day's committed strings, not a reformatted version", () => {
     const markup = surface("ko");
-    const { spot, future } = publishedCaseSeries();
+    const { spot } = publishedCaseSeries();
     const day = spot.at(-1)!;
-    // Every figure on the chart is the artifact's own string, not a rounded or
-    // reformatted version of it.
-    for (const value of [day.open, day.high, day.low, day.close, day.netChange])
+    // The session chart marks the high, the low and the close; the scope and
+    // the observations carry the rest. All of them print the exact string.
+    for (const value of [day.high, day.low, day.close])
       expect(markup, value).toContain(value);
-    for (const value of [future.open, future.high, future.low, future.close])
-      expect(markup, value).toContain(value);
-    expect(markup).toContain(spot.at(-2)!.close);
   });
 
   it("computes no rank and no multiple before the rule has run", () => {
@@ -85,23 +87,6 @@ describe("the 2026-09-03 case surface", () => {
       // The disclosures about the data stay, because they are not a result.
       expect(markup, language).toContain(text.doesNotSayTitle);
     }
-  });
-
-  it("names the reversal and the net change in the chart's accessible name", () => {
-    const markup = surface("ko");
-    const { spot } = publishedCaseSeries();
-    const day = spot.at(-1)!;
-    const label = /aria-label="([^"]*코스피 200 · 2026-09-03[^"]*)"/.exec(
-      markup,
-    );
-    expect(label).not.toBeNull();
-    for (const value of [
-      day.high,
-      day.close,
-      day.netChange,
-      spot.at(-2)!.close,
-    ])
-      expect(label![1], value).toContain(value);
   });
 
   it("places every chart mark without floating point arithmetic on a price", () => {
@@ -181,13 +166,149 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
-  it("does not tell the reader a rank is still pending once it is not", () => {
-    const { chartNote, chartNoteAfterRun } = caseCopy.ko;
-    expect(chartNote).not.toBe(chartNoteAfterRun);
-    // Before the run the page says the rank is the rule's work still to come.
-    const markup = surface("ko");
-    expect(markup).toContain(chartNote);
-    expect(markup).not.toContain(chartNoteAfterRun);
+  it("numbers every chapter and says what it is for before its content", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const chapters = caseCopy[language].chapters;
+      expect(chapters, language).toHaveLength(6);
+      chapters.forEach((chapter, index) => {
+        expect(markup, chapter.title).toContain(chapter.title);
+        expect(markup, chapter.purpose).toContain(chapter.purpose);
+        expect(markup.indexOf(chapter.purpose), chapter.title).toBeGreaterThan(
+          markup.indexOf(`id="chapter-${index + 1}"`),
+        );
+      });
+    }
+  });
+
+  it("teaches both artifacts' column names, kept apart", () => {
+    const legs = publishedCaseColumns();
+    expect(legs.map(({ legId }) => legId)).toEqual([
+      "spot-index",
+      "front-future",
+    ]);
+    // The two artifacts identify their instrument differently, so a reader who
+    // saw only one table would read the second leg through the first's mapping.
+    const spot = legs[0]!.columns.map(({ sourceColumn }) => sourceColumn);
+    const future = legs[1]!.columns.map(({ sourceColumn }) => sourceColumn);
+    expect(spot).toContain("idxNm");
+    expect(future).toContain("isinCd");
+    expect(future).not.toContain("idxNm");
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const { columnGloss, legTableTitles } = caseCopy[language];
+      for (const leg of legs) {
+        expect(markup, leg.legId).toContain(legTableTitles[leg.legId]!);
+        for (const column of leg.columns) {
+          expect(markup, column.sourceColumn).toContain(column.sourceColumn);
+          expect(markup, column.targetField).toContain(column.targetField);
+        }
+      }
+      for (const column of ["mkp", "hipr", "lopr", "clpr", "vs", "isinCd"])
+        expect(columnGloss[column], `${language} ${column}`).toBeTruthy();
+    }
+  });
+
+  it("does not attribute the authored published mapping to a model", () => {
+    // These proposals are written by hand in the published-data package; no
+    // provider is invoked and no model trace is recorded for them.
+    for (const language of ["ko", "en"] as const) {
+      const chapter = caseCopy[language].chapters[1]!;
+      expect(chapter.purpose, language).toMatch(
+        /사람이 직접 작성|written and reviewed by a person/,
+      );
+      expect(chapter.purpose, language).not.toMatch(
+        /초안은 AI가 내고|A model drafts the join/,
+      );
+    }
+  });
+
+  it("asks for a run, not another approval, once the scope is approved", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.awaitingRun, language).not.toBe(text.runBlocked);
+      // Before any approval the page still asks for the approval.
+      expect(surface(language), language).toContain(text.runBlocked);
+    }
+  });
+
+  it("claims a row trace only for the values derived from a row", () => {
+    for (const language of ["ko", "en"] as const) {
+      const { did } = caseCopy[language];
+      const trace = did.find((line) => /원본 행|published row/.test(line));
+      expect(trace, language).toBeDefined();
+      // Thresholds, versions, the hash and the rank do not come from one row,
+      // and the sentence has to say so rather than sweep them in.
+      expect(trace!, language).toMatch(/기준값|thresholds/);
+      expect(trace!, language).toMatch(/순위|rank/);
+    }
+  });
+
+  it("states the procedure in the present tense until there is a result", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      // Nothing has been decided and no hash has been returned yet.
+      expect(markup, language).toContain(text.willDoTitle);
+      expect(markup, language).not.toContain(text.didTitle);
+      expect(text.did, language).toHaveLength(text.willDo.length);
+      expect(text.did[0], language).not.toBe(text.willDo[0]);
+    }
+  });
+
+  it("draws the session it says it draws, and keeps it out of the checks", () => {
+    // Presentation only: the series is never hashed, approved or read by a
+    // rule, and the note beside the chart has to say so.
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      expect(markup, language).toContain(text.intradayCaption);
+      expect(markup, language).toContain(text.intradayChartNote);
+      expect(text.intradayChartNote, language).toMatch(
+        /판단에는 쓰이지 않습니다|takes no part in the checks/,
+      );
+    }
+    // The three values the line reaches are the three the committed daily
+    // record carries, which is what lets the picture and the evidence agree.
+    const { spot } = publishedCaseSeries();
+    const day = spot.at(-1)!;
+    expect(INTRADAY_HIGH.value).toBe(day.high);
+    expect(INTRADAY_LOW.value).toBe(day.low);
+    expect(INTRADAY_SESSION.at(-1)!.close).toBe(day.close);
+    expect(INTRADAY_SESSION.length).toBeGreaterThan(300);
+  });
+
+  it("records how the intraday series was obtained and on what terms", () => {
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/intraday-session.ts",
+      ),
+      "utf8",
+    );
+    expect(source).toContain("PRESENTATION ONLY");
+    expect(source).toContain("Licence:   NOT GRANTED");
+    expect(source).toContain("scripts/retrieve-kpi200-intraday.mjs");
+    expect(source).toContain(INTRADAY_RETRIEVED_AT);
+  });
+
+  it("points at the intraday chart without taking anything from it", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      expect(markup, language).toContain(
+        "https://stock.naver.com/domestic/index/KPI200/price",
+      );
+      expect(markup, language).toContain(text.intradayNote);
+      // The note has to say the values stay out of the checks, because the
+      // page's whole argument is that nothing unattributed enters one.
+      expect(text.intradayNote, language).toMatch(
+        /재배포가 허용되지 않아|not redistributable/,
+      );
+      expect(text.intradayNote, language).toMatch(
+        /쓰이지 않습니다|take no part/,
+      );
+    }
   });
 
   it("carries the case into the rollback checklist", () => {
@@ -207,7 +328,14 @@ describe("the 2026-09-03 case surface", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    expect(navigation).toContain('["The 2026-09-03 case", "/case-2026-09-03"]');
-    expect(navigation).toContain('["9월 3일 사례", "/case-2026-09-03"]');
+    // Named for what happened rather than for a date, so a reader decides
+    // whether to open it from the entry rather than after arriving.
+    expect(navigation).toContain(
+      '["A fall and a recovery", "/case-2026-09-03"]',
+    );
+    expect(navigation).toContain(
+      '["하루 안의 급락과 회복", "/case-2026-09-03"]',
+    );
+    expect(navigation).not.toContain("9월 3일 사례");
   });
 });

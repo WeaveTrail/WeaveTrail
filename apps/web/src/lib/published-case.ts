@@ -338,3 +338,32 @@ export function publishedCaseSeries(): {
     futureArtifactHash: futures.sourceArtifactHash,
   };
 }
+
+export type PublishedColumn = {
+  sourceColumn: string;
+  targetField: string;
+};
+
+export type PublishedLegColumns = {
+  legId: "spot-index" | "front-future";
+  columns: PublishedColumn[];
+};
+
+/**
+ * The mapped columns of both artifacts, kept apart by leg. The two do not map
+ * the same way — the index identifies an instrument by `idxNm`, the future by
+ * `isinCd` — so one table would teach a reader to read the second leg through
+ * the first leg's mapping.
+ */
+export function publishedCaseColumns(): PublishedLegColumns[] {
+  const mapped = (proposal: SchemaMappingProposal): PublishedColumn[] =>
+    proposal.fields.flatMap((field) =>
+      field.targetField
+        ? [{ sourceColumn: field.sourceColumn, targetField: field.targetField }]
+        : [],
+    );
+  return [
+    { legId: "spot-index", columns: mapped(fscKospi200BaselineProposal) },
+    { legId: "front-future", columns: mapped(fscKospi200FuturesProposal) },
+  ];
+}

@@ -710,27 +710,47 @@ details.step-action > summary {
 }
 /* One surface, two named ways to use it. The choice states what each does and
    which one is running, so the modes are never two unexplained destinations. */
+/* One control, used the same way on both modes. Each option keeps its own
+   one-line meaning so the pair is legible without being opened, and both cells
+   are the same size so the control does not resize as the choice moves. */
 .mode-choice {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  gap: 0;
   margin-top: 16px;
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 .mode-choice a {
   display: grid;
+  align-content: start;
   gap: 4px;
-  padding: 10px 12px;
-  border: var(--hairline);
-  border-radius: var(--radius-md);
+  padding: 12px 14px;
   color: var(--text-body);
   text-decoration: none;
 }
+.mode-choice a + a {
+  box-shadow: inset 1px 0 0 var(--ledger-rule);
+}
+.mode-choice a:hover {
+  background: var(--surface-sunken);
+}
 .mode-choice a[aria-current="page"] {
-  border: var(--border-approved);
   background: var(--selected-bg);
+  box-shadow: inset 0 2px 0 var(--teal-700);
+}
+.mode-choice a + a[aria-current="page"] {
+  box-shadow:
+    inset 0 2px 0 var(--teal-700),
+    inset 1px 0 0 var(--ledger-rule);
+}
+.mode-choice strong {
+  color: var(--text-strong);
 }
 .mode-choice small {
   font: var(--type-small);
+  line-height: 1.6;
   color: var(--text-muted);
 }
 /* What the walkthrough is, before it starts: the shape of the thing, how long
@@ -764,16 +784,7 @@ details.step-action > summary {
   font: var(--type-body);
 }
 .guided-page .mode-choice {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-.guided-page .mode-choice a {
-  padding: 5px 10px;
-  font: var(--type-small);
-}
-.guided-page .mode-choice small {
-  display: none;
+  margin-top: 12px;
 }
 .component-chain span {
   display: block;
@@ -1169,6 +1180,137 @@ code {
   color: var(--text-muted);
   font: var(--type-small);
 }
+/* The published case reads as numbered chapters. The number sits in a gutter so
+   the eye can find its place while scrolling, the purpose line sits directly
+   under the title where a reader looks for "why am I seeing this", and the body
+   aligns with the title rather than the number. */
+.case-chapter {
+  padding-block: 40px;
+  border-top: var(--hairline);
+}
+.case-chapter:first-of-type {
+  border-top: 0;
+}
+.chapter-head {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: start;
+}
+.chapter-number {
+  font: var(--type-mono-lg);
+  font-size: var(--text-28);
+  line-height: 1.1;
+  color: var(--ledger-rule-strong);
+}
+.chapter-head h2 {
+  margin: 0;
+  font: var(--type-title);
+  line-height: 1.35;
+}
+.chapter-purpose {
+  max-width: var(--prose-max);
+  margin: 10px 0 0;
+  font: var(--type-body-lg);
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+.chapter-body {
+  margin-top: 24px;
+  padding-left: calc(3rem + 16px);
+}
+.chapter-body > p {
+  max-width: var(--prose-max);
+  line-height: 1.8;
+}
+.chapter-body > h3 {
+  margin-top: 28px;
+}
+.case-opening {
+  display: grid;
+  gap: 24px;
+  padding-block: 8px 32px;
+}
+.case-premise {
+  max-width: var(--prose-max);
+  padding: 16px 20px;
+  border-left: var(--rule-accent);
+  background: var(--surface-sunken);
+}
+.case-premise h2 {
+  margin: 0 0 8px;
+  font: var(--type-section);
+}
+.case-premise p {
+  margin: 8px 0 0;
+  line-height: 1.8;
+}
+.column-table {
+  width: 100%;
+  margin-block: 16px;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.column-table th,
+.column-table td {
+  padding: 10px 12px;
+  border-bottom: var(--hairline);
+  text-align: left;
+  vertical-align: top;
+}
+.column-table th {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--ledger-head);
+}
+.scope-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: 16px;
+  margin-block: 20px;
+}
+.scope-facts dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.scope-facts dd {
+  margin: 6px 0 0;
+  font: var(--type-mono);
+  color: var(--text-strong);
+}
+.awaiting-result {
+  padding: 20px;
+  border: 1px dashed var(--ledger-rule-strong);
+  color: var(--text-muted);
+}
+.case-says {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
+.case-says h3,
+.case-stop-grid h3 {
+  margin: 0;
+  font: var(--type-section);
+}
+.case-closing {
+  max-width: var(--prose-max);
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: var(--hairline);
+  font: var(--type-body-lg);
+  line-height: 1.85;
+  color: var(--text-strong);
+}
+.case-page .case-chapter ul {
+  line-height: 1.8;
+}
+
 /* The 2026-09-03 published case. Its charts draw committed published prices
    only; the rank and the multiples arrive from the rule, below them. Rising is
    red and falling is blue, as Korean market screens set them, and every mark
@@ -1206,6 +1348,138 @@ code {
   height: auto;
   margin-top: 12px;
   overflow: visible;
+}
+/* The one concrete thing on the entry screen. It sits directly under the hero,
+   where the page turns from what the product is to what it did, and it is the
+   only block on the page carrying a chart, so it reads as an object rather than
+   as more prose. */
+.event-teaser {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(22rem, 100%), 1fr));
+  gap: 32px;
+  align-items: center;
+  margin-block: 8px 40px;
+  padding: 32px;
+  border: var(--hairline);
+  border-left: 4px solid var(--teal-700);
+  background: var(--surface-card);
+}
+.event-kicker {
+  display: block;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--teal-800);
+}
+.event-teaser h2 {
+  margin: 10px 0 0;
+  font: var(--type-title);
+  line-height: 1.35;
+}
+.event-body {
+  max-width: var(--prose-max);
+  margin: 14px 0 0;
+  font: var(--type-body-lg);
+  line-height: 1.8;
+  color: var(--text-body);
+}
+.event-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(7rem, 45%), 1fr));
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 16px 0;
+  border-block: var(--hairline);
+}
+.event-stats dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.event-stats dd {
+  margin: 6px 0 0;
+  font: var(--type-mono-lg);
+  color: var(--text-strong);
+}
+.event-ask {
+  max-width: var(--prose-max);
+  margin: 20px 0 24px;
+  line-height: 1.8;
+  color: var(--text-body);
+}
+.event-figure {
+  min-width: 0;
+}
+
+/* The session path. Only the open and the close sit where the time axis says
+   they do; the reach to the high and the low is dashed because the daily record
+   does not say when it happened. */
+/* The intraday line. Filled below so the fall reads as a shape at a glance,
+   with the two extremes marked at the minute they happened. */
+.intraday-line {
+  fill: none;
+  stroke: var(--ink-900);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+}
+.intraday-area {
+  fill: var(--ink-700);
+  opacity: 0.06;
+  stroke: none;
+}
+.intraday-guide {
+  stroke: var(--ledger-rule-strong);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.intraday-mark {
+  fill: var(--red-600);
+}
+/* A pointer to where the minute-by-minute session can be seen, kept visibly
+   outside the evidence chain: nothing from it enters a check. */
+.intraday-reference {
+  display: grid;
+  gap: 6px;
+  max-width: var(--prose-max);
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px dashed var(--ledger-rule-strong);
+  font: var(--type-small);
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.intraday-reference a {
+  font-weight: var(--weight-semibold);
+}
+.column-block + .column-block {
+  margin-top: 28px;
+}
+.column-block h3 {
+  margin: 0;
+  font: var(--type-subhead);
+  color: var(--text-muted);
+}
+.session-point {
+  fill: var(--ink-900);
+}
+.session-leg[data-leg="1"] .session-path {
+  stroke: var(--teal-700);
+}
+.session-leg[data-leg="1"] .session-point {
+  fill: var(--teal-700);
+}
+.session-note {
+  max-width: var(--prose-max);
+  margin: 10px 0 0;
+  font: var(--type-small);
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.session-figure.compact {
+  padding: 0;
+  border: 0;
+  background: none;
 }
 .session-previous {
   stroke: var(--ledger-rule-strong);
@@ -1414,6 +1688,22 @@ code {
   }
   .guided-split > .journey-header .rail-scroll {
     overflow-y: visible;
+  }
+}
+@media (max-width: 48rem) {
+  /* The chapter gutter costs more than it gives once the measure is narrow. */
+  .chapter-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .chapter-number {
+    font-size: var(--text-18);
+  }
+  .chapter-body {
+    padding-left: 0;
+  }
+  .event-teaser {
+    padding: 24px 20px;
   }
 }
 @media (max-width: 40rem) {

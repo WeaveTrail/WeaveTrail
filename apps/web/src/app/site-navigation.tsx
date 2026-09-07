@@ -18,7 +18,7 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
       [
         ["Home", "/"],
         ["Walk through a case", "/replay"],
-        ["The 2026-09-03 case", "/case-2026-09-03"],
+        ["A fall and a recovery", "/case-2026-09-03"],
       ],
     ],
     [
@@ -38,7 +38,7 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
       [
         ["홈", "/"],
         ["사례 따라가기", "/replay"],
-        ["9월 3일 사례", "/case-2026-09-03"],
+        ["하루 안의 급락과 회복", "/case-2026-09-03"],
       ],
     ],
     [

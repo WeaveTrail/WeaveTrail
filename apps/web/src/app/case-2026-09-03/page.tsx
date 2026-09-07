@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React from "react";
 
 import {
+  publishedCaseColumns,
   publishedCaseProposal,
   publishedCaseSeries,
 } from "../../lib/published-case";
@@ -17,15 +18,13 @@ export const metadata: Metadata = {
 
 export default function PublishedCasePage() {
   const { proposal } = publishedCaseProposal();
-  const { spot, future, spotArtifactHash, futureArtifactHash } =
-    publishedCaseSeries();
+  const { spot, spotArtifactHash, futureArtifactHash } = publishedCaseSeries();
   return (
     <main className="shell page-shell case-page">
       <CaseHeading />
       <CaseBoundary
+        columns={publishedCaseColumns()}
         futureArtifactHash={futureArtifactHash}
-        future={future}
-        previousClose={spot.at(-2)!.close}
         proposal={proposal}
         spotArtifactHash={spotArtifactHash}
         spot={spot}

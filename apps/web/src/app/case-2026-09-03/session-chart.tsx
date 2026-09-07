@@ -60,163 +60,6 @@ export function verticalScale(
 }
 
 /**
- * One trading day drawn from its four published prices, with the previous
- * close beside them. The shape is the whole point: where the day opened, how
- * far it reached, how far it fell back, and where it finished against the day
- * before.
- */
-export function SessionDayChart({
-  caption,
-  day,
-  previousClose,
-  language,
-}: {
-  caption: string;
-  day: SessionDay;
-  /** Omitted where the artifact commits one trading day and no day before it. */
-  previousClose?: string;
-  language: Language;
-}) {
-  const top = 28;
-  const bottom = 196;
-  const y = verticalScale(
-    [
-      day.high,
-      day.low,
-      day.open,
-      day.close,
-      ...(previousClose ? [previousClose] : []),
-    ],
-    top,
-    bottom,
-  );
-  const rose = !day.netChange.startsWith("-");
-  const t = (en: string, ko: string) => (language === "ko" ? ko : en);
-  const label = {
-    open: t("Open", "시가"),
-    high: t("High", "고가"),
-    low: t("Low", "저가"),
-    close: t("Close", "종가"),
-    previous: t("Previous close", "전일 종가"),
-  };
-  return (
-    <figure className="session-figure">
-      <figcaption>{caption}</figcaption>
-      <svg
-        aria-label={[
-          caption,
-          `${label.open} ${day.open}`,
-          `${label.high} ${day.high}`,
-          `${label.low} ${day.low}`,
-          `${label.close} ${day.close}`,
-          ...(previousClose ? [`${label.previous} ${previousClose}`] : []),
-          // The page's claim rests on these two relations, so the accessible
-          // name carries them rather than the four prices alone.
-          t(
-            `the session ran from its high ${day.high} back down to its close ${day.close}`,
-            `장중 고가 ${day.high}에서 종가 ${day.close}까지 되돌렸습니다`,
-          ),
-          t(
-            `against the previous close it changed by ${day.netChange}`,
-            `전일 종가 대비 변화는 ${day.netChange}입니다`,
-          ),
-        ].join(". ")}
-        className="session-svg"
-        role="img"
-        viewBox="0 0 340 224"
-      >
-        {previousClose ? (
-          <>
-            <line
-              className="session-previous"
-              x1="16"
-              x2="324"
-              y1={y(previousClose)}
-              y2={y(previousClose)}
-            />
-            <text className="session-tick" x="16" y={y(previousClose) - 6}>
-              {label.previous} {previousClose}
-            </text>
-          </>
-        ) : null}
-        <line
-          className="session-range"
-          x1="150"
-          x2="150"
-          y1={y(day.high)}
-          y2={y(day.low)}
-        />
-        <line
-          className="session-mark"
-          x1="126"
-          x2="150"
-          y1={y(day.open)}
-          y2={y(day.open)}
-        />
-        <line
-          className="session-mark"
-          x1="150"
-          x2="174"
-          y1={y(day.close)}
-          y2={y(day.close)}
-        />
-        <text
-          className="session-value"
-          textAnchor="end"
-          x="120"
-          y={y(day.open) + 4}
-        >
-          {label.open} {day.open}
-        </text>
-        <text className="session-value" x="180" y={y(day.close) + 4}>
-          {label.close} {day.close}
-        </text>
-        <text
-          className="session-value"
-          textAnchor="middle"
-          x="150"
-          y={y(day.high) - 8}
-        >
-          {label.high} {day.high}
-        </text>
-        <text
-          className="session-value"
-          textAnchor="middle"
-          x="150"
-          y={y(day.low) + 16}
-        >
-          {label.low} {day.low}
-        </text>
-        <line
-          className="session-giveback"
-          x1="252"
-          x2="252"
-          y1={y(day.high)}
-          y2={y(day.close)}
-        />
-        <text
-          className="session-annotation"
-          data-direction="fall"
-          x="258"
-          y={(y(day.high) + y(day.close)) / 2}
-        >
-          {t("high to close", "고가 → 종가")}
-        </text>
-        <text
-          className="session-annotation"
-          data-direction={rose ? "rise" : "fall"}
-          textAnchor="end"
-          x="324"
-          y={y(day.close) + 4}
-        >
-          {t("vs previous close", "전일 대비")} {day.netChange}
-        </text>
-      </svg>
-    </figure>
-  );
-}
-
-/**
  * Every trading day in the approved baseline range, each drawn as its published
  * high-to-low span with a mark at its close. The analysed date is the only one
  * coloured; nothing here is ranked or scored, because ranking is the rule's
@@ -289,6 +132,134 @@ export function BaselineRangeChart({
           {readableDate(days[0]!.tradingDate)}
         </text>
       </svg>
+    </figure>
+  );
+}
+
+/**
+ * The session as it actually ran, minute by minute.
+ *
+ * Drawn from `intraday-session.ts`, which is presentation only: it is never
+ * hashed, approved or read by a rule. The three values this line reaches — the
+ * high, the low and the close — are the same three the committed daily record
+ * carries, which is why the picture and the evidence below agree without the
+ * picture being evidence.
+ */
+export function IntradaySessionChart({
+  caption,
+  note,
+  points,
+  low,
+  high,
+  labels,
+  compact = false,
+}: {
+  caption?: string;
+  note?: string;
+  points: readonly { time: string; close: string }[];
+  low: { time: string; value: string };
+  high: { time: string; value: string };
+  labels: { low: string; high: string; close: string };
+  compact?: boolean;
+}) {
+  const width = 720;
+  const top = compact ? 18 : 34;
+  const bottom = compact ? 120 : 178;
+  const left = 8;
+  const right = width - (compact ? 8 : 128);
+  const y = verticalScale(
+    points.map(({ close }) => close),
+    top,
+    bottom,
+  );
+  const step = (right - left) / Math.max(points.length - 1, 1);
+  const at = (index: number) => left + index * step;
+  const line = points
+    .map(
+      ({ close }, index) =>
+        `${index === 0 ? "M" : "L"} ${at(index).toFixed(1)} ${y(close).toFixed(1)}`,
+    )
+    .join(" ");
+  const area = `${line} L ${at(points.length - 1).toFixed(1)} ${bottom} L ${left} ${bottom} Z`;
+  const indexOf = (time: string) =>
+    points.findIndex((point) => point.time === time);
+  const last = points[points.length - 1]!;
+  const marks = [
+    {
+      at: indexOf(high.time),
+      value: high.value,
+      label: labels.high,
+      time: high.time,
+      place: -14,
+    },
+    {
+      at: indexOf(low.time),
+      value: low.value,
+      label: labels.low,
+      time: low.time,
+      place: 22,
+    },
+  ];
+  return (
+    <figure className={compact ? "session-figure compact" : "session-figure"}>
+      {caption ? <figcaption>{caption}</figcaption> : null}
+      <svg
+        aria-label={`${caption ?? ""} ${labels.high} ${high.value} ${high.time}. ${labels.low} ${low.value} ${low.time}. ${labels.close} ${last.close} ${last.time}.`}
+        className="session-svg"
+        role="img"
+        viewBox={`0 0 ${width} ${compact ? 138 : 210}`}
+      >
+        <path className="intraday-area" d={area} />
+        <path className="intraday-line" d={line} />
+        {marks.map((mark) =>
+          mark.at < 0 ? null : (
+            <g key={mark.label}>
+              <line
+                className="intraday-guide"
+                x1={at(mark.at)}
+                x2={at(mark.at)}
+                y1={y(mark.value)}
+                y2={bottom}
+              />
+              <circle
+                className="intraday-mark"
+                cx={at(mark.at)}
+                cy={y(mark.value)}
+                r={compact ? 3 : 4.5}
+              />
+              {/* The two extremes are the point of the chart, so they are
+                  named in both forms rather than left as bare marks. */}
+              <text
+                className="session-value"
+                textAnchor="middle"
+                x={at(mark.at)}
+                y={y(mark.value) + mark.place}
+              >
+                {mark.label} {mark.value} · {mark.time}
+              </text>
+            </g>
+          ),
+        )}
+        {compact ? null : (
+          <>
+            <text className="session-value" x={right + 8} y={y(last.close) + 4}>
+              {labels.close} {last.close}
+            </text>
+            <text className="session-tick" x={left} y={bottom + 22}>
+              {points[0]!.time}
+            </text>
+            <text
+              className="session-tick"
+              textAnchor="end"
+              x={right}
+              y={bottom + 22}
+            >
+              {last.time}
+            </text>
+          </>
+        )}
+      </svg>
+      {note ? <p className="session-note">{note}</p> : null}
     </figure>
   );
 }
