@@ -375,14 +375,22 @@ export function PublishedCaseSurface({
       <section className="panel case-stop">
         <h2>{text.stopTitle}</h2>
         <div className="case-stop-grid">
-          <div>
-            <h3>{text.saysTitle}</h3>
-            <ul>
-              {text.says.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          </div>
+          {/* What the result says is itself rule output, read from the returned
+              analysis, so it appears only once the rule has returned one. What
+              it does not say is a disclosure about the data, and stands before
+              the visitor commits to anything. */}
+          {analysis ? (
+            <div>
+              <h3>{text.saysTitle}</h3>
+              <ul>
+                {text
+                  .says(analysis.rank.position, analysis.rank.populationSize)
+                  .map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+              </ul>
+            </div>
+          ) : null}
           <div>
             <h3>{text.doesNotSayTitle}</h3>
             <ul>

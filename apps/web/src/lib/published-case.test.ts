@@ -1,13 +1,23 @@
 import { describe, expect, it } from "vitest";
 
-import { sha256Canonical } from "@weavetrail/replay-engine";
+import {
+  mappingApprovalArtifact,
+  sha256Canonical,
+} from "@weavetrail/replay-engine";
+import {
+  fscKospi200BaselineProposal,
+  fscKospi200FuturesProposal,
+} from "@weavetrail/published-data";
 
 import {
   ANALYSED_DATE,
+  PublishedCaseReviewRequired,
   publishedCaseProposal,
   publishedCaseSeries,
   replayPublishedCase,
+  reviewedMappingApproval,
 } from "./published-case";
+import { REVIEWED_MAPPING_APPROVALS } from "./published-case-approvals";
 
 function approvalFor(hash: string) {
   return {
@@ -94,5 +104,39 @@ describe("the published 2026-09-03 case", () => {
       close: "1030",
       netChange: ".85",
     });
+  });
+});
+
+describe("the reviewed published mappings", () => {
+  it("still cover the proposals the package exports", () => {
+    // This is the drift detector. A published mapping that changes makes this
+    // fail rather than letting the application hash the new proposal and
+    // approve it in the same breath.
+    for (const [proposal, approval] of [
+      [fscKospi200BaselineProposal, REVIEWED_MAPPING_APPROVALS.baseline],
+      [fscKospi200FuturesProposal, REVIEWED_MAPPING_APPROVALS.futures],
+    ] as const)
+      expect(sha256Canonical(mappingApprovalArtifact(proposal))).toBe(
+        approval.approvedArtifactHash,
+      );
+  });
+
+  it("fails closed when a committed approval no longer covers its proposal", () => {
+    expect(() =>
+      reviewedMappingApproval("baseline", fscKospi200BaselineProposal, {
+        ...REVIEWED_MAPPING_APPROVALS.baseline,
+        approvedArtifactHash: "0".repeat(64),
+      }),
+    ).toThrowError(PublishedCaseReviewRequired);
+  });
+
+  it("records reviewer reasons rather than repeating the proposal's evidence", () => {
+    // The reasons are committed, so they stay what a person wrote even if the
+    // proposal's own evidence text is later changed.
+    for (const approval of Object.values(REVIEWED_MAPPING_APPROVALS)) {
+      expect(approval.overrides.length).toBeGreaterThan(0);
+      for (const override of approval.overrides)
+        expect(override.reason.trim().length).toBeGreaterThan(0);
+    }
   });
 });

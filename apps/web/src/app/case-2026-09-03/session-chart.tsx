@@ -5,30 +5,58 @@ import type { SessionDay } from "../../lib/published-case";
 
 /**
  * Every value drawn here is a committed published price, read from the source
- * artifact. Floating point is used for pixel geometry only: no displayed value,
- * comparison or threshold is computed from these numbers, and every label below
- * prints the exact committed string.
+ * artifact and printed beside its mark as the exact committed string.
+ *
+ * No price is ever converted to binary floating point. Each decimal string is
+ * parsed to a scaled integer at one common scale, and the span, the padding and
+ * the offset are all computed in that integer space. The single division is the
+ * last step, on the unitless fraction an SVG coordinate needs, after every
+ * price arithmetic is done.
  */
-const px = (value: string) => Number.parseFloat(value);
+const DECIMAL_SCALE = 6n;
+
+export function scaledPrice(value: string): bigint {
+  const negative = value.startsWith("-");
+  const [whole = "", fraction = ""] = value.replace("-", "").split(".");
+  const padded = `${fraction}${"0".repeat(Number(DECIMAL_SCALE))}`.slice(
+    0,
+    Number(DECIMAL_SCALE),
+  );
+  const magnitude = BigInt(`${whole === "" ? "0" : whole}${padded}`);
+  return negative ? -magnitude : magnitude;
+}
 
 const readableDate = (compact: string) =>
   `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
 
 type Scale = (value: string) => number;
 
-function verticalScale(
+/** Ratio precision for the one division; well inside a double's exact range. */
+const RATIO_UNITS = 1_000_000n;
+
+export function verticalScale(
   values: readonly string[],
   top: number,
   bottom: number,
 ): Scale {
-  const numbers = values.map(px);
-  const low = Math.min(...numbers);
-  const high = Math.max(...numbers);
-  const span = high - low || 1;
-  const pad = span * 0.12;
-  const min = low - pad;
-  const max = high + pad;
-  return (value) => bottom - ((px(value) - min) / (max - min)) * (bottom - top);
+  const scaled = values.map(scaledPrice);
+  let low = scaled[0]!;
+  let high = scaled[0]!;
+  for (const value of scaled) {
+    if (value < low) low = value;
+    if (value > high) high = value;
+  }
+  const span = high - low;
+  const padding = span === 0n ? 1n : (span * 12n) / 100n;
+  const minimum = low - padding;
+  const range = high + padding - minimum;
+  const height = bottom - top;
+  return (value) => {
+    const offset = scaledPrice(value) - minimum;
+    const fraction =
+      Number((offset * RATIO_UNITS) / range) / Number(RATIO_UNITS);
+    return bottom - fraction * height;
+  };
 }
 
 /**
@@ -75,7 +103,24 @@ export function SessionDayChart({
     <figure className="session-figure">
       <figcaption>{caption}</figcaption>
       <svg
-        aria-label={`${caption}: ${label.open} ${day.open}, ${label.high} ${day.high}, ${label.low} ${day.low}, ${label.close} ${day.close}`}
+        aria-label={[
+          caption,
+          `${label.open} ${day.open}`,
+          `${label.high} ${day.high}`,
+          `${label.low} ${day.low}`,
+          `${label.close} ${day.close}`,
+          ...(previousClose ? [`${label.previous} ${previousClose}`] : []),
+          // The page's claim rests on these two relations, so the accessible
+          // name carries them rather than the four prices alone.
+          t(
+            `the session ran from its high ${day.high} back down to its close ${day.close}`,
+            `장중 고가 ${day.high}에서 종가 ${day.close}까지 되돌렸습니다`,
+          ),
+          t(
+            `against the previous close it changed by ${day.netChange}`,
+            `전일 종가 대비 변화는 ${day.netChange}입니다`,
+          ),
+        ].join(". ")}
         className="session-svg"
         role="img"
         viewBox="0 0 340 224"

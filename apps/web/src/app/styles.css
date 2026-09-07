@@ -1183,7 +1183,9 @@ code {
 }
 .case-day-pair {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  /* The track floor is capped at the container width, so the charts reflow
+     instead of overflowing a 288px shell on a 320px screen. */
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
   gap: 16px;
 }
 .session-figure {
@@ -1273,7 +1275,7 @@ code {
 }
 .case-legs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
   gap: 12px;
   margin-block: 16px;
 }
@@ -1292,7 +1294,7 @@ code {
 }
 .case-observations {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
   gap: 16px;
 }
 .case-observation {
@@ -1315,7 +1317,7 @@ code {
 }
 .case-stop-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
   gap: 24px;
 }
 .case-stop-grid ul {

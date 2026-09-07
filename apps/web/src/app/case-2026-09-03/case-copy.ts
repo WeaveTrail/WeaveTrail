@@ -46,7 +46,9 @@ export type CaseCopy = {
   evidenceLede: string;
   stopTitle: string;
   saysTitle: string;
-  says: readonly string[];
+  /** Read from the returned analysis: these sentences are rule output, so they
+   *  cannot be written down ahead of the run. */
+  says: (position: string, population: string) => readonly string[];
   doesNotSayTitle: string;
   doesNotSay: readonly string[];
   dayCaptionSpot: string;
@@ -142,8 +144,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "각 판단이 참조한 기록을, 공개 자료의 원래 행과 열 값까지 그대로 펼쳐 봅니다.",
     stopTitle: "여기서 멈춥니다",
     saysTitle: "이 결과가 말하는 것",
-    says: [
-      "승인된 기간과 규칙 1.0 안에서, 2026-09-03은 현물 지수의 되돌림 배수가 45거래일 중 가장 큰 날이었습니다.",
+    says: (position, population) => [
+      `승인된 기간과 규칙 1.0 안에서, 2026-09-03은 현물 지수의 되돌림 배수가 기준선 ${population}거래일 가운데 ${position}번째였습니다.`,
       "그날 현물과 선물 모두, 전일 대비로는 올랐지만 그날 안에서는 시가보다 낮게 끝났습니다.",
       "위 문장은 모두 커밋된 공개 값에서 다시 계산할 수 있고, 결과 해시로 재현을 확인할 수 있습니다.",
     ],
@@ -247,8 +249,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "Every record a check referenced, opened back to the published row and its original column values.",
     stopTitle: "This is where it stops",
     saysTitle: "What this result says",
-    says: [
-      "Within the approved range and rule 1.0, 2026-09-03 had the largest reversal multiple of the 45 trading days for the spot index.",
+    says: (position, population) => [
+      `Within the approved range and rule 1.0, 2026-09-03 sits at position ${position} of the ${population} baseline trading days by the spot index's reversal multiple.`,
       "On that date both the spot index and the front-month future closed above the previous day yet below their own open.",
       "Every sentence above can be recomputed from the committed published values, and the result hash checks that recomputation.",
     ],

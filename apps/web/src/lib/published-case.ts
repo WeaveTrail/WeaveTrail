@@ -1,7 +1,6 @@
 import {
   CaseManifestV14ProposalSchema,
   CaseManifestV14Schema,
-  requiresMappingOverride,
   type ApprovalRecord,
   type CaseManifestV14,
   type CaseManifestV14Proposal,
@@ -24,6 +23,8 @@ import {
   publishedReplaySources,
 } from "@weavetrail/published-data";
 
+import { REVIEWED_MAPPING_APPROVALS } from "./published-case-approvals";
+
 /**
  * One authored case over committed, licensed published artifacts: the KOSPI 200
  * index and its front-month future on 2026-09-03, against the index's own
@@ -42,40 +43,64 @@ const BASELINE_KEY =
 const FUTURES_KEY = "real/fsc-kospi-200-futures-20260903/source.jsonl" as const;
 
 const legSources = [
-  { key: BASELINE_KEY, proposal: fscKospi200BaselineProposal },
-  { key: FUTURES_KEY, proposal: fscKospi200FuturesProposal },
+  {
+    key: BASELINE_KEY,
+    proposal: fscKospi200BaselineProposal,
+    approval: REVIEWED_MAPPING_APPROVALS.baseline,
+  },
+  {
+    key: FUTURES_KEY,
+    proposal: fscKospi200FuturesProposal,
+    approval: REVIEWED_MAPPING_APPROVALS.futures,
+  },
 ] as const;
 
+/** A published input that no longer matches what a person reviewed. */
+export class PublishedCaseReviewRequired extends Error {
+  constructor(
+    readonly code: "MAPPING_REVIEW_REQUIRED",
+    message: string,
+  ) {
+    super(message);
+    this.name = "PublishedCaseReviewRequired";
+  }
+}
+
 /**
- * The two published mappings were reviewed once and their reviewer reasons are
- * the evidence the proposal itself recorded, exactly as the committed golden
- * result pins them. The page says so rather than presenting them as something
- * the visitor approved.
+ * The two published mappings were reviewed once and their approval records are
+ * committed in `published-case-approvals.ts`. The page says so rather than
+ * presenting them as something the visitor approved.
  */
 export const MAPPING_REVIEWER_REF = "published-golden-mapping-reviewer";
 
-function mappingApproval(proposal: SchemaMappingProposal): ApprovalRecord {
-  return {
-    approvedArtifactHash: sha256Canonical(mappingApprovalArtifact(proposal)),
-    reviewerRef: MAPPING_REVIEWER_REF,
-    decision: "APPROVED",
-    approvedAt: "2026-09-07T00:00:00Z",
-    overrides: proposal.fields.flatMap((field, index) =>
-      requiresMappingOverride(field)
-        ? [{ fieldPath: `fields.${index}`, reason: field.evidence }]
-        : [],
-    ),
-  };
+/**
+ * Returns the committed approval only while it still covers the proposal the
+ * package exports. A changed published mapping fails closed here, which is the
+ * review stop the approval boundary exists to produce; minting a fresh hash
+ * over the new proposal would let the change authorize itself.
+ */
+export function reviewedMappingApproval(
+  key: string,
+  proposal: SchemaMappingProposal,
+  approval: ApprovalRecord,
+): ApprovalRecord {
+  const current = sha256Canonical(mappingApprovalArtifact(proposal));
+  if (current !== approval.approvedArtifactHash)
+    throw new PublishedCaseReviewRequired(
+      "MAPPING_REVIEW_REQUIRED",
+      `The committed mapping approval for ${key} does not cover the current proposal. Review the mapping again before this case runs.`,
+    );
+  return approval;
 }
 
 function normalizedEvents(): TradeEvent[] {
-  return legSources.flatMap(({ key, proposal }) => {
+  return legSources.flatMap(({ key, proposal, approval }) => {
     const source = publishedReplaySources[key];
     const replay = replayApproved(
       source.rows,
       source.rows,
       proposal,
-      mappingApproval(proposal),
+      reviewedMappingApproval(key, proposal, approval),
       undefined,
     );
     if (!("events" in replay))

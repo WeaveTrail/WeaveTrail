@@ -2,7 +2,10 @@ import { ApprovalRecordSchema } from "@weavetrail/contracts";
 import { CrossMarketRuleError } from "@weavetrail/replay-engine";
 import { NextResponse } from "next/server";
 
-import { replayPublishedCase } from "../../../lib/published-case";
+import {
+  PublishedCaseReviewRequired,
+  replayPublishedCase,
+} from "../../../lib/published-case";
 
 export const runtime = "nodejs";
 
@@ -30,6 +33,15 @@ export async function POST(request: Request) {
   try {
     return NextResponse.json(replayPublishedCase(parsed.data));
   } catch (error) {
+    if (error instanceof PublishedCaseReviewRequired)
+      return NextResponse.json(
+        {
+          state: "MAPPING_REVIEW_REQUIRED",
+          code: error.code,
+          message: error.message,
+        },
+        { status: 422 },
+      );
     if (error instanceof CrossMarketRuleError)
       return NextResponse.json(
         {

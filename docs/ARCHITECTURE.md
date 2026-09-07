@@ -67,8 +67,18 @@ hash does not cover it. `CROSS_MARKET_SESSION_REVERSAL` 1.0 then returns the
 rank within the approved baseline, each leg's session reversal and multiple, and
 a canonical result hash pinned by both `apps/web/src/lib/published-case.test.ts`
 and the engine suite. The two published field mappings were reviewed once and
-are recorded in the repository; the page says so rather than presenting them as
-the visitor's own approval. Candidate selection is
+their approval records, approved artifact hash included, are committed in
+`apps/web/src/lib/published-case-approvals.ts`; the application verifies the
+current proposal against those pins and fails closed with a mapping review stop
+when they differ, so a changed mapping reaches review instead of authorizing
+itself. The page says the mappings were reviewed rather than presenting them as
+the visitor's own approval. Nothing the rule returns — the rank, either
+multiple, the result or its hash — is written into page copy: the closing
+statement of what the result says is read from the returned analysis, so it
+cannot appear before the run or drift from it. Chart geometry parses every
+published price to a scaled integer and divides once, on the unitless fraction
+a coordinate needs, so no price reaches binary floating point. Candidate
+selection is
 `STATED_DATE_ONLY_NO_CANDIDATE_SCAN`: the date is stated by a person and the
 rule evaluates that date alone.
 
