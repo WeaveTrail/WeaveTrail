@@ -10,6 +10,7 @@ import {
   publishedCaseSeries,
 } from "../../lib/published-case";
 import {
+  PUBLISHED_CASE_APPROVAL_ERROR_ID,
   PUBLISHED_CASE_RUN_ERROR_ID,
   PUBLISHED_CASE_THRESHOLD_ORIGIN_ID,
   PublishedCaseSurface,
@@ -491,6 +492,34 @@ describe("the 2026-09-03 case surface", () => {
       createElement(ThresholdOriginReference, { label: "origin" }),
     );
     expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
+  });
+
+  it("shows each refusal in the chapter whose control produced it", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Approval and the run refuse from controls two chapters apart. One shared
+    // error could only be rendered in one of them, so the other chapter's
+    // failure would leave the reader with an unchanged control and no alert.
+    const approveChapter = surfaceSource.indexOf("case-approve");
+    const runChapter = surfaceSource.indexOf("run-button");
+    const approvalAlert = surfaceSource.indexOf(
+      "id={PUBLISHED_CASE_APPROVAL_ERROR_ID}",
+    );
+    const runAlert = surfaceSource.indexOf("id={PUBLISHED_CASE_RUN_ERROR_ID}");
+    expect(approveChapter).toBeGreaterThan(-1);
+    expect(approvalAlert).toBeGreaterThan(approveChapter);
+    expect(approvalAlert).toBeLessThan(runChapter);
+    expect(runAlert).toBeGreaterThan(runChapter);
+    // Neither refusal is reachable through the other's state.
+    expect(surfaceSource).not.toContain("setError(");
+    expect(PUBLISHED_CASE_APPROVAL_ERROR_ID).not.toBe(
+      PUBLISHED_CASE_RUN_ERROR_ID,
+    );
   });
 
   it("gives a refused run an identity that can be returned to", () => {

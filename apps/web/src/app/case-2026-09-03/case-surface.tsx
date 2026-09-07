@@ -77,6 +77,8 @@ type Rule = Extract<
 export const PUBLISHED_CASE_THRESHOLD_ORIGIN_ID =
   "published-case-threshold-origin";
 
+export const PUBLISHED_CASE_APPROVAL_ERROR_ID = "published-case-approval-error";
+
 export const PUBLISHED_CASE_RUN_ERROR_ID = "published-case-run-error";
 
 /** The chapter holding this element, by position, or null when it is in none. */
@@ -141,7 +143,12 @@ export function PublishedCaseSurface({
   const [approval, setApproval] = useState<ApprovalRecord | null>(null);
   const [result, setResult] = useState<PublishedCaseReplay | null>(null);
   const [running, setRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Approval and the run refuse in different chapters, so each keeps its own
+  // refusal and renders it beside the control that produced it. A single
+  // shared error could only be rendered in one place, and the other chapter's
+  // failure would be silent.
+  const [approvalError, setApprovalError] = useState<string | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
   // The case is a procedure, so it is read one chapter at a time. Every
   // chapter stays in the document and the inactive ones are `hidden`, which
   // keeps the whole case in the served markup for a reader without scripting
@@ -198,10 +205,13 @@ export function PublishedCaseSurface({
 
   async function approveScope() {
     setResult(null);
-    setError(null);
+    setRunError(null);
+    setApprovalError(null);
     const attempt = await attemptApproval(proposal);
     setApproval(attempt.approval);
-    setError(attempt.error);
+    // Approving is chapter 3's own step and its control is only offered there,
+    // so a refusal is already in front of the reader and needs no navigation.
+    setApprovalError(attempt.error);
   }
 
   async function runCase() {
@@ -212,7 +222,7 @@ export function PublishedCaseSurface({
     // where it is neither shown nor announced.
     const startedIn = activeChapter;
     setRunning(true);
-    setError(null);
+    setRunError(null);
     try {
       const response = await fetch("/api/case-2026-09-03", {
         method: "POST",
@@ -222,14 +232,14 @@ export function PublishedCaseSurface({
       const body = await response.json();
       if (!response.ok) {
         setResult(null);
-        setError(`${body.code ?? "CASE_REVIEW_REQUIRED"} · ${body.message}`);
+        setRunError(`${body.code ?? "CASE_REVIEW_REQUIRED"} · ${body.message}`);
         setActiveChapter(startedIn);
         return;
       }
       setResult(body as PublishedCaseReplay);
     } catch {
       setResult(null);
-      setError("REPLAY_REFUSED");
+      setRunError("REPLAY_REFUSED");
       setActiveChapter(startedIn);
     } finally {
       setRunning(false);
@@ -460,6 +470,16 @@ export function PublishedCaseSurface({
           >
             {approval === null ? text.approve : text.approved}
           </button>
+          {approvalError && (
+            <p
+              className="error-message"
+              id={PUBLISHED_CASE_APPROVAL_ERROR_ID}
+              role="alert"
+              tabIndex={-1}
+            >
+              {approvalError}
+            </p>
+          )}
           {approval && (
             <dl className="approval-receipt">
               <div>
@@ -502,14 +522,14 @@ export function PublishedCaseSurface({
           {approval === null && (
             <p className="step-requirement">{text.runBlocked}</p>
           )}
-          {error && (
+          {runError && (
             <p
               className="error-message"
               id={PUBLISHED_CASE_RUN_ERROR_ID}
               role="alert"
               tabIndex={-1}
             >
-              {error}
+              {runError}
             </p>
           )}
         </Chapter>
