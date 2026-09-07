@@ -45,9 +45,9 @@ with `BOTH_METRICS_ZERO` rather than an invented quotient.
 Every declared denominator must resolve for the analysed observation, and the
 approved denominator must resolve for every baseline observation used by the
 rank. A missing event field returns `INCONCLUSIVE` with
-`DECLARED_DENOMINATOR_FIELD_ABSENT`; a resolved zero returns
-`ZERO_DECLARED_DENOMINATOR`. An inconclusive `1.1` result has null sensitivity,
-empty findings and null analysis.
+`DECLARED_DENOMINATOR_FIELD_ABSENT`; a resolved zero or negative value returns
+`NON_POSITIVE_DECLARED_DENOMINATOR`. An inconclusive `1.1` result has null
+sensitivity, empty findings and null analysis.
 
 ## Consequences
 

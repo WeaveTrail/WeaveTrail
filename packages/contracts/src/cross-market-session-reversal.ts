@@ -15,7 +15,7 @@ export const CrossMarketSessionReversalGateSchema = z.enum([
   "AGREEING_LEGS",
 ]);
 
-export const CrossMarketSessionReversalInconclusiveReasonSchema = z.enum([
+const CrossMarketSessionReversalV10InconclusiveReasonSchema = z.enum([
   "EMPTY_BASELINE",
   "INSUFFICIENT_BASELINE_POPULATION",
   "ANALYSED_DATE_OUTSIDE_BASELINE_RANGE",
@@ -25,8 +25,12 @@ export const CrossMarketSessionReversalInconclusiveReasonSchema = z.enum([
   "INCOMPLETE_DAILY_QUOTE",
   "INVALID_DAILY_QUOTE_RANGE",
   "ZERO_NET_CHANGE",
+]);
+
+export const CrossMarketSessionReversalInconclusiveReasonSchema = z.enum([
+  ...CrossMarketSessionReversalV10InconclusiveReasonSchema.options,
   "DECLARED_DENOMINATOR_FIELD_ABSENT",
-  "ZERO_DECLARED_DENOMINATOR",
+  "NON_POSITIVE_DECLARED_DENOMINATOR",
 ]);
 
 export const CrossMarketSessionReversalFindingSchema = z
@@ -176,7 +180,7 @@ export const CrossMarketSessionReversalResultV10Schema = z.discriminatedUnion(
       .object({
         ...ResultFieldsV10,
         result: z.literal("INCONCLUSIVE"),
-        reason: CrossMarketSessionReversalInconclusiveReasonSchema,
+        reason: CrossMarketSessionReversalV10InconclusiveReasonSchema,
         findings: z.array(CrossMarketSessionReversalFindingSchema).length(0),
         analysis: z.null(),
       })

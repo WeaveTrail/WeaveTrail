@@ -199,9 +199,9 @@ function eventDenominatorValue(
     return parseScaledDecimal(denominator.source.value);
   }
   const value = event[denominator.source.field];
-  return typeof value === "string"
-    ? absolute(parseScaledDecimal(value))
-    : undefined;
+  if (typeof value !== "string") return undefined;
+  const parsed = parseScaledDecimal(value);
+  return denominator.source.field === "netChange" ? absolute(parsed) : parsed;
 }
 
 function approvedDenominator(leg: Leg | LegV11): Denominator | undefined {
@@ -216,12 +216,12 @@ function denominatorIssue(
   denominator: Denominator,
 ):
   | "DECLARED_DENOMINATOR_FIELD_ABSENT"
-  | "ZERO_DECLARED_DENOMINATOR"
+  | "NON_POSITIVE_DECLARED_DENOMINATOR"
   | undefined {
   const value = eventDenominatorValue(event, denominator);
   if (value === undefined) return "DECLARED_DENOMINATOR_FIELD_ABSENT";
-  return compareScaledDecimals(value, ZERO) === 0
-    ? "ZERO_DECLARED_DENOMINATOR"
+  return compareScaledDecimals(value, ZERO) <= 0
+    ? "NON_POSITIVE_DECLARED_DENOMINATOR"
     : undefined;
 }
 
@@ -242,7 +242,7 @@ function deriveObservation(
       : eventDenominatorValue(event, denominator);
   if (
     denominatorValue === undefined ||
-    compareScaledDecimals(denominatorValue, ZERO) === 0
+    compareScaledDecimals(denominatorValue, ZERO) <= 0
   )
     return undefined;
 

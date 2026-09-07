@@ -611,7 +611,8 @@ metrics, their ratio, denominator values and meanings under the shared
 `MECHANICAL_METRIC_COMPARISON` marker. A minimum price increment is labelled
 `INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL`; an inline
 approved value also retains its provenance. Missing declared event fields and
-zero denominators fail closed as `INCONCLUSIVE`, whose sensitivity is null.
+non-positive denominators fail closed as `INCONCLUSIVE`, whose sensitivity is
+null.
 
 Version `1.0` remains accepted with its existing engine version and hashes.
 Strict consumers opt into `1.1`, add the denominator declarations to every leg,

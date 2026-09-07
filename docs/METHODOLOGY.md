@@ -421,8 +421,9 @@ marks a denominator that is an instrument specification rather than a price a
 trade established. A declared value must retain provenance in the approved
 rule configuration and returned comparison. If a declared event field is
 absent, the rule returns `DECLARED_DENOMINATOR_FIELD_ABSENT`; if a resolved
-denominator is zero, it returns `ZERO_DECLARED_DENOMINATOR`. Both are
-`INCONCLUSIVE`, with empty findings, null analysis and null sensitivity.
+denominator is zero or negative, it returns
+`NON_POSITIVE_DECLARED_DENOMINATOR`. Both are `INCONCLUSIVE`, with empty
+findings, null analysis and null sensitivity.
 
 Migration is explicit: a `1.0` consumer that opts into `1.1` must add
 `approvedDenominatorId` and `denominators` to each leg and accept the versioned

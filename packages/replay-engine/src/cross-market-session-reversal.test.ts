@@ -460,6 +460,23 @@ describe("cross-market session reversal", () => {
     });
   });
 
+  it("fails closed instead of taking the magnitude of a negative price-level denominator", () => {
+    const events = crossMarketSessionReversalSpecimens.supported.events.map(
+      (event) => ({ ...event, price: "-0.5" }),
+    );
+    expect(
+      evaluateCrossMarketSessionReversal(
+        events,
+        sensitivityManifest(events, "published-net-change", "price"),
+      ),
+    ).toMatchObject({
+      ruleVersion: "1.1",
+      result: "INCONCLUSIVE",
+      reason: "NON_POSITIVE_DECLARED_DENOMINATOR",
+      sensitivity: null,
+    });
+  });
+
   it("reports a failed leg gate even when the configured quorum supports the pattern", () => {
     const specimen = crossMarketSessionReversalSpecimens.notSupported;
     const result = evaluateCrossMarketSessionReversal(

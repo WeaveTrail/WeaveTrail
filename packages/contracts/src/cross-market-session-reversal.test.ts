@@ -185,4 +185,22 @@ describe("cross-market session reversal contracts", () => {
       }),
     ).not.toHaveProperty("sensitivity.comparison");
   });
+
+  it("rejects denominator-specific abstention reasons from the 1.0 result branch", () => {
+    for (const reason of [
+      "DECLARED_DENOMINATOR_FIELD_ABSENT",
+      "NON_POSITIVE_DECLARED_DENOMINATOR",
+    ]) {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse({
+          ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+          ruleVersion: "1.0",
+          result: "INCONCLUSIVE",
+          reason,
+          findings: [],
+          analysis: null,
+        }).success,
+      ).toBe(false);
+    }
+  });
 });
