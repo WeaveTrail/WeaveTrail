@@ -73,7 +73,7 @@ and the futures contract on it gave back roughly twenty-five times. Nothing in a
 closing price says so. Suppose someone hands you the date and asks whether it is
 worth a second look.
 
-![One day re-derived from published records: the published prices for the index and its futures contract, the day and period a person fixes before anything runs, and what the versioned rule returned — each observed value beside the threshold it was compared with, and a note that the thresholds were chosen by someone who had already seen the day](docs/assets/worked-case.svg)
+![One day re-derived from published records: the index drawn as the session minute by minute — the same line the site shows, illustrative and taking no part in the checks — marked at its high and its low with the published open and close beneath it, its futures contract as the day's published range, the day and period a person fixes before anything runs, and what the versioned rule returned — each observed value beside the threshold it was compared with, and a note that the thresholds were chosen by someone who had already seen the day](docs/assets/worked-case.svg)
 
 The published records are read exactly as published. A person fixes what will be
 examined — the date, the period it is compared against, how large a pull-back

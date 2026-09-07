@@ -2,9 +2,10 @@ import React from "react";
 
 import { type Language } from "../i18n/language";
 import type { SessionDay } from "../../lib/published-case";
-import { RATIO_UNITS, scaledPrice } from "./scaled-price";
+import { type Scale, scaledPrice, verticalScale } from "./scaled-price";
 
-export { scaledPrice };
+export { scaledPrice, verticalScale };
+export type { Scale };
 
 /**
  * Every value drawn here is a committed published price, read from the source
@@ -19,33 +20,6 @@ export { scaledPrice };
 
 const readableDate = (compact: string) =>
   `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
-
-type Scale = (value: string) => number;
-
-export function verticalScale(
-  values: readonly string[],
-  top: number,
-  bottom: number,
-): Scale {
-  const scaled = values.map(scaledPrice);
-  let low = scaled[0]!;
-  let high = scaled[0]!;
-  for (const value of scaled) {
-    if (value < low) low = value;
-    if (value > high) high = value;
-  }
-  const span = high - low;
-  const padding = span === 0n ? 1n : (span * 12n) / 100n;
-  const minimum = low - padding;
-  const range = high + padding - minimum;
-  const height = bottom - top;
-  return (value) => {
-    const offset = scaledPrice(value) - minimum;
-    const fraction =
-      Number((offset * RATIO_UNITS) / range) / Number(RATIO_UNITS);
-    return bottom - fraction * height;
-  };
-}
 
 /**
  * Every trading day in the approved baseline range, each drawn as its published

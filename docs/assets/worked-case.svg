@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="caseTitle caseDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 592" role="img" aria-labelledby="caseTitle caseDesc">
   <title id="caseTitle">One day, re-derived from the published record</title>
-  <desc id="caseDesc">Three panels. The published record for 2026-09-03 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of 13.9147 for the index against a threshold of 10, 25.4705 for the future against 20, and the day standing 1 of 45 trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.</desc>
+  <desc id="caseDesc">Three panels. The left panel draws 2026-09-03 for the KOSPI 200 as the session minute by minute, the same line the site shows, marked at its high and its low with the published open and close beneath it, and under that its front-month future as the day's published high-to-low range. Both closed below their own open while finishing above the previous day. The drawn line is illustrative and takes no part in any check. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of 13.9147 for the index against a threshold of 10, 25.4705 for the future against 20, and the day standing 1 of 45 trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.</desc>
   <!--
     Generated from apps/web/src/app/case-2026-09-03/worked-case-diagram.ts by `pnpm diagram:case`. Do not hand-edit.
     Every price is a committed published value; every multiple, threshold and standing is versioned rule output.
@@ -30,9 +30,9 @@
     </style>
   </defs>
 
-  <rect width="1200" height="560" fill="#f7faf9"/>
+  <rect width="1200" height="592" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="559" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="591" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">A WORKED CASE</text>
@@ -43,36 +43,41 @@
 
   <g class="s">
     <text class="panelLabel" x="40" y="174">THE DAY, AS PUBLISHED</text>
-    <text class="who" x="40" y="194">EACH BAR IS THE DAY'S RANGE, NOT A PATH THROUGH IT</text>
+    <text class="who" x="40" y="194">THE LINE IS THE DAY'S PATH · THE BAR IS ITS RANGE</text>
 
-    <text class="leg" x="40" y="222">KOSPI 200 index</text>
-    <text class="key" x="231.4" y="240" text-anchor="middle">close</text>
-    <text class="key" x="341.9" y="240" text-anchor="middle">open</text>
-    <line x1="40" y1="256" x2="380" y2="256" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
-    <line x1="41" y1="246" x2="41" y2="266" stroke="#7d8b88" stroke-width="2"/>
-    <line x1="379" y1="246" x2="379" y2="266" stroke="#7d8b88" stroke-width="2"/>
-    <circle cx="341.9" cy="256" r="6" fill="#7d8b88"/>
-    <circle cx="231.4" cy="256" r="6" fill="#0b6e6a"/>
-    <text class="key" x="40" y="280">low</text>
-    <text class="val m" x="40" y="297">1,009.70</text>
-    <text class="key" x="380" y="280" text-anchor="end">high</text>
-    <text class="val m" x="380" y="297" text-anchor="end">1,050.77</text>
+    <text class="leg" x="40" y="216">KOSPI 200 index</text>
+    <path d="M 40 252.2 L 40.9 251.2 L 41.7 252.9 L 42.6 254.4 L 43.5 251.9 L 44.4 251.6 L 45.2 253.3 L 46.1 255.8 L 47 257.1 L 47.8 258.5 L 48.7 258.0 L 49.6 256.8 L 50.5 259.1 L 51.3 258.0 L 52.2 259.7 L 53.1 260.5 L 53.9 261.2 L 54.8 261.3 L 55.7 261.6 L 56.6 261.8 L 57.4 264.4 L 58.3 263.4 L 59.2 264.8 L 60.1 264.1 L 60.9 259.9 L 61.8 261.2 L 62.7 261.4 L 63.5 263.8 L 64.4 261.1 L 65.3 263.0 L 66.2 262.3 L 67 260.8 L 67.9 259.9 L 68.8 258.2 L 69.6 258.6 L 70.5 257.8 L 71.4 258.3 L 72.3 256.4 L 73.1 255.1 L 74 253.8 L 74.9 254.7 L 75.7 255.0 L 76.6 257.7 L 77.5 255.0 L 78.4 256.2 L 79.2 255.6 L 80.1 256.1 L 81 256.5 L 81.8 256.2 L 82.7 256.0 L 83.6 253.8 L 84.5 255.4 L 85.3 255.5 L 86.2 255.8 L 87.1 255.7 L 87.9 256.4 L 88.8 257.2 L 89.7 258.9 L 90.6 257.9 L 91.4 257.6 L 92.3 255.2 L 93.2 254.5 L 94.1 253.5 L 94.9 252.7 L 95.8 252.3 L 96.7 251.8 L 97.5 251.9 L 98.4 251.2 L 99.3 252.4 L 100.2 253.3 L 101 254.6 L 101.9 253.7 L 102.8 254.3 L 103.6 253.5 L 104.5 250.3 L 105.4 250.4 L 106.3 248.9 L 107.1 247.7 L 108 247.5 L 108.9 247.9 L 109.7 246.2 L 110.6 247.8 L 111.5 247.4 L 112.4 248.9 L 113.2 250.4 L 114.1 252.3 L 115 251.2 L 115.8 251.8 L 116.7 252.1 L 117.6 251.1 L 118.5 251.3 L 119.3 249.5 L 120.2 248.3 L 121.1 245.9 L 121.9 244.6 L 122.8 245.7 L 123.7 246.6 L 124.6 250.1 L 125.4 250.5 L 126.3 251.5 L 127.2 250.5 L 128.1 250.0 L 128.9 248.9 L 129.8 248.8 L 130.7 249.6 L 131.5 250.6 L 132.4 251.4 L 133.3 252.8 L 134.2 252.3 L 135 252.5 L 135.9 253.1 L 136.8 254.4 L 137.6 255.0 L 138.5 255.2 L 139.4 256.8 L 140.3 257.7 L 141.1 256.2 L 142 258.6 L 142.9 259.3 L 143.7 258.3 L 144.6 256.9 L 145.5 257.9 L 146.4 257.8 L 147.2 257.3 L 148.1 257.9 L 149 257.3 L 149.8 257.0 L 150.7 255.6 L 151.6 254.4 L 152.5 254.0 L 153.3 253.2 L 154.2 252.5 L 155.1 251.6 L 155.9 252.7 L 156.8 252.2 L 157.7 252.4 L 158.6 253.5 L 159.4 252.2 L 160.3 250.9 L 161.2 250.8 L 162.1 250.1 L 162.9 250.0 L 163.8 249.4 L 164.7 252.8 L 165.5 252.6 L 166.4 253.9 L 167.3 252.8 L 168.2 251.7 L 169 251.9 L 169.9 251.6 L 170.8 251.4 L 171.6 251.4 L 172.5 252.6 L 173.4 252.1 L 174.3 251.2 L 175.1 250.1 L 176 251.2 L 176.9 252.8 L 177.7 251.3 L 178.6 251.3 L 179.5 251.1 L 180.4 251.0 L 181.2 252.6 L 182.1 252.2 L 183 253.9 L 183.8 254.2 L 184.7 253.0 L 185.6 252.8 L 186.5 253.6 L 187.3 253.6 L 188.2 254.0 L 189.1 253.5 L 189.9 252.0 L 190.8 254.0 L 191.7 253.2 L 192.6 253.6 L 193.4 252.8 L 194.3 253.0 L 195.2 251.0 L 196.1 251.4 L 196.9 251.1 L 197.8 251.0 L 198.7 252.1 L 199.5 250.5 L 200.4 250.5 L 201.3 250.9 L 202.2 251.3 L 203 251.7 L 203.9 251.0 L 204.8 250.7 L 205.6 249.5 L 206.5 249.5 L 207.4 249.4 L 208.3 249.9 L 209.1 250.6 L 210 250.0 L 210.9 250.4 L 211.7 249.0 L 212.6 248.7 L 213.5 248.1 L 214.4 248.3 L 215.2 247.5 L 216.1 249.7 L 217 250.4 L 217.8 249.5 L 218.7 248.9 L 219.6 248.2 L 220.5 248.2 L 221.3 248.6 L 222.2 248.3 L 223.1 246.5 L 223.9 248.1 L 224.8 248.5 L 225.7 248.2 L 226.6 247.9 L 227.4 249.3 L 228.3 248.9 L 229.2 250.3 L 230.1 249.1 L 230.9 249.3 L 231.8 248.9 L 232.7 248.6 L 233.5 247.6 L 234.4 249.2 L 235.3 249.2 L 236.2 250.7 L 237 250.4 L 237.9 249.3 L 238.8 249.0 L 239.6 248.5 L 240.5 248.5 L 241.4 249.2 L 242.3 248.6 L 243.1 248.6 L 244 248.3 L 244.9 249.0 L 245.7 249.0 L 246.6 249.0 L 247.5 247.9 L 248.4 248.7 L 249.2 248.5 L 250.1 248.5 L 251 248.6 L 251.8 248.7 L 252.7 249.2 L 253.6 249.9 L 254.5 249.9 L 255.3 248.7 L 256.2 247.9 L 257.1 246.8 L 257.9 246.8 L 258.8 246.5 L 259.7 246.4 L 260.6 245.8 L 261.4 245.7 L 262.3 245.9 L 263.2 245.9 L 264.1 245.0 L 264.9 246.0 L 265.8 246.3 L 266.7 247.4 L 267.5 247.9 L 268.4 248.5 L 269.3 247.9 L 270.2 247.9 L 271 248.0 L 271.9 248.8 L 272.8 249.5 L 273.6 250.3 L 274.5 251.4 L 275.4 251.2 L 276.3 251.0 L 277.1 251.0 L 278 251.2 L 278.9 250.9 L 279.7 250.4 L 280.6 250.6 L 281.5 250.8 L 282.4 250.1 L 283.2 250.8 L 284.1 251.4 L 285 251.8 L 285.8 252.7 L 286.7 252.8 L 287.6 252.6 L 288.5 252.4 L 289.3 250.9 L 290.2 251.0 L 291.1 250.9 L 291.9 249.9 L 292.8 251.0 L 293.7 250.9 L 294.6 251.7 L 295.4 250.9 L 296.3 252.6 L 297.2 253.1 L 298.1 253.3 L 298.9 253.2 L 299.8 253.4 L 300.7 254.3 L 301.5 253.7 L 302.4 255.0 L 303.3 256.3 L 304.2 256.3 L 305 257.0 L 305.9 257.5 L 306.8 258.9 L 307.6 259.5 L 308.5 262.1 L 309.4 263.2 L 310.3 265.2 L 311.1 268.8 L 312 270.5 L 312.9 269.1 L 313.7 272.3 L 314.6 274.8 L 315.5 280.6 L 316.4 283.0 L 317.2 283.0 L 318.1 289.6 L 319 290.8 L 319.8 285.0 L 320.7 287.5 L 321.6 293.7 L 322.5 290.1 L 323.3 293.8 L 324.2 297.8 L 325.1 299.4 L 325.9 295.0 L 326.8 289.8 L 327.7 286.6 L 328.6 285.9 L 329.4 283.3 L 330.3 282.9 L 331.2 282.3 L 332.1 283.4 L 332.9 283.1 L 333.8 278.9 L 334.7 278.1 L 335.5 277.4 L 336.4 277.4 L 337.3 275.1 L 338.2 276.7 L 339 276.7 L 339.9 276.0 L 340.8 279.5 L 341.6 279.0 L 342.5 275.4 L 343.4 271.5 L 344.3 268.0 L 345.1 268.3 L 346 267.7 L 346.9 267.7 L 347.7 267.1 L 348.6 268.9 L 349.5 268.6 L 350.4 264.3 L 351.2 264.1 L 352.1 264.1 L 353 263.4 L 353.8 265.8 L 354.7 265.1 L 355.6 266.0 L 356.5 264.7 L 357.3 264.2 L 358.2 265.9 L 359.1 264.5 L 359.9 263.7 L 360.8 262.4 L 361.7 266.1 L 362.6 266.6 L 363.4 267.9 L 364.3 266.0 L 365.2 268.2 L 366.1 268.6 L 366.9 267.1 L 367.8 267.3 L 368.7 266.9 L 369.5 266.9 L 370.4 266.7 L 371.3 267.8 L 372.2 267.8 L 373 267.8 L 373.9 267.8 L 374.8 267.8 L 375.6 267.8 L 376.5 267.8 L 377.4 267.8 L 378.3 267.8 L 379.1 267.8 L 380 268.7 L 380 306 L 40 306 Z" fill="#263230" fill-opacity=".06"/>
+    <path d="M 40 252.2 L 40.9 251.2 L 41.7 252.9 L 42.6 254.4 L 43.5 251.9 L 44.4 251.6 L 45.2 253.3 L 46.1 255.8 L 47 257.1 L 47.8 258.5 L 48.7 258.0 L 49.6 256.8 L 50.5 259.1 L 51.3 258.0 L 52.2 259.7 L 53.1 260.5 L 53.9 261.2 L 54.8 261.3 L 55.7 261.6 L 56.6 261.8 L 57.4 264.4 L 58.3 263.4 L 59.2 264.8 L 60.1 264.1 L 60.9 259.9 L 61.8 261.2 L 62.7 261.4 L 63.5 263.8 L 64.4 261.1 L 65.3 263.0 L 66.2 262.3 L 67 260.8 L 67.9 259.9 L 68.8 258.2 L 69.6 258.6 L 70.5 257.8 L 71.4 258.3 L 72.3 256.4 L 73.1 255.1 L 74 253.8 L 74.9 254.7 L 75.7 255.0 L 76.6 257.7 L 77.5 255.0 L 78.4 256.2 L 79.2 255.6 L 80.1 256.1 L 81 256.5 L 81.8 256.2 L 82.7 256.0 L 83.6 253.8 L 84.5 255.4 L 85.3 255.5 L 86.2 255.8 L 87.1 255.7 L 87.9 256.4 L 88.8 257.2 L 89.7 258.9 L 90.6 257.9 L 91.4 257.6 L 92.3 255.2 L 93.2 254.5 L 94.1 253.5 L 94.9 252.7 L 95.8 252.3 L 96.7 251.8 L 97.5 251.9 L 98.4 251.2 L 99.3 252.4 L 100.2 253.3 L 101 254.6 L 101.9 253.7 L 102.8 254.3 L 103.6 253.5 L 104.5 250.3 L 105.4 250.4 L 106.3 248.9 L 107.1 247.7 L 108 247.5 L 108.9 247.9 L 109.7 246.2 L 110.6 247.8 L 111.5 247.4 L 112.4 248.9 L 113.2 250.4 L 114.1 252.3 L 115 251.2 L 115.8 251.8 L 116.7 252.1 L 117.6 251.1 L 118.5 251.3 L 119.3 249.5 L 120.2 248.3 L 121.1 245.9 L 121.9 244.6 L 122.8 245.7 L 123.7 246.6 L 124.6 250.1 L 125.4 250.5 L 126.3 251.5 L 127.2 250.5 L 128.1 250.0 L 128.9 248.9 L 129.8 248.8 L 130.7 249.6 L 131.5 250.6 L 132.4 251.4 L 133.3 252.8 L 134.2 252.3 L 135 252.5 L 135.9 253.1 L 136.8 254.4 L 137.6 255.0 L 138.5 255.2 L 139.4 256.8 L 140.3 257.7 L 141.1 256.2 L 142 258.6 L 142.9 259.3 L 143.7 258.3 L 144.6 256.9 L 145.5 257.9 L 146.4 257.8 L 147.2 257.3 L 148.1 257.9 L 149 257.3 L 149.8 257.0 L 150.7 255.6 L 151.6 254.4 L 152.5 254.0 L 153.3 253.2 L 154.2 252.5 L 155.1 251.6 L 155.9 252.7 L 156.8 252.2 L 157.7 252.4 L 158.6 253.5 L 159.4 252.2 L 160.3 250.9 L 161.2 250.8 L 162.1 250.1 L 162.9 250.0 L 163.8 249.4 L 164.7 252.8 L 165.5 252.6 L 166.4 253.9 L 167.3 252.8 L 168.2 251.7 L 169 251.9 L 169.9 251.6 L 170.8 251.4 L 171.6 251.4 L 172.5 252.6 L 173.4 252.1 L 174.3 251.2 L 175.1 250.1 L 176 251.2 L 176.9 252.8 L 177.7 251.3 L 178.6 251.3 L 179.5 251.1 L 180.4 251.0 L 181.2 252.6 L 182.1 252.2 L 183 253.9 L 183.8 254.2 L 184.7 253.0 L 185.6 252.8 L 186.5 253.6 L 187.3 253.6 L 188.2 254.0 L 189.1 253.5 L 189.9 252.0 L 190.8 254.0 L 191.7 253.2 L 192.6 253.6 L 193.4 252.8 L 194.3 253.0 L 195.2 251.0 L 196.1 251.4 L 196.9 251.1 L 197.8 251.0 L 198.7 252.1 L 199.5 250.5 L 200.4 250.5 L 201.3 250.9 L 202.2 251.3 L 203 251.7 L 203.9 251.0 L 204.8 250.7 L 205.6 249.5 L 206.5 249.5 L 207.4 249.4 L 208.3 249.9 L 209.1 250.6 L 210 250.0 L 210.9 250.4 L 211.7 249.0 L 212.6 248.7 L 213.5 248.1 L 214.4 248.3 L 215.2 247.5 L 216.1 249.7 L 217 250.4 L 217.8 249.5 L 218.7 248.9 L 219.6 248.2 L 220.5 248.2 L 221.3 248.6 L 222.2 248.3 L 223.1 246.5 L 223.9 248.1 L 224.8 248.5 L 225.7 248.2 L 226.6 247.9 L 227.4 249.3 L 228.3 248.9 L 229.2 250.3 L 230.1 249.1 L 230.9 249.3 L 231.8 248.9 L 232.7 248.6 L 233.5 247.6 L 234.4 249.2 L 235.3 249.2 L 236.2 250.7 L 237 250.4 L 237.9 249.3 L 238.8 249.0 L 239.6 248.5 L 240.5 248.5 L 241.4 249.2 L 242.3 248.6 L 243.1 248.6 L 244 248.3 L 244.9 249.0 L 245.7 249.0 L 246.6 249.0 L 247.5 247.9 L 248.4 248.7 L 249.2 248.5 L 250.1 248.5 L 251 248.6 L 251.8 248.7 L 252.7 249.2 L 253.6 249.9 L 254.5 249.9 L 255.3 248.7 L 256.2 247.9 L 257.1 246.8 L 257.9 246.8 L 258.8 246.5 L 259.7 246.4 L 260.6 245.8 L 261.4 245.7 L 262.3 245.9 L 263.2 245.9 L 264.1 245.0 L 264.9 246.0 L 265.8 246.3 L 266.7 247.4 L 267.5 247.9 L 268.4 248.5 L 269.3 247.9 L 270.2 247.9 L 271 248.0 L 271.9 248.8 L 272.8 249.5 L 273.6 250.3 L 274.5 251.4 L 275.4 251.2 L 276.3 251.0 L 277.1 251.0 L 278 251.2 L 278.9 250.9 L 279.7 250.4 L 280.6 250.6 L 281.5 250.8 L 282.4 250.1 L 283.2 250.8 L 284.1 251.4 L 285 251.8 L 285.8 252.7 L 286.7 252.8 L 287.6 252.6 L 288.5 252.4 L 289.3 250.9 L 290.2 251.0 L 291.1 250.9 L 291.9 249.9 L 292.8 251.0 L 293.7 250.9 L 294.6 251.7 L 295.4 250.9 L 296.3 252.6 L 297.2 253.1 L 298.1 253.3 L 298.9 253.2 L 299.8 253.4 L 300.7 254.3 L 301.5 253.7 L 302.4 255.0 L 303.3 256.3 L 304.2 256.3 L 305 257.0 L 305.9 257.5 L 306.8 258.9 L 307.6 259.5 L 308.5 262.1 L 309.4 263.2 L 310.3 265.2 L 311.1 268.8 L 312 270.5 L 312.9 269.1 L 313.7 272.3 L 314.6 274.8 L 315.5 280.6 L 316.4 283.0 L 317.2 283.0 L 318.1 289.6 L 319 290.8 L 319.8 285.0 L 320.7 287.5 L 321.6 293.7 L 322.5 290.1 L 323.3 293.8 L 324.2 297.8 L 325.1 299.4 L 325.9 295.0 L 326.8 289.8 L 327.7 286.6 L 328.6 285.9 L 329.4 283.3 L 330.3 282.9 L 331.2 282.3 L 332.1 283.4 L 332.9 283.1 L 333.8 278.9 L 334.7 278.1 L 335.5 277.4 L 336.4 277.4 L 337.3 275.1 L 338.2 276.7 L 339 276.7 L 339.9 276.0 L 340.8 279.5 L 341.6 279.0 L 342.5 275.4 L 343.4 271.5 L 344.3 268.0 L 345.1 268.3 L 346 267.7 L 346.9 267.7 L 347.7 267.1 L 348.6 268.9 L 349.5 268.6 L 350.4 264.3 L 351.2 264.1 L 352.1 264.1 L 353 263.4 L 353.8 265.8 L 354.7 265.1 L 355.6 266.0 L 356.5 264.7 L 357.3 264.2 L 358.2 265.9 L 359.1 264.5 L 359.9 263.7 L 360.8 262.4 L 361.7 266.1 L 362.6 266.6 L 363.4 267.9 L 364.3 266.0 L 365.2 268.2 L 366.1 268.6 L 366.9 267.1 L 367.8 267.3 L 368.7 266.9 L 369.5 266.9 L 370.4 266.7 L 371.3 267.8 L 372.2 267.8 L 373 267.8 L 373.9 267.8 L 374.8 267.8 L 375.6 267.8 L 376.5 267.8 L 377.4 267.8 L 378.3 267.8 L 379.1 267.8 L 380 268.7" fill="none" stroke="#0c1513" stroke-width="1.75" stroke-linejoin="round"/>
+    <line x1="122.8" y1="243.9" x2="122.8" y2="306" stroke="#a9bebc" stroke-width="1" stroke-dasharray="2 3"/>
+    <circle cx="122.8" cy="243.9" r="4" fill="#b23b32"/>
+    <line x1="325.1" y1="300.6" x2="325.1" y2="306" stroke="#a9bebc" stroke-width="1" stroke-dasharray="2 3"/>
+    <circle cx="325.1" cy="300.6" r="4" fill="#b23b32"/>
+    <text class="key" x="122.8" y="231.9" text-anchor="middle">high 1,050.77 · 10:35</text>
+    <text class="key" x="380" y="320" text-anchor="end">low 1,009.70 · 14:27</text>
+    <text class="key" x="40" y="340">open</text>
+    <text class="val m" x="40" y="357">1,046.17</text>
+    <text class="key" x="380" y="340" text-anchor="end">close</text>
+    <text class="val m" x="380" y="357" text-anchor="end">1,032.82</text>
 
-    <text class="leg" x="40" y="341">Front-month future on it</text>
-    <text class="key" x="208.6" y="365" text-anchor="middle">close</text>
-    <text class="key" x="321.8" y="365" text-anchor="middle">open</text>
-    <line x1="40" y1="381" x2="380" y2="381" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
-    <line x1="41" y1="371" x2="41" y2="391" stroke="#7d8b88" stroke-width="2"/>
-    <line x1="379" y1="371" x2="379" y2="391" stroke="#7d8b88" stroke-width="2"/>
-    <circle cx="321.8" cy="381" r="6" fill="#7d8b88"/>
-    <circle cx="208.6" cy="381" r="6" fill="#0b6e6a"/>
-    <text class="key" x="40" y="405">low</text>
-    <text class="val m" x="40" y="422">1,008.70</text>
-    <text class="key" x="380" y="405" text-anchor="end">high</text>
-    <text class="val m" x="380" y="422" text-anchor="end">1,051.65</text>
+    <text class="leg" x="40" y="382">Front-month future on it</text>
+    <text class="key" x="208.6" y="400" text-anchor="middle">close</text>
+    <text class="key" x="321.8" y="400" text-anchor="middle">open</text>
+    <line x1="40" y1="416" x2="380" y2="416" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
+    <line x1="41" y1="406" x2="41" y2="426" stroke="#7d8b88" stroke-width="2"/>
+    <line x1="379" y1="406" x2="379" y2="426" stroke="#7d8b88" stroke-width="2"/>
+    <circle cx="321.8" cy="416" r="6" fill="#7d8b88"/>
+    <circle cx="208.6" cy="416" r="6" fill="#0b6e6a"/>
+    <text class="key" x="40" y="440">low</text>
+    <text class="val m" x="40" y="457">1,008.70</text>
+    <text class="key" x="380" y="440" text-anchor="end">high</text>
+    <text class="val m" x="380" y="457" text-anchor="end">1,051.65</text>
+
+    <text class="foot" x="40" y="482">The line is the index minute by minute, drawn by us from</text>
+    <text class="foot" x="40" y="497">levels read through a public portal; not redistributable.</text>
+    <text class="foot" x="40" y="512">It decides nothing — every check uses the daily record.</text>
   </g>
 
-  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>
+  <line class="rule" x1="430" y1="162" x2="430" y2="524"/>
 
   <g class="s">
     <text class="panelLabel" x="470" y="174">FIXED BEFORE ANYTHING RUNS</text>
@@ -88,7 +93,7 @@
     <text class="note" x="470" y="410">is printed beside the figure it decided.</text>
   </g>
 
-  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>
+  <line class="rule" x1="810" y1="162" x2="810" y2="524"/>
 
   <g class="s">
     <text class="panelLabel" x="850" y="174">WHAT THE VERSIONED RULE RETURNED</text>
@@ -110,8 +115,8 @@
     <text class="note" x="850" y="466">2 markets had to agree; 2 did · met</text>
   </g>
 
-  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>
-  <text class="note s" x="40" y="520">Thresholds were chosen for this case by a person who had already seen the day.</text>
-  <text class="foot s" x="40" y="538">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
-  <text class="foot s" x="40" y="554">Generated from those artifacts by the versioned rule: deterministic output, not an approved case or evidence. On the site the same case runs only after a person approves the scope.</text>
+  <line class="rule" x1="40" y1="524" x2="1160" y2="524"/>
+  <text class="note s" x="40" y="546">Thresholds were chosen for this case by a person who had already seen the day.</text>
+  <text class="foot s" x="40" y="566">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
+  <text class="foot s" x="40" y="582">Generated from those artifacts by the versioned rule: deterministic output, not an approved case or evidence. On the site the same case runs only after a person approves the scope.</text>
 </svg>

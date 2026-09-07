@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import { LANGUAGES } from "../i18n/language";
 import {
   CONTENT_RIGHT,
+  DIAGRAM_HEIGHT,
+  DIAGRAM_WIDTH,
   NAMED_ARTIFACTS,
   workedCaseFigures,
   workedCaseSvg,
@@ -75,7 +77,9 @@ describe("the worked-case diagram", () => {
   it("draws both languages from the same geometry", () => {
     for (const language of LANGUAGES) {
       const svg = workedCaseSvg(language, figures);
-      expect(svg, language).toContain('viewBox="0 0 1200 560"');
+      expect(svg, language).toContain(
+        `viewBox="0 0 ${DIAGRAM_WIDTH} ${DIAGRAM_HEIGHT}"`,
+      );
       expect(svg, language).toContain("<title");
       expect(svg, language).toContain("<desc");
     }

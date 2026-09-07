@@ -21,10 +21,15 @@ import {
   publishedCaseProposal,
   replayPublishedCase,
 } from "../../lib/published-case";
-import { RATIO_UNITS, scaledPrice } from "./scaled-price";
+import {
+  INTRADAY_HIGH,
+  INTRADAY_LOW,
+  INTRADAY_SESSION,
+} from "./intraday-session";
+import { RATIO_UNITS, scaledPrice, verticalScale } from "./scaled-price";
 
 export const DIAGRAM_WIDTH = 1200;
-export const DIAGRAM_HEIGHT = 560;
+export const DIAGRAM_HEIGHT = 592;
 
 /** The committed artifacts every figure on the diagram is read from. */
 export const NAMED_ARTIFACTS = [
@@ -124,13 +129,37 @@ const FONTS = {
 
 const BAR_X = 40;
 const BAR_WIDTH = 340;
-/** Each leg's band: the y of its heading, its bar, and its value row. */
-const LEG_ROWS = [
-  { heading: 222, keys: 240, bar: 256, labels: 280, values: 297 },
-  { heading: 341, keys: 365, bar: 381, labels: 405, values: 422 },
-] as const;
+/**
+ * The index leg is drawn the way the site draws it — the session minute by
+ * minute — so a reader who arrives from the README meets the same picture. The
+ * futures leg stays a published high-to-low bar, because no minute series for
+ * the contract exists in this repository and inventing one to match would be
+ * the opposite of the point.
+ */
+const CHART = { top: 238, bottom: 306 } as const;
+/** The index band: heading, the two floating extremes, then its value rows. */
+const INDEX_ROW = {
+  heading: 216,
+  highOffset: -12,
+  lowLabel: 320,
+  labels: 340,
+  values: 357,
+} as const;
+/** The futures band: heading, its bar, and its value row. */
+const FUTURE_ROW = {
+  heading: 382,
+  keys: 400,
+  bar: 416,
+  labels: 440,
+  values: 457,
+} as const;
+/** The caveat that keeps the drawn line outside the evidence chain. */
+const CAVEAT_ROWS = [482, 497, 512] as const;
 /** Each returned figure's band in the right-hand panel. */
 const FIGURE_ROWS = [240, 328, 404] as const;
+/** The rule under the panels, then the three lines of small print. */
+const PANEL_BOTTOM = 524;
+const FOOT_ROWS = [546, 566, 582] as const;
 /** The panel's right edge; a line that runs past it would be clipped. */
 export const CONTENT_RIGHT = 1160;
 const PANEL_X = { day: 40, scope: 470, returned: 850 } as const;
@@ -165,6 +194,7 @@ interface Copy {
   readonly lede: string;
   readonly publishedLabel: string;
   readonly rangeNote: string;
+  readonly chartCaveat: readonly [string, string, string];
   readonly legNames: readonly [string, string];
   readonly open: string;
   readonly close: string;
@@ -201,12 +231,17 @@ const copy: Readonly<Record<Language, Copy>> = {
   en: {
     title: "One day, re-derived from the published record",
     description: (figures) =>
-      `Three panels. The published record for ${figures.analysedDate} shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of ${figures.legs[0]?.multiple} for the index against a threshold of ${figures.legs[0]?.multipleThreshold}, ${figures.legs[1]?.multiple} for the future against ${figures.legs[1]?.multipleThreshold}, and the day standing ${figures.rank} of ${figures.population} trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.`,
+      `Three panels. The left panel draws ${figures.analysedDate} for the KOSPI 200 as the session minute by minute, the same line the site shows, marked at its high and its low with the published open and close beneath it, and under that its front-month future as the day's published high-to-low range. Both closed below their own open while finishing above the previous day. The drawn line is illustrative and takes no part in any check. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of ${figures.legs[0]?.multiple} for the index against a threshold of ${figures.legs[0]?.multipleThreshold}, ${figures.legs[1]?.multiple} for the future against ${figures.legs[1]?.multipleThreshold}, and the day standing ${figures.rank} of ${figures.population} trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.`,
     eyebrow: "A WORKED CASE",
     headline: "One day, re-derived from the published record.",
     lede: "Both markets ended above the previous day, and both closed below where they opened.",
     publishedLabel: "THE DAY, AS PUBLISHED",
-    rangeNote: "EACH BAR IS THE DAY'S RANGE, NOT A PATH THROUGH IT",
+    rangeNote: "THE LINE IS THE DAY'S PATH \u00b7 THE BAR IS ITS RANGE",
+    chartCaveat: [
+      "The line is the index minute by minute, drawn by us from",
+      "levels read through a public portal; not redistributable.",
+      "It decides nothing \u2014 every check uses the daily record.",
+    ],
     legNames: ["KOSPI 200 index", "Front-month future on it"],
     open: "open",
     close: "close",
@@ -245,12 +280,17 @@ const copy: Readonly<Record<Language, Copy>> = {
   ko: {
     title: "공개된 기록만으로 하루를 다시 계산한 사례",
     description: (figures) =>
-      `세 부분으로 나뉜 그림입니다. 왼쪽은 ${figures.analysedDate} 코스피 200 지수와 그 최근월 선물의 발행된 하루 가격 범위로, 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 가운데는 실행 전에 사람이 확정하는 것으로, 분석 대상일과 비교할 기준선 기간, 그리고 각 판단이 견주는 기준값입니다. 이어서 버전이 고정된 규칙이 지수의 되돌림 배수 ${figures.legs[0]?.multiple}을 기준값 ${figures.legs[0]?.multipleThreshold}에 대해, 선물의 ${figures.legs[1]?.multiple}을 기준값 ${figures.legs[1]?.multipleThreshold}에 대해 돌려주고, 그날은 그 기간 ${figures.population}거래일 가운데 ${figures.rank}번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아닙니다. 관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있고, 기준값은 이 날의 값을 이미 본 사람이 정했으며, 이 그림은 승인된 사례가 아니라 결정론적 출력입니다.`,
+      `세 부분으로 나뉜 그림입니다. 왼쪽 위는 ${figures.analysedDate} 코스피 200 지수의 분 단위 흐름으로, 사이트에 나오는 것과 같은 선이며 고가와 저가에 표시가 있고 그 아래에 발행된 시가와 종가가 적혀 있습니다. 그 아래는 최근월 선물의 발행된 하루 고가–저가 범위입니다. 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 그려진 선은 설명을 위한 것이고 판단에는 쓰이지 않습니다. 가운데는 실행 전에 사람이 확정하는 것으로, 분석 대상일과 비교할 기준선 기간, 그리고 각 판단이 견주는 기준값입니다. 이어서 버전이 고정된 규칙이 지수의 되돌림 배수 ${figures.legs[0]?.multiple}을 기준값 ${figures.legs[0]?.multipleThreshold}에 대해, 선물의 ${figures.legs[1]?.multiple}을 기준값 ${figures.legs[1]?.multipleThreshold}에 대해 돌려주고, 그날은 그 기간 ${figures.population}거래일 가운데 ${figures.rank}번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아닙니다. 관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있고, 기준값은 이 날의 값을 이미 본 사람이 정했으며, 이 그림은 승인된 사례가 아니라 결정론적 출력입니다.`,
     eyebrow: "실제 사례",
     headline: "공개된 기록만으로 하루를 다시 계산합니다.",
     lede: "두 시장 모두 전일보다 높게 끝났고, 두 시장 모두 시가보다 낮게 마감했습니다.",
     publishedLabel: "발행처가 공개한 그날의 값",
-    rangeNote: "막대는 그날의 가격 범위이며, 하루의 흐름이 아닙니다",
+    rangeNote: "선은 하루의 흐름, 막대는 그날의 범위입니다",
+    chartCaveat: [
+      "선은 그날의 분 단위 지수를 저희가 그린 것입니다.",
+      "분 단위 값은 공개 포털을 거쳤고 재배포 대상이 아닙니다.",
+      "판단에는 쓰이지 않습니다. 판단은 일별 값으로만 합니다.",
+    ],
     legNames: ["코스피 200 지수", "코스피200 선물 · 최근월물"],
     open: "시가",
     close: "종가",
@@ -385,48 +425,132 @@ export function workedCaseSvg(
   push(
     `    <text class="who" x="${PANEL_X.day}" y="194">${escape(text.rangeNote)}</text>`,
   );
-  figures.legs.forEach((leg, index) => {
-    const row = LEG_ROWS[index];
-    if (row === undefined) return;
-    const closeX = alongBar(leg, leg.close);
-    const openX = alongBar(leg, leg.open);
+
+  // The index, minute by minute, on the same scale function the site's chart
+  // uses. Sharing that function is the whole point: two copies of it would let
+  // the README's picture and the site's picture drift into different shapes.
+  const index = figures.legs[0];
+  if (index !== undefined) {
+    const y = verticalScale(
+      INTRADAY_SESSION.map(({ close }) => close),
+      CHART.top,
+      CHART.bottom,
+    );
+    const step = BAR_WIDTH / Math.max(INTRADAY_SESSION.length - 1, 1);
+    const at = (position: number) =>
+      Math.round((BAR_X + position * step) * 10) / 10;
+    const path = INTRADAY_SESSION.map(
+      ({ close }, position) =>
+        `${position === 0 ? "M" : "L"} ${at(position)} ${y(close).toFixed(1)}`,
+    ).join(" ");
+    const lastX = at(INTRADAY_SESSION.length - 1);
+    const marks = [INTRADAY_HIGH, INTRADAY_LOW].map((mark) => ({
+      x: at(INTRADAY_SESSION.findIndex(({ time }) => time === mark.time)),
+      y: y(mark.value),
+      value: mark.value,
+      time: mark.time,
+    }));
     push(``);
     push(
-      `    <text class="leg" x="${PANEL_X.day}" y="${row.heading}">${escape(text.legNames[index] ?? "")}</text>`,
+      `    <text class="leg" x="${PANEL_X.day}" y="${INDEX_ROW.heading}">${escape(text.legNames[0] ?? "")}</text>`,
     );
     push(
-      `    <text class="key" x="${closeX}" y="${row.keys}" text-anchor="middle">${escape(text.close)}</text>`,
+      `    <path d="${path} L ${lastX} ${CHART.bottom} L ${BAR_X} ${CHART.bottom} Z" fill="#263230" fill-opacity=".06"/>`,
     );
     push(
-      `    <text class="key" x="${openX}" y="${row.keys}" text-anchor="middle">${escape(text.open)}</text>`,
+      `    <path d="${path}" fill="none" stroke="#0c1513" stroke-width="1.75" stroke-linejoin="round"/>`,
+    );
+    marks.forEach(({ x, y: markY }) => {
+      push(
+        `    <line x1="${x}" y1="${markY.toFixed(1)}" x2="${x}" y2="${CHART.bottom}" stroke="#a9bebc" stroke-width="1" stroke-dasharray="2 3"/>`,
+      );
+      push(
+        `    <circle cx="${x}" cy="${markY.toFixed(1)}" r="4" fill="#b23b32"/>`,
+      );
+    });
+    const [high, low] = marks;
+    if (high !== undefined)
+      push(
+        `    <text class="key" x="${high.x}" y="${(high.y + INDEX_ROW.highOffset).toFixed(1)}" text-anchor="middle">${escape(`${text.high} ${price(high.value)} \u00b7 ${high.time}`)}</text>`,
+      );
+    // Anchored to the panel's right edge rather than to its own mark: the low
+    // falls late in the session, and a centred label there would run under the
+    // divider into the next panel.
+    if (low !== undefined)
+      push(
+        `    <text class="key" x="${BAR_X + BAR_WIDTH}" y="${INDEX_ROW.lowLabel}" text-anchor="end">${escape(`${text.low} ${price(low.value)} \u00b7 ${low.time}`)}</text>`,
+      );
+    push(
+      `    <text class="key" x="${BAR_X}" y="${INDEX_ROW.labels}">${escape(text.open)}</text>`,
     );
     push(
-      `    <line x1="${BAR_X}" y1="${row.bar}" x2="${BAR_X + BAR_WIDTH}" y2="${row.bar}" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>`,
+      `    <text class="val m" x="${BAR_X}" y="${INDEX_ROW.values}">${escape(price(index.open))}</text>`,
     );
     push(
-      `    <line x1="${BAR_X + 1}" y1="${row.bar - 10}" x2="${BAR_X + 1}" y2="${row.bar + 10}" stroke="#7d8b88" stroke-width="2"/>`,
+      `    <text class="key" x="${BAR_X + BAR_WIDTH}" y="${INDEX_ROW.labels}" text-anchor="end">${escape(text.close)}</text>`,
     );
     push(
-      `    <line x1="${BAR_X + BAR_WIDTH - 1}" y1="${row.bar - 10}" x2="${BAR_X + BAR_WIDTH - 1}" y2="${row.bar + 10}" stroke="#7d8b88" stroke-width="2"/>`,
+      `    <text class="val m" x="${BAR_X + BAR_WIDTH}" y="${INDEX_ROW.values}" text-anchor="end">${escape(price(index.close))}</text>`,
     );
-    push(`    <circle cx="${openX}" cy="${row.bar}" r="6" fill="#7d8b88"/>`);
-    push(`    <circle cx="${closeX}" cy="${row.bar}" r="6" fill="#0b6e6a"/>`);
+  }
+
+  // The futures leg keeps the published high-to-low bar.
+  const future = figures.legs[1];
+  if (future !== undefined) {
+    const closeX = alongBar(future, future.close);
+    const openX = alongBar(future, future.open);
+    push(``);
     push(
-      `    <text class="key" x="${BAR_X}" y="${row.labels}">${escape(text.low)}</text>`,
+      `    <text class="leg" x="${PANEL_X.day}" y="${FUTURE_ROW.heading}">${escape(text.legNames[1] ?? "")}</text>`,
     );
     push(
-      `    <text class="val m" x="${BAR_X}" y="${row.values}">${escape(price(leg.low))}</text>`,
+      `    <text class="key" x="${closeX}" y="${FUTURE_ROW.keys}" text-anchor="middle">${escape(text.close)}</text>`,
     );
     push(
-      `    <text class="key" x="${BAR_X + BAR_WIDTH}" y="${row.labels}" text-anchor="end">${escape(text.high)}</text>`,
+      `    <text class="key" x="${openX}" y="${FUTURE_ROW.keys}" text-anchor="middle">${escape(text.open)}</text>`,
     );
     push(
-      `    <text class="val m" x="${BAR_X + BAR_WIDTH}" y="${row.values}" text-anchor="end">${escape(price(leg.high))}</text>`,
+      `    <line x1="${BAR_X}" y1="${FUTURE_ROW.bar}" x2="${BAR_X + BAR_WIDTH}" y2="${FUTURE_ROW.bar}" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>`,
     );
-  });
+    push(
+      `    <line x1="${BAR_X + 1}" y1="${FUTURE_ROW.bar - 10}" x2="${BAR_X + 1}" y2="${FUTURE_ROW.bar + 10}" stroke="#7d8b88" stroke-width="2"/>`,
+    );
+    push(
+      `    <line x1="${BAR_X + BAR_WIDTH - 1}" y1="${FUTURE_ROW.bar - 10}" x2="${BAR_X + BAR_WIDTH - 1}" y2="${FUTURE_ROW.bar + 10}" stroke="#7d8b88" stroke-width="2"/>`,
+    );
+    push(
+      `    <circle cx="${openX}" cy="${FUTURE_ROW.bar}" r="6" fill="#7d8b88"/>`,
+    );
+    push(
+      `    <circle cx="${closeX}" cy="${FUTURE_ROW.bar}" r="6" fill="#0b6e6a"/>`,
+    );
+    push(
+      `    <text class="key" x="${BAR_X}" y="${FUTURE_ROW.labels}">${escape(text.low)}</text>`,
+    );
+    push(
+      `    <text class="val m" x="${BAR_X}" y="${FUTURE_ROW.values}">${escape(price(future.low))}</text>`,
+    );
+    push(
+      `    <text class="key" x="${BAR_X + BAR_WIDTH}" y="${FUTURE_ROW.labels}" text-anchor="end">${escape(text.high)}</text>`,
+    );
+    push(
+      `    <text class="val m" x="${BAR_X + BAR_WIDTH}" y="${FUTURE_ROW.values}" text-anchor="end">${escape(price(future.high))}</text>`,
+    );
+  }
+
+  // The drawn line is the one thing on this figure that is not evidence, so it
+  // says so on the figure rather than only in the alt text.
+  push(``);
+  text.chartCaveat.forEach((line, position) =>
+    push(
+      `    <text class="foot" x="${PANEL_X.day}" y="${CAVEAT_ROWS[position]}">${escape(line)}</text>`,
+    ),
+  );
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>`);
+  push(
+    `  <line class="rule" x1="430" y1="162" x2="430" y2="${PANEL_BOTTOM}"/>`,
+  );
   push(``);
 
   // panel 2 : what a person fixes first
@@ -466,7 +590,9 @@ export function workedCaseSvg(
   );
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>`);
+  push(
+    `  <line class="rule" x1="810" y1="162" x2="810" y2="${PANEL_BOTTOM}"/>`,
+  );
   push(``);
 
   // panel 3 : what the rule returned, each figure beside the threshold it met
@@ -527,16 +653,18 @@ export function workedCaseSvg(
   );
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>`);
+  push(
+    `  <line class="rule" x1="40" y1="${PANEL_BOTTOM}" x2="1160" y2="${PANEL_BOTTOM}"/>`,
+  );
   // The threshold caveat runs the full width, where it cannot be clipped.
   push(
-    `  <text class="note s" x="40" y="520">${escape(text.thresholdOrigin)}</text>`,
+    `  <text class="note s" x="40" y="${FOOT_ROWS[0]}">${escape(text.thresholdOrigin)}</text>`,
   );
   push(
-    `  <text class="foot s" x="40" y="538">${escape(text.footer[0])}</text>`,
+    `  <text class="foot s" x="40" y="${FOOT_ROWS[1]}">${escape(text.footer[0])}</text>`,
   );
   push(
-    `  <text class="foot s" x="40" y="554">${escape(text.footer[1])}</text>`,
+    `  <text class="foot s" x="40" y="${FOOT_ROWS[2]}">${escape(text.footer[1])}</text>`,
   );
   push(`</svg>`);
   return `${out.join("\n")}\n`;
