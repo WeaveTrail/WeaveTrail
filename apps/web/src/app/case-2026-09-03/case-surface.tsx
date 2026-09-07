@@ -156,6 +156,7 @@ export function PublishedCaseSurface({
   const [activeChapter, setActiveChapter] = useState(0);
   const [readChapters, setReadChapters] = useState<readonly number[]>([0]);
   const movedByReader = useRef(false);
+  const activeChapterRef = useRef(0);
   const chapterCount = text.chapters.length;
   const rule = proposal.rules[0] as Rule;
   const parameters = rule.parameters;
@@ -163,6 +164,7 @@ export function PublishedCaseSurface({
   // Focus follows a reader-initiated move only. On first render the reader has
   // not asked to go anywhere, so the page must not steal focus from the top.
   useEffect(() => {
+    activeChapterRef.current = activeChapter;
     if (!movedByReader.current) return;
     movedByReader.current = false;
     document.getElementById(`chapter-${activeChapter + 1}`)?.focus();
@@ -246,6 +248,19 @@ export function PublishedCaseSurface({
         return;
       }
       setResult(body as PublishedCaseReplay);
+      // The result and its live region belong to the next chapter, so a run
+      // that lands while the reader is still on this one would leave the
+      // chapter looking exactly as it did before, with the control offering
+      // the same run again. Reading the live position rather than the one
+      // captured at the start keeps a reader who moved on where they are.
+      if (activeChapterRef.current === startedIn) {
+        const next = Math.min(startedIn + 1, chapterCount - 1);
+        movedByReader.current = true;
+        setActiveChapter(next);
+        setReadChapters((current) =>
+          current.includes(next) ? current : [...current, next],
+        );
+      }
     } catch {
       setResult(null);
       setRunError("REPLAY_REFUSED");
@@ -530,6 +545,9 @@ export function PublishedCaseSurface({
           </button>
           {approval === null && (
             <p className="step-requirement">{text.runBlocked}</p>
+          )}
+          {result && !running && (
+            <p className="step-requirement">{text.ranAlready}</p>
           )}
           {runError && (
             <p

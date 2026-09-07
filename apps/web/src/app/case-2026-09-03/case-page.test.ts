@@ -494,6 +494,32 @@ describe("the 2026-09-03 case surface", () => {
     expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
   });
 
+  it("does not leave a completed run looking like one never started", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // The result and its live region are in the next chapter. A run landing
+    // while the reader is still on the run chapter has to move them to it, or
+    // the chapter returns to its pre-run appearance and offers the same run
+    // again with nothing to say it already happened.
+    expect(surfaceSource).toContain("activeChapterRef.current === startedIn");
+    // A reader who comes back to the run chapter is told it already ran.
+    expect(surfaceSource).toContain("{result && !running && (");
+    expect(surfaceSource).toContain("{text.ranAlready}");
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.ranAlready, language).toBeTruthy();
+      // It is not the sentence shown while waiting, nor the one shown when the
+      // scope has not been approved.
+      expect(text.ranAlready, language).not.toBe(text.awaitingRun);
+      expect(text.ranAlready, language).not.toBe(text.runBlocked);
+    }
+  });
+
   it("answers a fragment restored by history, not only one arrived on", () => {
     const surfaceSource = readFileSync(
       resolve(
