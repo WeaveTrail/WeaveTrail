@@ -157,6 +157,9 @@ export function PublishedCaseSurface({
   const [readChapters, setReadChapters] = useState<readonly number[]>([0]);
   const movedByReader = useRef(false);
   const activeChapterRef = useRef(0);
+  // The chapter a citation was followed from, kept so that Back over the entry
+  // the citation pushed can put the reader back where they were reading.
+  const citedFrom = useRef<number | null>(null);
   const chapterCount = text.chapters.length;
   const rule = proposal.rules[0] as Rule;
   const parameters = rule.parameters;
@@ -185,33 +188,55 @@ export function PublishedCaseSurface({
     window.setTimeout(() => focusTarget(id), 0);
   }, []);
 
-  // A fragment names an element, not a chapter, so the chapter holding it is
-  // opened before the browser's own jump can mean anything. A citation click
-  // pushes a history entry, so the fragment can also come back later through
-  // Back and Forward, long after mount: the same handler answers both, or
-  // restoring the fragment would leave its chapter hidden and the provenance
-  // unreachable.
-  useEffect(() => {
-    const revealFragment = () => {
-      const fragment = window.location.hash.slice(1);
-      if (fragment !== "") revealTarget(fragment);
-    };
-    const timer = window.setTimeout(revealFragment, 0);
-    window.addEventListener("hashchange", revealFragment);
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("hashchange", revealFragment);
-    };
-  }, [revealTarget]);
-
-  function goToChapter(position: number) {
-    if (position < 0 || position >= chapterCount) return;
-    if (position === activeChapter) return;
+  /** Move to a chapter and take focus to its heading. */
+  const openChapter = useCallback((position: number) => {
     movedByReader.current = true;
     setActiveChapter(position);
     setReadChapters((current) =>
       current.includes(position) ? current : [...current, position],
     );
+  }, []);
+
+  /** Record where a citation was followed from, so Back can undo the jump. */
+  const followCitation = useCallback(
+    (id: string) => {
+      citedFrom.current = activeChapterRef.current;
+      revealTarget(id);
+    },
+    [revealTarget],
+  );
+
+  // A fragment names an element, not a chapter, so the chapter holding it is
+  // opened before the browser's own jump can mean anything. A citation click
+  // pushes a history entry, so the fragment moves in both directions long
+  // after mount, and the same handler has to answer both: Forward restores a
+  // fragment whose chapter would otherwise stay hidden, and Back clears it,
+  // which is the reader undoing the jump and expecting the chapter they were
+  // reading rather than a URL that no longer matches the page.
+  useEffect(() => {
+    const followFragment = () => {
+      const fragment = window.location.hash.slice(1);
+      if (fragment !== "") {
+        revealTarget(fragment);
+        return;
+      }
+      const origin = citedFrom.current;
+      if (origin === null) return;
+      citedFrom.current = null;
+      openChapter(origin);
+    };
+    const timer = window.setTimeout(followFragment, 0);
+    window.addEventListener("hashchange", followFragment);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("hashchange", followFragment);
+    };
+  }, [openChapter, revealTarget]);
+
+  function goToChapter(position: number) {
+    if (position < 0 || position >= chapterCount) return;
+    if (position === activeChapter) return;
+    openChapter(position);
   }
 
   async function approveScope() {
@@ -600,7 +625,7 @@ export function PublishedCaseSurface({
                     </b>
                     <ThresholdOriginReference
                       label={text.thresholdOriginLink}
-                      onNavigate={revealTarget}
+                      onNavigate={followCitation}
                     />
                   </div>
                 ))}

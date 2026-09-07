@@ -494,6 +494,31 @@ describe("the 2026-09-03 case surface", () => {
     expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
   });
 
+  it("undoes the citation jump when its history entry is popped", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Following a citation pushes a history entry, so Back over it clears the
+    // fragment. Answering only a non-empty fragment would return the URL to
+    // its pre-link state while the page stayed on the cited chapter.
+    expect(surfaceSource).toContain(
+      "citedFrom.current = activeChapterRef.current",
+    );
+    expect(surfaceSource).toContain("onNavigate={followCitation}");
+    const handler = surfaceSource.slice(
+      surfaceSource.indexOf("const followFragment = () => {"),
+      surfaceSource.indexOf('window.addEventListener("hashchange"'),
+    );
+    expect(handler).toContain("openChapter(origin)");
+    // The origin is spent once, so a later Back with no citation behind it
+    // does not move the reader.
+    expect(handler).toContain("citedFrom.current = null");
+  });
+
   it("does not leave a completed run looking like one never started", () => {
     const surfaceSource = readFileSync(
       resolve(
@@ -532,10 +557,10 @@ describe("the 2026-09-03 case surface", () => {
     // back through Back and Forward long after mount. Reading location.hash
     // once would leave the restored fragment pointing into a hidden chapter.
     expect(surfaceSource).toContain(
-      'window.addEventListener("hashchange", revealFragment)',
+      'window.addEventListener("hashchange", followFragment)',
     );
     expect(surfaceSource).toContain(
-      'window.removeEventListener("hashchange", revealFragment)',
+      'window.removeEventListener("hashchange", followFragment)',
     );
   });
 
