@@ -90,6 +90,10 @@ describe.each(PAIRS)("%s and %s", (english, korean) => {
   });
 });
 
+/** Enough of a document to be read before its explanation begins. */
+const opening = (path: string) =>
+  read(path).split("\n").slice(0, 30).join("\n");
+
 describe("entry point", () => {
   it("names the deployed origin in both languages", () => {
     expect(read("README.md")).toContain(DEPLOYED_URL);
@@ -97,10 +101,16 @@ describe("entry point", () => {
   });
 
   it("offers the other language in the first screenful", () => {
-    const opening = (path: string) =>
-      read(path).split("\n").slice(0, 30).join("\n");
     expect(opening("README.md")).toContain("README.ko.md");
     expect(opening("README.ko.md")).toContain("README.md");
+  });
+});
+
+describe.each([...KOREAN_FILES])("%s", (path) => {
+  it("states under its heading that English governs", () => {
+    // ADR 0035: a translation must not be mistaken for a second
+    // specification, so the rule is stated before the explanation starts.
+    expect(opening(path)).toContain("영문 문서가 기준입니다");
   });
 });
 

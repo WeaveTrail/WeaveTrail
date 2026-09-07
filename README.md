@@ -45,7 +45,7 @@ trusting the first.
 - **Who it is for ·** surveillance teams at a trading venue, compliance
   reviewers at a broker or bank, supervisory investigators, internal audit.
 - **What it returns ·** an answer computed by fixed code, the arithmetic behind
-  it, and the original record behind every number in it.
+  it, and the published record behind each value it read.
 - **What it never does ·** decide guilt, infer intent, or recommend a trade.
 
 ## An alert is not yet evidence
