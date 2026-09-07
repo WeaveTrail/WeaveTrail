@@ -5,9 +5,14 @@ import { MechanicalMetricComparisonSchema } from "./mechanical-metric-comparison
 import {
   CrossMarketDenominatorFieldSchema,
   CrossMarketDenominatorMeaningSchema,
+  crossMarketDenominatorMeaningMatchesSource,
 } from "./rule-parameters";
 
 const PositiveIntegerStringSchema = z.string().regex(/^[1-9]\d*$/);
+const PositiveDecimalStringSchema = DecimalStringSchema.refine(
+  (value) => value !== "0" && !value.startsWith("-"),
+  "Expected a decimal string greater than zero",
+);
 
 export const CrossMarketSessionReversalGateSchema = z.enum([
   "BASELINE_RANK",
@@ -65,7 +70,7 @@ export const CrossMarketSessionReversalLegObservationSchema = z
 const CrossMarketSessionReversalLegObservationV11Schema =
   CrossMarketSessionReversalLegObservationSchema.extend({
     approvedDenominatorId: z.string().min(1),
-    approvedDenominatorValue: DecimalStringSchema,
+    approvedDenominatorValue: PositiveDecimalStringSchema,
   }).strict();
 
 const DenominatorSourceSchema = z.discriminatedUnion("kind", [
@@ -83,22 +88,41 @@ const DenominatorSourceSchema = z.discriminatedUnion("kind", [
     .strict(),
 ]);
 
-const DenominatorMetricSchema = z
-  .object({
-    denominatorId: z.string().min(1),
-    denominatorValue: DecimalStringSchema,
-    meaning: CrossMarketDenominatorMeaningSchema,
-    source: DenominatorSourceSchema,
-    metricValue: DecimalStringSchema,
-  })
-  .strict();
+const DenominatorMetricFields = {
+  denominatorId: z.string().min(1),
+  denominatorValue: PositiveDecimalStringSchema,
+  meaning: CrossMarketDenominatorMeaningSchema,
+  source: DenominatorSourceSchema,
+  metricValue: DecimalStringSchema,
+} as const;
 
-const AlternativeDenominatorMetricSchema = DenominatorMetricSchema.extend({
-  ratioToApprovedMetric: DecimalStringSchema.nullable(),
-  ratioUnavailableReason: z.literal("BOTH_METRICS_ZERO").optional(),
-})
+function refineDenominatorMetric(
+  metric: z.infer<z.ZodObject<typeof DenominatorMetricFields>>,
+  context: z.RefinementCtx,
+) {
+  if (!crossMarketDenominatorMeaningMatchesSource(metric)) {
+    context.addIssue({
+      code: "custom",
+      path: ["meaning"],
+      message: "Denominator meaning must agree with its declared source",
+    });
+  }
+}
+
+const DenominatorMetricSchema = z
+  .object(DenominatorMetricFields)
+  .strict()
+  .superRefine(refineDenominatorMetric);
+
+const AlternativeDenominatorMetricSchema = z
+  .object({
+    ...DenominatorMetricFields,
+    ratioToApprovedMetric: DecimalStringSchema.nullable(),
+    ratioUnavailableReason: z.literal("BOTH_METRICS_ZERO").optional(),
+  })
   .strict()
   .superRefine((metric, context) => {
+    refineDenominatorMetric(metric, context);
     if (
       (metric.ratioToApprovedMetric === null) !==
       (metric.ratioUnavailableReason === "BOTH_METRICS_ZERO")

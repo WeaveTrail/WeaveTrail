@@ -50,6 +50,114 @@ const sensitivityParameters = {
   })),
 };
 
+function conclusiveV11Result(
+  options: {
+    approvedDenominatorValue?: string;
+    sensitivityDenominatorValue?: string;
+    sensitivityMeaning?:
+      | "OBSERVED_PRICE_CHANGE"
+      | "OBSERVED_PRICE_LEVEL"
+      | "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL";
+    sensitivitySource?:
+      | { kind: "EVENT_FIELD"; field: "netChange" | "openPrice" }
+      | { kind: "DECLARED_VALUE"; provenance: string };
+  } = {},
+) {
+  const eventIds = ["event-spot", "event-future"];
+  const legs = parameters.legs.map((leg, index) => ({
+    legId: leg.legId,
+    instrumentId: leg.instrumentId,
+    eventId: eventIds[index]!,
+    openPrice: "100",
+    highPrice: "110",
+    lowPrice: "90",
+    closePrice: "95",
+    sessionReversal: "15",
+    netChange: "1",
+    relation: "OPPOSED" as const,
+    reversalMultiple: "15",
+    approvedDenominatorId: "published-net-change",
+    approvedDenominatorValue: options.approvedDenominatorValue ?? "1",
+  }));
+  return {
+    ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+    ruleVersion: "1.1",
+    result: "SUPPORTED",
+    findings: [
+      {
+        gate: "BASELINE_RANK",
+        ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+        observedValue: "1",
+        threshold: "1",
+        passed: true,
+        referencedEventIds: eventIds,
+      },
+      ...parameters.legs.map((leg, index) => ({
+        gate: "LEG_REVERSAL_MULTIPLE",
+        ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+        legId: leg.legId,
+        instrumentId: leg.instrumentId,
+        observedValue: "15",
+        threshold: leg.minimumReversalMultiple,
+        passed: true,
+        referencedEventIds: [eventIds[index]!],
+      })),
+      {
+        gate: "AGREEING_LEGS",
+        ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+        observedValue: "2",
+        threshold: "2",
+        passed: true,
+        referencedEventIds: eventIds,
+      },
+    ],
+    analysis: {
+      analysedDate: parameters.analysedDate,
+      baselineRange: parameters.baselineRange,
+      rank: {
+        position: "1",
+        populationSize: "2",
+        interpretation: "POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY",
+      },
+      legs,
+      candidateSelection: "STATED_DATE_ONLY_NO_CANDIDATE_SCAN",
+    },
+    sensitivity: {
+      comparison: "MECHANICAL_METRIC_COMPARISON",
+      interpretation: "MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION",
+      legs: legs.map((leg) => ({
+        legId: leg.legId,
+        instrumentId: leg.instrumentId,
+        eventId: leg.eventId,
+        approved: {
+          denominatorId: "published-net-change",
+          denominatorValue: options.sensitivityDenominatorValue ?? "1",
+          meaning: options.sensitivityMeaning ?? "OBSERVED_PRICE_CHANGE",
+          source: options.sensitivitySource ?? {
+            kind: "EVENT_FIELD",
+            field: "netChange",
+          },
+          metricValue: "15",
+        },
+        alternatives: [
+          {
+            denominatorId: "minimum-price-increment",
+            denominatorValue: "0.5",
+            meaning:
+              "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL",
+            source: {
+              kind: "DECLARED_VALUE",
+              provenance: "Synthetic instrument specification fixture.",
+            },
+            metricValue: "30",
+            ratioToApprovedMetric: "2",
+          },
+        ],
+      })),
+    },
+  };
+}
+
 describe("cross-market session reversal contracts", () => {
   it("accepts the strict 1.0 parameter branch", () => {
     expect(
@@ -203,4 +311,47 @@ describe("cross-market session reversal contracts", () => {
       ).toBe(false);
     }
   });
+
+  it.each(["0", "-1"])(
+    "rejects non-positive denominator value %s from conclusive 1.1 results",
+    (value) => {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result({ sensitivityDenominatorValue: value }),
+        ).success,
+      ).toBe(false);
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result({ approvedDenominatorValue: value }),
+        ).success,
+      ).toBe(false);
+    },
+  );
+
+  it.each([
+    {
+      sensitivityMeaning:
+        "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL" as const,
+      sensitivitySource: {
+        kind: "EVENT_FIELD" as const,
+        field: "netChange" as const,
+      },
+    },
+    {
+      sensitivityMeaning: "OBSERVED_PRICE_CHANGE" as const,
+      sensitivitySource: {
+        kind: "EVENT_FIELD" as const,
+        field: "openPrice" as const,
+      },
+    },
+  ])(
+    "rejects incompatible denominator meaning/source pairs from conclusive results",
+    (options) => {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result(options),
+        ).success,
+      ).toBe(false);
+    },
+  );
 });

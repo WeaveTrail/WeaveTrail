@@ -22,6 +22,32 @@ export const CrossMarketDenominatorMeaningSchema = z.enum([
   "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL",
 ]);
 
+export type CrossMarketDenominatorMeaningSource = {
+  meaning: z.infer<typeof CrossMarketDenominatorMeaningSchema>;
+  source:
+    | {
+        kind: "EVENT_FIELD";
+        field: z.infer<typeof CrossMarketDenominatorFieldSchema>;
+      }
+    | { kind: "DECLARED_VALUE" };
+};
+
+export function crossMarketDenominatorMeaningMatchesSource(
+  denominator: CrossMarketDenominatorMeaningSource,
+): boolean {
+  return (
+    (denominator.meaning === "OBSERVED_PRICE_CHANGE" &&
+      denominator.source.kind === "EVENT_FIELD" &&
+      denominator.source.field === "netChange") ||
+    (denominator.meaning === "OBSERVED_PRICE_LEVEL" &&
+      denominator.source.kind === "EVENT_FIELD" &&
+      denominator.source.field !== "netChange") ||
+    (denominator.meaning ===
+      "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL" &&
+      denominator.source.kind === "DECLARED_VALUE")
+  );
+}
+
 const CrossMarketDenominatorSchema = z
   .object({
     denominatorId: z.string().min(1),
@@ -47,17 +73,7 @@ const CrossMarketDenominatorSchema = z
   })
   .strict()
   .superRefine((denominator, context) => {
-    const valid =
-      (denominator.meaning === "OBSERVED_PRICE_CHANGE" &&
-        denominator.source.kind === "EVENT_FIELD" &&
-        denominator.source.field === "netChange") ||
-      (denominator.meaning === "OBSERVED_PRICE_LEVEL" &&
-        denominator.source.kind === "EVENT_FIELD" &&
-        denominator.source.field !== "netChange") ||
-      (denominator.meaning ===
-        "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL" &&
-        denominator.source.kind === "DECLARED_VALUE");
-    if (!valid) {
+    if (!crossMarketDenominatorMeaningMatchesSource(denominator)) {
       context.addIssue({
         code: "custom",
         path: ["meaning"],
