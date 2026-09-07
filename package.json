@@ -21,6 +21,7 @@
     "format:check": "prettier --check .",
     "design:snapshot:verify": "node scripts/verify-design-snapshot.mjs",
     "diagram:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-how-it-works-diagram.mjs",
+    "diagram:case": "vitest run apps/web/src/app/case-2026-09-03/worked-case-diagram.test.ts -u",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check"
   },
   "devDependencies": {

@@ -1,114 +1,116 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 492" role="img" aria-labelledby="workedCaseTitle workedCaseDesc">
-  <title id="workedCaseTitle">One day, re-derived from the published record</title>
-  <desc id="workedCaseDesc">Three panels. The published record for 3 September 2026 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, how large a pull-back counts and how many markets must agree. Fixed code then returns that the index gave back about fourteen times the day's net move and the future about twenty-five times, placing the day first among the forty-five trading days compared. A rank is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from; the thresholds are a person's, and the standing is computed across the whole approved period.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="caseTitle caseDesc">
+  <title id="caseTitle">One day, re-derived from the published record</title>
+  <desc id="caseDesc">Three panels. The published record for 2026-09-03 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of 13.9147 for the index against a threshold of 10, 25.4705 for the future against 20, and the day standing 1 of 45 trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.</desc>
   <!--
+    Generated from apps/web/src/app/case-2026-09-03/worked-case-diagram.ts by `pnpm diagram:case`. Do not hand-edit.
+    Every price is a committed published value; every multiple, threshold and standing is versioned rule output.
     WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
-    #f7faf9 paper-1 | #ffffff paper-0 | #0c1513 ink-900 | #263230 ink-700
-    #566461 ink-500 | #7d8b88 ink-400 | #0b6e6a teal-700
-    #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+    #f7faf9 paper-1 | #ffffff paper-0 | #0c1513 ink-900
+    #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400
+    #0b6e6a teal-700 | #d0d7de ledger-rule | #a9bebc ledger-rule-strong
   -->
   <defs>
     <style>
-      .s{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
+      .s{font-family:"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif}
       .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
       .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
-      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .title{font-size:27px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
       .sub{font-size:14px;fill:#566461}
-      .panelLabel{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
-      .who{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#7d8b88}
+      .panelLabel{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#566461}
+      .who{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#7d8b88}
       .leg{font-size:13px;font-weight:600;fill:#263230}
       .key{font-size:12px;fill:#566461}
       .val{font-size:13px;fill:#263230}
       .big{font-size:20px;font-weight:600;fill:#0c1513}
+      .gate{font-size:12px;font-weight:600;fill:#0b6e6a}
       .note{font-size:12px;fill:#566461}
       .foot{font-size:11px;fill:#7d8b88}
       .rule{stroke:#d0d7de;stroke-width:1}
     </style>
   </defs>
 
-  <rect width="1200" height="492" fill="#f7faf9"/>
+  <rect width="1200" height="540" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="491" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">A WORKED CASE</text>
     <text class="title" x="40" y="84">One day, re-derived from the published record.</text>
-    <text class="sub" x="40" y="112">3 September 2026. Both markets ended above the previous day, and both closed below where they opened.</text>
+    <text class="sub" x="40" y="112">2026-09-03. Both markets ended above the previous day, and both closed below where they opened.</text>
   </g>
   <line class="rule" x1="40" y1="140" x2="1160" y2="140"/>
 
-  <!-- panel 1 : the published day -->
   <g class="s">
     <text class="panelLabel" x="40" y="174">THE DAY, AS PUBLISHED</text>
-    <text class="who" x="40" y="194">EACH BAR IS THE DAY&#8217;S RANGE, NOT A PATH THROUGH IT</text>
+    <text class="who" x="40" y="194">EACH BAR IS THE DAY'S RANGE, NOT A PATH THROUGH IT</text>
 
     <text class="leg" x="40" y="222">KOSPI 200 index</text>
-    <text class="key" x="231" y="240" text-anchor="middle">close</text>
-    <text class="key" x="342" y="240" text-anchor="middle">open</text>
+    <text class="key" x="231.4" y="240" text-anchor="middle">close</text>
+    <text class="key" x="341.9" y="240" text-anchor="middle">open</text>
     <line x1="40" y1="256" x2="380" y2="256" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
     <line x1="41" y1="246" x2="41" y2="266" stroke="#7d8b88" stroke-width="2"/>
     <line x1="379" y1="246" x2="379" y2="266" stroke="#7d8b88" stroke-width="2"/>
-    <circle cx="342" cy="256" r="6" fill="#7d8b88"/>
-    <circle cx="231" cy="256" r="6" fill="#0b6e6a"/>
+    <circle cx="341.9" cy="256" r="6" fill="#7d8b88"/>
+    <circle cx="231.4" cy="256" r="6" fill="#0b6e6a"/>
     <text class="key" x="40" y="280">low</text>
     <text class="val m" x="40" y="297">1,009.70</text>
     <text class="key" x="380" y="280" text-anchor="end">high</text>
     <text class="val m" x="380" y="297" text-anchor="end">1,050.77</text>
 
     <text class="leg" x="40" y="341">Front-month future on it</text>
-    <text class="key" x="209" y="365" text-anchor="middle">close</text>
-    <text class="key" x="322" y="365" text-anchor="middle">open</text>
+    <text class="key" x="208.6" y="365" text-anchor="middle">close</text>
+    <text class="key" x="321.8" y="365" text-anchor="middle">open</text>
     <line x1="40" y1="381" x2="380" y2="381" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
     <line x1="41" y1="371" x2="41" y2="391" stroke="#7d8b88" stroke-width="2"/>
     <line x1="379" y1="371" x2="379" y2="391" stroke="#7d8b88" stroke-width="2"/>
-    <circle cx="322" cy="381" r="6" fill="#7d8b88"/>
-    <circle cx="209" cy="381" r="6" fill="#0b6e6a"/>
+    <circle cx="321.8" cy="381" r="6" fill="#7d8b88"/>
+    <circle cx="208.6" cy="381" r="6" fill="#0b6e6a"/>
     <text class="key" x="40" y="405">low</text>
     <text class="val m" x="40" y="422">1,008.70</text>
     <text class="key" x="380" y="405" text-anchor="end">high</text>
     <text class="val m" x="380" y="422" text-anchor="end">1,051.65</text>
   </g>
 
-  <line class="rule" x1="430" y1="162" x2="430" y2="434"/>
+  <line class="rule" x1="430" y1="162" x2="430" y2="484"/>
 
-  <!-- panel 2 : what a person fixes first -->
   <g class="s">
     <text class="panelLabel" x="470" y="174">FIXED BEFORE ANYTHING RUNS</text>
     <text class="who" x="470" y="194">BY A PERSON</text>
-    <rect x="470" y="212" width="300" height="152" fill="#ffffff" stroke="#d0d7de"/>
-    <text class="val" x="490" y="242">The day examined</text>
-    <line class="rule" x1="490" y1="258" x2="750" y2="258"/>
-    <text class="val" x="490" y="282">The period it is compared with</text>
-    <line class="rule" x1="490" y1="298" x2="750" y2="298"/>
-    <text class="val" x="490" y="322">How large a pull-back counts</text>
-    <line class="rule" x1="490" y1="338" x2="750" y2="338"/>
-    <text class="val" x="490" y="356">How many markets must agree</text>
-    <text class="note" x="470" y="394">Widen any of these and the answer</text>
-    <text class="note" x="470" y="412">changes, so they are settled first.</text>
+    <rect x="470" y="212" width="300" height="150" fill="#ffffff" stroke="#d0d7de"/>
+    <text class="key" x="490" y="240">The day examined</text>
+    <text class="val m" x="490" y="262">2026-09-03</text>
+    <line class="rule" x1="490" y1="284" x2="750" y2="284"/>
+    <text class="key" x="490" y="308">Compared against</text>
+    <text class="val m" x="490" y="330">2026-07-01 – 2026-09-03</text>
+    <text class="key" x="490" y="350">45 trading days</text>
+    <text class="note" x="470" y="392">The thresholds are fixed here too, and each</text>
+    <text class="note" x="470" y="410">is printed beside the figure it decided.</text>
   </g>
 
-  <line class="rule" x1="810" y1="162" x2="810" y2="434"/>
+  <line class="rule" x1="810" y1="162" x2="810" y2="484"/>
 
-  <!-- panel 3 : what the code returns -->
   <g class="s">
-    <text class="panelLabel" x="850" y="174">WHAT FIXED CODE RETURNS</text>
+    <text class="panelLabel" x="850" y="174">WHAT THE VERSIONED RULE RETURNED</text>
     <text class="who" x="850" y="194">NOT A MODEL</text>
 
-    <text class="big" x="850" y="240">&#8776; 14&#215;</text>
-    <text class="key" x="850" y="260">the index gave back that much of its</text>
-    <text class="key" x="850" y="277">net move, inside the same day</text>
+    <text class="big" x="850" y="240">13.9147×</text>
+    <text class="key" x="850" y="260">the index gave back that much of its net move, inside the same day</text>
+    <text class="gate" x="850" y="280">threshold 10× · met</text>
 
-    <text class="big" x="850" y="317">&#8776; 25&#215;</text>
-    <text class="key" x="850" y="337">the futures contract on it did the same</text>
+    <text class="big" x="850" y="312">25.4705×</text>
+    <text class="key" x="850" y="332">the front-month future on it did the same</text>
+    <text class="gate" x="850" y="352">threshold 20× · met</text>
 
-    <text class="big" x="850" y="377">1st of 45</text>
-    <text class="key" x="850" y="397">trading days in the period compared</text>
+    <text class="big" x="850" y="384">1 of 45</text>
+    <text class="key" x="850" y="404">trading days in the period compared</text>
+    <text class="gate" x="850" y="424">threshold: 1st or better · met</text>
 
-    <text class="note" x="850" y="422">A position inside a chosen period, not a probability.</text>
+    <text class="note" x="850" y="446">2 of 2 markets had to agree, and did.</text>
+    <text class="note" x="850" y="470">Thresholds were chosen for this case by a person who had already seen the day.</text>
   </g>
 
-  <line class="rule" x1="40" y1="434" x2="1160" y2="434"/>
-  <text class="foot s" x="40" y="454">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
-  <text class="foot s" x="40" y="472">Each observed value opens onto its published row. The multiples and the standing are rule output bound to an approved scope, not a judgement about anyone.</text>
+  <line class="rule" x1="40" y1="484" x2="1160" y2="484"/>
+  <text class="foot s" x="40" y="504">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
+  <text class="foot s" x="40" y="522">Generated from those artifacts by the versioned rule: deterministic output, not an approved case or evidence. On the site the same case runs only after a person approves the scope.</text>
 </svg>

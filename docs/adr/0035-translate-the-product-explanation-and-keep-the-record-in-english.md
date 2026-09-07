@@ -60,6 +60,25 @@ the four older diagrams remain English in both READMEs, with their content
 carried by Korean alt text until they are redrawn in
 [#126](https://github.com/WeaveTrail/WeaveTrail/issues/126).
 
+That worked-case figure is generated rather than drawn, following
+[ADR 0032](0032-draw-the-layer-diagram-from-localized-copy.md). It shows real
+published prices and real rule output, and a drawing cannot be reproduced from
+the artifacts it claims to show: its bar positions were computed by hand
+against prices that can change, and only the values someone thought to check
+were pinned. `apps/web/src/app/case-2026-09-03/worked-case-diagram.ts` reads
+the prices from the committed rows and the multiples, thresholds and standing
+from the engine, derives the bar geometry from the prices, and renders both
+languages. `pnpm diagram:case` writes the two committed files; the test beside
+it fails when they differ, so the committed bytes are reproducible from the
+committed artifacts by one command.
+
+Because the figure reports a rule result over a real instrument, it carries the
+disclosures that go with one: each observation prints beside the threshold it
+was compared with, the thresholds say they were chosen by a person who had
+already seen the day, and the figure states that it is deterministic output
+rather than an approved case or evidence — the approval that matters happens on
+the site, before the case runs.
+
 `apps/web/src/app/i18n/entry-point-parity.test.ts` enforces the structural part
 of this: that each pair exists, that their headings correspond, that the
 commands and the deployed URL match, that every relative link resolves, and
@@ -68,11 +87,9 @@ marking it — whatever that destination's extension, since `LICENSE` and the
 `docs/adr` directory surprise a reader exactly as much as a `.md` file would.
 A link to a source file is not marked: code is English by nature.
 
-The same test pins both worked-case diagrams. They are drawn rather than
-generated, so their published prices are compared against the committed rows
-and their multiples and standing against the engine's own output for the case.
-A changed artifact fails there instead of shipping a figure that disagrees with
-the case it illustrates.
+The worked-case diagrams are held to the same standard by
+`worked-case-diagram.test.ts`, which writes them and fails when the committed
+files no longer match what the module renders.
 
 ## Consequences
 
