@@ -50,6 +50,21 @@ function declaredFields(
   );
 }
 
+function usesRegisteredConstants(mappingVersion: string | undefined): boolean {
+  return (
+    mappingVersion === "1.5" ||
+    mappingVersion === "1.6" ||
+    mappingVersion === "1.7" ||
+    mappingVersion === "1.8"
+  );
+}
+
+function eventTypeOf(
+  constants: SchemaMappingProposal["constants"],
+): string | undefined {
+  return "eventType" in constants ? constants.eventType : undefined;
+}
+
 const registeredProposals = [
   ...Object.values(publishedReplaySources).map(
     ({ mappingProposal }) => mappingProposal,
@@ -101,27 +116,25 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
     const artifactMapping = fixtureMappingsByArtifact.get(
       input.sourceArtifactHash,
     );
-    if (
+    const fixtureUsesRegisteredConstants = usesRegisteredConstants(
+      artifactMapping?.mappingVersion,
+    );
+    const inputRequiresRegisteredConstants =
       input.constants.schemaVersion === "1.2" ||
       input.constants.schemaVersion === "1.3" ||
-      artifactMapping?.mappingVersion === "1.5" ||
-      artifactMapping?.mappingVersion === "1.6" ||
-      artifactMapping?.mappingVersion === "1.7"
-    ) {
+      eventTypeOf(input.constants) === "TRADE";
+    if (inputRequiresRegisteredConstants || fixtureUsesRegisteredConstants) {
       if (
-        (artifactMapping?.mappingVersion !== "1.5" &&
-          artifactMapping?.mappingVersion !== "1.6" &&
-          artifactMapping?.mappingVersion !== "1.7") ||
-        (input.constants.schemaVersion !== "1.2" &&
-          input.constants.schemaVersion !== "1.3") ||
+        artifactMapping === undefined ||
+        !fixtureUsesRegisteredConstants ||
         input.constants.schemaVersion !==
           artifactMapping.constants.schemaVersion ||
         input.constants.datasetId !== artifactMapping.constants.datasetId ||
         input.constants.venueId !== artifactMapping.constants.venueId ||
-        input.constants.eventType !== artifactMapping.constants.eventType
+        eventTypeOf(input.constants) !== eventTypeOf(artifactMapping.constants)
       ) {
         throw new Error(
-          "Daily quote constants must match a registered fixture artifact",
+          "Fixture constants must match a registered fixture artifact",
         );
       }
     }

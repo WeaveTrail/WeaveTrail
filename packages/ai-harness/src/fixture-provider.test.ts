@@ -74,6 +74,26 @@ describe("FixtureSchemaMappingProvider", () => {
     ]);
   });
 
+  it("rejects constants that rebind a registered execution artifact", async () => {
+    for (const scenario of Object.values(publishedExecutionSchemaScenario)) {
+      const input = {
+        sourceArtifactHash: scenario.sourceArtifactHash,
+        constants: scenario.constants,
+        columns: [...scenario.columns],
+        sampleRows: [],
+      };
+
+      for (const constants of [
+        { ...scenario.constants, datasetId: "OTHER" },
+        { ...scenario.constants, venueId: "OTHER" },
+      ]) {
+        await expect(provider.propose({ ...input, constants })).rejects.toThrow(
+          "must match",
+        );
+      }
+    }
+  });
+
   it("selects daily proposal metadata by registered artifact hash and checks constants", async () => {
     const constants = {
       schemaVersion: "1.2",
