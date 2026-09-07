@@ -10,6 +10,7 @@ import {
   publishedCaseSeries,
 } from "../../lib/published-case";
 import {
+  PUBLISHED_CASE_RUN_ERROR_ID,
   PUBLISHED_CASE_THRESHOLD_ORIGIN_ID,
   PublishedCaseSurface,
   ThresholdOriginReference,
@@ -455,5 +456,59 @@ describe("the 2026-09-03 case surface", () => {
       expect(position, language).toContain("3");
       expect(position, language).toContain(String(text.chapters.length));
     }
+  });
+  it("can put focus on a threshold's provenance from another chapter", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      // The findings that cite this provenance are read two chapters after the
+      // chapter that fixed it, so following the citation has to open that
+      // chapter. Reaching it is only half the job: it also has to be able to
+      // take focus, or a keyboard reader is told nothing.
+      const target = markup.slice(
+        markup.indexOf(`id="${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`),
+      );
+      expect(target.slice(0, 120), language).toContain('tabindex="-1"');
+      // It is not in the chapter the reader starts on, which is exactly why
+      // the plain fragment is not enough on its own.
+      const chapters = [
+        ...markup.matchAll(/class="case-chapter"(?<hidden> hidden)?/g),
+      ];
+      const before = markup
+        .slice(0, markup.indexOf(`id="${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`))
+        .match(/class="case-chapter"/g);
+      expect(before, language).not.toBeNull();
+      expect(before!.length, language).toBeGreaterThan(1);
+      expect(chapters[before!.length - 1]!.groups?.hidden, language).toBe(
+        " hidden",
+      );
+    }
+  });
+
+  it("carries the citation as a fragment that can still be shared", () => {
+    // The handler opens the chapter, but the href stays a real fragment so the
+    // citation remains copyable and survives with scripting off.
+    const markup = renderToStaticMarkup(
+      createElement(ThresholdOriginReference, { label: "origin" }),
+    );
+    expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
+  });
+
+  it("gives a refused run an identity that can be returned to", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // A run can fail after the reader has moved on, so both refusal paths send
+    // the case back to the chapter that started it rather than leaving the
+    // alert inside a hidden chapter.
+    expect(surfaceSource).toContain("const startedIn = activeChapter;");
+    expect(surfaceSource.match(/setActiveChapter\(startedIn\)/g)).toHaveLength(
+      2,
+    );
+    expect(surfaceSource).toContain(`id={PUBLISHED_CASE_RUN_ERROR_ID}`);
+    expect(PUBLISHED_CASE_RUN_ERROR_ID).toBe("published-case-run-error");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
   ApprovalRecord,
@@ -77,10 +77,47 @@ type Rule = Extract<
 export const PUBLISHED_CASE_THRESHOLD_ORIGIN_ID =
   "published-case-threshold-origin";
 
-export function ThresholdOriginReference({ label }: { label: string }) {
+export const PUBLISHED_CASE_RUN_ERROR_ID = "published-case-run-error";
+
+/** The chapter holding this element, by position, or null when it is in none. */
+function chapterOf(id: string): number | null {
+  const chapter = document.getElementById(id)?.closest(".case-chapter");
+  if (!chapter) return null;
+  const position = [...document.querySelectorAll(".case-chapter")].indexOf(
+    chapter,
+  );
+  return position === -1 ? null : position;
+}
+
+function focusTarget(id: string) {
+  const target = document.getElementById(id);
+  if (!(target instanceof HTMLElement)) return;
+  target.scrollIntoView({ block: "center" });
+  target.focus({ preventScroll: true });
+}
+
+/**
+ * A threshold's provenance is fixed in the chapter that set the scope, while
+ * the findings citing it are read two chapters later. The link keeps its
+ * fragment so it stays copyable, and `onNavigate` lets the surface open the
+ * chapter holding the target: without it the fragment points into a chapter
+ * the reader cannot see, and following it does nothing.
+ */
+export function ThresholdOriginReference({
+  label,
+  onNavigate,
+}: {
+  label: string;
+  onNavigate?: (id: string) => void;
+}) {
   return (
     <small>
-      <a href={`#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}`}>{label}</a>
+      <a
+        href={`#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}`}
+        onClick={() => onNavigate?.(PUBLISHED_CASE_THRESHOLD_ORIGIN_ID)}
+      >
+        {label}
+      </a>
     </small>
   );
 }
@@ -124,6 +161,31 @@ export function PublishedCaseSurface({
     document.getElementById(`chapter-${activeChapter + 1}`)?.focus();
   }, [activeChapter]);
 
+  /**
+   * Bring an element into view, opening the chapter that holds it first. The
+   * focus is deferred by a turn because the chapter it lives in is only
+   * rendered visible once this state change has been committed.
+   */
+  const revealTarget = useCallback((id: string) => {
+    const position = chapterOf(id);
+    if (position === null) return;
+    setActiveChapter(position);
+    setReadChapters((current) =>
+      current.includes(position) ? current : [...current, position],
+    );
+    window.setTimeout(() => focusTarget(id), 0);
+  }, []);
+
+  // A fragment typed or shared into the address bar names an element, not a
+  // chapter, so the chapter holding it is opened before the browser's own jump
+  // can mean anything.
+  useEffect(() => {
+    const fragment = window.location.hash.slice(1);
+    if (fragment === "") return;
+    const timer = window.setTimeout(() => revealTarget(fragment), 0);
+    return () => window.clearTimeout(timer);
+  }, [revealTarget]);
+
   function goToChapter(position: number) {
     if (position < 0 || position >= chapterCount) return;
     if (position === activeChapter) return;
@@ -144,6 +206,11 @@ export function PublishedCaseSurface({
 
   async function runCase() {
     if (approval === null || running) return;
+    // The reader can move chapters while the request is in flight. A refusal is
+    // the whole point of this step, so the case returns to the chapter that
+    // started the run rather than leaving the alert inside a hidden chapter,
+    // where it is neither shown nor announced.
+    const startedIn = activeChapter;
     setRunning(true);
     setError(null);
     try {
@@ -156,12 +223,14 @@ export function PublishedCaseSurface({
       if (!response.ok) {
         setResult(null);
         setError(`${body.code ?? "CASE_REVIEW_REQUIRED"} · ${body.message}`);
+        setActiveChapter(startedIn);
         return;
       }
       setResult(body as PublishedCaseReplay);
     } catch {
       setResult(null);
       setError("REPLAY_REFUSED");
+      setActiveChapter(startedIn);
     } finally {
       setRunning(false);
     }
@@ -373,6 +442,7 @@ export function PublishedCaseSurface({
           <p
             className="threshold-origin"
             id={PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}
+            tabIndex={-1}
           >
             {text.thresholdOrigin}
           </p>
@@ -433,7 +503,12 @@ export function PublishedCaseSurface({
             <p className="step-requirement">{text.runBlocked}</p>
           )}
           {error && (
-            <p className="error-message" role="alert">
+            <p
+              className="error-message"
+              id={PUBLISHED_CASE_RUN_ERROR_ID}
+              role="alert"
+              tabIndex={-1}
+            >
               {error}
             </p>
           )}
@@ -478,6 +553,7 @@ export function PublishedCaseSurface({
                     </b>
                     <ThresholdOriginReference
                       label={text.thresholdOriginLink}
+                      onNavigate={revealTarget}
                     />
                   </div>
                 ))}
