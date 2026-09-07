@@ -146,19 +146,30 @@ function buildSensitivity(
           ),
         };
       };
+      const approvedMetric = metric(approved);
       return {
         legId: leg.legId,
         instrumentId: leg.instrumentId,
         eventId: observation.event.eventId,
-        approved: metric(approved),
+        approved: approvedMetric,
         alternatives: leg.denominators
           .filter(
             ({ denominatorId }) => denominatorId !== leg.approvedDenominatorId,
           )
-          .map((alternative) => ({
-            ...metric(alternative),
-            ratioToApprovedMetric:
-              compareScaledDecimals(observation.reversal, ZERO) === 0
+          .map((alternative) => {
+            const alternativeMetric = metric(alternative);
+            const bothMetricsZero =
+              compareScaledDecimals(
+                parseScaledDecimal(approvedMetric.metricValue),
+                ZERO,
+              ) === 0 &&
+              compareScaledDecimals(
+                parseScaledDecimal(alternativeMetric.metricValue),
+                ZERO,
+              ) === 0;
+            return {
+              ...alternativeMetric,
+              ratioToApprovedMetric: bothMetricsZero
                 ? null
                 : renderExactRatioTruncated(
                     ratio(
@@ -167,10 +178,11 @@ function buildSensitivity(
                     ),
                     REPORTED_FRACTIONAL_DIGITS,
                   ),
-            ...(compareScaledDecimals(observation.reversal, ZERO) === 0
-              ? { ratioUnavailableReason: "BOTH_METRICS_ZERO" as const }
-              : {}),
-          })),
+              ...(bothMetricsZero
+                ? { ratioUnavailableReason: "BOTH_METRICS_ZERO" as const }
+                : {}),
+            };
+          }),
       };
     }),
   };

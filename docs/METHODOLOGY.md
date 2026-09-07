@@ -417,8 +417,11 @@ alternative it reports the alternative-to-approved metric ratio, the shared
 recomputations, not claims that a denominator caused the observed session.
 Each sensitivity leg is bound one-to-one to its analysis leg by leg,
 instrument and event identifiers plus the approved denominator identifier and
-value. `BOTH_METRICS_ZERO` is valid only when both canonical metric values are
-zero; otherwise the alternative-to-approved ratio is required.
+value; its approved metric also equals the analysis reversal multiple.
+Alternative denominator identifiers are unique and cannot repeat the approved
+identifier. `BOTH_METRICS_ZERO` is derived from the rendered canonical metric
+values and is valid only when both are zero; otherwise a nonnegative
+alternative-to-approved ratio is required.
 
 `INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL` explicitly
 marks a denominator that is an instrument specification rather than a price a

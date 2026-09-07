@@ -40,10 +40,15 @@ A conclusive `1.1` result reports the approved and every alternative metric in
 reports the alternative-to-approved metric ratio and the literal interpretation
 `MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION`. Arithmetic uses scaled
 integers and exact ratios. If both reported metrics are zero, the ratio is null
-with `BOTH_METRICS_ZERO` rather than an invented quotient.
+with `BOTH_METRICS_ZERO` rather than an invented quotient. The engine makes that
+choice after rendering both metrics to the contract's declared precision, and
+every non-null ratio is nonnegative. Alternative denominator identifiers are
+unique and distinct from the approved identifier.
 The result contract binds every sensitivity leg one-to-one to the corresponding
 analysis leg, including its instrument, event and approved denominator identity
-and value, so independently parsed output cannot relabel or omit a recomputation.
+and value. The approved sensitivity metric must equal the analysis reversal
+multiple, so independently parsed output cannot relabel, omit or contradict a
+recomputation.
 
 Every declared denominator must resolve for the analysed observation, and the
 approved denominator must resolve for every baseline observation used by the

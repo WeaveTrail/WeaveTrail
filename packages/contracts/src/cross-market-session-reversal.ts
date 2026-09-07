@@ -9,6 +9,10 @@ import {
 } from "./rule-parameters";
 
 const PositiveIntegerStringSchema = z.string().regex(/^[1-9]\d*$/);
+const NonnegativeDecimalStringSchema = DecimalStringSchema.refine(
+  (value) => !value.startsWith("-"),
+  "Expected a decimal string greater than or equal to zero",
+);
 const PositiveDecimalStringSchema = DecimalStringSchema.refine(
   (value) => value !== "0" && !value.startsWith("-"),
   "Expected a decimal string greater than zero",
@@ -117,7 +121,7 @@ const DenominatorMetricSchema = z
 const AlternativeDenominatorMetricSchema = z
   .object({
     ...DenominatorMetricFields,
-    ratioToApprovedMetric: DecimalStringSchema.nullable(),
+    ratioToApprovedMetric: NonnegativeDecimalStringSchema.nullable(),
     ratioUnavailableReason: z.literal("BOTH_METRICS_ZERO").optional(),
   })
   .strict()
@@ -146,6 +150,24 @@ const CrossMarketSessionReversalSensitivityLegSchema = z
   })
   .strict()
   .superRefine((leg, context) => {
+    const alternativeIds = leg.alternatives.map(
+      ({ denominatorId }) => denominatorId,
+    );
+    if (new Set(alternativeIds).size !== alternativeIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["alternatives"],
+        message: "Alternative denominator identifiers must be unique",
+      });
+    }
+    if (alternativeIds.includes(leg.approved.denominatorId)) {
+      context.addIssue({
+        code: "custom",
+        path: ["alternatives"],
+        message:
+          "Alternative denominator identifiers must differ from the approved denominator",
+      });
+    }
     for (const [index, alternative] of leg.alternatives.entries()) {
       const bothMetricsZero =
         leg.approved.metricValue === "0" && alternative.metricValue === "0";
@@ -291,6 +313,11 @@ const CrossMarketSessionReversalConclusiveResultV11Schema = z
           actual: sensitivityLeg.approved.denominatorValue,
           expected: analysisLeg.approvedDenominatorValue,
           path: "approved.denominatorValue",
+        },
+        {
+          actual: sensitivityLeg.approved.metricValue,
+          expected: analysisLeg.reversalMultiple,
+          path: "approved.metricValue",
         },
       ];
       for (const match of matches) {

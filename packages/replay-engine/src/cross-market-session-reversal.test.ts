@@ -354,6 +354,42 @@ describe("cross-market session reversal", () => {
     });
   });
 
+  it("derives zero-ratio handling from the rendered metric values", () => {
+    const events = crossMarketSessionReversalSpecimens.supported.events.map(
+      (event) =>
+        event.tradingDate === "2026-09-02"
+          ? {
+              ...event,
+              openPrice: "100",
+              highPrice: "100",
+              lowPrice: "99.998",
+              closePrice: "99.999",
+              netChange: "100",
+            }
+          : event,
+    );
+    expect(
+      evaluateCrossMarketSessionReversal(events, sensitivityManifest(events)),
+    ).toMatchObject({
+      result: "NOT_SUPPORTED",
+      sensitivity: {
+        legs: expect.arrayContaining([
+          expect.objectContaining({
+            approved: expect.objectContaining({ metricValue: "0" }),
+            alternatives: expect.arrayContaining([
+              expect.objectContaining({
+                denominatorId: "published-open",
+                metricValue: "0",
+                ratioToApprovedMetric: null,
+                ratioUnavailableReason: "BOTH_METRICS_ZERO",
+              }),
+            ]),
+          }),
+        ]),
+      },
+    });
+  });
+
   it("binds the approved denominator to approval and canonical result hashes only", () => {
     const events = crossMarketSessionReversalSpecimens.supported.events;
     const netChangeManifest = sensitivityManifest(

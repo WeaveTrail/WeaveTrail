@@ -79,7 +79,7 @@ function conclusiveV11Result(
     sessionReversal: "15",
     netChange: "1",
     relation: "OPPOSED" as const,
-    reversalMultiple: "15",
+    reversalMultiple: options.approvedMetricValue ?? "15",
     approvedDenominatorId: "published-net-change",
     approvedDenominatorValue: options.approvedDenominatorValue ?? "1",
   }));
@@ -402,6 +402,38 @@ describe("cross-market session reversal contracts", () => {
 
   it.each([
     {
+      conflict: "the approved denominator",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.alternatives[0]!.denominatorId =
+          "published-net-change";
+      },
+    },
+    {
+      conflict: "another alternative",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.alternatives.push(
+          structuredClone(result.sensitivity.legs[0]!.alternatives[0]!),
+        );
+      },
+    },
+  ])("rejects an alternative ID that duplicates $conflict", ({ mutate }) => {
+    const result = conclusiveV11Result();
+    mutate(result);
+    expect(
+      CrossMarketSessionReversalResultSchema.safeParse(result).success,
+    ).toBe(false);
+  });
+
+  it("rejects a negative alternative-to-approved metric ratio", () => {
+    expect(
+      CrossMarketSessionReversalResultSchema.safeParse(
+        conclusiveV11Result({ ratioToApprovedMetric: "-1" }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it.each([
+    {
       mismatch: "approved denominator identifier",
       mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
         result.sensitivity.legs[0]!.approved.denominatorId = "other";
@@ -411,6 +443,12 @@ describe("cross-market session reversal contracts", () => {
       mismatch: "approved denominator value",
       mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
         result.sensitivity.legs[0]!.approved.denominatorValue = "2";
+      },
+    },
+    {
+      mismatch: "approved metric value",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.approved.metricValue = "16";
       },
     },
     {
