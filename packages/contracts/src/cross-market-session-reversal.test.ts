@@ -61,6 +61,10 @@ function conclusiveV11Result(
     sensitivitySource?:
       | { kind: "EVENT_FIELD"; field: "netChange" | "openPrice" }
       | { kind: "DECLARED_VALUE"; provenance: string };
+    approvedMetricValue?: string;
+    alternativeMetricValue?: string;
+    ratioToApprovedMetric?: string | null;
+    ratioUnavailableReason?: "BOTH_METRICS_ZERO";
   } = {},
 ) {
   const eventIds = ["event-spot", "event-future"];
@@ -137,7 +141,7 @@ function conclusiveV11Result(
             kind: "EVENT_FIELD",
             field: "netChange",
           },
-          metricValue: "15",
+          metricValue: options.approvedMetricValue ?? "15",
         },
         alternatives: [
           {
@@ -149,8 +153,16 @@ function conclusiveV11Result(
               kind: "DECLARED_VALUE",
               provenance: "Synthetic instrument specification fixture.",
             },
-            metricValue: "30",
-            ratioToApprovedMetric: "2",
+            metricValue: options.alternativeMetricValue ?? "30",
+            ratioToApprovedMetric:
+              options.ratioToApprovedMetric === undefined
+                ? "2"
+                : options.ratioToApprovedMetric,
+            ...(options.ratioUnavailableReason === undefined
+              ? {}
+              : {
+                  ratioUnavailableReason: options.ratioUnavailableReason,
+                }),
           },
         ],
       })),
@@ -351,6 +363,83 @@ describe("cross-market session reversal contracts", () => {
         CrossMarketSessionReversalResultSchema.safeParse(
           conclusiveV11Result(options),
         ).success,
+      ).toBe(false);
+    },
+  );
+
+  it.each([
+    { approvedMetricValue: "15", alternativeMetricValue: "30" },
+    { approvedMetricValue: "15", alternativeMetricValue: "0" },
+    { approvedMetricValue: "0", alternativeMetricValue: "30" },
+  ])(
+    "rejects BOTH_METRICS_ZERO unless both reported metrics are zero",
+    ({ approvedMetricValue, alternativeMetricValue }) => {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result({
+            approvedMetricValue,
+            alternativeMetricValue,
+            ratioToApprovedMetric: null,
+            ratioUnavailableReason: "BOTH_METRICS_ZERO",
+          }),
+        ).success,
+      ).toBe(false);
+    },
+  );
+
+  it("accepts BOTH_METRICS_ZERO when both reported metrics are zero", () => {
+    expect(
+      CrossMarketSessionReversalResultSchema.safeParse(
+        conclusiveV11Result({
+          approvedMetricValue: "0",
+          alternativeMetricValue: "0",
+          ratioToApprovedMetric: null,
+          ratioUnavailableReason: "BOTH_METRICS_ZERO",
+        }),
+      ).success,
+    ).toBe(true);
+  });
+
+  it.each([
+    {
+      mismatch: "approved denominator identifier",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.approved.denominatorId = "other";
+      },
+    },
+    {
+      mismatch: "approved denominator value",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.approved.denominatorValue = "2";
+      },
+    },
+    {
+      mismatch: "instrument identifier",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.instrumentId = "OTHER";
+      },
+    },
+    {
+      mismatch: "event identifier",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[0]!.eventId = "event-other";
+      },
+    },
+    {
+      mismatch: "leg coverage",
+      mutate: (result: ReturnType<typeof conclusiveV11Result>) => {
+        result.sensitivity.legs[1] = structuredClone(
+          result.sensitivity.legs[0]!,
+        );
+      },
+    },
+  ])(
+    "rejects a $mismatch mismatch between analysis and sensitivity",
+    ({ mutate }) => {
+      const result = conclusiveV11Result();
+      mutate(result);
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(result).success,
       ).toBe(false);
     },
   );

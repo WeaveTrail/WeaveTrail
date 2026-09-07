@@ -41,6 +41,9 @@ reports the alternative-to-approved metric ratio and the literal interpretation
 `MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION`. Arithmetic uses scaled
 integers and exact ratios. If both reported metrics are zero, the ratio is null
 with `BOTH_METRICS_ZERO` rather than an invented quotient.
+The result contract binds every sensitivity leg one-to-one to the corresponding
+analysis leg, including its instrument, event and approved denominator identity
+and value, so independently parsed output cannot relabel or omit a recomputation.
 
 Every declared denominator must resolve for the analysed observation, and the
 approved denominator must resolve for every baseline observation used by the

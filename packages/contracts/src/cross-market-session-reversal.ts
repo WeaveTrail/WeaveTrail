@@ -136,23 +136,37 @@ const AlternativeDenominatorMetricSchema = z
     }
   });
 
+const CrossMarketSessionReversalSensitivityLegSchema = z
+  .object({
+    legId: z.string().min(1),
+    instrumentId: z.string().min(1),
+    eventId: z.string().min(1),
+    approved: DenominatorMetricSchema,
+    alternatives: z.array(AlternativeDenominatorMetricSchema).min(1),
+  })
+  .strict()
+  .superRefine((leg, context) => {
+    for (const [index, alternative] of leg.alternatives.entries()) {
+      const bothMetricsZero =
+        leg.approved.metricValue === "0" && alternative.metricValue === "0";
+      const reportsBothMetricsZero =
+        alternative.ratioUnavailableReason === "BOTH_METRICS_ZERO";
+      if (bothMetricsZero !== reportsBothMetricsZero) {
+        context.addIssue({
+          code: "custom",
+          path: ["alternatives", index, "ratioUnavailableReason"],
+          message:
+            "BOTH_METRICS_ZERO must agree with the approved and alternative metric values",
+        });
+      }
+    }
+  });
+
 export const CrossMarketSessionReversalSensitivitySchema = z
   .object({
     comparison: MechanicalMetricComparisonSchema,
     interpretation: z.literal("MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION"),
-    legs: z
-      .array(
-        z
-          .object({
-            legId: z.string().min(1),
-            instrumentId: z.string().min(1),
-            eventId: z.string().min(1),
-            approved: DenominatorMetricSchema,
-            alternatives: z.array(AlternativeDenominatorMetricSchema).min(1),
-          })
-          .strict(),
-      )
-      .min(2),
+    legs: z.array(CrossMarketSessionReversalSensitivityLegSchema).min(2),
   })
   .strict();
 
@@ -217,18 +231,93 @@ const ResultFieldsV11 = {
   ruleVersion: z.literal("1.1"),
 } as const;
 
+const CrossMarketSessionReversalConclusiveResultV11Schema = z
+  .object({
+    ...ResultFieldsV11,
+    result: z.enum(["SUPPORTED", "NOT_SUPPORTED"]),
+    findings: z.array(CrossMarketSessionReversalFindingSchema).min(4),
+    analysis: CrossMarketSessionReversalAnalysisV11Schema,
+    sensitivity: CrossMarketSessionReversalSensitivitySchema,
+  })
+  .strict()
+  .superRefine((result, context) => {
+    const analysisByLegId = new Map(
+      result.analysis.legs.map((leg) => [leg.legId, leg]),
+    );
+    const sensitivityByLegId = new Map(
+      result.sensitivity.legs.map((leg) => [leg.legId, leg]),
+    );
+    if (analysisByLegId.size !== result.analysis.legs.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["analysis", "legs"],
+        message: "Analysis leg identifiers must be unique",
+      });
+    }
+    if (sensitivityByLegId.size !== result.sensitivity.legs.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["sensitivity", "legs"],
+        message: "Sensitivity leg identifiers must be unique",
+      });
+    }
+    for (const [index, sensitivityLeg] of result.sensitivity.legs.entries()) {
+      const analysisLeg = analysisByLegId.get(sensitivityLeg.legId);
+      if (analysisLeg === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: ["sensitivity", "legs", index, "legId"],
+          message: "Sensitivity leg must name an analysis leg",
+        });
+        continue;
+      }
+      const matches = [
+        {
+          actual: sensitivityLeg.instrumentId,
+          expected: analysisLeg.instrumentId,
+          path: "instrumentId",
+        },
+        {
+          actual: sensitivityLeg.eventId,
+          expected: analysisLeg.eventId,
+          path: "eventId",
+        },
+        {
+          actual: sensitivityLeg.approved.denominatorId,
+          expected: analysisLeg.approvedDenominatorId,
+          path: "approved.denominatorId",
+        },
+        {
+          actual: sensitivityLeg.approved.denominatorValue,
+          expected: analysisLeg.approvedDenominatorValue,
+          path: "approved.denominatorValue",
+        },
+      ];
+      for (const match of matches) {
+        if (match.actual !== match.expected) {
+          context.addIssue({
+            code: "custom",
+            path: ["sensitivity", "legs", index, ...match.path.split(".")],
+            message: `Sensitivity ${match.path} must match its analysis leg`,
+          });
+        }
+      }
+    }
+    for (const analysisLeg of result.analysis.legs) {
+      if (!sensitivityByLegId.has(analysisLeg.legId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["sensitivity", "legs"],
+          message: `Sensitivity must include analysis leg ${analysisLeg.legId}`,
+        });
+      }
+    }
+  });
+
 export const CrossMarketSessionReversalResultV11Schema = z.discriminatedUnion(
   "result",
   [
-    z
-      .object({
-        ...ResultFieldsV11,
-        result: z.enum(["SUPPORTED", "NOT_SUPPORTED"]),
-        findings: z.array(CrossMarketSessionReversalFindingSchema).min(4),
-        analysis: CrossMarketSessionReversalAnalysisV11Schema,
-        sensitivity: CrossMarketSessionReversalSensitivitySchema,
-      })
-      .strict(),
+    CrossMarketSessionReversalConclusiveResultV11Schema,
     z
       .object({
         ...ResultFieldsV11,

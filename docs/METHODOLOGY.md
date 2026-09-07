@@ -415,6 +415,10 @@ alternative it reports the alternative-to-approved metric ratio, the shared
 `MECHANICAL_METRIC_COMPARISON` marker, and
 `MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION`. These are mechanical
 recomputations, not claims that a denominator caused the observed session.
+Each sensitivity leg is bound one-to-one to its analysis leg by leg,
+instrument and event identifiers plus the approved denominator identifier and
+value. `BOTH_METRICS_ZERO` is valid only when both canonical metric values are
+zero; otherwise the alternative-to-approved ratio is required.
 
 `INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL` explicitly
 marks a denominator that is an instrument specification rather than a price a
@@ -427,7 +431,9 @@ findings, null analysis and null sensitivity.
 
 Migration is explicit: a `1.0` consumer that opts into `1.1` must add
 `approvedDenominatorId` and `denominators` to each leg and accept the versioned
-sensitivity result. There is no coercion from `1.0`. See
+sensitivity result. Independently constructed results must preserve the
+analysis-to-sensitivity leg binding and may omit the metric ratio only for two
+zero metrics. There is no coercion from `1.0`. See
 [ADR 0035](adr/0035-bind-denominator-substitution-to-the-approved-rule.md).
 
 The committed published-data regression golden declares 2026-09-03 over the
