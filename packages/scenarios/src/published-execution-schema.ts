@@ -232,7 +232,7 @@ export const publishedExecutionManifest = CaseManifestSchema.parse({
     reviewerRef: "reviewer-fixture",
     decision: "APPROVED",
     overrides: [],
-    approvedAt: "2026-09-08T00:00:00Z",
+    approvedAt: "2026-09-07T15:35:08Z",
   },
 });
 

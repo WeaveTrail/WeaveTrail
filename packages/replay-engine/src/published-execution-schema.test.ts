@@ -69,11 +69,17 @@ function mappingApproval(
     reviewerRef: "reviewer-fixture",
     decision: "APPROVED" as const,
     overrides,
-    approvedAt: "2026-09-08T00:00:00Z",
+    approvedAt: "2026-09-07T15:35:08Z",
   };
 }
 
 describe("published execution schema synthetic scenario", () => {
+  it("records approval at the fixture's initial authored instant", () => {
+    expect(publishedExecutionManifest.approval.approvedAt).toBe(
+      "2026-09-07T15:35:08Z",
+    );
+  });
+
   it("pins every declared row to parser output", () => {
     expect(
       parseCsvSourceArtifact(
