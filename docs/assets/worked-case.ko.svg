@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="caseTitle caseDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="caseTitle caseDesc">
   <title id="caseTitle">공개된 기록만으로 하루를 다시 계산한 사례</title>
   <desc id="caseDesc">세 부분으로 나뉜 그림입니다. 왼쪽은 2026-09-03 코스피 200 지수와 그 최근월 선물의 발행된 하루 가격 범위로, 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 가운데는 실행 전에 사람이 확정하는 것으로, 분석 대상일과 비교할 기준선 기간, 그리고 각 판단이 견주는 기준값입니다. 이어서 버전이 고정된 규칙이 지수의 되돌림 배수 13.9147을 기준값 10에 대해, 선물의 25.4705을 기준값 20에 대해 돌려주고, 그날은 그 기간 45거래일 가운데 1번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아닙니다. 관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있고, 기준값은 이 날의 값을 이미 본 사람이 정했으며, 이 그림은 승인된 사례가 아니라 결정론적 출력입니다.</desc>
   <!--
@@ -30,9 +30,9 @@
     </style>
   </defs>
 
-  <rect width="1200" height="540" fill="#f7faf9"/>
+  <rect width="1200" height="560" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="559" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">실제 사례</text>
@@ -72,7 +72,7 @@
     <text class="val m" x="380" y="422" text-anchor="end">1,051.65</text>
   </g>
 
-  <line class="rule" x1="430" y1="162" x2="430" y2="484"/>
+  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>
 
   <g class="s">
     <text class="panelLabel" x="470" y="174">실행 전에 확정하는 것</text>
@@ -88,29 +88,30 @@
     <text class="note" x="470" y="410">그것이 판단한 수치 옆에 적습니다.</text>
   </g>
 
-  <line class="rule" x1="810" y1="162" x2="810" y2="484"/>
+  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>
 
   <g class="s">
     <text class="panelLabel" x="850" y="174">버전이 고정된 규칙이 돌려준 값</text>
     <text class="who" x="850" y="194">모델이 아닙니다</text>
 
     <text class="big" x="850" y="240">13.9147×</text>
-    <text class="key" x="850" y="260">지수는 전일 대비 변화폭의 그만큼을 같은 날 안에서 되돌렸습니다</text>
-    <text class="gate" x="850" y="280">기준값 10배 · 충족</text>
+    <text class="key" x="850" y="260">지수는 전일 대비 변화폭의 그만큼을</text>
+    <text class="key" x="850" y="277">같은 날 안에서 되돌렸습니다</text>
+    <text class="gate" x="850" y="297">기준값 10배 · 충족</text>
 
-    <text class="big" x="850" y="312">25.4705×</text>
-    <text class="key" x="850" y="332">그 지수의 최근월 선물도 같은 모양이었습니다</text>
-    <text class="gate" x="850" y="352">기준값 20배 · 충족</text>
+    <text class="big" x="850" y="328">25.4705×</text>
+    <text class="key" x="850" y="348">그 지수의 최근월 선물도 같은 모양이었습니다</text>
+    <text class="gate" x="850" y="368">기준값 20배 · 충족</text>
 
-    <text class="big" x="850" y="384">45거래일 중 1번째</text>
-    <text class="key" x="850" y="404">비교한 기준선 기간 안에서의 순위</text>
-    <text class="gate" x="850" y="424">기준값: 1번째 이내 · 충족</text>
+    <text class="big" x="850" y="404">45거래일 중 1번째</text>
+    <text class="key" x="850" y="424">비교한 기준선 기간 안에서의 순위</text>
+    <text class="gate" x="850" y="444">기준값: 1번째 이내 · 충족</text>
 
-    <text class="note" x="850" y="446">같은 모양이어야 하는 시장 2개 가운데 2개가 그러했습니다.</text>
-    <text class="note" x="850" y="470">기준값은 이 날의 값을 이미 본 사람이 이 사례를 만들면서 정했습니다.</text>
+    <text class="note" x="850" y="466">같은 모양이어야 하는 시장 2개 가운데 2개 · 충족</text>
   </g>
 
-  <line class="rule" x1="40" y1="484" x2="1160" y2="484"/>
-  <text class="foot s" x="40" y="504">발행처 값: 금융위원회 공개 데이터. 저장소에는 fsc-kospi-200-baseline-20260701-20260903, fsc-kospi-200-futures-20260903으로 커밋되어 있습니다.</text>
-  <text class="foot s" x="40" y="522">이 그림의 수치는 그 아티팩트에 버전이 고정된 규칙을 적용해 생성했습니다. 결정론적 출력이며 승인된 사례나 증거가 아닙니다. 사이트에서는 사람이 범위를 승인해야 같은 사례가 실행됩니다.</text>
+  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>
+  <text class="note s" x="40" y="520">기준값은 이 날의 값을 이미 본 사람이 이 사례를 만들면서 정했습니다.</text>
+  <text class="foot s" x="40" y="538">발행처 값: 금융위원회 공개 데이터. 저장소에는 fsc-kospi-200-baseline-20260701-20260903, fsc-kospi-200-futures-20260903으로 커밋되어 있습니다.</text>
+  <text class="foot s" x="40" y="554">이 그림의 수치는 그 아티팩트에 버전이 고정된 규칙을 적용해 생성했습니다. 결정론적 출력이며 승인된 사례나 증거가 아닙니다. 사이트에서는 사람이 범위를 승인해야 같은 사례가 실행됩니다.</text>
 </svg>

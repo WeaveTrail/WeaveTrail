@@ -24,7 +24,7 @@ import {
 import { RATIO_UNITS, scaledPrice } from "./scaled-price";
 
 export const DIAGRAM_WIDTH = 1200;
-export const DIAGRAM_HEIGHT = 540;
+export const DIAGRAM_HEIGHT = 560;
 
 /** The committed artifacts every figure on the diagram is read from. */
 export const NAMED_ARTIFACTS = [
@@ -39,6 +39,7 @@ export interface DiagramLeg {
   readonly close: string;
   readonly multiple: string;
   readonly multipleThreshold: string;
+  readonly multiplePassed: boolean;
 }
 
 export interface WorkedCaseFigures {
@@ -49,8 +50,10 @@ export interface WorkedCaseFigures {
   readonly rank: string;
   readonly population: string;
   readonly rankThreshold: string;
+  readonly rankPassed: boolean;
   readonly agreeingLegs: string;
   readonly agreeingThreshold: string;
+  readonly agreeingPassed: boolean;
 }
 
 /**
@@ -85,20 +88,25 @@ export function workedCaseFigures(): WorkedCaseFigures {
     analysedDate: analysis.analysedDate,
     baselineStart: analysis.baselineRange.startDate,
     baselineEnd: analysis.baselineRange.endDateInclusive,
-    legs: analysis.legs.map((leg) => ({
-      open: leg.openPrice,
-      high: leg.highPrice,
-      low: leg.lowPrice,
-      close: leg.closePrice,
-      multiple: leg.reversalMultiple,
-      multipleThreshold: thresholdFor("LEG_REVERSAL_MULTIPLE", leg.legId)
-        .threshold,
-    })),
+    legs: analysis.legs.map((leg) => {
+      const finding = thresholdFor("LEG_REVERSAL_MULTIPLE", leg.legId);
+      return {
+        open: leg.openPrice,
+        high: leg.highPrice,
+        low: leg.lowPrice,
+        close: leg.closePrice,
+        multiple: leg.reversalMultiple,
+        multipleThreshold: finding.threshold,
+        multiplePassed: finding.passed,
+      };
+    }),
     rank: analysis.rank.position,
     population: analysis.rank.populationSize,
     rankThreshold: thresholdFor("BASELINE_RANK").threshold,
+    rankPassed: thresholdFor("BASELINE_RANK").passed,
     agreeingLegs: thresholdFor("AGREEING_LEGS").observedValue,
     agreeingThreshold: thresholdFor("AGREEING_LEGS").threshold,
+    agreeingPassed: thresholdFor("AGREEING_LEGS").passed,
   };
 }
 
@@ -122,7 +130,9 @@ const LEG_ROWS = [
   { heading: 341, keys: 365, bar: 381, labels: 405, values: 422 },
 ] as const;
 /** Each returned figure's band in the right-hand panel. */
-const FIGURE_ROWS = [240, 312, 384] as const;
+const FIGURE_ROWS = [240, 328, 404] as const;
+/** The panel's right edge; a line that runs past it would be clipped. */
+export const CONTENT_RIGHT = 1160;
 const PANEL_X = { day: 40, scope: 470, returned: 850 } as const;
 
 /**
@@ -168,12 +178,21 @@ interface Copy {
   readonly scopeNote: readonly [string, string];
   readonly returnedLabel: string;
   readonly returnedWho: string;
-  readonly figureReadings: readonly [string, string, string];
+  readonly figureReadings: readonly [
+    readonly string[],
+    readonly string[],
+    readonly string[],
+  ];
   readonly threshold: (value: string) => string;
   readonly rankThreshold: (value: string) => string;
   readonly standing: (rank: string, population: string) => string;
   readonly met: string;
-  readonly agreeing: (observed: string, threshold: string) => string;
+  readonly notMet: string;
+  readonly agreeing: (
+    observed: string,
+    threshold: string,
+    state: string,
+  ) => string;
   readonly thresholdOrigin: string;
   readonly footer: readonly [string, string];
 }
@@ -205,16 +224,17 @@ const copy: Readonly<Record<Language, Copy>> = {
     returnedLabel: "WHAT THE VERSIONED RULE RETURNED",
     returnedWho: "NOT A MODEL",
     figureReadings: [
-      "the index gave back that much of its net move, inside the same day",
-      "the front-month future on it did the same",
-      "trading days in the period compared",
+      ["the index gave back that much of its net move,", "inside the same day"],
+      ["the front-month future on it did the same"],
+      ["trading days in the period compared"],
     ],
     threshold: (value) => `threshold ${value}×`,
     rankThreshold: (value) => `threshold: ${value}st or better`,
     standing: (rank, population) => `${rank} of ${population}`,
     met: "met",
-    agreeing: (observed, threshold) =>
-      `${observed} of ${threshold} markets had to agree, and did.`,
+    notMet: "not met",
+    agreeing: (observed, threshold, state) =>
+      `${threshold} markets had to agree; ${observed} did \u00b7 ${state}`,
     thresholdOrigin:
       "Thresholds were chosen for this case by a person who had already seen the day.",
     footer: [
@@ -248,16 +268,17 @@ const copy: Readonly<Record<Language, Copy>> = {
     returnedLabel: "버전이 고정된 규칙이 돌려준 값",
     returnedWho: "모델이 아닙니다",
     figureReadings: [
-      "지수는 전일 대비 변화폭의 그만큼을 같은 날 안에서 되돌렸습니다",
-      "그 지수의 최근월 선물도 같은 모양이었습니다",
-      "비교한 기준선 기간 안에서의 순위",
+      ["지수는 전일 대비 변화폭의 그만큼을", "같은 날 안에서 되돌렸습니다"],
+      ["그 지수의 최근월 선물도 같은 모양이었습니다"],
+      ["비교한 기준선 기간 안에서의 순위"],
     ],
     threshold: (value) => `기준값 ${value}배`,
     rankThreshold: (value) => `기준값: ${value}번째 이내`,
     standing: (rank, population) => `${population}거래일 중 ${rank}번째`,
     met: "충족",
-    agreeing: (observed, threshold) =>
-      `같은 모양이어야 하는 시장 ${threshold}개 가운데 ${observed}개가 그러했습니다.`,
+    notMet: "미충족",
+    agreeing: (observed, threshold, state) =>
+      `같은 모양이어야 하는 시장 ${threshold}개 가운데 ${observed}개 \u00b7 ${state}`,
     thresholdOrigin:
       "기준값은 이 날의 값을 이미 본 사람이 이 사례를 만들면서 정했습니다.",
     footer: [
@@ -405,7 +426,7 @@ export function workedCaseSvg(
   });
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="430" y1="162" x2="430" y2="484"/>`);
+  push(`  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>`);
   push(``);
 
   // panel 2 : what a person fixes first
@@ -445,7 +466,7 @@ export function workedCaseSvg(
   );
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="810" y1="162" x2="810" y2="484"/>`);
+  push(`  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>`);
   push(``);
 
   // panel 3 : what the rule returned, each figure beside the threshold it met
@@ -456,50 +477,66 @@ export function workedCaseSvg(
   push(
     `    <text class="who" x="${PANEL_X.returned}" y="194">${escape(text.returnedWho)}</text>`,
   );
-  const rows: readonly (readonly [string, string, string])[] = [
-    ...figures.legs.map(
-      (leg, index) =>
-        [
-          `${leg.multiple}×`,
-          text.figureReadings[index] ?? "",
-          text.threshold(leg.multipleThreshold),
-        ] as const,
-    ),
-    [
-      text.standing(figures.rank, figures.population),
-      text.figureReadings[2] ?? "",
-      text.rankThreshold(figures.rankThreshold),
-    ] as const,
+  interface FigureRow {
+    readonly value: string;
+    readonly reading: readonly string[];
+    readonly threshold: string;
+    readonly passed: boolean;
+  }
+  const rows: readonly FigureRow[] = [
+    ...figures.legs.map((leg, index) => ({
+      value: `${leg.multiple}\u00d7`,
+      reading: text.figureReadings[index] ?? [],
+      threshold: text.threshold(leg.multipleThreshold),
+      passed: leg.multiplePassed,
+    })),
+    {
+      value: text.standing(figures.rank, figures.population),
+      reading: text.figureReadings[2] ?? [],
+      threshold: text.rankThreshold(figures.rankThreshold),
+      passed: figures.rankPassed,
+    },
   ];
   rows.forEach((row, index) => {
     const y = FIGURE_ROWS[index];
     if (y === undefined) return;
     push(``);
     push(
-      `    <text class="big" x="${PANEL_X.returned}" y="${y}">${escape(row[0])}</text>`,
+      `    <text class="big" x="${PANEL_X.returned}" y="${y}">${escape(row.value)}</text>`,
     );
-    push(
-      `    <text class="key" x="${PANEL_X.returned}" y="${y + 20}">${escape(row[1])}</text>`,
+    row.reading.forEach((line, offset) =>
+      push(
+        `    <text class="key" x="${PANEL_X.returned}" y="${y + 20 + offset * 17}">${escape(line)}</text>`,
+      ),
     );
+    // The state each gate actually reported. A figure that says a failed
+    // comparison passed would be worse than one showing no state at all.
     push(
-      `    <text class="gate" x="${PANEL_X.returned}" y="${y + 40}">${escape(`${row[2]} · ${text.met}`)}</text>`,
+      `    <text class="gate" x="${PANEL_X.returned}" y="${y + 23 + row.reading.length * 17}">${escape(`${row.threshold} \u00b7 ${row.passed ? text.met : text.notMet}`)}</text>`,
     );
   });
   push(``);
   push(
-    `    <text class="note" x="${PANEL_X.returned}" y="446">${escape(text.agreeing(figures.agreeingLegs, figures.agreeingThreshold))}</text>`,
-  );
-  push(
-    `    <text class="note" x="${PANEL_X.returned}" y="470">${escape(text.thresholdOrigin)}</text>`,
+    `    <text class="note" x="${PANEL_X.returned}" y="466">${escape(
+      text.agreeing(
+        figures.agreeingLegs,
+        figures.agreeingThreshold,
+        figures.agreeingPassed ? text.met : text.notMet,
+      ),
+    )}</text>`,
   );
   push(`  </g>`);
   push(``);
-  push(`  <line class="rule" x1="40" y1="484" x2="1160" y2="484"/>`);
+  push(`  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>`);
+  // The threshold caveat runs the full width, where it cannot be clipped.
   push(
-    `  <text class="foot s" x="40" y="504">${escape(text.footer[0])}</text>`,
+    `  <text class="note s" x="40" y="520">${escape(text.thresholdOrigin)}</text>`,
   );
   push(
-    `  <text class="foot s" x="40" y="522">${escape(text.footer[1])}</text>`,
+    `  <text class="foot s" x="40" y="538">${escape(text.footer[0])}</text>`,
+  );
+  push(
+    `  <text class="foot s" x="40" y="554">${escape(text.footer[1])}</text>`,
   );
   push(`</svg>`);
   return `${out.join("\n")}\n`;

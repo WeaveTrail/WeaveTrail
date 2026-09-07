@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { LANGUAGES } from "../i18n/language";
 import {
+  CONTENT_RIGHT,
   NAMED_ARTIFACTS,
   workedCaseFigures,
   workedCaseSvg,
@@ -74,9 +75,92 @@ describe("the worked-case diagram", () => {
   it("draws both languages from the same geometry", () => {
     for (const language of LANGUAGES) {
       const svg = workedCaseSvg(language, figures);
-      expect(svg, language).toContain('viewBox="0 0 1200 540"');
+      expect(svg, language).toContain('viewBox="0 0 1200 560"');
       expect(svg, language).toContain("<title");
       expect(svg, language).toContain("<desc");
+    }
+  });
+});
+
+/**
+ * A standalone SVG does not wrap, so a line that runs past the panel is simply
+ * clipped when a README embeds it — which is how a material caveat about the
+ * thresholds went missing. Real font metrics need a browser, so this estimates
+ * generously: it exists to catch a line that overruns its panel, not to
+ * measure typography.
+ */
+const EM = { cjk: 1, space: 0.3, upper: 0.7, digit: 0.62, other: 0.56 };
+const FONT_SIZE: Readonly<Record<string, number>> = {
+  eyebrow: 11,
+  title: 27,
+  sub: 14,
+  panelLabel: 11,
+  who: 11,
+  leg: 13,
+  key: 12,
+  val: 13,
+  big: 20,
+  gate: 12,
+  note: 12,
+  foot: 11,
+};
+
+const widthOf = (text: string, size: number) =>
+  [...text].reduce((total, character) => {
+    if (/[\u1100-\u11ff\u3000-\u303f\uac00-\ud7af]/.test(character))
+      return total + EM.cjk * size;
+    if (character === " ") return total + EM.space * size;
+    if (/[A-Z]/.test(character)) return total + EM.upper * size;
+    if (/[0-9]/.test(character)) return total + EM.digit * size;
+    return total + EM.other * size;
+  }, 0);
+
+describe("worked-case diagram layout", () => {
+  const figures = workedCaseFigures();
+
+  it.each(LANGUAGES)("keeps every %s line inside the panel", (language) => {
+    const svg = workedCaseSvg(language, figures);
+    const overruns = [
+      ...svg.matchAll(
+        /<text class="([a-zA-Z]+)[^"]*" x="([\d.]+)"[^>]*?(text-anchor="(end|middle)")?[^>]*>([^<]+)<\/text>/g,
+      ),
+    ]
+      .map((match) => {
+        const size = FONT_SIZE[match[1] ?? ""] ?? 12;
+        const width = widthOf(match[5] ?? "", size);
+        const x = Number(match[2]);
+        const anchor = match[4];
+        const right =
+          anchor === "end"
+            ? x
+            : anchor === "middle"
+              ? x + width / 2
+              : x + width;
+        return { right: Math.round(right), text: match[5] };
+      })
+      .filter(({ right }) => right > CONTENT_RIGHT);
+    expect(overruns).toEqual([]);
+  });
+
+  it("reports a gate that did not pass as not met", () => {
+    // Every gate passes today. If a threshold or an artifact ever changed that,
+    // regenerating must not produce a figure claiming the comparison held.
+    const failing = {
+      ...figures,
+      rankPassed: false,
+      legs: figures.legs.map((leg, index) =>
+        index === 0 ? { ...leg, multiplePassed: false } : leg,
+      ),
+    };
+    for (const language of LANGUAGES) {
+      const states = [
+        ...workedCaseSvg(language, failing).matchAll(
+          /<text class="gate"[^>]*>[^<]*·\s*([^<]+)<\/text>/g,
+        ),
+      ].map((match) => match[1]?.trim());
+      const [notMet, met] =
+        language === "ko" ? ["미충족", "충족"] : ["not met", "met"];
+      expect(states, language).toEqual([notMet, met, notMet]);
     }
   });
 });

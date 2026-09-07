@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="caseTitle caseDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="caseTitle caseDesc">
   <title id="caseTitle">One day, re-derived from the published record</title>
   <desc id="caseDesc">Three panels. The published record for 2026-09-03 shows the day's range for the KOSPI 200 and its front-month future, each closing below its own open while finishing above the previous day. Before anything runs, a person fixes the day examined, the period it is compared against, and the thresholds each check is measured against. The versioned rule then returns a reversal multiple of 13.9147 for the index against a threshold of 10, 25.4705 for the future against 20, and the day standing 1 of 45 trading days in that period. A standing is a position inside the chosen period, not a probability. Each observed value opens onto the published row it was read from, the thresholds were chosen by a person who had already seen the day, and this figure is deterministic output rather than an approved case.</desc>
   <!--
@@ -30,9 +30,9 @@
     </style>
   </defs>
 
-  <rect width="1200" height="540" fill="#f7faf9"/>
+  <rect width="1200" height="560" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="559" fill="none" stroke="#d0d7de"/>
 
   <g class="s">
     <text class="eyebrow" x="40" y="48">A WORKED CASE</text>
@@ -72,7 +72,7 @@
     <text class="val m" x="380" y="422" text-anchor="end">1,051.65</text>
   </g>
 
-  <line class="rule" x1="430" y1="162" x2="430" y2="484"/>
+  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>
 
   <g class="s">
     <text class="panelLabel" x="470" y="174">FIXED BEFORE ANYTHING RUNS</text>
@@ -88,29 +88,30 @@
     <text class="note" x="470" y="410">is printed beside the figure it decided.</text>
   </g>
 
-  <line class="rule" x1="810" y1="162" x2="810" y2="484"/>
+  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>
 
   <g class="s">
     <text class="panelLabel" x="850" y="174">WHAT THE VERSIONED RULE RETURNED</text>
     <text class="who" x="850" y="194">NOT A MODEL</text>
 
     <text class="big" x="850" y="240">13.9147×</text>
-    <text class="key" x="850" y="260">the index gave back that much of its net move, inside the same day</text>
-    <text class="gate" x="850" y="280">threshold 10× · met</text>
+    <text class="key" x="850" y="260">the index gave back that much of its net move,</text>
+    <text class="key" x="850" y="277">inside the same day</text>
+    <text class="gate" x="850" y="297">threshold 10× · met</text>
 
-    <text class="big" x="850" y="312">25.4705×</text>
-    <text class="key" x="850" y="332">the front-month future on it did the same</text>
-    <text class="gate" x="850" y="352">threshold 20× · met</text>
+    <text class="big" x="850" y="328">25.4705×</text>
+    <text class="key" x="850" y="348">the front-month future on it did the same</text>
+    <text class="gate" x="850" y="368">threshold 20× · met</text>
 
-    <text class="big" x="850" y="384">1 of 45</text>
-    <text class="key" x="850" y="404">trading days in the period compared</text>
-    <text class="gate" x="850" y="424">threshold: 1st or better · met</text>
+    <text class="big" x="850" y="404">1 of 45</text>
+    <text class="key" x="850" y="424">trading days in the period compared</text>
+    <text class="gate" x="850" y="444">threshold: 1st or better · met</text>
 
-    <text class="note" x="850" y="446">2 of 2 markets had to agree, and did.</text>
-    <text class="note" x="850" y="470">Thresholds were chosen for this case by a person who had already seen the day.</text>
+    <text class="note" x="850" y="466">2 markets had to agree; 2 did · met</text>
   </g>
 
-  <line class="rule" x1="40" y1="484" x2="1160" y2="484"/>
-  <text class="foot s" x="40" y="504">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
-  <text class="foot s" x="40" y="522">Generated from those artifacts by the versioned rule: deterministic output, not an approved case or evidence. On the site the same case runs only after a person approves the scope.</text>
+  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>
+  <text class="note s" x="40" y="520">Thresholds were chosen for this case by a person who had already seen the day.</text>
+  <text class="foot s" x="40" y="538">Published values: Financial Services Commission open data, committed as fsc-kospi-200-baseline-20260701-20260903 and fsc-kospi-200-futures-20260903.</text>
+  <text class="foot s" x="40" y="554">Generated from those artifacts by the versioned rule: deterministic output, not an approved case or evidence. On the site the same case runs only after a person approves the scope.</text>
 </svg>
