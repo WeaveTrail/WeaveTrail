@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted
+Accepted. Its statement about real sources stopping before rule evaluation is
+superseded for eligible actorless index and contract cases by
+[ADR 0034](0034-evaluate-real-instruments-without-altering-source-facts.md).
 
 ## Context
 
@@ -38,10 +40,12 @@ Keep the existing prohibitions and extend them: never commit personal,
 customer, order, or production trading data, or any data whose licence does not
 permit third-party provision.
 
-A committed real artifact carries no fabricated attribute. Do not attach an
-invented participant, trade side, hypothesis, or pattern verdict to a real
-instrument. Where a real source cannot supply a field, leave it unmapped and
-let the workflow reach its review state rather than defaulting a value.
+A committed real source artifact carries no fabricated attribute. Do not add an
+invented participant, trade side, hypothesis, or pattern verdict to its source
+or derived rows. Where a real source cannot supply a field, leave it unmapped
+and let the workflow reach its review state rather than defaulting a value. ADR
+0034 governs when a separate deterministic rule may evaluate an eligible real
+instrument.
 
 Recording where and when a source was retrieved does not establish what the
 committed bytes contain. Commit the retrieved response as returned, and where
@@ -76,4 +80,6 @@ mutually exclusive rules. Public documentation that describes all repository
 data as synthetic must be corrected where a real artifact lands.
 
 This decision governs admissibility and provenance recording only. It changes
-no contract, hash scope, ordering rule, or result vocabulary.
+no contract, hash scope, ordering rule, or result vocabulary. ADR 0034 later
+clarifies that a separately declared rule output is not an attribute of the
+real source artifact.

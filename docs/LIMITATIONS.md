@@ -31,11 +31,13 @@ verification. It is not a production market-surveillance system.
   `INPUT_REVIEW_REQUIRED` starts a new request at `UPLOADED`.
 - Mapping-only foundation validation ends at `MAPPING_APPROVED`; only an
   approved case rule replay reaches `REPLAYED`.
-- Rule evaluations use synthetic cases. The published daily quote artifact
-  demonstrates normalization only and does not establish real-market rule accuracy.
+- Rule evaluations use synthetic cases and one fixed, licensed published
+  index-and-futures case. The published case is a deterministic worked example;
+  it does not establish real-market rule accuracy.
 - Rule thresholds are illustrative per-case configuration, not calibrated
-  market thresholds. The three declared outcomes are synthetic-fixture
-  results, not a detection-rate measurement.
+  market thresholds. In the published case they were selected with the
+  observations already known. Synthetic and published-case results are not a
+  detection-rate measurement.
 - No large-scale performance benchmark has been run.
 - Complete-series acquisition has a manual collector and offline admission
   checks tested with synthetic transport. It has no production publisher
@@ -80,6 +82,11 @@ review.
 The published FSC KOSPI daily quotation window has no participant identities,
 execution side or individual execution time. It normalizes after explicit
 mapping approval, but an attempted case actor is refused before rule evaluation.
-Its first-page sample is not the entire market. No actor, side, order or pattern
-verdict is invented for a real instrument. See
-[daily quote normalization](DAILY_QUOTES.md) for exact provenance and reproduction.
+Its first-page sample is not the entire market. No actor, side, order,
+hypothesis or verdict is added to the published source rows. A separate,
+pre-approved case may evaluate the index and contract with a versioned rule;
+its thresholds and their origin appear beside the observed values, and its
+result means support for that declared pattern only. See
+[ADR 0034](adr/0034-evaluate-real-instruments-without-altering-source-facts.md)
+for the boundary and [daily quote normalization](DAILY_QUOTES.md) for exact
+provenance and reproduction.

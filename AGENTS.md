@@ -66,9 +66,16 @@ reproducible check confirms it.
   This applies to every real artifact, not only market data.
 - Never commit personal, customer, order, or production trading data, or any
   data whose licence does not permit third-party provision.
-- A committed real artifact carries no fabricated attribute. Never attach an
-  invented participant, trade side, hypothesis, or pattern verdict to a real
-  instrument.
+- A committed real source artifact carries no fabricated attribute. Never add
+  an invented participant, trade side, hypothesis, or pattern verdict to its
+  source or derived rows.
+- A versioned deterministic rule may separately evaluate a real market index or
+  contract and report support for its declared pattern hypothesis only when the
+  instrument does not identify a participant, no actor or side is attached, the
+  scope is approved before the run, and each threshold and its provenance are
+  shown beside the observation it is compared against. The result remains a
+  rule output bound to that approved scope, not a source fact, legal conclusion,
+  causal claim, or investment recommendation.
 - Commit the retrieved response as returned. Where a committed artifact is
   derived from it, record that response, its checksum, and the deterministic
   steps that produce the artifact, so a reader can reproduce the committed
