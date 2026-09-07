@@ -56,6 +56,10 @@ const sources: Record<string, Source> = {
     ...committedReplayScenarios["concentrated-buy-dialect-b.jsonl"],
     mappingProposal: concentratedBuyDialectBProposal,
   },
+  "published-execution-fix44.csv":
+    committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-h0stcnt0.jsonl":
+    committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   ...rapidPriceLiftScenarios,
   ...publishedReplaySources,
 };
@@ -74,19 +78,27 @@ function approvalFor(
 }
 
 function mappingApprovalFor(proposal: SchemaMappingProposal): ApprovalRecord {
-  return approvalFor(
-    mappingApprovalArtifact(proposal),
-    proposal.fields.flatMap((field, index) =>
-      requiresMappingOverride(field)
-        ? [
-            {
-              fieldPath: `fields.${index}`,
-              reason: `Accept the committed interpretation of ${field.sourceColumn}.`,
-            },
-          ]
-        : [],
-    ),
+  const fieldOverrides = proposal.fields.flatMap((field, index) =>
+    requiresMappingOverride(field)
+      ? [
+          {
+            fieldPath: `fields.${index}`,
+            reason: `Accept the committed interpretation of ${field.sourceColumn}.`,
+          },
+        ]
+      : [],
   );
+  const absentFieldOverrides =
+    "unmappedFields" in proposal
+      ? proposal.unmappedFields.map((field, index) => ({
+          fieldPath: `unmappedFields.${index}`,
+          reason: `Acknowledge that ${field.targetField} is absent from the published source schema.`,
+        }))
+      : [];
+  return approvalFor(mappingApprovalArtifact(proposal), [
+    ...fieldOverrides,
+    ...absentFieldOverrides,
+  ]);
 }
 
 function publication() {

@@ -8,6 +8,8 @@ import {
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionFixProposal,
+  publishedExecutionH0stcnt0Proposal,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
@@ -55,6 +57,8 @@ const registeredProposals = [
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionFixProposal,
+  publishedExecutionH0stcnt0Proposal,
   ...Object.values(rapidPriceLiftScenarios).map(
     ({ mappingProposal }) => mappingProposal,
   ),
@@ -72,6 +76,13 @@ export const fixtureMappingsByArtifact = new Map(
           ...("compositeSourceEventId" in proposal &&
           proposal.compositeSourceEventId !== undefined
             ? { compositeSourceEventId: proposal.compositeSourceEventId }
+            : {}),
+          ...("compositeEventTime" in proposal &&
+          proposal.compositeEventTime !== undefined
+            ? { compositeEventTime: proposal.compositeEventTime }
+            : {}),
+          ...("unmappedFields" in proposal
+            ? { unmappedFields: proposal.unmappedFields }
             : {}),
         },
       ] as const,
@@ -122,6 +133,14 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       "compositeSourceEventId" in artifactMapping &&
       artifactMapping.compositeSourceEventId !== undefined
         ? { compositeSourceEventId: artifactMapping.compositeSourceEventId }
+        : {}),
+      ...(artifactMapping !== undefined &&
+      "compositeEventTime" in artifactMapping &&
+      artifactMapping.compositeEventTime !== undefined
+        ? { compositeEventTime: artifactMapping.compositeEventTime }
+        : {}),
+      ...(artifactMapping !== undefined && "unmappedFields" in artifactMapping
+        ? { unmappedFields: artifactMapping.unmappedFields }
         : {}),
       fields: input.columns.map((sourceColumn) => {
         const declared = artifactMapping?.fields.get(sourceColumn);

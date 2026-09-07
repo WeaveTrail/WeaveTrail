@@ -615,20 +615,39 @@ export function mappingOverrides(
   proposal: SchemaMappingProposal,
   reasons: Readonly<Record<string, string>>,
 ): ApprovalRecord["overrides"] {
-  return proposal.fields.flatMap((field, index) => {
+  const fieldOverrides = proposal.fields.flatMap((field, index) => {
     if (!requiresMappingOverride(field)) return [];
     const reason = reasons[`fields.${index}`]?.trim();
     return reason ? [{ fieldPath: `fields.${index}`, reason }] : [];
   });
+  const absentFieldOverrides =
+    "unmappedFields" in proposal
+      ? proposal.unmappedFields.flatMap((field, index) => {
+          if (!requiresMappingOverride(field)) return [];
+          const reason = reasons[`unmappedFields.${index}`]?.trim();
+          return reason
+            ? [{ fieldPath: `unmappedFields.${index}`, reason }]
+            : [];
+        })
+      : [];
+  return [...fieldOverrides, ...absentFieldOverrides];
 }
 
 export function hasUnresolvedMappingReview(
   proposal: SchemaMappingProposal,
   reasons: Readonly<Record<string, string>>,
 ): boolean {
-  return proposal.fields.some(
-    (field, index) =>
-      requiresMappingOverride(field) && !reasons[`fields.${index}`]?.trim(),
+  return (
+    proposal.fields.some(
+      (field, index) =>
+        requiresMappingOverride(field) && !reasons[`fields.${index}`]?.trim(),
+    ) ||
+    ("unmappedFields" in proposal &&
+      proposal.unmappedFields.some(
+        (field, index) =>
+          requiresMappingOverride(field) &&
+          !reasons[`unmappedFields.${index}`]?.trim(),
+      ))
   );
 }
 
@@ -1137,7 +1156,9 @@ export function CaseReplay({
     onGuideComplete?.();
   }
 
-  const normalizingOnly = "eventType" in proposal.constants;
+  const normalizingOnly =
+    selectedScenario.manifest === undefined &&
+    "eventType" in proposal.constants;
   const approveMappingLabel = approval
     ? t("Mapping approved locally", "연결 제안을 승인했습니다")
     : t("Approve executed mapping", "연결 제안 승인");
@@ -1692,7 +1713,10 @@ export function CaseReplay({
                     "항목마다 붙은 근거 문장은 제안이 스스로 적어 둔 원문이며, 제안된 그대로 보여 줍니다. 승인이 이 내용에 그대로 묶이기 때문에 다시 쓰지 않습니다.",
                   )}
                 </p>
-                {"eventType" in proposal.constants && <DailyQuoteSemantics />}
+                {"eventType" in proposal.constants &&
+                  proposal.constants.eventType === "DAILY_QUOTE" && (
+                    <DailyQuoteSemantics />
+                  )}
                 {"compositeSourceEventId" in proposal &&
                   proposal.compositeSourceEventId !== undefined && (
                     <section
@@ -1730,6 +1754,46 @@ export function CaseReplay({
                       </span>
                       <b data-status={proposal.compositeSourceEventId.status}>
                         {proposal.compositeSourceEventId.status}
+                      </b>
+                    </section>
+                  )}
+                {"compositeEventTime" in proposal &&
+                  proposal.compositeEventTime !== undefined && (
+                    <section
+                      aria-label={t(
+                        "Composite execution time",
+                        "여러 열을 합친 체결 시각",
+                      )}
+                      className="mapping-row"
+                    >
+                      <strong>
+                        {t(
+                          "Composite execution time",
+                          "여러 열을 합친 체결 시각",
+                        )}
+                      </strong>
+                      <span>
+                        {t("Ordered columns", "순서가 있는 열")}:{" "}
+                        <code>
+                          {proposal.compositeEventTime.sourceColumns.join(
+                            " + ",
+                          )}
+                        </code>
+                      </span>
+                      <span>
+                        {t("Transform", "변환")}:{" "}
+                        <code>{proposal.compositeEventTime.transform}</code>
+                      </span>
+                      <span>
+                        {t("Confidence", "확신도")}:{" "}
+                        {proposal.compositeEventTime.confidence.toFixed(2)}
+                      </span>
+                      <span>
+                        {t("Evidence", "근거")}:{" "}
+                        {proposal.compositeEventTime.evidence}
+                      </span>
+                      <b data-status={proposal.compositeEventTime.status}>
+                        {proposal.compositeEventTime.status}
                       </b>
                     </section>
                   )}
@@ -1781,6 +1845,52 @@ export function CaseReplay({
                     ) : null}
                   </div>
                 ))}
+                {"unmappedFields" in proposal &&
+                  proposal.unmappedFields.map((field, index) => (
+                    <div
+                      className="mapping-row"
+                      key={`unmapped-${field.targetField}`}
+                    >
+                      <code>{t("source field absent", "원본 항목 없음")}</code>
+                      <span>→</span>
+                      <code>{field.targetField}</code>
+                      <span>
+                        {t("Confidence", "확신도")}:{" "}
+                        {field.confidence.toFixed(2)} (
+                        {t(
+                          "not a calibrated probability",
+                          "보정된 확률이 아닙니다",
+                        )}
+                        )
+                      </span>
+                      <span>
+                        {t("Evidence", "근거")}: {field.evidence}
+                      </span>
+                      <b data-status={field.status}>{field.status}</b>
+                      <label>
+                        <span>
+                          {t("Reviewer reason for", "확인 이유")}{" "}
+                          {field.targetField}
+                        </span>
+                        <input
+                          aria-label={`${t("Reviewer reason for", "확인 이유")} ${field.targetField}`}
+                          onChange={(event) => {
+                            invalidateResult();
+                            setCaseApproval(null);
+                            setReviewReasons((current) => ({
+                              ...current,
+                              [`unmappedFields.${index}`]: event.target.value,
+                            }));
+                            setApproval(null);
+                            onMappingApprovalChange?.(false);
+                          }}
+                          required
+                          type="text"
+                          value={reviewReasons[`unmappedFields.${index}`] ?? ""}
+                        />
+                      </label>
+                    </div>
+                  ))}
                 {unresolvedReview ? (
                   <div className="review-message" data-status="REVIEW_REQUIRED">
                     <strong>REVIEW_REQUIRED</strong>
@@ -1923,7 +2033,8 @@ export function CaseReplay({
                 </button>
                 {caseApproval && <ApprovalReceipt approval={caseApproval} />}
               </div>
-            ) : "eventType" in proposal.constants ? (
+            ) : "eventType" in proposal.constants &&
+              proposal.constants.eventType === "DAILY_QUOTE" ? (
               <DailyQuoteCaseLimitation
                 normalized={result?.workflowState === "MAPPING_APPROVED"}
               />

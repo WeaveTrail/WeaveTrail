@@ -10,6 +10,7 @@ import {
   concentratedBuyDialectBProposal,
 } from "./source-mappings";
 import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
+import { publishedExecutionSchemaScenario } from "./published-execution-schema";
 import { syntheticSourceProvenance } from "./source-provenance";
 
 const syntheticScenarios = {
@@ -32,6 +33,9 @@ const syntheticScenarios = {
     ),
     rows: concentratedBuyDialectBRows,
   },
+  "published-execution-fix44.csv": publishedExecutionSchemaScenario.fix,
+  "published-execution-h0stcnt0.jsonl":
+    publishedExecutionSchemaScenario.h0stcnt0,
   ...rapidPriceLiftScenarios,
 } as const;
 

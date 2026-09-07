@@ -7,6 +7,7 @@ import {
   committedReplayScenarios,
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
+  publishedExecutionSchemaScenario,
 } from "@weavetrail/scenarios";
 
 import {
@@ -48,6 +49,29 @@ describe("FixtureSchemaMappingProvider", () => {
       expect(proposal).toEqual(source.mappingProposal);
       expect(proposal.mappingVersion).toBe("1.7");
     }
+  });
+
+  it("serves the registered published execution mappings with absent actor review", async () => {
+    for (const scenario of Object.values(publishedExecutionSchemaScenario)) {
+      const proposal = await provider.propose({
+        sourceArtifactHash: scenario.sourceArtifactHash,
+        constants: scenario.constants,
+        columns: [...scenario.columns],
+        sampleRows: [],
+      });
+      expect(proposal).toEqual(scenario.mappingProposal);
+      expect(proposal.mappingVersion).toBe("1.8");
+    }
+    const h0stcnt0 = publishedExecutionSchemaScenario.h0stcnt0.mappingProposal;
+    if (h0stcnt0.mappingVersion !== "1.8") {
+      throw new Error("Expected mapping 1.8");
+    }
+    expect(h0stcnt0.unmappedFields).toEqual([
+      expect.objectContaining({
+        targetField: "actorId",
+        status: "REVIEW_REQUIRED",
+      }),
+    ]);
   });
 
   it("selects daily proposal metadata by registered artifact hash and checks constants", async () => {

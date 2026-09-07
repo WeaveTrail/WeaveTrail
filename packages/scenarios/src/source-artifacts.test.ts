@@ -26,6 +26,14 @@ describe("synthetic source artifacts", () => {
       "71a367b78a9bfefa685b9f40414b778712860b358882537b7f87127ab1584cff",
     ],
     [
+      "published-execution-fix44.csv",
+      "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+    ],
+    [
+      "published-execution-h0stcnt0.jsonl",
+      "c6fb040df7cf060d43795424f95a8261b0ca4a06486750639c9762e39893c8ef",
+    ],
+    [
       "rapid-price-lift-supported.csv",
       "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
     ],
