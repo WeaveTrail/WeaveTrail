@@ -8,6 +8,8 @@ import {
   crossMarketDenominatorMeaningMatchesSource,
 } from "./rule-parameters";
 
+export const CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS = 4n;
+
 const PositiveIntegerStringSchema = z.string().regex(/^[1-9]\d*$/);
 const NonnegativeDecimalStringSchema = DecimalStringSchema.refine(
   (value) => !value.startsWith("-"),
@@ -17,6 +19,44 @@ const PositiveDecimalStringSchema = DecimalStringSchema.refine(
   (value) => value !== "0" && !value.startsWith("-"),
   "Expected a decimal string greater than zero",
 );
+
+function powerOfTen(exponent: bigint): bigint {
+  let value = 1n;
+  for (let remaining = exponent; remaining > 0n; remaining -= 1n) {
+    value *= 10n;
+  }
+  return value;
+}
+
+function parseUnsignedScaledDecimal(value: string): {
+  coefficient: bigint;
+  scale: bigint;
+} {
+  const [integer, fraction = ""] = value.split(".");
+  return {
+    coefficient: BigInt(`${integer}${fraction}`),
+    scale: BigInt(fraction.length),
+  };
+}
+
+function ratioMatchesReportedPrecision(
+  numeratorValue: string,
+  denominatorValue: string,
+  reportedValue: string,
+): boolean {
+  const numerator = parseUnsignedScaledDecimal(numeratorValue);
+  const denominator = parseUnsignedScaledDecimal(denominatorValue);
+  const reported = parseUnsignedScaledDecimal(reportedValue);
+  const renderedCoefficient =
+    (numerator.coefficient *
+      powerOfTen(denominator.scale + CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS)) /
+    (denominator.coefficient * powerOfTen(numerator.scale));
+  return (
+    reported.coefficient *
+      powerOfTen(CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS) ===
+    renderedCoefficient * powerOfTen(reported.scale)
+  );
+}
 
 export const CrossMarketSessionReversalGateSchema = z.enum([
   "BASELINE_RANK",
@@ -97,7 +137,7 @@ const DenominatorMetricFields = {
   denominatorValue: PositiveDecimalStringSchema,
   meaning: CrossMarketDenominatorMeaningSchema,
   source: DenominatorSourceSchema,
-  metricValue: DecimalStringSchema,
+  metricValue: NonnegativeDecimalStringSchema,
 } as const;
 
 function refineDenominatorMetric(
@@ -179,6 +219,21 @@ const CrossMarketSessionReversalSensitivityLegSchema = z
           path: ["alternatives", index, "ratioUnavailableReason"],
           message:
             "BOTH_METRICS_ZERO must agree with the approved and alternative metric values",
+        });
+      }
+      if (
+        alternative.ratioToApprovedMetric !== null &&
+        !ratioMatchesReportedPrecision(
+          leg.approved.denominatorValue,
+          alternative.denominatorValue,
+          alternative.ratioToApprovedMetric,
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["alternatives", index, "ratioToApprovedMetric"],
+          message:
+            "Alternative-to-approved metric ratio must match the reported denominator values",
         });
       }
     }

@@ -1,4 +1,5 @@
 import {
+  CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
   CrossMarketSessionReversalResultSchema,
   type CaseManifestV14,
   type CrossMarketSessionReversalFinding,
@@ -39,7 +40,6 @@ export const CROSS_MARKET_ENGINE_VERSION =
   "0.9.0-denominator-substitution-sensitivity";
 const CROSS_MARKET_ENGINE_V10_VERSION = "0.8.0-cross-market-session-reversal";
 const ZERO = parseScaledDecimal("0");
-const REPORTED_FRACTIONAL_DIGITS = 4n;
 
 type Rule = Extract<
   RuleConfiguration,
@@ -142,7 +142,7 @@ function buildSensitivity(
           source: reportedDenominatorSource(denominator),
           metricValue: renderExactRatioTruncated(
             ratio(observation.reversal, denominatorValue),
-            REPORTED_FRACTIONAL_DIGITS,
+            CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
           ),
         };
       };
@@ -176,7 +176,7 @@ function buildSensitivity(
                       approvedValue,
                       eventDenominatorValue(observation.event, alternative)!,
                     ),
-                    REPORTED_FRACTIONAL_DIGITS,
+                    CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
                   ),
               ...(bothMetricsZero
                 ? { ratioUnavailableReason: "BOTH_METRICS_ZERO" as const }
@@ -473,7 +473,7 @@ export function evaluateCrossMarketSessionReversal(
       instrumentId: leg.instrumentId,
       observedValue: renderExactRatioTruncated(
         observation.multiple,
-        REPORTED_FRACTIONAL_DIGITS,
+        CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
       ),
       threshold: leg.minimumReversalMultiple,
       passed:
@@ -523,7 +523,7 @@ export function evaluateCrossMarketSessionReversal(
       relation: observation.relation,
       reversalMultiple: renderExactRatioTruncated(
         observation.multiple,
-        REPORTED_FRACTIONAL_DIGITS,
+        CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
       ),
       ...(approvedDenominator(leg) === undefined
         ? {}

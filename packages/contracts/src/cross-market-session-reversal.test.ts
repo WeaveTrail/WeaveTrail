@@ -432,6 +432,25 @@ describe("cross-market session reversal contracts", () => {
     ).toBe(false);
   });
 
+  it.each([{ approvedMetricValue: "-15" }, { alternativeMetricValue: "-30" }])(
+    "rejects negative approved and alternative denominator metrics",
+    (options) => {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result(options),
+        ).success,
+      ).toBe(false);
+    },
+  );
+
+  it("rejects a ratio that contradicts the reported denominator values", () => {
+    expect(
+      CrossMarketSessionReversalResultSchema.safeParse(
+        conclusiveV11Result({ ratioToApprovedMetric: "999" }),
+      ).success,
+    ).toBe(false);
+  });
+
   it.each([
     {
       mismatch: "approved denominator identifier",

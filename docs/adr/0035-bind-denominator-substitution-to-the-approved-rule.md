@@ -44,6 +44,10 @@ with `BOTH_METRICS_ZERO` rather than an invented quotient. The engine makes that
 choice after rendering both metrics to the contract's declared precision, and
 every non-null ratio is nonnegative. Alternative denominator identifiers are
 unique and distinct from the approved identifier.
+The contract uses the same four-fractional-digit constant as the engine to
+validate each ratio against its reported approved and alternative denominator
+values with scaled-integer arithmetic. Approved and alternative metric values
+are nonnegative.
 The result contract binds every sensitivity leg one-to-one to the corresponding
 analysis leg, including its instrument, event and approved denominator identity
 and value. The approved sensitivity metric must equal the analysis reversal
