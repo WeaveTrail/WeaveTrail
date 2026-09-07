@@ -223,6 +223,17 @@ function approvedDenominator(leg: Leg | LegV11): Denominator | undefined {
   );
 }
 
+function usesEventPriceDenominator(leg: Leg | LegV11): boolean {
+  return (
+    "approvedDenominatorId" in leg &&
+    leg.denominators.some(
+      (denominator) =>
+        denominator.source.kind === "EVENT_FIELD" &&
+        denominator.source.field === "price",
+    )
+  );
+}
+
 function denominatorIssue(
   event: DailyQuote,
   denominator: Denominator,
@@ -525,6 +536,9 @@ export function evaluateCrossMarketSessionReversal(
         observation.multiple,
         CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS,
       ),
+      ...(usesEventPriceDenominator(leg)
+        ? { price: observation.event.price }
+        : {}),
       ...(approvedDenominator(leg) === undefined
         ? {}
         : {

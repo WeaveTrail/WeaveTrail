@@ -48,6 +48,11 @@ The contract uses the same four-fractional-digit constant as the engine to
 validate each ratio against its reported approved and alternative denominator
 values with scaled-integer arithmetic. Approved and alternative metric values
 are nonnegative.
+The same arithmetic validates each reported metric against the analysis session
+reversal and its denominator. Event-field denominator values must match the
+bound analysis observation; `netChange` uses its magnitude. A `1.1` analysis
+leg retains the optional event `price` when a declared denominator reads it, so
+that source claim remains independently verifiable without changing `1.0`.
 The result contract binds every sensitivity leg one-to-one to the corresponding
 analysis leg, including its instrument, event and approved denominator identity
 and value. The approved sensitivity metric must equal the analysis reversal

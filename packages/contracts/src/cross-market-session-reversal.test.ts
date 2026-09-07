@@ -63,6 +63,24 @@ function conclusiveV11Result(
       | { kind: "DECLARED_VALUE"; provenance: string };
     approvedMetricValue?: string;
     alternativeMetricValue?: string;
+    sessionReversal?: string;
+    alternativeDenominatorValue?: string;
+    alternativeMeaning?:
+      | "OBSERVED_PRICE_CHANGE"
+      | "OBSERVED_PRICE_LEVEL"
+      | "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL";
+    alternativeSource?:
+      | {
+          kind: "EVENT_FIELD";
+          field:
+            | "netChange"
+            | "openPrice"
+            | "highPrice"
+            | "lowPrice"
+            | "closePrice"
+            | "price";
+        }
+      | { kind: "DECLARED_VALUE"; provenance: string };
     ratioToApprovedMetric?: string | null;
     ratioUnavailableReason?: "BOTH_METRICS_ZERO";
   } = {},
@@ -76,7 +94,7 @@ function conclusiveV11Result(
     highPrice: "110",
     lowPrice: "90",
     closePrice: "95",
-    sessionReversal: "15",
+    sessionReversal: options.sessionReversal ?? "15",
     netChange: "1",
     relation: "OPPOSED" as const,
     reversalMultiple: options.approvedMetricValue ?? "15",
@@ -146,10 +164,11 @@ function conclusiveV11Result(
         alternatives: [
           {
             denominatorId: "minimum-price-increment",
-            denominatorValue: "0.5",
+            denominatorValue: options.alternativeDenominatorValue ?? "0.5",
             meaning:
+              options.alternativeMeaning ??
               "INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL",
-            source: {
+            source: options.alternativeSource ?? {
               kind: "DECLARED_VALUE",
               provenance: "Synthetic instrument specification fixture.",
             },
@@ -391,6 +410,7 @@ describe("cross-market session reversal contracts", () => {
     expect(
       CrossMarketSessionReversalResultSchema.safeParse(
         conclusiveV11Result({
+          sessionReversal: "0",
           approvedMetricValue: "0",
           alternativeMetricValue: "0",
           ratioToApprovedMetric: null,
@@ -450,6 +470,29 @@ describe("cross-market session reversal contracts", () => {
       ).success,
     ).toBe(false);
   });
+
+  it("rejects a recomputed metric that contradicts the session reversal and denominator", () => {
+    expect(
+      CrossMarketSessionReversalResultSchema.safeParse(
+        conclusiveV11Result({ alternativeMetricValue: "31" }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it.each(["openPrice", "price"] as const)(
+    "rejects an event-field denominator value not bound to analysis %s",
+    (field) => {
+      expect(
+        CrossMarketSessionReversalResultSchema.safeParse(
+          conclusiveV11Result({
+            alternativeDenominatorValue: "0.5",
+            alternativeMeaning: "OBSERVED_PRICE_LEVEL",
+            alternativeSource: { kind: "EVENT_FIELD", field },
+          }),
+        ).success,
+      ).toBe(false);
+    },
+  );
 
   it.each([
     {

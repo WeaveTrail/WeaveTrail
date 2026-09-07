@@ -496,6 +496,25 @@ describe("cross-market session reversal", () => {
     });
   });
 
+  it("retains an event price used as a sensitivity denominator", () => {
+    const events = crossMarketSessionReversalSpecimens.supported.events.map(
+      (event) => ({ ...event, price: "0.5" }),
+    );
+    expect(
+      evaluateCrossMarketSessionReversal(
+        events,
+        sensitivityManifest(events, "published-net-change", "price"),
+      ),
+    ).toMatchObject({
+      analysis: {
+        legs: [
+          expect.objectContaining({ price: "0.5" }),
+          expect.objectContaining({ price: "0.5" }),
+        ],
+      },
+    });
+  });
+
   it("fails closed instead of taking the magnitude of a negative price-level denominator", () => {
     const events = crossMarketSessionReversalSpecimens.supported.events.map(
       (event) => ({ ...event, price: "-0.5" }),

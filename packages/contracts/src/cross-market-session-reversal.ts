@@ -47,6 +47,7 @@ function ratioMatchesReportedPrecision(
   const numerator = parseUnsignedScaledDecimal(numeratorValue);
   const denominator = parseUnsignedScaledDecimal(denominatorValue);
   const reported = parseUnsignedScaledDecimal(reportedValue);
+  if (denominator.coefficient === 0n) return false;
   const renderedCoefficient =
     (numerator.coefficient *
       powerOfTen(denominator.scale + CROSS_MARKET_REPORTED_FRACTIONAL_DIGITS)) /
@@ -113,6 +114,7 @@ export const CrossMarketSessionReversalLegObservationSchema = z
 
 const CrossMarketSessionReversalLegObservationV11Schema =
   CrossMarketSessionReversalLegObservationSchema.extend({
+    price: DecimalStringSchema.optional(),
     approvedDenominatorId: z.string().min(1),
     approvedDenominatorValue: PositiveDecimalStringSchema,
   }).strict();
@@ -382,6 +384,51 @@ const CrossMarketSessionReversalConclusiveResultV11Schema = z
             path: ["sensitivity", "legs", index, ...match.path.split(".")],
             message: `Sensitivity ${match.path} must match its analysis leg`,
           });
+        }
+      }
+      const metrics = [
+        {
+          metric: sensitivityLeg.approved,
+          path: ["approved"] as const,
+        },
+        ...sensitivityLeg.alternatives.map((metric, metricIndex) => ({
+          metric,
+          path: ["alternatives", metricIndex] as const,
+        })),
+      ];
+      for (const { metric, path } of metrics) {
+        if (
+          !ratioMatchesReportedPrecision(
+            analysisLeg.sessionReversal,
+            metric.denominatorValue,
+            metric.metricValue,
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["sensitivity", "legs", index, ...path, "metricValue"],
+            message:
+              "Denominator metric must match the analysis reversal and reported denominator value",
+          });
+        }
+        if (metric.source.kind === "EVENT_FIELD") {
+          const observedValue = analysisLeg[metric.source.field];
+          const expectedValue =
+            metric.source.field === "netChange" &&
+            observedValue?.startsWith("-")
+              ? observedValue.slice(1)
+              : observedValue;
+          if (
+            expectedValue === undefined ||
+            metric.denominatorValue !== expectedValue
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["sensitivity", "legs", index, ...path, "denominatorValue"],
+              message:
+                "Event-field denominator value must match the analysis observation",
+            });
+          }
         }
       }
     }
