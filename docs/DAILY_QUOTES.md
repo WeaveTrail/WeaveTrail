@@ -1,5 +1,7 @@
 # Daily quote normalization
 
+_[한국어](DAILY_QUOTES.ko.md)_
+
 Working mode includes the Financial Services Commission's published KOSPI daily
 quotes for `basDt=20260903`: 40 items from the first page of 943. Select
 `real/fsc-stock-quotes-20260903.jsonl`, inspect the original columns and source

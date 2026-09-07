@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="caseTitle caseDesc">
+  <title id="caseTitle">공개된 기록만으로 하루를 다시 계산한 사례</title>
+  <desc id="caseDesc">세 부분으로 나뉜 그림입니다. 왼쪽은 2026-09-03 코스피 200 지수와 그 최근월 선물의 발행된 하루 가격 범위로, 두 시장 모두 전일보다 높게 끝났지만 시가보다 낮게 마감했습니다. 가운데는 실행 전에 사람이 확정하는 것으로, 분석 대상일과 비교할 기준선 기간, 그리고 각 판단이 견주는 기준값입니다. 이어서 버전이 고정된 규칙이 지수의 되돌림 배수 13.9147을 기준값 10에 대해, 선물의 25.4705을 기준값 20에 대해 돌려주고, 그날은 그 기간 45거래일 가운데 1번째였습니다. 순위는 선언된 기간 안에서의 위치일 뿐 확률이 아닙니다. 관측값은 그 값을 읽어 온 공개 원본 행까지 열어 볼 수 있고, 기준값은 이 날의 값을 이미 본 사람이 정했으며, 이 그림은 승인된 사례가 아니라 결정론적 출력입니다.</desc>
+  <!--
+    Generated from apps/web/src/app/case-2026-09-03/worked-case-diagram.ts by `pnpm diagram:case`. Do not hand-edit.
+    Every price is a committed published value; every multiple, threshold and standing is versioned rule output.
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #0c1513 ink-900
+    #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400
+    #0b6e6a teal-700 | #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:27px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .panelLabel{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#566461}
+      .who{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#7d8b88}
+      .leg{font-size:13px;font-weight:600;fill:#263230}
+      .key{font-size:12px;fill:#566461}
+      .val{font-size:13px;fill:#263230}
+      .big{font-size:20px;font-weight:600;fill:#0c1513}
+      .gate{font-size:12px;font-weight:600;fill:#0b6e6a}
+      .note{font-size:12px;fill:#566461}
+      .foot{font-size:11px;fill:#7d8b88}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="560" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="559" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">실제 사례</text>
+    <text class="title" x="40" y="84">공개된 기록만으로 하루를 다시 계산합니다.</text>
+    <text class="sub" x="40" y="112">2026-09-03. 두 시장 모두 전일보다 높게 끝났고, 두 시장 모두 시가보다 낮게 마감했습니다.</text>
+  </g>
+  <line class="rule" x1="40" y1="140" x2="1160" y2="140"/>
+
+  <g class="s">
+    <text class="panelLabel" x="40" y="174">발행처가 공개한 그날의 값</text>
+    <text class="who" x="40" y="194">막대는 그날의 가격 범위이며, 하루의 흐름이 아닙니다</text>
+
+    <text class="leg" x="40" y="222">코스피 200 지수</text>
+    <text class="key" x="231.4" y="240" text-anchor="middle">종가</text>
+    <text class="key" x="341.9" y="240" text-anchor="middle">시가</text>
+    <line x1="40" y1="256" x2="380" y2="256" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
+    <line x1="41" y1="246" x2="41" y2="266" stroke="#7d8b88" stroke-width="2"/>
+    <line x1="379" y1="246" x2="379" y2="266" stroke="#7d8b88" stroke-width="2"/>
+    <circle cx="341.9" cy="256" r="6" fill="#7d8b88"/>
+    <circle cx="231.4" cy="256" r="6" fill="#0b6e6a"/>
+    <text class="key" x="40" y="280">저가</text>
+    <text class="val m" x="40" y="297">1,009.70</text>
+    <text class="key" x="380" y="280" text-anchor="end">고가</text>
+    <text class="val m" x="380" y="297" text-anchor="end">1,050.77</text>
+
+    <text class="leg" x="40" y="341">코스피200 선물 · 최근월물</text>
+    <text class="key" x="208.6" y="365" text-anchor="middle">종가</text>
+    <text class="key" x="321.8" y="365" text-anchor="middle">시가</text>
+    <line x1="40" y1="381" x2="380" y2="381" stroke="#a9bebc" stroke-width="6" stroke-linecap="round"/>
+    <line x1="41" y1="371" x2="41" y2="391" stroke="#7d8b88" stroke-width="2"/>
+    <line x1="379" y1="371" x2="379" y2="391" stroke="#7d8b88" stroke-width="2"/>
+    <circle cx="321.8" cy="381" r="6" fill="#7d8b88"/>
+    <circle cx="208.6" cy="381" r="6" fill="#0b6e6a"/>
+    <text class="key" x="40" y="405">저가</text>
+    <text class="val m" x="40" y="422">1,008.70</text>
+    <text class="key" x="380" y="405" text-anchor="end">고가</text>
+    <text class="val m" x="380" y="422" text-anchor="end">1,051.65</text>
+  </g>
+
+  <line class="rule" x1="430" y1="162" x2="430" y2="500"/>
+
+  <g class="s">
+    <text class="panelLabel" x="470" y="174">실행 전에 확정하는 것</text>
+    <text class="who" x="470" y="194">사람이 정합니다</text>
+    <rect x="470" y="212" width="300" height="150" fill="#ffffff" stroke="#d0d7de"/>
+    <text class="key" x="490" y="240">분석 대상일</text>
+    <text class="val m" x="490" y="262">2026-09-03</text>
+    <line class="rule" x1="490" y1="284" x2="750" y2="284"/>
+    <text class="key" x="490" y="308">비교할 기준선 기간</text>
+    <text class="val m" x="490" y="330">2026-07-01 – 2026-09-03</text>
+    <text class="key" x="490" y="350">45거래일</text>
+    <text class="note" x="470" y="392">기준값도 여기서 함께 정하고, 각 기준값은</text>
+    <text class="note" x="470" y="410">그것이 판단한 수치 옆에 적습니다.</text>
+  </g>
+
+  <line class="rule" x1="810" y1="162" x2="810" y2="500"/>
+
+  <g class="s">
+    <text class="panelLabel" x="850" y="174">버전이 고정된 규칙이 돌려준 값</text>
+    <text class="who" x="850" y="194">모델이 아닙니다</text>
+
+    <text class="big" x="850" y="240">13.9147×</text>
+    <text class="key" x="850" y="260">지수는 전일 대비 변화폭의 그만큼을</text>
+    <text class="key" x="850" y="277">같은 날 안에서 되돌렸습니다</text>
+    <text class="gate" x="850" y="297">기준값 10배 · 충족</text>
+
+    <text class="big" x="850" y="328">25.4705×</text>
+    <text class="key" x="850" y="348">그 지수의 최근월 선물도 같은 모양이었습니다</text>
+    <text class="gate" x="850" y="368">기준값 20배 · 충족</text>
+
+    <text class="big" x="850" y="404">45거래일 중 1번째</text>
+    <text class="key" x="850" y="424">비교한 기준선 기간 안에서의 순위</text>
+    <text class="gate" x="850" y="444">기준값: 1번째 이내 · 충족</text>
+
+    <text class="note" x="850" y="466">같은 모양이어야 하는 시장 2개 가운데 2개 · 충족</text>
+  </g>
+
+  <line class="rule" x1="40" y1="500" x2="1160" y2="500"/>
+  <text class="note s" x="40" y="520">기준값은 이 날의 값을 이미 본 사람이 이 사례를 만들면서 정했습니다.</text>
+  <text class="foot s" x="40" y="538">발행처 값: 금융위원회 공개 데이터. 저장소에는 fsc-kospi-200-baseline-20260701-20260903, fsc-kospi-200-futures-20260903으로 커밋되어 있습니다.</text>
+  <text class="foot s" x="40" y="554">이 그림의 수치는 그 아티팩트에 버전이 고정된 규칙을 적용해 생성했습니다. 결정론적 출력이며 승인된 사례나 증거가 아닙니다. 사이트에서는 사람이 범위를 승인해야 같은 사례가 실행됩니다.</text>
+</svg>

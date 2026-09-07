@@ -2,6 +2,9 @@ import React from "react";
 
 import { type Language } from "../i18n/language";
 import type { SessionDay } from "../../lib/published-case";
+import { RATIO_UNITS, scaledPrice } from "./scaled-price";
+
+export { scaledPrice };
 
 /**
  * Every value drawn here is a committed published price, read from the source
@@ -13,26 +16,11 @@ import type { SessionDay } from "../../lib/published-case";
  * last step, on the unitless fraction an SVG coordinate needs, after every
  * price arithmetic is done.
  */
-const DECIMAL_SCALE = 6n;
-
-export function scaledPrice(value: string): bigint {
-  const negative = value.startsWith("-");
-  const [whole = "", fraction = ""] = value.replace("-", "").split(".");
-  const padded = `${fraction}${"0".repeat(Number(DECIMAL_SCALE))}`.slice(
-    0,
-    Number(DECIMAL_SCALE),
-  );
-  const magnitude = BigInt(`${whole === "" ? "0" : whole}${padded}`);
-  return negative ? -magnitude : magnitude;
-}
 
 const readableDate = (compact: string) =>
   `${compact.slice(0, 4)}-${compact.slice(4, 6)}-${compact.slice(6, 8)}`;
 
 type Scale = (value: string) => number;
-
-/** Ratio precision for the one division; well inside a double's exact range. */
-const RATIO_UNITS = 1_000_000n;
 
 export function verticalScale(
   values: readonly string[],

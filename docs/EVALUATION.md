@@ -1,5 +1,7 @@
 # Evaluation Protocol
 
+_[한국어](EVALUATION.ko.md)_
+
 WeaveTrail has no published accuracy or performance result yet. This page
 defines the measurements that future results must follow so a target cannot be
 presented as an achieved number.

@@ -1,5 +1,7 @@
 # Methodology
 
+_[한국어](METHODOLOGY.ko.md)_
+
 This document defines how to interpret WeaveTrail output and the implemented
 `RAPID_PRICE_LIFT` version `1.1` rule.
 
