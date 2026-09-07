@@ -1169,6 +1169,174 @@ code {
   color: var(--text-muted);
   font: var(--type-small);
 }
+/* The 2026-09-03 published case. Its charts draw committed published prices
+   only; the rank and the multiples arrive from the rule, below them. Rising is
+   red and falling is blue, as Korean market screens set them, and every mark
+   carries its value as text so colour is never the only carrier. */
+.case-page .page-heading > p {
+  font: var(--type-body-lg);
+}
+.case-charts {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+.case-day-pair {
+  display: grid;
+  /* The track floor is capped at the container width, so the charts reflow
+     instead of overflowing a 288px shell on a 320px screen. */
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
+  gap: 16px;
+}
+.session-figure {
+  margin: 0;
+  padding: 16px;
+  border: var(--hairline);
+  background: var(--surface-card);
+}
+.session-figure figcaption {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.session-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  overflow: visible;
+}
+.session-previous {
+  stroke: var(--ledger-rule-strong);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.session-range {
+  stroke: var(--ink-700);
+  stroke-width: 10;
+}
+.session-mark {
+  stroke: var(--ink-900);
+  stroke-width: 3;
+}
+.session-giveback {
+  stroke: var(--slate-600);
+  stroke-width: 3;
+}
+.session-value {
+  fill: var(--text-body);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.session-tick {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.session-annotation {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+}
+.session-annotation[data-direction="rise"] {
+  fill: var(--red-600);
+}
+.session-annotation[data-direction="fall"] {
+  fill: var(--slate-600);
+}
+.baseline-span {
+  stroke: var(--ledger-rule-strong);
+  stroke-width: 2;
+}
+.baseline-close {
+  fill: var(--slate-500);
+}
+[data-analysed="true"] .baseline-span {
+  stroke: var(--red-600);
+  stroke-width: 4;
+}
+[data-analysed="true"] .baseline-close {
+  fill: var(--ink-900);
+}
+.case-premise {
+  border-left: var(--rule-accent);
+}
+.case-sources {
+  display: grid;
+  gap: 12px;
+  margin-block: 12px;
+}
+.case-sources dt {
+  font-weight: var(--weight-semibold);
+}
+.case-sources dd {
+  margin: 4px 0 0;
+}
+.case-legs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: 12px;
+  margin-block: 16px;
+}
+.case-leg {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: var(--hairline);
+}
+/* Where a threshold came from is part of reading the result it produces, so it
+   sits with the thresholds rather than in a footnote. */
+.threshold-origin {
+  max-width: var(--prose-max);
+  margin-block: 16px 0;
+  padding: 12px;
+  border-left: 3px solid var(--amber-600);
+  background: var(--amber-tint);
+  color: var(--text-body);
+}
+.case-approve {
+  margin-top: 16px;
+}
+.case-rank {
+  font: var(--type-title);
+  margin-block: 16px 4px;
+}
+.case-observations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 16px;
+}
+.case-observation {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: var(--hairline);
+  margin: 0;
+}
+.case-observation > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.case-observation dt {
+  color: var(--text-muted);
+}
+.case-observation dd {
+  margin: 0;
+}
+.case-stop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 24px;
+}
+.case-stop-grid ul {
+  padding-left: 18px;
+  margin: 8px 0 0;
+}
+.case-stop-grid li + li {
+  margin-top: 8px;
+}
 @media (max-width: 64rem) {
   .app-shell {
     width: 100%;

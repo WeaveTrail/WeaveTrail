@@ -56,6 +56,32 @@ completed only while the visitor's own work still satisfies it. See
 [ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md) and
 [ADR 0033](adr/0033-lead-each-guided-step-with-its-action.md).
 
+`/case-2026-09-03` is one authored case over committed licensed artifacts: the
+KOSPI 200 index and its front-month future on 2026-09-03, against the index's
+own 2026-07-01 baseline. The page opens on the published prices for that day,
+drawn from the artifact and labelled as published values; nothing the rule
+produces is shown until the rule has run. A visitor approves the case scope in
+the browser, the approval travels to `/api/case-2026-09-03`, and the server
+rebuilds the scope from the committed artifacts and refuses any approval whose
+hash does not cover it. `CROSS_MARKET_SESSION_REVERSAL` 1.0 then returns the
+rank within the approved baseline, each leg's session reversal and multiple, and
+a canonical result hash pinned by both `apps/web/src/lib/published-case.test.ts`
+and the engine suite. The two published field mappings were reviewed once and
+their approval records, approved artifact hash included, are committed in
+`apps/web/src/lib/published-case-approvals.ts`; the application verifies the
+current proposal against those pins and fails closed with a mapping review stop
+when they differ, so a changed mapping reaches review instead of authorizing
+itself. The page says the mappings were reviewed rather than presenting them as
+the visitor's own approval. Nothing the rule returns — the rank, either
+multiple, the result or its hash — is written into page copy: the closing
+statement of what the result says is read from the returned analysis, so it
+cannot appear before the run or drift from it. Chart geometry parses every
+published price to a scaled integer and divides once, on the unitless fraction
+a coordinate needs, so no price reaches binary floating point. Candidate
+selection is
+`STATED_DATE_ONLY_NO_CANDIDATE_SCAN`: the date is stated by a person and the
+rule evaluates that date alone.
+
 The guided source is `rapid-price-lift-supported.csv` with baseline mutation.
 Its mapping chapter embeds a separate `concentrated-buy-dialect-b.jsonl`
 mapping review example. Each instance owns its proposal-specific approval and
