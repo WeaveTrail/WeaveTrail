@@ -183,14 +183,23 @@ export function PublishedCaseSurface({
     window.setTimeout(() => focusTarget(id), 0);
   }, []);
 
-  // A fragment typed or shared into the address bar names an element, not a
-  // chapter, so the chapter holding it is opened before the browser's own jump
-  // can mean anything.
+  // A fragment names an element, not a chapter, so the chapter holding it is
+  // opened before the browser's own jump can mean anything. A citation click
+  // pushes a history entry, so the fragment can also come back later through
+  // Back and Forward, long after mount: the same handler answers both, or
+  // restoring the fragment would leave its chapter hidden and the provenance
+  // unreachable.
   useEffect(() => {
-    const fragment = window.location.hash.slice(1);
-    if (fragment === "") return;
-    const timer = window.setTimeout(() => revealTarget(fragment), 0);
-    return () => window.clearTimeout(timer);
+    const revealFragment = () => {
+      const fragment = window.location.hash.slice(1);
+      if (fragment !== "") revealTarget(fragment);
+    };
+    const timer = window.setTimeout(revealFragment, 0);
+    window.addEventListener("hashchange", revealFragment);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("hashchange", revealFragment);
+    };
   }, [revealTarget]);
 
   function goToChapter(position: number) {

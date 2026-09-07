@@ -494,6 +494,25 @@ describe("the 2026-09-03 case surface", () => {
     expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
   });
 
+  it("answers a fragment restored by history, not only one arrived on", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Following a citation pushes a history entry, so the fragment can come
+    // back through Back and Forward long after mount. Reading location.hash
+    // once would leave the restored fragment pointing into a hidden chapter.
+    expect(surfaceSource).toContain(
+      'window.addEventListener("hashchange", revealFragment)',
+    );
+    expect(surfaceSource).toContain(
+      'window.removeEventListener("hashchange", revealFragment)',
+    );
+  });
+
   it("shows each refusal in the chapter whose control produced it", () => {
     const surfaceSource = readFileSync(
       resolve(
