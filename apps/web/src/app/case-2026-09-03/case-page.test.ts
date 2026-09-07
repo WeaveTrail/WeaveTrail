@@ -74,7 +74,7 @@ describe("the 2026-09-03 case surface", () => {
       "17.95",
       "21.65",
       "SUPPORTED",
-      "ffd7110a",
+      "159ffac0",
     ])
       expect(markup, ruleOutput).not.toContain(ruleOutput);
   });

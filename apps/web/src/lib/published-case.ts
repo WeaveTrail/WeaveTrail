@@ -93,6 +93,37 @@ export function reviewedMappingApproval(
   return approval;
 }
 
+export const NET_CHANGE_DENOMINATOR = "session-net-change";
+export const CLOSING_LEVEL_DENOMINATOR = "session-closing-level";
+
+/**
+ * The two denominators this case declares, and the reason it declares more
+ * than one.
+ *
+ * A reversal multiple is a ratio, and a ratio is only as meaningful as the
+ * denominator someone chose for it. Both of these are values the published row
+ * already carries — the day's net change against the previous close, and the
+ * day's closing level — so declaring them invents no attribute of a real
+ * instrument. `netChange` is the approved one, which keeps every gate
+ * observation identical to what the case reported under rule `1.0`; the
+ * closing level is carried alongside so the result can show how far the same
+ * session moves when only the denominator changes.
+ */
+function declaredDenominators() {
+  return [
+    {
+      denominatorId: NET_CHANGE_DENOMINATOR,
+      meaning: "OBSERVED_PRICE_CHANGE" as const,
+      source: { kind: "EVENT_FIELD" as const, field: "netChange" as const },
+    },
+    {
+      denominatorId: CLOSING_LEVEL_DENOMINATOR,
+      meaning: "OBSERVED_PRICE_LEVEL" as const,
+      source: { kind: "EVENT_FIELD" as const, field: "closePrice" as const },
+    },
+  ];
+}
+
 function normalizedEvents(): TradeEvent[] {
   return legSources.flatMap(({ key, proposal, approval }) => {
     const source = publishedReplaySources[key];
@@ -140,7 +171,7 @@ export function publishedCaseProposal(): {
     rules: [
       {
         ruleId: "CROSS_MARKET_SESSION_REVERSAL",
-        ruleVersion: "1.0",
+        ruleVersion: "1.1",
         parameters: {
           analysedDate: ANALYSED_DATE,
           baselineRange: {
@@ -153,11 +184,15 @@ export function publishedCaseProposal(): {
               legId: "spot-index",
               instrumentId: SPOT_INSTRUMENT,
               minimumReversalMultiple: "10",
+              approvedDenominatorId: NET_CHANGE_DENOMINATOR,
+              denominators: declaredDenominators(),
             },
             {
               legId: "front-future",
               instrumentId: FUTURE_INSTRUMENT,
               minimumReversalMultiple: "20",
+              approvedDenominatorId: NET_CHANGE_DENOMINATOR,
+              denominators: declaredDenominators(),
             },
           ],
           maximumBaselineRank: "1",
