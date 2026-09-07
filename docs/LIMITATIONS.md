@@ -75,6 +75,10 @@ verification. It is not a production market-surveillance system.
 - `INCONCLUSIVE` is a first-class safe outcome, not an error to hide.
 - Removing the approved actor group and replaying metrics is a mechanical
   sensitivity comparison, not a causal conclusion.
+- Recomputing a cross-market reversal multiple against a declared alternative
+  denominator is likewise mechanical, not evidence that the denominator caused
+  the observation. A minimum price increment is an instrument specification,
+  not a level established by a trade.
 - Model confidence is not calibrated probability unless a documented
   evaluation establishes that property.
 

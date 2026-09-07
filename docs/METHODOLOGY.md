@@ -400,6 +400,35 @@ outside the range or absent from the baseline, an absent declared leg,
 ambiguous observations, incomplete or invalid OHLC values, and zero analysed
 net change. An inconclusive result has no findings or analysis payload.
 
+### Denominator sensitivity in version `1.1`
+
+Version `1.1` is an opt-in extension; version `1.0` and its hashes remain
+accepted unchanged. Every leg declares at least two uniquely named denominators
+and selects one `approvedDenominatorId`. A denominator either reads an
+allowlisted decimal field from the canonical daily event or supplies a strictly
+positive approved value with its provenance. No default is inferred.
+
+The approved denominator replaces `abs(netChange)` in the exact reversal
+multiple, baseline rank and leg gate. A conclusive result reports that metric
+and the same numerator recomputed under every declared alternative. For each
+alternative it reports the alternative-to-approved metric ratio, the shared
+`MECHANICAL_METRIC_COMPARISON` marker, and
+`MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION`. These are mechanical
+recomputations, not claims that a denominator caused the observed session.
+
+`INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL` explicitly
+marks a denominator that is an instrument specification rather than a price a
+trade established. A declared value must retain provenance in the approved
+rule configuration and returned comparison. If a declared event field is
+absent, the rule returns `DECLARED_DENOMINATOR_FIELD_ABSENT`; if a resolved
+denominator is zero, it returns `ZERO_DECLARED_DENOMINATOR`. Both are
+`INCONCLUSIVE`, with empty findings, null analysis and null sensitivity.
+
+Migration is explicit: a `1.0` consumer that opts into `1.1` must add
+`approvedDenominatorId` and `denominators` to each leg and accept the versioned
+sensitivity result. There is no coercion from `1.0`. See
+[ADR 0035](adr/0035-bind-denominator-substitution-to-the-approved-rule.md).
+
 The committed published-data regression golden declares 2026-09-03 over the
 inclusive 2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and September
 2026 front-future legs. It reports the baseline leg at `13.9147` and position
@@ -423,9 +452,11 @@ suitability, and neither searches the range for candidate dates.
 
 ## Sensitivity interpretation
 
-The comparison asks, “What metric does the same deterministic replay produce
-after removing this declared actor group?” It is reported as a mechanical
-sensitivity comparison and retains canonical event references.
+Sensitivity asks what the same deterministic calculation reports under one
+declared input substitution. Rapid Price Lift removes the approved actor group;
+Cross-Market Session Reversal `1.1` substitutes each declared denominator. Both
+use the neutral `MECHANICAL_METRIC_COMPARISON` marker. They are mechanical
+comparisons, not causal conclusions.
 
 ## Abstention
 

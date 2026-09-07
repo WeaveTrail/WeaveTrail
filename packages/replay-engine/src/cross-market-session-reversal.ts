@@ -4,6 +4,7 @@ import {
   type CrossMarketSessionReversalFinding,
   type CrossMarketSessionReversalInconclusiveReason,
   type CrossMarketSessionReversalResult,
+  type CrossMarketSessionReversalSensitivity,
   type RuleConfiguration,
   type TradeEvent,
 } from "@weavetrail/contracts";
@@ -35,7 +36,8 @@ import {
 } from "./case-validation";
 
 export const CROSS_MARKET_ENGINE_VERSION =
-  "0.8.0-cross-market-session-reversal";
+  "0.9.0-denominator-substitution-sensitivity";
+const CROSS_MARKET_ENGINE_V10_VERSION = "0.8.0-cross-market-session-reversal";
 const ZERO = parseScaledDecimal("0");
 const REPORTED_FRACTIONAL_DIGITS = 4n;
 
@@ -43,12 +45,20 @@ type Rule = Extract<
   RuleConfiguration,
   { ruleId: "CROSS_MARKET_SESSION_REVERSAL" }
 >;
+type RuleV11 = Extract<Rule, { ruleVersion: "1.1" }>;
 type DailyQuote = Extract<TradeEvent, { schemaVersion: "1.3" }>;
-type Leg = Rule["parameters"]["legs"][number];
+type Leg = {
+  legId: string;
+  instrumentId: string;
+  minimumReversalMultiple: string;
+};
+type LegV11 = RuleV11["parameters"]["legs"][number];
+type Denominator = LegV11["denominators"][number];
 
 type DerivedObservation = {
   event: DailyQuote;
   reversal: ScaledDecimal;
+  denominator: ScaledDecimal;
   multiple: ExactRatio;
   relation: "OPPOSED" | "ALIGNED" | "FLAT";
 };
@@ -102,6 +112,70 @@ function compareRatios(left: ExactRatio, right: ExactRatio): -1 | 0 | 1 {
   return difference < 0n ? -1 : difference > 0n ? 1 : 0;
 }
 
+function reportedDenominatorSource(denominator: Denominator) {
+  return denominator.source.kind === "EVENT_FIELD"
+    ? { kind: "EVENT_FIELD" as const, field: denominator.source.field }
+    : {
+        kind: "DECLARED_VALUE" as const,
+        provenance: denominator.source.provenance,
+      };
+}
+
+function buildSensitivity(
+  analysed: readonly { leg: LegV11; observation: DerivedObservation }[],
+): CrossMarketSessionReversalSensitivity {
+  return {
+    comparison: "MECHANICAL_METRIC_COMPARISON",
+    interpretation: "MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION",
+    legs: analysed.map(({ leg, observation }) => {
+      const approved = approvedDenominator(leg)!;
+      const approvedValue = eventDenominatorValue(observation.event, approved)!;
+      const metric = (denominator: Denominator) => {
+        const denominatorValue = eventDenominatorValue(
+          observation.event,
+          denominator,
+        )!;
+        return {
+          denominatorId: denominator.denominatorId,
+          denominatorValue: renderScaledDecimal(denominatorValue),
+          meaning: denominator.meaning,
+          source: reportedDenominatorSource(denominator),
+          metricValue: renderExactRatioTruncated(
+            ratio(observation.reversal, denominatorValue),
+            REPORTED_FRACTIONAL_DIGITS,
+          ),
+        };
+      };
+      return {
+        legId: leg.legId,
+        instrumentId: leg.instrumentId,
+        eventId: observation.event.eventId,
+        approved: metric(approved),
+        alternatives: leg.denominators
+          .filter(
+            ({ denominatorId }) => denominatorId !== leg.approvedDenominatorId,
+          )
+          .map((alternative) => ({
+            ...metric(alternative),
+            ratioToApprovedMetric:
+              compareScaledDecimals(observation.reversal, ZERO) === 0
+                ? null
+                : renderExactRatioTruncated(
+                    ratio(
+                      approvedValue,
+                      eventDenominatorValue(observation.event, alternative)!,
+                    ),
+                    REPORTED_FRACTIONAL_DIGITS,
+                  ),
+            ...(compareScaledDecimals(observation.reversal, ZERO) === 0
+              ? { ratioUnavailableReason: "BOTH_METRICS_ZERO" as const }
+              : {}),
+          })),
+      };
+    }),
+  };
+}
+
 function dailyQuoteIsValid(event: DailyQuote): boolean {
   const open = parseScaledDecimal(event.openPrice);
   const high = parseScaledDecimal(event.highPrice);
@@ -117,7 +191,44 @@ function dailyQuoteIsValid(event: DailyQuote): boolean {
   );
 }
 
-function deriveObservation(event: DailyQuote): DerivedObservation | undefined {
+function eventDenominatorValue(
+  event: DailyQuote,
+  denominator: Denominator,
+): ScaledDecimal | undefined {
+  if (denominator.source.kind === "DECLARED_VALUE") {
+    return parseScaledDecimal(denominator.source.value);
+  }
+  const value = event[denominator.source.field];
+  return typeof value === "string"
+    ? absolute(parseScaledDecimal(value))
+    : undefined;
+}
+
+function approvedDenominator(leg: Leg | LegV11): Denominator | undefined {
+  if (!("approvedDenominatorId" in leg)) return undefined;
+  return leg.denominators.find(
+    ({ denominatorId }) => denominatorId === leg.approvedDenominatorId,
+  );
+}
+
+function denominatorIssue(
+  event: DailyQuote,
+  denominator: Denominator,
+):
+  | "DECLARED_DENOMINATOR_FIELD_ABSENT"
+  | "ZERO_DECLARED_DENOMINATOR"
+  | undefined {
+  const value = eventDenominatorValue(event, denominator);
+  if (value === undefined) return "DECLARED_DENOMINATOR_FIELD_ABSENT";
+  return compareScaledDecimals(value, ZERO) === 0
+    ? "ZERO_DECLARED_DENOMINATOR"
+    : undefined;
+}
+
+function deriveObservation(
+  event: DailyQuote,
+  denominator?: Denominator,
+): DerivedObservation | undefined {
   if (!dailyQuoteIsValid(event)) return undefined;
   const open = parseScaledDecimal(event.openPrice);
   const high = parseScaledDecimal(event.highPrice);
@@ -125,6 +236,15 @@ function deriveObservation(event: DailyQuote): DerivedObservation | undefined {
   const close = parseScaledDecimal(event.closePrice);
   const netChange = parseScaledDecimal(event.netChange);
   if (compareScaledDecimals(netChange, ZERO) === 0) return undefined;
+  const denominatorValue =
+    denominator === undefined
+      ? absolute(netChange)
+      : eventDenominatorValue(event, denominator);
+  if (
+    denominatorValue === undefined ||
+    compareScaledDecimals(denominatorValue, ZERO) === 0
+  )
+    return undefined;
 
   const sessionDirection = compareScaledDecimals(close, open);
   const netDirection = compareScaledDecimals(netChange, ZERO);
@@ -143,29 +263,32 @@ function deriveObservation(event: DailyQuote): DerivedObservation | undefined {
   return {
     event,
     reversal,
-    multiple: ratio(reversal, absolute(netChange)),
+    denominator: denominatorValue,
+    multiple: ratio(reversal, denominatorValue),
     relation,
   };
 }
 
 function inconclusive(
   reason: CrossMarketSessionReversalInconclusiveReason,
+  ruleVersion: Rule["ruleVersion"],
 ): CrossMarketSessionReversalResult {
-  return CrossMarketSessionReversalResultSchema.parse({
+  const shared = {
     ruleId: "CROSS_MARKET_SESSION_REVERSAL",
-    ruleVersion: "1.0",
+    ruleVersion,
     result: "INCONCLUSIVE",
     reason,
     findings: [],
     analysis: null,
-  });
+  } as const;
+  return CrossMarketSessionReversalResultSchema.parse(
+    ruleVersion === "1.1" ? { ...shared, sensitivity: null } : shared,
+  );
 }
 
 function configuredRule(manifest: CaseManifestV14): Rule {
   const rules = manifest.rules.filter(
-    (rule): rule is Rule =>
-      rule.ruleId === "CROSS_MARKET_SESSION_REVERSAL" &&
-      rule.ruleVersion === "1.0",
+    (rule): rule is Rule => rule.ruleId === "CROSS_MARKET_SESSION_REVERSAL",
   );
   if (
     manifest.hypothesis.pattern !== "CROSS_MARKET_SESSION_REVERSAL" ||
@@ -174,7 +297,7 @@ function configuredRule(manifest: CaseManifestV14): Rule {
   ) {
     throw new CrossMarketRuleError(
       "RULE_CONFIGURATION_REQUIRED",
-      "Exactly one approved CROSS_MARKET_SESSION_REVERSAL 1.0 rule configuration is required",
+      "Exactly one approved CROSS_MARKET_SESSION_REVERSAL rule configuration is required",
     );
   }
   const rule = rules[0]!;
@@ -223,7 +346,10 @@ export function evaluateCrossMarketSessionReversal(
     analysedDate < baselineRange.startDate ||
     analysedDate > baselineRange.endDateInclusive
   ) {
-    return inconclusive("ANALYSED_DATE_OUTSIDE_BASELINE_RANGE");
+    return inconclusive(
+      "ANALYSED_DATE_OUTSIDE_BASELINE_RANGE",
+      rule.ruleVersion,
+    );
   }
 
   const caseEvents = canonicalEvents.filter(
@@ -243,15 +369,16 @@ export function evaluateCrossMarketSessionReversal(
       event.tradingDate >= baselineRange.startDate &&
       event.tradingDate <= baselineRange.endDateInclusive,
   );
-  if (baselineEvents.length === 0) return inconclusive("EMPTY_BASELINE");
+  if (baselineEvents.length === 0)
+    return inconclusive("EMPTY_BASELINE", rule.ruleVersion);
   if (new Set(baselineEvents.map(({ tradingDate }) => tradingDate)).size < 2) {
-    return inconclusive("INSUFFICIENT_BASELINE_POPULATION");
+    return inconclusive("INSUFFICIENT_BASELINE_POPULATION", rule.ruleVersion);
   }
   for (const date of new Set(
     baselineEvents.map(({ tradingDate }) => tradingDate),
   )) {
     if (group(groups, baselineLeg.instrumentId, date).length !== 1) {
-      return inconclusive("AMBIGUOUS_DAILY_OBSERVATION");
+      return inconclusive("AMBIGUOUS_DAILY_OBSERVATION", rule.ruleVersion);
     }
   }
 
@@ -263,38 +390,52 @@ export function evaluateCrossMarketSessionReversal(
         leg.legId === baselineLeg.legId
           ? "ANALYSED_DATE_ABSENT"
           : "DECLARED_LEG_ABSENT",
+        rule.ruleVersion,
       );
     }
-    if (matches.length > 1) return inconclusive("AMBIGUOUS_DAILY_OBSERVATION");
+    if (matches.length > 1)
+      return inconclusive("AMBIGUOUS_DAILY_OBSERVATION", rule.ruleVersion);
     const event = matches[0]!;
     if (!dailyQuoteIsValid(event))
-      return inconclusive("INVALID_DAILY_QUOTE_RANGE");
+      return inconclusive("INVALID_DAILY_QUOTE_RANGE", rule.ruleVersion);
     if (
       compareScaledDecimals(parseScaledDecimal(event.netChange), ZERO) === 0
     ) {
-      return inconclusive("ZERO_NET_CHANGE");
+      return inconclusive("ZERO_NET_CHANGE", rule.ruleVersion);
     }
-    const observation = deriveObservation(event);
-    if (!observation) return inconclusive("INCOMPLETE_DAILY_QUOTE");
+    if ("denominators" in leg) {
+      for (const denominator of leg.denominators) {
+        const issue = denominatorIssue(event, denominator);
+        if (issue !== undefined) return inconclusive(issue, rule.ruleVersion);
+      }
+    }
+    const observation = deriveObservation(event, approvedDenominator(leg));
+    if (!observation)
+      return inconclusive("INCOMPLETE_DAILY_QUOTE", rule.ruleVersion);
     analysed.push({ leg, observation });
   }
 
   const population: DerivedObservation[] = [];
   for (const event of baselineEvents) {
     if (!dailyQuoteIsValid(event))
-      return inconclusive("INVALID_DAILY_QUOTE_RANGE");
+      return inconclusive("INVALID_DAILY_QUOTE_RANGE", rule.ruleVersion);
     if (compareScaledDecimals(parseScaledDecimal(event.netChange), ZERO) === 0)
       continue;
-    const observation = deriveObservation(event);
+    const denominator = approvedDenominator(baselineLeg);
+    if (denominator !== undefined) {
+      const issue = denominatorIssue(event, denominator);
+      if (issue !== undefined) return inconclusive(issue, rule.ruleVersion);
+    }
+    const observation = deriveObservation(event, denominator);
     if (observation) population.push(observation);
   }
   if (population.length < 2)
-    return inconclusive("INSUFFICIENT_BASELINE_POPULATION");
+    return inconclusive("INSUFFICIENT_BASELINE_POPULATION", rule.ruleVersion);
   const target = analysed.find(
     ({ leg }) => leg.legId === baselineLeg.legId,
   )!.observation;
   if (!population.some(({ event }) => event.eventId === target.event.eventId)) {
-    return inconclusive("ANALYSED_DATE_ABSENT");
+    return inconclusive("ANALYSED_DATE_ABSENT", rule.ruleVersion);
   }
   const rank =
     1 +
@@ -345,41 +486,61 @@ export function evaluateCrossMarketSessionReversal(
   };
   const findings = [rankFinding, ...legFindings, agreeingFinding];
 
-  return CrossMarketSessionReversalResultSchema.parse({
-    ruleId: "CROSS_MARKET_SESSION_REVERSAL",
-    ruleVersion: "1.0",
-    result:
-      rankFinding.passed && agreeingFinding.passed
-        ? "SUPPORTED"
-        : "NOT_SUPPORTED",
-    findings,
-    analysis: {
-      analysedDate,
-      baselineRange,
-      rank: {
-        position: String(rank),
-        populationSize: String(population.length),
-        interpretation: "POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY",
-      },
-      legs: analysed.map(({ leg, observation }) => ({
-        legId: leg.legId,
-        instrumentId: leg.instrumentId,
-        eventId: observation.event.eventId,
-        openPrice: observation.event.openPrice,
-        highPrice: observation.event.highPrice,
-        lowPrice: observation.event.lowPrice,
-        closePrice: observation.event.closePrice,
-        sessionReversal: renderScaledDecimal(observation.reversal),
-        netChange: observation.event.netChange,
-        relation: observation.relation,
-        reversalMultiple: renderExactRatioTruncated(
-          observation.multiple,
-          REPORTED_FRACTIONAL_DIGITS,
-        ),
-      })),
-      candidateSelection: "STATED_DATE_ONLY_NO_CANDIDATE_SCAN",
+  const result =
+    rankFinding.passed && agreeingFinding.passed
+      ? "SUPPORTED"
+      : "NOT_SUPPORTED";
+  const analysis = {
+    analysedDate,
+    baselineRange,
+    rank: {
+      position: String(rank),
+      populationSize: String(population.length),
+      interpretation: "POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY" as const,
     },
-  });
+    legs: analysed.map(({ leg, observation }) => ({
+      legId: leg.legId,
+      instrumentId: leg.instrumentId,
+      eventId: observation.event.eventId,
+      openPrice: observation.event.openPrice,
+      highPrice: observation.event.highPrice,
+      lowPrice: observation.event.lowPrice,
+      closePrice: observation.event.closePrice,
+      sessionReversal: renderScaledDecimal(observation.reversal),
+      netChange: observation.event.netChange,
+      relation: observation.relation,
+      reversalMultiple: renderExactRatioTruncated(
+        observation.multiple,
+        REPORTED_FRACTIONAL_DIGITS,
+      ),
+      ...(approvedDenominator(leg) === undefined
+        ? {}
+        : {
+            approvedDenominatorId: (leg as LegV11).approvedDenominatorId,
+            approvedDenominatorValue: renderScaledDecimal(
+              observation.denominator,
+            ),
+          }),
+    })),
+    candidateSelection: "STATED_DATE_ONLY_NO_CANDIDATE_SCAN" as const,
+  };
+  const shared = {
+    ruleId: "CROSS_MARKET_SESSION_REVERSAL",
+    ruleVersion: rule.ruleVersion,
+    result,
+    findings,
+    analysis,
+  } as const;
+  return CrossMarketSessionReversalResultSchema.parse(
+    rule.ruleVersion === "1.1"
+      ? {
+          ...shared,
+          sensitivity: buildSensitivity(
+            analysed as { leg: LegV11; observation: DerivedObservation }[],
+          ),
+        }
+      : shared,
+  );
 }
 
 export function replayCrossMarketSessionReversal(
@@ -408,8 +569,12 @@ export function replayCrossMarketSessionReversal(
     );
   }
   const evaluation = evaluateCrossMarketSessionReversal(events, manifest);
+  const engineVersion =
+    evaluation.ruleVersion === "1.0"
+      ? CROSS_MARKET_ENGINE_V10_VERSION
+      : CROSS_MARKET_ENGINE_VERSION;
   return {
-    engineVersion: CROSS_MARKET_ENGINE_VERSION,
+    engineVersion,
     inputEventCount: input.length,
     canonicalEventCount: events.length,
     duplicateCount,
@@ -417,7 +582,7 @@ export function replayCrossMarketSessionReversal(
     canonicalResultHash: canonicalReplayResultHash(
       events,
       evaluation,
-      CROSS_MARKET_ENGINE_VERSION,
+      engineVersion,
     ),
     events,
     evaluation,

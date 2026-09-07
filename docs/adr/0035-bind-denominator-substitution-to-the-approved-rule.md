@@ -1,0 +1,64 @@
+# ADR 0035: Bind denominator substitution to the approved rule
+
+## Status
+
+Accepted. Verified by contract, invariant and canonical-result-hash tests.
+
+## Context
+
+`CROSS_MARKET_SESSION_REVERSAL` 1.0 fixes its reversal-multiple denominator to
+the absolute published `netChange`. A reported multiple can therefore look like
+an unqualified observation even though it depends on that denominator choice.
+Reviewers need to see the same numerator recomputed against declared
+alternatives without turning the comparison into a causal claim or allowing a
+display layer to perform financial arithmetic.
+
+Some alternatives are values on the canonical event. Others, such as an
+instrument's minimum price increment, are approved instrument parameters rather
+than levels established by a trade. Treating those as interchangeable would
+misstate what the input represents.
+
+## Decision
+
+Add opt-in rule version `1.1` beside unchanged `1.0`. Each leg declares at least
+two uniquely identified denominators and names one as approved. A denominator
+is either:
+
+- an allowlisted decimal field on the canonical daily event; or
+- a strictly positive declared decimal value with non-empty provenance.
+
+Each denominator also carries an explicit meaning. The literal
+`INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL` prevents a
+minimum increment from being presented as a traded price. The approved
+denominator determines the leg gate, baseline rank and headline reversal
+multiple. Because the declaration is inside the Case Manifest rule
+configuration, selecting a different approved denominator requires a different
+approval artifact hash.
+
+A conclusive `1.1` result reports the approved and every alternative metric in
+`sensitivity`, reusing the shared `MECHANICAL_METRIC_COMPARISON` marker. It also
+reports the alternative-to-approved metric ratio and the literal interpretation
+`MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION`. Arithmetic uses scaled
+integers and exact ratios. If both reported metrics are zero, the ratio is null
+with `BOTH_METRICS_ZERO` rather than an invented quotient.
+
+Every declared denominator must resolve for the analysed observation, and the
+approved denominator must resolve for every baseline observation used by the
+rank. A missing event field returns `INCONCLUSIVE` with
+`DECLARED_DENOMINATOR_FIELD_ABSENT`; a resolved zero returns
+`ZERO_DECLARED_DENOMINATOR`. An inconclusive `1.1` result has null sensitivity,
+empty findings and null analysis.
+
+## Consequences
+
+The engine, rather than a figure or document, owns all reported comparison
+values. Switching only the approved denominator leaves canonical events intact
+but changes the approval artifact hash and canonical result hash. The `1.0`
+engine version and hashes remain stable; `1.1` replay uses
+`0.9.0-denominator-substitution-sensitivity`.
+
+Strict consumers opt into rule `1.1`, add `approvedDenominatorId` and
+`denominators` to every leg, and accept the conclusive `sensitivity` object or
+the inconclusive null branch. There is no automatic conversion or default
+denominator. The published KOSPI case remains on `1.0`; this change does not
+invent a minimum increment or attach one to its source rows.

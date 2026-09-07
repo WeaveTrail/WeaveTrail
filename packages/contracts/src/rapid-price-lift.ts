@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { MechanicalMetricComparisonSchema } from "./mechanical-metric-comparison";
+
 const DecimalStringSchema = z.string().regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/);
 
 export const RapidPriceLiftGateSchema = z.enum([
@@ -29,7 +31,7 @@ export const RapidPriceLiftFindingSchema = z
 
 export const RapidPriceLiftSensitivitySchema = z
   .object({
-    comparison: z.literal("MECHANICAL_METRIC_COMPARISON"),
+    comparison: MechanicalMetricComparisonSchema,
     priceChangeBps: DecimalStringSchema,
     priceChangeBpsWithoutApprovedActors: DecimalStringSchema,
     removalSensitivityBps: DecimalStringSchema,

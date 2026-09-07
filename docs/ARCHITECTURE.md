@@ -603,3 +603,20 @@ declared baseline and per-leg gates. This entry point accepts combined canonical
 events from the declared published artifacts; the existing single-source HTTP
 Case Replay remains unchanged. See
 [ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md).
+
+`CROSS_MARKET_SESSION_REVERSAL` `1.1` is a further opt-in rule contract. Each
+leg's approved configuration names one denominator and at least one declared
+alternative. Conclusive engine output reports the approved and recomputed
+metrics, their ratio, denominator values and meanings under the shared
+`MECHANICAL_METRIC_COMPARISON` marker. A minimum price increment is labelled
+`INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL`; an inline
+approved value also retains its provenance. Missing declared event fields and
+zero denominators fail closed as `INCONCLUSIVE`, whose sensitivity is null.
+
+Version `1.0` remains accepted with its existing engine version and hashes.
+Strict consumers opt into `1.1`, add the denominator declarations to every leg,
+and accept the versioned sensitivity branch; no default or conversion is
+provided. Selecting another approved denominator changes the Case Manifest
+approval preimage and the canonical engine result, while canonical source
+events remain unchanged. See
+[ADR 0035](adr/0035-bind-denominator-substitution-to-the-approved-rule.md).
