@@ -17,11 +17,12 @@ import type {
   SessionDay,
 } from "../../lib/published-case";
 import { caseCopy, type Chapter as ChapterCopy } from "./case-copy";
+import { BaselineRangeChart, IntradaySessionChart } from "./session-chart";
 import {
-  BaselineRangeChart,
-  ReversalDiagram,
-  SessionPathChart,
-} from "./session-chart";
+  INTRADAY_HIGH,
+  INTRADAY_LOW,
+  INTRADAY_SESSION,
+} from "./intraday-session";
 
 /**
  * One numbered step of the case. The purpose line says what the chapter is for
@@ -62,8 +63,6 @@ export function PublishedCaseSurface({
   columns,
   proposal,
   spot,
-  future,
-  previousClose,
   spotArtifactHash,
   futureArtifactHash,
   language,
@@ -71,8 +70,6 @@ export function PublishedCaseSurface({
   columns: readonly PublishedLegColumns[];
   proposal: CaseManifestV14Proposal;
   spot: readonly SessionDay[];
-  future: SessionDay;
-  previousClose: string;
   spotArtifactHash: string;
   futureArtifactHash: string;
   language: Language;
@@ -84,7 +81,6 @@ export function PublishedCaseSurface({
   const [error, setError] = useState<string | null>(null);
   const rule = proposal.rules[0] as Rule;
   const parameters = rule.parameters;
-  const analysedDay = spot.at(-1)!;
 
   async function approveScope() {
     setResult(null);
@@ -128,23 +124,13 @@ export function PublishedCaseSurface({
   return (
     <ReplayLanguageContext.Provider value={language}>
       <section className="case-opening" aria-label={text.observations}>
-        <SessionPathChart
-          caption={text.pathCaption}
-          language={language}
-          legs={[
-            { name: text.legShort[0], day: analysedDay },
-            { name: text.legShort[1], day: future },
-          ]}
-          note={text.pathNote}
-          previousClose={{
-            value: previousClose,
-            label: text.previousCloseLabel,
-          }}
-        />
-        <ReversalDiagram
-          caption={text.diagramCaption}
-          labels={text.diagramLabels}
-          note={text.diagramNote}
+        <IntradaySessionChart
+          caption={text.intradayCaption}
+          high={INTRADAY_HIGH}
+          labels={text.intradayLabels}
+          low={INTRADAY_LOW}
+          note={text.intradayChartNote}
+          points={INTRADAY_SESSION}
         />
         <p className="intraday-reference">
           <a

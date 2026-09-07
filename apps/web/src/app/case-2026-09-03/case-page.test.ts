@@ -11,7 +11,13 @@ import {
 } from "../../lib/published-case";
 import { PublishedCaseSurface } from "./case-surface";
 import { caseCopy } from "./case-copy";
-import { scaledPrice, spaced, verticalScale } from "./session-chart";
+import {
+  INTRADAY_HIGH,
+  INTRADAY_LOW,
+  INTRADAY_RETRIEVED_AT,
+  INTRADAY_SESSION,
+} from "./intraday-session";
+import { scaledPrice, verticalScale } from "./session-chart";
 
 /**
  * React escapes apostrophes and ampersands in text nodes, so assertions that
@@ -27,16 +33,13 @@ const decode = (markup: string) =>
 
 function surface(language: "ko" | "en") {
   const { proposal } = publishedCaseProposal();
-  const { spot, future, spotArtifactHash, futureArtifactHash } =
-    publishedCaseSeries();
+  const { spot, spotArtifactHash, futureArtifactHash } = publishedCaseSeries();
   return decode(
     renderToStaticMarkup(
       createElement(PublishedCaseSurface, {
         columns: publishedCaseColumns(),
         proposal,
         spot,
-        future,
-        previousClose: spot.at(-2)!.close,
         spotArtifactHash,
         futureArtifactHash,
         language,
@@ -46,17 +49,14 @@ function surface(language: "ko" | "en") {
 }
 
 describe("the 2026-09-03 case surface", () => {
-  it("draws the analysed day from the committed published strings", () => {
+  it("prints the day's committed strings, not a reformatted version", () => {
     const markup = surface("ko");
-    const { spot, future } = publishedCaseSeries();
+    const { spot } = publishedCaseSeries();
     const day = spot.at(-1)!;
-    // Every figure on the chart is the artifact's own string, not a rounded or
-    // reformatted version of it.
-    for (const value of [day.open, day.high, day.low, day.close, day.netChange])
+    // The session chart marks the high, the low and the close; the scope and
+    // the observations carry the rest. All of them print the exact string.
+    for (const value of [day.high, day.low, day.close])
       expect(markup, value).toContain(value);
-    for (const value of [future.open, future.high, future.low, future.close])
-      expect(markup, value).toContain(value);
-    expect(markup).toContain(spot.at(-2)!.close);
   });
 
   it("computes no rank and no multiple before the rule has run", () => {
@@ -87,27 +87,6 @@ describe("the 2026-09-03 case surface", () => {
       // The disclosures about the data stay, because they are not a result.
       expect(markup, language).toContain(text.doesNotSayTitle);
     }
-  });
-
-  it("names both legs and every plotted price in the chart's accessible name", () => {
-    const markup = surface("ko");
-    const { spot, future } = publishedCaseSeries();
-    const day = spot.at(-1)!;
-    const label = /aria-label="([^"]*코스피 200:[^"]*)"/.exec(markup);
-    expect(label).not.toBeNull();
-    for (const value of [
-      day.open,
-      day.high,
-      day.low,
-      day.close,
-      day.netChange,
-      future.close,
-    ])
-      expect(label![1], value).toContain(value);
-    // The record carries no intraday time, so the label may not narrate one
-    // extreme following the other.
-    expect(label![1]).not.toMatch(/reached|fell to|올랐다가|내려갔/);
-    expect(label![1]).toMatch(/언제 나왔는지는|does not say when/);
   });
 
   it("places every chart mark without floating point arithmetic on a price", () => {
@@ -184,16 +163,6 @@ describe("the 2026-09-03 case surface", () => {
       expect(text.thresholdOrigin, language).toMatch(
         /관측값을 (이미 )?보고 있었습니다|already in view/,
       );
-    }
-  });
-
-  it("keeps the chart caption free of any claim the run would contradict", () => {
-    // The caption explains why one stretch of the path is dashed and nothing
-    // else, so it stays true before and after the run.
-    for (const language of ["ko", "en"] as const) {
-      const { pathNote } = caseCopy[language];
-      expect(surface(language), language).toContain(pathNote);
-      expect(pathNote, language).not.toMatch(/순위|배수|rank|multiple/i);
     }
   });
 
@@ -287,34 +256,40 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
-  it("keeps the explanatory diagram free of values, times and instruments", () => {
-    // The diagram teaches the measured quantity. It is not a session, so it may
-    // carry nothing that would read as one.
-    const source = readFileSync(
-      resolve(
-        process.cwd(),
-        "apps/web/src/app/case-2026-09-03/session-chart.tsx",
-      ),
-      "utf8",
-    );
-    const diagram = source.slice(
-      source.indexOf("export function ReversalDiagram"),
-    );
-    expect(diagram).not.toMatch(/1[0-9]{3}\.[0-9]/);
-    expect(diagram).not.toMatch(/코스피|KOSPI|2026-09-03/);
+  it("draws the session it says it draws, and keeps it out of the checks", () => {
+    // Presentation only: the series is never hashed, approved or read by a
+    // rule, and the note beside the chart has to say so.
     for (const language of ["ko", "en"] as const) {
       const markup = surface(language);
       const text = caseCopy[language];
-      expect(markup, language).toContain(text.diagramCaption);
-      expect(markup, language).toContain(text.diagramNote);
-      // It has to say outright that it is not a record of anything.
-      expect(text.diagramNote, language).toMatch(
-        /값도, 시각도, 종목 이름도 없습니다|no value, no time and no instrument/,
-      );
-      expect(text.diagramNote, language).toMatch(
-        /실제 움직임이 아니라|It is not a session/,
+      expect(markup, language).toContain(text.intradayCaption);
+      expect(markup, language).toContain(text.intradayChartNote);
+      expect(text.intradayChartNote, language).toMatch(
+        /판단에는 쓰이지 않습니다|takes no part in the checks/,
       );
     }
+    // The three values the line reaches are the three the committed daily
+    // record carries, which is what lets the picture and the evidence agree.
+    const { spot } = publishedCaseSeries();
+    const day = spot.at(-1)!;
+    expect(INTRADAY_HIGH.value).toBe(day.high);
+    expect(INTRADAY_LOW.value).toBe(day.low);
+    expect(INTRADAY_SESSION.at(-1)!.close).toBe(day.close);
+    expect(INTRADAY_SESSION.length).toBeGreaterThan(300);
+  });
+
+  it("records how the intraday series was obtained and on what terms", () => {
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/intraday-session.ts",
+      ),
+      "utf8",
+    );
+    expect(source).toContain("PRESENTATION ONLY");
+    expect(source).toContain("Licence:   NOT GRANTED");
+    expect(source).toContain("scripts/retrieve-kpi200-intraday.mjs");
+    expect(source).toContain(INTRADAY_RETRIEVED_AT);
   });
 
   it("points at the intraday chart without taking anything from it", () => {
@@ -333,22 +308,6 @@ describe("the 2026-09-03 case surface", () => {
       expect(text.intradayNote, language).toMatch(
         /쓰이지 않습니다|take no part/,
       );
-    }
-  });
-
-  it("keeps overlapping edge labels apart", () => {
-    // The spot close, its previous close and the future close land within a
-    // few pixels of one another on this case's real values.
-    const placed = spaced([{ y: 100 }, { y: 103 }, { y: 104.5 }]);
-    expect(placed.map(({ y }) => y)).toEqual([100, 114, 128]);
-    // Placement never reorders, and never moves a label that already clears.
-    expect(spaced([{ y: 10 }, { y: 90 }]).map(({ y }) => y)).toEqual([10, 90]);
-  });
-
-  it("names the leg a previous close belongs to", () => {
-    for (const language of ["ko", "en"] as const) {
-      const markup = surface(language);
-      expect(markup, language).toContain(caseCopy[language].previousCloseLabel);
     }
   });
 

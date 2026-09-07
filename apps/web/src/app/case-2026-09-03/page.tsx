@@ -18,16 +18,13 @@ export const metadata: Metadata = {
 
 export default function PublishedCasePage() {
   const { proposal } = publishedCaseProposal();
-  const { spot, future, spotArtifactHash, futureArtifactHash } =
-    publishedCaseSeries();
+  const { spot, spotArtifactHash, futureArtifactHash } = publishedCaseSeries();
   return (
     <main className="shell page-shell case-page">
       <CaseHeading />
       <CaseBoundary
         columns={publishedCaseColumns()}
         futureArtifactHash={futureArtifactHash}
-        future={future}
-        previousClose={spot.at(-2)!.close}
         proposal={proposal}
         spotArtifactHash={spotArtifactHash}
         spot={spot}

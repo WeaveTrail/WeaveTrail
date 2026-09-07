@@ -5,12 +5,15 @@ import React from "react";
 
 import { useLanguage } from "../i18n/language";
 import type { SessionDay } from "../../lib/published-case";
-import { SessionPathChart } from "./session-chart";
+import {
+  INTRADAY_HIGH,
+  INTRADAY_LOW,
+  INTRADAY_SESSION,
+} from "./intraday-session";
+import { IntradaySessionChart } from "./session-chart";
 
 export type HomeEventProps = {
   spot: SessionDay;
-  future: SessionDay;
-  previousClose: string;
 };
 
 const copy = {
@@ -23,8 +26,8 @@ const copy = {
     action: "이 사건 확인하러 가기",
     statLabels: ["시가", "고가", "저가", "종가"] as const,
     chartNote:
-      "금융위원회가 공개한 일별 값입니다. 띠는 그날 고가와 저가 사이, 선은 시가에서 종가까지입니다. 고가와 저가가 언제 나왔는지는 일별 자료에 없어서 둘 사이의 순서는 그리지 않았습니다.",
-    legs: ["코스피 200", "코스피200 선물"] as const,
+      "2026-09-03 코스피 200, 09:00–15:30을 1분 간격으로 저희가 직접 그렸습니다. 이 그래프는 판단에 쓰이지 않습니다.",
+    chartLabels: { low: "저가", high: "고가", close: "종가" },
   },
   en: {
     kicker: "One real session",
@@ -35,8 +38,8 @@ const copy = {
     action: "Look into this session",
     statLabels: ["Open", "High", "Low", "Close"] as const,
     chartNote:
-      "Published daily values from the FSC. The band is the range between the session's high and low; the line runs from the open to the close. A daily record does not say when either extreme happened, so no order between them is drawn.",
-    legs: ["KOSPI 200", "KOSPI 200 future"] as const,
+      "KOSPI 200 on 2026-09-03, 09:00-15:30, drawn by us in one-minute steps. This chart takes no part in the checks.",
+    chartLabels: { low: "low", high: "high", close: "close" },
   },
 };
 
@@ -46,7 +49,7 @@ const copy = {
  * Every figure in it is a committed published value; nothing the rule computes
  * appears on the home page.
  */
-export function HomeEvent({ spot, future, previousClose }: HomeEventProps) {
+export function HomeEvent({ spot }: HomeEventProps) {
   const { language } = useLanguage();
   const text = copy[language];
   return (
@@ -79,18 +82,13 @@ export function HomeEvent({ spot, future, previousClose }: HomeEventProps) {
         </Link>
       </div>
       <div className="event-figure">
-        <SessionPathChart
+        <IntradaySessionChart
           compact
-          language={language}
-          legs={[
-            { name: text.legs[0], day: spot },
-            { name: text.legs[1], day: future },
-          ]}
+          high={INTRADAY_HIGH}
+          labels={text.chartLabels}
+          low={INTRADAY_LOW}
           note={text.chartNote}
-          previousClose={{
-            value: previousClose,
-            label: language === "ko" ? "현물 전일 종가" : "spot previous close",
-          }}
+          points={INTRADAY_SESSION}
         />
       </div>
     </section>

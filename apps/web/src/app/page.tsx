@@ -14,14 +14,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   // Read on the server so the committed artifacts never reach the browser
   // bundle: the entry screen needs one day from each leg, not the series.
-  const { spot, future } = publishedCaseSeries();
-  return (
-    <HomeContent
-      event={{
-        spot: spot.at(-1)!,
-        future,
-        previousClose: spot.at(-2)!.close,
-      }}
-    />
-  );
+  const { spot } = publishedCaseSeries();
+  return <HomeContent event={{ spot: spot.at(-1)! }} />;
 }

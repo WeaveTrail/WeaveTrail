@@ -6,27 +6,21 @@ import { describe, expect, it } from "vitest";
 
 import { publishedCaseSeries } from "../../lib/published-case";
 import { HomeEvent } from "./home-event";
+import { INTRADAY_HIGH, INTRADAY_LOW } from "./intraday-session";
 import HomePage from "../page";
 
 function block() {
-  const { spot, future } = publishedCaseSeries();
-  return renderToStaticMarkup(
-    createElement(HomeEvent, {
-      spot: spot.at(-1)!,
-      future,
-      previousClose: spot.at(-2)!.close,
-    }),
-  );
+  const { spot } = publishedCaseSeries();
+  return renderToStaticMarkup(createElement(HomeEvent, { spot: spot.at(-1)! }));
 }
 
 describe("the event on the entry screen", () => {
   it("carries only committed published values", () => {
     const markup = block();
-    const { spot, future } = publishedCaseSeries();
+    const { spot } = publishedCaseSeries();
     const day = spot.at(-1)!;
     for (const value of [day.open, day.high, day.low, day.close])
       expect(markup, value).toContain(value);
-    expect(markup).toContain(future.close);
     // The entry screen states no result. Everything the rule produces belongs
     // to the case, after an approval.
     for (const ruleOutput of [
@@ -39,12 +33,20 @@ describe("the event on the entry screen", () => {
       expect(markup, ruleOutput).not.toContain(ruleOutput);
   });
 
-  it("says the high and the low are not placed in time", () => {
+  it("marks when the session reached its high and its low", () => {
     const markup = block();
-    expect(markup).toMatch(/일별 자료에 없어서|does not say when/);
-    // No order between the two extremes may be drawn or implied, because the
-    // daily record does not contain one.
-    expect(markup).toMatch(/순서는 그리지 않았습니다|no order between them/);
+    // The minute series does carry a time for each extreme, which is exactly
+    // what the daily record could not give.
+    expect(markup).toContain(INTRADAY_HIGH.time);
+    expect(markup).toContain(INTRADAY_LOW.time);
+    expect(markup).toContain(INTRADAY_HIGH.value);
+    expect(markup).toContain(INTRADAY_LOW.value);
+  });
+
+  it("says the drawn session takes no part in the checks", () => {
+    expect(block()).toMatch(
+      /판단에 쓰이지 않습니다|takes no part in the checks/,
+    );
   });
 
   it("narrates no order between the two extremes", () => {
@@ -73,17 +75,12 @@ describe("the event on the entry screen", () => {
       expect(markup, value).toContain(value);
   });
 
-  it("names the reference line it draws", () => {
+  it("names the marks it draws in the accessible name", () => {
     const markup = block();
-    const { spot } = publishedCaseSeries();
-    const previous = spot.at(-2)!.close;
-    // The compact chart draws the line, so it says what the line is, both on
-    // screen and in the accessible name.
-    expect(markup).toContain(previous);
-    expect(markup).toMatch(/현물 전일 종가|spot previous close/);
     const label = /aria-label="([^"]*)"/.exec(markup);
     expect(label).not.toBeNull();
-    expect(label![1]).toContain(previous);
+    for (const value of [INTRADAY_HIGH.value, INTRADAY_LOW.value])
+      expect(label![1], value).toContain(value);
   });
 
   it("offers one way into the case", () => {

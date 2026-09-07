@@ -4,24 +4,15 @@ export type Chapter = { title: string; purpose: string };
 
 export type CaseCopy = {
   chapters: readonly Chapter[];
-  pathCaption: string;
-  pathNote: string;
-  legShort: readonly [string, string];
   columnsLede: string;
   columnHeaders: readonly [string, string, string];
   legTableTitles: Readonly<Record<string, string>>;
   awaitingRun: string;
-  previousCloseLabel: string;
   intradayLink: string;
   intradayNote: string;
-  diagramCaption: string;
-  diagramNote: string;
-  diagramLabels: {
-    previousClose: string;
-    high: string;
-    close: string;
-    reversal: string;
-  };
+  intradayCaption: string;
+  intradayChartNote: string;
+  intradayLabels: { low: string; high: string; close: string };
   columnGloss: Readonly<Record<string, string>>;
   didTitle: string;
   did: readonly string[];
@@ -120,10 +111,6 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
           "더 말할 수 있는 자료가 없기 때문입니다. 어디까지 말했고 어디부터 말하지 않는지 분명히 합니다.",
       },
     ],
-    pathCaption: "2026-09-03 하루의 움직임 · 발행처 공개 값",
-    pathNote:
-      "띠는 그날 고가와 저가 사이, 즉 하루가 오간 폭입니다. 선은 시가에서 종가까지이고, 이 두 점만 시각이 정해져 있습니다. 고가와 저가가 언제 나왔는지는 일별 자료에 없어서 둘 사이의 순서는 그리지 않았습니다.",
-    legShort: ["코스피 200", "코스피200 선물"],
     columnsLede:
       "발행처는 자기 약어를 씁니다. 아래가 그 약어와, 조사에서 쓰는 이름의 대응입니다. 두 자료는 서로 다르게 대응합니다. 지수는 이름으로, 선물은 표준코드로 종목을 가립니다. 이 대응은 이미 검토·기록되어 있고, 이 페이지에서 사용자가 승인하는 것은 다음 단계의 조사 범위입니다.",
     legTableTitles: {
@@ -131,16 +118,10 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "front-future": "선물 · 코스피200 F 202609",
     },
     awaitingRun: "위에서 분석을 실행하면 결과가 여기에 나옵니다.",
-    previousCloseLabel: "현물 전일 종가",
-    diagramCaption: "규칙이 재는 것 · 설명용 모식도",
-    diagramNote:
-      "이 그림에는 값도, 시각도, 종목 이름도 없습니다. 실제 움직임이 아니라 규칙이 재는 양이 무엇인지만 보여 주는 그림입니다. 그날의 실제 숫자는 위의 공개 값과 아래 결과에만 있습니다.",
-    diagramLabels: {
-      previousClose: "전일 종가",
-      high: "그날 고가",
-      close: "종가",
-      reversal: "되돌림",
-    },
+    intradayCaption: "2026-09-03 코스피 200 · 09:00–15:30 · 1분 간격",
+    intradayChartNote:
+      "이 그래프는 그날의 분 단위 지수값으로 저희가 직접 그린 것입니다. 아래 판단에는 쓰이지 않습니다. 판단은 금융위원회가 공개한 일별 값으로만 합니다. 다만 이 그래프가 닿는 고가 1050.77, 저가 1009.7, 종가 1032.82는 그 일별 기록과 정확히 같은 값입니다.",
+    intradayLabels: { low: "저가", high: "고가", close: "종가" },
     intradayLink: "네이버 증권에서 장중 흐름 보기",
     intradayNote:
       "분 단위로 그날이 어떻게 움직였는지는 증권 포털에서 볼 수 있습니다. 그 화면의 값은 재배포가 허용되지 않아 이 서비스로 가져오지 않았고, 아래 판단에도 쓰이지 않습니다. 여기서 쓰는 것은 금융위원회가 공개한 일별 값뿐입니다.",
@@ -313,10 +294,6 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
           "Because the data runs out. What was said, and what is deliberately not said.",
       },
     ],
-    pathCaption: "The session of 2026-09-03 · published values",
-    pathNote:
-      "The band is the range between the session's high and low — how far the day travelled. The line runs from the open to the close, the only two points the record fixes in time. A daily record does not say when either extreme happened, so no order between them is drawn.",
-    legShort: ["KOSPI 200", "KOSPI 200 future"],
     columnsLede:
       "The publisher uses its own abbreviations. Below is each one, what it holds, and the name an investigation gives it. The two artifacts do not map the same way: the index identifies its instrument by name, the future by standard code. This join was reviewed and recorded already; what you approve on this page is the scope in the next chapter.",
     legTableTitles: {
@@ -324,16 +301,10 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "front-future": "Future · KOSPI 200 F 202609",
     },
     awaitingRun: "Run the analysis above and the result appears here.",
-    previousCloseLabel: "spot previous close",
-    diagramCaption: "What the rule measures · a diagram",
-    diagramNote:
-      "This drawing carries no value, no time and no instrument. It is not a session; it shows only the quantity the rule measures. The real figures for the day are the published values above and the result below.",
-    diagramLabels: {
-      previousClose: "previous close",
-      high: "session high",
-      close: "close",
-      reversal: "reversal",
-    },
+    intradayCaption: "KOSPI 200 on 2026-09-03 · 09:00–15:30 · one-minute steps",
+    intradayChartNote:
+      "This chart is drawn by us from that day's minute-by-minute index levels. It takes no part in the checks below: those run on the FSC's published daily record alone. The three values it reaches — high 1050.77, low 1009.7, close 1032.82 — are the same three that record carries.",
+    intradayLabels: { low: "low", high: "high", close: "close" },
     intradayLink: "See the intraday chart on Naver Finance",
     intradayNote:
       "How the day moved minute by minute can be seen on a market portal. Those values are not redistributable, so they were not brought into this service and take no part in the checks below. What is used here is the daily record the FSC publishes.",
