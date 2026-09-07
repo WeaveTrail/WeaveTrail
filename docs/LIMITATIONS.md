@@ -1,5 +1,7 @@
 # Limitations
 
+_[한국어](LIMITATIONS.ko.md)_
+
 WeaveTrail is an early reference implementation for reproducible event
 verification. It is not a production market-surveillance system.
 

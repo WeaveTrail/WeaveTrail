@@ -1,5 +1,7 @@
 # WeaveTrail Architecture
 
+_[한국어](ARCHITECTURE.ko.md)_
+
 WeaveTrail separates probabilistic interpretation from authoritative
 calculation. A model can narrow ambiguity, but only validated inputs and
 versioned code can produce a replay result.
