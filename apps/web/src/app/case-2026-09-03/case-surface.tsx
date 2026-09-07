@@ -17,6 +17,10 @@ import type {
   SessionDay,
 } from "../../lib/published-case";
 import { caseCopy, type Chapter as ChapterCopy } from "./case-copy";
+import {
+  BaselineRankFigures,
+  DenominatorDivergenceFigures,
+} from "./observation-figures";
 import { BaselineRangeChart, IntradaySessionChart } from "./session-chart";
 import {
   INTRADAY_HIGH,
@@ -130,6 +134,14 @@ export function PublishedCaseSurface({
   const analysis =
     evaluation && evaluation.result !== "INCONCLUSIVE"
       ? evaluation.analysis
+      : null;
+  // Version 1.0 of the rule returns no sensitivity block, so the comparison is
+  // read off the result rather than assumed to be there.
+  const sensitivity =
+    evaluation && evaluation.result !== "INCONCLUSIVE"
+      ? "sensitivity" in evaluation
+        ? evaluation.sensitivity
+        : null
       : null;
 
   return (
@@ -371,6 +383,14 @@ export function PublishedCaseSurface({
                   )}
                 </p>
                 <p className="machine-note">{text.rankCaveat}</p>
+                {/* The position is drawn from the gate's own observed value, so
+                    the picture cannot mark a rank the gate did not report. */}
+                <BaselineRankFigures
+                  analysis={analysis}
+                  findings={evaluation.findings}
+                  legNames={text.legNames}
+                  text={text}
+                />
 
                 <h3>{text.observations}</h3>
                 <div className="case-observations">
@@ -407,6 +427,24 @@ export function PublishedCaseSurface({
                     </dl>
                   ))}
                 </div>
+              </>
+            )}
+
+            {sensitivity && (
+              <>
+                <h3>{text.divergenceTitle}</h3>
+                <p>{text.divergenceLede}</p>
+                <DenominatorDivergenceFigures
+                  findings={evaluation.findings}
+                  legNames={text.legNames}
+                  legs={sensitivity.legs}
+                  text={text}
+                />
+                <p>{text.divergenceCaveat}</p>
+                <p className="machine-note">
+                  <code>{sensitivity.comparison}</code>{" "}
+                  <code>{sensitivity.interpretation}</code>
+                </p>
               </>
             )}
 

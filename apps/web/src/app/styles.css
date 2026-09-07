@@ -1600,6 +1600,151 @@ code {
 .case-observation dd {
   margin: 0;
 }
+/* The two observations that decide the case, drawn.
+
+   Both figures keep their values in ordinary HTML text and hand only the marks
+   to the graphics, so a 320px viewport shrinks the picture and reflows the
+   numbers instead of shrinking both. Every colour is a theme token, so the
+   figures follow the reader's theme without a second palette. */
+.rank-figure,
+.divergence-figure {
+  margin: 16px 0 0;
+  padding: 16px;
+  border: var(--hairline);
+  background: var(--surface-card);
+}
+.rank-figure figcaption,
+.divergence-figure figcaption {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.rank-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  overflow: visible;
+}
+.rank-track {
+  stroke: var(--ledger-rule-strong);
+  stroke-width: 1;
+}
+.rank-slot {
+  stroke: var(--slate-500);
+  stroke-width: 2;
+}
+.rank-slot[data-analysed="true"] {
+  stroke: var(--red-600);
+  stroke-width: 4;
+}
+.rank-mark {
+  fill: var(--red-600);
+}
+.rank-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font: var(--type-label);
+}
+.rank-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: 8px 16px;
+  margin: 16px 0 0;
+}
+/* A value drops to its own line whole rather than breaking inside itself: a
+   reversal multiple split across two lines reads as two numbers. */
+.rank-facts > div,
+.divergence-values > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 12px;
+}
+.rank-facts dd,
+.divergence-values dd {
+  margin: 0;
+  white-space: nowrap;
+}
+.rank-facts dt,
+.divergence-values dt {
+  color: var(--text-muted);
+}
+.rank-figure .machine-note {
+  margin-top: 12px;
+}
+.divergence-rows {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+.divergence-row {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: var(--hairline);
+}
+.divergence-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+.divergence-label small {
+  color: var(--text-muted);
+}
+.divergence-tag {
+  padding: 1px 8px;
+  border: var(--hairline);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.divergence-tag[data-approved="true"] {
+  border-color: var(--red-600);
+  color: var(--red-600);
+}
+/* The track is the shared scale; it starts at zero so a bar's length is its
+   value and not its distance from the smallest value in the set. An
+   alternative denominator that reduces the metric by three orders of magnitude
+   leaves a hairline here, which is the finding rather than a rendering fault —
+   the printed value beside it carries the exact figure either way. */
+.divergence-track {
+  position: relative;
+  height: 14px;
+  background: var(--surface-sunken);
+  border-bottom: var(--hairline);
+}
+.divergence-bar {
+  height: 100%;
+  min-width: 1px;
+  background: var(--slate-500);
+}
+.divergence-bar[data-approved="true"] {
+  background: var(--red-600);
+}
+.divergence-threshold {
+  position: absolute;
+  inset-block: -4px;
+  width: 2px;
+  background: var(--amber-600);
+}
+.divergence-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: 4px 16px;
+  margin: 0;
+}
+.divergence-threshold-note {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+}
 .case-stop-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));

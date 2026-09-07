@@ -36,7 +36,7 @@ describe("the published case route", () => {
       interpretation: "POSITION_WITHIN_DECLARED_RANGE_NOT_PROBABILITY",
     });
     expect(body.canonicalResultHash).toBe(
-      "ffd7110a1c1fb2b18e9200e3a103b03572cb5b97b5f5d6db81689821de63bb55",
+      "159ffac0f1845b89239ab905b3f5ab1f81ad7212e1ccbbf8ea74b3474b696a89",
     );
     expect(body.sourceTrace.length).toBeGreaterThan(0);
   });

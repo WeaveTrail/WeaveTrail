@@ -11,6 +11,8 @@ import {
 
 import {
   ANALYSED_DATE,
+  CLOSING_LEVEL_DENOMINATOR,
+  NET_CHANGE_DENOMINATOR,
   PublishedCaseReviewRequired,
   publishedCaseProposal,
   publishedCaseSeries,
@@ -35,7 +37,7 @@ describe("the published 2026-09-03 case", () => {
     const replay = replayPublishedCase(approvalFor(sha256Canonical(proposal)));
     expect(replay.evaluation).toMatchObject({
       ruleId: "CROSS_MARKET_SESSION_REVERSAL",
-      ruleVersion: "1.0",
+      ruleVersion: "1.1",
       result: "SUPPORTED",
       analysis: {
         analysedDate: ANALYSED_DATE,
@@ -59,11 +61,76 @@ describe("the published 2026-09-03 case", () => {
         ],
       },
     });
-    // The same hash the engine suite pins, reached through the application's
-    // own assembly of the committed artifacts.
+    // The hash covers this case's own approved scope, which declares rule
+    // 1.1 and its denominators. The engine's published golden pins whatever
+    // manifest it declares; the two agree only while both declare the same one.
     expect(replay.canonicalResultHash).toBe(
-      "ffd7110a1c1fb2b18e9200e3a103b03572cb5b97b5f5d6db81689821de63bb55",
+      "159ffac0f1845b89239ab905b3f5ab1f81ad7212e1ccbbf8ea74b3474b696a89",
     );
+  });
+
+  it("declares both denominators and reports the metric under each", () => {
+    // The approved denominator is the day's net change, which is what the case
+    // reported before it declared any: every gate observation above is
+    // unchanged. The second denominator exists so the result can show how far
+    // the same session moves when only the divisor changes.
+    const { proposal } = publishedCaseProposal();
+    const rule = proposal.rules[0]!;
+    if (rule.ruleId !== "CROSS_MARKET_SESSION_REVERSAL")
+      throw new Error("The published case declares one cross-market rule");
+    expect(rule.ruleVersion).toBe("1.1");
+    for (const leg of rule.parameters.legs) {
+      expect("denominators" in leg && leg.denominators).toMatchObject([
+        {
+          denominatorId: NET_CHANGE_DENOMINATOR,
+          meaning: "OBSERVED_PRICE_CHANGE",
+        },
+        {
+          denominatorId: CLOSING_LEVEL_DENOMINATOR,
+          meaning: "OBSERVED_PRICE_LEVEL",
+        },
+      ]);
+    }
+    const replay = replayPublishedCase(approvalFor(sha256Canonical(proposal)));
+    const evaluation = replay.evaluation;
+    if (evaluation.result === "INCONCLUSIVE" || !("sensitivity" in evaluation))
+      throw new Error(
+        "The published case must report a sensitivity comparison",
+      );
+    expect(evaluation.sensitivity).toMatchObject({
+      comparison: "MECHANICAL_METRIC_COMPARISON",
+      interpretation: "MECHANICAL_RECOMPUTATION_NOT_CAUSAL_CONCLUSION",
+      legs: [
+        {
+          legId: "spot-index",
+          approved: { denominatorValue: "1.29", metricValue: "13.9147" },
+          alternatives: [
+            {
+              denominatorValue: "1032.82",
+              metricValue: "0.0173",
+              ratioToApprovedMetric: "0.0012",
+            },
+          ],
+        },
+        {
+          legId: "front-future",
+          approved: { denominatorValue: "0.85", metricValue: "25.4705" },
+          alternatives: [
+            {
+              denominatorValue: "1030",
+              metricValue: "0.021",
+              ratioToApprovedMetric: "0.0008",
+            },
+          ],
+        },
+      ],
+    });
+    // Both legs clear their threshold under the approved denominator and
+    // neither comes near it under the alternative, which is the whole reason
+    // the comparison is shown beside the gates rather than behind them.
+    for (const finding of evaluation.findings)
+      if (finding.gate === "LEG_REVERSAL_MULTIPLE")
+        expect(finding.passed).toBe(true);
   });
 
   it("resolves every gate to a committed source row", () => {

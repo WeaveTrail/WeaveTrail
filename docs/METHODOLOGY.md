@@ -466,7 +466,12 @@ This is a deterministic engine regression check over fixed licensed artifacts.
 Its generated approval fixtures exercise the hash gates but do not evidence
 human review, so the golden is not an approved case or evidentiary result. The
 separate published web case requires an `APPROVED` record bound to the exact
-scope before it runs and links every gate back to the threshold provenance. The
+scope before it runs and links every gate back to the threshold provenance. That
+case declares rule `1.1`, with two denominators on each leg — the session's net
+change, which is the approved one, and the session's close — so it reports the
+same gate observations and the same position `1` of `45` under a result hash of
+its own,
+`159ffac0f1845b89239ab905b3f5ab1f81ad7212e1ccbbf8ea74b3474b696a89`. The
 server does not authenticate the reviewer's identity. Neither surface estimates
 detection quality, probability, causality, legal status or investment
 suitability, and neither searches the range for candidate dates.
