@@ -12,20 +12,34 @@ import { PublishedCaseSurface } from "./case-surface";
 import { caseCopy } from "./case-copy";
 import { scaledPrice, verticalScale } from "./session-chart";
 
+/**
+ * React escapes apostrophes and ampersands in text nodes, so assertions that
+ * compare against the copy table read the decoded markup.
+ */
+const decode = (markup: string) =>
+  markup
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&gt;/g, ">")
+    .replace(/&lt;/g, "<")
+    .replace(/&amp;/g, "&");
+
 function surface(language: "ko" | "en") {
   const { proposal } = publishedCaseProposal();
   const { spot, future, spotArtifactHash, futureArtifactHash } =
     publishedCaseSeries();
-  return renderToStaticMarkup(
-    createElement(PublishedCaseSurface, {
-      proposal,
-      spot,
-      future,
-      previousClose: spot.at(-2)!.close,
-      spotArtifactHash,
-      futureArtifactHash,
-      language,
-    }),
+  return decode(
+    renderToStaticMarkup(
+      createElement(PublishedCaseSurface, {
+        proposal,
+        spot,
+        future,
+        previousClose: spot.at(-2)!.close,
+        spotArtifactHash,
+        futureArtifactHash,
+        language,
+      }),
+    ),
   );
 }
 
@@ -139,6 +153,53 @@ describe("the 2026-09-03 case surface", () => {
       );
       expect(rule.test(styles), selector).toBe(true);
     }
+  });
+
+  it("claims no approval while it is still asking for one", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      // The control invites an approval; nothing on the page may describe one
+      // as already given.
+      expect(markup, language).toContain(text.approve);
+      expect(markup, language).not.toContain(text.approved);
+      for (const line of text.doesNotSay)
+        expect(line, line).not.toMatch(/승인한 것입니다|was approved above/);
+    }
+  });
+
+  it("says where the thresholds came from, beside them", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      expect(markup, language).toContain(text.thresholdOrigin);
+      // The point of the disclosure is that the observations were already
+      // known when the thresholds were set.
+      expect(text.thresholdOrigin, language).toMatch(
+        /관측값을 (이미 )?보고 있었습니다|already in view/,
+      );
+    }
+  });
+
+  it("does not tell the reader a rank is still pending once it is not", () => {
+    const { chartNote, chartNoteAfterRun } = caseCopy.ko;
+    expect(chartNote).not.toBe(chartNoteAfterRun);
+    // Before the run the page says the rank is the rule's work still to come.
+    const markup = surface("ko");
+    expect(markup).toContain(chartNote);
+    expect(markup).not.toContain(chartNoteAfterRun);
+  });
+
+  it("carries the case into the rollback checklist", () => {
+    // A restored deployment that never exercises the approval boundary is a
+    // deployment nobody checked.
+    const deployment = readFileSync(
+      resolve(process.cwd(), "docs/DEPLOYMENT.md"),
+      "utf8",
+    );
+    const rollback = deployment.slice(deployment.indexOf("## Rollback"));
+    expect(rollback).toContain("/case-2026-09-03");
+    expect(rollback).toContain("eight-route");
   });
 
   it("reaches the case from the navigation in both languages", () => {

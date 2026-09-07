@@ -107,7 +107,12 @@ export function PublishedCaseSurface({
           days={spot}
           language={language}
         />
-        <p className="machine-note">{text.chartNote}</p>
+        {/* Before the run this says the rank and the multiples are still to be
+            computed; afterwards that sentence would contradict the result
+            directly below it. */}
+        <p className="machine-note">
+          {result ? text.chartNoteAfterRun : text.chartNote}
+        </p>
       </section>
 
       <section className="panel case-premise">
@@ -182,6 +187,7 @@ export function PublishedCaseSurface({
             </div>
           ))}
         </div>
+        <p className="threshold-origin">{text.thresholdOrigin}</p>
         <details>
           <summary>{text.exactScope}</summary>
           <pre className="artifact-json" aria-label={text.exactScope}>

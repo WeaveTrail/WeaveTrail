@@ -55,6 +55,8 @@ export type CaseCopy = {
   dayCaptionFuture: string;
   baselineCaption: string;
   chartNote: string;
+  chartNoteAfterRun: string;
+  thresholdOrigin: string;
   artifactHash: string;
 };
 
@@ -153,7 +155,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     doesNotSay: [
       "누가 사고팔았는지, 왜 그랬는지는 말하지 않습니다. 이 자료에는 거래 주체가 없습니다.",
       "위법인지 아닌지도 말하지 않습니다. 이것은 법적 판단이 아니며 인과관계에 대한 결론도 아닙니다.",
-      "다른 기간이나 다른 기준을 골랐다면 다른 순위가 나옵니다. 그 선택은 위에서 사람이 승인한 것입니다.",
+      "다른 기간이나 다른 기준을 골랐다면 다른 순위가 나옵니다. 그 기간과 기준은 이 사례를 만들 때 사람이 정한 것이고, 위에서 그대로 확인한 뒤 승인해 실행하게 됩니다.",
+      "기준값은 이 날의 관측값을 이미 본 상태에서 정해졌습니다. 결과가 기준을 넘었다는 사실 자체는, 넘도록 고른 기준이라는 점과 함께 읽어야 합니다.",
       "이 결과는 선언된 패턴 가설을 승인된 범위 안에서 얼마나 뒷받침하는지만 말합니다.",
     ],
     dayCaptionSpot: "코스피 200 · 2026-09-03 · 발행처 공개 값",
@@ -162,6 +165,10 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "코스피 200 · 기준선 45거래일의 고가–저가 구간과 종가 · 발행처 공개 값",
     chartNote:
       "그림에 그려진 값은 전부 발행처가 공개한 원본입니다. 순위와 배수는 아직 계산하지 않았습니다. 그것은 아래에서 규칙이 합니다.",
+    chartNoteAfterRun:
+      "그림은 실행 뒤에도 그대로입니다. 여기에 그려진 값은 여전히 발행처가 공개한 원본뿐이고, 순위와 배수는 아래 결과에만 있습니다.",
+    thresholdOrigin:
+      "이 기준값은 표준이 아닙니다. 이 사례를 만들면서 사람이 정한 값이고, 그때 이미 이 날의 관측값을 보고 있었습니다. 그래서 아래 결과에서는 관측값과 기준을 나란히 보여 줍니다. 둘의 간격이 얼마나 좁은지 직접 확인하세요.",
     artifactHash: "자료 해시",
   },
   en: {
@@ -258,7 +265,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     doesNotSay: [
       "It says nothing about who bought or sold, or why. This data carries no actor.",
       "It says nothing about legality. This is not a legal conclusion and not a causal one.",
-      "A different range or different thresholds would give a different position. That choice was approved above, by a person.",
+      "A different range or different thresholds would give a different position. That range and those thresholds were set when this case was authored, and you read them above before approving and running them.",
+      "The thresholds were chosen with this session's observations already known. That the result clears them has to be read together with the fact that they were picked to be cleared.",
       "The result states support for a declared pattern hypothesis under the approved scope, and nothing wider.",
     ],
     dayCaptionSpot: "KOSPI 200 · 2026-09-03 · published values",
@@ -267,6 +275,10 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "KOSPI 200 · high-to-low span and close for 45 baseline trading days · published values",
     chartNote:
       "Everything drawn here is a published value. No rank and no multiple has been computed yet; that is the rule's work, below.",
+    chartNoteAfterRun:
+      "The charts are unchanged by the run. What they draw is still published values alone; the rank and the multiples live in the result below.",
+    thresholdOrigin:
+      "These thresholds are not a standard. A person set them while authoring this case, with this session's observations already in view. The result below therefore prints each observed value beside its threshold, so you can see how narrow the margin is.",
     artifactHash: "Artifact hash",
   },
 };
