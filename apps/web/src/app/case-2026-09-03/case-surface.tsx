@@ -137,6 +137,16 @@ export function PublishedCaseSurface({
             label: text.previousCloseLabel,
           }}
         />
+        <p className="intraday-reference">
+          <a
+            href="https://stock.naver.com/domestic/index/KPI200/price"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            {text.intradayLink}
+          </a>
+          <span>{text.intradayNote}</span>
+        </p>
         <div className="case-premise">
           <h2>{text.notOurJobTitle}</h2>
           {text.notOurJob.map((line) => (
@@ -447,10 +457,13 @@ export function PublishedCaseSurface({
 
       <Chapter chapter={text.chapters[5]!} index={6}>
         <div className="case-stop-grid">
+          {/* Before a run nothing has been decided and no hash has been
+              returned, so the same procedure is stated in the present tense
+              until there is a result to speak of in the past. */}
           <div>
-            <h3>{text.didTitle}</h3>
+            <h3>{result ? text.didTitle : text.willDoTitle}</h3>
             <ul>
-              {text.did.map((line) => (
+              {(result ? text.did : text.willDo).map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>

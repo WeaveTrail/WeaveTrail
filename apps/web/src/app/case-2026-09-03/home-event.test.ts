@@ -54,6 +54,38 @@ describe("the event on the entry screen", () => {
     expect(markup).not.toMatch(/올랐다가|내려갔|came back|fell to|reached/);
   });
 
+  it("reads its figures from the committed row rather than restating them", () => {
+    // A correction to the artifact must not leave old figures attached to a
+    // real instrument, so no price may be written into the copy table.
+    const source = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/case-2026-09-03/home-event.tsx"),
+      "utf8",
+    );
+    expect(source).not.toMatch(/1[0-9]{3}\.[0-9]/);
+    const { spot } = publishedCaseSeries();
+    const markup = block();
+    for (const value of [
+      spot.at(-1)!.open,
+      spot.at(-1)!.high,
+      spot.at(-1)!.low,
+      spot.at(-1)!.close,
+    ])
+      expect(markup, value).toContain(value);
+  });
+
+  it("names the reference line it draws", () => {
+    const markup = block();
+    const { spot } = publishedCaseSeries();
+    const previous = spot.at(-2)!.close;
+    // The compact chart draws the line, so it says what the line is, both on
+    // screen and in the accessible name.
+    expect(markup).toContain(previous);
+    expect(markup).toMatch(/현물 전일 종가|spot previous close/);
+    const label = /aria-label="([^"]*)"/.exec(markup);
+    expect(label).not.toBeNull();
+    expect(label![1]).toContain(previous);
+  });
+
   it("offers one way into the case", () => {
     expect(block()).toContain('href="/case-2026-09-03"');
   });

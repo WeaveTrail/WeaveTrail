@@ -11,7 +11,7 @@ import {
 } from "../../lib/published-case";
 import { PublishedCaseSurface } from "./case-surface";
 import { caseCopy } from "./case-copy";
-import { scaledPrice, verticalScale } from "./session-chart";
+import { scaledPrice, spaced, verticalScale } from "./session-chart";
 
 /**
  * React escapes apostrophes and ampersands in text nodes, so assertions that
@@ -273,6 +273,46 @@ describe("the 2026-09-03 case surface", () => {
       expect(trace!, language).toMatch(/기준값|thresholds/);
       expect(trace!, language).toMatch(/순위|rank/);
     }
+  });
+
+  it("states the procedure in the present tense until there is a result", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      // Nothing has been decided and no hash has been returned yet.
+      expect(markup, language).toContain(text.willDoTitle);
+      expect(markup, language).not.toContain(text.didTitle);
+      expect(text.did, language).toHaveLength(text.willDo.length);
+      expect(text.did[0], language).not.toBe(text.willDo[0]);
+    }
+  });
+
+  it("points at the intraday chart without taking anything from it", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      expect(markup, language).toContain(
+        "https://stock.naver.com/domestic/index/KPI200/price",
+      );
+      expect(markup, language).toContain(text.intradayNote);
+      // The note has to say the values stay out of the checks, because the
+      // page's whole argument is that nothing unattributed enters one.
+      expect(text.intradayNote, language).toMatch(
+        /재배포가 허용되지 않아|not redistributable/,
+      );
+      expect(text.intradayNote, language).toMatch(
+        /쓰이지 않습니다|take no part/,
+      );
+    }
+  });
+
+  it("keeps overlapping edge labels apart", () => {
+    // The spot close, its previous close and the future close land within a
+    // few pixels of one another on this case's real values.
+    const placed = spaced([{ y: 100 }, { y: 103 }, { y: 104.5 }]);
+    expect(placed.map(({ y }) => y)).toEqual([100, 114, 128]);
+    // Placement never reorders, and never moves a label that already clears.
+    expect(spaced([{ y: 10 }, { y: 90 }]).map(({ y }) => y)).toEqual([10, 90]);
   });
 
   it("names the leg a previous close belongs to", () => {

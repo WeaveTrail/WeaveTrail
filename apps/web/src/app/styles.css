@@ -1437,6 +1437,22 @@ code {
 .session-leg[data-leg="1"] .session-extreme {
   stroke: var(--teal-700);
 }
+/* A pointer to where the minute-by-minute session can be seen, kept visibly
+   outside the evidence chain: nothing from it enters a check. */
+.intraday-reference {
+  display: grid;
+  gap: 6px;
+  max-width: var(--prose-max);
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px dashed var(--ledger-rule-strong);
+  font: var(--type-small);
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.intraday-reference a {
+  font-weight: var(--weight-semibold);
+}
 .column-block + .column-block {
   margin-top: 28px;
 }

@@ -12,9 +12,14 @@ export type CaseCopy = {
   legTableTitles: Readonly<Record<string, string>>;
   awaitingRun: string;
   previousCloseLabel: string;
+  intradayLink: string;
+  intradayNote: string;
   columnGloss: Readonly<Record<string, string>>;
   didTitle: string;
   did: readonly string[];
+  /** The same procedure before it has run, so nothing claims a completed run. */
+  willDoTitle: string;
+  willDo: readonly string[];
   closing: string;
   heading: string;
   lede: string;
@@ -119,6 +124,9 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     },
     awaitingRun: "위에서 분석을 실행하면 결과가 여기에 나옵니다.",
     previousCloseLabel: "현물 전일 종가",
+    intradayLink: "네이버 증권에서 장중 흐름 보기",
+    intradayNote:
+      "분 단위로 그날이 어떻게 움직였는지는 증권 포털에서 볼 수 있습니다. 그 화면의 값은 재배포가 허용되지 않아 이 서비스로 가져오지 않았고, 아래 판단에도 쓰이지 않습니다. 여기서 쓰는 것은 금융위원회가 공개한 일별 값뿐입니다.",
     columnHeaders: ["발행처 열 이름", "무슨 값인가", "조사에서 쓰는 이름"],
     columnGloss: {
       basDt: "거래일",
@@ -132,6 +140,14 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       lopr: "장중 저가",
       trqu: "거래량",
     },
+    willDoTitle: "이 서비스가 하는 일",
+    willDo: [
+      "공개된 원본 자료를 그대로 읽고, 파일이 바뀌지 않았음을 해시로 확인합니다.",
+      "열 이름의 뜻은 사람이 검토한 대로만 적용합니다.",
+      "무엇을 어떤 기준으로 볼지 사용자가 승인한 뒤에야 계산합니다.",
+      "판정은 AI가 아니라 버전이 고정된 코드가 하고, 같은 입력이면 같은 해시가 나옵니다.",
+      "관측값은 그 값이 나온 공개 원본 행까지 열어서 확인할 수 있습니다. 기준값은 사람이 정한 것이고, 규칙·엔진 버전과 결과 해시는 실행 전체를 가리키며, 순위는 승인된 기준선 전체를 가로질러 계산합니다.",
+    ],
     didTitle: "이 서비스가 한 일",
     did: [
       "공개된 원본 자료를 그대로 읽었고, 파일이 바뀌지 않았음을 해시로 확인했습니다.",
@@ -292,6 +308,9 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     },
     awaitingRun: "Run the analysis above and the result appears here.",
     previousCloseLabel: "spot previous close",
+    intradayLink: "See the intraday chart on Naver Finance",
+    intradayNote:
+      "How the day moved minute by minute can be seen on a market portal. Those values are not redistributable, so they were not brought into this service and take no part in the checks below. What is used here is the daily record the FSC publishes.",
     columnHeaders: ["Publisher column", "What it holds", "Investigation name"],
     columnGloss: {
       basDt: "Trading date",
@@ -305,6 +324,14 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       lopr: "Session low",
       trqu: "Traded volume",
     },
+    willDoTitle: "What this service does",
+    willDo: [
+      "Reads the published artifacts as distributed, and checks by hash that the files have not changed.",
+      "Applies the column meanings only as a person has reviewed them.",
+      "Computes nothing until you approve what will be examined and against what.",
+      "Lets versioned code decide rather than a model, and returns the same hash for the same input.",
+      "Lets each observed value open onto the published row it was derived from. The thresholds are a person's, the rule and engine versions and the result hash cover the run itself, and the rank is computed across the whole approved baseline.",
+    ],
     didTitle: "What this service did",
     did: [
       "Read the published artifacts as distributed, and checked by hash that the files had not changed.",
