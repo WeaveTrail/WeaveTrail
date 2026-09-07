@@ -41,8 +41,17 @@ describe("the event on the entry screen", () => {
 
   it("says the high and the low are not placed in time", () => {
     const markup = block();
-    expect(markup).toMatch(/점선|dashed/);
-    expect(markup).toMatch(/일별 자료에 없습니다|does not say when/);
+    expect(markup).toMatch(/일별 자료에 없어서|does not say when/);
+    // No order between the two extremes may be drawn or implied, because the
+    // daily record does not contain one.
+    expect(markup).toMatch(/순서는 그리지 않았습니다|no order between them/);
+  });
+
+  it("narrates no order between the two extremes", () => {
+    // The chart stopped drawing a sequence the record does not contain; the
+    // prose beside it may not put one back.
+    const markup = block();
+    expect(markup).not.toMatch(/올랐다가|내려갔|came back|fell to|reached/);
   });
 
   it("offers one way into the case", () => {

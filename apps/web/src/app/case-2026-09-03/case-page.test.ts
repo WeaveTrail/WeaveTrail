@@ -104,6 +104,10 @@ describe("the 2026-09-03 case surface", () => {
       future.close,
     ])
       expect(label![1], value).toContain(value);
+    // The record carries no intraday time, so the label may not narrate one
+    // extreme following the other.
+    expect(label![1]).not.toMatch(/reached|fell to|올랐다가|내려갔/);
+    expect(label![1]).toMatch(/언제 나왔는지는|does not say when/);
   });
 
   it("places every chart mark without floating point arithmetic on a price", () => {
@@ -208,18 +212,73 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
-  it("teaches the publisher's own column names before showing a result", () => {
-    const columns = publishedCaseColumns();
-    expect(columns.length).toBeGreaterThan(0);
+  it("teaches both artifacts' column names, kept apart", () => {
+    const legs = publishedCaseColumns();
+    expect(legs.map(({ legId }) => legId)).toEqual([
+      "spot-index",
+      "front-future",
+    ]);
+    // The two artifacts identify their instrument differently, so a reader who
+    // saw only one table would read the second leg through the first's mapping.
+    const spot = legs[0]!.columns.map(({ sourceColumn }) => sourceColumn);
+    const future = legs[1]!.columns.map(({ sourceColumn }) => sourceColumn);
+    expect(spot).toContain("idxNm");
+    expect(future).toContain("isinCd");
+    expect(future).not.toContain("idxNm");
     for (const language of ["ko", "en"] as const) {
       const markup = surface(language);
-      const { columnGloss } = caseCopy[language];
-      for (const column of columns) {
-        expect(markup, column.sourceColumn).toContain(column.sourceColumn);
-        expect(markup, column.targetField).toContain(column.targetField);
+      const { columnGloss, legTableTitles } = caseCopy[language];
+      for (const leg of legs) {
+        expect(markup, leg.legId).toContain(legTableTitles[leg.legId]!);
+        for (const column of leg.columns) {
+          expect(markup, column.sourceColumn).toContain(column.sourceColumn);
+          expect(markup, column.targetField).toContain(column.targetField);
+        }
       }
-      for (const column of ["mkp", "hipr", "lopr", "clpr", "vs"])
+      for (const column of ["mkp", "hipr", "lopr", "clpr", "vs", "isinCd"])
         expect(columnGloss[column], `${language} ${column}`).toBeTruthy();
+    }
+  });
+
+  it("does not attribute the authored published mapping to a model", () => {
+    // These proposals are written by hand in the published-data package; no
+    // provider is invoked and no model trace is recorded for them.
+    for (const language of ["ko", "en"] as const) {
+      const chapter = caseCopy[language].chapters[1]!;
+      expect(chapter.purpose, language).toMatch(
+        /사람이 직접 작성|written and reviewed by a person/,
+      );
+      expect(chapter.purpose, language).not.toMatch(
+        /초안은 AI가 내고|A model drafts the join/,
+      );
+    }
+  });
+
+  it("asks for a run, not another approval, once the scope is approved", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.awaitingRun, language).not.toBe(text.runBlocked);
+      // Before any approval the page still asks for the approval.
+      expect(surface(language), language).toContain(text.runBlocked);
+    }
+  });
+
+  it("claims a row trace only for the values derived from a row", () => {
+    for (const language of ["ko", "en"] as const) {
+      const { did } = caseCopy[language];
+      const trace = did.find((line) => /원본 행|published row/.test(line));
+      expect(trace, language).toBeDefined();
+      // Thresholds, versions, the hash and the rank do not come from one row,
+      // and the sentence has to say so rather than sweep them in.
+      expect(trace!, language).toMatch(/기준값|thresholds/);
+      expect(trace!, language).toMatch(/순위|rank/);
+    }
+  });
+
+  it("names the leg a previous close belongs to", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      expect(markup, language).toContain(caseCopy[language].previousCloseLabel);
     }
   });
 

@@ -9,6 +9,9 @@ export type CaseCopy = {
   legShort: readonly [string, string];
   columnsLede: string;
   columnHeaders: readonly [string, string, string];
+  legTableTitles: Readonly<Record<string, string>>;
+  awaitingRun: string;
+  previousCloseLabel: string;
   columnGloss: Readonly<Record<string, string>>;
   didTitle: string;
   did: readonly string[];
@@ -81,7 +84,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       {
         title: "열 이름의 뜻을 정한다",
         purpose:
-          "발행처가 쓰는 말과 조사에서 쓰는 말은 다릅니다. 둘을 잇는 초안은 AI가 내고, 승인은 사람이 합니다.",
+          "발행처가 쓰는 말과 조사에서 쓰는 말은 다릅니다. 이 사례의 대응은 자료를 들여올 때 사람이 직접 작성하고 검토한 것입니다. 모델이 초안을 내는 경로는 사례 따라가기 쪽이고, 거기서도 모델은 승인하지 못합니다.",
       },
       {
         title: "무엇을 어떤 기준으로 볼지 정한다",
@@ -106,14 +109,22 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     ],
     pathCaption: "2026-09-03 하루의 움직임 · 발행처 공개 값",
     pathNote:
-      "시가와 종가만 시각이 정해져 있습니다. 고가와 저가가 하루 중 언제 나왔는지는 일별 자료에 없어서, 그 구간은 점선으로 두었습니다. 실제 장중 경로가 아니라 네 값이 만드는 하루의 폭입니다.",
+      "띠는 그날 고가와 저가 사이, 즉 하루가 오간 폭입니다. 선은 시가에서 종가까지이고, 이 두 점만 시각이 정해져 있습니다. 고가와 저가가 언제 나왔는지는 일별 자료에 없어서 둘 사이의 순서는 그리지 않았습니다.",
     legShort: ["코스피 200", "코스피200 선물"],
     columnsLede:
-      "발행처는 자기 약어를 씁니다. 아래가 그 약어와, 조사에서 쓰는 이름의 대응입니다. 이 대응은 이미 검토·기록되어 있고, 이 페이지에서 사용자가 승인하는 것은 다음 단계의 조사 범위입니다.",
+      "발행처는 자기 약어를 씁니다. 아래가 그 약어와, 조사에서 쓰는 이름의 대응입니다. 두 자료는 서로 다르게 대응합니다. 지수는 이름으로, 선물은 표준코드로 종목을 가립니다. 이 대응은 이미 검토·기록되어 있고, 이 페이지에서 사용자가 승인하는 것은 다음 단계의 조사 범위입니다.",
+    legTableTitles: {
+      "spot-index": "현물 지수 · 코스피 200",
+      "front-future": "선물 · 코스피200 F 202609",
+    },
+    awaitingRun: "위에서 분석을 실행하면 결과가 여기에 나옵니다.",
+    previousCloseLabel: "현물 전일 종가",
     columnHeaders: ["발행처 열 이름", "무슨 값인가", "조사에서 쓰는 이름"],
     columnGloss: {
       basDt: "거래일",
       idxNm: "지수 이름",
+      srtnCd: "선물 단축코드",
+      isinCd: "선물 표준코드",
       clpr: "종가",
       vs: "전일 대비 변화",
       mkp: "시가",
@@ -127,7 +138,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "열 이름의 뜻을 사람이 검토한 대로만 적용했습니다.",
       "무엇을 어떤 기준으로 볼지 사용자가 승인한 뒤에야 계산했습니다.",
       "판정은 AI가 아니라 버전이 고정된 코드가 했고, 같은 입력이면 같은 해시가 나옵니다.",
-      "결과의 숫자마다 그 값이 나온 원본 행을 열어 볼 수 있게 했습니다.",
+      "관측값은 그 값이 나온 공개 원본 행까지 열어서 확인할 수 있습니다. 기준값은 사람이 정한 것이고, 규칙·엔진 버전과 결과 해시는 실행 전체를 가리키며, 순위는 승인된 기준선 전체를 가로질러 계산한 값입니다.",
     ],
     closing:
       "이상거래를 찾아내는 일은 이 서비스가 하지 않습니다. 이미 지목된 사례를 두고, 그 근거를 처음부터 다시 밟아 확인할 수 있게 하는 것까지가 여기서 보여 드리는 범위입니다.",
@@ -246,7 +257,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       {
         title: "Deciding what the column names mean",
         purpose:
-          "The publisher's words and an investigation's words are not the same. A model drafts the join; a person approves it.",
+          "The publisher's words and an investigation's words are not the same. For this case the join was written and reviewed by a person when the data was brought in. The path where a model drafts one is the guided walkthrough, and even there it cannot approve.",
       },
       {
         title: "Settling what is examined, and against what",
@@ -271,14 +282,22 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     ],
     pathCaption: "The session of 2026-09-03 · published values",
     pathNote:
-      "Only the open and the close are fixed in time. A daily record does not say when the high and the low happened, so that stretch is dashed. This is the range the four values describe, not an intraday path.",
+      "The band is the range between the session's high and low — how far the day travelled. The line runs from the open to the close, the only two points the record fixes in time. A daily record does not say when either extreme happened, so no order between them is drawn.",
     legShort: ["KOSPI 200", "KOSPI 200 future"],
     columnsLede:
-      "The publisher uses its own abbreviations. Below is each one, what it holds, and the name an investigation gives it. This join was reviewed and recorded already; what you approve on this page is the scope in the next chapter.",
+      "The publisher uses its own abbreviations. Below is each one, what it holds, and the name an investigation gives it. The two artifacts do not map the same way: the index identifies its instrument by name, the future by standard code. This join was reviewed and recorded already; what you approve on this page is the scope in the next chapter.",
+    legTableTitles: {
+      "spot-index": "Spot index · KOSPI 200",
+      "front-future": "Future · KOSPI 200 F 202609",
+    },
+    awaitingRun: "Run the analysis above and the result appears here.",
+    previousCloseLabel: "spot previous close",
     columnHeaders: ["Publisher column", "What it holds", "Investigation name"],
     columnGloss: {
       basDt: "Trading date",
       idxNm: "Index name",
+      srtnCd: "Future short code",
+      isinCd: "Future standard code",
       clpr: "Closing price",
       vs: "Change against the previous close",
       mkp: "Opening price",
@@ -292,7 +311,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "Applied the column meanings only as a person had reviewed them.",
       "Computed nothing until you approved what would be examined and against what.",
       "Let versioned code decide rather than a model, and returned the same hash for the same input.",
-      "Made every number in the result open onto the published row it came from.",
+      "Let each observed value open onto the published row it was derived from. The thresholds are a person's, the rule and engine versions and the result hash cover the run itself, and the rank is computed across the whole approved baseline.",
     ],
     closing:
       "Finding unusual trading is not this service's job. Taking a session someone has already named, and letting you walk its evidence from the beginning, is the whole of what is shown here.",

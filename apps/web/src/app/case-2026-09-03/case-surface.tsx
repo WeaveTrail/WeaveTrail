@@ -13,7 +13,7 @@ import { HashValue, Instant } from "../replay/machine-values";
 import { ReplayLanguageContext } from "../replay/replay-language";
 import type {
   PublishedCaseReplay,
-  PublishedColumn,
+  PublishedLegColumns,
   SessionDay,
 } from "../../lib/published-case";
 import { caseCopy, type Chapter as ChapterCopy } from "./case-copy";
@@ -64,7 +64,7 @@ export function PublishedCaseSurface({
   futureArtifactHash,
   language,
 }: {
-  columns: readonly PublishedColumn[];
+  columns: readonly PublishedLegColumns[];
   proposal: CaseManifestV14Proposal;
   spot: readonly SessionDay[];
   future: SessionDay;
@@ -132,7 +132,10 @@ export function PublishedCaseSurface({
             { name: text.legShort[1], day: future },
           ]}
           note={text.pathNote}
-          previousClose={previousClose}
+          previousClose={{
+            value: previousClose,
+            label: text.previousCloseLabel,
+          }}
         />
         <div className="case-premise">
           <h2>{text.notOurJobTitle}</h2>
@@ -172,30 +175,35 @@ export function PublishedCaseSurface({
 
       <Chapter chapter={text.chapters[1]!} index={2}>
         <p>{text.columnsLede}</p>
-        <table className="column-table">
-          <thead>
-            <tr>
-              {text.columnHeaders.map((header) => (
-                <th key={header} scope="col">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {columns.map((column) => (
-              <tr key={column.sourceColumn}>
-                <td>
-                  <code>{column.sourceColumn}</code>
-                </td>
-                <td>{text.columnGloss[column.sourceColumn] ?? "—"}</td>
-                <td>
-                  <code>{column.targetField}</code>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {columns.map((leg) => (
+          <div className="column-block" key={leg.legId}>
+            <h3>{text.legTableTitles[leg.legId] ?? leg.legId}</h3>
+            <table className="column-table">
+              <thead>
+                <tr>
+                  {text.columnHeaders.map((header) => (
+                    <th key={header} scope="col">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {leg.columns.map((column) => (
+                  <tr key={column.sourceColumn}>
+                    <td>
+                      <code>{column.sourceColumn}</code>
+                    </td>
+                    <td>{text.columnGloss[column.sourceColumn] ?? "—"}</td>
+                    <td>
+                      <code>{column.targetField}</code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
         <p className="machine-note">{text.mappingReviewed}</p>
       </Chapter>
 
@@ -431,7 +439,9 @@ export function PublishedCaseSurface({
             ))}
           </div>
         ) : (
-          <p className="awaiting-result">{text.runBlocked}</p>
+          <p className="awaiting-result">
+            {approval === null ? text.runBlocked : text.awaitingRun}
+          </p>
         )}
       </Chapter>
 

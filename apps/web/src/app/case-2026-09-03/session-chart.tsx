@@ -294,61 +294,45 @@ export function BaselineRangeChart({
 }
 
 /**
- * Both legs of the session as one path.
+ * Both legs of the session, drawn from the four published prices.
  *
- * Daily records carry no intraday time, so only the open and the close are
- * placed on the time axis, at the ends where they belong. The high and the low
- * are the session's extremes and their moment is unknown, so the segments that
- * reach them are dashed and the caption says why. This is the shape of the
- * day, not a record of when the day did it.
+ * A daily record carries no intraday time, so the chart never orders the two
+ * extremes. What it draws is the band the session traded inside — its high and
+ * its low — and the line from the open to the close, whose two endpoints are
+ * the only moments the record actually fixes. The distance between a tall band
+ * and a nearly flat line is the whole observation, and none of it claims to
+ * know when the day reached either edge.
  */
 export function SessionPathChart({
   caption,
   note,
   legs,
   previousClose,
-  previousCloseLabel,
   language,
   compact = false,
 }: {
   caption?: string;
   note?: string;
   legs: readonly { name: string; day: SessionDay }[];
-  previousClose?: string;
-  previousCloseLabel?: string;
+  /** A prior close belongs to one leg, so a caller has to name which. */
+  previousClose?: { value: string; label: string };
   language: Language;
   compact?: boolean;
 }) {
   const width = 720;
-  const top = compact ? 16 : 28;
-  const bottom = compact ? 132 : 200;
+  const top = compact ? 18 : 30;
+  const bottom = compact ? 128 : 190;
   const left = 8;
-  const right = width - (compact ? 8 : 96);
+  const right = width - (compact ? 8 : 150);
   const y = verticalScale(
     [
       ...legs.flatMap(({ day }) => [day.high, day.low, day.open, day.close]),
-      ...(previousClose ? [previousClose] : []),
+      ...(previousClose ? [previousClose.value] : []),
     ],
     top,
     bottom,
   );
   const t = (en: string, ko: string) => (language === "ko" ? ko : en);
-  // Four positions across the session. Only the first and the last are claims
-  // about time; the middle two are ordered so the path reads as one stroke.
-  const at = [
-    left,
-    left + (right - left) * 0.34,
-    left + (right - left) * 0.66,
-    right,
-  ];
-  const path = (day: SessionDay) => {
-    const fell = scaledPrice(day.close) < scaledPrice(day.open);
-    const middle = fell ? [y(day.high), y(day.low)] : [y(day.low), y(day.high)];
-    return {
-      middle,
-      points: [y(day.open), middle[0]!, middle[1]!, y(day.close)],
-    };
-  };
   return (
     <figure className={compact ? "session-figure compact" : "session-figure"}>
       {caption ? <figcaption>{caption}</figcaption> : null}
@@ -356,95 +340,118 @@ export function SessionPathChart({
         aria-label={legs
           .map(({ name, day }) =>
             t(
-              `${name}: opened ${day.open}, reached ${day.high}, fell to ${day.low}, closed ${day.close}, ${day.netChange} against the previous close`,
-              `${name}: 시가 ${day.open}, 고가 ${day.high}, 저가 ${day.low}, 종가 ${day.close}, 전일 대비 ${day.netChange}`,
+              `${name}: opened ${day.open} and closed ${day.close}, trading between a session high of ${day.high} and a session low of ${day.low}. The daily record does not say when either extreme occurred. ${day.netChange} against the previous close.`,
+              `${name}: 시가 ${day.open}, 종가 ${day.close}. 그날 고가 ${day.high}와 저가 ${day.low} 사이에서 움직였습니다. 두 값이 언제 나왔는지는 일별 자료에 없습니다. 전일 대비 ${day.netChange}.`,
             ),
           )
-          .join(". ")}
+          .join(" ")}
         className="session-svg"
         role="img"
-        viewBox={`0 0 ${width} ${compact ? 150 : 232}`}
+        viewBox={`0 0 ${width} ${compact ? 148 : 226}`}
       >
+        {legs.map(({ name, day }, index) => (
+          <g className="session-leg" data-leg={index} key={`band-${name}`}>
+            <rect
+              className="session-band"
+              height={Math.max(y(day.low) - y(day.high), 1)}
+              width={right - left}
+              x={left}
+              y={y(day.high)}
+            />
+            <line
+              className="session-extreme"
+              x1={left}
+              x2={right}
+              y1={y(day.high)}
+              y2={y(day.high)}
+            />
+            <line
+              className="session-extreme"
+              x1={left}
+              x2={right}
+              y1={y(day.low)}
+              y2={y(day.low)}
+            />
+          </g>
+        ))}
         {previousClose ? (
           <>
             <line
               className="session-previous"
               x1={left}
               x2={right}
-              y1={y(previousClose)}
-              y2={y(previousClose)}
+              y1={y(previousClose.value)}
+              y2={y(previousClose.value)}
             />
             {compact ? null : (
               <text
                 className="session-tick"
-                x={right + 6}
-                y={y(previousClose) + 4}
+                x={right + 8}
+                y={y(previousClose.value) + 4}
               >
-                {previousCloseLabel ?? t("previous close", "전일 종가")}{" "}
-                {previousClose}
+                {previousClose.label} {previousClose.value}
               </text>
             )}
           </>
         ) : null}
-        {legs.map(({ name, day }, index) => {
-          const { points } = path(day);
-          const anchored = `M ${at[0]} ${points[0]} L ${at[1]} ${points[1]}`;
-          const dashed = `M ${at[1]} ${points[1]} L ${at[2]} ${points[2]}`;
-          const tail = `M ${at[2]} ${points[2]} L ${at[3]} ${points[3]}`;
-          return (
-            <g className="session-leg" data-leg={index} key={name}>
-              <path className="session-path" d={anchored} />
-              <path className="session-path estimated" d={dashed} />
-              <path className="session-path" d={tail} />
-              {points.map((point, order) => (
-                <circle
-                  className="session-point"
-                  cx={at[order]}
-                  cy={point}
-                  key={order}
-                  r={compact ? 3 : 4}
-                />
-              ))}
-              {compact ? null : (
-                <text
-                  className="session-value"
-                  x={right + 6}
-                  y={points[3]! + 4}
-                >
-                  {name} {day.close}
-                </text>
-              )}
-            </g>
-          );
-        })}
+        {legs.map(({ name, day }, index) => (
+          <g className="session-leg" data-leg={index} key={`line-${name}`}>
+            <line
+              className="session-path"
+              x1={left}
+              x2={right}
+              y1={y(day.open)}
+              y2={y(day.close)}
+            />
+            <circle
+              className="session-point"
+              cx={left}
+              cy={y(day.open)}
+              r={compact ? 3 : 4}
+            />
+            <circle
+              className="session-point"
+              cx={right}
+              cy={y(day.close)}
+              r={compact ? 3 : 4}
+            />
+            {compact ? null : (
+              <text
+                className="session-value"
+                x={right + 8}
+                y={y(day.close) + 4}
+              >
+                {name} {day.close}
+              </text>
+            )}
+          </g>
+        ))}
         {compact
           ? null
           : legs.slice(0, 1).map(({ day }) => (
-              <g key="extremes">
+              <g key="edges">
                 <text
                   className="session-value"
-                  textAnchor="middle"
-                  x={at[1]}
-                  y={y(day.high) - 10}
+                  x={left + 6}
+                  y={y(day.high) - 8}
                 >
-                  {t("high", "고가")} {day.high}
+                  {t("session high", "그날 고가")} {day.high}
                 </text>
                 <text
                   className="session-value"
-                  textAnchor="middle"
-                  x={at[2]}
+                  x={left + 6}
                   y={y(day.low) + 18}
                 >
-                  {t("low", "저가")} {day.low}
+                  {t("session low", "그날 저가")} {day.low}
                 </text>
-                <text className="session-tick" x={left} y={bottom + 22}>
+                <text className="session-tick" x={left} y={bottom + 26}>
                   {t("open", "시가")} {day.open}
                 </text>
                 <text
                   className="session-tick"
                   textAnchor="end"
                   x={right}
-                  y={bottom + 22}
+                  y={bottom + 26}
                 >
                   {t("close", "종가")} {day.close}
                 </text>

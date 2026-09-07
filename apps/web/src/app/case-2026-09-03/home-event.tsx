@@ -17,7 +17,7 @@ const copy = {
   ko: {
     kicker: "실제 있었던 하루",
     heading: "종가만 보면, 평범한 하루였습니다.",
-    body: "2026년 9월 3일 코스피200은 전일보다 높게 끝났습니다. 그런데 같은 날 안에서 1050.77까지 올랐다가 1009.7까지 내려갔고, 1032.82로 돌아와 끝났습니다. 선물도 같은 모양이었습니다.",
+    body: "2026년 9월 3일 코스피200은 전일보다 높게 끝났습니다. 그런데 같은 날 안에서 고가 1050.77과 저가 1009.7 사이를 오갔고, 시가 1046.17보다 낮은 1032.82로 끝났습니다. 선물도 같은 모양이었습니다.",
     ask: "이 하루가 정말 특별했을까요? 저희는 답을 내주지 않습니다. 대신 그 답을 직접 확인하는 절차를 보여 드립니다.",
     action: "이 사건 확인하러 가기",
     stats: [
@@ -27,13 +27,13 @@ const copy = {
       ["종가", "1032.82"],
     ] as const,
     chartNote:
-      "금융위원회가 공개한 일별 값입니다. 시가와 종가만 시각이 정해져 있고, 고가와 저가가 언제 나왔는지는 일별 자료에 없습니다. 그 구간을 점선으로 둔 이유입니다.",
+      "금융위원회가 공개한 일별 값입니다. 띠는 그날 고가와 저가 사이, 선은 시가에서 종가까지입니다. 고가와 저가가 언제 나왔는지는 일별 자료에 없어서 둘 사이의 순서는 그리지 않았습니다.",
     legs: ["코스피 200", "코스피200 선물"] as const,
   },
   en: {
     kicker: "One real session",
     heading: "On the close alone, an ordinary day.",
-    body: "On 3 September 2026 the KOSPI 200 finished above the day before. Inside that same day it reached 1050.77, fell to 1009.7, and came back to close at 1032.82. The front-month future did the same thing.",
+    body: "On 3 September 2026 the KOSPI 200 finished above the day before. Inside that same day it traded between a high of 1050.77 and a low of 1009.7, and finished at 1032.82, below its open of 1046.17. The front-month future did the same thing.",
     ask: "Was that day unusual? We do not hand you the answer. We show you the procedure for checking it yourself.",
     action: "Look into this session",
     stats: [
@@ -43,7 +43,7 @@ const copy = {
       ["Close", "1032.82"],
     ] as const,
     chartNote:
-      "Published daily values from the FSC. Only the open and the close are fixed in time; a daily record does not say when the high and the low happened, which is why that stretch is dashed.",
+      "Published daily values from the FSC. The band is the range between the session's high and low; the line runs from the open to the close. A daily record does not say when either extreme happened, so no order between them is drawn.",
     legs: ["KOSPI 200", "KOSPI 200 future"] as const,
   },
 };
@@ -85,7 +85,10 @@ export function HomeEvent({ spot, future, previousClose }: HomeEventProps) {
             { name: text.legs[1], day: future },
           ]}
           note={text.chartNote}
-          previousClose={previousClose}
+          previousClose={{
+            value: previousClose,
+            label: language === "ko" ? "현물 전일 종가" : "spot previous close",
+          }}
         />
       </div>
     </section>
