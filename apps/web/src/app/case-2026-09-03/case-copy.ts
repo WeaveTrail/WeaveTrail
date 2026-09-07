@@ -74,6 +74,7 @@ export type CaseCopy = {
   dayCaptionFuture: string;
   baselineCaption: string;
   thresholdOrigin: string;
+  thresholdOriginLink: string;
   artifactHash: string;
 };
 
@@ -259,6 +260,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "코스피 200 · 기준선 45거래일의 고가–저가 구간과 종가 · 발행처 공개 값",
     thresholdOrigin:
       "이 기준값은 표준이 아닙니다. 이 사례를 만들면서 사람이 정한 값이고, 그때 이미 이 날의 관측값을 보고 있었습니다. 그래서 아래 결과에서는 관측값과 기준을 나란히 보여 줍니다. 둘의 간격이 얼마나 좁은지 직접 확인하세요.",
+    thresholdOriginLink: "이 기준값을 정한 배경",
     artifactHash: "자료 해시",
   },
   en: {
@@ -442,6 +444,7 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
       "KOSPI 200 · high-to-low span and close for 45 baseline trading days · published values",
     thresholdOrigin:
       "These thresholds are not a standard. A person set them while authoring this case, with this session's observations already in view. The result below therefore prints each observed value beside its threshold, so you can see how narrow the margin is.",
+    thresholdOriginLink: "How these thresholds were set",
     artifactHash: "Artifact hash",
   },
 };

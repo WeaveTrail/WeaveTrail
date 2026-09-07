@@ -73,4 +73,6 @@ The engine entry point accepts a canonical event set assembled from the
 declared artifacts. The existing single-source Case Replay HTTP/UI path remains
 unchanged; the published guided case and denominator sensitivity are separate
 follow-up work. No result is attached to the real artifact itself, and no
-candidate-date search is introduced.
+candidate-date search is introduced. ADR 0034 records the governance boundary
+that permits this separate evaluation without treating its output as a source
+fact.

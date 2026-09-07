@@ -1565,6 +1565,7 @@ code {
   max-width: var(--prose-max);
   margin-block: 16px 0;
   padding: 12px;
+  scroll-margin-top: 110px;
   border-left: 3px solid var(--amber-600);
   background: var(--amber-tint);
   color: var(--text-body);

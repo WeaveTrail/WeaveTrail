@@ -23,8 +23,11 @@ customer, venue, or production implementation.
 Real data may be committed only under the provenance conditions in
 [AGENTS.md](AGENTS.md): its published licence must permit commitment,
 modification, and redistribution, and its provider, origin, retrieval date,
-licence, and required attribution must be recorded beside it. A real artifact
-carries no fabricated attribute.
+licence, and required attribution must be recorded beside it. A real source
+artifact and its derived rows carry no fabricated attribute. A versioned rule
+may separately evaluate a real market index or contract, but may publish the
+result only within the safeguards in
+[ADR 0034](docs/adr/0034-evaluate-real-instruments-without-altering-source-facts.md).
 
 ## Change requirements
 

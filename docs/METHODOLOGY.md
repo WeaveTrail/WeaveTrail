@@ -400,10 +400,10 @@ outside the range or absent from the baseline, an absent declared leg,
 ambiguous observations, incomplete or invalid OHLC values, and zero analysed
 net change. An inconclusive result has no findings or analysis payload.
 
-The committed published-data golden declares 2026-09-03 over the inclusive
-2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and September 2026
-front-future legs. It reports the baseline leg at `13.9147` and position `1` of
-`45`, the future leg at `25.4705`, and a `SUPPORTED` result hash of
+The committed published-data regression golden declares 2026-09-03 over the
+inclusive 2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and September
+2026 front-future legs. It reports the baseline leg at `13.9147` and position
+`1` of `45`, the future leg at `25.4705`, and a `SUPPORTED` result hash of
 `ffd7110a1c1fb2b18e9200e3a103b03572cb5b97b5f5d6db81689821de63bb55`.
 Reproduce it with:
 
@@ -412,9 +412,14 @@ pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal.te
 ```
 
 The captured environment is Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64.
-This is one deterministic worked case over fixed licensed artifacts. It does
-not estimate detection quality, probability, causality, legal status or
-investment suitability, and it does not search the range for candidate dates.
+This is a deterministic engine regression check over fixed licensed artifacts.
+Its generated approval fixtures exercise the hash gates but do not evidence
+human review, so the golden is not an approved case or evidentiary result. The
+separate published web case requires an `APPROVED` record bound to the exact
+scope before it runs and links every gate back to the threshold provenance. The
+server does not authenticate the reviewer's identity. Neither surface estimates
+detection quality, probability, causality, legal status or investment
+suitability, and neither searches the range for candidate dates.
 
 ## Sensitivity interpretation
 
@@ -433,9 +438,11 @@ must not fill a missing safety-critical value from a model guess.
 Synthetic fixtures reach all three result states and test contracts, failure
 handling, determinism and traceability without estimating performance in a real
 market. Separately, the committed published KOSPI 200 baseline and front-future
-rows pin one `SUPPORTED` rule result. That golden is a deterministic worked
-case over fixed licensed artifacts, not a performance estimate or a general
-detection claim.
+rows pin one `SUPPORTED` engine output. That golden is deterministic regression
+evidence, not a human-approved case, performance estimate or general detection
+claim. The published web case applies the approval and disclosure safeguards
+described in
+[ADR 0034](adr/0034-evaluate-real-instruments-without-altering-source-facts.md).
 
 ## Daily quote contract support
 

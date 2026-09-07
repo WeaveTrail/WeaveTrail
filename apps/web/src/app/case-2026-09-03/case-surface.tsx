@@ -59,6 +59,17 @@ type Rule = Extract<
   { ruleId: "CROSS_MARKET_SESSION_REVERSAL" }
 >;
 
+export const PUBLISHED_CASE_THRESHOLD_ORIGIN_ID =
+  "published-case-threshold-origin";
+
+export function ThresholdOriginReference({ label }: { label: string }) {
+  return (
+    <small>
+      <a href={`#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}`}>{label}</a>
+    </small>
+  );
+}
+
 export function PublishedCaseSurface({
   columns,
   proposal,
@@ -251,7 +262,9 @@ export function PublishedCaseSurface({
             </div>
           ))}
         </div>
-        <p className="threshold-origin">{text.thresholdOrigin}</p>
+        <p className="threshold-origin" id={PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}>
+          {text.thresholdOrigin}
+        </p>
         <details>
           <summary>{text.exactScope}</summary>
           <pre className="artifact-json" aria-label={text.exactScope}>
@@ -344,6 +357,7 @@ export function PublishedCaseSurface({
                   <b data-passed={finding.passed}>
                     {finding.passed ? text.passed : text.failed}
                   </b>
+                  <ThresholdOriginReference label={text.thresholdOriginLink} />
                 </div>
               ))}
             </div>
