@@ -623,3 +623,17 @@ provided. Selecting another approved denominator changes the Case Manifest
 approval preimage and the canonical engine result, while canonical source
 events remain unchanged. See
 [ADR 0035](adr/0035-bind-denominator-substitution-to-the-approved-rule.md).
+
+## Published execution-schema mapping support
+
+Mapping Proposal `1.8` is a separate opt-in path for synthetic intraday
+executions shaped as published FIX 4.4 `ExecutionReport` and H0STCNT0 response
+fields. It fixes `eventType: TRADE`, converts the two published side code sets,
+converts FIX UTC timestamps, and combines the H0STCNT0 business-date and
+execution-time columns into an explicit KST timestamp. An `unmappedFields`
+entry records that H0STCNT0 has no participant/account column; it requires a
+justified approval override but never enters the executable mapping or creates
+an actor. Existing Mapping Proposals `1.4`–`1.7` do not gain these transforms
+and require no migration. See
+[ADR 0036](adr/0036-normalize-published-execution-schema-projections.md) and
+the [scenario source record](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md).

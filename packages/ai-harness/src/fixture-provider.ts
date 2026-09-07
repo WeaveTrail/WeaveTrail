@@ -8,6 +8,8 @@ import {
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionFixProposal,
+  publishedExecutionH0stcnt0Proposal,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
@@ -48,6 +50,21 @@ function declaredFields(
   );
 }
 
+function usesRegisteredConstants(mappingVersion: string | undefined): boolean {
+  return (
+    mappingVersion === "1.5" ||
+    mappingVersion === "1.6" ||
+    mappingVersion === "1.7" ||
+    mappingVersion === "1.8"
+  );
+}
+
+function eventTypeOf(
+  constants: SchemaMappingProposal["constants"],
+): string | undefined {
+  return "eventType" in constants ? constants.eventType : undefined;
+}
+
 const registeredProposals = [
   ...Object.values(publishedReplaySources).map(
     ({ mappingProposal }) => mappingProposal,
@@ -55,6 +72,8 @@ const registeredProposals = [
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionFixProposal,
+  publishedExecutionH0stcnt0Proposal,
   ...Object.values(rapidPriceLiftScenarios).map(
     ({ mappingProposal }) => mappingProposal,
   ),
@@ -73,6 +92,13 @@ export const fixtureMappingsByArtifact = new Map(
           proposal.compositeSourceEventId !== undefined
             ? { compositeSourceEventId: proposal.compositeSourceEventId }
             : {}),
+          ...("compositeEventTime" in proposal &&
+          proposal.compositeEventTime !== undefined
+            ? { compositeEventTime: proposal.compositeEventTime }
+            : {}),
+          ...("unmappedFields" in proposal
+            ? { unmappedFields: proposal.unmappedFields }
+            : {}),
         },
       ] as const,
   ),
@@ -90,27 +116,25 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
     const artifactMapping = fixtureMappingsByArtifact.get(
       input.sourceArtifactHash,
     );
-    if (
+    const fixtureUsesRegisteredConstants = usesRegisteredConstants(
+      artifactMapping?.mappingVersion,
+    );
+    const inputRequiresRegisteredConstants =
       input.constants.schemaVersion === "1.2" ||
       input.constants.schemaVersion === "1.3" ||
-      artifactMapping?.mappingVersion === "1.5" ||
-      artifactMapping?.mappingVersion === "1.6" ||
-      artifactMapping?.mappingVersion === "1.7"
-    ) {
+      eventTypeOf(input.constants) === "TRADE";
+    if (inputRequiresRegisteredConstants || fixtureUsesRegisteredConstants) {
       if (
-        (artifactMapping?.mappingVersion !== "1.5" &&
-          artifactMapping?.mappingVersion !== "1.6" &&
-          artifactMapping?.mappingVersion !== "1.7") ||
-        (input.constants.schemaVersion !== "1.2" &&
-          input.constants.schemaVersion !== "1.3") ||
+        artifactMapping === undefined ||
+        !fixtureUsesRegisteredConstants ||
         input.constants.schemaVersion !==
           artifactMapping.constants.schemaVersion ||
         input.constants.datasetId !== artifactMapping.constants.datasetId ||
         input.constants.venueId !== artifactMapping.constants.venueId ||
-        input.constants.eventType !== artifactMapping.constants.eventType
+        eventTypeOf(input.constants) !== eventTypeOf(artifactMapping.constants)
       ) {
         throw new Error(
-          "Daily quote constants must match a registered fixture artifact",
+          "Fixture constants must match a registered fixture artifact",
         );
       }
     }
@@ -122,6 +146,14 @@ export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
       "compositeSourceEventId" in artifactMapping &&
       artifactMapping.compositeSourceEventId !== undefined
         ? { compositeSourceEventId: artifactMapping.compositeSourceEventId }
+        : {}),
+      ...(artifactMapping !== undefined &&
+      "compositeEventTime" in artifactMapping &&
+      artifactMapping.compositeEventTime !== undefined
+        ? { compositeEventTime: artifactMapping.compositeEventTime }
+        : {}),
+      ...(artifactMapping !== undefined && "unmappedFields" in artifactMapping
+        ? { unmappedFields: artifactMapping.unmappedFields }
         : {}),
       fields: input.columns.map((sourceColumn) => {
         const declared = artifactMapping?.fields.get(sourceColumn);

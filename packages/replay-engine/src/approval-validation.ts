@@ -365,6 +365,20 @@ function validateMappingApproval(
         });
       }
     });
+    if ("unmappedFields" in mapping) {
+      mapping.unmappedFields.forEach((field, index) => {
+        if (
+          requiresMappingOverride(field) &&
+          !overridePaths.has(`unmappedFields.${index}`)
+        ) {
+          issues.push({
+            code: "MAPPING_OVERRIDE_REQUIRED",
+            path: ["mappingApproval", "overrides"],
+            message: `A justified override for proposal fieldPath unmappedFields.${index} is required.`,
+          });
+        }
+      });
+    }
   }
   return issues.length === 0
     ? { accepted: true }

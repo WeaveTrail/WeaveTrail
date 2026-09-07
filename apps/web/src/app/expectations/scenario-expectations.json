@@ -35,6 +35,72 @@
       "gates": []
     },
     {
+      "scenario": "published-execution-fix44.csv",
+      "label": "Synthetic · published FIX 4.4 execution fields · CSV",
+      "workflowState": "REPLAYED",
+      "result": "SUPPORTED",
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "8ff6d5cd9b8c5362e9bcfd9337a8c52c5cbfb226eba29c10d353134e39c0d3c5",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["ZZ79X1"],
+        "actorIds": ["SYNTH-ACCOUNT-FOCUS"],
+        "startTime": "2026-09-03T01:00:00Z",
+        "endTime": "2026-09-03T01:00:05Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
+      "gates": [
+        {
+          "gate": "PRICE_CHANGE",
+          "observedValue": "250.0000",
+          "threshold": "200",
+          "passed": true
+        },
+        {
+          "gate": "AGGRESSIVE_BUY_SHARE",
+          "observedValue": "7096.3070",
+          "threshold": "7000",
+          "passed": true
+        },
+        {
+          "gate": "ACTOR_CONCENTRATION",
+          "observedValue": "10000.0000",
+          "threshold": "8000",
+          "passed": true
+        },
+        {
+          "gate": "REPEATED_EXECUTION",
+          "observedValue": "3",
+          "threshold": "2",
+          "passed": true
+        },
+        {
+          "gate": "REMOVAL_SENSITIVITY",
+          "observedValue": "166.6666",
+          "threshold": "100",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "scenario": "published-execution-h0stcnt0.jsonl",
+      "label": "Synthetic · published H0STCNT0 execution fields · JSON Lines",
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "canonicalDatasetHash": "46b150dc603c7bd250f10429e06df0916425ae30b72cd542f111bb81bc628d72",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f",
+      "hypothesis": null,
+      "gates": []
+    },
+    {
       "scenario": "rapid-price-lift-supported.csv",
       "label": "Rapid price lift · supported",
       "workflowState": "REPLAYED",

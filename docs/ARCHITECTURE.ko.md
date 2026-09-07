@@ -563,3 +563,16 @@ MVP는 하나의 Next.js 애플리케이션과 로컬 워크스페이스 패키�
 그대로입니다.
 [ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md)(영문)를
 참고하세요.
+
+## 공개 체결 스키마 항목 연결 지원
+
+항목 연결 제안 `1.8`은 공개된 FIX 4.4 `ExecutionReport`와 H0STCNT0 응답 항목
+모양을 따른 합성 장중 체결을 위한 별도 선택 경로입니다. `eventType: TRADE`를
+고정하고, 두 공개 매매 방향 코드 집합과 FIX UTC 시각을 변환하며, H0STCNT0의
+영업일자와 체결 시각 열을 명시적인 KST 시각으로 합칩니다. `unmappedFields` 항목은
+H0STCNT0에 참여자·계좌 열이 없다는 점을 기록합니다. 이 항목은 사유를 적은 승인
+재정의를 요구하지만 실행할 항목 연결에는 들어가지 않고 actor를 만들지도 않습니다.
+기존 항목 연결 제안 `1.4`~`1.7`에는 이 변환이 추가되지 않으며 마이그레이션도
+필요하지 않습니다. [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md)(영문)과
+[시나리오 원본 기록](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md)(영문)을
+참고하세요.

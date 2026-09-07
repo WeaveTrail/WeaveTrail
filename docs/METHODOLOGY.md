@@ -516,3 +516,19 @@ ordered, NUL-separated list of publisher columns when that list is the
 publisher's natural key.
 Proposal `1.7` permits either that composite identity or one directly mapped
 publisher identity, never both.
+
+## Published-schema synthetic executions
+
+The committed FIX 4.4 and H0STCNT0 projections contain only generated values;
+no market data was retrieved or used to calibrate them. Both normalize the
+published fields they share to the same event time, instrument, side, price and
+quantity. The FIX projection also maps its synthetic `Account(1)` to `actorId`.
+The H0STCNT0 proposal instead records `actorId` in `unmappedFields` as absent and
+`REVIEW_REQUIRED`, because its published response has no participant/account
+column. A justified override can acknowledge that absence for normalization;
+it cannot add an actor or authorize the participant-dependent rapid-price-lift
+case. Consequently the two projections intentionally have different canonical
+dataset hashes. Mapping Proposal `1.8` and its migration boundary are recorded
+in [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md),
+with specifications and market-rule sources
+[beside the artifacts](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md).

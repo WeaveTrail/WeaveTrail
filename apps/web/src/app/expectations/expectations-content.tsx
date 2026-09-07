@@ -65,6 +65,8 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "rapid-price-lift-insufficient-evidence.csv": "가격 급등 패턴 · 증거 부족",
   "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
   "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
+  "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목",
+  "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
   "published-daily-quotes.csv": "공개 일별 시세 · 정규화",
   "real/fsc-kospi-index-family-20260903/source.jsonl":
     "FSC · 코스피 지수군 · 정규화",
@@ -116,10 +118,10 @@ export function ExpectationsContent({
                 <strong>조사 범위 승인</strong>을 누릅니다.
               </li>
               <li>
-                mapping 1.4 자료는 <strong>분석 실행</strong>을, mapping 1.5,
-                1.6, 1.7 일별 시세 자료는 <strong>원본 자료 정리</strong>를
-                누릅니다. 아래의 워크플로 상태, 결과, 판단 항목 관측값, 분석
-                결과 해시와 비교합니다.
+                mapping 1.4와 1.8 체결 자료는 <strong>분석 실행</strong>을,
+                mapping 1.5, 1.6, 1.7 일별 시세 자료는{" "}
+                <strong>원본 자료 정리</strong>를 누릅니다. 아래의 워크플로
+                상태, 결과, 판단 항목 관측값, 분석 결과 해시와 비교합니다.
               </li>
             </>
           ) : (
@@ -144,9 +146,10 @@ export function ExpectationsContent({
               </li>
               <li>
                 Run mapping 1.4 sources deterministically, including Dialect A
-                and Dialect B, or normalize mapping 1.5, 1.6 and 1.7 daily-quote
-                sources. Compare the final workflow state, result, gate
-                readings, and canonical result hash below.
+                and Dialect B, plus mapping 1.8 execution sources, or normalize
+                mapping 1.5, 1.6 and 1.7 daily-quote sources. Compare the final
+                workflow state, result, gate readings, and canonical result hash
+                below.
               </li>
             </>
           )}
@@ -181,8 +184,8 @@ export function ExpectationsContent({
         </p>
         {!korean && (
           <p>
-            This publication was captured at Git revision{" "}
-            <code>2a438d04b3f5f04ad847d3207b72a70eb0a76b39</code> with Node{" "}
+            The committed publication is regenerated with{" "}
+            <code>pnpm expectations:update</code> using Node{" "}
             <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
             <code>4.1.11</code>, and Linux WSL2 x86_64.
           </p>

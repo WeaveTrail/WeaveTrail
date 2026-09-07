@@ -2,6 +2,7 @@ export * from "./actorless-multi-instrument";
 export * from "./cross-market-session-reversal-scenarios";
 export * from "./concentrated-buy";
 export * from "./rapid-price-lift-scenarios";
+export * from "./published-execution-schema";
 export * from "./replay-scenarios";
 export * from "./source-mappings";
 export * from "./source-rows";
