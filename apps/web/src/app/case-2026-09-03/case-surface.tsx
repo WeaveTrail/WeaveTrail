@@ -11,9 +11,43 @@ import { type Language } from "../i18n/language";
 import { attemptApproval } from "../replay/case-replay";
 import { HashValue, Instant } from "../replay/machine-values";
 import { ReplayLanguageContext } from "../replay/replay-language";
-import type { PublishedCaseReplay, SessionDay } from "../../lib/published-case";
-import { caseCopy } from "./case-copy";
-import { BaselineRangeChart, SessionDayChart } from "./session-chart";
+import type {
+  PublishedCaseReplay,
+  PublishedColumn,
+  SessionDay,
+} from "../../lib/published-case";
+import { caseCopy, type Chapter as ChapterCopy } from "./case-copy";
+import { BaselineRangeChart, SessionPathChart } from "./session-chart";
+
+/**
+ * One numbered step of the case. The purpose line says what the chapter is for
+ * before its content arrives, so a reader who knows none of the vocabulary
+ * still knows why they are looking at it.
+ */
+function Chapter({
+  chapter,
+  children,
+  index,
+}: {
+  chapter: ChapterCopy;
+  children: React.ReactNode;
+  index: number;
+}) {
+  return (
+    <section aria-labelledby={`chapter-${index}`} className="case-chapter">
+      <header className="chapter-head">
+        <span aria-hidden="true" className="chapter-number">
+          {index}
+        </span>
+        <div>
+          <h2 id={`chapter-${index}`}>{chapter.title}</h2>
+          <p className="chapter-purpose">{chapter.purpose}</p>
+        </div>
+      </header>
+      <div className="chapter-body">{children}</div>
+    </section>
+  );
+}
 
 type Rule = Extract<
   CaseManifestV14Proposal["rules"][number],
@@ -21,6 +55,7 @@ type Rule = Extract<
 >;
 
 export function PublishedCaseSurface({
+  columns,
   proposal,
   spot,
   future,
@@ -29,6 +64,7 @@ export function PublishedCaseSurface({
   futureArtifactHash,
   language,
 }: {
+  columns: readonly PublishedColumn[];
   proposal: CaseManifestV14Proposal;
   spot: readonly SessionDay[];
   future: SessionDay;
@@ -87,49 +123,32 @@ export function PublishedCaseSurface({
 
   return (
     <ReplayLanguageContext.Provider value={language}>
-      <section className="case-charts" aria-label={text.observations}>
-        <div className="case-day-pair">
-          <SessionDayChart
-            caption={text.dayCaptionSpot}
-            day={analysedDay}
-            language={language}
-            previousClose={previousClose}
-          />
-          <SessionDayChart
-            caption={text.dayCaptionFuture}
-            day={future}
-            language={language}
-          />
-        </div>
-        <BaselineRangeChart
-          analysedDate="2026-09-03"
-          caption={text.baselineCaption}
-          days={spot}
+      <section className="case-opening" aria-label={text.observations}>
+        <SessionPathChart
+          caption={text.pathCaption}
           language={language}
+          legs={[
+            { name: text.legShort[0], day: analysedDay },
+            { name: text.legShort[1], day: future },
+          ]}
+          note={text.pathNote}
+          previousClose={previousClose}
         />
-        {/* Before the run this says the rank and the multiples are still to be
-            computed; afterwards that sentence would contradict the result
-            directly below it. */}
-        <p className="machine-note">
-          {result ? text.chartNoteAfterRun : text.chartNote}
-        </p>
+        <div className="case-premise">
+          <h2>{text.notOurJobTitle}</h2>
+          {text.notOurJob.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+          {/* The contract records this selection policy on every analysis the
+              rule returns, so the claim above is checkable in the result below
+              rather than only asserted here. */}
+          <p className="machine-note">
+            <code>STATED_DATE_ONLY_NO_CANDIDATE_SCAN</code>
+          </p>
+        </div>
       </section>
 
-      <section className="panel case-premise">
-        <h2>{text.notOurJobTitle}</h2>
-        {text.notOurJob.map((line) => (
-          <p key={line}>{line}</p>
-        ))}
-        {/* The contract records this selection policy on every analysis the
-            rule returns, so the claim above is checkable in the result below
-            rather than only asserted here. */}
-        <p className="machine-note">
-          <code>STATED_DATE_ONLY_NO_CANDIDATE_SCAN</code>
-        </p>
-      </section>
-
-      <section className="panel">
-        <h2>{text.sourcesTitle}</h2>
+      <Chapter chapter={text.chapters[0]!} index={1}>
         <p>{text.sourcesLede}</p>
         <dl className="case-sources">
           <div>
@@ -145,17 +164,49 @@ export function PublishedCaseSurface({
             </dd>
           </div>
         </dl>
-        <p>{text.mappingReviewed}</p>
         <h3>{text.limitsTitle}</h3>
         {text.limits.map((line) => (
           <p key={line}>{line}</p>
         ))}
-      </section>
+      </Chapter>
 
-      <section className="panel case-scope">
-        <h2>{text.scopeTitle}</h2>
-        <p>{text.scopeLede}</p>
-        <dl>
+      <Chapter chapter={text.chapters[1]!} index={2}>
+        <p>{text.columnsLede}</p>
+        <table className="column-table">
+          <thead>
+            <tr>
+              {text.columnHeaders.map((header) => (
+                <th key={header} scope="col">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {columns.map((column) => (
+              <tr key={column.sourceColumn}>
+                <td>
+                  <code>{column.sourceColumn}</code>
+                </td>
+                <td>{text.columnGloss[column.sourceColumn] ?? "—"}</td>
+                <td>
+                  <code>{column.targetField}</code>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="machine-note">{text.mappingReviewed}</p>
+      </Chapter>
+
+      <Chapter chapter={text.chapters[2]!} index={3}>
+        <BaselineRangeChart
+          analysedDate="2026-09-03"
+          caption={text.baselineCaption}
+          days={spot}
+          language={language}
+        />
+        <dl className="scope-facts">
           <div>
             <dt>{text.analysedDate}</dt>
             <dd>{parameters.analysedDate}</dd>
@@ -225,10 +276,9 @@ export function PublishedCaseSurface({
             </div>
           </dl>
         )}
-      </section>
+      </Chapter>
 
-      <section className="panel case-run">
-        <h2>{text.runTitle}</h2>
+      <Chapter chapter={text.chapters[3]!} index={4}>
         <p>{text.runLede}</p>
         <button
           className="button primary run-button"
@@ -246,157 +296,159 @@ export function PublishedCaseSurface({
             {error}
           </p>
         )}
-      </section>
+      </Chapter>
 
-      {result && evaluation && (
-        <section className="panel case-result" aria-live="polite">
-          <h2>{text.resultTitle}</h2>
-          <div className="evaluation-heading">
-            <strong data-result={evaluation.result}>{evaluation.result}</strong>
-            <code>
-              {evaluation.ruleId}@{evaluation.ruleVersion}
-            </code>
-            <code>{result.engineVersion}</code>
-          </div>
+      <Chapter chapter={text.chapters[4]!} index={5}>
+        {result && evaluation ? (
+          <div className="case-result" aria-live="polite">
+            <div className="evaluation-heading">
+              <strong data-result={evaluation.result}>
+                {evaluation.result}
+              </strong>
+              <code>
+                {evaluation.ruleId}@{evaluation.ruleVersion}
+              </code>
+              <code>{result.engineVersion}</code>
+            </div>
 
-          <h3>{text.gates}</h3>
-          <div className="gate-list">
-            {evaluation.findings.map((finding, index) => (
-              <div className="gate-row" key={`${finding.gate}-${index}`}>
-                <strong>{text.gateNames[finding.gate] ?? finding.gate}</strong>
-                <code className="gate-id">
-                  {finding.gate}
-                  {finding.legId
-                    ? ` · ${text.legNames[finding.legId] ?? finding.legId}`
-                    : ""}
-                </code>
-                <span>
-                  {text.observed} {finding.observedValue} · {text.threshold}{" "}
-                  {finding.threshold}
-                </span>
-                <b data-passed={finding.passed}>
-                  {finding.passed ? text.passed : text.failed}
-                </b>
-              </div>
-            ))}
-          </div>
+            <h3>{text.gates}</h3>
+            <div className="gate-list">
+              {evaluation.findings.map((finding, index) => (
+                <div className="gate-row" key={`${finding.gate}-${index}`}>
+                  <strong>
+                    {text.gateNames[finding.gate] ?? finding.gate}
+                  </strong>
+                  <code className="gate-id">
+                    {finding.gate}
+                    {finding.legId
+                      ? ` · ${text.legNames[finding.legId] ?? finding.legId}`
+                      : ""}
+                  </code>
+                  <span>
+                    {text.observed} {finding.observedValue} · {text.threshold}{" "}
+                    {finding.threshold}
+                  </span>
+                  <b data-passed={finding.passed}>
+                    {finding.passed ? text.passed : text.failed}
+                  </b>
+                </div>
+              ))}
+            </div>
 
-          {analysis && (
-            <>
-              <p className="case-rank">
-                {text.rankReading(
-                  analysis.rank.position,
-                  analysis.rank.populationSize,
-                )}
-              </p>
-              <p className="machine-note">{text.rankCaveat}</p>
+            {analysis && (
+              <>
+                <p className="case-rank">
+                  {text.rankReading(
+                    analysis.rank.position,
+                    analysis.rank.populationSize,
+                  )}
+                </p>
+                <p className="machine-note">{text.rankCaveat}</p>
 
-              <h3>{text.observations}</h3>
-              <div className="case-observations">
-                {analysis.legs.map((leg) => (
-                  <dl className="case-observation" key={leg.legId}>
-                    <div>
-                      <dt>{text.legNames[leg.legId] ?? leg.legId}</dt>
-                      <dd>
-                        <code>{leg.instrumentId}</code>
-                      </dd>
-                    </div>
-                    {(
-                      [
-                        ["open", leg.openPrice],
-                        ["high", leg.highPrice],
-                        ["low", leg.lowPrice],
-                        ["close", leg.closePrice],
-                        ["netChange", leg.netChange],
-                        ["sessionReversal", leg.sessionReversal],
-                        ["reversalMultiple", leg.reversalMultiple],
-                      ] as const
-                    ).map(([column, value]) => (
+                <h3>{text.observations}</h3>
+                <div className="case-observations">
+                  {analysis.legs.map((leg) => (
+                    <dl className="case-observation" key={leg.legId}>
+                      <div>
+                        <dt>{text.legNames[leg.legId] ?? leg.legId}</dt>
+                        <dd>
+                          <code>{leg.instrumentId}</code>
+                        </dd>
+                      </div>
+                      {(
+                        [
+                          ["open", leg.openPrice],
+                          ["high", leg.highPrice],
+                          ["low", leg.lowPrice],
+                          ["close", leg.closePrice],
+                          ["netChange", leg.netChange],
+                          ["sessionReversal", leg.sessionReversal],
+                          ["reversalMultiple", leg.reversalMultiple],
+                        ] as const
+                      ).map(([column, value]) => (
+                        <div key={column}>
+                          <dt>{text.columns[column]}</dt>
+                          <dd>
+                            <code>{value}</code>
+                          </dd>
+                        </div>
+                      ))}
+                      <div>
+                        <dt>{text.columns.relation}</dt>
+                        <dd>{text.relations[leg.relation] ?? leg.relation}</dd>
+                      </div>
+                    </dl>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <div className="hash-block">
+              <HashValue
+                scope="canonicalResult"
+                value={result.canonicalResultHash}
+              />
+            </div>
+
+            <h3>{text.evidenceTitle}</h3>
+            <p>{text.evidenceLede}</p>
+            {result.sourceTrace.map((entry) => (
+              <details className="source-evidence" key={entry.eventId}>
+                <summary>
+                  {entry.instrumentId} · {entry.tradingDate}
+                </summary>
+                <dl className="source-values">
+                  <div>
+                    <dt>eventId</dt>
+                    <dd>
+                      <code>{entry.eventId}</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>rawRowHash</dt>
+                    <dd>
+                      <HashValue scope="rawRow" value={entry.rawRowHash} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>
+                      {language === "ko" ? "원본 행 번호" : "Source row number"}
+                    </dt>
+                    <dd>{entry.sourceRow.coordinate.rowNumber}</dd>
+                  </div>
+                  {Object.entries(entry.sourceRow.values).map(
+                    ([column, value]) => (
                       <div key={column}>
-                        <dt>{text.columns[column]}</dt>
+                        <dt>{column}</dt>
                         <dd>
                           <code>{value}</code>
                         </dd>
                       </div>
-                    ))}
-                    <div>
-                      <dt>{text.columns.relation}</dt>
-                      <dd>{text.relations[leg.relation] ?? leg.relation}</dd>
-                    </div>
-                  </dl>
-                ))}
-              </div>
-            </>
-          )}
-
-          <div className="hash-block">
-            <HashValue
-              scope="canonicalResult"
-              value={result.canonicalResultHash}
-            />
+                    ),
+                  )}
+                </dl>
+              </details>
+            ))}
           </div>
+        ) : (
+          <p className="awaiting-result">{text.runBlocked}</p>
+        )}
+      </Chapter>
 
-          <h3>{text.evidenceTitle}</h3>
-          <p>{text.evidenceLede}</p>
-          {result.sourceTrace.map((entry) => (
-            <details className="source-evidence" key={entry.eventId}>
-              <summary>
-                {entry.instrumentId} · {entry.tradingDate}
-              </summary>
-              <dl className="source-values">
-                <div>
-                  <dt>eventId</dt>
-                  <dd>
-                    <code>{entry.eventId}</code>
-                  </dd>
-                </div>
-                <div>
-                  <dt>rawRowHash</dt>
-                  <dd>
-                    <HashValue scope="rawRow" value={entry.rawRowHash} />
-                  </dd>
-                </div>
-                <div>
-                  <dt>
-                    {language === "ko" ? "원본 행 번호" : "Source row number"}
-                  </dt>
-                  <dd>{entry.sourceRow.coordinate.rowNumber}</dd>
-                </div>
-                {Object.entries(entry.sourceRow.values).map(
-                  ([column, value]) => (
-                    <div key={column}>
-                      <dt>{column}</dt>
-                      <dd>
-                        <code>{value}</code>
-                      </dd>
-                    </div>
-                  ),
-                )}
-              </dl>
-            </details>
-          ))}
-        </section>
-      )}
-
-      <section className="panel case-stop">
-        <h2>{text.stopTitle}</h2>
+      <Chapter chapter={text.chapters[5]!} index={6}>
         <div className="case-stop-grid">
+          <div>
+            <h3>{text.didTitle}</h3>
+            <ul>
+              {text.did.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </div>
           {/* What the result says is itself rule output, read from the returned
               analysis, so it appears only once the rule has returned one. What
               it does not say is a disclosure about the data, and stands before
               the visitor commits to anything. */}
-          {analysis ? (
-            <div>
-              <h3>{text.saysTitle}</h3>
-              <ul>
-                {text
-                  .says(analysis.rank.position, analysis.rank.populationSize)
-                  .map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-              </ul>
-            </div>
-          ) : null}
           <div>
             <h3>{text.doesNotSayTitle}</h3>
             <ul>
@@ -406,7 +458,20 @@ export function PublishedCaseSurface({
             </ul>
           </div>
         </div>
-      </section>
+        {analysis ? (
+          <div className="case-says">
+            <h3>{text.saysTitle}</h3>
+            <ul>
+              {text
+                .says(analysis.rank.position, analysis.rank.populationSize)
+                .map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+            </ul>
+          </div>
+        ) : null}
+        <p className="case-closing">{text.closing}</p>
+      </Chapter>
     </ReplayLanguageContext.Provider>
   );
 }

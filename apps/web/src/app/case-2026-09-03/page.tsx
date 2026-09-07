@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React from "react";
 
 import {
+  publishedCaseColumns,
   publishedCaseProposal,
   publishedCaseSeries,
 } from "../../lib/published-case";
@@ -23,6 +24,7 @@ export default function PublishedCasePage() {
     <main className="shell page-shell case-page">
       <CaseHeading />
       <CaseBoundary
+        columns={publishedCaseColumns()}
         futureArtifactHash={futureArtifactHash}
         future={future}
         previousClose={spot.at(-2)!.close}

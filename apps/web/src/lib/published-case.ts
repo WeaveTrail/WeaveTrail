@@ -338,3 +338,21 @@ export function publishedCaseSeries(): {
     futureArtifactHash: futures.sourceArtifactHash,
   };
 }
+
+export type PublishedColumn = {
+  sourceColumn: string;
+  targetField: string;
+};
+
+/**
+ * The mapped columns of the index artifact, as the reviewed proposal declares
+ * them. The page shows these so a reader meets the publisher's own column
+ * names before meeting a result computed from them.
+ */
+export function publishedCaseColumns(): PublishedColumn[] {
+  return fscKospi200BaselineProposal.fields.flatMap((field) =>
+    field.targetField
+      ? [{ sourceColumn: field.sourceColumn, targetField: field.targetField }]
+      : [],
+  );
+}

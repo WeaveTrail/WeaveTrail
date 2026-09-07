@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import {
+  publishedCaseColumns,
   publishedCaseProposal,
   publishedCaseSeries,
 } from "../../lib/published-case";
@@ -31,6 +32,7 @@ function surface(language: "ko" | "en") {
   return decode(
     renderToStaticMarkup(
       createElement(PublishedCaseSurface, {
+        columns: publishedCaseColumns(),
         proposal,
         spot,
         future,
@@ -87,19 +89,19 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
-  it("names the reversal and the net change in the chart's accessible name", () => {
+  it("names both legs and every plotted price in the chart's accessible name", () => {
     const markup = surface("ko");
-    const { spot } = publishedCaseSeries();
+    const { spot, future } = publishedCaseSeries();
     const day = spot.at(-1)!;
-    const label = /aria-label="([^"]*코스피 200 · 2026-09-03[^"]*)"/.exec(
-      markup,
-    );
+    const label = /aria-label="([^"]*코스피 200:[^"]*)"/.exec(markup);
     expect(label).not.toBeNull();
     for (const value of [
+      day.open,
       day.high,
+      day.low,
       day.close,
       day.netChange,
-      spot.at(-2)!.close,
+      future.close,
     ])
       expect(label![1], value).toContain(value);
   });
@@ -181,13 +183,44 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
-  it("does not tell the reader a rank is still pending once it is not", () => {
-    const { chartNote, chartNoteAfterRun } = caseCopy.ko;
-    expect(chartNote).not.toBe(chartNoteAfterRun);
-    // Before the run the page says the rank is the rule's work still to come.
-    const markup = surface("ko");
-    expect(markup).toContain(chartNote);
-    expect(markup).not.toContain(chartNoteAfterRun);
+  it("keeps the chart caption free of any claim the run would contradict", () => {
+    // The caption explains why one stretch of the path is dashed and nothing
+    // else, so it stays true before and after the run.
+    for (const language of ["ko", "en"] as const) {
+      const { pathNote } = caseCopy[language];
+      expect(surface(language), language).toContain(pathNote);
+      expect(pathNote, language).not.toMatch(/순위|배수|rank|multiple/i);
+    }
+  });
+
+  it("numbers every chapter and says what it is for before its content", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const chapters = caseCopy[language].chapters;
+      expect(chapters, language).toHaveLength(6);
+      chapters.forEach((chapter, index) => {
+        expect(markup, chapter.title).toContain(chapter.title);
+        expect(markup, chapter.purpose).toContain(chapter.purpose);
+        expect(markup.indexOf(chapter.purpose), chapter.title).toBeGreaterThan(
+          markup.indexOf(`id="chapter-${index + 1}"`),
+        );
+      });
+    }
+  });
+
+  it("teaches the publisher's own column names before showing a result", () => {
+    const columns = publishedCaseColumns();
+    expect(columns.length).toBeGreaterThan(0);
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const { columnGloss } = caseCopy[language];
+      for (const column of columns) {
+        expect(markup, column.sourceColumn).toContain(column.sourceColumn);
+        expect(markup, column.targetField).toContain(column.targetField);
+      }
+      for (const column of ["mkp", "hipr", "lopr", "clpr", "vs"])
+        expect(columnGloss[column], `${language} ${column}`).toBeTruthy();
+    }
   });
 
   it("carries the case into the rollback checklist", () => {
@@ -207,7 +240,14 @@ describe("the 2026-09-03 case surface", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    expect(navigation).toContain('["The 2026-09-03 case", "/case-2026-09-03"]');
-    expect(navigation).toContain('["9월 3일 사례", "/case-2026-09-03"]');
+    // Named for what happened rather than for a date, so a reader decides
+    // whether to open it from the entry rather than after arriving.
+    expect(navigation).toContain(
+      '["A fall and a recovery", "/case-2026-09-03"]',
+    );
+    expect(navigation).toContain(
+      '["하루 안의 급락과 회복", "/case-2026-09-03"]',
+    );
+    expect(navigation).not.toContain("9월 3일 사례");
   });
 });
