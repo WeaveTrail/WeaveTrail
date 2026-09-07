@@ -40,11 +40,12 @@ verification. It is not a production market-surveillance system.
   detection-rate measurement.
 - No large-scale performance benchmark has been run.
 - Complete-series acquisition has a manual collector and offline admission
-  checks tested with synthetic transport. It has no production publisher
-  adapter or committed complete real series yet. Completeness is relative to
-  an unchanged publisher-reported total for the predeclared scope, not a claim
-  of stable remote snapshots or coverage outside that scope. The existing FSC
-  artifact remains a bounded window. See
+  checks; transport tests use synthetic responses, and no production retrieval
+  service exists. Committed real complete-series artifacts retain every page
+  and a row count equal to the publisher total for their predeclared scopes.
+  That completeness is not a claim of stable remote snapshots, authenticity or
+  coverage outside those scopes. The earlier FSC stock-quote artifact remains
+  a bounded window. See
   [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.

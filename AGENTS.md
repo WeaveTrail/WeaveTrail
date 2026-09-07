@@ -70,12 +70,16 @@ reproducible check confirms it.
   an invented participant, trade side, hypothesis, or pattern verdict to its
   source or derived rows.
 - A versioned deterministic rule may separately evaluate a real market index or
-  contract and report support for its declared pattern hypothesis only when the
-  instrument does not identify a participant, no actor or side is attached, the
-  scope is approved before the run, and each threshold and its provenance are
-  shown beside the observation it is compared against. The result remains a
-  rule output bound to that approved scope, not a source fact, legal conclusion,
-  causal claim, or investment recommendation.
+  contract. A user-visible result, or one retained as case evidence, may report
+  support for its declared pattern hypothesis only when the instrument does not
+  identify a participant, no actor or side is attached, the scope is approved
+  before the run, and each threshold and its provenance are shown beside the
+  observation it is compared against. The result remains a rule output bound to
+  that approved scope, not a source fact, legal conclusion, causal claim, or
+  investment recommendation.
+- A regression test may use generated approval fixtures to pin deterministic
+  behavior over admitted real rows, but that output is not an approved case or
+  evidence and may not be presented as satisfying the publication safeguards.
 - Commit the retrieved response as returned. Where a committed artifact is
   derived from it, record that response, its checksum, and the deterministic
   steps that produce the artifact, so a reader can reproduce the committed
