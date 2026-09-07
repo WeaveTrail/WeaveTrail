@@ -63,8 +63,16 @@ carried by Korean alt text until they are redrawn in
 `apps/web/src/app/i18n/entry-point-parity.test.ts` enforces the structural part
 of this: that each pair exists, that their headings correspond, that the
 commands and the deployed URL match, that every relative link resolves, and
-that a Korean document does not link to an English-only document without
-marking it.
+that a Korean document does not link to an English-only destination without
+marking it — whatever that destination's extension, since `LICENSE` and the
+`docs/adr` directory surprise a reader exactly as much as a `.md` file would.
+A link to a source file is not marked: code is English by nature.
+
+The same test pins both worked-case diagrams. They are drawn rather than
+generated, so their published prices are compared against the committed rows
+and their multiples and standing against the engine's own output for the case.
+A changed artifact fails there instead of shipping a figure that disagrees with
+the case it illustrates.
 
 ## Consequences
 

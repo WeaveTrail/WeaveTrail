@@ -2,6 +2,15 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, normalize, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { sha256Canonical } from "@weavetrail/replay-engine";
+
+import {
+  ANALYSED_DATE,
+  publishedCaseProposal,
+  publishedCaseSeries,
+  replayPublishedCase,
+} from "../../lib/published-case";
+
 /**
  * The repository entry point is bilingual, and English is the source of record
  * ([ADR 0035](docs/adr/0035-translate-the-product-explanation-and-keep-the-record-in-english.md)).
@@ -34,16 +43,24 @@ const ORIGINAL_OF = new Map(
   PAIRS.map(([english, korean]) => [korean, english]),
 );
 
-type Link = { readonly target: string; readonly marked: boolean };
+type Link = {
+  readonly target: string;
+  readonly marked: boolean;
+  readonly image: boolean;
+};
 
 /** Markdown links, with whether `(영문)` immediately follows the link. */
 const linksIn = (markdown: string): readonly Link[] =>
-  [...markdown.matchAll(/\[[^\]]*\]\(([^)\s]+)\)(\(영문\))?/g)].map(
+  [...markdown.matchAll(/(!?)\[[^\]]*\]\(([^)\s]+)\)(\(영문\))?/g)].map(
     (match) => ({
-      target: match[1] ?? "",
-      marked: match[2] !== undefined,
+      target: match[2] ?? "",
+      marked: match[3] !== undefined,
+      image: match[1] === "!",
     }),
   );
+
+/** Source files are English by nature; the marker is about documents. */
+const isCode = (target: string) => /\.(ts|tsx|mjs|js|json|css)$/.test(target);
 
 const isLocal = (target: string) =>
   !target.startsWith("http") &&
@@ -121,12 +138,120 @@ describe.each(PAIRS.flat())("%s", (path) => {
       expect(translated).toEqual([]);
     });
 
-    it("marks every English-only document it links to", () => {
+    // Not restricted to `.md`: `LICENSE` and the `docs/adr` directory are
+    // English destinations too, and an unmarked link to one is the same
+    // surprise for a reader.
+    it("marks every English-only destination it links to", () => {
       const unmarked = local
-        .filter((link) => link.target.endsWith(".md") && !link.marked)
+        .filter((link) => !link.image && !isCode(link.target) && !link.marked)
         .map((link) => normalize(join(dirname(path), link.target)))
         .filter((target) => target !== original && !KOREAN_FILES.has(target));
       expect(unmarked).toEqual([]);
     });
   }
+});
+
+/**
+ * The worked-case figures carry real published prices and real rule output.
+ * Nothing generates them — they are drawn — so the numbers on them can go
+ * stale against the artifacts they claim to show. These checks pin every
+ * figure on both diagrams to the committed rows and to the engine's own
+ * result, so a changed artifact fails here instead of shipping a diagram that
+ * quietly disagrees with the case it illustrates.
+ */
+describe("the worked-case diagrams", () => {
+  const DIAGRAMS = {
+    en: "docs/assets/worked-case.svg",
+    ko: "docs/assets/worked-case.ko.svg",
+  } as const;
+
+  /** The committed artifacts the diagrams name in their attribution. */
+  const NAMED_ARTIFACTS = [
+    "fsc-kospi-200-baseline-20260701-20260903",
+    "fsc-kospi-200-futures-20260903",
+  ] as const;
+
+  const approval = {
+    approvedArtifactHash: sha256Canonical(publishedCaseProposal().proposal),
+    reviewerRef: "reviewer:local-lab",
+    decision: "APPROVED" as const,
+    overrides: [],
+    approvedAt: "2026-09-07T00:00:00Z",
+  };
+
+  const series = publishedCaseSeries();
+  const analysedDay = series.spot.at(-1);
+  const { analysis } = replayPublishedCase(approval).evaluation;
+  if (analysedDay === undefined || analysis === null)
+    throw new Error(
+      "The published case must reach an analysed day and an analysis before " +
+        "its diagrams can be checked against it",
+    );
+
+  /** The diagrams print published prices grouped, to two decimals. */
+  const displayed = (value: string) =>
+    Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  it("illustrates the day the case analyses", () => {
+    expect(analysedDay.tradingDate).toBe(ANALYSED_DATE.replaceAll("-", ""));
+  });
+
+  it.each(NAMED_ARTIFACTS)("names %s, which is committed", (artifact) => {
+    const source = `packages/published-data/src/sources/real/${artifact}/source.jsonl`;
+    expect(existsSync(resolve(process.cwd(), source))).toBe(true);
+    for (const diagram of Object.values(DIAGRAMS))
+      expect(read(diagram)).toContain(artifact);
+  });
+
+  it.each(Object.entries(DIAGRAMS))(
+    "shows %s's published prices exactly as committed",
+    (_language, diagram) => {
+      const svg = read(diagram);
+      for (const day of [analysedDay, series.future]) {
+        expect(svg).toContain(displayed(day.low));
+        expect(svg).toContain(displayed(day.high));
+      }
+    },
+  );
+
+  it.each(Object.entries(DIAGRAMS))(
+    "rounds %s's multiples from the rule's own output",
+    (language, diagram) => {
+      const pattern =
+        language === "ko" ? /약 (\d+)배/g : /&#8776; (\d+)&#215;/g;
+      // The accessible description repeats the visible figures, so compare
+      // the distinct values rather than every occurrence.
+      const shown = [
+        ...new Set(
+          [...read(diagram).matchAll(pattern)].map((match) => Number(match[1])),
+        ),
+      ];
+      expect(shown).toEqual(
+        analysis.legs.map((leg) => Math.round(Number(leg.reversalMultiple))),
+      );
+    },
+  );
+
+  it.each(Object.entries(DIAGRAMS))(
+    "reports %s's standing as the rule reported it",
+    (language, diagram) => {
+      const svg = read(diagram);
+      const [position, populationSize] =
+        language === "ko"
+          ? ([...svg.matchAll(/(\d+)거래일 중 (\d+)번째/g)].map((match) => [
+              match[2],
+              match[1],
+            ])[0] ?? [])
+          : ([...svg.matchAll(/(\d+)(?:st|nd|rd|th) of (\d+)/g)].map(
+              (match) => [match[1], match[2]],
+            )[0] ?? []);
+      expect({ position, populationSize }).toEqual({
+        position: analysis.rank.position,
+        populationSize: analysis.rank.populationSize,
+      });
+    },
+  );
 });
