@@ -458,7 +458,7 @@ inclusive 2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and Septemb
 Reproduce it with:
 
 ```bash
-pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal.test.ts
+pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal-published-golden.test.ts
 ```
 
 The captured environment is Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64.

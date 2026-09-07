@@ -418,7 +418,7 @@ SHA-256을 계산합니다. 정본화나 해싱을 할 수 없거나 실패하�
 재현 명령은 다음과 같습니다.
 
 ```bash
-pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal.test.ts
+pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal-published-golden.test.ts
 ```
 
 기록된 환경은 Node 22.18.0, pnpm 10.33.2, Linux WSL2 x86_64입니다. 이것은 고정된
