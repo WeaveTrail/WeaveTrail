@@ -31,6 +31,10 @@ verification. It is not a production market-surveillance system.
   `INPUT_REVIEW_REQUIRED` starts a new request at `UPLOADED`.
 - Mapping-only foundation validation ends at `MAPPING_APPROVED`; only an
   approved case rule replay reaches `REPLAYED`.
+- The published-case browser asks the visitor to approve before running. Its API
+  validates the exact approved scope hash from a caller-supplied `APPROVED`
+  record but does not authenticate the reviewer or prove that a person created
+  the record. It demonstrates approval binding, not audit-grade human identity.
 - Rule evaluations use synthetic cases and one fixed, licensed published
   index-and-futures case. The published case is a deterministic worked example;
   it does not establish real-market rule accuracy.
@@ -86,7 +90,7 @@ mapping approval, but an attempted case actor is refused before rule evaluation.
 Its first-page sample is not the entire market. No actor, side, order,
 hypothesis or verdict is added to the published source rows. A separate,
 pre-approved case may evaluate the index and contract with a versioned rule;
-its thresholds and their origin appear beside the observed values, and its
+each observed-value and threshold pair links to the thresholds' origin, and the
 result means support for that declared pattern only. See
 [ADR 0034](adr/0034-evaluate-real-instruments-without-altering-source-facts.md)
 for the boundary and [daily quote normalization](DAILY_QUOTES.md) for exact

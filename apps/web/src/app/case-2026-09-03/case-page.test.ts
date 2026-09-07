@@ -9,7 +9,11 @@ import {
   publishedCaseProposal,
   publishedCaseSeries,
 } from "../../lib/published-case";
-import { PublishedCaseSurface } from "./case-surface";
+import {
+  PUBLISHED_CASE_THRESHOLD_ORIGIN_ID,
+  PublishedCaseSurface,
+  ThresholdOriginReference,
+} from "./case-surface";
 import { caseCopy } from "./case-copy";
 import {
   INTRADAY_HIGH,
@@ -158,12 +162,33 @@ describe("the 2026-09-03 case surface", () => {
       const markup = surface(language);
       const text = caseCopy[language];
       expect(markup, language).toContain(text.thresholdOrigin);
+      expect(markup, language).toContain(
+        `id="${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`,
+      );
+      const reference = renderToStaticMarkup(
+        createElement(ThresholdOriginReference, {
+          label: text.thresholdOriginLink,
+        }),
+      );
+      expect(reference, language).toContain(
+        `href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`,
+      );
+      expect(reference, language).toContain(text.thresholdOriginLink);
       // The point of the disclosure is that the observations were already
       // known when the thresholds were set.
       expect(text.thresholdOrigin, language).toMatch(
         /관측값을 (이미 )?보고 있었습니다|already in view/,
       );
     }
+  });
+
+  it("states that the API verifies approval scope but not reviewer identity", () => {
+    const limitations = readFileSync(
+      resolve(process.cwd(), "docs/LIMITATIONS.md"),
+      "utf8",
+    );
+    expect(limitations).toContain("exact approved scope hash");
+    expect(limitations).toContain("does not authenticate the reviewer");
   });
 
   it("numbers every chapter and says what it is for before its content", () => {

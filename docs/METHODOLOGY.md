@@ -415,8 +415,9 @@ The captured environment is Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64.
 This is a deterministic engine regression check over fixed licensed artifacts.
 Its generated approval fixtures exercise the hash gates but do not evidence
 human review, so the golden is not an approved case or evidentiary result. The
-separate published web case obtains exact-scope approval before it runs and
-shows threshold provenance beside the values. Neither surface estimates
+separate published web case requires an `APPROVED` record bound to the exact
+scope before it runs and links every gate back to the threshold provenance. The
+server does not authenticate the reviewer's identity. Neither surface estimates
 detection quality, probability, causality, legal status or investment
 suitability, and neither searches the range for candidate dates.
 

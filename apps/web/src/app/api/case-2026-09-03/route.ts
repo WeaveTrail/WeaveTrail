@@ -11,9 +11,10 @@ export const runtime = "nodejs";
 
 /**
  * Runs the authored 2026-09-03 case over the committed published artifacts.
- * The visitor's approval travels in the request and is revalidated here against
- * the scope this server rebuilds from those artifacts, so an approval made
- * against anything else authorizes nothing.
+ * The browser sends the visitor's approval record in the request. Direct API
+ * callers can construct the same record: this route validates its shape,
+ * APPROVED decision and exact scope hash, but does not authenticate reviewer
+ * identity. An approval made against anything else authorizes nothing.
  */
 export async function POST(request: Request) {
   const parsed = ApprovalRecordSchema.safeParse(
