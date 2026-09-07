@@ -188,12 +188,30 @@ describe("the worked-case diagrams", () => {
         "its diagrams can be checked against it",
     );
 
+  /**
+   * Published prices and rule output stay decimal strings here. Passing them
+   * through `Number` first would check a display string against a binary64
+   * approximation of the committed value, which is the one thing a provenance
+   * check must not do.
+   */
+
   /** The diagrams print published prices grouped, to two decimals. */
-  const displayed = (value: string) =>
-    Number(value).toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+  const displayed = (value: string) => {
+    const [whole = "", fraction = ""] = value.split(".");
+    if (fraction.length > 2)
+      throw new Error(`${value} carries more precision than a diagram shows`);
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return `${grouped}.${fraction.padEnd(2, "0")}`;
+  };
+
+  /** Half-up rounding on the decimal string, never through a float. */
+  const rounded = (value: string) => {
+    const [whole = "0", fraction = ""] = value.split(".");
+    if (whole.startsWith("-"))
+      throw new Error(`${value} is negative; the diagrams show no such figure`);
+    const carry = (fraction[0] ?? "0") >= "5" ? 1n : 0n;
+    return (BigInt(whole) + carry).toString();
+  };
 
   it("illustrates the day the case analyses", () => {
     expect(analysedDay.tradingDate).toBe(ANALYSED_DATE.replaceAll("-", ""));
@@ -206,14 +224,29 @@ describe("the worked-case diagrams", () => {
       expect(read(diagram)).toContain(artifact);
   });
 
+  /**
+   * Each price is read with the label above it, in document order, so a value
+   * moved to the wrong leg or placed under the wrong label fails here. A
+   * document-wide search would not: all four figures would still be present.
+   */
+  const labelledPrices = (svg: string) =>
+    [
+      ...svg.matchAll(
+        /<text class="key"[^>]*>(low|high|저가|고가)<\/text>\s*<text class="val m"[^>]*>([^<]+)<\/text>/g,
+      ),
+    ].map((match) => [match[1], match[2]]);
+
   it.each(Object.entries(DIAGRAMS))(
-    "shows %s's published prices exactly as committed",
-    (_language, diagram) => {
-      const svg = read(diagram);
-      for (const day of [analysedDay, series.future]) {
-        expect(svg).toContain(displayed(day.low));
-        expect(svg).toContain(displayed(day.high));
-      }
+    "shows %s's published prices under their own labels",
+    (language, diagram) => {
+      const [low, high] =
+        language === "ko" ? ["저가", "고가"] : ["low", "high"];
+      expect(labelledPrices(read(diagram))).toEqual([
+        [low, displayed(analysedDay.low)],
+        [high, displayed(analysedDay.high)],
+        [low, displayed(series.future.low)],
+        [high, displayed(series.future.high)],
+      ]);
     },
   );
 
@@ -226,11 +259,11 @@ describe("the worked-case diagrams", () => {
       // the distinct values rather than every occurrence.
       const shown = [
         ...new Set(
-          [...read(diagram).matchAll(pattern)].map((match) => Number(match[1])),
+          [...read(diagram).matchAll(pattern)].map((match) => match[1] ?? ""),
         ),
       ];
       expect(shown).toEqual(
-        analysis.legs.map((leg) => Math.round(Number(leg.reversalMultiple))),
+        analysis.legs.map((leg) => rounded(leg.reversalMultiple)),
       );
     },
   );
