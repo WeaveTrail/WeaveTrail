@@ -13,8 +13,8 @@ describe("published scenario expectations page", () => {
     expect(markup).toContain("Approval hashing requires Web Crypto");
     expect(markup).toContain("same-input repeatability only");
     expect(markup).toContain("including Dialect A and Dialect B");
-    expect(markup).toContain("Git revision");
-    expect(markup).toContain("2a438d04b3f5f04ad847d3207b72a70eb0a76b39");
+    expect(markup).toContain("pnpm expectations:update");
+    expect(markup).toContain("Vitest");
     expect(markup).toContain("Linux WSL2 x86_64");
     for (const scenario of publication.scenarios) {
       expect(markup).toContain(scenario.scenario);

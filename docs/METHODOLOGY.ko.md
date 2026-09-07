@@ -468,3 +468,19 @@ Trade Event `1.2`/`1.3`과 항목 연결 제안 `1.5`/`1.6`/`1.7`은 일별 전�
 `sourceEventId`에 한해, 발행처의 자연 키인 경우에만 순서가 있는 NUL 구분 열 목록으로
 만드는 것을 허용합니다. 제안 `1.7`은 그 합성 식별자와 직접 연결된 발행처 식별자
 가운데 하나만 허용하며, 둘을 함께 쓸 수는 없습니다.
+
+## 공개 스키마를 따른 합성 체결
+
+커밋된 FIX 4.4와 H0STCNT0 투영에는 생성한 값만 들어 있습니다. 시장 자료를
+가져오거나 값을 보정하는 데 쓰지 않았습니다. 두 투영은 함께 공개하는 항목을 같은
+체결 시각, 종목, 매매 방향, 가격, 수량으로 정규화합니다. FIX 투영은 합성
+`Account(1)`도 `actorId`로 연결합니다. H0STCNT0 제안은 공개 응답에 참여자·계좌
+열이 없으므로 `actorId`를 `unmappedFields`에 부재 및 `REVIEW_REQUIRED`로
+기록합니다. 사유를 적은 재정의로 정규화를 위해 그 부재를 확인할 수는 있지만,
+actor를 추가하거나 참여자에 의존하는 단기 급등 사례를 승인할 수는 없습니다.
+따라서 두 투영의 정본 데이터셋 해시는 의도적으로 다릅니다. 항목 연결 제안 `1.8`과
+마이그레이션 경계는
+[ADR 0036](adr/0036-normalize-published-execution-schema-projections.md)(영문)에,
+명세와 시장 규칙 출처는
+[아티팩트 옆 기록](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md)(영문)에
+있습니다.

@@ -49,6 +49,19 @@ describe("committed replay scenarios", () => {
     expect(scenario).not.toHaveProperty("events");
   });
 
+  it("registers both published-schema projections as synthetic sources", () => {
+    const fix = committedReplayScenarios["published-execution-fix44.csv"];
+    const h0stcnt0 =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+
+    expect(fix.rows).toHaveLength(6);
+    expect(fix.expectedResult).toBe("SUPPORTED");
+    expect(fix.label).toContain("Synthetic");
+    expect(h0stcnt0.rows).toHaveLength(6);
+    expect(h0stcnt0.label).toContain("Synthetic");
+    expect(h0stcnt0).not.toHaveProperty("manifest");
+  });
+
   it.each([
     ["rapid-price-lift-supported.csv", "SUPPORTED", 6],
     ["rapid-price-lift-broad-participation.csv", "NOT_SUPPORTED", 6],

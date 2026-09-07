@@ -367,6 +367,53 @@ describe("replay mapping status boundary", () => {
       }),
     ).toBe(false);
   });
+
+  it("records and renders a review reason for an absent published actor field", async () => {
+    const scenario =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+    const path = "unmappedFields.0";
+
+    expect(hasUnresolvedMappingReview(proposal, {})).toBe(true);
+    expect(
+      mappingOverrides(proposal, {
+        [path]: "  Source schema has no participant field.  ",
+      }),
+    ).toEqual([
+      {
+        fieldPath: path,
+        reason: "Source schema has no participant field.",
+      },
+    ]);
+    expect(
+      hasUnresolvedMappingReview(proposal, {
+        [path]: "Source schema has no participant field.",
+      }),
+    ).toBe(false);
+
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, {
+        providerMode: "fixture",
+        proposals: { [scenario.sourceArtifactHash]: proposal },
+        scenarios: [
+          {
+            value: "published-execution-h0stcnt0.jsonl",
+            label: scenario.label,
+            sourceArtifactHash: scenario.sourceArtifactHash,
+            rows: scenario.rows,
+          },
+        ],
+      }),
+    );
+    expect(markup).toContain("Composite execution time");
+    expect(markup).toContain("source field absent");
+    expect(markup).toContain('aria-label="Reviewer reason for actorId"');
+  });
 });
 
 describe("finding evidence disclosures", () => {

@@ -91,6 +91,7 @@ export function validateApprovedMapping(
   const seenTargets = new Set<MappedTargetField>();
   if ("eventType" in mapping.constants) seenTargets.add("eventType");
   if ("compositeSourceEventId" in mapping) seenTargets.add("sourceEventId");
+  if ("compositeEventTime" in mapping) seenTargets.add("eventTime");
 
   for (const [sourceColumn, targetField, transform] of mapping.fields) {
     if (seenSources.has(sourceColumn)) {
@@ -113,6 +114,10 @@ export function validateApprovedMapping(
 
     if (
       !AllowedTransformSchema.safeParse(transform).success ||
+      (["FIX_UTC_TIMESTAMP_TO_ISO", "FIX_SIDE_CODE", "KIS_CCLD_DVSN"].includes(
+        transform ?? "",
+      ) &&
+        mapping.mappingVersion !== "1.8") ||
       ([
         "openPrice",
         "highPrice",
@@ -244,6 +249,18 @@ function applyTransform(
       };
       return eventTypes[value.toUpperCase()];
     }
+    case "FIX_UTC_TIMESTAMP_TO_ISO": {
+      const match =
+        /^(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})(?:\.(\d{3}))?$/.exec(
+          value,
+        );
+      if (!match || !validDateTimeParts(match.slice(1, 7))) return undefined;
+      return `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}${match[7] ? `.${match[7]}` : ""}Z`;
+    }
+    case "FIX_SIDE_CODE":
+      return { "1": "BUY", "2": "SELL" }[value];
+    case "KIS_CCLD_DVSN":
+      return { "1": "BUY", "5": "SELL" }[value];
     case "EPOCH_MS_TO_ISO": {
       if (!/^-?\d+$/.test(value)) return undefined;
       const milliseconds = Number(value);
@@ -255,6 +272,55 @@ function applyTransform(
       }
     }
   }
+}
+
+function isLeapYear(year: number): boolean {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+function validDateTimeParts(parts: string[]): boolean {
+  const [year, month, day, hour, minute, second] = parts.map(Number);
+  const days = [
+    31,
+    isLeapYear(year!) ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+  return (
+    year! >= 1 &&
+    month! >= 1 &&
+    month! <= 12 &&
+    day! >= 1 &&
+    day! <= days[month! - 1]! &&
+    hour! >= 0 &&
+    hour! <= 23 &&
+    minute! >= 0 &&
+    minute! <= 59 &&
+    second! >= 0 &&
+    second! <= 59
+  );
+}
+
+function applyCompositeEventTime(
+  values: readonly string[],
+  transform: "KIS_DATE_TIME_TO_KST_ISO",
+): string | undefined {
+  if (transform !== "KIS_DATE_TIME_TO_KST_ISO") return undefined;
+  const [date, time] = values;
+  if (!date || !time) return undefined;
+  const match = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(
+    `${date}${time}`,
+  );
+  if (!match || !validDateTimeParts(match.slice(1, 7))) return undefined;
+  return `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}+09:00`;
 }
 
 export function applyApprovedMapping(
@@ -286,6 +352,11 @@ export function applyApprovedMapping(
       { targetField, transform },
     ]),
   );
+  const compositeEventTime =
+    "compositeEventTime" in mapping ? mapping.compositeEventTime : undefined;
+  const compositeEventTimeColumns = new Set(
+    compositeEventTime?.sourceColumns ?? [],
+  );
 
   for (const [rowIndex, row] of rows.entries()) {
     if (row.coordinate.sourceArtifactHash !== mapping.sourceArtifactHash) {
@@ -298,6 +369,7 @@ export function applyApprovedMapping(
       continue;
     }
     const candidate: Record<string, string> = { ...mapping.constants };
+    let approvedColumnMissing = false;
     if ("compositeSourceEventId" in mapping) {
       const values = mapping.compositeSourceEventId.sourceColumns.map(
         (sourceColumn) => row.values[sourceColumn],
@@ -325,7 +397,39 @@ export function applyApprovedMapping(
         candidate.sourceEventId = values.join("\0");
       }
     }
-    let approvedColumnMissing = false;
+    if (compositeEventTime) {
+      const values = compositeEventTime.sourceColumns.map(
+        (sourceColumn) => row.values[sourceColumn],
+      );
+      const missingIndex = values.findIndex((value) => value === undefined);
+      if (missingIndex >= 0) {
+        const sourceColumn = compositeEventTime.sourceColumns[missingIndex]!;
+        approvedColumnMissing = true;
+        issues.push({
+          code: "APPROVED_SOURCE_COLUMN_MISSING",
+          rowIndex,
+          rowNumber: row.coordinate.rowNumber,
+          sourceColumn,
+          message: `Composite event-time column ${JSON.stringify(sourceColumn)} is missing from row ${row.coordinate.rowNumber}`,
+        });
+      } else {
+        const eventTime = applyCompositeEventTime(
+          values as string[],
+          compositeEventTime.transform,
+        );
+        if (eventTime === undefined) {
+          issues.push({
+            code: "TRANSFORM_REJECTED_VALUE",
+            rowIndex,
+            rowNumber: row.coordinate.rowNumber,
+            sourceColumn: compositeEventTime.sourceColumns.join(","),
+            message: `Transform ${compositeEventTime.transform} rejected composite event-time columns`,
+          });
+        } else {
+          candidate.eventTime = eventTime;
+        }
+      }
+    }
     for (const sourceColumn of fieldMappings.keys()) {
       if (!Object.hasOwn(row.values, sourceColumn)) {
         approvedColumnMissing = true;
@@ -341,6 +445,7 @@ export function applyApprovedMapping(
     for (const [sourceColumn, value] of Object.entries(row.values)) {
       const fieldMapping = fieldMappings.get(sourceColumn);
       if (!fieldMapping) {
+        if (compositeEventTimeColumns.has(sourceColumn)) continue;
         issues.push({
           code: "UNKNOWN_SOURCE_COLUMN",
           rowIndex,
