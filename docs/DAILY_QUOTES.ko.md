@@ -45,7 +45,7 @@ _[English](DAILY_QUOTES.md) · 영문 문서가 기준입니다._
 전용의 검토된 변환을 추가합니다. 원본 문자열은 보존됩니다.
 
 이벤트 스키마 `1.2`와 `1.3`은 일별 전용입니다. 이벤트 `1.3`은 원본의
-`tradingDate`, OHLC, 절댓값 `netChange`를 요구하며, 모두 정본 투영으로
+`tradingDate`, OHLC, 포인트로 표시된 `netChange`를 요구하며, 모두 정본 투영으로
 보호됩니다. 기존 선택 항목들은 계약상의 정의를 그대로 유지하지만, 거래 주체가
 없는 공개 시세는 `side`, `actorId`, `counterpartyId`, `orderId`, `sequence`,
 `receivedAt`을 비워 두어야 합니다. `EVENT_TYPE_CODE` 변환은 여전히 원래의
