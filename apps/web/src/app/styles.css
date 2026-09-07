@@ -1437,6 +1437,27 @@ code {
 .session-leg[data-leg="1"] .session-extreme {
   stroke: var(--teal-700);
 }
+/* The diagram of the measured quantity. It is deliberately unlike the charts
+   beside it — no grid, no axis, a drawn curve — so it never reads as a record
+   of a session. */
+.reversal-diagram {
+  background: var(--surface-sunken);
+  border-style: dashed;
+}
+.diagram-path {
+  fill: none;
+  stroke: var(--slate-600);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.diagram-point {
+  fill: var(--slate-600);
+}
+.diagram-measure {
+  stroke: var(--red-600);
+  stroke-width: 1.5;
+}
+
 /* A pointer to where the minute-by-minute session can be seen, kept visibly
    outside the evidence chain: nothing from it enters a check. */
 .intraday-reference {

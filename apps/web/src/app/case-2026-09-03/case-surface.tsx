@@ -17,7 +17,11 @@ import type {
   SessionDay,
 } from "../../lib/published-case";
 import { caseCopy, type Chapter as ChapterCopy } from "./case-copy";
-import { BaselineRangeChart, SessionPathChart } from "./session-chart";
+import {
+  BaselineRangeChart,
+  ReversalDiagram,
+  SessionPathChart,
+} from "./session-chart";
 
 /**
  * One numbered step of the case. The purpose line says what the chapter is for
@@ -136,6 +140,11 @@ export function PublishedCaseSurface({
             value: previousClose,
             label: text.previousCloseLabel,
           }}
+        />
+        <ReversalDiagram
+          caption={text.diagramCaption}
+          labels={text.diagramLabels}
+          note={text.diagramNote}
         />
         <p className="intraday-reference">
           <a

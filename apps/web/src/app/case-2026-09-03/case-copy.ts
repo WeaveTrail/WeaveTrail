@@ -14,6 +14,14 @@ export type CaseCopy = {
   previousCloseLabel: string;
   intradayLink: string;
   intradayNote: string;
+  diagramCaption: string;
+  diagramNote: string;
+  diagramLabels: {
+    previousClose: string;
+    high: string;
+    close: string;
+    reversal: string;
+  };
   columnGloss: Readonly<Record<string, string>>;
   didTitle: string;
   did: readonly string[];
@@ -124,6 +132,15 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     },
     awaitingRun: "위에서 분석을 실행하면 결과가 여기에 나옵니다.",
     previousCloseLabel: "현물 전일 종가",
+    diagramCaption: "규칙이 재는 것 · 설명용 모식도",
+    diagramNote:
+      "이 그림에는 값도, 시각도, 종목 이름도 없습니다. 실제 움직임이 아니라 규칙이 재는 양이 무엇인지만 보여 주는 그림입니다. 그날의 실제 숫자는 위의 공개 값과 아래 결과에만 있습니다.",
+    diagramLabels: {
+      previousClose: "전일 종가",
+      high: "그날 고가",
+      close: "종가",
+      reversal: "되돌림",
+    },
     intradayLink: "네이버 증권에서 장중 흐름 보기",
     intradayNote:
       "분 단위로 그날이 어떻게 움직였는지는 증권 포털에서 볼 수 있습니다. 그 화면의 값은 재배포가 허용되지 않아 이 서비스로 가져오지 않았고, 아래 판단에도 쓰이지 않습니다. 여기서 쓰는 것은 금융위원회가 공개한 일별 값뿐입니다.",
@@ -308,6 +325,15 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     },
     awaitingRun: "Run the analysis above and the result appears here.",
     previousCloseLabel: "spot previous close",
+    diagramCaption: "What the rule measures · a diagram",
+    diagramNote:
+      "This drawing carries no value, no time and no instrument. It is not a session; it shows only the quantity the rule measures. The real figures for the day are the published values above and the result below.",
+    diagramLabels: {
+      previousClose: "previous close",
+      high: "session high",
+      close: "close",
+      reversal: "reversal",
+    },
     intradayLink: "See the intraday chart on Naver Finance",
     intradayNote:
       "How the day moved minute by minute can be seen on a market portal. Those values are not redistributable, so they were not brought into this service and take no part in the checks below. What is used here is the daily record the FSC publishes.",

@@ -342,3 +342,78 @@ export function SessionPathChart({
     </figure>
   );
 }
+
+/**
+ * A diagram of the shape the rule looks for, drawn with no values and no
+ * instrument.
+ *
+ * It is not this session, and it is not any session: it carries no price, no
+ * time and no name, and its caption says so. What it shows is the quantity the
+ * rule measures — the distance from a session's high back down to its close —
+ * so a reader meets the idea before meeting the number. Every figure that
+ * belongs to the real day is drawn from the committed record elsewhere on the
+ * page, never from here.
+ */
+export function ReversalDiagram({
+  caption,
+  labels,
+  note,
+}: {
+  caption: string;
+  labels: {
+    previousClose: string;
+    high: string;
+    close: string;
+    reversal: string;
+  };
+  note: string;
+}) {
+  const baseline = 132;
+  const path =
+    "M 24 132 C 90 128, 120 62, 176 58 S 250 176, 300 168 S 396 106, 452 100";
+  return (
+    <figure className="session-figure reversal-diagram">
+      <figcaption>{caption}</figcaption>
+      <svg
+        aria-label={`${caption}. ${note}`}
+        className="session-svg"
+        role="img"
+        viewBox="0 0 520 200"
+      >
+        <line
+          className="session-previous"
+          x1="24"
+          x2="452"
+          y1={baseline}
+          y2={baseline}
+        />
+        <text className="session-tick" x="24" y={baseline + 18}>
+          {labels.previousClose}
+        </text>
+        <path className="diagram-path" d={path} />
+        <circle className="diagram-point" cx="176" cy="58" r="5" />
+        <text className="session-value" textAnchor="middle" x="176" y="44">
+          {labels.high}
+        </text>
+        <circle className="diagram-point" cx="452" cy="100" r="5" />
+        <text className="session-value" x="462" y="104">
+          {labels.close}
+        </text>
+        {/* The measured quantity: high back down to close. */}
+        <line className="diagram-measure" x1="490" x2="490" y1="58" y2="100" />
+        <line className="diagram-measure" x1="484" x2="496" y1="58" y2="58" />
+        <line className="diagram-measure" x1="484" x2="496" y1="100" y2="100" />
+        <text
+          className="session-annotation"
+          data-direction="fall"
+          textAnchor="end"
+          x="480"
+          y="83"
+        >
+          {labels.reversal}
+        </text>
+      </svg>
+      <p className="session-note">{note}</p>
+    </figure>
+  );
+}

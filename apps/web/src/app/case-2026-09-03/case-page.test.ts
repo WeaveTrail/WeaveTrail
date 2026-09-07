@@ -287,6 +287,36 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
+  it("keeps the explanatory diagram free of values, times and instruments", () => {
+    // The diagram teaches the measured quantity. It is not a session, so it may
+    // carry nothing that would read as one.
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/session-chart.tsx",
+      ),
+      "utf8",
+    );
+    const diagram = source.slice(
+      source.indexOf("export function ReversalDiagram"),
+    );
+    expect(diagram).not.toMatch(/1[0-9]{3}\.[0-9]/);
+    expect(diagram).not.toMatch(/코스피|KOSPI|2026-09-03/);
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const text = caseCopy[language];
+      expect(markup, language).toContain(text.diagramCaption);
+      expect(markup, language).toContain(text.diagramNote);
+      // It has to say outright that it is not a record of anything.
+      expect(text.diagramNote, language).toMatch(
+        /값도, 시각도, 종목 이름도 없습니다|no value, no time and no instrument/,
+      );
+      expect(text.diagramNote, language).toMatch(
+        /실제 움직임이 아니라|It is not a session/,
+      );
+    }
+  });
+
   it("points at the intraday chart without taking anything from it", () => {
     for (const language of ["ko", "en"] as const) {
       const markup = surface(language);
