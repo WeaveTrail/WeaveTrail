@@ -326,542 +326,550 @@ export function PublishedCaseSurface({
 
   return (
     <ReplayLanguageContext.Provider value={language}>
-      <section className="case-opening" aria-label={text.observations}>
-        <IntradaySessionChart
-          caption={text.intradayCaption}
-          high={INTRADAY_HIGH}
-          labels={text.intradayLabels}
-          low={INTRADAY_LOW}
-          note={text.intradayChartNote}
-          points={INTRADAY_SESSION}
-        />
-        <p className="intraday-reference">
-          <a
-            href="https://stock.naver.com/domestic/index/KPI200/price"
-            rel="noreferrer noopener"
-            target="_blank"
-          >
-            {text.intradayLink}
-          </a>
-          <span>{text.intradayNote}</span>
-        </p>
-        <div className="case-premise">
-          <h2>{text.notOurJobTitle}</h2>
-          {text.notOurJob.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-          {/* The contract records this selection policy on every analysis the
-              rule returns, so the claim above is checkable in the result below
-              rather than only asserted here. */}
-          <p className="machine-note">
-            <code>STATED_DATE_ONLY_NO_CANDIDATE_SCAN</code>
-          </p>
-        </div>
-      </section>
-
-      {/* The rail names every chapter and marks the one being read, so the
+      <div className="case-split">
+        {/* The rail names every chapter and marks the one being read, so the
           reader's position in the procedure is stated rather than inferred
           from how far the page has scrolled. Chapters already read stay
           reachable: this is a procedure to understand, not a form to submit
           in order. */}
-      <nav aria-label={text.chapterListLabel} className="case-chapter-rail">
-        <ol className="journey-progress">
-          {text.chapters.map((chapter, index) => (
-            <li
-              aria-current={index === activeChapter ? "step" : undefined}
-              key={chapter.title}
-            >
-              <button
-                className="journey-step"
-                data-complete={
-                  index !== activeChapter && readChapters.includes(index)
-                }
-                onClick={() => goToChapter(index)}
-                type="button"
+        <nav aria-label={text.chapterListLabel} className="case-chapter-rail">
+          <ol className="journey-progress">
+            {text.chapters.map((chapter, index) => (
+              <li
+                aria-current={index === activeChapter ? "step" : undefined}
+                key={chapter.title}
               >
-                <span>
-                  {index + 1}. {chapter.title}
-                </span>
-                {index === activeChapter ? (
-                  <small>{text.chapterCurrentTag}</small>
-                ) : readChapters.includes(index) ? (
-                  <small>{text.chapterReadTag}</small>
-                ) : null}
-              </button>
-            </li>
-          ))}
-        </ol>
-      </nav>
+                <button
+                  className="journey-step"
+                  data-complete={
+                    index !== activeChapter && readChapters.includes(index)
+                  }
+                  onClick={() => goToChapter(index)}
+                  type="button"
+                >
+                  <span>
+                    {index + 1}. {chapter.title}
+                  </span>
+                  {index === activeChapter ? (
+                    <small>{text.chapterCurrentTag}</small>
+                  ) : readChapters.includes(index) ? (
+                    <small>{text.chapterReadTag}</small>
+                  ) : null}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-      {/* Without scripting nothing can advance a chapter, so the hiding is
+        {/* Without scripting nothing can advance a chapter, so the hiding is
           undone and the whole case is read as one page instead of stranding
           the reader on chapter one. */}
-      <noscript>
-        <style>
-          {
-            ".case-chapter[hidden]{display:block!important}.case-chapter+.case-chapter{border-top:var(--hairline)!important}.case-chapter-rail,.chapter-controls{display:none!important}"
-          }
-        </style>
-        <p className="machine-note">{text.chaptersWithoutScript}</p>
-      </noscript>
+        <noscript>
+          <style>
+            {
+              ".case-chapter[hidden]{display:block!important}.case-chapter+.case-chapter{border-top:var(--hairline)!important}.case-chapter-rail,.chapter-controls{display:none!important}"
+            }
+          </style>
+          <p className="machine-note">{text.chaptersWithoutScript}</p>
+        </noscript>
 
-      <div className="case-chapters">
-        <Chapter
-          chapter={text.chapters[0]!}
-          index={1}
-          hidden={activeChapter !== 0}
-        >
-          <p>{text.sourcesLede}</p>
-          <dl className="case-sources">
-            <div>
-              <dt>{text.spotSource}</dt>
-              <dd>
-                <HashValue scope="sourceArtifact" value={spotArtifactHash} />
-              </dd>
-            </div>
-            <div>
-              <dt>{text.futureSource}</dt>
-              <dd>
-                <HashValue scope="sourceArtifact" value={futureArtifactHash} />
-              </dd>
-            </div>
-          </dl>
-          <h3>{text.limitsTitle}</h3>
-          {text.limits.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </Chapter>
-
-        <Chapter
-          chapter={text.chapters[1]!}
-          index={2}
-          hidden={activeChapter !== 1}
-        >
-          <p>{text.columnsLede}</p>
-          {columns.map((leg) => (
-            <div className="column-block" key={leg.legId}>
-              <h3>{text.legTableTitles[leg.legId] ?? leg.legId}</h3>
-              <table className="column-table">
-                <thead>
-                  <tr>
-                    {text.columnHeaders.map((header) => (
-                      <th key={header} scope="col">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {leg.columns.map((column) => (
-                    <tr key={column.sourceColumn}>
-                      <td>
-                        <code>{column.sourceColumn}</code>
-                      </td>
-                      <td>{text.columnGloss[column.sourceColumn] ?? "—"}</td>
-                      <td>
-                        <code>{column.targetField}</code>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-          <p className="machine-note">{text.mappingReviewed}</p>
-        </Chapter>
-
-        <Chapter
-          chapter={text.chapters[2]!}
-          index={3}
-          hidden={activeChapter !== 2}
-        >
-          <BaselineRangeChart
-            analysedDate="2026-09-03"
-            caption={text.baselineCaption}
-            days={spot}
-            language={language}
-          />
-          <dl className="scope-facts">
-            <div>
-              <dt>{text.analysedDate}</dt>
-              <dd>{parameters.analysedDate}</dd>
-            </div>
-            <div>
-              <dt>{text.baselineRange}</dt>
-              <dd>
-                {parameters.baselineRange.startDate} —{" "}
-                {parameters.baselineRange.endDateInclusive}
-              </dd>
-            </div>
-            <div>
-              <dt>{text.maximumRank}</dt>
-              <dd>{parameters.maximumBaselineRank}</dd>
-            </div>
-            <div>
-              <dt>{text.minimumAgreeing}</dt>
-              <dd>{parameters.minimumAgreeingLegs}</dd>
-            </div>
-          </dl>
-          <div className="case-legs">
-            {parameters.legs.map((leg) => (
-              <div className="case-leg" key={leg.legId}>
-                <strong>{text.legNames[leg.legId] ?? leg.legId}</strong>
-                <code>{leg.instrumentId}</code>
-                <span>
-                  {text.minimumMultiple}: {leg.minimumReversalMultiple}
-                </span>
-              </div>
-            ))}
+        <section className="case-opening" aria-label={text.observations}>
+          <div className="case-observation">
+            <IntradaySessionChart
+              caption={text.intradayCaption}
+              compact
+              high={INTRADAY_HIGH}
+              labels={text.intradayLabels}
+              low={INTRADAY_LOW}
+              note={text.intradayChartNote}
+              points={INTRADAY_SESSION}
+            />
           </div>
-          <p
-            className="threshold-origin"
-            id={PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}
-            tabIndex={-1}
-          >
-            {text.thresholdOrigin}
-          </p>
-          <details>
-            <summary>{text.exactScope}</summary>
-            <pre className="artifact-json" aria-label={text.exactScope}>
-              {JSON.stringify(proposal, null, 2)}
-            </pre>
-          </details>
-          <button
-            className="button primary case-approve"
-            disabled={approval !== null}
-            onClick={approveScope}
-            type="button"
-          >
-            {approval === null ? text.approve : text.approved}
-          </button>
-          {approvalError && (
-            <p
-              className="error-message"
-              id={PUBLISHED_CASE_APPROVAL_ERROR_ID}
-              role="alert"
-              tabIndex={-1}
+          <p className="intraday-reference">
+            <a
+              href="https://stock.naver.com/domestic/index/KPI200/price"
+              rel="noreferrer noopener"
+              target="_blank"
             >
-              {approvalError}
+              {text.intradayLink}
+            </a>
+            <span>{text.intradayNote}</span>
+          </p>
+          <div className="case-premise">
+            <h2>{text.notOurJobTitle}</h2>
+            {text.notOurJob.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+            {/* The contract records this selection policy on every analysis the
+              rule returns, so the claim above is checkable in the result below
+              rather than only asserted here. */}
+            <p className="machine-note">
+              <code>STATED_DATE_ONLY_NO_CANDIDATE_SCAN</code>
             </p>
-          )}
-          {approval && (
-            <dl className="approval-receipt">
+          </div>
+        </section>
+
+        <div className="case-chapters">
+          <Chapter
+            chapter={text.chapters[0]!}
+            index={1}
+            hidden={activeChapter !== 0}
+          >
+            <p>{text.sourcesLede}</p>
+            <dl className="case-sources">
               <div>
-                <dt>
-                  {language === "ko"
-                    ? "승인한 내용의 해시"
-                    : "Approved artifact hash"}
-                </dt>
+                <dt>{text.spotSource}</dt>
                 <dd>
-                  <HashValue
-                    scope="approvedArtifact"
-                    value={approval.approvedArtifactHash}
-                  />
+                  <HashValue scope="sourceArtifact" value={spotArtifactHash} />
                 </dd>
               </div>
               <div>
-                <dt>{language === "ko" ? "승인 시각" : "Approved at"}</dt>
+                <dt>{text.futureSource}</dt>
                 <dd>
-                  <Instant value={approval.approvedAt} />
+                  <HashValue
+                    scope="sourceArtifact"
+                    value={futureArtifactHash}
+                  />
                 </dd>
               </div>
             </dl>
-          )}
-        </Chapter>
+            <h3>{text.limitsTitle}</h3>
+            {text.limits.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </Chapter>
 
-        <Chapter
-          chapter={text.chapters[3]!}
-          index={4}
-          hidden={activeChapter !== 3}
-        >
-          <p>{text.runLede}</p>
-          <button
-            className="button primary run-button"
-            disabled={approval === null || running}
-            onClick={runCase}
-            type="button"
+          <Chapter
+            chapter={text.chapters[1]!}
+            index={2}
+            hidden={activeChapter !== 1}
           >
-            {running ? text.running : text.run}
-          </button>
-          {approval === null && (
-            <p className="step-requirement">{text.runBlocked}</p>
-          )}
-          {result && !running && (
-            <p className="step-requirement">{text.ranAlready}</p>
-          )}
-          {runError && (
+            <p>{text.columnsLede}</p>
+            {columns.map((leg) => (
+              <div className="column-block" key={leg.legId}>
+                <h3>{text.legTableTitles[leg.legId] ?? leg.legId}</h3>
+                <table className="column-table">
+                  <thead>
+                    <tr>
+                      {text.columnHeaders.map((header) => (
+                        <th key={header} scope="col">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leg.columns.map((column) => (
+                      <tr key={column.sourceColumn}>
+                        <td>
+                          <code>{column.sourceColumn}</code>
+                        </td>
+                        <td>{text.columnGloss[column.sourceColumn] ?? "—"}</td>
+                        <td>
+                          <code>{column.targetField}</code>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+            <p className="machine-note">{text.mappingReviewed}</p>
+          </Chapter>
+
+          <Chapter
+            chapter={text.chapters[2]!}
+            index={3}
+            hidden={activeChapter !== 2}
+          >
+            <BaselineRangeChart
+              analysedDate="2026-09-03"
+              caption={text.baselineCaption}
+              days={spot}
+              language={language}
+            />
+            <dl className="scope-facts">
+              <div>
+                <dt>{text.analysedDate}</dt>
+                <dd>{parameters.analysedDate}</dd>
+              </div>
+              <div>
+                <dt>{text.baselineRange}</dt>
+                <dd>
+                  {parameters.baselineRange.startDate} —{" "}
+                  {parameters.baselineRange.endDateInclusive}
+                </dd>
+              </div>
+              <div>
+                <dt>{text.maximumRank}</dt>
+                <dd>{parameters.maximumBaselineRank}</dd>
+              </div>
+              <div>
+                <dt>{text.minimumAgreeing}</dt>
+                <dd>{parameters.minimumAgreeingLegs}</dd>
+              </div>
+            </dl>
+            <div className="case-legs">
+              {parameters.legs.map((leg) => (
+                <div className="case-leg" key={leg.legId}>
+                  <strong>{text.legNames[leg.legId] ?? leg.legId}</strong>
+                  <code>{leg.instrumentId}</code>
+                  <span>
+                    {text.minimumMultiple}: {leg.minimumReversalMultiple}
+                  </span>
+                </div>
+              ))}
+            </div>
             <p
-              className="error-message"
-              id={PUBLISHED_CASE_RUN_ERROR_ID}
-              role="alert"
+              className="threshold-origin"
+              id={PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}
               tabIndex={-1}
             >
-              {runError}
+              {text.thresholdOrigin}
             </p>
-          )}
-        </Chapter>
-
-        <Chapter
-          chapter={text.chapters[4]!}
-          index={5}
-          hidden={activeChapter !== 4}
-        >
-          {result && evaluation ? (
-            <div className="case-result" aria-live="polite">
-              <div className="evaluation-heading">
-                <strong data-result={evaluation.result}>
-                  {evaluation.result}
-                </strong>
-                <code>
-                  {evaluation.ruleId}@{evaluation.ruleVersion}
-                </code>
-                <code>{result.engineVersion}</code>
-              </div>
-
-              <h3>{text.gates}</h3>
-              <div className="gate-list">
-                {evaluation.findings.map((finding, index) => (
-                  <div className="gate-row" key={`${finding.gate}-${index}`}>
-                    <strong>
-                      {text.gateNames[finding.gate] ?? finding.gate}
-                    </strong>
-                    <code className="gate-id">
-                      {finding.gate}
-                      {finding.legId
-                        ? ` · ${text.legNames[finding.legId] ?? finding.legId}`
-                        : ""}
-                    </code>
-                    <span>
-                      {text.observed} {finding.observedValue} · {text.threshold}{" "}
-                      {finding.threshold}
-                    </span>
-                    <b data-passed={finding.passed}>
-                      {finding.passed ? text.passed : text.failed}
-                    </b>
-                    <ThresholdOriginReference
-                      label={text.thresholdOriginLink}
-                      onNavigate={followCitation}
+            <details>
+              <summary>{text.exactScope}</summary>
+              <pre className="artifact-json" aria-label={text.exactScope}>
+                {JSON.stringify(proposal, null, 2)}
+              </pre>
+            </details>
+            <button
+              className="button primary case-approve"
+              disabled={approval !== null}
+              onClick={approveScope}
+              type="button"
+            >
+              {approval === null ? text.approve : text.approved}
+            </button>
+            {approvalError && (
+              <p
+                className="error-message"
+                id={PUBLISHED_CASE_APPROVAL_ERROR_ID}
+                role="alert"
+                tabIndex={-1}
+              >
+                {approvalError}
+              </p>
+            )}
+            {approval && (
+              <dl className="approval-receipt">
+                <div>
+                  <dt>
+                    {language === "ko"
+                      ? "승인한 내용의 해시"
+                      : "Approved artifact hash"}
+                  </dt>
+                  <dd>
+                    <HashValue
+                      scope="approvedArtifact"
+                      value={approval.approvedArtifactHash}
                     />
-                  </div>
-                ))}
-              </div>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{language === "ko" ? "승인 시각" : "Approved at"}</dt>
+                  <dd>
+                    <Instant value={approval.approvedAt} />
+                  </dd>
+                </div>
+              </dl>
+            )}
+          </Chapter>
 
-              {analysis && (
-                <>
-                  <p className="case-rank">
-                    {text.rankReading(
-                      analysis.rank.position,
-                      analysis.rank.populationSize,
-                    )}
-                  </p>
-                  <p className="machine-note">{text.rankCaveat}</p>
-                  {/* The position is drawn from the gate's own observed value, so
+          <Chapter
+            chapter={text.chapters[3]!}
+            index={4}
+            hidden={activeChapter !== 3}
+          >
+            <p>{text.runLede}</p>
+            <button
+              className="button primary run-button"
+              disabled={approval === null || running}
+              onClick={runCase}
+              type="button"
+            >
+              {running ? text.running : text.run}
+            </button>
+            {approval === null && (
+              <p className="step-requirement">{text.runBlocked}</p>
+            )}
+            {result && !running && (
+              <p className="step-requirement">{text.ranAlready}</p>
+            )}
+            {runError && (
+              <p
+                className="error-message"
+                id={PUBLISHED_CASE_RUN_ERROR_ID}
+                role="alert"
+                tabIndex={-1}
+              >
+                {runError}
+              </p>
+            )}
+          </Chapter>
+
+          <Chapter
+            chapter={text.chapters[4]!}
+            index={5}
+            hidden={activeChapter !== 4}
+          >
+            {result && evaluation ? (
+              <div className="case-result" aria-live="polite">
+                <div className="evaluation-heading">
+                  <strong data-result={evaluation.result}>
+                    {evaluation.result}
+                  </strong>
+                  <code>
+                    {evaluation.ruleId}@{evaluation.ruleVersion}
+                  </code>
+                  <code>{result.engineVersion}</code>
+                </div>
+
+                <h3>{text.gates}</h3>
+                <div className="gate-list">
+                  {evaluation.findings.map((finding, index) => (
+                    <div className="gate-row" key={`${finding.gate}-${index}`}>
+                      <strong>
+                        {text.gateNames[finding.gate] ?? finding.gate}
+                      </strong>
+                      <code className="gate-id">
+                        {finding.gate}
+                        {finding.legId
+                          ? ` · ${text.legNames[finding.legId] ?? finding.legId}`
+                          : ""}
+                      </code>
+                      <span>
+                        {text.observed} {finding.observedValue} ·{" "}
+                        {text.threshold} {finding.threshold}
+                      </span>
+                      <b data-passed={finding.passed}>
+                        {finding.passed ? text.passed : text.failed}
+                      </b>
+                      <ThresholdOriginReference
+                        label={text.thresholdOriginLink}
+                        onNavigate={followCitation}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {analysis && (
+                  <>
+                    <p className="case-rank">
+                      {text.rankReading(
+                        analysis.rank.position,
+                        analysis.rank.populationSize,
+                      )}
+                    </p>
+                    <p className="machine-note">{text.rankCaveat}</p>
+                    {/* The position is drawn from the gate's own observed value, so
                     the picture cannot mark a rank the gate did not report. */}
-                  <BaselineRankFigures
-                    analysis={analysis}
-                    findings={evaluation.findings}
-                    legNames={text.legNames}
-                    text={text}
-                  />
+                    <BaselineRankFigures
+                      analysis={analysis}
+                      findings={evaluation.findings}
+                      legNames={text.legNames}
+                      text={text}
+                    />
 
-                  <h3>{text.observations}</h3>
-                  <div className="case-observations">
-                    {analysis.legs.map((leg) => (
-                      <dl className="case-observation" key={leg.legId}>
-                        <div>
-                          <dt>{text.legNames[leg.legId] ?? leg.legId}</dt>
-                          <dd>
-                            <code>{leg.instrumentId}</code>
-                          </dd>
-                        </div>
-                        {(
-                          [
-                            ["open", leg.openPrice],
-                            ["high", leg.highPrice],
-                            ["low", leg.lowPrice],
-                            ["close", leg.closePrice],
-                            ["netChange", leg.netChange],
-                            ["sessionReversal", leg.sessionReversal],
-                            ["reversalMultiple", leg.reversalMultiple],
-                          ] as const
-                        ).map(([column, value]) => (
+                    <h3>{text.observations}</h3>
+                    <div className="case-observations">
+                      {analysis.legs.map((leg) => (
+                        <dl className="case-observation" key={leg.legId}>
+                          <div>
+                            <dt>{text.legNames[leg.legId] ?? leg.legId}</dt>
+                            <dd>
+                              <code>{leg.instrumentId}</code>
+                            </dd>
+                          </div>
+                          {(
+                            [
+                              ["open", leg.openPrice],
+                              ["high", leg.highPrice],
+                              ["low", leg.lowPrice],
+                              ["close", leg.closePrice],
+                              ["netChange", leg.netChange],
+                              ["sessionReversal", leg.sessionReversal],
+                              ["reversalMultiple", leg.reversalMultiple],
+                            ] as const
+                          ).map(([column, value]) => (
+                            <div key={column}>
+                              <dt>{text.columns[column]}</dt>
+                              <dd>
+                                <code>{value}</code>
+                              </dd>
+                            </div>
+                          ))}
+                          <div>
+                            <dt>{text.columns.relation}</dt>
+                            <dd>
+                              {text.relations[leg.relation] ?? leg.relation}
+                            </dd>
+                          </div>
+                        </dl>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {sensitivity && (
+                  <>
+                    <h3>{text.divergenceTitle}</h3>
+                    <p>{text.divergenceLede}</p>
+                    <DenominatorDivergenceFigures
+                      findings={evaluation.findings}
+                      legNames={text.legNames}
+                      legs={sensitivity.legs}
+                      text={text}
+                    />
+                    <p>{text.divergenceCaveat}</p>
+                    <p className="machine-note">
+                      <code>{sensitivity.comparison}</code>{" "}
+                      <code>{sensitivity.interpretation}</code>
+                    </p>
+                  </>
+                )}
+
+                <div className="hash-block">
+                  <HashValue
+                    scope="canonicalResult"
+                    value={result.canonicalResultHash}
+                  />
+                </div>
+
+                <h3>{text.evidenceTitle}</h3>
+                <p>{text.evidenceLede}</p>
+                {result.sourceTrace.map((entry) => (
+                  <details className="source-evidence" key={entry.eventId}>
+                    <summary>
+                      {entry.instrumentId} · {entry.tradingDate}
+                    </summary>
+                    <dl className="source-values">
+                      <div>
+                        <dt>eventId</dt>
+                        <dd>
+                          <code>{entry.eventId}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>rawRowHash</dt>
+                        <dd>
+                          <HashValue scope="rawRow" value={entry.rawRowHash} />
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          {language === "ko"
+                            ? "원본 행 번호"
+                            : "Source row number"}
+                        </dt>
+                        <dd>{entry.sourceRow.coordinate.rowNumber}</dd>
+                      </div>
+                      {Object.entries(entry.sourceRow.values).map(
+                        ([column, value]) => (
                           <div key={column}>
-                            <dt>{text.columns[column]}</dt>
+                            <dt>{column}</dt>
                             <dd>
                               <code>{value}</code>
                             </dd>
                           </div>
-                        ))}
-                        <div>
-                          <dt>{text.columns.relation}</dt>
-                          <dd>
-                            {text.relations[leg.relation] ?? leg.relation}
-                          </dd>
-                        </div>
-                      </dl>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {sensitivity && (
-                <>
-                  <h3>{text.divergenceTitle}</h3>
-                  <p>{text.divergenceLede}</p>
-                  <DenominatorDivergenceFigures
-                    findings={evaluation.findings}
-                    legNames={text.legNames}
-                    legs={sensitivity.legs}
-                    text={text}
-                  />
-                  <p>{text.divergenceCaveat}</p>
-                  <p className="machine-note">
-                    <code>{sensitivity.comparison}</code>{" "}
-                    <code>{sensitivity.interpretation}</code>
-                  </p>
-                </>
-              )}
-
-              <div className="hash-block">
-                <HashValue
-                  scope="canonicalResult"
-                  value={result.canonicalResultHash}
-                />
+                        ),
+                      )}
+                    </dl>
+                  </details>
+                ))}
               </div>
+            ) : (
+              <p className="awaiting-result">
+                {approval === null ? text.runBlocked : text.awaitingRun}
+              </p>
+            )}
+          </Chapter>
 
-              <h3>{text.evidenceTitle}</h3>
-              <p>{text.evidenceLede}</p>
-              {result.sourceTrace.map((entry) => (
-                <details className="source-evidence" key={entry.eventId}>
-                  <summary>
-                    {entry.instrumentId} · {entry.tradingDate}
-                  </summary>
-                  <dl className="source-values">
-                    <div>
-                      <dt>eventId</dt>
-                      <dd>
-                        <code>{entry.eventId}</code>
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>rawRowHash</dt>
-                      <dd>
-                        <HashValue scope="rawRow" value={entry.rawRowHash} />
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>
-                        {language === "ko"
-                          ? "원본 행 번호"
-                          : "Source row number"}
-                      </dt>
-                      <dd>{entry.sourceRow.coordinate.rowNumber}</dd>
-                    </div>
-                    {Object.entries(entry.sourceRow.values).map(
-                      ([column, value]) => (
-                        <div key={column}>
-                          <dt>{column}</dt>
-                          <dd>
-                            <code>{value}</code>
-                          </dd>
-                        </div>
-                      ),
-                    )}
-                  </dl>
-                </details>
-              ))}
-            </div>
-          ) : (
-            <p className="awaiting-result">
-              {approval === null ? text.runBlocked : text.awaitingRun}
-            </p>
-          )}
-        </Chapter>
-
-        <Chapter
-          chapter={text.chapters[5]!}
-          index={6}
-          hidden={activeChapter !== 5}
-        >
-          <div className="case-stop-grid">
-            {/* Before a run nothing has been decided and no hash has been
+          <Chapter
+            chapter={text.chapters[5]!}
+            index={6}
+            hidden={activeChapter !== 5}
+          >
+            <div className="case-stop-grid">
+              {/* Before a run nothing has been decided and no hash has been
               returned, so the same procedure is stated in the present tense
               until there is a result to speak of in the past. */}
-            <div>
-              <h3>{result ? text.didTitle : text.willDoTitle}</h3>
-              <ul>
-                {(result ? text.did : text.willDo).map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            </div>
-            {/* What the result says is itself rule output, read from the returned
+              <div>
+                <h3>{result ? text.didTitle : text.willDoTitle}</h3>
+                <ul>
+                  {(result ? text.did : text.willDo).map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+              {/* What the result says is itself rule output, read from the returned
               analysis, so it appears only once the rule has returned one. What
               it does not say is a disclosure about the data, and stands before
               the visitor commits to anything. */}
-            <div>
-              <h3>{text.doesNotSayTitle}</h3>
-              <ul>
-                {text.doesNotSay.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {analysis ? (
-            <div className="case-says">
-              <h3>{text.saysTitle}</h3>
-              <ul>
-                {text
-                  .says(analysis.rank.position, analysis.rank.populationSize)
-                  .map((line) => (
+              <div>
+                <h3>{text.doesNotSayTitle}</h3>
+                <ul>
+                  {text.doesNotSay.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
-              </ul>
+                </ul>
+              </div>
             </div>
-          ) : null}
-          <p className="case-closing">{text.closing}</p>
-        </Chapter>
-      </div>
+            {analysis ? (
+              <div className="case-says">
+                <h3>{text.saysTitle}</h3>
+                <ul>
+                  {text
+                    .says(analysis.rank.position, analysis.rank.populationSize)
+                    .map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                </ul>
+              </div>
+            ) : null}
+            <p className="case-closing">{text.closing}</p>
+          </Chapter>
+        </div>
 
-      {/* One step back, one step forward, and the position between them. The
+        {/* One step back, one step forward, and the position between them. The
           reader never has to hunt for the control that advances the case. */}
-      <div className="chapter-controls">
-        {/* A run can land while the reader is reading another chapter. Leaving
+        <div className="chapter-controls">
+          {/* A run can land while the reader is reading another chapter. Leaving
             them there is deliberate, but the result and the run chapter's own
             note are both hidden from where they stand, so the finish is stated
             here, in the one row that is visible from every chapter. */}
-        {result && activeChapter !== RESULT_CHAPTER && (
-          <p className="run-finished" role="status">
-            <span>{text.runFinishedElsewhere}</span>
-            <button
-              className="button"
-              onClick={() => goToChapter(RESULT_CHAPTER)}
-              type="button"
-            >
-              {text.goToResult}
-            </button>
-          </p>
-        )}
-        <button
-          className="button"
-          disabled={activeChapter === 0}
-          onClick={() => goToChapter(activeChapter - 1)}
-          type="button"
-        >
-          {text.previousChapter}
-        </button>
-        <span aria-live="polite" className="chapter-position">
-          {text.chapterPositionOf(activeChapter + 1, chapterCount)}
-        </span>
-        <button
-          className="button primary"
-          disabled={activeChapter === chapterCount - 1}
-          onClick={() => goToChapter(activeChapter + 1)}
-          type="button"
-        >
-          {text.nextChapter}
-        </button>
+          {result && activeChapter !== RESULT_CHAPTER && (
+            <p className="run-finished" role="status">
+              <span>{text.runFinishedElsewhere}</span>
+              <button
+                className="button"
+                onClick={() => goToChapter(RESULT_CHAPTER)}
+                type="button"
+              >
+                {text.goToResult}
+              </button>
+            </p>
+          )}
+          <button
+            className="button"
+            disabled={activeChapter === 0}
+            onClick={() => goToChapter(activeChapter - 1)}
+            type="button"
+          >
+            {text.previousChapter}
+          </button>
+          <span aria-live="polite" className="chapter-position">
+            {text.chapterPositionOf(activeChapter + 1, chapterCount)}
+          </span>
+          <button
+            className="button primary"
+            disabled={activeChapter === chapterCount - 1}
+            onClick={() => goToChapter(activeChapter + 1)}
+            type="button"
+          >
+            {text.nextChapter}
+          </button>
+        </div>
       </div>
     </ReplayLanguageContext.Provider>
   );

@@ -409,6 +409,34 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
+  it("runs the chapter list beside the case, not above it", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      // The rail used to be a band between the opening and the chapter, which
+      // pushed the step it describes below the fold. It now shares one region
+      // with the opening and the chapters, so every step is named on screen
+      // from the first paint and the chapter begins under a band.
+      const split = markup.indexOf('class="case-split"');
+      expect(split).toBeGreaterThan(-1);
+      for (const inside of [
+        'class="case-chapter-rail"',
+        'class="case-opening"',
+        'class="case-chapters"',
+        'class="chapter-controls"',
+      ])
+        expect(markup.indexOf(inside), `${language} ${inside}`).toBeGreaterThan(
+          split,
+        );
+      // The rail comes first so it is reached before the case it indexes.
+      expect(markup.indexOf('class="case-chapter-rail"')).toBeLessThan(
+        markup.indexOf('class="case-opening"'),
+      );
+      // The chart is drawn in its short form: the opening is a band the
+      // chapters are read under, not a screenful to scroll past.
+      expect(markup, language).toContain("session-figure compact");
+    }
+  });
+
   it("leaves the day's chart and premise outside the stepped chapters", () => {
     for (const language of ["ko", "en"] as const) {
       const text = caseCopy[language];

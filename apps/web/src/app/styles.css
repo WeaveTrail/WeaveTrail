@@ -1278,12 +1278,62 @@ code {
    carry the separation instead. */
 .case-chapters .case-chapter {
   border-top: 0;
-  padding-block: 24px 0;
+  padding-block: 0;
+}
+/* The rail is a column beside the chapter, not a band above it. Sitting above,
+   it pushed the step it describes below the fold, which is the one thing this
+   layout exists to prevent. Sticky, so the whole procedure stays in view and
+   any chapter is one click away at any scroll position. */
+.case-split {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(0, 3fr);
+  gap: 12px 32px;
+  align-items: start;
+  padding-top: 20px;
+  border-top: var(--hairline);
+}
+.case-split > .case-opening,
+.case-split > .case-chapters,
+.case-split > .chapter-controls,
+.case-split > noscript {
+  grid-column: 2;
+}
+.case-split > .case-chapter-rail {
+  position: sticky;
+  top: calc(var(--appbar-height) + 16px);
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+  max-height: calc(100vh - var(--appbar-height) - 32px);
+  overflow-y: auto;
 }
 .case-chapter-rail {
-  margin-top: 32px;
   padding-block: 4px;
-  border-block: var(--hairline);
+}
+/* One entry per line in the column; the six-across grid was for a band. */
+.case-split .case-chapter-rail .journey-progress {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 900px) {
+  .case-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case-split > .case-opening,
+  .case-split > .case-chapters,
+  .case-split > .chapter-controls,
+  .case-split > noscript,
+  .case-split > .case-chapter-rail {
+    grid-column: 1;
+  }
+  .case-split > .case-chapter-rail {
+    position: static;
+    grid-row: auto;
+    max-height: none;
+    border-bottom: var(--hairline);
+  }
+  .case-split .case-chapter-rail .journey-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 /* A grid rather than a wrapping row: six equal columns break to three and to
    two without ever leaving one entry stretched across a row of its own. */
@@ -1319,8 +1369,8 @@ code {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 32px;
-  padding-top: 24px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: var(--hairline);
 }
 /* Stated in the row that is visible from every chapter, because a run can
@@ -1388,10 +1438,46 @@ code {
 .chapter-body > h3 {
   margin-top: 28px;
 }
+/* The frame the chapters are read inside, kept to a band. The chart in its
+   short form sits beside what the page refuses to claim rather than above it,
+   so the first step is reachable without scrolling past a screenful first. */
 .case-opening {
   display: grid;
-  gap: 24px;
-  padding-block: 8px 32px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px 24px;
+  align-items: start;
+  padding-block: 0 16px;
+}
+/* Chart and premise share one row; the provenance note runs full width under
+   them, where it wraps in two lines instead of the six a narrow column costs. */
+.case-observation {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.case-opening .case-premise {
+  grid-column: 2;
+  grid-row: 1;
+  max-width: none;
+}
+.case-opening .intraday-reference {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  max-width: none;
+  padding: 8px 14px;
+}
+@media (max-width: 900px) {
+  .case-observation,
+  .case-opening .case-premise,
+  .case-opening .intraday-reference {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+@media (max-width: 900px) {
+  .case-opening {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .case-premise {
   max-width: var(--prose-max);
