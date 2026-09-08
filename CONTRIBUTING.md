@@ -58,7 +58,9 @@ reviewed set of changes for production. Do not push directly to `develop` or
 work starts from an up-to-date `origin/develop`. If `origin/develop` is
 unexpectedly unavailable, stop and report it rather than silently using `main`
 as the base. Existing pull requests keep their current base unless their owner
-requests a retarget.
+requests a retarget. An explicitly authorized emergency hotfix is the
+exception: create it from an up-to-date `origin/main`, target `main`, and carry
+the merged fix back into `develop` before ordinary development continues.
 
 Use these distinct title forms:
 

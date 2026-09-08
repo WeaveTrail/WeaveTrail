@@ -29,9 +29,12 @@ reproducible check confirms it.
   pull request into `develop`; do not push directly to `develop` or `main`.
 - `develop` is the integration branch. `main` is reserved for production
   promotion through a separate `develop`-to-`main` pull request.
-- Start new work from an up-to-date `origin/develop`. If that branch is
-  unexpectedly unavailable, stop and report it instead of silently using
+- Start ordinary new work from an up-to-date `origin/develop`. If that branch
+  is unexpectedly unavailable, stop and report it instead of silently using
   `main`.
+- An explicitly authorized emergency hotfix starts from an up-to-date
+  `origin/main` and targets `main`. After it merges, carry the same change into
+  `develop` so the integration branch does not regress the fix.
 - Existing pull requests retain their current base unless the owner requests
   a retargeting.
 

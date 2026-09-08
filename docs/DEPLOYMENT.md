@@ -61,6 +61,11 @@ continue to receive isolated previews. Before a release, verify in Vercel that
 the Production environment still tracks `main`; changing the repository's
 default branch must not change the production branch.
 
+An emergency production hotfix is an explicit exception to the normal release
+path. Create its branch from the current `origin/main` and open it into `main`
+so unreleased `develop` changes are not included. After the hotfix reaches
+production, carry the same change into `develop` before the next release.
+
 The published quotation flow also requires verification at the promoted revision;
 this document does not claim that the current checkout has been deployed.
 

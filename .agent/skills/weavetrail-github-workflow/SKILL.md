@@ -11,12 +11,13 @@ acting.
 
 ## Conventions
 
-- Start new work from an up-to-date `origin/develop` and open its pull request
-  into `develop` by default. Never silently substitute `main` if `develop` is
-  unavailable.
+- Start ordinary new work from an up-to-date `origin/develop` and open its pull
+  request into `develop` by default. Never silently substitute `main` if
+  `develop` is unavailable.
 - Reserve `main` for an explicitly requested release pull request from
-  `develop`, or for an explicitly authorized emergency hotfix. After a hotfix,
-  carry the same change back into `develop`.
+  `develop`, or for an explicitly authorized emergency hotfix. Create a hotfix
+  branch from an up-to-date `origin/main`, target `main`, and then carry the
+  merged change back into `develop`.
 - Do not retarget an existing pull request unless the user explicitly requests
   it.
 - Issue title: `<type>: <lowercase summary>`.
