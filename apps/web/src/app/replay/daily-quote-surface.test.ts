@@ -48,9 +48,13 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     expect(markup).not.toContain("approve its mapping and case");
     expect(markup).toContain("Ready to normalize");
     expect(markup).not.toContain("Repeat the same approved case");
-    expect(markup).toContain("one licensed published daily-quote source");
+    expect(markup).toContain("licensed published sources");
     expect(markup).toContain("Complete source record");
     expect(markup).toContain(scenario.provenance!.recordUrl);
+    expect(markup).toContain('value="baseline"');
+    expect(markup).toContain('value="shuffle"');
+    expect(markup).not.toContain('value="duplicate"');
+    expect(markup).toContain("Neither control invents a value or participant");
     expect(markup).not.toContain(
       "Synthetic committed sources, a deterministic fixture mapping",
     );
@@ -78,7 +82,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
   it("keeps case approval and repeat guidance for a source with a manifest", async () => {
     const prepared = await prepareReplayScenarios();
     const scenario = prepared.scenarios.find(
-      ({ value }) => value === "rapid-price-lift-supported.csv",
+      ({ value }) => value === "published-execution-fix44.csv",
     )!;
     expect(scenario).toHaveProperty("manifest");
     const markup = renderToStaticMarkup(
@@ -95,8 +99,10 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     const scenario: ReplayScenarioOption = {
       value: "concentrated-buy-dialect-a.csv",
       label: "Synthetic daily interpretation specimen",
+      purpose: "ENGINE_REGRESSION",
       sourceArtifactHash: proposal.sourceArtifactHash,
       rows,
+      availableMutations: ["baseline", "shuffle", "duplicate"],
       provenance:
         syntheticSourceProvenanceByArtifact["concentrated-buy-dialect-a.csv"],
     };

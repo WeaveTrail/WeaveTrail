@@ -9,13 +9,17 @@ import {
   type RapidPriceLiftGate,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
+import {
+  publishedReplaySourceCatalog,
+  publishedReplaySources,
+} from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   actorlessMultiInstrumentScenario,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   committedReplayScenarios,
+  replayScenarioCatalog,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
@@ -62,6 +66,18 @@ const sources: Record<string, Source> = {
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   ...rapidPriceLiftScenarios,
   ...publishedReplaySources,
+};
+
+const sourceCatalog: Record<
+  string,
+  {
+    purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION";
+    availableInCaseReplay: boolean;
+    availableMutations: readonly ("baseline" | "shuffle" | "duplicate")[];
+  }
+> = {
+  ...replayScenarioCatalog,
+  ...publishedReplaySourceCatalog,
 };
 
 function approvalFor(
@@ -140,6 +156,9 @@ function publication() {
       return {
         scenario,
         label: source.label,
+        purpose: sourceCatalog[scenario]!.purpose,
+        availableInCaseReplay: sourceCatalog[scenario]!.availableInCaseReplay,
+        availableMutations: sourceCatalog[scenario]!.availableMutations,
         workflowState: workflow.state,
         result: evaluation?.result ?? null,
         inconclusiveReason:

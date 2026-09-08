@@ -1,6 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import {
   MappingResponseSchema,
   ReplayReviewResponseSchema,
@@ -10,7 +8,6 @@ import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { committedReplaySources } from "../../../lib/replay-sources";
 import { replayMapping } from "../../../lib/mapping-provider";
 import { prepareReplayScenarios } from "../../replay/prepare-scenarios";
-import { CaseReplay } from "../../replay/case-replay";
 import { POST } from "./route";
 import { POST as replay } from "../replay/route";
 
@@ -228,19 +225,16 @@ describe("configured mapping and replay boundary", () => {
     },
   );
 
-  it("prepares the page without network and blocks eligible fixture approval before a configured request", async () => {
+  it("prepares the reviewer page without exposing configured-provider regression fixtures", async () => {
     const prepared = await prepareReplayScenarios();
-    const option = prepared.scenarios.find(
-      (option) => option.value === scenario,
-    )!;
-    expect(option.mappingRequestRequired).toBe(true);
-    const markup = renderToStaticMarkup(
-      createElement(CaseReplay, { ...prepared, scenarios: [option] }),
+    expect(prepared.scenarios.some((option) => option.value === scenario)).toBe(
+      false,
     );
-    expect(markup).toContain("Request mapping proposal");
-    expect(markup).toContain("REVIEW_REQUIRED");
-    expect(markup).not.toContain("Executed mapping proposal");
-    expect(markup).toMatch(/disabled=""[^>]*>Approve executed mapping/);
+    expect(
+      prepared.scenarios.every(
+        (option) => option.mappingRequestRequired === false,
+      ),
+    ).toBe(true);
     expect(JSON.stringify(prepared)).not.toContain(secret);
     expect(JSON.stringify(prepared)).not.toContain(model);
     expect(transport).not.toHaveBeenCalled();

@@ -48,7 +48,7 @@ const copy: Readonly<
         href: "/replay?mode=working",
         guided: false,
         detail:
-          "The same case controls without the steps. Choose any committed source, approve it yourself, use the source-order and duplicate variations, and load the published market data.",
+          "The same case controls without the steps. Choose a reviewer-facing source, approve it yourself, and use the input variations declared for that source.",
       },
     ],
   },
@@ -77,7 +77,7 @@ const copy: Readonly<
         href: "/replay?mode=working",
         guided: false,
         detail:
-          "단계 안내 없이 같은 기능을 씁니다. 원본 자료를 직접 고르고, 거래 순서를 바꾸거나 일부 거래를 반복해 결과 차이를 볼 수 있습니다. 금융위원회 공개 시장데이터도 여기서 불러옵니다.",
+          "단계 안내 없이 같은 기능을 씁니다. 검토용 원본을 직접 고르고 승인한 뒤, 그 원본에 선언된 입력 변경을 사용합니다.",
       },
     ],
   },

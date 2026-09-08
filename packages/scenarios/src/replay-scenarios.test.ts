@@ -1,12 +1,32 @@
 import { describe, expect, it } from "vitest";
+import { ReplayScenarioSchema } from "@weavetrail/contracts";
 
-import { committedReplayScenarios } from "./replay-scenarios";
+import {
+  committedReplayScenarios,
+  replayScenarioCatalog,
+  reviewerFacingReplayScenarios,
+} from "./replay-scenarios";
 import {
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
 } from "./source-mappings";
 
 describe("committed replay scenarios", () => {
+  it("classifies every source without removing regression fixtures from the contract", () => {
+    expect(Object.keys(replayScenarioCatalog)).toEqual(
+      Object.keys(committedReplayScenarios),
+    );
+    for (const [name, metadata] of Object.entries(replayScenarioCatalog)) {
+      expect(ReplayScenarioSchema.parse(name)).toBe(name);
+      expect(metadata.availableMutations).toContain("baseline");
+    }
+    expect(
+      Object.entries(replayScenarioCatalog)
+        .filter(([, metadata]) => metadata.availableInCaseReplay)
+        .map(([name]) => name),
+    ).toEqual(Object.keys(reviewerFacingReplayScenarios));
+  });
+
   it("exports only synthetic sources from the synthetic scenario registry", () => {
     expect(
       Object.values(committedReplayScenarios).map(

@@ -15,10 +15,17 @@ verification. It is not a production market-surveillance system.
   not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
 - The deployment configuration uses fixture proposals over committed synthetic
   and licensed published source artifacts; it contains no model-provider credential.
-- Case Replay uses a supported synthetic case and a separate Dialect B mapping
-  review example. Dialect B has no rule manifest; its justified override cannot
-  authorize the worked case. The guide is not a missing/conflicting-source
+- Case Replay uses the published-schema FIX 4.4 projection as its supported
+  synthetic case and the actorless H0STCNT0 projection as its separate mapping
+  review example. H0STCNT0 has no rule manifest; acknowledging its absent actor
+  cannot authorize the worked case. The guide is not a missing/conflicting-source
   scenario suite.
+- The source picker contains published-schema projections, licensed published
+  sources, and temporary engine-regression fallbacks for `NOT_SUPPORTED` and
+  `INCONCLUSIVE`. Other placeholders remain reachable to tests and the replay
+  API but are not offered to a reviewer. Licensed published sources offer only
+  baseline and row-order shuffle; no control invents a value, participant, or
+  pattern verdict.
 - Guided completion preserves approvals and results only in the mounted
   browser view. Refresh starts unapproved. Repeating a case compares two actual
   hashes for same-input repeatability; it establishes neither authenticity nor

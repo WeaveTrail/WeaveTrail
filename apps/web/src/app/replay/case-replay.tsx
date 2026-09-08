@@ -50,8 +50,10 @@ type Mutation = "baseline" | "shuffle" | "duplicate";
 export type ReplayScenarioOption = {
   value: ReplayScenario;
   label: string;
+  purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION";
   sourceArtifactHash: string;
   rows: ReplayRequest["rows"];
+  availableMutations: readonly Mutation[];
   manifest?: CaseManifestProposal;
   provenance?: SourceProvenance;
   mappingRequestRequired?: boolean;
@@ -69,8 +71,8 @@ export type CaseReplayProps = {
   language?: Language;
 };
 
-const workedCase = "rapid-price-lift-supported.csv";
-const reviewExample = "concentrated-buy-dialect-b.jsonl";
+const workedCase = "published-execution-fix44.csv";
+const reviewExample = "published-execution-h0stcnt0.jsonl";
 
 /** Where the rail sends a visitor whose step is performed in the case column. */
 export const GUIDE_TARGET_EXAMPLE = "guide-target-example";
@@ -368,15 +370,15 @@ const configuredProposalOverride: Readonly<
 > = {
   en: {
     purpose:
-      "The worked case uses a fixture proposal. The separate Dialect B example requests a configured proposal and stops if validation fails. Review each proposal's displayed provider and evidence before approval.",
+      "The worked case follows published FIX 4.4 execution fields. The separate H0STCNT0 example has no participant field and stops until a reviewer acknowledges that absence. Review each proposal's displayed provider and evidence before approval.",
     action:
-      "Request and review the separate example's mapping, then approve the worked case's own mapping.",
+      "Review and approve the separate example's mapping, then approve the worked case's own mapping.",
   },
   ko: {
     purpose:
-      "이 사례는 미리 준비된 예시 제안을 씁니다. 별도의 Dialect B 예시는 설정된 제공자에게 제안을 요청하고, 검증에 실패하면 거기서 멈춥니다. 승인하기 전에 제안마다 표시된 제공자와 근거를 확인하세요.",
+      "이 사례는 공개 FIX 4.4 체결 항목을 따릅니다. 별도의 H0STCNT0 예시에는 참여자 항목이 없으며, 검토자가 그 부재를 확인하기 전까지 멈춥니다. 승인하기 전에 제안마다 표시된 제공자와 근거를 확인하세요.",
     action:
-      "별도 예시의 연결 제안을 요청해 검토한 뒤, 이 사례의 연결 제안을 승인하세요.",
+      "별도 예시의 연결 제안을 검토해 승인한 뒤, 이 사례의 연결 제안을 승인하세요.",
   },
 };
 
@@ -1059,7 +1061,7 @@ export function CaseReplay({
   language = "en",
 }: CaseReplayProps) {
   const requestGeneration = useRef(0);
-  const focusPending = useRef(false);
+  const [focusPending, setFocusPending] = useState(false);
   const previousGuided = useRef(guided);
   const lastSubmittedRows = useRef<ReplayRequest["rows"] | null>(null);
   const [submittedOrder, setSubmittedOrder] = useState<string[] | null>(null);
@@ -1088,6 +1090,7 @@ export function CaseReplay({
     useState<MappingResponse | null>(null);
   const [requestingMapping, setRequestingMapping] = useState(false);
   const selectedScenario = scenarios.find(({ value }) => value === scenario)!;
+  const selectedMutations = selectedScenario.availableMutations;
   const proposal =
     requestedMapping?.proposal ??
     proposals[selectedScenario.sourceArtifactHash]!;
@@ -1102,9 +1105,9 @@ export function CaseReplay({
   const reviewScope = mappingExample ? "example" : "case";
   const reviewInputId = (fieldPath: string) =>
     `mapping-review-${reviewScope}-${fieldPath.replace(".", "-")}`;
-  const exampleScenario = scenarios.find(
-    ({ value }) => value === reviewExample,
-  );
+  const exampleScenario =
+    scenarios.find(({ value }) => value === reviewExample) ??
+    scenarios.find(({ value }) => value === "concentrated-buy-dialect-b.jsonl");
   const completeResult =
     result?.workflowState === "REPLAYED" &&
     "evaluation" in result &&
@@ -1165,7 +1168,7 @@ export function CaseReplay({
   }, [guided, guidedScenario]);
 
   function goToChapter(next: number) {
-    focusPending.current = true;
+    setFocusPending(true);
     setChapter(next);
   }
 
@@ -1182,9 +1185,9 @@ export function CaseReplay({
   }
 
   function focusChapterTitle(node: HTMLHeadingElement | null) {
-    if (node && focusPending.current) {
+    if (node && focusPending) {
       node.focus();
-      focusPending.current = false;
+      setFocusPending(false);
     }
   }
 
@@ -1236,14 +1239,20 @@ export function CaseReplay({
    */
   type StepAction = {
     kind: "perform" | "locate";
+    action:
+      | "approve-mapping"
+      | "reveal-example"
+      | "approve-case"
+      | "run-replay"
+      | "reveal-evidence"
+      | "repeat-replay"
+      | "complete-guide";
     label: string;
     disabled: boolean;
     /** Whether this action has already been carried out on this step. The
      *  step's continue condition cannot answer this: a step that gates nothing
      *  is satisfied from the start while its action is still outstanding. */
     done?: boolean;
-    /** A performing action returns its promise so a caller can await it. */
-    onClick: () => void | Promise<void>;
   };
 
   /**
@@ -1298,7 +1307,7 @@ export function CaseReplay({
   function completeGuide() {
     if (!repeatMatches) return;
     completeChapter(chapter);
-    focusPending.current = true;
+    setFocusPending(true);
     onGuideComplete?.();
   }
 
@@ -1336,54 +1345,73 @@ export function CaseReplay({
     exampleApproved || !exampleScenario
       ? {
           kind: "perform",
+          action: "approve-mapping",
           label: approveMappingLabel,
           disabled: approveMappingBlocked,
           done: approval !== null,
-          onClick: () => approveMapping(),
         }
       : {
           kind: "locate",
+          action: "reveal-example",
           label: ui.goToExample,
           disabled: false,
-          onClick: () => revealExampleWork(),
         },
     {
       kind: "perform",
+      action: "approve-case",
       label: approveCaseLabel,
       disabled: !approval,
       done: caseApproval !== null,
-      onClick: () => approveCase(),
     },
     {
       kind: "perform",
+      action: "run-replay",
       label: runLabel,
       disabled: runBlocked,
       done: completeResult,
-      onClick: () => runReplay(),
     },
     completeResult
       ? {
           kind: "locate",
+          action: "reveal-evidence",
           label: ui.goToEvidence,
           disabled: false,
-          onClick: () => revealTarget(GUIDE_TARGET_EVIDENCE),
         }
       : null,
     {
       kind: "perform",
+      action: "repeat-replay",
       label: repeatLabel,
       disabled: repeatBlocked,
       done: repeatMatches,
-      onClick: () => runReplay(true),
     },
     {
       kind: "perform",
+      action: "complete-guide",
       label: workingModeLabel,
       disabled: !repeatMatches,
-      onClick: completeGuide,
     },
   ];
   const stepAction = guided ? (stepActions[chapter] ?? null) : null;
+
+  function performStepAction(action: StepAction["action"]) {
+    switch (action) {
+      case "approve-mapping":
+        return approveMapping();
+      case "reveal-example":
+        return revealExampleWork();
+      case "approve-case":
+        return approveCase();
+      case "run-replay":
+        return runReplay();
+      case "reveal-evidence":
+        return revealTarget(GUIDE_TARGET_EVIDENCE);
+      case "repeat-replay":
+        return runReplay(true);
+      case "complete-guide":
+        return completeGuide();
+    }
+  }
 
   function invalidateResult() {
     requestGeneration.current += 1;
@@ -1600,7 +1628,7 @@ export function CaseReplay({
                             : undefined
                         }
                         disabled={stepAction.disabled}
-                        onClick={stepAction.onClick}
+                        onClick={() => performStepAction(stepAction.action)}
                         type="button"
                       >
                         {stepAction.label}
@@ -1703,6 +1731,7 @@ export function CaseReplay({
                 onChange={(event) => {
                   invalidateResult();
                   lastSubmittedRows.current = null;
+                  setMutation("baseline");
                   const reset = resetReplayForScenarioChange(
                     event.target.value as ReplayScenario,
                   );
@@ -1718,12 +1747,13 @@ export function CaseReplay({
                 }}
                 value={scenario}
               >
-                {scenarios.map(({ label, value, provenance }) => (
+                {scenarios.map(({ label, value, provenance, purpose }) => (
                   <option key={value} value={value}>
                     {scenarioOptionLabel(
                       value,
                       label,
                       provenance?.kind ?? "synthetic",
+                      purpose,
                       language,
                     )}
                   </option>
@@ -1741,34 +1771,40 @@ export function CaseReplay({
               </summary>
               <p>
                 {t(
-                  "Change source-row order or repeat one derived event. Original coordinates and values stay fixed.",
-                  "원본 행의 순서를 바꾸거나 정리된 거래 기록 하나를 반복합니다. 원본의 위치와 값은 그대로입니다.",
+                  selectedScenario.provenance?.kind === "real"
+                    ? "This licensed published artifact offers Baseline and Shuffle. Neither control invents a value or participant, and this source has no control that attaches a pattern verdict."
+                    : "This artifact offers Baseline, Shuffle, and Duplicate. Original coordinates and values stay fixed.",
+                  selectedScenario.provenance?.kind === "real"
+                    ? "이 라이선스 공개 자료에서는 원본 그대로와 순서 섞기를 사용할 수 있습니다. 어느 조작도 값이나 참여자를 만들지 않으며, 패턴 결과를 붙이는 조작도 없습니다."
+                    : "이 자료에서는 원본 그대로, 순서 섞기, 기록 반복을 사용할 수 있습니다. 원본의 위치와 값은 그대로입니다.",
                 )}
               </p>
               <div className="option-list">
-                {mutationOptions[language].map((option) => (
-                  <label
-                    className={
-                      mutation === option.value ? "option selected" : "option"
-                    }
-                    key={option.value}
-                  >
-                    <input
-                      checked={mutation === option.value}
-                      name="mutation"
-                      onChange={() => {
-                        invalidateResult();
-                        setMutation(option.value);
-                      }}
-                      type="radio"
-                      value={option.value}
-                    />
-                    <span>
-                      <strong>{option.label}</strong>
-                      <small>{option.detail}</small>
-                    </span>
-                  </label>
-                ))}
+                {mutationOptions[language]
+                  .filter((option) => selectedMutations.includes(option.value))
+                  .map((option) => (
+                    <label
+                      className={
+                        mutation === option.value ? "option selected" : "option"
+                      }
+                      key={option.value}
+                    >
+                      <input
+                        checked={mutation === option.value}
+                        name="mutation"
+                        onChange={() => {
+                          invalidateResult();
+                          setMutation(option.value);
+                        }}
+                        type="radio"
+                        value={option.value}
+                      />
+                      <span>
+                        <strong>{option.label}</strong>
+                        <small>{option.detail}</small>
+                      </span>
+                    </label>
+                  ))}
               </div>
             </details>
           )}
@@ -1791,8 +1827,8 @@ export function CaseReplay({
               <details className="mapping-example" open>
                 <summary>
                   {t(
-                    "Separate mapping review example · Dialect B",
-                    "별도 연결 검토 예시 · Dialect B",
+                    "Separate mapping review example · H0STCNT0",
+                    "별도 연결 검토 예시 · H0STCNT0",
                   )}
                 </summary>
                 <p>
@@ -2454,8 +2490,8 @@ export function CaseReplay({
             <h3>{panelLabel("06", t("What runs today", "현재 실행 범위"))}</h3>
             <p>
               {t(
-                "Synthetic committed sources and one licensed published daily-quote source run with explicit approval and one versioned rule.",
-                "현재는 시연용 가상 거래자료와 공개 일별 시세 하나를, 명시적 승인과 버전이 고정된 규칙 하나로 실행합니다.",
+                "Published-schema synthetic sources, result-coverage fallbacks, and licensed published sources run with explicit mapping approval; sources with a manifest also run one versioned rule.",
+                "공개 스키마 기반 합성 자료, 결과 범위를 지키는 대체 사례, 라이선스 공개 자료를 명시적인 항목 연결 승인과 함께 실행합니다. manifest가 있는 자료에는 버전이 고정된 규칙 하나도 실행합니다.",
               )}
             </p>
             <p>
