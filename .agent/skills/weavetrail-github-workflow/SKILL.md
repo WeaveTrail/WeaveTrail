@@ -1,6 +1,6 @@
 ---
 name: weavetrail-github-workflow
-description: Prepare or execute an explicitly requested WeaveTrail GitHub stage—branch, commit, pull request, review update, or merge—while preserving issue linkage, validation evidence, and private-to-public boundaries.
+description: Prepare or execute an explicitly requested WeaveTrail GitHub stage—branch, commit, pull request, review update, or merge—using develop as the default integration base and main only for release promotion while preserving issue linkage, validation evidence, and private-to-public boundaries.
 ---
 
 # WeaveTrail GitHub Workflow
@@ -11,6 +11,14 @@ acting.
 
 ## Conventions
 
+- Start new work from an up-to-date `origin/develop` and open its pull request
+  into `develop` by default. Never silently substitute `main` if `develop` is
+  unavailable.
+- Reserve `main` for an explicitly requested release pull request from
+  `develop`, or for an explicitly authorized emergency hotfix. After a hotfix,
+  carry the same change back into `develop`.
+- Do not retarget an existing pull request unless the user explicitly requests
+  it.
 - Issue title: `<type>: <lowercase summary>`.
 - Pull request title: repeat the linked issue title verbatim, with no scope,
   trailing `#<number>`, or paraphrase.
