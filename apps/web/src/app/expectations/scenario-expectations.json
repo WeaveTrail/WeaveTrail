@@ -118,7 +118,7 @@
       "label": "Synthetic · conflicting FIX 4.4 execution evidence · CSV",
       "purpose": "REVIEWER_FACING",
       "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "demonstrates": "ExecID(17) 120001 is reused with different TransactTime(60) and LastPx(31) values, so normalization requires review before replay and produces no result hash.",
       "workflowState": "INPUT_REVIEW_REQUIRED",
       "result": null,

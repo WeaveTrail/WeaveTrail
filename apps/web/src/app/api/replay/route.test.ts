@@ -211,31 +211,35 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result).not.toHaveProperty("issues");
   });
 
-  it("stops committed conflicting identity evidence before replay with no result hash", async () => {
-    const scenarioName =
-      "published-execution-fix44-conflicting-evidence.csv" as const;
-    const fixture = committedReplayScenarios[scenarioName];
-    const response = await POST(
-      request({
-        scenario: scenarioName,
-        mutation: "baseline",
-        rows: fixture.rows,
-        mappingApproval: approval(fixture.mappingProposal),
-      }),
-    );
-    const result = await response.json();
+  it.each(["baseline", "shuffle", "duplicate"] as const)(
+    "stops committed conflicting identity evidence before replay for %s with no result hash",
+    async (mutation) => {
+      const scenarioName =
+        "published-execution-fix44-conflicting-evidence.csv" as const;
+      const fixture = committedReplayScenarios[scenarioName];
+      const response = await POST(
+        request({
+          scenario: scenarioName,
+          mutation,
+          rows:
+            mutation === "shuffle" ? [...fixture.rows].reverse() : fixture.rows,
+          mappingApproval: approval(fixture.mappingProposal),
+        }),
+      );
+      const result = await response.json();
 
-    expect(response.status).toBe(422);
-    expect(result).toMatchObject({
-      status: "REVIEW_REQUIRED",
-      workflowState: "INPUT_REVIEW_REQUIRED",
-      issues: [
-        expect.objectContaining({ code: "CONFLICTING_SOURCE_IDENTITY" }),
-      ],
-    });
-    expect(result).not.toHaveProperty("replay");
-    expect(result).not.toHaveProperty("canonicalResultHash");
-  });
+      expect(response.status).toBe(422);
+      expect(result).toMatchObject({
+        status: "REVIEW_REQUIRED",
+        workflowState: "INPUT_REVIEW_REQUIRED",
+        issues: [
+          expect.objectContaining({ code: "CONFLICTING_SOURCE_IDENTITY" }),
+        ],
+      });
+      expect(result).not.toHaveProperty("replay");
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    },
+  );
 
   it("rejects an approved manifest actor outside the dataset profile before evaluation", async () => {
     const body = rapidBody();

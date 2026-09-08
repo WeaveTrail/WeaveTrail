@@ -102,7 +102,7 @@ export const replayScenarioCatalog = {
   "published-execution-fix44-conflicting-evidence.csv": {
     purpose: "REVIEWER_FACING",
     availableInCaseReplay: true,
-    availableMutations: ["baseline", "shuffle"],
+    availableMutations: syntheticMutations,
   },
   "published-execution-h0stcnt0.jsonl": {
     purpose: "REVIEWER_FACING",

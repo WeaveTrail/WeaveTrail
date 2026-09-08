@@ -34,6 +34,17 @@ describe("committed replay scenarios", () => {
       ),
     ).toEqual(Object.values(committedReplayScenarios).map(() => "synthetic"));
   });
+
+  it("offers duplicate control for every synthetic replay source", () => {
+    for (const metadata of Object.values(replayScenarioCatalog)) {
+      expect(metadata.availableMutations).toEqual([
+        "baseline",
+        "shuffle",
+        "duplicate",
+      ]);
+    }
+  });
+
   it("binds dialect A to its artifact-derived committed event set", () => {
     const scenario = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
 
