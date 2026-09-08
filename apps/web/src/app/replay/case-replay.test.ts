@@ -21,9 +21,11 @@ import {
 import {
   APPROVAL_HASH_ERROR,
   attemptApproval,
+  flaggedMappingFields,
   hasUnresolvedMappingReview,
   CaseReplay,
   mappingOverrides,
+  unresolvedMappingFields,
   RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
   type ReplayScenarioOption,
@@ -346,6 +348,82 @@ describe("replay mapping status boundary", () => {
     expect(mappingOverrides(proposal, { [sourceNotePath]: "   " })).toEqual([]);
   });
 
+  it("names the fields that block approval, in the order their rows appear", async () => {
+    const scenario =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+
+    const flagged = flaggedMappingFields(proposal);
+    expect(flagged.length).toBeGreaterThan(0);
+    // The summary, the blocked check and the overrides an approval carries all
+    // read this one list, so a field cannot be named in one and missed by
+    // another. Mapped fields come before absent ones, matching the rows.
+    expect(flagged.map(({ fieldPath }) => fieldPath)).toEqual(
+      mappingOverrides(
+        proposal,
+        Object.fromEntries(flagged.map(({ fieldPath }) => [fieldPath, "why"])),
+      ).map(({ fieldPath }) => fieldPath),
+    );
+    for (const { label } of flagged) expect(label).toBeTruthy();
+
+    // Answering one field removes it from what is still waiting, and nothing
+    // else moves.
+    const first = flagged[0]!;
+    const remaining = unresolvedMappingFields(proposal, {
+      [first.fieldPath]: "reviewed",
+    });
+    expect(remaining.map(({ fieldPath }) => fieldPath)).toEqual(
+      flagged.slice(1).map(({ fieldPath }) => fieldPath),
+    );
+    expect(unresolvedMappingFields(proposal, {})).toEqual(flagged);
+  });
+
+  it("puts the blocking fields above the proposal and points at their inputs", async () => {
+    const scenario =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, {
+        providerMode: "fixture",
+        proposals: { [scenario.sourceArtifactHash]: proposal },
+        scenarios: [
+          {
+            value: "published-execution-h0stcnt0.jsonl",
+            label: scenario.label,
+            sourceArtifactHash: scenario.sourceArtifactHash,
+            rows: scenario.rows,
+          },
+        ],
+      }),
+    );
+
+    // The summary comes before the rows it names, so the work is reachable
+    // without scrolling the whole proposal first.
+    const summary = markup.indexOf('class="review-summary"');
+    const firstRow = markup.indexOf('class="mapping-row"');
+    expect(summary).toBeGreaterThan(-1);
+    expect(firstRow).toBeGreaterThan(summary);
+    // Every proposed field is still rendered: the blocking ones are named,
+    // not the rest hidden.
+    expect(markup).toContain("mapping-row");
+    for (const { fieldPath } of flaggedMappingFields(proposal))
+      expect(markup).toContain(
+        `id="mapping-review-case-${fieldPath.replace(".", "-")}"`,
+      );
+    // An input that still blocks the step says so where it sits.
+    expect(markup).toContain('data-review-unresolved="true"');
+  });
+
   it("clears the blocked state after every flagged field has a reviewer reason", async () => {
     const scenario =
       committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];
@@ -473,11 +551,15 @@ describe("finding evidence disclosures", () => {
       evaluation.findings.forEach((finding, index) => {
         const disclosure = disclosures[index]!;
         // The first disclosure carries the id the step rail sends a visitor
-        // to; the rest carry none.
+        // to; the rest carry none. The summary also says what opening it
+        // shows, so the name is asserted rather than the whole element.
         expect(disclosure).toContain(
           index === 0
-            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}</summary>`
-            : `<summary>Inspect source evidence for ${finding.gate}</summary>`,
+            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}`
+            : `<summary>Inspect source evidence for ${finding.gate}`,
+        );
+        expect(disclosure).toContain(
+          "The canonical events this check counted, and the committed source row behind each one.",
         );
         for (const entry of sourceTrace.entries) {
           if (!finding.referencedEventIds.includes(entry.event.eventId)) {

@@ -691,12 +691,94 @@ button:disabled {
 .journey-footer .journey-controls {
   margin-top: 0;
 }
-/* The control that advances the current step, wherever it is rendered. */
+/* The control that advances the current step, wherever it is rendered. It has
+   to be findable at a glance among the reading around it, so it carries a ring
+   rather than only an outline. Nothing else on the step is emphasised this way:
+   if everything were, the mark would say nothing. */
 .step-action {
   outline: var(--rule-accent);
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--state-review-bg);
 }
-/* Not the work itself: a way to the part of the case where the work happens. */
+/* An approval that has happened must not look like one still being asked for.
+   The unapproved control is the filled primary; the approved one steps back to
+   a quiet control and says so. */
+.button[data-approved="true"] {
+  border-color: var(--authorship-human);
+  color: var(--authorship-human);
+}
+.button[data-approved="true"]::after {
+  content: " \2713";
+}
+/* The fields blocking the step, named above the proposal rather than found by
+   scrolling it. Every proposed field stays visible below; this only says which
+   of them is waiting. */
+.review-summary {
+  display: grid;
+  gap: 8px;
+  margin-block: 16px;
+  padding: 12px;
+  border-left: 3px solid var(--state-review);
+  background: var(--state-review-bg);
+}
+.review-summary p {
+  max-width: var(--prose-max);
+  margin: 0;
+}
+.review-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-jump {
+  padding: 4px 10px;
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+  color: var(--text-strong);
+  font: var(--type-mono-sm);
+  cursor: pointer;
+}
+.review-jump:hover {
+  background: var(--action-quiet-hover);
+}
+.review-jump::after {
+  content: " \2193";
+}
+/* An input that still blocks the step is marked where it is, so arriving at it
+   from the summary lands somewhere that looks like the thing being asked for. */
+input[data-review-unresolved="true"] {
+  border-color: var(--state-review);
+  background: var(--state-review-bg);
+}
+.approval-binding {
+  max-width: var(--prose-max);
+  margin-block: 12px 8px;
+  color: var(--text-muted);
+}
+.workflow-state small {
+  display: block;
+  max-width: var(--prose-max);
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+.source-evidence summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+/* Not the work itself: a way to the part of the case where the work happens.
+   It is still the control the rail offers for this step, so it is as findable
+   as one that commits something; the arrow is what says the two differ. */
+.step-locate {
+  outline: var(--rule-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--state-review-bg);
+}
 .step-locate::after {
   content: " \2193";
 }

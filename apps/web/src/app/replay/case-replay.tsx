@@ -611,44 +611,67 @@ type ApprovalHashCrypto = {
   subtle?: Pick<SubtleCrypto, "digest">;
 };
 
+/** One field the proposal flagged, with the label its row is titled by. */
+export type FlaggedMappingField = {
+  readonly fieldPath: string;
+  readonly label: string;
+};
+
+/**
+ * The fields a person has to answer for before this proposal can be approved,
+ * in the order their rows appear. Deriving the summary that names them, the
+ * blocked check and the overrides an approval carries from one list is what
+ * keeps those three from disagreeing about which fields are flagged.
+ */
+export function flaggedMappingFields(
+  proposal: SchemaMappingProposal,
+): readonly FlaggedMappingField[] {
+  const mapped = proposal.fields.flatMap((field, index) =>
+    requiresMappingOverride(field)
+      ? [{ fieldPath: `fields.${index}`, label: field.sourceColumn }]
+      : [],
+  );
+  const absent =
+    "unmappedFields" in proposal
+      ? proposal.unmappedFields.flatMap((field, index) =>
+          requiresMappingOverride(field)
+            ? [
+                {
+                  fieldPath: `unmappedFields.${index}`,
+                  label: field.targetField,
+                },
+              ]
+            : [],
+        )
+      : [];
+  return [...mapped, ...absent];
+}
+
+/** The flagged fields still without a reviewer reason. */
+export function unresolvedMappingFields(
+  proposal: SchemaMappingProposal,
+  reasons: Readonly<Record<string, string>>,
+): readonly FlaggedMappingField[] {
+  return flaggedMappingFields(proposal).filter(
+    ({ fieldPath }) => !reasons[fieldPath]?.trim(),
+  );
+}
+
 export function mappingOverrides(
   proposal: SchemaMappingProposal,
   reasons: Readonly<Record<string, string>>,
 ): ApprovalRecord["overrides"] {
-  const fieldOverrides = proposal.fields.flatMap((field, index) => {
-    if (!requiresMappingOverride(field)) return [];
-    const reason = reasons[`fields.${index}`]?.trim();
-    return reason ? [{ fieldPath: `fields.${index}`, reason }] : [];
+  return flaggedMappingFields(proposal).flatMap(({ fieldPath }) => {
+    const reason = reasons[fieldPath]?.trim();
+    return reason ? [{ fieldPath, reason }] : [];
   });
-  const absentFieldOverrides =
-    "unmappedFields" in proposal
-      ? proposal.unmappedFields.flatMap((field, index) => {
-          if (!requiresMappingOverride(field)) return [];
-          const reason = reasons[`unmappedFields.${index}`]?.trim();
-          return reason
-            ? [{ fieldPath: `unmappedFields.${index}`, reason }]
-            : [];
-        })
-      : [];
-  return [...fieldOverrides, ...absentFieldOverrides];
 }
 
 export function hasUnresolvedMappingReview(
   proposal: SchemaMappingProposal,
   reasons: Readonly<Record<string, string>>,
 ): boolean {
-  return (
-    proposal.fields.some(
-      (field, index) =>
-        requiresMappingOverride(field) && !reasons[`fields.${index}`]?.trim(),
-    ) ||
-    ("unmappedFields" in proposal &&
-      proposal.unmappedFields.some(
-        (field, index) =>
-          requiresMappingOverride(field) &&
-          !reasons[`unmappedFields.${index}`]?.trim(),
-      ))
-  );
+  return unresolvedMappingFields(proposal, reasons).length > 0;
 }
 
 export function resetReplayForScenarioChange(scenario: ReplayScenario) {
@@ -784,6 +807,12 @@ export function RapidPriceLiftEvaluation({
                       `Inspect source evidence for ${finding.gate}`,
                       `판단 근거 열기: ${gateReading(finding.gate as GateName, language).label}`,
                     )}
+                    <small>
+                      {t(
+                        "The canonical events this check counted, and the committed source row behind each one.",
+                        "이 판단이 센 거래 기록과, 그 기록이 나온 원본 행을 그대로 펼쳐 봅니다.",
+                      )}
+                    </small>
                   </summary>
                   {sourceTrace.entries
                     .filter(({ event }) =>
@@ -900,12 +929,48 @@ export function RapidPriceLiftEvaluation({
   );
 }
 
+/**
+ * What each state means, in one line. The code is the contract's own value and
+ * stays exactly as returned; the sentence beside it is what the code is for.
+ */
+const workflowStateMeaning: Readonly<
+  Record<Language, Partial<Record<WorkflowState, string>>>
+> = {
+  en: {
+    UPLOADED: "The source rows are committed. Nothing has been proposed yet.",
+    MAPPING_PROPOSED:
+      "A model proposed what the columns mean. Nobody approved it yet.",
+    MAPPING_REVIEW_REQUIRED:
+      "A flagged field is waiting for a reviewer reason.",
+    MAPPING_APPROVED:
+      "You approved what the columns mean. The case is not approved yet.",
+    INPUT_REVIEW_REQUIRED:
+      "The submitted input did not pass validation, so nothing ran.",
+    REPLAYED:
+      "Versioned code recomputed the case from the approved input and returned this result.",
+  },
+  ko: {
+    UPLOADED: "원본 행이 그대로 올라와 있습니다. 아직 제안된 것은 없습니다.",
+    MAPPING_PROPOSED:
+      "AI가 항목의 뜻을 제안했습니다. 아직 아무도 승인하지 않았습니다.",
+    MAPPING_REVIEW_REQUIRED: "확인이 필요한 항목이 이유를 기다리고 있습니다.",
+    MAPPING_APPROVED:
+      "항목의 뜻을 승인했습니다. 조사 범위는 아직 승인 전입니다.",
+    INPUT_REVIEW_REQUIRED:
+      "보낸 입력이 검증을 통과하지 못해 아무것도 실행되지 않았습니다.",
+    REPLAYED:
+      "버전이 고정된 코드가 승인된 입력으로 다시 계산해 이 결과를 돌려주었습니다.",
+  },
+};
+
 export function WorkflowStateBadge({ state }: { state: WorkflowState }) {
   const language = useReplayLanguage();
+  const meaning = workflowStateMeaning[language][state];
   return (
     <div className="workflow-state" data-state={state}>
       <strong>{replayText(language, "Workflow state", "워크플로 상태")}</strong>
       <code>{state}</code>
+      {meaning ? <small>{meaning}</small> : null}
     </div>
   );
 }
@@ -1000,7 +1065,13 @@ export function CaseReplay({
     selectedScenario.mappingRequestRequired === true &&
     requestedMapping === null;
   const displayedProviderMode = requestedMapping?.mode ?? providerMode;
-  const unresolvedReview = hasUnresolvedMappingReview(proposal, reviewReasons);
+  const unresolvedFields = unresolvedMappingFields(proposal, reviewReasons);
+  const unresolvedReview = unresolvedFields.length > 0;
+  // Both the worked case and the review example render a proposal, so the
+  // input ids have to say which of the two they belong to.
+  const reviewScope = mappingExample ? "example" : "case";
+  const reviewInputId = (fieldPath: string) =>
+    `mapping-review-${reviewScope}-${fieldPath.replace(".", "-")}`;
   const exampleScenario = scenarios.find(
     ({ value }) => value === reviewExample,
   );
@@ -1137,9 +1208,37 @@ export function CaseReplay({
     kind: "perform" | "locate";
     label: string;
     disabled: boolean;
+    /** Whether this action has already been carried out on this step. The
+     *  step's continue condition cannot answer this: a step that gates nothing
+     *  is satisfied from the start while its action is still outstanding. */
+    done?: boolean;
     /** A performing action returns its promise so a caller can await it. */
     onClick: () => void | Promise<void>;
   };
+
+  /**
+   * The step is performed at an input inside the review example, so the
+   * control goes to the field still waiting for a reason rather than to the
+   * example's own heading, which is already on screen and moves nothing.
+   */
+  function revealExampleWork() {
+    if (typeof document === "undefined") return;
+    const example = document.querySelector(".mapping-example");
+    const next =
+      example?.querySelector<HTMLElement>('[data-review-unresolved="true"]') ??
+      document.getElementById(GUIDE_TARGET_EXAMPLE);
+    if (!next) return;
+    next.scrollIntoView({ block: "center", behavior: "smooth" });
+    next.focus({ preventScroll: true });
+  }
+
+  function focusReviewInput(fieldPath: string) {
+    if (typeof document === "undefined") return;
+    const input = document.getElementById(reviewInputId(fieldPath));
+    if (!input) return;
+    input.scrollIntoView({ block: "center", behavior: "smooth" });
+    input.focus({ preventScroll: true });
+  }
 
   function revealTarget(id: string) {
     if (typeof document === "undefined") return;
@@ -1192,24 +1291,27 @@ export function CaseReplay({
           kind: "perform",
           label: approveMappingLabel,
           disabled: approveMappingBlocked,
+          done: approval !== null,
           onClick: () => approveMapping(),
         }
       : {
           kind: "locate",
           label: ui.goToExample,
           disabled: false,
-          onClick: () => revealTarget(GUIDE_TARGET_EXAMPLE),
+          onClick: () => revealExampleWork(),
         },
     {
       kind: "perform",
       label: approveCaseLabel,
       disabled: !approval,
+      done: caseApproval !== null,
       onClick: () => approveCase(),
     },
     {
       kind: "perform",
       label: runLabel,
       disabled: runBlocked,
+      done: completeResult,
       onClick: () => runReplay(),
     },
     completeResult
@@ -1224,6 +1326,7 @@ export function CaseReplay({
       kind: "perform",
       label: repeatLabel,
       disabled: repeatBlocked,
+      done: repeatMatches,
       onClick: () => runReplay(true),
     },
     {
@@ -1434,11 +1537,20 @@ export function CaseReplay({
                           )}
                     </p>
                     {stepAction ? (
+                      // The rail's control is the one a visitor is told to
+                      // use, so it has to stop asking once the step is done.
+                      // Emphasis marks the work still outstanding; a step
+                      // already satisfied steps back to a quiet control.
                       <button
                         className={
                           stepAction.kind === "perform"
-                            ? "button primary step-action"
+                            ? `button${stepAction.done ? "" : " primary step-action"}`
                             : "button step-locate"
+                        }
+                        data-approved={
+                          stepAction.kind === "perform"
+                            ? stepAction.done === true
+                            : undefined
                         }
                         disabled={stepAction.disabled}
                         onClick={stepAction.onClick}
@@ -1618,8 +1730,8 @@ export function CaseReplay({
               <h3>{t("Submitted source row order", "제출한 원본 행 순서")}</h3>
               <p>
                 {t(
-                  "Request order before canonical event ordering.",
-                  "기록을 정렬하기 전, 요청에 담아 보낸 순서입니다.",
+                  "Request order before canonical event ordering. The engine sorts by eventTime, sequence and eventId, so this order does not decide the result: compare it with the ordering in the result below.",
+                  "기록을 정렬하기 전, 요청에 담아 보낸 순서입니다. 엔진은 시각과 순번, 기록 번호 순으로 다시 정렬하므로 이 순서가 결과를 정하지 않습니다. 아래 결과의 순서와 비교해 보세요.",
                 )}
               </p>
               <p>
@@ -1630,7 +1742,7 @@ export function CaseReplay({
           <div hidden={!show(1)}>
             {guided && exampleScenario && (
               <details className="mapping-example" open>
-                <summary id={GUIDE_TARGET_EXAMPLE}>
+                <summary>
                   {t(
                     "Separate mapping review example · Dialect B",
                     "별도 연결 검토 예시 · Dialect B",
@@ -1713,6 +1825,35 @@ export function CaseReplay({
                     "항목마다 붙은 근거 문장은 제안이 스스로 적어 둔 원문이며, 제안된 그대로 보여 줍니다. 승인이 이 내용에 그대로 묶이기 때문에 다시 쓰지 않습니다.",
                   )}
                 </p>
+                {unresolvedFields.length > 0 && (
+                  <div className="review-summary" data-status="REVIEW_REQUIRED">
+                    <strong>
+                      {t(
+                        "These fields are waiting for your reason",
+                        "확인 이유를 기다리는 항목",
+                      )}
+                    </strong>
+                    <p>
+                      {t(
+                        "The proposal below is shown in full. These are the fields that block approval; each one goes to its own input.",
+                        "아래 제안은 전부 그대로 보여 줍니다. 그중 승인을 막고 있는 항목은 다음과 같으며, 누르면 그 입력칸으로 갑니다.",
+                      )}
+                    </p>
+                    <ul>
+                      {unresolvedFields.map(({ fieldPath, label }) => (
+                        <li key={fieldPath}>
+                          <button
+                            className="review-jump"
+                            onClick={() => focusReviewInput(fieldPath)}
+                            type="button"
+                          >
+                            {label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {"eventType" in proposal.constants &&
                   proposal.constants.eventType === "DAILY_QUOTE" && (
                     <DailyQuoteSemantics />
@@ -1827,6 +1968,10 @@ export function CaseReplay({
                         </span>
                         <input
                           aria-label={`${t("Reviewer reason for", "확인 이유")} ${field.sourceColumn}`}
+                          data-review-unresolved={
+                            !reviewReasons[`fields.${index}`]?.trim()
+                          }
+                          id={reviewInputId(`fields.${index}`)}
                           onChange={(event) => {
                             invalidateResult();
                             setCaseApproval(null);
@@ -1874,6 +2019,10 @@ export function CaseReplay({
                         </span>
                         <input
                           aria-label={`${t("Reviewer reason for", "확인 이유")} ${field.targetField}`}
+                          data-review-unresolved={
+                            !reviewReasons[`unmappedFields.${index}`]?.trim()
+                          }
+                          id={reviewInputId(`unmappedFields.${index}`)}
                           onChange={(event) => {
                             invalidateResult();
                             setCaseApproval(null);
@@ -1905,10 +2054,12 @@ export function CaseReplay({
               </div>
             )}
             <button
-              className={
-                guided && chapter === 1 ? "button step-action" : "button"
-              }
+              className={`button approve-mapping${approval ? "" : " primary"}${
+                guided && chapter === 1 && !approval ? " step-action" : ""
+              }`}
+              data-approved={approval !== null}
               disabled={approveMappingBlocked}
+              id={mappingExample ? GUIDE_TARGET_EXAMPLE : undefined}
               onClick={approveMapping}
               type="button"
             >
@@ -2021,10 +2172,19 @@ export function CaseReplay({
                     )}
                   </p>
                 )}
+                <p className="approval-binding">
+                  {t(
+                    "Approving binds to the instrument, window and threshold values shown above, and to nothing else.",
+                    "승인은 위에 보이는 종목과 구간, 판단 기준 값에만 묶이고 그 밖의 것에는 묶이지 않습니다.",
+                  )}
+                </p>
                 <button
-                  className={
-                    guided && chapter === 2 ? "button step-action" : "button"
-                  }
+                  className={`button approve-case${caseApproval ? "" : " primary"}${
+                    guided && chapter === 2 && !caseApproval
+                      ? " step-action"
+                      : ""
+                  }`}
+                  data-approved={caseApproval !== null}
                   disabled={!approval}
                   onClick={approveCase}
                   type="button"
