@@ -44,6 +44,24 @@ invariants that apply to every change.
 
 ## GitHub conventions
 
+The release-batching branch workflow is:
+
+```text
+feature/* -> develop -> main
+```
+
+New work is pushed to a short-lived feature branch and opened as a pull
+request into `develop`. The `develop` branch is the integration branch. A
+separate pull request from `develop` into `main` promotes an accumulated,
+reviewed set of changes for production. Do not push directly to `develop` or
+`main`. The default base branch for a new pull request is `develop`, and new
+work starts from an up-to-date `origin/develop`. If `origin/develop` is
+unexpectedly unavailable, stop and report it rather than silently using `main`
+as the base. Existing pull requests keep their current base unless their owner
+requests a retarget. An explicitly authorized emergency hotfix is the
+exception: create it from an up-to-date `origin/main`, target `main`, and carry
+the merged fix back into `develop` before ordinary development continues.
+
 Use these distinct title forms:
 
 - Issue: `<type>: <lowercase summary>`.

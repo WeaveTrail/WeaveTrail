@@ -42,6 +42,30 @@ outside that root enabled because the web app imports packages from
 production follows `main`, and pull requests receive isolated previews. This
 repository does not duplicate that trigger with a deployment workflow.
 
+## Release-batching workflow
+
+The repository uses a two-branch release workflow so development can
+accumulate without changing the public production deployment:
+
+```text
+feature/* -> develop -> main
+                         ^
+                   Vercel production
+```
+
+Pull requests for new work target `develop`, which is also the repository's
+default branch, while Vercel keeps `main` as its Production Branch. A
+`develop` to `main` pull request is the release promotion and is the only point
+at which accumulated changes reach production. Feature branches and `develop`
+continue to receive isolated previews. Before a release, verify in Vercel that
+the Production environment still tracks `main`; changing the repository's
+default branch must not change the production branch.
+
+An emergency production hotfix is an explicit exception to the normal release
+path. Create its branch from the current `origin/main` and open it into `main`
+so unreleased `develop` changes are not included. After the hotfix reaches
+production, carry the same change into `develop` before the next release.
+
 The published quotation flow also requires verification at the promoted revision;
 this document does not claim that the current checkout has been deployed.
 
