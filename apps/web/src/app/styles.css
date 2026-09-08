@@ -1479,6 +1479,41 @@ code {
   grid-row: 1;
   min-width: 0;
 }
+/* The three notes under the chart are supporting text and are sized as such.
+   The day itself is what the opening is for; these say what the chart is,
+   where the intraday view came from, and what the page will not do. Scoped to
+   the opening so the same chart note keeps its size wherever else it is drawn.
+   The premise keeps body colour rather than the muted grey the two provenance
+   notes take: it is a disclosure that has to stay readable, not a caption. */
+.case-opening .session-note,
+.case-opening .intraday-reference,
+.case-opening .case-premise {
+  font-size: var(--text-12);
+  line-height: 1.55;
+}
+.case-opening .session-note {
+  margin-top: 8px;
+}
+.case-opening .intraday-reference {
+  gap: 3px;
+  padding: 8px 12px;
+}
+.case-opening .case-premise {
+  padding: 10px 14px;
+  color: var(--text-body);
+}
+.case-opening .case-premise h2 {
+  margin: 0 0 4px;
+  font: var(--weight-semibold) var(--text-13) / 1.35 var(--font-sans);
+}
+.case-opening .case-premise p {
+  margin: 4px 0 0;
+  line-height: 1.55;
+}
+.case-opening .case-premise .machine-note {
+  margin-top: 6px;
+  font-size: var(--text-11);
+}
 .case-opening .intraday-reference {
   grid-column: 1;
   grid-row: 2;

@@ -409,6 +409,38 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
+  it("sizes the opening's notes as supporting text, and only there", () => {
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    // The day itself is what the opening is for. What the chart is, where the
+    // intraday view came from and what the page will not do are notes around
+    // it, and are sized as notes rather than as the reading.
+    const rule = styles.slice(
+      styles.indexOf(".case-opening .session-note,"),
+      styles.indexOf(".case-opening .case-premise .machine-note"),
+    );
+    expect(rule).toContain(".case-opening .intraday-reference");
+    expect(rule).toContain(".case-opening .case-premise");
+    expect(rule).toContain("font-size: var(--text-12)");
+    // Scoped to the opening: the same chart note keeps its size on every other
+    // surface that draws the chart.
+    for (const scoped of [
+      ".case-opening .session-note",
+      ".case-opening .case-premise h2",
+    ])
+      expect(styles).toContain(scoped);
+    // The premise is a disclosure, so it stays at body colour rather than
+    // taking the muted grey the two provenance notes use.
+    const premiseBlocks =
+      styles.match(/\.case-opening \.case-premise \{[^}]*\}/g) ?? [];
+    expect(premiseBlocks.length).toBeGreaterThan(0);
+    expect(
+      premiseBlocks.some((block) => block.includes("color: var(--text-body)")),
+    ).toBe(true);
+  });
+
   it("runs the chapter list beside the case, not above it", () => {
     for (const language of ["ko", "en"] as const) {
       const markup = surface(language);
