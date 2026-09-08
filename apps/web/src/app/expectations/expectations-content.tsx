@@ -11,9 +11,13 @@ type Scenario = {
   availableInCaseReplay: boolean;
   availableMutations: readonly string[];
   workflowState: string;
+  demonstrates: string | null;
   result: string | null;
-  canonicalDatasetHash: string;
-  canonicalResultHash: string;
+  inconclusiveReason: string | null;
+  nonComparableEventCount: number | null;
+  reviewIssues: readonly string[];
+  canonicalDatasetHash: string | null;
+  canonicalResultHash: string | null;
   gates: readonly {
     gate: string;
     observedValue: string | null;
@@ -54,6 +58,11 @@ const ko = {
   mutations: "제공되는 입력 변경",
   final: "최종 워크플로 상태",
   result: "패턴 결과",
+  condition: "이 사례가 보여 주는 조건",
+  reason: "판단 보류 사유",
+  nonComparable: "비교할 수 없는 이벤트",
+  reviewIssues: "검토 사유",
+  noHash: "검토 전에 멈춰 생성되지 않음",
   noManifest:
     "이 소스에는 사례 manifest가 없습니다. 정규화만 하고 패턴은 평가하지 않습니다.",
   hypothesis: "버전이 붙은 가설",
@@ -76,6 +85,8 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
   "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
   "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목",
+  "published-execution-fix44-conflicting-evidence.csv":
+    "합성 · 공개 FIX 4.4 체결 식별자 충돌",
   "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
   "published-daily-quotes.csv": "공개 일별 시세 · 정규화",
   "real/fsc-kospi-index-family-20260903/source.jsonl":
@@ -85,6 +96,17 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "real/fsc-kospi-200-futures-20260903/source.jsonl":
     "FSC · 코스피 200 선물 · 정규화",
   "real/fsc-weekly-options-20260903/source.jsonl": "FSC · 위클리 옵션 · 정규화",
+};
+
+const koreanScenarioConditions: Readonly<Record<string, string>> = {
+  "rapid-price-lift-supported.csv":
+    "완전한 증거가 선언된 RAPID_PRICE_LIFT 판단 기준을 모두 충족합니다.",
+  "rapid-price-lift-broad-participation.csv":
+    "평가할 증거는 충분하지만 참여자가 분산되어 선언된 집중도 판단 기준을 충족하지 못합니다.",
+  "rapid-price-lift-insufficient-evidence.csv":
+    "구간 내 체결 네 건에 Side(54)가 모두 없어 규칙이 전부 비교 불가 증거로 제외하고 판단을 보류합니다.",
+  "published-execution-fix44-conflicting-evidence.csv":
+    "ExecID(17) 120001이 서로 다른 TransactTime(60)과 LastPx(31) 값으로 재사용되어, 재현 전에 입력 검토가 필요하고 결과 해시는 생성되지 않습니다.",
 };
 
 export function ExpectationsContent({
@@ -224,6 +246,16 @@ export function ExpectationsContent({
               <code>{s.scenario}</code>
             </h2>
             <dl className="expectation-facts">
+              {s.demonstrates && (
+                <div>
+                  <dt>{t?.condition ?? "Condition demonstrated"}</dt>
+                  <dd>
+                    {korean
+                      ? (koreanScenarioConditions[s.scenario] ?? s.demonstrates)
+                      : s.demonstrates}
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt>{t?.purpose ?? "Purpose"}</dt>
                 <dd>
@@ -265,7 +297,24 @@ export function ExpectationsContent({
                 </dd>
               </div>
             </dl>
-            {s.result === null && (
+            {s.inconclusiveReason && (
+              <p>
+                {t?.reason ?? "Abstention reason"}: {s.inconclusiveReason}
+                {s.nonComparableEventCount !== null && (
+                  <>
+                    {" · "}
+                    {t?.nonComparable ?? "Non-comparable events"}:{" "}
+                    {s.nonComparableEventCount}
+                  </>
+                )}
+              </p>
+            )}
+            {s.reviewIssues.length > 0 && (
+              <p>
+                {t?.reviewIssues ?? "Review issue"}: {s.reviewIssues.join(", ")}
+              </p>
+            )}
+            {s.result === null && s.reviewIssues.length === 0 && (
               <p>
                 {t?.noManifest ??
                   "This source has no committed case manifest. The workflow ends after approved mapping and deterministic normalization, before any pattern gate or verdict is evaluated."}
@@ -311,14 +360,23 @@ export function ExpectationsContent({
                 </dl>
               </section>
             )}
-            <Hash
-              label={t?.dataset ?? "Canonical dataset hash"}
-              value={s.canonicalDatasetHash}
-            />
-            <Hash
-              label={t?.hash ?? "Canonical result hash"}
-              value={s.canonicalResultHash}
-            />
+            {s.canonicalDatasetHash ? (
+              <Hash
+                label={t?.dataset ?? "Canonical dataset hash"}
+                value={s.canonicalDatasetHash}
+              />
+            ) : null}
+            {s.canonicalResultHash ? (
+              <Hash
+                label={t?.hash ?? "Canonical result hash"}
+                value={s.canonicalResultHash}
+              />
+            ) : s.reviewIssues.length > 0 ? (
+              <p>
+                {t?.hash ?? "Canonical result hash"}:{" "}
+                {t?.noHash ?? "Not produced; stopped for pre-replay review"}
+              </p>
+            ) : null}
             {s.gates.length ? (
               <div
                 className="gate-list"

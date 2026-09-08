@@ -93,6 +93,8 @@ describe("committed replay scenarios", () => {
 
       expect(scenario.rows).toHaveLength(rowCount);
       expect(scenario.expectedResult).toBe(expectedResult);
+      expect(scenario.expectedWorkflowState).toBe("REPLAYED");
+      expect(scenario.demonstrates).not.toHaveLength(0);
       expect(scenario.mappingProposal.sourceArtifactHash).toBe(
         scenario.sourceArtifactHash,
       );
@@ -101,4 +103,29 @@ describe("committed replay scenarios", () => {
       expect(scenario.manifest.aiTrace.confidence).toBe(1);
     },
   );
+
+  it("states the missing-evidence condition with its expected abstention", () => {
+    const scenario =
+      committedReplayScenarios["rapid-price-lift-insufficient-evidence.csv"];
+
+    expect(scenario.expectedWorkflowState).toBe("REPLAYED");
+    expect(scenario.expectedInconclusiveReason).toBe(
+      "INSUFFICIENT_ELIGIBLE_EVENTS",
+    );
+    expect(scenario.expectedNonComparableEventCount).toBe(4);
+    expect(scenario.demonstrates).toContain("lacks Side(54)");
+  });
+
+  it("states the conflicting-evidence review outcome with the source", () => {
+    const scenario =
+      committedReplayScenarios[
+        "published-execution-fix44-conflicting-evidence.csv"
+      ];
+
+    expect(scenario.expectedWorkflowState).toBe("INPUT_REVIEW_REQUIRED");
+    expect(scenario.expectedReviewCode).toBe("CONFLICTING_SOURCE_IDENTITY");
+    expect(scenario).not.toHaveProperty("manifest");
+    expect(scenario).not.toHaveProperty("expectedResult");
+    expect(scenario.demonstrates).toContain("ExecID(17) 120001");
+  });
 });

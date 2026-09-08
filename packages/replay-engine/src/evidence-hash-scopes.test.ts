@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 import {
+  CaseManifestSchema,
   EvidenceBundleSchema,
   EvidenceBundleV13Schema,
   SchemaMappingProposalSchema,
@@ -168,16 +169,54 @@ function specimen(
   });
 }
 
-const cases = Object.entries(rapidPriceLiftScenarios).map(
-  ([name, scenario]) => ({
+const bundleV13CaseNames = [
+  "rapid-price-lift-supported.csv",
+  "rapid-price-lift-broad-participation.csv",
+] as const;
+const bundleV13Cases = bundleV13CaseNames.map((name) => {
+  const scenario = rapidPriceLiftScenarios[name];
+  return {
     name,
     bundle: specimen(
       scenario.rows,
       scenario.mappingProposal,
       scenario.manifest,
     ),
-  }),
-);
+  };
+});
+const supportedScenario =
+  rapidPriceLiftScenarios["rapid-price-lift-supported.csv"];
+const inconclusiveProposal = {
+  ...caseManifestProposal(supportedScenario.manifest),
+  caseId: "synthetic-bundle-v13-inconclusive",
+  hypothesis: {
+    ...supportedScenario.manifest.hypothesis,
+    actorIds: [
+      "participant-base",
+      "participant-focus",
+      "participant-wide-a",
+      "participant-wide-b",
+    ],
+  },
+};
+const inconclusiveManifest = CaseManifestSchema.parse({
+  ...inconclusiveProposal,
+  approval: {
+    ...supportedScenario.manifest.approval,
+    approvedArtifactHash: sha256Canonical(inconclusiveProposal),
+  },
+});
+const cases = [
+  ...bundleV13Cases,
+  {
+    name: "synthetic-bundle-v13-inconclusive",
+    bundle: specimen(
+      supportedScenario.rows,
+      supportedScenario.mappingProposal,
+      inconclusiveManifest,
+    ),
+  },
+];
 const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
 const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
@@ -242,6 +281,15 @@ function resultHash(bundle: EvidenceBundleV13): string | undefined {
 }
 
 describe("published Evidence Bundle 1.3 hash scopes", () => {
+  it("does not reinterpret the Mapping Proposal 1.8 missing-evidence case as Bundle 1.3", () => {
+    const scenario =
+      rapidPriceLiftScenarios["rapid-price-lift-insufficient-evidence.csv"];
+
+    expect(() =>
+      specimen(scenario.rows, scenario.mappingProposal, scenario.manifest),
+    ).toThrow(/mappingVersion/);
+  });
+
   it("accounts for every schema field across all versions and result branches", () => {
     const paths = schemaLeaves(
       EvidenceBundleV13Schema.toJSONSchema({ io: "input" }),

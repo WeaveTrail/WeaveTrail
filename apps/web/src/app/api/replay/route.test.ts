@@ -203,11 +203,38 @@ describe("POST /api/replay approved mapping boundary", () => {
     expect(result.workflowState).toBe("REPLAYED");
     expect(result.evaluation).toMatchObject({
       result: "INCONCLUSIVE",
-      reason: "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
+      reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+      nonComparableEventCount: 4,
       findings: [],
       sensitivity: null,
     });
     expect(result).not.toHaveProperty("issues");
+  });
+
+  it("stops committed conflicting identity evidence before replay with no result hash", async () => {
+    const scenarioName =
+      "published-execution-fix44-conflicting-evidence.csv" as const;
+    const fixture = committedReplayScenarios[scenarioName];
+    const response = await POST(
+      request({
+        scenario: scenarioName,
+        mutation: "baseline",
+        rows: fixture.rows,
+        mappingApproval: approval(fixture.mappingProposal),
+      }),
+    );
+    const result = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(result).toMatchObject({
+      status: "REVIEW_REQUIRED",
+      workflowState: "INPUT_REVIEW_REQUIRED",
+      issues: [
+        expect.objectContaining({ code: "CONFLICTING_SOURCE_IDENTITY" }),
+      ],
+    });
+    expect(result).not.toHaveProperty("replay");
+    expect(result).not.toHaveProperty("canonicalResultHash");
   });
 
   it("rejects an approved manifest actor outside the dataset profile before evaluation", async () => {
@@ -822,7 +849,7 @@ describe("server-resolved finding provenance", () => {
               NOT_SUPPORTED:
                 "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93",
               INCONCLUSIVE:
-                "e9e7a01885d47f21d7372f9b4008418e7585dbdc35abe272adbc3f703a3408fc",
+                "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14",
             }[fixture.expectedResult],
           );
           expect(result.replay).not.toHaveProperty("events");

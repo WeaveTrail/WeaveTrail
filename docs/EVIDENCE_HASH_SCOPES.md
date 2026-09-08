@@ -223,14 +223,17 @@ empty findings and null sensitivity; all of that evaluation is result-hashed.
 
 Event 1.1 and 1.2 use the same 15-field projection, including `schemaVersion`
 and `eventType`; optional absent fields are never filled in. No event-version
-conversion happens during hashing. Proposals 1.4, 1.5 and 1.6 are covered in full by
-the bundle hash and never directly by the result hash; the daily proposal's
-constant `eventType` exists in 1.5 and 1.6, while the latter also binds the
-ordered composite source identity declaration. Manifest 1.3 is stored as its complete
-proposal plus the separate, optional approval record. Its case identity,
-hypothesis, rule parameters and AI trace are all bundle-only inputs. Thus one
-definition covers every committed source and case without version upgrades,
-invented real-data attributes or changed literal result hashes.
+conversion happens during hashing. Proposals 1.4, 1.5 and 1.6 are covered in
+full by the bundle hash and never directly by the result hash; the daily
+proposal's constant `eventType` exists in 1.5 and 1.6, while the latter also
+binds the ordered composite source identity declaration. Manifest 1.3 is stored
+as its complete proposal plus the separate, optional approval record. Its case
+identity, hypothesis, rule parameters and AI trace are all bundle-only inputs.
+Thus one definition covers the committed pre-OHLC sources and cases represented
+by this contract without version upgrades or invented real-data attributes.
+Mapping Proposals 1.7 and 1.8, including the FIX-shaped missing-evidence and
+conflict sources, remain outside Evidence Bundle 1.3; the implementation rejects
+them instead of reinterpreting them under an older proposal version.
 
 ## Bundle 1.2 compatibility
 

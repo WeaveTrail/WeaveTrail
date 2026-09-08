@@ -34,6 +34,8 @@ const syntheticScenarios = {
     rows: concentratedBuyDialectBRows,
   },
   "published-execution-fix44.csv": publishedExecutionSchemaScenario.fix,
+  "published-execution-fix44-conflicting-evidence.csv":
+    publishedExecutionSchemaScenario.conflict,
   "published-execution-h0stcnt0.jsonl":
     publishedExecutionSchemaScenario.h0stcnt0,
   ...rapidPriceLiftScenarios,
@@ -71,11 +73,10 @@ type ScenarioCatalogEntry = {
 const syntheticMutations = ["baseline", "shuffle", "duplicate"] as const;
 
 /**
- * Classification stays beside the synthetic registry without changing any
- * committed source row, manifest, or golden input. Published-schema projections
- * are reviewer-facing. Placeholder sources remain engine regression fixtures;
- * the two result fallbacks stay selectable until grounded sources reproduce
- * their declared result meanings.
+ * Classification stays beside the synthetic registry. Published-schema
+ * projections are reviewer-facing. Placeholder sources remain engine regression
+ * fixtures; the not-supported fallback stays selectable until a grounded source
+ * reproduces that declared result meaning.
  */
 export const replayScenarioCatalog = {
   "actorless-multi-instrument-quotes.jsonl": {
@@ -98,6 +99,11 @@ export const replayScenarioCatalog = {
     availableInCaseReplay: true,
     availableMutations: syntheticMutations,
   },
+  "published-execution-fix44-conflicting-evidence.csv": {
+    purpose: "REVIEWER_FACING",
+    availableInCaseReplay: true,
+    availableMutations: ["baseline", "shuffle"],
+  },
   "published-execution-h0stcnt0.jsonl": {
     purpose: "REVIEWER_FACING",
     availableInCaseReplay: true,
@@ -114,7 +120,7 @@ export const replayScenarioCatalog = {
     availableMutations: syntheticMutations,
   },
   "rapid-price-lift-insufficient-evidence.csv": {
-    purpose: "ENGINE_REGRESSION",
+    purpose: "REVIEWER_FACING",
     availableInCaseReplay: true,
     availableMutations: syntheticMutations,
   },
@@ -126,6 +132,10 @@ export const replayScenarioCatalog = {
 export const reviewerFacingReplayScenarios = {
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-conflicting-evidence.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-conflicting-evidence.csv"
+    ],
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   "rapid-price-lift-broad-participation.csv":

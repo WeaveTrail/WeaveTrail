@@ -23,6 +23,7 @@ export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
   "concentrated-buy-dialect-b.jsonl",
   "published-execution-fix44.csv",
+  "published-execution-fix44-conflicting-evidence.csv",
   "published-execution-h0stcnt0.jsonl",
   "rapid-price-lift-supported.csv",
   "rapid-price-lift-broad-participation.csv",

@@ -3,7 +3,9 @@
 ## Status
 
 Accepted. Verified by catalog, reviewer-list, result-coverage, and existing
-engine golden tests.
+engine golden tests. [ADR 0039](0039-separate-missing-evidence-abstention-from-conflict-review.md)
+later replaces the `INCONCLUSIVE` fallback with a published-schema-grounded
+case; the selection rule remains unchanged.
 
 ## Context
 
