@@ -1,0 +1,129 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic KIS H0STCNT0 execution projection",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors from the cited published schema and rule documents.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "published-execution-h0stcnt0.jsonl",
+      "sha256": "c6fb040df7cf060d43795424f95a8261b0ca4a06486750639c9762e39893c8ef"
+    }
+  },
+  "syntheticity": {
+    "values": "Every value in this dialect is synthetic, including the business date, execution times, instrument, side selections, prices and quantities or volumes.",
+    "entities": "ZZ79X1 is fictional and is not a six-digit domestic listing code. This dialect contains no account or participant column. No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was requested, retrieved, committed, redistributed or used to calibrate or choose these values. The cited market rules are published rules, not data."
+  },
+  "derivation": {
+    "kind": "published-schema-projection",
+    "description": "The committed JSON Lines file projects selected H0STCNT0 response-column names and code values over invented values. It copies no KIS response or market-data bytes.",
+    "schemaSources": [
+      {
+        "id": "kis-h0stcnt0-columns",
+        "title": "Korea Investment & Securities H0STCNT0 response-column example",
+        "url": "https://github.com/koreainvestment/open-trading-api/blob/b4e6249714418aa57833d1cbbbced39cbcc5b125/examples_llm/domestic_stock/ccnl_krx/ccnl_krx.py",
+        "retrievedOn": "2026-09-08"
+      },
+      {
+        "id": "kis-h0stcnt0-field-map",
+        "title": "Korea Investment & Securities H0STCNT0 field-name map",
+        "url": "https://github.com/koreainvestment/open-trading-api/blob/b4e6249714418aa57833d1cbbbced39cbcc5b125/examples_llm/domestic_stock/ccnl_krx/chk_ccnl_krx.py",
+        "retrievedOn": "2026-09-08"
+      },
+      {
+        "id": "kis-h0stcnt0-side-codes",
+        "title": "Korea Investment & Securities WebSocket sample with H0STCNT0 CCLD_DVSN values",
+        "url": "https://github.com/koreainvestment/open-trading-api/blob/b4e6249714418aa57833d1cbbbced39cbcc5b125/legacy/Sample01/kis_domstk_ws.py",
+        "retrievedOn": "2026-09-08"
+      }
+    ],
+    "ruleSources": [
+      {
+        "id": "krx-tick-size-rules",
+        "title": "Korea Exchange — Guide to Trading in the Korean Stock Market",
+        "url": "https://global.krx.co.kr/contents/GLB/01/0109/0109000000/guide_to_trading_in_the_korean_stock_market.pdf",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published tick-size rule only; no market observations or response data were taken from it."
+      },
+      {
+        "id": "krx-session-hours",
+        "title": "Korea Exchange — Trading Hours",
+        "url": "https://global.krx.co.kr/contents/GLB/06/0602/0602020204/GLB0602020204T1.jsp",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published regular-session rule only; no market observations or response data were taken from it."
+      }
+    ],
+    "fieldCorrespondence": [
+      {
+        "publishedField": "MKSC_SHRN_ISCD",
+        "committedColumn": "MKSC_SHRN_ISCD",
+        "canonicalUse": "instrumentId",
+        "schemaSourceIds": ["kis-h0stcnt0-columns", "kis-h0stcnt0-field-map"]
+      },
+      {
+        "publishedField": "STCK_CNTG_HOUR",
+        "committedColumn": "STCK_CNTG_HOUR",
+        "canonicalUse": "eventTime with BSOP_DATE; sourceEventId within this bounded specimen",
+        "schemaSourceIds": ["kis-h0stcnt0-columns", "kis-h0stcnt0-field-map"]
+      },
+      {
+        "publishedField": "STCK_PRPR",
+        "committedColumn": "STCK_PRPR",
+        "canonicalUse": "price",
+        "schemaSourceIds": ["kis-h0stcnt0-columns", "kis-h0stcnt0-field-map"]
+      },
+      {
+        "publishedField": "CNTG_VOL",
+        "committedColumn": "CNTG_VOL",
+        "canonicalUse": "quantity",
+        "schemaSourceIds": ["kis-h0stcnt0-columns", "kis-h0stcnt0-field-map"]
+      },
+      {
+        "publishedField": "CCLD_DVSN",
+        "committedColumn": "CCLD_DVSN",
+        "canonicalUse": "side; published codes 1=BUY and 5=SELL",
+        "schemaSourceIds": [
+          "kis-h0stcnt0-columns",
+          "kis-h0stcnt0-field-map",
+          "kis-h0stcnt0-side-codes"
+        ]
+      },
+      {
+        "publishedField": "BSOP_DATE",
+        "committedColumn": "BSOP_DATE",
+        "canonicalUse": "eventTime with STCK_CNTG_HOUR",
+        "schemaSourceIds": ["kis-h0stcnt0-columns", "kis-h0stcnt0-field-map"]
+      }
+    ],
+    "takenFromSpecifications": [
+      "H0STCNT0 response field names",
+      "H0STCNT0 CCLD_DVSN code values 1 and 5",
+      "H0STCNT0 business-date and execution-time notation",
+      "H0STCNT0 price and execution-volume notation",
+      "KRX regular-session hours 09:00–15:30 Korea Standard Time",
+      "KRX KOSPI tick size of KRW 50 for prices from KRW 10,000 through less than KRW 50,000"
+    ],
+    "inventedProperties": [
+      "instrument and issuer identity",
+      "business date and execution times within the cited session",
+      "side sequence",
+      "prices on the cited tick ladder",
+      "quantities and volumes"
+    ],
+    "actorDimension": "Per-execution actor attribution is not published in any domestic source; no domestic source recorded by this repository supplies it. The RAPID_PRICE_LIFT rule treats actorId as an eligibility condition, so the participant dimension must remain synthetic and may not be inferred from H0STCNT0.",
+    "absentFields": [
+      {
+        "investigationField": "actorId",
+        "publishedSchema": "H0STCNT0",
+        "reason": "The published response-column list contains no participant or account field.",
+        "workbenchHandling": "The mapping proposal records actorId as absent and REVIEW_REQUIRED. A reviewer may acknowledge the absence, but the workbench does not copy, infer or synthesize an actor and will not run the participant-dependent rule over this dialect."
+      }
+    ]
+  },
+  "validation": {
+    "command": "pnpm exec vitest run packages/replay-engine/src/published-execution-schema.test.ts packages/scenarios/src/source-artifacts.test.ts",
+    "environment": "Node 22.18.0, pnpm 10.33.2, Vitest 4.1.11, Linux WSL2 x86_64",
+    "capturedOutput": "Parser rows, shared-field normalization, actor absence and fail-closed refusal are asserted. This dialect has no approved actor-dependent case result.",
+    "limitations": "This single deterministic synthetic dialect measures neither mapping quality nor detection performance. It cannot supply participant identity and does not produce a pattern verdict."
+  }
+}
