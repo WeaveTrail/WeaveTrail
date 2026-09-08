@@ -1386,6 +1386,27 @@ code {
   border-left: 3px solid var(--authorship-human);
   background: var(--authorship-human-bg);
 }
+/* Printing has no way to advance a chapter, and the `[hidden]` rule that makes
+   the stepper work would otherwise reduce a printed case to whichever chapter
+   happened to be open. The paper copy carries the whole procedure. */
+@media print {
+  .case-split {
+    display: block;
+  }
+  .case-chapter[hidden] {
+    display: block !important;
+  }
+  .case-chapter + .case-chapter {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: var(--hairline) !important;
+  }
+  .case-chapter-rail,
+  .chapter-controls,
+  .run-finished {
+    display: none !important;
+  }
+}
 .chapter-position {
   font: var(--type-small);
   color: var(--text-muted);

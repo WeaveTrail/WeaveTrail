@@ -1245,9 +1245,15 @@ export function CaseReplay({
     // reason, then the request that has to produce a proposal at all, then the
     // approval. A disabled control cannot take focus, so one is only offered
     // when it can be acted on.
+    // The request control stays rendered after a proposal arrives, so it is
+    // only a candidate while the example has none: offering it afterwards
+    // would send the visitor to re-request a proposal they already approved.
+    const proposalShown = example.querySelector(".mapping-preview") !== null;
     const candidates = [
       example.querySelector<HTMLElement>('[data-review-unresolved="true"]'),
-      example.querySelector<HTMLElement>(".request-mapping"),
+      proposalShown
+        ? null
+        : example.querySelector<HTMLElement>(".request-mapping"),
       document.getElementById(GUIDE_TARGET_EXAMPLE),
     ];
     const next = candidates.find(
@@ -2201,8 +2207,8 @@ export function CaseReplay({
                 )}
                 <p className="approval-binding">
                   {t(
-                    "Approving binds to the instrument, window and threshold values shown above, and to nothing else.",
-                    "승인은 위에 보이는 종목과 구간, 판단 기준 값에만 묶이고 그 밖의 것에는 묶이지 않습니다.",
+                    "Approving binds to this exact case manifest in full — every field of it, not only the values listed above.",
+                    "승인은 이 사례 manifest 전체에 그대로 묶입니다. 위에 나열한 값에만 묶이는 것이 아니라 모든 항목이 포함됩니다.",
                   )}
                 </p>
                 <button

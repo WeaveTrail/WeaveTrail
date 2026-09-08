@@ -573,6 +573,39 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
+  it("prints the whole case, not the chapter that happened to be open", () => {
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    // Printing cannot advance a chapter, and the rule that makes the stepper
+    // work hides five of six. The noscript override does not apply to a print
+    // from a scripted page, so print needs its own.
+    const print = styles.slice(styles.indexOf("@media print"));
+    expect(print).toContain(".case-chapter[hidden]");
+    expect(print).toContain("display: block !important");
+    for (const hidden of [".case-chapter-rail", ".chapter-controls"])
+      expect(print).toContain(hidden);
+  });
+
+  it("ends the citation jump on a fragment that names no chapter", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // The global skip link leaves a `#main-content` entry, so Back can restore
+    // a fragment that is not empty and names nothing here. Treating only the
+    // empty case as the end of the jump stranded the reader on the cited
+    // chapter until a second Back.
+    expect(surfaceSource).toContain(
+      'const target = fragment === "" ? null : chapterOf(fragment);',
+    );
+    expect(surfaceSource).toContain("if (target !== null) {");
+  });
+
   it("keeps an origin for every history visit to the cited chapter", () => {
     const surfaceSource = readFileSync(
       resolve(

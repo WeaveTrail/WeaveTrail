@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -347,6 +349,32 @@ describe("replay mapping status boundary", () => {
       },
     ]);
     expect(mappingOverrides(proposal, { [sourceNotePath]: "   " })).toEqual([]);
+  });
+
+  it("says an approval covers the whole manifest it hashes", async () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      "utf8",
+    );
+    // approveCase hashes the entire manifest, so naming only the instrument,
+    // window and thresholds understated what the reviewer was committing to.
+    expect(source).toContain("attemptApproval(selectedScenario.manifest)");
+    expect(source).toContain("this exact case manifest in full");
+    expect(source).toContain("사례 manifest 전체에 그대로 묶입니다");
+    expect(source).not.toContain("and to nothing else.");
+  });
+
+  it("only offers the proposal request while the example has no proposal", async () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      "utf8",
+    );
+    // The request control stays rendered after a proposal arrives, so offering
+    // it unconditionally sent the visitor to re-request an approved proposal.
+    expect(source).toContain(
+      'const proposalShown = example.querySelector(".mapping-preview") !== null',
+    );
+    expect(source).toContain("proposalShown");
   });
 
   it("explains every workflow state it can render, in both languages", async () => {

@@ -218,20 +218,18 @@ export function PublishedCaseSurface({
   useEffect(() => {
     const followFragment = (recordOrigin: boolean) => {
       const fragment = window.location.hash.slice(1);
-      if (fragment !== "") {
-        const target = chapterOf(fragment);
+      const target = fragment === "" ? null : chapterOf(fragment);
+      if (target !== null) {
         // Forward re-opens the cited chapter, so the chapter being left has to
         // be recorded again. Without this the origin is spent by the first
         // Back and a second one clears the URL while the page stays put.
-        if (
-          recordOrigin &&
-          target !== null &&
-          target !== activeChapterRef.current
-        )
+        if (recordOrigin && target !== activeChapterRef.current)
           citedFrom.current = activeChapterRef.current;
         revealTarget(fragment);
         return;
       }
+      // No fragment, or one naming nothing in this case — the global skip link
+      // leaves such an entry. Either way the citation jump is over.
       const origin = citedFrom.current;
       if (origin === null) return;
       citedFrom.current = null;
