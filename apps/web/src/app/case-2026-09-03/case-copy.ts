@@ -4,6 +4,16 @@ export type Chapter = { title: string; purpose: string };
 
 export type CaseCopy = {
   chapters: readonly Chapter[];
+  /** The case advances one chapter at a time, so the reader is told where in
+   *  the procedure they are and how to move, rather than being left to judge
+   *  it from scroll position. */
+  chapterListLabel: string;
+  chapterPositionOf: (position: number, total: number) => string;
+  chapterCurrentTag: string;
+  chapterReadTag: string;
+  previousChapter: string;
+  nextChapter: string;
+  chaptersWithoutScript: string;
   columnsLede: string;
   columnHeaders: readonly [string, string, string];
   legTableTitles: Readonly<Record<string, string>>;
@@ -48,6 +58,9 @@ export type CaseCopy = {
   run: string;
   running: string;
   runBlocked: string;
+  ranAlready: string;
+  runFinishedElsewhere: string;
+  goToResult: string;
   resultTitle: string;
   gates: string;
   observations: string;
@@ -133,6 +146,14 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
           "더 말할 수 있는 자료가 없기 때문입니다. 어디까지 말했고 어디부터 말하지 않는지 분명히 합니다.",
       },
     ],
+    chapterListLabel: "사례 단계",
+    chapterPositionOf: (position, total) => `${total}단계 중 ${position}단계`,
+    chapterCurrentTag: "보는 중",
+    chapterReadTag: "읽음",
+    previousChapter: "이전 단계",
+    nextChapter: "다음 단계",
+    chaptersWithoutScript:
+      "자바스크립트가 꺼져 있어 여섯 단계를 한 화면에 이어서 보여 줍니다.",
     columnsLede:
       "발행처는 자기 약어를 씁니다. 아래가 그 약어와, 조사에서 쓰는 이름의 대응입니다. 두 자료는 서로 다르게 대응합니다. 지수는 이름으로, 선물은 표준코드로 종목을 가립니다. 이 대응은 이미 검토·기록되어 있고, 이 페이지에서 사용자가 승인하는 것은 다음 단계의 조사 범위입니다.",
     legTableTitles: {
@@ -222,6 +243,9 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     run: "증거 분석 실행",
     running: "분석 실행 중…",
     runBlocked: "조사 범위를 먼저 승인하세요.",
+    ranAlready: "분석을 실행했습니다. 결과는 다음 단계에 있습니다.",
+    runFinishedElsewhere: "분석이 끝났습니다.",
+    goToResult: "결과 보기",
     resultTitle: "결과",
     gates: "판단 항목",
     observations: "두 시장의 그날",
@@ -347,6 +371,14 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
           "Because the data runs out. What was said, and what is deliberately not said.",
       },
     ],
+    chapterListLabel: "Case chapters",
+    chapterPositionOf: (position, total) => `Chapter ${position} of ${total}`,
+    chapterCurrentTag: "Reading",
+    chapterReadTag: "Read",
+    previousChapter: "Previous chapter",
+    nextChapter: "Next chapter",
+    chaptersWithoutScript:
+      "JavaScript is off, so all six chapters are shown in sequence on one page.",
     columnsLede:
       "The publisher uses its own abbreviations. Below is each one, what it holds, and the name an investigation gives it. The two artifacts do not map the same way: the index identifies its instrument by name, the future by standard code. This join was reviewed and recorded already; what you approve on this page is the scope in the next chapter.",
     legTableTitles: {
@@ -436,6 +468,9 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     run: "Run the evidence analysis",
     running: "Running…",
     runBlocked: "Approve the case scope first.",
+    ranAlready: "The analysis has run. The result is in the next chapter.",
+    runFinishedElsewhere: "The analysis finished.",
+    goToResult: "Go to the result",
     resultTitle: "Result",
     gates: "Checks",
     observations: "Both markets that day",

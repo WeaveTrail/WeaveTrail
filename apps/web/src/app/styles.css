@@ -691,12 +691,94 @@ button:disabled {
 .journey-footer .journey-controls {
   margin-top: 0;
 }
-/* The control that advances the current step, wherever it is rendered. */
+/* The control that advances the current step, wherever it is rendered. It has
+   to be findable at a glance among the reading around it, so it carries a ring
+   rather than only an outline. Nothing else on the step is emphasised this way:
+   if everything were, the mark would say nothing. */
 .step-action {
   outline: var(--rule-accent);
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--state-review-bg);
 }
-/* Not the work itself: a way to the part of the case where the work happens. */
+/* An approval that has happened must not look like one still being asked for.
+   The unapproved control is the filled primary; the approved one steps back to
+   a quiet control and says so. */
+.button[data-approved="true"] {
+  border-color: var(--authorship-human);
+  color: var(--authorship-human);
+}
+.button[data-approved="true"]::after {
+  content: " \2713";
+}
+/* The fields blocking the step, named above the proposal rather than found by
+   scrolling it. Every proposed field stays visible below; this only says which
+   of them is waiting. */
+.review-summary {
+  display: grid;
+  gap: 8px;
+  margin-block: 16px;
+  padding: 12px;
+  border-left: 3px solid var(--state-review);
+  background: var(--state-review-bg);
+}
+.review-summary p {
+  max-width: var(--prose-max);
+  margin: 0;
+}
+.review-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-jump {
+  padding: 4px 10px;
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+  color: var(--text-strong);
+  font: var(--type-mono-sm);
+  cursor: pointer;
+}
+.review-jump:hover {
+  background: var(--action-quiet-hover);
+}
+.review-jump::after {
+  content: " \2193";
+}
+/* An input that still blocks the step is marked where it is, so arriving at it
+   from the summary lands somewhere that looks like the thing being asked for. */
+input[data-review-unresolved="true"] {
+  border-color: var(--state-review);
+  background: var(--state-review-bg);
+}
+.approval-binding {
+  max-width: var(--prose-max);
+  margin-block: 12px 8px;
+  color: var(--text-muted);
+}
+.workflow-state small {
+  display: block;
+  max-width: var(--prose-max);
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+.source-evidence summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+/* Not the work itself: a way to the part of the case where the work happens.
+   It is still the control the rail offers for this step, so it is as findable
+   as one that commits something; the arrow is what says the two differ. */
+.step-locate {
+  outline: var(--rule-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--state-review-bg);
+}
 .step-locate::after {
   content: " \2193";
 }
@@ -1191,6 +1273,157 @@ code {
 .case-chapter:first-of-type {
   border-top: 0;
 }
+/* Inside the stepper only one chapter is on screen, so the rule that separated
+   stacked chapters would draw a line above nothing. The rail and the controls
+   carry the separation instead. */
+.case-chapters .case-chapter {
+  border-top: 0;
+  padding-block: 0;
+}
+/* The rail is a column beside the chapter, not a band above it. Sitting above,
+   it pushed the step it describes below the fold, which is the one thing this
+   layout exists to prevent. Sticky, so the whole procedure stays in view and
+   any chapter is one click away at any scroll position. */
+.case-split {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(0, 3fr);
+  gap: 12px 32px;
+  align-items: start;
+  padding-top: 20px;
+  border-top: var(--hairline);
+}
+.case-split > .case-opening,
+.case-split > .case-chapters,
+.case-split > .chapter-controls,
+.case-split > noscript {
+  grid-column: 2;
+}
+.case-split > .case-chapter-rail {
+  position: sticky;
+  top: calc(var(--appbar-height) + 16px);
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+  max-height: calc(100vh - var(--appbar-height) - 32px);
+  overflow-y: auto;
+}
+.case-chapter-rail {
+  padding-block: 4px;
+}
+/* One entry per line in the column; the six-across grid was for a band. */
+.case-split .case-chapter-rail .journey-progress {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 900px) {
+  .case-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case-split > .case-opening,
+  .case-split > .case-chapters,
+  .case-split > .chapter-controls,
+  .case-split > noscript,
+  .case-split > .case-chapter-rail {
+    grid-column: 1;
+  }
+  .case-split > .case-chapter-rail {
+    position: static;
+    grid-row: auto;
+    max-height: none;
+    border-bottom: var(--hairline);
+  }
+  .case-split .case-chapter-rail .journey-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* A grid rather than a wrapping row: six equal columns break to three and to
+   two without ever leaving one entry stretched across a row of its own. */
+.case-chapter-rail .journey-progress {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case-chapter-rail .journey-step {
+  padding: 8px 10px;
+  border-radius: 2px;
+}
+.case-chapter-rail .journey-step span {
+  font: var(--type-small);
+  line-height: 1.5;
+}
+.case-chapter-rail .journey-step:hover {
+  background: var(--selected-bg);
+}
+/* The reader's own position is the one thing on the rail that must not be
+   mistaken for anything else, so it carries a colour and a weight no other
+   entry has. */
+.case-chapter-rail [aria-current="step"] .journey-step {
+  background: var(--selected-bg);
+  box-shadow: inset 2px 0 0 var(--teal-700);
+  font-weight: var(--weight-semibold);
+}
+.chapter-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: var(--hairline);
+}
+/* Stated in the row that is visible from every chapter, because a run can
+   finish while the reader is somewhere the result cannot be seen. */
+.run-finished {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  margin-right: auto;
+  padding: 6px 10px;
+  border-left: 3px solid var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
+/* Printing has no way to advance a chapter, and the `[hidden]` rule that makes
+   the stepper work would otherwise reduce a printed case to whichever chapter
+   happened to be open. The paper copy carries the whole procedure. */
+@media print {
+  .case-split {
+    display: block;
+  }
+  .case-chapter[hidden] {
+    display: block !important;
+  }
+  .case-chapter + .case-chapter {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: var(--hairline) !important;
+  }
+  .case-chapter-rail,
+  .chapter-controls,
+  .run-finished {
+    display: none !important;
+  }
+}
+.chapter-position {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+@media (max-width: 1100px) {
+  .case-chapter-rail .journey-progress {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .case-chapter-rail .journey-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chapter-controls {
+    flex-wrap: wrap;
+  }
+}
 .chapter-head {
   display: grid;
   grid-template-columns: 3rem minmax(0, 1fr);
@@ -1226,10 +1459,51 @@ code {
 .chapter-body > h3 {
   margin-top: 28px;
 }
+/* The frame the chapters are read inside, kept to a band. The chart in its
+   short form sits beside what the page refuses to claim rather than above it,
+   so the first step is reachable without scrolling past a screenful first. */
 .case-opening {
   display: grid;
-  gap: 24px;
-  padding-block: 8px 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px 24px;
+  align-items: start;
+  padding-block: 0 16px;
+}
+/* Chart and premise share one row; the provenance note runs full width under
+   them, where it wraps in two lines instead of the six a narrow column costs. */
+/* The day itself runs the full width of the column, because the shape of the
+   session is the one thing on this page worth seeing at size. What the chart is
+   and what the page will not claim sit under it, side by side. */
+.case-session {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+}
+.case-opening .intraday-reference {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+  max-width: none;
+  padding: 10px 14px;
+}
+.case-opening .case-premise {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: stretch;
+  max-width: none;
+}
+@media (max-width: 900px) {
+  .case-session,
+  .case-opening .case-premise,
+  .case-opening .intraday-reference {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+@media (max-width: 900px) {
+  .case-opening {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .case-premise {
   max-width: var(--prose-max);

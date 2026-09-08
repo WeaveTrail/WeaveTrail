@@ -10,6 +10,8 @@ import {
   publishedCaseSeries,
 } from "../../lib/published-case";
 import {
+  PUBLISHED_CASE_APPROVAL_ERROR_ID,
+  PUBLISHED_CASE_RUN_ERROR_ID,
   PUBLISHED_CASE_THRESHOLD_ORIGIN_ID,
   PublishedCaseSurface,
   ThresholdOriginReference,
@@ -362,5 +364,363 @@ describe("the 2026-09-03 case surface", () => {
       '["하루 안의 급락과 회복", "/case-2026-09-03"]',
     );
     expect(navigation).not.toContain("9월 3일 사례");
+  });
+  it("serves every chapter but shows one at a time", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      const chapters = markup.match(/class="case-chapter"/g) ?? [];
+      expect(chapters, language).toHaveLength(
+        caseCopy[language].chapters.length,
+      );
+      // Every chapter stays in the served markup. Hiding the rest is what
+      // makes it a procedure to step through rather than a page to scroll,
+      // and it keeps the whole case readable to anything that reads the
+      // markup instead of running the page.
+      const hidden = markup.match(/class="case-chapter" hidden/g) ?? [];
+      expect(hidden, language).toHaveLength(chapters.length - 1);
+      expect(markup.indexOf('class="case-chapter"'), language).toBeLessThan(
+        markup.indexOf('class="case-chapter" hidden'),
+      );
+    }
+  });
+
+  it("names every chapter on the rail and marks the one being read", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      const markup = surface(language);
+      expect(markup, language).toContain(
+        `aria-label="${text.chapterListLabel}"`,
+      );
+      text.chapters.forEach((chapter, index) => {
+        expect(markup, `${language} ${chapter.title}`).toContain(
+          `${index + 1}. ${chapter.title}`,
+        );
+      });
+      // Exactly one entry is the reader's position, or the rail says nothing
+      // about where they are.
+      const current = markup.match(/aria-current="step"/g) ?? [];
+      expect(current, language).toHaveLength(1);
+      expect(markup, language).toContain(text.chapterCurrentTag);
+      expect(markup, language).toContain(
+        text.chapterPositionOf(1, text.chapters.length),
+      );
+      expect(markup, language).toContain(text.previousChapter);
+      expect(markup, language).toContain(text.nextChapter);
+    }
+  });
+
+  it("runs the chapter list beside the case, not above it", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      // The rail used to be a band between the opening and the chapter, which
+      // pushed the step it describes below the fold. It now shares one region
+      // with the opening and the chapters, so every step is named on screen
+      // from the first paint and the chapter begins under a band.
+      const split = markup.indexOf('class="case-split"');
+      expect(split).toBeGreaterThan(-1);
+      for (const inside of [
+        'class="case-chapter-rail"',
+        'class="case-opening"',
+        'class="case-chapters"',
+        'class="chapter-controls"',
+      ])
+        expect(markup.indexOf(inside), `${language} ${inside}`).toBeGreaterThan(
+          split,
+        );
+      // The rail comes first so it is reached before the case it indexes.
+      expect(markup.indexOf('class="case-chapter-rail"')).toBeLessThan(
+        markup.indexOf('class="case-opening"'),
+      );
+      // The chart is drawn in its short form: the opening is a band the
+      // chapters are read under, not a screenful to scroll past.
+      expect(markup, language).toContain("session-figure compact");
+      // Its wrapper does not borrow the class the result cards use, which
+      // would place both legs of the result in one grid cell.
+      expect(markup, language).toContain('class="case-session"');
+    }
+  });
+
+  it("leaves the day's chart and premise outside the stepped chapters", () => {
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      const markup = surface(language);
+      // The chart and what the page refuses to claim are the frame the
+      // chapters are read inside, so stepping must never hide them.
+      const opening = markup.indexOf('class="case-opening"');
+      const chapters = markup.indexOf('class="case-chapters"');
+      expect(opening, language).toBeGreaterThan(-1);
+      expect(chapters, language).toBeGreaterThan(opening);
+      expect(markup.indexOf(text.intradayCaption), language).toBeLessThan(
+        chapters,
+      );
+      expect(markup.indexOf(text.notOurJobTitle), language).toBeLessThan(
+        chapters,
+      );
+    }
+  });
+
+  it("gives up the stepping rather than the case when scripting is off", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      expect(markup, language).toContain("<noscript>");
+      // Without scripting no control can advance a chapter, so the hiding is
+      // undone instead of stranding the reader on chapter one.
+      expect(markup, language).toContain(
+        ".case-chapter[hidden]{display:block!important}",
+      );
+      expect(markup, language).toContain(
+        caseCopy[language].chaptersWithoutScript,
+      );
+    }
+  });
+
+  it("counts the same chapters in both languages", () => {
+    expect(caseCopy.ko.chapters).toHaveLength(caseCopy.en.chapters.length);
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      for (const chapter of text.chapters) {
+        expect(chapter.title, language).toBeTruthy();
+        expect(chapter.purpose, language).toBeTruthy();
+      }
+      // A position reads differently in the two languages, but it has to name
+      // both numbers in each.
+      const position = text.chapterPositionOf(3, text.chapters.length);
+      expect(position, language).toContain("3");
+      expect(position, language).toContain(String(text.chapters.length));
+    }
+  });
+  it("can put focus on a threshold's provenance from another chapter", () => {
+    for (const language of ["ko", "en"] as const) {
+      const markup = surface(language);
+      // The findings that cite this provenance are read two chapters after the
+      // chapter that fixed it, so following the citation has to open that
+      // chapter. Reaching it is only half the job: it also has to be able to
+      // take focus, or a keyboard reader is told nothing.
+      const target = markup.slice(
+        markup.indexOf(`id="${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`),
+      );
+      expect(target.slice(0, 120), language).toContain('tabindex="-1"');
+      // It is not in the chapter the reader starts on, which is exactly why
+      // the plain fragment is not enough on its own.
+      const chapters = [
+        ...markup.matchAll(/class="case-chapter"(?<hidden> hidden)?/g),
+      ];
+      const before = markup
+        .slice(0, markup.indexOf(`id="${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`))
+        .match(/class="case-chapter"/g);
+      expect(before, language).not.toBeNull();
+      expect(before!.length, language).toBeGreaterThan(1);
+      expect(chapters[before!.length - 1]!.groups?.hidden, language).toBe(
+        " hidden",
+      );
+    }
+  });
+
+  it("carries the citation as a fragment that can still be shared", () => {
+    // The handler opens the chapter, but the href stays a real fragment so the
+    // citation remains copyable and survives with scripting off.
+    const markup = renderToStaticMarkup(
+      createElement(ThresholdOriginReference, { label: "origin" }),
+    );
+    expect(markup).toContain(`href="#${PUBLISHED_CASE_THRESHOLD_ORIGIN_ID}"`);
+  });
+
+  it("undoes the citation jump when its history entry is popped", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Following a citation pushes a history entry, so Back over it clears the
+    // fragment. Answering only a non-empty fragment would return the URL to
+    // its pre-link state while the page stayed on the cited chapter.
+    expect(surfaceSource).toContain(
+      "citedFrom.current = activeChapterRef.current",
+    );
+    expect(surfaceSource).toContain("onNavigate={followCitation}");
+    const handler = surfaceSource.slice(
+      surfaceSource.indexOf("const followFragment = (recordOrigin: boolean)"),
+      surfaceSource.indexOf('window.addEventListener("hashchange"'),
+    );
+    expect(handler).toContain("openChapter(origin)");
+    // The origin is spent once, so a later Back with no citation behind it
+    // does not move the reader.
+    expect(handler).toContain("citedFrom.current = null");
+  });
+
+  it("does not leave a completed run looking like one never started", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // The result and its live region are in the next chapter. A run landing
+    // while the reader is still on the run chapter has to move them to it, or
+    // the chapter returns to its pre-run appearance and offers the same run
+    // again with nothing to say it already happened.
+    expect(surfaceSource).toContain("activeChapterRef.current === startedIn");
+    // A reader who comes back to the run chapter is told it already ran.
+    expect(surfaceSource).toContain("{result && !running && (");
+    expect(surfaceSource).toContain("{text.ranAlready}");
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.ranAlready, language).toBeTruthy();
+      // It is not the sentence shown while waiting, nor the one shown when the
+      // scope has not been approved.
+      expect(text.ranAlready, language).not.toBe(text.awaitingRun);
+      expect(text.ranAlready, language).not.toBe(text.runBlocked);
+    }
+  });
+
+  it("prints the whole case, not the chapter that happened to be open", () => {
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    // Printing cannot advance a chapter, and the rule that makes the stepper
+    // work hides five of six. The noscript override does not apply to a print
+    // from a scripted page, so print needs its own.
+    const print = styles.slice(styles.indexOf("@media print"));
+    expect(print).toContain(".case-chapter[hidden]");
+    expect(print).toContain("display: block !important");
+    for (const hidden of [".case-chapter-rail", ".chapter-controls"])
+      expect(print).toContain(hidden);
+  });
+
+  it("ends the citation jump on a fragment that names no chapter", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // The global skip link leaves a `#main-content` entry, so Back can restore
+    // a fragment that is not empty and names nothing here. Treating only the
+    // empty case as the end of the jump stranded the reader on the cited
+    // chapter until a second Back.
+    expect(surfaceSource).toContain(
+      'const target = fragment === "" ? null : chapterOf(fragment);',
+    );
+    expect(surfaceSource).toContain("if (target !== null) {");
+  });
+
+  it("keeps an origin for every history visit to the cited chapter", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Back, Forward, Back: the first Back spends the origin, so Forward has to
+    // record it again or the second Back clears the URL while the page stays
+    // on the cited chapter.
+    expect(surfaceSource).toContain(
+      "citedFrom.current = activeChapterRef.current",
+    );
+    expect(surfaceSource).toContain("followFragment(true)");
+    // The fragment arrived on has no jump to undo, so it records nothing.
+    expect(surfaceSource).toContain("followFragment(false)");
+  });
+
+  it("says a run finished even when the reader is not where the result is", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Leaving a reader who moved on is deliberate, but the result and the run
+    // chapter's own note are both hidden from where they stand.
+    // A rerun keeps the previous result in state, so the notice stands down
+    // while one is in flight rather than offering the old output as the new.
+    expect(surfaceSource).toContain(
+      "result && !running && activeChapter !== RESULT_CHAPTER",
+    );
+    expect(surfaceSource).toContain('role="status"');
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.runFinishedElsewhere, language).toBeTruthy();
+      expect(text.goToResult, language).toBeTruthy();
+      expect(text.runFinishedElsewhere, language).not.toBe(text.ranAlready);
+    }
+  });
+
+  it("answers a fragment restored by history, not only one arrived on", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Following a citation pushes a history entry, so the fragment can come
+    // back through Back and Forward long after mount. Reading location.hash
+    // once would leave the restored fragment pointing into a hidden chapter.
+    expect(surfaceSource).toContain(
+      'window.addEventListener("hashchange", onHashChange)',
+    );
+    expect(surfaceSource).toContain(
+      'window.removeEventListener("hashchange", onHashChange)',
+    );
+  });
+
+  it("shows each refusal in the chapter whose control produced it", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Approval and the run refuse from controls two chapters apart. One shared
+    // error could only be rendered in one of them, so the other chapter's
+    // failure would leave the reader with an unchanged control and no alert.
+    const approveChapter = surfaceSource.indexOf("case-approve");
+    const runChapter = surfaceSource.indexOf("run-button");
+    const approvalAlert = surfaceSource.indexOf(
+      "id={PUBLISHED_CASE_APPROVAL_ERROR_ID}",
+    );
+    const runAlert = surfaceSource.indexOf("id={PUBLISHED_CASE_RUN_ERROR_ID}");
+    expect(approveChapter).toBeGreaterThan(-1);
+    expect(approvalAlert).toBeGreaterThan(approveChapter);
+    expect(approvalAlert).toBeLessThan(runChapter);
+    expect(runAlert).toBeGreaterThan(runChapter);
+    // Neither refusal is reachable through the other's state.
+    expect(surfaceSource).not.toContain("setError(");
+    expect(PUBLISHED_CASE_APPROVAL_ERROR_ID).not.toBe(
+      PUBLISHED_CASE_RUN_ERROR_ID,
+    );
+  });
+
+  it("gives a refused run an identity that can be returned to", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // A run can fail after the reader has moved on, so both refusal paths send
+    // the case back to the chapter that started it rather than leaving the
+    // alert inside a hidden chapter.
+    expect(surfaceSource).toContain("const startedIn = activeChapter;");
+    // Both refusal paths go through the navigation that moves focus. A bare
+    // state change would hide the section holding the focused element while
+    // leaving focus inside it.
+    expect(
+      surfaceSource.match(
+        /if \(activeChapterRef\.current !== startedIn\) openChapter\(startedIn\);/g,
+      ),
+    ).toHaveLength(2);
+    expect(surfaceSource).not.toContain("setActiveChapter(startedIn)");
+    expect(surfaceSource).toContain(`id={PUBLISHED_CASE_RUN_ERROR_ID}`);
+    expect(PUBLISHED_CASE_RUN_ERROR_ID).toBe("published-case-run-error");
   });
 });

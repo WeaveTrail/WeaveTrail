@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -21,15 +23,18 @@ import {
 import {
   APPROVAL_HASH_ERROR,
   attemptApproval,
+  flaggedMappingFields,
   hasUnresolvedMappingReview,
   CaseReplay,
   mappingOverrides,
+  unresolvedMappingFields,
   RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
   type ReplayScenarioOption,
   WorkflowStateBadge,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { ReplayLanguageContext } from "./replay-language";
 import { scenarioOptionLabel } from "./scenario-labels";
 
 function renderedButton(markup: string, label: string): string {
@@ -346,6 +351,151 @@ describe("replay mapping status boundary", () => {
     expect(mappingOverrides(proposal, { [sourceNotePath]: "   " })).toEqual([]);
   });
 
+  it("says an approval covers the whole manifest it hashes", async () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      "utf8",
+    );
+    // approveCase hashes the entire manifest, so naming only the instrument,
+    // window and thresholds understated what the reviewer was committing to.
+    expect(source).toContain("attemptApproval(selectedScenario.manifest)");
+    expect(source).toContain("this exact case manifest in full");
+    expect(source).toContain("사례 manifest 전체에 그대로 묶입니다");
+    expect(source).not.toContain("and to nothing else.");
+  });
+
+  it("only offers the proposal request while the example has no proposal", async () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      "utf8",
+    );
+    // The request control stays rendered after a proposal arrives, so offering
+    // it unconditionally sent the visitor to re-request an approved proposal.
+    expect(source).toContain(
+      'const proposalShown = example.querySelector(".mapping-preview") !== null',
+    );
+    expect(source).toContain("proposalShown");
+  });
+
+  it("explains every workflow state it can render, in both languages", async () => {
+    const { WorkflowStateSchema } = await import("@weavetrail/contracts");
+    // The badge prints the contract's own code. A partial table left the
+    // refusal states — CASE_REVIEW_REQUIRED among them — showing a bare code
+    // with nothing saying what it is.
+    for (const language of ["en", "ko"] as const)
+      for (const state of WorkflowStateSchema.options) {
+        const markup = renderToStaticMarkup(
+          createElement(
+            ReplayLanguageContext.Provider,
+            { value: language },
+            createElement(WorkflowStateBadge, { state }),
+          ),
+        );
+        expect(markup, `${language} ${state}`).toContain(
+          `<code>${state}</code>`,
+        );
+        const meaning = markup.slice(markup.indexOf("<small>"));
+        expect(meaning, `${language} ${state}`).toMatch(/<small>.+<\/small>/);
+      }
+  });
+
+  it("does not call a refused proposal a flagged field", async () => {
+    // MAPPING_REVIEW_REQUIRED is also set when a proposal is rejected or never
+    // obtained, which produces no fields at all, so the sentence cannot send
+    // the reader looking for review work that does not exist.
+    for (const [language, pattern] of [
+      ["en", /no validated proposal/],
+      ["ko", /검증을 통과한 제안/],
+    ] as const) {
+      const markup = renderToStaticMarkup(
+        createElement(
+          ReplayLanguageContext.Provider,
+          { value: language },
+          createElement(WorkflowStateBadge, {
+            state: "MAPPING_REVIEW_REQUIRED" as const,
+          }),
+        ),
+      );
+      expect(markup, language).toMatch(pattern);
+    }
+  });
+
+  it("names the fields that block approval, in the order their rows appear", async () => {
+    const scenario =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+
+    const flagged = flaggedMappingFields(proposal);
+    expect(flagged.length).toBeGreaterThan(0);
+    // The summary, the blocked check and the overrides an approval carries all
+    // read this one list, so a field cannot be named in one and missed by
+    // another. Mapped fields come before absent ones, matching the rows.
+    expect(flagged.map(({ fieldPath }) => fieldPath)).toEqual(
+      mappingOverrides(
+        proposal,
+        Object.fromEntries(flagged.map(({ fieldPath }) => [fieldPath, "why"])),
+      ).map(({ fieldPath }) => fieldPath),
+    );
+    for (const { label } of flagged) expect(label).toBeTruthy();
+
+    // Answering one field removes it from what is still waiting, and nothing
+    // else moves.
+    const first = flagged[0]!;
+    const remaining = unresolvedMappingFields(proposal, {
+      [first.fieldPath]: "reviewed",
+    });
+    expect(remaining.map(({ fieldPath }) => fieldPath)).toEqual(
+      flagged.slice(1).map(({ fieldPath }) => fieldPath),
+    );
+    expect(unresolvedMappingFields(proposal, {})).toEqual(flagged);
+  });
+
+  it("puts the blocking fields above the proposal and points at their inputs", async () => {
+    const scenario =
+      committedReplayScenarios["published-execution-h0stcnt0.jsonl"];
+    const proposal = await new FixtureSchemaMappingProvider().propose({
+      sourceArtifactHash: scenario.sourceArtifactHash,
+      constants: scenario.constants,
+      columns: [...scenario.columns],
+      sampleRows: [],
+    });
+    const markup = renderToStaticMarkup(
+      createElement(CaseReplay, {
+        providerMode: "fixture",
+        proposals: { [scenario.sourceArtifactHash]: proposal },
+        scenarios: [
+          {
+            value: "published-execution-h0stcnt0.jsonl",
+            label: scenario.label,
+            sourceArtifactHash: scenario.sourceArtifactHash,
+            rows: scenario.rows,
+          },
+        ],
+      }),
+    );
+
+    // The summary comes before the rows it names, so the work is reachable
+    // without scrolling the whole proposal first.
+    const summary = markup.indexOf('class="review-summary"');
+    const firstRow = markup.indexOf('class="mapping-row"');
+    expect(summary).toBeGreaterThan(-1);
+    expect(firstRow).toBeGreaterThan(summary);
+    // Every proposed field is still rendered: the blocking ones are named,
+    // not the rest hidden.
+    expect(markup).toContain("mapping-row");
+    for (const { fieldPath } of flaggedMappingFields(proposal))
+      expect(markup).toContain(
+        `id="mapping-review-case-${fieldPath.replace(".", "-")}"`,
+      );
+    // An input that still blocks the step says so where it sits.
+    expect(markup).toContain('data-review-unresolved="true"');
+  });
+
   it("clears the blocked state after every flagged field has a reviewer reason", async () => {
     const scenario =
       committedReplayScenarios["concentrated-buy-dialect-b.jsonl"];
@@ -473,11 +623,15 @@ describe("finding evidence disclosures", () => {
       evaluation.findings.forEach((finding, index) => {
         const disclosure = disclosures[index]!;
         // The first disclosure carries the id the step rail sends a visitor
-        // to; the rest carry none.
+        // to; the rest carry none. The summary also says what opening it
+        // shows, so the name is asserted rather than the whole element.
         expect(disclosure).toContain(
           index === 0
-            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}</summary>`
-            : `<summary>Inspect source evidence for ${finding.gate}</summary>`,
+            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}`
+            : `<summary>Inspect source evidence for ${finding.gate}`,
+        );
+        expect(disclosure).toContain(
+          "The canonical events this check counted, and the committed source row behind each one.",
         );
         for (const entry of sourceTrace.entries) {
           if (!finding.referencedEventIds.includes(entry.event.eventId)) {
