@@ -32,6 +32,7 @@ import {
   WorkflowStateBadge,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
+import { ReplayLanguageContext } from "./replay-language";
 import { scenarioOptionLabel } from "./scenario-labels";
 
 function renderedButton(markup: string, label: string): string {
@@ -346,6 +347,49 @@ describe("replay mapping status boundary", () => {
       },
     ]);
     expect(mappingOverrides(proposal, { [sourceNotePath]: "   " })).toEqual([]);
+  });
+
+  it("explains every workflow state it can render, in both languages", async () => {
+    const { WorkflowStateSchema } = await import("@weavetrail/contracts");
+    // The badge prints the contract's own code. A partial table left the
+    // refusal states — CASE_REVIEW_REQUIRED among them — showing a bare code
+    // with nothing saying what it is.
+    for (const language of ["en", "ko"] as const)
+      for (const state of WorkflowStateSchema.options) {
+        const markup = renderToStaticMarkup(
+          createElement(
+            ReplayLanguageContext.Provider,
+            { value: language },
+            createElement(WorkflowStateBadge, { state }),
+          ),
+        );
+        expect(markup, `${language} ${state}`).toContain(
+          `<code>${state}</code>`,
+        );
+        const meaning = markup.slice(markup.indexOf("<small>"));
+        expect(meaning, `${language} ${state}`).toMatch(/<small>.+<\/small>/);
+      }
+  });
+
+  it("does not call a refused proposal a flagged field", async () => {
+    // MAPPING_REVIEW_REQUIRED is also set when a proposal is rejected or never
+    // obtained, which produces no fields at all, so the sentence cannot send
+    // the reader looking for review work that does not exist.
+    for (const [language, pattern] of [
+      ["en", /no validated proposal/],
+      ["ko", /검증을 통과한 제안/],
+    ] as const) {
+      const markup = renderToStaticMarkup(
+        createElement(
+          ReplayLanguageContext.Provider,
+          { value: language },
+          createElement(WorkflowStateBadge, {
+            state: "MAPPING_REVIEW_REQUIRED" as const,
+          }),
+        ),
+      );
+      expect(markup, language).toMatch(pattern);
+    }
   });
 
   it("names the fields that block approval, in the order their rows appear", async () => {

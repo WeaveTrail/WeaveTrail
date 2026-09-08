@@ -934,43 +934,59 @@ export function RapidPriceLiftEvaluation({
  * stays exactly as returned; the sentence beside it is what the code is for.
  */
 const workflowStateMeaning: Readonly<
-  Record<Language, Partial<Record<WorkflowState, string>>>
+  Record<Language, Record<WorkflowState, string>>
 > = {
   en: {
     UPLOADED: "The source rows are committed. Nothing has been proposed yet.",
     MAPPING_PROPOSED:
       "A model proposed what the columns mean. Nobody approved it yet.",
+    // Reached both by a flagged field without a reason and by a proposal that
+    // was rejected or never obtained, which produces no fields to review at
+    // all. The sentence has to hold for both.
     MAPPING_REVIEW_REQUIRED:
-      "A flagged field is waiting for a reviewer reason.",
+      "The mapping cannot be approved as it stands: a flagged field is waiting for a reason, or no validated proposal has been accepted.",
     MAPPING_APPROVED:
       "You approved what the columns mean. The case is not approved yet.",
+    CASE_PROPOSED: "A case scope is proposed. Nobody approved it yet.",
+    CASE_REVIEW_REQUIRED:
+      "The server refused the case scope or its approval, so no rule ran.",
+    CASE_APPROVED: "You approved the scope. The case has not been run yet.",
     INPUT_REVIEW_REQUIRED:
       "The submitted input did not pass validation, so nothing ran.",
     REPLAYED:
       "Versioned code recomputed the case from the approved input and returned this result.",
+    EXPORTED:
+      "A result written into an evidence bundle. Bundle export is planned, so this surface does not reach this state.",
   },
   ko: {
     UPLOADED: "원본 행이 그대로 올라와 있습니다. 아직 제안된 것은 없습니다.",
     MAPPING_PROPOSED:
       "AI가 항목의 뜻을 제안했습니다. 아직 아무도 승인하지 않았습니다.",
-    MAPPING_REVIEW_REQUIRED: "확인이 필요한 항목이 이유를 기다리고 있습니다.",
+    MAPPING_REVIEW_REQUIRED:
+      "지금 상태로는 연결 제안을 승인할 수 없습니다. 확인이 필요한 항목이 이유를 기다리고 있거나, 검증을 통과한 제안을 아직 받지 못했습니다.",
     MAPPING_APPROVED:
       "항목의 뜻을 승인했습니다. 조사 범위는 아직 승인 전입니다.",
+    CASE_PROPOSED:
+      "조사 범위가 제안되었습니다. 아직 아무도 승인하지 않았습니다.",
+    CASE_REVIEW_REQUIRED:
+      "서버가 조사 범위나 그 승인을 받아들이지 않아 아무 규칙도 실행되지 않았습니다.",
+    CASE_APPROVED: "조사 범위를 승인했습니다. 아직 실행하지는 않았습니다.",
     INPUT_REVIEW_REQUIRED:
       "보낸 입력이 검증을 통과하지 못해 아무것도 실행되지 않았습니다.",
     REPLAYED:
       "버전이 고정된 코드가 승인된 입력으로 다시 계산해 이 결과를 돌려주었습니다.",
+    EXPORTED:
+      "결과를 증거 묶음으로 내보낸 상태입니다. 증거 묶음 내보내기는 계획 단계라 이 화면은 이 상태에 이르지 않습니다.",
   },
 };
 
 export function WorkflowStateBadge({ state }: { state: WorkflowState }) {
   const language = useReplayLanguage();
-  const meaning = workflowStateMeaning[language][state];
   return (
     <div className="workflow-state" data-state={state}>
       <strong>{replayText(language, "Workflow state", "워크플로 상태")}</strong>
       <code>{state}</code>
-      {meaning ? <small>{meaning}</small> : null}
+      <small>{workflowStateMeaning[language][state]}</small>
     </div>
   );
 }
@@ -1224,9 +1240,20 @@ export function CaseReplay({
   function revealExampleWork() {
     if (typeof document === "undefined") return;
     const example = document.querySelector(".mapping-example");
-    const next =
-      example?.querySelector<HTMLElement>('[data-review-unresolved="true"]') ??
-      document.getElementById(GUIDE_TARGET_EXAMPLE);
+    if (!example) return;
+    // In order of what the step is actually waiting for: a field without a
+    // reason, then the request that has to produce a proposal at all, then the
+    // approval. A disabled control cannot take focus, so one is only offered
+    // when it can be acted on.
+    const candidates = [
+      example.querySelector<HTMLElement>('[data-review-unresolved="true"]'),
+      example.querySelector<HTMLElement>(".request-mapping"),
+      document.getElementById(GUIDE_TARGET_EXAMPLE),
+    ];
+    const next = candidates.find(
+      (candidate): candidate is HTMLElement =>
+        candidate !== null && !candidate.matches(":disabled"),
+    );
     if (!next) return;
     next.scrollIntoView({ block: "center", behavior: "smooth" });
     next.focus({ preventScroll: true });
@@ -1782,7 +1809,7 @@ export function CaseReplay({
                   )}
                 </p>
                 <button
-                  className="button"
+                  className="button request-mapping"
                   disabled={requestingMapping}
                   onClick={requestMapping}
                   type="button"
