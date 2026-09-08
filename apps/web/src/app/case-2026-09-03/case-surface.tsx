@@ -161,6 +161,8 @@ export function PublishedCaseSurface({
   // the citation pushed can put the reader back where they were reading.
   const citedFrom = useRef<number | null>(null);
   const chapterCount = text.chapters.length;
+  /** The chapter the returned result is rendered in. */
+  const RESULT_CHAPTER = 4;
   const rule = proposal.rules[0] as Rule;
   const parameters = rule.parameters;
 
@@ -214,9 +216,19 @@ export function PublishedCaseSurface({
   // which is the reader undoing the jump and expecting the chapter they were
   // reading rather than a URL that no longer matches the page.
   useEffect(() => {
-    const followFragment = () => {
+    const followFragment = (recordOrigin: boolean) => {
       const fragment = window.location.hash.slice(1);
       if (fragment !== "") {
+        const target = chapterOf(fragment);
+        // Forward re-opens the cited chapter, so the chapter being left has to
+        // be recorded again. Without this the origin is spent by the first
+        // Back and a second one clears the URL while the page stays put.
+        if (
+          recordOrigin &&
+          target !== null &&
+          target !== activeChapterRef.current
+        )
+          citedFrom.current = activeChapterRef.current;
         revealTarget(fragment);
         return;
       }
@@ -225,11 +237,14 @@ export function PublishedCaseSurface({
       citedFrom.current = null;
       openChapter(origin);
     };
-    const timer = window.setTimeout(followFragment, 0);
-    window.addEventListener("hashchange", followFragment);
+    // The fragment a reader arrives on has no jump to undo: the entry before it
+    // is not ours, so nothing is recorded for it.
+    const timer = window.setTimeout(() => followFragment(false), 0);
+    const onHashChange = () => followFragment(true);
+    window.addEventListener("hashchange", onHashChange);
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener("hashchange", followFragment);
+      window.removeEventListener("hashchange", onHashChange);
     };
   }, [openChapter, revealTarget]);
 
@@ -812,6 +827,22 @@ export function PublishedCaseSurface({
       {/* One step back, one step forward, and the position between them. The
           reader never has to hunt for the control that advances the case. */}
       <div className="chapter-controls">
+        {/* A run can land while the reader is reading another chapter. Leaving
+            them there is deliberate, but the result and the run chapter's own
+            note are both hidden from where they stand, so the finish is stated
+            here, in the one row that is visible from every chapter. */}
+        {result && activeChapter !== RESULT_CHAPTER && (
+          <p className="run-finished" role="status">
+            <span>{text.runFinishedElsewhere}</span>
+            <button
+              className="button"
+              onClick={() => goToChapter(RESULT_CHAPTER)}
+              type="button"
+            >
+              {text.goToResult}
+            </button>
+          </p>
+        )}
         <button
           className="button"
           disabled={activeChapter === 0}

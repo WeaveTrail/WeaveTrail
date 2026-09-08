@@ -1323,6 +1323,19 @@ code {
   padding-top: 24px;
   border-top: var(--hairline);
 }
+/* Stated in the row that is visible from every chapter, because a run can
+   finish while the reader is somewhere the result cannot be seen. */
+.run-finished {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  margin-right: auto;
+  padding: 6px 10px;
+  border-left: 3px solid var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
 .chapter-position {
   font: var(--type-small);
   color: var(--text-muted);

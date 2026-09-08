@@ -59,6 +59,8 @@ export type CaseCopy = {
   running: string;
   runBlocked: string;
   ranAlready: string;
+  runFinishedElsewhere: string;
+  goToResult: string;
   resultTitle: string;
   gates: string;
   observations: string;
@@ -242,6 +244,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     running: "분석 실행 중…",
     runBlocked: "조사 범위를 먼저 승인하세요.",
     ranAlready: "분석을 실행했습니다. 결과는 다음 단계에 있습니다.",
+    runFinishedElsewhere: "분석이 끝났습니다.",
+    goToResult: "결과 보기",
     resultTitle: "결과",
     gates: "판단 항목",
     observations: "두 시장의 그날",
@@ -465,6 +469,8 @@ export const caseCopy: Readonly<Record<Language, CaseCopy>> = {
     running: "Running…",
     runBlocked: "Approve the case scope first.",
     ranAlready: "The analysis has run. The result is in the next chapter.",
+    runFinishedElsewhere: "The analysis finished.",
+    goToResult: "Go to the result",
     resultTitle: "Result",
     gates: "Checks",
     observations: "Both markets that day",

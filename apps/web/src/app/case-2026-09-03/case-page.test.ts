@@ -510,7 +510,7 @@ describe("the 2026-09-03 case surface", () => {
     );
     expect(surfaceSource).toContain("onNavigate={followCitation}");
     const handler = surfaceSource.slice(
-      surfaceSource.indexOf("const followFragment = () => {"),
+      surfaceSource.indexOf("const followFragment = (recordOrigin: boolean)"),
       surfaceSource.indexOf('window.addEventListener("hashchange"'),
     );
     expect(handler).toContain("openChapter(origin)");
@@ -545,6 +545,47 @@ describe("the 2026-09-03 case surface", () => {
     }
   });
 
+  it("keeps an origin for every history visit to the cited chapter", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Back, Forward, Back: the first Back spends the origin, so Forward has to
+    // record it again or the second Back clears the URL while the page stays
+    // on the cited chapter.
+    expect(surfaceSource).toContain(
+      "citedFrom.current = activeChapterRef.current",
+    );
+    expect(surfaceSource).toContain("followFragment(true)");
+    // The fragment arrived on has no jump to undo, so it records nothing.
+    expect(surfaceSource).toContain("followFragment(false)");
+  });
+
+  it("says a run finished even when the reader is not where the result is", () => {
+    const surfaceSource = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/web/src/app/case-2026-09-03/case-surface.tsx",
+      ),
+      "utf8",
+    );
+    // Leaving a reader who moved on is deliberate, but the result and the run
+    // chapter's own note are both hidden from where they stand.
+    expect(surfaceSource).toContain(
+      "result && activeChapter !== RESULT_CHAPTER",
+    );
+    expect(surfaceSource).toContain('role="status"');
+    for (const language of ["ko", "en"] as const) {
+      const text = caseCopy[language];
+      expect(text.runFinishedElsewhere, language).toBeTruthy();
+      expect(text.goToResult, language).toBeTruthy();
+      expect(text.runFinishedElsewhere, language).not.toBe(text.ranAlready);
+    }
+  });
+
   it("answers a fragment restored by history, not only one arrived on", () => {
     const surfaceSource = readFileSync(
       resolve(
@@ -557,10 +598,10 @@ describe("the 2026-09-03 case surface", () => {
     // back through Back and Forward long after mount. Reading location.hash
     // once would leave the restored fragment pointing into a hidden chapter.
     expect(surfaceSource).toContain(
-      'window.addEventListener("hashchange", followFragment)',
+      'window.addEventListener("hashchange", onHashChange)',
     );
     expect(surfaceSource).toContain(
-      'window.removeEventListener("hashchange", followFragment)',
+      'window.removeEventListener("hashchange", onHashChange)',
     );
   });
 
