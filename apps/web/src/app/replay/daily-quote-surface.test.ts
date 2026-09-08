@@ -205,6 +205,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
   it("prepares scenario provenance outside protected mapping artifacts", async () => {
     const prepared = await prepareReplayScenarios();
     for (const scenario of prepared.scenarios) {
+      expect(scenario.provenance?.recordUrl).toContain("/blob/main/");
       if (scenario.provenance?.kind === "synthetic") {
         expect(scenario.provenance.recordUrl).toMatch(
           /packages\/scenarios\/src\/sources\/.+\.provenance\.json$/,

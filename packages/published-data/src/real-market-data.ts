@@ -15,7 +15,7 @@ import optionsProvenance from "./sources/real/fsc-weekly-options-20260903/fsc-we
 import type { SourceProvenance } from "@weavetrail/contracts";
 
 const RECORD_ROOT =
-  "https://github.com/WeaveTrail/WeaveTrail/blob/develop/packages/published-data/src/sources/real";
+  "https://github.com/WeaveTrail/WeaveTrail/blob/main/packages/published-data/src/sources/real";
 
 export const fscStockQuotesProvenance = {
   ...provenance,

@@ -10,7 +10,7 @@ import rapidPriceLiftInsufficientEvidence from "./sources/rapid-price-lift-insuf
 import rapidPriceLiftSupported from "./sources/rapid-price-lift-supported.provenance.json";
 
 const RECORD_ROOT =
-  "https://github.com/WeaveTrail/WeaveTrail/blob/develop/packages/scenarios/src/sources";
+  "https://github.com/WeaveTrail/WeaveTrail/blob/main/packages/scenarios/src/sources";
 
 function withRecordUrl<
   Record extends {
