@@ -1464,28 +1464,33 @@ code {
    so the first step is reachable without scrolling past a screenful first. */
 .case-opening {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 14px 24px;
   align-items: start;
   padding-block: 0 16px;
 }
 /* Chart and premise share one row; the provenance note runs full width under
    them, where it wraps in two lines instead of the six a narrow column costs. */
+/* The day itself runs the full width of the column, because the shape of the
+   session is the one thing on this page worth seeing at size. What the chart is
+   and what the page will not claim sit under it, side by side. */
 .case-observation {
-  grid-column: 1;
+  grid-column: 1 / -1;
   grid-row: 1;
   min-width: 0;
 }
+.case-opening .intraday-reference {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+  max-width: none;
+  padding: 10px 14px;
+}
 .case-opening .case-premise {
   grid-column: 2;
-  grid-row: 1;
-  max-width: none;
-}
-.case-opening .intraday-reference {
-  grid-column: 1 / -1;
   grid-row: 2;
+  align-self: stretch;
   max-width: none;
-  padding: 8px 14px;
 }
 @media (max-width: 900px) {
   .case-observation,
