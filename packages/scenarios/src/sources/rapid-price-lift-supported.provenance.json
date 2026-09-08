@@ -1,0 +1,24 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic supported rapid-price-lift case",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "rapid-price-lift-supported.csv",
+      "sha256": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827"
+    }
+  },
+  "syntheticity": {
+    "values": "Every field value is synthetic.",
+    "entities": "No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was retrieved, committed, redistributed or used to choose these values."
+  },
+  "derivation": {
+    "kind": "repository-authored",
+    "description": "The field names and values were authored to pin a deterministic SUPPORTED rule outcome. No derivation from a published schema or market-data source is claimed.",
+    "schemaSources": [],
+    "ruleSources": [],
+    "fieldCorrespondence": []
+  }
+}

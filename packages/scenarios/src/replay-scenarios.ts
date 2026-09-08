@@ -11,7 +11,7 @@ import {
 } from "./source-mappings";
 import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
 import { publishedExecutionSchemaScenario } from "./published-execution-schema";
-import { syntheticSourceProvenance } from "./source-provenance";
+import { syntheticSourceProvenanceByArtifact } from "./source-provenance";
 
 const syntheticScenarios = {
   "actorless-multi-instrument-quotes.jsonl": actorlessMultiInstrumentScenario,
@@ -42,12 +42,18 @@ const syntheticScenarios = {
 export const committedReplayScenarios = Object.fromEntries(
   Object.entries(syntheticScenarios).map(([name, scenario]) => [
     name,
-    { ...scenario, provenance: syntheticSourceProvenance },
+    {
+      ...scenario,
+      provenance:
+        syntheticSourceProvenanceByArtifact[
+          name as keyof typeof syntheticSourceProvenanceByArtifact
+        ],
+    },
   ]),
 ) as {
   [
     Name in keyof typeof syntheticScenarios
   ]: (typeof syntheticScenarios)[Name] & {
-    provenance: typeof syntheticSourceProvenance;
+    provenance: (typeof syntheticSourceProvenanceByArtifact)[Name];
   };
 };

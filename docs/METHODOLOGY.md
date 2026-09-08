@@ -219,6 +219,14 @@ derived event after mapping; exact event deduplication retains the semantic
 result with an explicit duplicate count. An actual repeated source coordinate
 returns HTTP `422` / `INPUT_REVIEW_REQUIRED` without a result or source trace.
 
+Every committed CSV or JSON Lines replay source is claimed by exactly one
+machine-readable provenance record. The record names and hashes its runtime
+artifact; the source-row panel links to that record in one step. Synthetic
+records state whether their shape is repository-authored or projected from a
+published schema. These display records remain outside mapping approvals,
+canonical events and result hashes. See
+[ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md).
+
 The tested boundary is fixed committed CSV/JSON Lines bytes → parsed row records
 → submitted permutations → approved mapping → canonical replay. Representative
 permutations of both dialects and all three rule cases preserve canonical order
@@ -530,5 +538,9 @@ it cannot add an actor or authorize the participant-dependent rapid-price-lift
 case. Consequently the two projections intentionally have different canonical
 dataset hashes. Mapping Proposal `1.8` and its migration boundary are recorded
 in [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md),
-with specifications and market-rule sources
-[beside the artifacts](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md).
+with specifications, field correspondence, synthetic-value boundaries and
+market-rule sources in the adjacent
+[FIX](../packages/scenarios/src/sources/published-execution-fix44.provenance.json)
+and
+[H0STCNT0](../packages/scenarios/src/sources/published-execution-h0stcnt0.provenance.json)
+records.

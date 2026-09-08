@@ -574,5 +574,16 @@ H0STCNT0에 참여자·계좌 열이 없다는 점을 기록합니다. 이 항�
 재정의를 요구하지만 실행할 항목 연결에는 들어가지 않고 actor를 만들지도 않습니다.
 기존 항목 연결 제안 `1.4`~`1.7`에는 이 변환이 추가되지 않으며 마이그레이션도
 필요하지 않습니다. [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md)(영문)과
-[시나리오 원본 기록](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md)(영문)을
+[FIX](../packages/scenarios/src/sources/published-execution-fix44.provenance.json) 및
+[H0STCNT0](../packages/scenarios/src/sources/published-execution-h0stcnt0.provenance.json)
+원본 기록을 참고하세요.
+
+커밋된 모든 재현 원본에는 이제 기계가 읽을 수 있는 출처 기록이 하나씩 있습니다.
+합성 기록은 정확한 픽스처 바이트를 식별하고 저장소에서 직접 만든 항목과 공개
+스키마를 따른 투영을 구분합니다. 라이선스가 확인된 실제 자료 기록은 취득·이용
+허가·파생 정보를 그대로 유지합니다. 화면 표시 전용
+`SourceProvenance.recordUrl`은 원본 행 패널에서 그 기록으로 바로 이어지며 승인 및
+정본 해시 입력에는 들어가지 않습니다. 두 원본 소유 패키지를 함께 검사하는
+커버리지 및 해시 시험이 이 대응을 고정합니다.
+[ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md)(영문)을
 참고하세요.

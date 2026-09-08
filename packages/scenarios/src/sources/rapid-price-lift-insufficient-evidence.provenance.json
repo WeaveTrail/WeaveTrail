@@ -1,0 +1,24 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic insufficient-evidence rapid-price-lift case",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "rapid-price-lift-insufficient-evidence.csv",
+      "sha256": "15f79ef0265f836b5a01635bbcdd8e2f241431fbcc87fc504a1e2f7ea05582f7"
+    }
+  },
+  "syntheticity": {
+    "values": "Every field value is synthetic.",
+    "entities": "No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was retrieved, committed, redistributed or used to choose these values."
+  },
+  "derivation": {
+    "kind": "repository-authored",
+    "description": "The field names and values were authored to pin a deterministic INCONCLUSIVE rule outcome. No derivation from a published schema or market-data source is claimed.",
+    "schemaSources": [],
+    "ruleSources": [],
+    "fieldCorrespondence": []
+  }
+}

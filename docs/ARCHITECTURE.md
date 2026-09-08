@@ -636,4 +636,17 @@ justified approval override but never enters the executable mapping or creates
 an actor. Existing Mapping Proposals `1.4`–`1.7` do not gain these transforms
 and require no migration. See
 [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md) and
-the [scenario source record](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md).
+the adjacent
+[FIX](../packages/scenarios/src/sources/published-execution-fix44.provenance.json)
+and
+[H0STCNT0](../packages/scenarios/src/sources/published-execution-h0stcnt0.provenance.json)
+source records.
+
+Every committed replay source now has one machine-readable provenance record.
+Synthetic records identify the exact fixture bytes and distinguish
+repository-authored fields from published-schema projections; licensed real
+records retain their acquisition, permission and derivation details. The
+display-only `SourceProvenance.recordUrl` reaches that record from the source-row
+panel and remains outside approval and canonical hash inputs. The coverage and
+hash check spans both source-owning packages. See
+[ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md).

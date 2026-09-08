@@ -14,9 +14,13 @@ import optionsRows from "./sources/real/fsc-weekly-options-20260903/rows.json";
 import optionsProvenance from "./sources/real/fsc-weekly-options-20260903/fsc-weekly-options-20260903.provenance.json";
 import type { SourceProvenance } from "@weavetrail/contracts";
 
+const RECORD_ROOT =
+  "https://github.com/WeaveTrail/WeaveTrail/blob/main/packages/published-data/src/sources/real";
+
 export const fscStockQuotesProvenance = {
   ...provenance,
   kind: "real" as const,
+  recordUrl: `${RECORD_ROOT}/fsc-stock-quotes-20260903.provenance.json`,
 } satisfies SourceProvenance;
 
 const fields: SchemaMappingProposal["fields"] = [
@@ -390,7 +394,11 @@ export const publishedReplaySources = {
     columns: indexColumns,
     rows: indexRows,
     mappingProposal: fscKospiIndexFamilyProposal,
-    provenance: { ...indexProvenance, kind: "real" as const },
+    provenance: {
+      ...indexProvenance,
+      kind: "real" as const,
+      recordUrl: `${RECORD_ROOT}/fsc-kospi-index-family-20260903/fsc-kospi-index-family-20260903.provenance.json`,
+    },
   },
   "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl": {
     label: "FSC · KOSPI 200 baseline · 2026-07-01–2026-09-03",
@@ -399,7 +407,11 @@ export const publishedReplaySources = {
     columns: indexColumns,
     rows: baselineRows,
     mappingProposal: fscKospi200BaselineProposal,
-    provenance: { ...baselineProvenance, kind: "real" as const },
+    provenance: {
+      ...baselineProvenance,
+      kind: "real" as const,
+      recordUrl: `${RECORD_ROOT}/fsc-kospi-200-baseline-20260701-20260903/fsc-kospi-200-baseline-20260701-20260903.provenance.json`,
+    },
   },
   "real/fsc-kospi-200-futures-20260903/source.jsonl": {
     label: "FSC · KOSPI 200 futures · 2026-09-03",
@@ -408,7 +420,11 @@ export const publishedReplaySources = {
     columns: futuresProvenance.derivation.columns,
     rows: futuresRows,
     mappingProposal: fscKospi200FuturesProposal,
-    provenance: { ...futuresProvenance, kind: "real" as const },
+    provenance: {
+      ...futuresProvenance,
+      kind: "real" as const,
+      recordUrl: `${RECORD_ROOT}/fsc-kospi-200-futures-20260903/fsc-kospi-200-futures-20260903.provenance.json`,
+    },
   },
   "real/fsc-weekly-options-20260903/source.jsonl": {
     label: "FSC · weekly options · 2026-09-03",
@@ -417,6 +433,10 @@ export const publishedReplaySources = {
     columns: optionsProvenance.derivation.columns,
     rows: optionsRows,
     mappingProposal: fscWeeklyOptionsProposal,
-    provenance: { ...optionsProvenance, kind: "real" as const },
+    provenance: {
+      ...optionsProvenance,
+      kind: "real" as const,
+      recordUrl: `${RECORD_ROOT}/fsc-weekly-options-20260903/fsc-weekly-options-20260903.provenance.json`,
+    },
   },
 } as const;

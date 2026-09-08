@@ -474,9 +474,17 @@ export function SourceProvenanceDetails({
   const t = (en: string, ko: string) => replayText(language, en, ko);
   if (provenance.kind === "synthetic")
     return (
-      <p>
-        {t("Attribution", "출처 표기")}: {provenance.attribution}
-      </p>
+      <section aria-label={t("Synthetic source provenance", "합성 자료 출처")}>
+        <h3>{provenance.title}</h3>
+        <p>
+          {t("Attribution", "출처 표기")}: {provenance.attribution}
+        </p>
+        <p>
+          <a href={provenance.recordUrl}>
+            {t("Open the complete source record", "전체 원본 기록 열기")}
+          </a>
+        </p>
+      </section>
     );
   return (
     <section aria-label={t("Published source provenance", "공개 자료 출처")}>
@@ -540,6 +548,10 @@ export function SourceProvenanceDetails({
         ·{" "}
         <a href={provenance.licence.termsUrl}>
           {t("Source terms", "이용 조건")}
+        </a>
+        {" · "}
+        <a href={provenance.recordUrl}>
+          {t("Complete source record", "전체 원본 기록")}
         </a>
       </p>
     </section>
