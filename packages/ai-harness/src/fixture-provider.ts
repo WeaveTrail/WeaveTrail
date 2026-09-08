@@ -8,6 +8,7 @@ import {
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionConflictProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
   rapidPriceLiftScenarios,
@@ -72,6 +73,7 @@ const registeredProposals = [
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionConflictProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
   ...Object.values(rapidPriceLiftScenarios).map(

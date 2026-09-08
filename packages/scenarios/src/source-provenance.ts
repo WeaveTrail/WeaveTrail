@@ -4,6 +4,7 @@ import actorlessMultiInstrumentQuotes from "./sources/actorless-multi-instrument
 import concentratedBuyDialectA from "./sources/concentrated-buy-dialect-a.provenance.json";
 import concentratedBuyDialectB from "./sources/concentrated-buy-dialect-b.provenance.json";
 import publishedExecutionFix44 from "./sources/published-execution-fix44.provenance.json";
+import publishedExecutionFix44ConflictingEvidence from "./sources/published-execution-fix44-conflicting-evidence.provenance.json";
 import publishedExecutionH0stcnt0 from "./sources/published-execution-h0stcnt0.provenance.json";
 import rapidPriceLiftBroadParticipation from "./sources/rapid-price-lift-broad-participation.provenance.json";
 import rapidPriceLiftInsufficientEvidence from "./sources/rapid-price-lift-insufficient-evidence.provenance.json";
@@ -42,6 +43,10 @@ export const syntheticSourceProvenanceByArtifact = {
   "published-execution-fix44.csv": withRecordUrl(
     "published-execution-fix44.provenance.json",
     publishedExecutionFix44,
+  ),
+  "published-execution-fix44-conflicting-evidence.csv": withRecordUrl(
+    "published-execution-fix44-conflicting-evidence.provenance.json",
+    publishedExecutionFix44ConflictingEvidence,
   ),
   "published-execution-h0stcnt0.jsonl": withRecordUrl(
     "published-execution-h0stcnt0.provenance.json",

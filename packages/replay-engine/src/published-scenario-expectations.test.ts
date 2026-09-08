@@ -45,6 +45,7 @@ type Source = {
   rows: Parameters<typeof replayApproved>[0];
   mappingProposal: SchemaMappingProposal;
   manifest?: CaseManifest;
+  demonstrates?: string;
 };
 
 const sources: Record<string, Source> = {
@@ -62,6 +63,10 @@ const sources: Record<string, Source> = {
   },
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-conflicting-evidence.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-conflicting-evidence.csv"
+    ],
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   ...rapidPriceLiftScenarios,
@@ -137,8 +142,27 @@ function publication() {
         "baseline",
         workflow,
       );
+      const common = {
+        scenario,
+        label: source.label,
+        purpose: sourceCatalog[scenario]!.purpose,
+        availableInCaseReplay: sourceCatalog[scenario]!.availableInCaseReplay,
+        availableMutations: sourceCatalog[scenario]!.availableMutations,
+        demonstrates: source.demonstrates ?? null,
+        workflowState: workflow.state,
+      };
       if (!("canonicalResultHash" in replay)) {
-        throw new Error(`Expected committed source to replay: ${scenario}`);
+        return {
+          ...common,
+          result: null,
+          inconclusiveReason: null,
+          nonComparableEventCount: null,
+          reviewIssues: replay.issues.map(({ code }) => code),
+          canonicalDatasetHash: null,
+          canonicalResultHash: null,
+          hypothesis: null,
+          gates: [],
+        };
       }
 
       const evaluation =
@@ -154,15 +178,12 @@ function publication() {
       );
 
       return {
-        scenario,
-        label: source.label,
-        purpose: sourceCatalog[scenario]!.purpose,
-        availableInCaseReplay: sourceCatalog[scenario]!.availableInCaseReplay,
-        availableMutations: sourceCatalog[scenario]!.availableMutations,
-        workflowState: workflow.state,
+        ...common,
         result: evaluation?.result ?? null,
         inconclusiveReason:
           evaluation?.result === "INCONCLUSIVE" ? evaluation.reason : null,
+        nonComparableEventCount: evaluation?.nonComparableEventCount ?? null,
+        reviewIssues: [],
         canonicalDatasetHash: computeDatasetProfile(replay.events)
           .canonicalDatasetHash,
         canonicalResultHash: replay.canonicalResultHash,

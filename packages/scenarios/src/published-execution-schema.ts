@@ -6,6 +6,8 @@ import {
 
 const FIX_SOURCE_ARTIFACT_HASH =
   "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b";
+const FIX_CONFLICT_SOURCE_ARTIFACT_HASH =
+  "fb1f933e6c979c75bd4631fb581fb5c4796b84d89d73a28bf414dc7d9e2fdc57";
 const H0STCNT0_SOURCE_ARTIFACT_HASH =
   "c6fb040df7cf060d43795424f95a8261b0ca4a06486750639c9762e39893c8ef";
 
@@ -143,11 +145,26 @@ export const publishedExecutionH0stcnt0Proposal =
     ],
   });
 
+const conflictConstants = {
+  ...constants,
+  datasetId: "synthetic-published-execution-conflict-v1",
+};
+
+export const publishedExecutionConflictProposal =
+  SchemaMappingProposalSchema.parse({
+    ...publishedExecutionFixProposal,
+    sourceArtifactHash: FIX_CONFLICT_SOURCE_ARTIFACT_HASH,
+    constants: conflictConstants,
+  });
+
 export const publishedExecutionFixMapping = deriveApprovedSourceMapping(
   publishedExecutionFixProposal,
 );
 export const publishedExecutionH0stcnt0Mapping = deriveApprovedSourceMapping(
   publishedExecutionH0stcnt0Proposal,
+);
+export const publishedExecutionConflictMapping = deriveApprovedSourceMapping(
+  publishedExecutionConflictProposal,
 );
 
 const executions = [
@@ -190,6 +207,31 @@ export const publishedExecutionH0stcnt0Rows = executions.map(
       CNTG_VOL: quantity,
       CCLD_DVSN: side === "BUY" ? "1" : "5",
       BSOP_DATE: "20260903",
+    },
+  }),
+);
+
+const conflictingExecutions = [
+  ["120000", "20260903-01:02:00", "12000", "3", "2", "SYNTH-ACCOUNT-BASE"],
+  ["120001", "20260903-01:02:01", "12150", "4", "1", "SYNTH-ACCOUNT-FOCUS"],
+  ["120001", "20260903-01:02:02", "12300", "4", "1", "SYNTH-ACCOUNT-FOCUS"],
+  ["120003", "20260903-01:02:03", "12050", "1", "2", "SYNTH-ACCOUNT-WIDE-A"],
+] as const;
+
+export const publishedExecutionConflictRows = conflictingExecutions.map(
+  ([sourceEventId, eventTime, price, quantity, side, actorId], index) => ({
+    coordinate: {
+      sourceArtifactHash: FIX_CONFLICT_SOURCE_ARTIFACT_HASH,
+      rowNumber: String(index + 2),
+    },
+    values: {
+      "ExecID(17)": sourceEventId,
+      "TransactTime(60)": eventTime,
+      "Symbol(55)": "ZZ79X1",
+      "Side(54)": side,
+      "LastPx(31)": price,
+      "LastQty(32)": quantity,
+      "Account(1)": actorId,
     },
   }),
 );
@@ -258,5 +300,19 @@ export const publishedExecutionSchemaScenario = {
     ),
     rows: publishedExecutionH0stcnt0Rows,
     mappingProposal: publishedExecutionH0stcnt0Proposal,
+  },
+  conflict: {
+    label: "Synthetic · conflicting FIX 4.4 execution evidence · CSV",
+    sourceArtifactHash: FIX_CONFLICT_SOURCE_ARTIFACT_HASH,
+    constants: conflictConstants,
+    columns: publishedExecutionConflictProposal.fields.map(
+      ({ sourceColumn }) => sourceColumn,
+    ),
+    rows: publishedExecutionConflictRows,
+    mappingProposal: publishedExecutionConflictProposal,
+    expectedWorkflowState: "INPUT_REVIEW_REQUIRED" as const,
+    expectedReviewCode: "CONFLICTING_SOURCE_IDENTITY" as const,
+    demonstrates:
+      "ExecID(17) 120001 is reused with different TransactTime(60) and LastPx(31) values, so normalization requires review before replay and produces no result hash.",
   },
 } as const;

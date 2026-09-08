@@ -61,8 +61,8 @@ describe("replay source audiences", () => {
       .map(([, source]) => declaredResult(source))
       .filter((result) => result !== undefined);
 
-    expect(groundedResults).toEqual(new Set(["SUPPORTED"]));
-    expect(surfacedPlaceholders).toEqual(["NOT_SUPPORTED", "INCONCLUSIVE"]);
+    expect(groundedResults).toEqual(new Set(["SUPPORTED", "INCONCLUSIVE"]));
+    expect(surfacedPlaceholders).toEqual(["NOT_SUPPORTED"]);
     for (const result of surfacedPlaceholders)
       expect(groundedResults.has(result)).toBe(false);
   });

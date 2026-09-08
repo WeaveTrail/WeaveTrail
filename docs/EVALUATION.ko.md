@@ -83,13 +83,22 @@ pnpm test
 - **도달 가능한 연결 검토** — 형식 B는 `source_note`를 검토 대상으로 제시하고,
   사유가 적힌 재정의가 없으면 재현이 실패하며 있으면 성공합니다. 형식 A는 끝까지
   해석됩니다.
-- **시나리오 분류** — `SUPPORTED`, `NOT_SUPPORTED`, `INCONCLUSIVE`에 해당하는
-  합성 시나리오 셋을 각각 그 결과에 고정합니다. 같은 시험이 의미상의 결과 해시,
-  선언된 순서, 중복 허용, 발견 참조, 데이터셋 해시 독립성도 함께 고정합니다.
+- **시나리오 분류** — 완전한 증거 사례는 선언된 판단 기준을 모두 충족해
+  `SUPPORTED`에 고정됩니다. 참여자 분산 사례는 평가할 증거는 충분하지만 집중도
+  기준을 충족하지 못해 `NOT_SUPPORTED`에 고정됩니다. 매수·매도 구분이 빠진 사례는
+  구간 내 체결 네 건을 모두 비교 불가로 제외하고
+  `INSUFFICIENT_ELIGIBLE_EVENTS` 사유의 `INCONCLUSIVE`에 고정됩니다. 같은 시험이
+  의미상의 결과 해시, 선언된 순서, 중복 허용, 발견 참조, 데이터셋 해시 독립성도
+  함께 고정합니다.
+- **커밋된 충돌 검토** — 공개 스키마 기반 합성 FIX 원본에서 하나의 `ExecID(17)`가
+  서로 다른 `TransactTime(60)`과 `LastPx(31)` 값으로 재사용됩니다. 이 사례는
+  `CONFLICTING_SOURCE_IDENTITY` 사유의 `INPUT_REVIEW_REQUIRED`에 고정되며, 규칙
+  결과와 정본 결과 해시는 생성되지 않습니다.
 
-시나리오 분류의 표본은 직접 작성한 합성 픽스처 세 개입니다. Node 22.18.0,
-pnpm 10.33.2, Vitest 4.1.11, Linux WSL2 x86_64에서
-`pnpm test -- packages/replay-engine/src/rapid-price-lift-golden.test.ts`로
+시나리오 분류의 표본은 직접 작성한 합성 픽스처 세 개이고, 별도의 충돌 입력
+픽스처가 재현 전 검토 경로를 고정합니다. Node 22.18.0, pnpm 10.33.2,
+Vitest 4.1.11, Linux WSL2 x86_64에서
+`pnpm test -- packages/replay-engine/src/rapid-price-lift-golden.test.ts packages/replay-engine/src/published-execution-schema.test.ts`로
 실행합니다. 이 결과는 선언된 사례와 사례마다 예시로 정한 기준값만 검증하며,
 독립된 자료나 실제 시장 자료에서의 성능을 추정하지 않습니다.
 
