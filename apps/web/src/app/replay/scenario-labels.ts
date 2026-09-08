@@ -44,10 +44,19 @@ export function scenarioOptionLabel(
   scenario: ReplayScenario,
   committedLabel: string,
   kind: string,
+  purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION",
   language: Language,
 ): string {
-  if (language !== "ko") return `${committedLabel} · ${kind}`;
+  const role =
+    purpose === "REVIEWER_FACING"
+      ? language === "ko"
+        ? "검토용"
+        : "reviewer-facing"
+      : language === "ko"
+        ? "엔진 회귀 대체 사례"
+        : "engine regression fallback";
+  if (language !== "ko") return `${committedLabel} · ${kind} · ${role}`;
   return `${SCENARIO_LABELS_KO[scenario] ?? committedLabel} · ${
     SOURCE_KIND_KO[kind] ?? kind
-  }`;
+  } · ${role}`;
 }

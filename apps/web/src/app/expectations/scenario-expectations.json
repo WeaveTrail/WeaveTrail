@@ -4,6 +4,9 @@
     {
       "scenario": "actorless-multi-instrument-quotes.jsonl",
       "label": "Actorless multi-instrument quotes · JSON Lines",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": false,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -15,6 +18,9 @@
     {
       "scenario": "concentrated-buy-dialect-a.csv",
       "label": "Dialect A · CSV",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": false,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -26,6 +32,9 @@
     {
       "scenario": "concentrated-buy-dialect-b.jsonl",
       "label": "Dialect B · JSON Lines",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": false,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -37,6 +46,9 @@
     {
       "scenario": "published-execution-fix44.csv",
       "label": "Synthetic · published FIX 4.4 execution fields · CSV",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "REPLAYED",
       "result": "SUPPORTED",
       "inconclusiveReason": null,
@@ -92,6 +104,9 @@
     {
       "scenario": "published-execution-h0stcnt0.jsonl",
       "label": "Synthetic · published H0STCNT0 execution fields · JSON Lines",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -103,6 +118,9 @@
     {
       "scenario": "rapid-price-lift-supported.csv",
       "label": "Rapid price lift · supported",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": false,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "REPLAYED",
       "result": "SUPPORTED",
       "inconclusiveReason": null,
@@ -158,6 +176,9 @@
     {
       "scenario": "rapid-price-lift-broad-participation.csv",
       "label": "Rapid price lift · broad participation",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "REPLAYED",
       "result": "NOT_SUPPORTED",
       "inconclusiveReason": null,
@@ -213,6 +234,9 @@
     {
       "scenario": "rapid-price-lift-insufficient-evidence.csv",
       "label": "Rapid price lift · insufficient evidence",
+      "purpose": "ENGINE_REGRESSION",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
       "workflowState": "REPLAYED",
       "result": "INCONCLUSIVE",
       "inconclusiveReason": "REMOVAL_LEAVES_INSUFFICIENT_EVENTS",
@@ -268,6 +292,9 @@
     {
       "scenario": "real/fsc-stock-quotes-20260903.jsonl",
       "label": "FSC · KOSPI daily quotes · 2026-09-03",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -279,6 +306,9 @@
     {
       "scenario": "real/fsc-kospi-index-family-20260903/source.jsonl",
       "label": "FSC · KOSPI index family · 2026-09-03",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -290,6 +320,9 @@
     {
       "scenario": "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
       "label": "FSC · KOSPI 200 baseline · 2026-07-01–2026-09-03",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -301,6 +334,9 @@
     {
       "scenario": "real/fsc-kospi-200-futures-20260903/source.jsonl",
       "label": "FSC · KOSPI 200 futures · 2026-09-03",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,
@@ -312,6 +348,9 @@
     {
       "scenario": "real/fsc-weekly-options-20260903/source.jsonl",
       "label": "FSC · weekly options · 2026-09-03",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle"],
       "workflowState": "MAPPING_APPROVED",
       "result": null,
       "inconclusiveReason": null,

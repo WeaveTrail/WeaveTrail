@@ -440,3 +440,24 @@ export const publishedReplaySources = {
     },
   },
 } as const;
+
+const publishedMutations = ["baseline", "shuffle"] as const;
+
+/** Licensed published sources are reviewer-facing and never offer a control
+ * that fabricates a value, participant, or pattern verdict. */
+export const publishedReplaySourceCatalog = Object.fromEntries(
+  Object.keys(publishedReplaySources).map((name) => [
+    name,
+    {
+      purpose: "REVIEWER_FACING" as const,
+      availableInCaseReplay: true as const,
+      availableMutations: publishedMutations,
+    },
+  ]),
+) as {
+  [Name in keyof typeof publishedReplaySources]: {
+    purpose: "REVIEWER_FACING";
+    availableInCaseReplay: true;
+    availableMutations: typeof publishedMutations;
+  };
+};

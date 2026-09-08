@@ -7,6 +7,9 @@ import { useLanguage } from "../i18n/language";
 type Scenario = {
   scenario: string;
   label: string;
+  purpose: string;
+  availableInCaseReplay: boolean;
+  availableMutations: readonly string[];
   workflowState: string;
   result: string | null;
   canonicalDatasetHash: string;
@@ -39,9 +42,16 @@ const ko = {
   eyebrow: "커밋된 검증 기준",
   heading: "사례별 기대 결과",
   intro:
-    "기준 실행의 워크플로 상태, 결과, gate 관측값, 정본 해시를 비교합니다. 법적·인과적·투자 결론은 아닙니다.",
+    "검토용 원본과 엔진 동작 고정용 fixture의 기준 실행을 함께 기록합니다. 워크플로 상태, 결과, gate 관측값, 정본 해시는 법적·인과적·투자 결론이 아닙니다.",
   guide: "새 세션에서 기준 실행 재현하기",
   output: "기대 출력",
+  purpose: "용도",
+  reviewerFacing: "검토용",
+  engineRegression: "엔진 회귀 동작 고정용",
+  caseReplay: "사례 재현 목록",
+  available: "표시됨",
+  unavailable: "표시되지 않음",
+  mutations: "제공되는 입력 변경",
   final: "최종 워크플로 상태",
   result: "패턴 결과",
   noManifest:
@@ -93,7 +103,7 @@ export function ExpectationsContent({
         <h1>{t?.heading ?? "Expected scenario results"}</h1>
         <p>
           {t?.intro ??
-            "Use these engine-derived values to check a baseline run in Case Replay. They describe one fixed source, approved mapping, approved case where present, and the versioned rule. They do not establish the truth of the source or a legal, causal, or investment conclusion."}
+            "This publication records baseline runs for both reviewer-facing sources and fixtures that pin engine behavior. The values describe one fixed source, approved mapping, approved case where present, and the versioned rule. They do not establish the truth of the source or a legal, causal, or investment conclusion."}
         </p>
       </div>
       <section className="panel expectations-guide">
@@ -107,7 +117,11 @@ export function ExpectationsContent({
                 브라우저 세션에서 열고, 입력 자료 변경 실험은{" "}
                 <strong>원본 그대로</strong>에 둡니다.
               </li>
-              <li>아래 레코드에 적힌 커밋된 원본 거래자료를 고릅니다.</li>
+              <li>
+                사례 재현 목록에 <strong>표시됨</strong>인 레코드는 아래에 적힌
+                커밋된 원본을 고릅니다. 표시되지 않는 엔진 회귀 레코드는
+                <code>pnpm test</code>로 재현합니다.
+              </li>
               <li>
                 연결된 항목이 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
                 받아들이는 확인 이유를 적고 <strong>연결 제안 승인</strong>을
@@ -134,7 +148,12 @@ export function ExpectationsContent({
                 in a fresh browser session and leave the advanced variation on{" "}
                 <strong>Baseline</strong>.
               </li>
-              <li>Select the committed source artifact named below.</li>
+              <li>
+                For a record marked <strong>Available</strong>, select the
+                committed source artifact named below. Reproduce engine
+                regression records marked <strong>Not available</strong> with
+                <code>pnpm test</code>.
+              </li>
               <li>
                 For every mapping field marked <code>REVIEW_REQUIRED</code>,
                 enter a nonblank reason, then select{" "}
@@ -145,11 +164,12 @@ export function ExpectationsContent({
                 select <strong>Approve case manifest</strong>.
               </li>
               <li>
-                Run mapping 1.4 sources deterministically, including Dialect A
-                and Dialect B, plus mapping 1.8 execution sources, or normalize
-                mapping 1.5, 1.6 and 1.7 daily-quote sources. Compare the final
-                workflow state, result, gate readings, and canonical result hash
-                below.
+                Run a source offered in Case Replay. The records marked engine
+                regression remain published here to pin engine behavior but do
+                not appear in the source picker unless they preserve a result
+                meaning that no grounded source yet reproduces. Compare the
+                final workflow state, result, gate readings, and canonical
+                result hash below.
               </li>
             </>
           )}
@@ -204,6 +224,26 @@ export function ExpectationsContent({
               <code>{s.scenario}</code>
             </h2>
             <dl className="expectation-facts">
+              <div>
+                <dt>{t?.purpose ?? "Purpose"}</dt>
+                <dd>
+                  {s.purpose === "REVIEWER_FACING"
+                    ? (t?.reviewerFacing ?? "Reviewer-facing")
+                    : (t?.engineRegression ?? "Pins engine behavior")}
+                </dd>
+              </div>
+              <div>
+                <dt>{t?.caseReplay ?? "Case Replay source list"}</dt>
+                <dd>
+                  {s.availableInCaseReplay
+                    ? (t?.available ?? "Available")
+                    : (t?.unavailable ?? "Not available")}
+                </dd>
+              </div>
+              <div>
+                <dt>{t?.mutations ?? "Available input mutations"}</dt>
+                <dd>{s.availableMutations.join(", ")}</dd>
+              </div>
               <div>
                 <dt>{t?.final ?? "Final workflow state"}</dt>
                 <dd>

@@ -12,9 +12,28 @@ versioned code can produce a replay result.
 `packages/published-data` owns licensed published artifacts, their provenance,
 offline generated rows and declared mappings. It depends only on contracts.
 The web application's `src/lib/replay-sources.ts` combines the two registries
-for its server loader and replay route; the scenario package does not import
-or re-export published data. The fixture provider explicitly imports mappings
-from both owners. See [ADR 0023](adr/0023-separate-published-data-ownership.md).
+for its replay route, while its server page loader selects only sources offered
+for human review. The scenario package does not import or re-export published
+data. The fixture provider explicitly imports mappings from both owners. See
+[ADR 0023](adr/0023-separate-published-data-ownership.md).
+
+Each committed source has catalog metadata that states whether it is grounded
+in a published schema or licensed published source and therefore
+`REVIEWER_FACING`, or exists as an `ENGINE_REGRESSION` fixture. The complete
+registry remains available to the engine, provider, API, and contract suites.
+Case Replay lists the grounded set plus only those regression fallbacks needed
+to keep all three declared result meanings reachable. Because the FIX 4.4 case
+produces `SUPPORTED`, the older `SUPPORTED` placeholder is absent from the
+picker; the `NOT_SUPPORTED` and `INCONCLUSIVE` placeholders remain until
+grounded cases reproduce those meanings. The expectations page lists both
+purposes and says whether each source appears in Case Replay.
+
+Catalog metadata also declares the input mutations offered per source.
+Published-schema synthetic sources and result fallbacks offer `baseline`,
+`shuffle`, and `duplicate`. Licensed published artifacts offer only `baseline`
+and `shuffle`; neither rewrites a committed value, and no control adds a
+participant or pattern verdict. See
+[ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md).
 
 The overview links to `/replay?mode=guided` and `/why`. `/why` states where the
 gate sits relative to an existing surveillance pipeline, cites the published
@@ -84,9 +103,11 @@ selection is
 `STATED_DATE_ONLY_NO_CANDIDATE_SCAN`: the date is stated by a person and the
 rule evaluates that date alone.
 
-The guided source is `rapid-price-lift-supported.csv` with baseline mutation.
-Its mapping chapter embeds a separate `concentrated-buy-dialect-b.jsonl`
-mapping review example. Each instance owns its proposal-specific approval and
+The guided source is the published-schema projection
+`published-execution-fix44.csv` with baseline mutation. Its mapping chapter
+embeds the actorless published-schema projection
+`published-execution-h0stcnt0.jsonl` as a separate mapping review example.
+Each instance owns its proposal-specific approval and
 async generation guard. Only an example-completion flag crosses into guide
 progress; the example's approval, source and result never enter the case request.
 The server loader strips committed case approval records before sending props.
