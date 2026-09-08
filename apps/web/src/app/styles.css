@@ -1474,7 +1474,7 @@ code {
 /* The day itself runs the full width of the column, because the shape of the
    session is the one thing on this page worth seeing at size. What the chart is
    and what the page will not claim sit under it, side by side. */
-.case-observation {
+.case-session {
   grid-column: 1 / -1;
   grid-row: 1;
   min-width: 0;
@@ -1493,7 +1493,7 @@ code {
   max-width: none;
 }
 @media (max-width: 900px) {
-  .case-observation,
+  .case-session,
   .case-opening .case-premise,
   .case-opening .intraday-reference {
     grid-column: 1;

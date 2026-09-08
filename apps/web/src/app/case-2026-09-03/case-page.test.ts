@@ -434,6 +434,9 @@ describe("the 2026-09-03 case surface", () => {
       // The chart is drawn in its short form: the opening is a band the
       // chapters are read under, not a screenful to scroll past.
       expect(markup, language).toContain("session-figure compact");
+      // Its wrapper does not borrow the class the result cards use, which
+      // would place both legs of the result in one grid cell.
+      expect(markup, language).toContain('class="case-session"');
     }
   });
 
@@ -635,8 +638,10 @@ describe("the 2026-09-03 case surface", () => {
     );
     // Leaving a reader who moved on is deliberate, but the result and the run
     // chapter's own note are both hidden from where they stand.
+    // A rerun keeps the previous result in state, so the notice stands down
+    // while one is in flight rather than offering the old output as the new.
     expect(surfaceSource).toContain(
-      "result && activeChapter !== RESULT_CHAPTER",
+      "result && !running && activeChapter !== RESULT_CHAPTER",
     );
     expect(surfaceSource).toContain('role="status"');
     for (const language of ["ko", "en"] as const) {
@@ -706,9 +711,15 @@ describe("the 2026-09-03 case surface", () => {
     // the case back to the chapter that started it rather than leaving the
     // alert inside a hidden chapter.
     expect(surfaceSource).toContain("const startedIn = activeChapter;");
-    expect(surfaceSource.match(/setActiveChapter\(startedIn\)/g)).toHaveLength(
-      2,
-    );
+    // Both refusal paths go through the navigation that moves focus. A bare
+    // state change would hide the section holding the focused element while
+    // leaving focus inside it.
+    expect(
+      surfaceSource.match(
+        /if \(activeChapterRef\.current !== startedIn\) openChapter\(startedIn\);/g,
+      ),
+    ).toHaveLength(2);
+    expect(surfaceSource).not.toContain("setActiveChapter(startedIn)");
     expect(surfaceSource).toContain(`id={PUBLISHED_CASE_RUN_ERROR_ID}`);
     expect(PUBLISHED_CASE_RUN_ERROR_ID).toBe("published-case-run-error");
   });

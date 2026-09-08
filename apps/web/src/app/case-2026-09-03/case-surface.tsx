@@ -282,7 +282,7 @@ export function PublishedCaseSurface({
       if (!response.ok) {
         setResult(null);
         setRunError(`${body.code ?? "CASE_REVIEW_REQUIRED"} · ${body.message}`);
-        setActiveChapter(startedIn);
+        if (activeChapterRef.current !== startedIn) openChapter(startedIn);
         return;
       }
       setResult(body as PublishedCaseReplay);
@@ -302,7 +302,7 @@ export function PublishedCaseSurface({
     } catch {
       setResult(null);
       setRunError("REPLAY_REFUSED");
-      setActiveChapter(startedIn);
+      if (activeChapterRef.current !== startedIn) openChapter(startedIn);
     } finally {
       setRunning(false);
     }
@@ -372,7 +372,7 @@ export function PublishedCaseSurface({
         </noscript>
 
         <section className="case-opening" aria-label={text.observations}>
-          <div className="case-observation">
+          <div className="case-session">
             <IntradaySessionChart
               caption={text.intradayCaption}
               compact
@@ -836,7 +836,7 @@ export function PublishedCaseSurface({
             them there is deliberate, but the result and the run chapter's own
             note are both hidden from where they stand, so the finish is stated
             here, in the one row that is visible from every chapter. */}
-          {result && activeChapter !== RESULT_CHAPTER && (
+          {result && !running && activeChapter !== RESULT_CHAPTER && (
             <p className="run-finished" role="status">
               <span>{text.runFinishedElsewhere}</span>
               <button

@@ -945,8 +945,10 @@ const workflowStateMeaning: Readonly<
     // all. The sentence has to hold for both.
     MAPPING_REVIEW_REQUIRED:
       "The mapping cannot be approved as it stands: a flagged field is waiting for a reason, or no validated proposal has been accepted.",
+    // Also the end state of a source that has no case manifest at all, so it
+    // cannot promise a case approval that will never be offered.
     MAPPING_APPROVED:
-      "You approved what the columns mean. The case is not approved yet.",
+      "You approved what the columns mean. No case has been approved or evaluated.",
     CASE_PROPOSED: "A case scope is proposed. Nobody approved it yet.",
     CASE_REVIEW_REQUIRED:
       "The server refused the case scope or its approval, so no rule ran.",
@@ -965,7 +967,7 @@ const workflowStateMeaning: Readonly<
     MAPPING_REVIEW_REQUIRED:
       "지금 상태로는 연결 제안을 승인할 수 없습니다. 확인이 필요한 항목이 이유를 기다리고 있거나, 검증을 통과한 제안을 아직 받지 못했습니다.",
     MAPPING_APPROVED:
-      "항목의 뜻을 승인했습니다. 조사 범위는 아직 승인 전입니다.",
+      "항목의 뜻을 승인했습니다. 승인되거나 평가된 조사 범위는 아직 없습니다.",
     CASE_PROPOSED:
       "조사 범위가 제안되었습니다. 아직 아무도 승인하지 않았습니다.",
     CASE_REVIEW_REQUIRED:
