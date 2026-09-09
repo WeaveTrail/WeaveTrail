@@ -73,14 +73,15 @@ describe("architecture layer diagram", () => {
 
   it("keeps unimplemented components labelled as planned", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    for (const planned of [
-      "Bounded case proposer",
-      "Evidence Bundle assembly",
-    ]) {
-      const index = markup.indexOf(planned);
-      expect(index).toBeGreaterThan(-1);
-      expect(markup.slice(index, index + 200)).toContain("Planned");
-    }
+    const planned = markup.indexOf("Bounded case proposer");
+    expect(planned).toBeGreaterThan(-1);
+    expect(markup.slice(planned, planned + 200)).toContain("Planned");
+
+    const implemented = markup.indexOf("Evidence Bundle");
+    expect(implemented).toBeGreaterThan(-1);
+    expect(markup.slice(implemented, implemented + 200)).toContain(
+      "byte-backed verification",
+    );
   });
 
   it("groups the primary navigation by investigation stage", () => {

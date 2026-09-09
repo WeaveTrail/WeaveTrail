@@ -64,14 +64,13 @@ verification. It is not a production market-surveillance system.
   [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
-- Finite-number spelling is specified, but independent Evidence Bundle
-  assembly and verification remain planned. The implementation does not claim
+- Finite-number spelling is specified, but the implementation does not claim
   full JSON Canonicalization Scheme compliance.
-- [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define contracts
-  and a pure declaration hash, not an exported or independently verified bundle.
-  Schema validation and hashing do not resolve source bytes, bind approval
-  records, recompute a replay or authenticate evidence; those checks remain
-  planned in #13. The legacy 1.2 schema stays available but cannot represent
+- [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define the
+  byte-backed assembly and independent verification boundary. Verification
+  recomputes source, approval, replay and hash relationships, but it does not
+  authenticate a publisher or reviewer, provide a signature, or define
+  multi-source replay. The legacy 1.2 schema stays available but cannot represent
   normalization without a rule result or the complete engine evaluation.
 - `canonicalResultHash` alone does not bind case scope: approved mappings,
   manifests and complete audit records belong to `bundleHash`. A changed

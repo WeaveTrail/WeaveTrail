@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 import {
-  CaseManifestSchema,
   EvidenceBundleSchema,
   EvidenceBundleV13Schema,
   SchemaMappingProposalSchema,
@@ -17,6 +16,11 @@ import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   committedReplayScenarios,
+  publishedExecutionFixProposal,
+  publishedExecutionFixRows,
+  publishedExecutionH0stcnt0Proposal,
+  publishedExecutionH0stcnt0Rows,
+  publishedExecutionManifest,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 import { publishedReplaySources } from "@weavetrail/published-data";
@@ -31,6 +35,7 @@ import { canonicalJson, type CanonicalJsonInput } from "./canonical-json";
 import {
   CANONICAL_EVENT_FIELDS,
   COLLECTION_METADATA_FIELDS,
+  OHLC_DAILY_CANONICAL_EVENT_FIELDS,
 } from "./canonicalize";
 import { canonicalDatasetHash } from "./canonical-dataset";
 import { evidenceBundleHash } from "./evidence-bundle-hash";
@@ -84,6 +89,9 @@ function tableProjection(
   const protectedPath = (candidate: string) =>
     table.some((row) => row.path === candidate && row[scope] === "P");
   if (Array.isArray(value)) {
+    if (table.some((row) => row.path === path)) {
+      return protectedPath(path) ? value : undefined;
+    }
     if (
       !table.some(
         (row) => row.path.startsWith(`${path}[]`) && row[scope] === "P",
@@ -118,15 +126,29 @@ function approvalFor(proposal: SchemaMappingProposal): ApprovalRecord {
     reviewerRef: "hash-scope-test-reviewer",
     decision: "APPROVED",
     approvedAt: "2026-09-06T00:00:00Z",
-    overrides: proposal.fields.flatMap((field, index) =>
-      requiresMappingOverride(field)
-        ? [{ fieldPath: `fields.${index}`, reason: field.evidence }]
-        : [],
-    ),
+    overrides: [
+      ...proposal.fields.flatMap((field, index) =>
+        requiresMappingOverride(field)
+          ? [{ fieldPath: `fields.${index}`, reason: field.evidence }]
+          : [],
+      ),
+      ...("unmappedFields" in proposal
+        ? proposal.unmappedFields.flatMap((field, index) =>
+            requiresMappingOverride(field)
+              ? [
+                  {
+                    fieldPath: `unmappedFields.${index}`,
+                    reason: field.evidence,
+                  },
+                ]
+              : [],
+          )
+        : []),
+    ],
   };
 }
 
-// Test declarations only; no production bundle assembler is introduced.
+// Hash-scope specimens stay independent from the production bundle assembler.
 function specimen(
   rows: readonly SourceRow[],
   proposal: SchemaMappingProposal,
@@ -172,6 +194,7 @@ function specimen(
 const bundleV13CaseNames = [
   "rapid-price-lift-supported.csv",
   "rapid-price-lift-broad-participation.csv",
+  "rapid-price-lift-insufficient-evidence.csv",
 ] as const;
 const bundleV13Cases = bundleV13CaseNames.map((name) => {
   const scenario = rapidPriceLiftScenarios[name];
@@ -184,39 +207,7 @@ const bundleV13Cases = bundleV13CaseNames.map((name) => {
     ),
   };
 });
-const supportedScenario =
-  rapidPriceLiftScenarios["rapid-price-lift-supported.csv"];
-const inconclusiveProposal = {
-  ...caseManifestProposal(supportedScenario.manifest),
-  caseId: "synthetic-bundle-v13-inconclusive",
-  hypothesis: {
-    ...supportedScenario.manifest.hypothesis,
-    actorIds: [
-      "participant-base",
-      "participant-focus",
-      "participant-wide-a",
-      "participant-wide-b",
-    ],
-  },
-};
-const inconclusiveManifest = CaseManifestSchema.parse({
-  ...inconclusiveProposal,
-  approval: {
-    ...supportedScenario.manifest.approval,
-    approvedArtifactHash: sha256Canonical(inconclusiveProposal),
-  },
-});
-const cases = [
-  ...bundleV13Cases,
-  {
-    name: "synthetic-bundle-v13-inconclusive",
-    bundle: specimen(
-      supportedScenario.rows,
-      supportedScenario.mappingProposal,
-      inconclusiveManifest,
-    ),
-  },
-];
+const cases = bundleV13Cases;
 const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
 const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
@@ -261,6 +252,20 @@ const compositeFscBundle = specimen(
   compositeFsc.rows,
   compositeFsc.mappingProposal,
 );
+const ohlcFsc =
+  publishedReplaySources[
+    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl"
+  ];
+const ohlcFscBundle = specimen(ohlcFsc.rows, ohlcFsc.mappingProposal);
+const publishedExecutionBundle = specimen(
+  publishedExecutionFixRows,
+  publishedExecutionFixProposal,
+  publishedExecutionManifest,
+);
+const publishedExecutionReviewBundle = specimen(
+  publishedExecutionH0stcnt0Rows,
+  publishedExecutionH0stcnt0Proposal,
+);
 const dialects = [
   ["concentrated-buy-dialect-a.csv", concentratedBuyDialectAProposal],
   ["concentrated-buy-dialect-b.jsonl", concentratedBuyDialectBProposal],
@@ -271,7 +276,14 @@ const committed = [
     name,
     bundle: specimen(committedReplayScenarios[name].rows, proposal),
   })),
-  { name: "real/fsc-stock-quotes-20260903.jsonl", bundle: fscBundle },
+  {
+    name: "published-execution-fix44.csv",
+    bundle: publishedExecutionBundle,
+  },
+  ...Object.entries(publishedReplaySources).map(([name, source]) => ({
+    name,
+    bundle: specimen(source.rows, source.mappingProposal),
+  })),
 ];
 
 function resultHash(bundle: EvidenceBundleV13): string | undefined {
@@ -281,15 +293,6 @@ function resultHash(bundle: EvidenceBundleV13): string | undefined {
 }
 
 describe("published Evidence Bundle 1.3 hash scopes", () => {
-  it("does not reinterpret the Mapping Proposal 1.8 missing-evidence case as Bundle 1.3", () => {
-    const scenario =
-      rapidPriceLiftScenarios["rapid-price-lift-insufficient-evidence.csv"];
-
-    expect(() =>
-      specimen(scenario.rows, scenario.mappingProposal, scenario.manifest),
-    ).toThrow(/mappingVersion/);
-  });
-
   it("accounts for every schema field across all versions and result branches", () => {
     const paths = schemaLeaves(
       EvidenceBundleV13Schema.toJSONSchema({ io: "input" }),
@@ -306,7 +309,9 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
         .filter(({ result }) => result === "P")
         .map(({ path }) => path.split(".").at(-1))
         .sort(),
-    ).toEqual([...CANONICAL_EVENT_FIELDS].sort());
+    ).toEqual(
+      [...CANONICAL_EVENT_FIELDS, ...OHLC_DAILY_CANONICAL_EVENT_FIELDS].sort(),
+    );
     expect(
       eventRows
         .filter(({ result }) => result === "N")
@@ -314,6 +319,7 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
         .sort(),
     ).toEqual([...COLLECTION_METADATA_FIELDS].sort());
     expect(CANONICAL_EVENT_FIELDS).toHaveLength(15);
+    expect(OHLC_DAILY_CANONICAL_EVENT_FIELDS).toHaveLength(6);
     expect(COLLECTION_METADATA_FIELDS).toHaveLength(2);
     expect(
       table.filter(({ bundle }) => bundle === "N").map(({ path }) => path),
@@ -491,6 +497,9 @@ function valueLeaves(
   path = "",
   segments: Leaf["segments"] = [],
 ): Leaf[] {
+  if (Array.isArray(value) && table.some((row) => row.path === path)) {
+    return [{ path, segments, value }];
+  }
   if (Array.isArray(value))
     return value.flatMap((child, index) =>
       valueLeaves(child, `${path}[]`, [...segments, index]),
@@ -524,6 +533,9 @@ const probes = [
   probe,
   syntheticDaily,
   compositeFscBundle,
+  ohlcFscBundle,
+  publishedExecutionBundle,
+  publishedExecutionReviewBundle,
   ...cases.map(({ bundle }) => bundle),
 ];
 

@@ -72,8 +72,9 @@ An `INCONCLUSIVE` response has empty findings and empty source evidence. Counts
 without findings do not acquire substitute rows. Input or approval changes,
 new runs, and failures clear prior evidence; older requests cannot repopulate a
 new selection. This trace establishes provenance to synthetic source records;
-it does not establish causality or legal conclusions. Evidence Bundle assembly,
-export, and independent verification remain planned.
+it does not establish causality or legal conclusions. Engine-package Evidence
+Bundle assembly and independent verification are implemented; browser export
+remains planned.
 
 Workflow state exists only for the lifetime of one request. After an
 `INPUT_REVIEW_REQUIRED` response, corrected input begins a new execution at
