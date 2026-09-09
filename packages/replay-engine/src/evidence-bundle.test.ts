@@ -198,6 +198,50 @@ describe("Evidence Bundle 1.3 assembly and independent verification", () => {
     expect(verifyBundle(bundle, [entry.artifact]).verified).toBe(true);
   });
 
+  it.each([
+    [
+      "rejected",
+      (approval: ApprovalRecord) => ({
+        ...approval,
+        decision: "REJECTED" as const,
+      }),
+    ],
+    [
+      "hash-mismatched",
+      (approval: ApprovalRecord) => ({
+        ...approval,
+        approvedArtifactHash: "b".repeat(64),
+      }),
+    ],
+  ])(
+    "preserves normalized replay for a %s case approval",
+    (_name, changeApproval) => {
+      const entry = entries.find(
+        ({ name }) => name === "rapid-price-lift-supported.csv",
+      )!;
+      const bundle = assembleEvidenceBundle({
+        sourceArtifacts: [entry.artifact],
+        mappings: [
+          {
+            proposal: entry.proposal,
+            approval: approvalFor(entry.proposal),
+          },
+        ],
+        case: {
+          proposal: CaseManifestProposalSchema.parse(
+            caseManifestProposal(entry.manifest!),
+          ),
+          approval: changeApproval(entry.manifest!.approval),
+        },
+      });
+
+      expect(bundle.workflowState).toBe("CASE_REVIEW_REQUIRED");
+      expect(bundle.replay?.events).not.toHaveLength(0);
+      expect(bundle.replay).not.toHaveProperty("evaluation");
+      expect(verifyBundle(bundle, [entry.artifact]).verified).toBe(true);
+    },
+  );
+
   it("omits sensitivity values for an INCONCLUSIVE evaluation", () => {
     const entry = entries.find(
       ({ name }) => name === "rapid-price-lift-insufficient-evidence.csv",
@@ -302,6 +346,24 @@ describe("Evidence Bundle 1.3 assembly and independent verification", () => {
     if (!verification.verified) {
       expect(verification.issues.map(({ code }) => code)).toContain(
         "RECOMPUTED_BUNDLE_MISMATCH",
+      );
+    }
+  });
+
+  it("reports an invalid canonical event set instead of throwing", () => {
+    const entry = entries.find(
+      ({ name }) => name === "rapid-price-lift-supported.csv",
+    )!;
+    const candidate = structuredClone(assemble(entry));
+    delete candidate.replay!.events[0]!.sequence;
+    candidate.bundleHash = evidenceBundleHash(candidate);
+
+    expect(() => verifyBundle(candidate, [entry.artifact])).not.toThrow();
+    const verification = verifyBundle(candidate, [entry.artifact]);
+    expect(verification.verified).toBe(false);
+    if (!verification.verified) {
+      expect(verification.issues.map(({ code }) => code)).toContain(
+        "INVALID_CANONICAL_EVENT_SET",
       );
     }
   });

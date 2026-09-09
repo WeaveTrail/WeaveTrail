@@ -34,6 +34,7 @@ export type EvidenceBundleVerificationIssue = {
     | "BUNDLE_HASH_MISMATCH"
     | "CANONICAL_DATASET_HASH_MISMATCH"
     | "CANONICAL_RESULT_HASH_MISMATCH"
+    | "INVALID_CANONICAL_EVENT_SET"
     | "SOURCE_ARTIFACT_MISMATCH"
     | "RECOMPUTED_BUNDLE_MISMATCH"
     | "ASSEMBLY_FAILED";
@@ -140,42 +141,55 @@ export function assembleEvidenceBundle(
     input.sourceArtifacts[artifactIndex]!,
     mapping.proposal.sourceArtifactHash,
   );
-  const workflow = new RequestWorkflow();
-
-  const approvedCase =
-    input.case?.approval === undefined
-      ? undefined
-      : CaseManifestSchema.parse({
-          ...input.case.proposal,
-          approval: input.case.approval,
-        });
-  const result = replayApproved(
+  const foundationWorkflow = new RequestWorkflow();
+  const foundation = replayApproved(
     rows,
     rows,
     mapping.proposal,
     mapping.approval,
-    approvedCase,
+    undefined,
     "baseline",
-    workflow,
+    foundationWorkflow,
   );
 
-  if (
-    input.case !== undefined &&
-    !("canonicalResultHash" in result) &&
-    workflow.state !== "CASE_REVIEW_REQUIRED"
-  ) {
+  if (input.case !== undefined && !("canonicalResultHash" in foundation)) {
     throw new EvidenceBundleAssemblyError(
       "A case declaration cannot precede successful normalization.",
     );
   }
 
-  if (
-    input.case !== undefined &&
-    input.case.approval === undefined &&
-    "canonicalResultHash" in result
-  ) {
-    workflow.requireTransition("CASE_PROPOSED");
-    workflow.requireTransition("CASE_REVIEW_REQUIRED");
+  let workflow = foundationWorkflow;
+  let result = foundation;
+  if (input.case !== undefined && "canonicalResultHash" in foundation) {
+    if (input.case.approval === undefined) {
+      workflow.requireTransition("CASE_PROPOSED");
+      workflow.requireTransition("CASE_REVIEW_REQUIRED");
+    } else {
+      const approvedCase = CaseManifestSchema.parse({
+        ...input.case.proposal,
+        approval: input.case.approval,
+      });
+      const caseWorkflow = new RequestWorkflow();
+      const caseResult = replayApproved(
+        rows,
+        rows,
+        mapping.proposal,
+        mapping.approval,
+        approvedCase,
+        "baseline",
+        caseWorkflow,
+      );
+      if (
+        !("canonicalResultHash" in caseResult) &&
+        caseWorkflow.state !== "CASE_REVIEW_REQUIRED"
+      ) {
+        throw new EvidenceBundleAssemblyError(
+          "Case replay stopped after successful normalization at an unexpected workflow state.",
+        );
+      }
+      workflow = caseWorkflow;
+      result = "canonicalResultHash" in caseResult ? caseResult : foundation;
+    }
   }
 
   return finishBundle({
@@ -190,7 +204,7 @@ export function assembleEvidenceBundle(
             engineVersion: ENGINE_VERSION,
             canonicalDatasetHash: canonicalDatasetHash(result.events),
             events: result.events,
-            ...(input.case?.approval !== undefined && "evaluation" in result
+            ...("evaluation" in result
               ? {
                   evaluation: RapidPriceLiftResultSchema.parse(
                     result.evaluation,
@@ -234,27 +248,35 @@ export function verifyBundle(
     });
   }
   if (bundle.replay !== undefined) {
-    if (
-      canonicalDatasetHash(bundle.replay.events) !==
-      bundle.replay.canonicalDatasetHash
-    ) {
+    try {
+      if (
+        canonicalDatasetHash(bundle.replay.events) !==
+        bundle.replay.canonicalDatasetHash
+      ) {
+        issues.push({
+          code: "CANONICAL_DATASET_HASH_MISMATCH",
+          path: ["replay", "canonicalDatasetHash"],
+          message: "canonicalDatasetHash does not match the declared events.",
+        });
+      }
+      if (
+        canonicalReplayResultHash(
+          bundle.replay.events,
+          bundle.replay.evaluation,
+        ) !== bundle.replay.canonicalResultHash
+      ) {
+        issues.push({
+          code: "CANONICAL_RESULT_HASH_MISMATCH",
+          path: ["replay", "canonicalResultHash"],
+          message:
+            "canonicalResultHash does not match the canonical replay preimage.",
+        });
+      }
+    } catch (error) {
       issues.push({
-        code: "CANONICAL_DATASET_HASH_MISMATCH",
-        path: ["replay", "canonicalDatasetHash"],
-        message: "canonicalDatasetHash does not match the declared events.",
-      });
-    }
-    if (
-      canonicalReplayResultHash(
-        bundle.replay.events,
-        bundle.replay.evaluation,
-      ) !== bundle.replay.canonicalResultHash
-    ) {
-      issues.push({
-        code: "CANONICAL_RESULT_HASH_MISMATCH",
-        path: ["replay", "canonicalResultHash"],
-        message:
-          "canonicalResultHash does not match the canonical replay preimage.",
+        code: "INVALID_CANONICAL_EVENT_SET",
+        path: ["replay", "events"],
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   }

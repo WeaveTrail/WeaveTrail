@@ -47,8 +47,9 @@ The latter is the complete engine result, including rule identity/version,
 non-comparable event count, all findings (including `gate`), sensitivity, and
 the reason when INCONCLUSIVE. No result is synthesized for normalization alone.
 The hash function itself does not sort or validate its arguments; callers
-already supply the ordered, deduplicated canonical events. The event projection
-is precisely the 15 `CANONICAL_EVENT_FIELDS`; absent optional fields stay absent.
+already supply the ordered, deduplicated canonical events. Event 1.1 and 1.2
+use the 15 `CANONICAL_EVENT_FIELDS`. Event 1.3 uses those fields plus the six
+`OHLC_DAILY_CANONICAL_EVENT_FIELDS`. Absent optional fields stay absent.
 
 This hash alone does **not bind case scope**. It does not serialize the approved
 mapping, manifest, their hashes, or their approvals. Different scopes that
@@ -237,6 +238,9 @@ dataset hash and result hash, but omits `replay.evaluation`. This is the FSC
 workflow state `MAPPING_APPROVED`, Event 1.2, Proposal 1.5, no case, no actor or
 rule verdict. Its result hash protects the engine version and canonical event
 projection. The bundle hash additionally protects its declaration and approval.
+The same foundation replay is retained when a case proposal is present but its
+approval is absent, rejected or bound to the wrong proposal hash; workflow state
+is `CASE_REVIEW_REQUIRED` and no rule evaluation is claimed.
 INCONCLUSIVE is different: it is a completed rule evaluation with a reason,
 empty findings and null sensitivity; all of that evaluation is result-hashed.
 

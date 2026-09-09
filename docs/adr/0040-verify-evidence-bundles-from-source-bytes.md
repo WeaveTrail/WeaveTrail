@@ -31,6 +31,8 @@ binding, runs deterministic normalization and evaluation, and computes both
 declared hashes. `verifyBundle` treats the bundle as untrusted, repeats assembly
 from separately supplied bytes, and compares the complete declaration and all
 nested hashes. A declaration that stops at mapping review has no `replay`.
+Successful mapping normalization remains in `replay` when case approval fails;
+only `replay.evaluation` is omitted in that state.
 
 Reject more than one mapping until multi-source replay semantics exist. Do not
 infer joins, source priority or event conflict policy merely because the bundle
