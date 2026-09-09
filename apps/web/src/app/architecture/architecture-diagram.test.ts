@@ -12,10 +12,15 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path));
 
 const DIAGRAM_SOURCE = "docs/assets/how-it-works.svg";
 const DIAGRAM_SERVED = "apps/web/public/diagrams/how-it-works.svg";
+const KOREAN_DIAGRAM_SOURCE = "docs/assets/how-it-works.ko.svg";
+const KOREAN_DIAGRAM_SERVED = "apps/web/public/diagrams/how-it-works.ko.svg";
 
 describe("architecture layer diagram", () => {
   it("serves the diagram the repository documentation commits, byte for byte", () => {
     expect(read(DIAGRAM_SERVED).equals(read(DIAGRAM_SOURCE))).toBe(true);
+    expect(
+      read(KOREAN_DIAGRAM_SERVED).equals(read(KOREAN_DIAGRAM_SOURCE)),
+    ).toBe(true);
   });
 
   it("keeps both committed files equal to what the diagram module renders", () => {
@@ -25,6 +30,10 @@ describe("architecture layer diagram", () => {
     const english = howItWorksSvg("en");
     for (const file of [DIAGRAM_SOURCE, DIAGRAM_SERVED])
       expect(read(file).toString("utf8"), file).toBe(english);
+
+    const korean = howItWorksSvg("ko");
+    for (const file of [KOREAN_DIAGRAM_SOURCE, KOREAN_DIAGRAM_SERVED])
+      expect(read(file).toString("utf8"), file).toBe(korean);
   });
 
   it("draws the diagram inline so its words follow the reader's language", () => {

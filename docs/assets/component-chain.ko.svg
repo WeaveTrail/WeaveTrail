@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="chainTitle chainDesc">
+  <title id="chainTitle">원본 행에서 증거까지 이어지는 구성요소 사슬</title>
+  <desc id="chainDesc">열 개의 구성요소가 두 줄로 이어집니다. 첫째 줄에서 커밋된 원본 행은 신뢰하지 않는 입력이고, 제약된 매퍼가 필드 매핑을 제안하고, 검토자가 그 제안을 아티팩트 해시에 묶어 승인하고, 버전이 고정된 코드가 정본 이벤트를 다시 도출해 결정론적 데이터셋 프로파일을 계산합니다. 둘째 줄에서 명세는 있으나 아직 구현되지 않은 한정된 사례 제안기는 프로파일 사실만으로 행위자 그룹과 구간을 고르게 되고, 검토자가 사례 범위를 승인하고, 결정론적 리플레이 엔진이 다섯 gate에 걸쳐 규칙을 평가하고, 원본 추적이 모든 발견을 그 근거인 커밋된 행까지 되짚고, 증거 번들 조립과 독립 검증이 원본 바이트에서 선언을 다시 계산합니다. 어느 gate든 거부할 수 있고, 거부된 요청에는 결과 해시가 없습니다.</desc>
+  <!--
+    Korean counterpart of component-chain.svg. Same geometry and same design
+    tokens; every chip is measured for its Korean label, the body copy is
+    broken where Korean breaks rather than where English does, and the product
+    vocabulary follows the deployed surface as ADR 0035 requires.
+
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint
+    #4f6270 authorship-ai | #eef1f2 slate-tint state-review-bg
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong planned-outline
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .node{font-size:16px;font-weight:600;fill:#0c1513}
+      .body{font-size:12px;fill:#263230}
+      .bodyPlanned{font-size:12px;fill:#566461}
+      .foot{font-size:11px;fill:#566461}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="700" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="699" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">구성요소 사슬</text>
+    <text class="title" x="40" y="84">원본 행이 들어오고 증거가 나가며, 인계마다 gate가 있습니다.</text>
+    <text class="sub" x="40" y="112">점선 회색은 모델 출력이고, 신뢰하지 않습니다. 청록은 사람의 결정, 먹색은 버전이 고정된 코드입니다.</text>
+    <text class="sub" x="40" y="132">계획 단계 표시는 계약에 명세됐지만 아직 구현되지 않은 구성요소를 뜻합니다.</text>
+  </g>
+  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <g class="s"><text class="band" x="40" y="178">매핑과 정본화</text></g>
+
+  <!-- 1 source rows -->
+  <rect x="40" y="192" width="208" height="170" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="54" y="208" width="80" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="62" y="221" fill="#4f6270">신뢰하지 않음</text>
+  <g class="s">
+    <text class="node" x="54" y="254">원본 행</text>
+    <text class="body" x="54" y="280">커밋된 원본 행 1개에서 64개,</text>
+    <text class="body" x="54" y="298">CSV 또는 JSON Lines 형식.</text>
+    <text class="body" x="54" y="316">호출자가 작성한 정본 이벤트는</text>
+    <text class="body" x="54" y="334">거부됩니다.</text>
+  </g>
+  <text class="m foot" x="54" y="352">sourceArtifactHash</text>
+
+  <!-- 2 schema mapper -->
+  <rect x="268" y="192" width="208" height="170" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="282" y="208" width="64" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="290" y="221" fill="#4f6270">AI가 제안</text>
+  <g class="s">
+    <text class="node" x="282" y="254">제약된 매퍼</text>
+    <text class="body" x="282" y="280">소스 열마다 대상 필드 하나와</text>
+    <text class="body" x="282" y="298">허용된 변환 하나를 확신도,</text>
+    <text class="body" x="282" y="316">근거와 함께 제안합니다.</text>
+  </g>
+  <text class="m foot" x="282" y="352">mappingVersion 1.4</text>
+
+  <!-- 3 mapping approval -->
+  <rect x="496" y="192" width="208" height="170" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="510" y="208" width="72" height="18" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="518" y="221" fill="#0b6e6a">사람이 승인</text>
+  <g class="s">
+    <text class="node" x="510" y="254">매핑 승인</text>
+    <text class="body" x="510" y="280">제안된 아티팩트 해시에 묶어</text>
+    <text class="body" x="510" y="298">그대로 승인합니다. 표시된</text>
+    <text class="body" x="510" y="316">필드는 사유를 적은 override로</text>
+    <text class="body" x="510" y="334">통과시킵니다.</text>
+  </g>
+  <text class="m foot" x="510" y="352">approvedArtifactHash</text>
+
+  <!-- 4 canonical events -->
+  <rect x="724" y="192" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="738" y="208" width="72" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="746" y="221" fill="#14211f">코드가 소유</text>
+  <g class="s">
+    <text class="node" x="738" y="254">정본 이벤트</text>
+    <text class="body" x="738" y="280">저장된 행을 승인된 매핑으로</text>
+    <text class="body" x="738" y="298">다시 도출한 뒤 정렬하고</text>
+    <text class="body" x="738" y="316">중복을 거릅니다.</text>
+  </g>
+  <text class="m foot" x="738" y="352">canonicalDatasetHash</text>
+
+  <!-- 5 dataset profile -->
+  <rect x="952" y="192" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="966" y="208" width="72" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="974" y="221" fill="#14211f">코드가 소유</text>
+  <g class="s">
+    <text class="node" x="966" y="254">데이터셋 프로파일</text>
+    <text class="body" x="966" y="280">정본 데이터셋 해시와 정렬된</text>
+    <text class="body" x="966" y="298">종목&#183;행위자 집합, 정규화된</text>
+    <text class="body" x="966" y="316">시각 경계를 담습니다.</text>
+  </g>
+  <text class="m foot" x="966" y="352">DatasetProfile</text>
+
+  <g fill="#0b6e6a">
+    <path d="M252 271l8 6-8 6z"/>
+    <path d="M480 271l8 6-8 6z"/>
+    <path d="M708 271l8 6-8 6z"/>
+    <path d="M936 271l8 6-8 6z"/>
+  </g>
+
+  <g class="s"><text class="band" x="40" y="384">사례, 리플레이, 증거</text></g>
+
+  <path d="M1056 362 V400 H144 V418" fill="none" stroke="#0b6e6a"/>
+  <path d="M138 418l6 8 6-8z" fill="#0b6e6a"/>
+
+  <!-- 6 case proposer -->
+  <rect x="40" y="428" width="208" height="170" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="54" y="444" width="64" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="62" y="457" fill="#4f6270">AI가 제안</text>
+  <rect x="124" y="444" width="58" height="18" fill="#ffffff" stroke="#a9bebc"/>
+  <text class="s chip" x="132" y="457" fill="#566461">계획 단계</text>
+  <g class="s">
+    <text class="node" x="54" y="490">사례 제안기</text>
+    <text class="bodyPlanned" x="54" y="516">프로파일 사실만으로 행위자</text>
+    <text class="bodyPlanned" x="54" y="534">그룹과 구간을 고르되,</text>
+    <text class="bodyPlanned" x="54" y="552">임계값은 고르지 않습니다.</text>
+  </g>
+  <text class="m foot" x="54" y="588">구현되지 않음</text>
+
+  <!-- 7 case approval -->
+  <rect x="268" y="428" width="208" height="170" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="282" y="444" width="72" height="18" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="290" y="457" fill="#0b6e6a">사람이 승인</text>
+  <g class="s">
+    <text class="node" x="282" y="490">사례 승인</text>
+    <text class="body" x="282" y="516">종목과 구간, 행위자, 규칙과</text>
+    <text class="body" x="282" y="534">임계값을 리플레이 실행 전에</text>
+    <text class="body" x="282" y="552">고정합니다.</text>
+  </g>
+  <text class="m foot" x="282" y="588">approvedManifestHash</text>
+
+  <!-- 8 replay engine -->
+  <rect x="496" y="428" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="510" y="444" width="72" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="518" y="457" fill="#14211f">코드가 판정</text>
+  <g class="s">
+    <text class="node" x="510" y="490">리플레이 엔진</text>
+    <text class="body" x="510" y="516">정렬하고, 중복을 거르고,</text>
+    <text class="body" x="510" y="534">소수를 정확히 계산해</text>
+    <text class="body" x="510" y="552">RAPID_PRICE_LIFT 1.1을</text>
+    <text class="body" x="510" y="570">평가합니다.</text>
+  </g>
+  <text class="m foot" x="510" y="588">0.7.0-canonical-decimal</text>
+
+  <!-- 9 source trace -->
+  <rect x="724" y="428" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="738" y="444" width="72" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="746" y="457" fill="#14211f">코드가 기록</text>
+  <g class="s">
+    <text class="node" x="738" y="490">원본 추적</text>
+    <text class="body" x="738" y="516">모든 발견을 정본 이벤트와</text>
+    <text class="body" x="738" y="534">그 근거인 커밋된 행까지</text>
+    <text class="body" x="738" y="552">되짚거나, 거부합니다.</text>
+  </g>
+  <text class="m foot" x="738" y="588">eventId &#8594; rawRowHash</text>
+
+  <!-- 10 evidence bundle -->
+  <rect x="952" y="428" width="208" height="170" fill="#ffffff" stroke="#14211f"/>
+  <rect x="966" y="444" width="72" height="18" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="974" y="457" fill="#14211f">코드가 소유</text>
+  <g class="s">
+    <text class="node" x="966" y="490" fill="#263230">증거 번들</text>
+    <text class="body" x="966" y="516">정확한 원본 바이트에서 선언</text>
+    <text class="body" x="966" y="534">하나를 다시 만들고, 리플레이와</text>
+    <text class="body" x="966" y="552">두 해시를 독립적으로</text>
+    <text class="body" x="966" y="570">검증합니다.</text>
+  </g>
+  <text class="m foot" x="966" y="588">bundle 1.3</text>
+
+  <g fill="#0b6e6a">
+    <path d="M252 507l8 6-8 6z"/>
+    <path d="M480 507l8 6-8 6z"/>
+    <path d="M708 507l8 6-8 6z"/>
+    <path d="M936 507l8 6-8 6z"/>
+  </g>
+
+  <line class="rule" x1="40" y1="624" x2="1160" y2="624"/>
+
+  <g class="s">
+    <text class="band" x="40" y="650">어느 gate든 거부할 수 있습니다</text>
+    <text class="band" x="1160" y="650" text-anchor="end">거부된 요청에는 결과 해시가 없습니다</text>
+  </g>
+  <g>
+    <rect x="40" y="662" width="160" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="50" y="676" fill="#4f6270">INPUT_REVIEW_REQUIRED</text>
+    <rect x="208" y="662" width="174" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="218" y="676" fill="#4f6270">MAPPING_REVIEW_REQUIRED</text>
+    <rect x="390" y="662" width="154" height="20" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="m chip" x="400" y="676" fill="#4f6270">CASE_REVIEW_REQUIRED</text>
+  </g>
+</svg>
