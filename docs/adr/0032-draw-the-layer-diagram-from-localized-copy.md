@@ -29,18 +29,19 @@ kind the pages already use.
 - The architecture page renders that module inline, in the reader's language,
   so the figure is set in the committed faces and reads in the language the
   rest of the page reads in.
-- `pnpm diagram:build` writes the module's English output to
-  `docs/assets/how-it-works.svg` and `apps/web/public/diagrams/how-it-works.svg`.
-  The documentation has one language and still needs a self-contained figure.
+- `pnpm diagram:build` writes the module's English and Korean output to
+  `docs/assets/how-it-works[.ko].svg` and
+  `apps/web/public/diagrams/how-it-works[.ko].svg`. Each README therefore gets
+  a self-contained figure in its own language, and direct asset links do too.
 - A test fails when either committed file stops matching what the module
   renders, so the figure and the page cannot drift apart.
 
 ## Consequences
 
 - A copy change is one edit in one table, and the check that used to be a human
-  reading two SVGs is now a test.
-- The page no longer requests `/diagrams/how-it-works.svg`. That file remains
-  committed for the readme and for anyone linking the figure directly.
+  reading SVGs is now a test across both languages and both committed copies.
+- The page no longer requests `/diagrams/how-it-works.svg`. Both language files
+  remain committed for the READMEs and for anyone linking a figure directly.
 - The inline markup is written by this module from committed literals, with no
   request or reader input in it, which is what makes setting it as HTML safe.
 - Standalone files name font families literally, because a committed SVG cannot

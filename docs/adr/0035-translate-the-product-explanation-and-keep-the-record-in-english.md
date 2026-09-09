@@ -54,14 +54,22 @@ keep the rest in English.
 The README itself was rewritten in the same change. It now explains the product
 in plain language and carries one worked case — a real published day, its
 figure, and what the result does and does not say — while the contract
-vocabulary it used to carry moved into the linked documents. Its diagram exists
-in both languages (`docs/assets/worked-case.svg` and `worked-case.ko.svg`);
-the four older diagrams remain English in both READMEs, with their content
-carried by Korean alt text until they are redrawn in
-[#126](https://github.com/WeaveTrail/WeaveTrail/issues/126).
+vocabulary it used to carry moved into the linked documents. Its diagrams exist
+in both languages, under the same `.ko.svg` suffix: the worked case, the
+problem, the layer, the design boundary and the component chain.
 
-That worked-case figure is generated rather than drawn, following
-[ADR 0032](0032-draw-the-layer-diagram-from-localized-copy.md). It shows real
+The layer and worked-case figures are rendered from localized copy, following
+[ADR 0032](0032-draw-the-layer-diagram-from-localized-copy.md). The other three
+are hand-authored in each language. Substituting Korean strings into the
+English drawing was tried and rejected for the reason ADR 0032 already
+records: Korean does not wrap where English wraps and a Korean label does not
+measure like an English one, so a Korean figure fitted into English line breaks
+and English chip widths sets its copy in fragments and runs its lines out of
+the boxes they belong to. Each Korean figure therefore keeps the English
+geometry and design tokens but brings its own line breaks and its own chip
+widths, and the tests below stand in for the human who used to read both files.
+
+The worked-case figure is generated for a second reason as well. It shows real
 published prices and real rule output, and a drawing cannot be reproduced from
 the artifacts it claims to show: its bar positions were computed by hand
 against prices that can change, and only the values someone thought to check
@@ -86,6 +94,16 @@ that a Korean document does not link to an English-only destination without
 marking it — whatever that destination's extension, since `LICENSE` and the
 `docs/adr` directory surprise a reader exactly as much as a `.md` file would.
 A link to a source file is not marked: code is English by nature.
+
+`entry-point-diagrams.test.ts` additionally resolves every diagram the Korean
+README and architecture document embed, requires Korean title and description
+elements, and checks that each language declares the same panels, layers,
+components and planned marks, and spells contract vocabulary alike. Two checks
+guard what a hand-authored pair can get wrong that a rendered one cannot: every
+line is measured against the box it sits in, from the Hangul advance width the
+committed face actually has, so a line drawn too long for its box fails; and
+the Korean product vocabulary is held to the deployed surface, in the figures
+and in the alt text that stands in for them.
 
 The worked-case diagrams are held to the same standard by
 `worked-case-diagram.test.ts`, which writes them and fails when the committed

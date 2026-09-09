@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="designTitle designDesc">
+  <title id="designTitle">신뢰 경계와 정본 결과 해시가 덮는 범위</title>
+  <desc id="designDesc">왼쪽의 신뢰하지 않는 입력에는 모델이 작성한 필드 매핑 제안과 제출된 원본 행, 승인 기록이 들어가고, 호출자가 작성한 정본 이벤트는 그대로 거부됩니다. 가운데 gate는 계약을 검증하고, 승인을 제안된 아티팩트 해시에 묶고, 제출된 모든 행을 서버에 커밋된 행과 대조합니다. 오른쪽의 결정론적 core는 정렬과 시각 정밀도, 소수 연산, 수 표기를 고정합니다. 정본 결과 해시는 엔진 버전과 정본 이벤트 투영, 규칙 결과를 덮고 수집 메타데이터와 워크플로 상태, 검토자 신원은 덮지 않습니다.</desc>
+  <!--
+    Korean counterpart of design.svg. Same geometry and same design tokens; the
+    copy is set in Korean and broken where Korean breaks, the REJECTED chip is
+    measured for its Korean label, and the product vocabulary follows the
+    deployed surface as ADR 0035 requires.
+
+    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
+    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 ledger-head
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint
+    #4f6270 authorship-ai | #eef1f2 slate-tint
+    #b23b32 state-refused | #fdeeed red-tint
+    #d0d7de ledger-rule | #a9bebc ledger-rule-strong
+  -->
+  <defs>
+    <style>
+      .s{font-family:"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif}
+      .m{font-family:"JetBrains Mono","IBM Plex Mono","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",ui-monospace,SFMono-Regular,Consolas,monospace}
+      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}
+      .title{font-size:28px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}
+      .sub{font-size:14px;fill:#566461}
+      .zone{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
+      .item{font-size:13px;fill:#263230}
+      .key{font-size:12px;fill:#566461}
+      .val{font-size:12px;fill:#263230}
+      .chip{font-size:10px;font-weight:600;letter-spacing:.06em}
+      .rule{stroke:#d0d7de;stroke-width:1}
+    </style>
+  </defs>
+
+  <rect width="1200" height="540" fill="#f7faf9"/>
+  <rect width="1200" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
+
+  <g class="s">
+    <text class="eyebrow" x="40" y="48">설계</text>
+    <text class="title" x="40" y="84">경계는 관행이 아니라 계약입니다.</text>
+    <text class="sub" x="40" y="112">모델이 쓴 것은 승인 없이 엔진에 닿지 못하고, 해시는 결과가 기대는 것만 덮습니다.</text>
+  </g>
+  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+
+  <!-- untrusted input -->
+  <g class="s"><text class="zone" x="40" y="180">신뢰하지 않는 입력</text></g>
+  <rect x="40" y="192" width="410" height="204" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <g class="s">
+    <text class="item" x="60" y="224">모델이 작성한 필드 매핑 제안</text>
+    <line class="rule" x1="60" y1="240" x2="430" y2="240"/>
+    <text class="item" x="60" y="266">선언된 원본 행 최대 64개</text>
+    <line class="rule" x1="60" y1="282" x2="430" y2="282"/>
+    <text class="item" x="60" y="308">승인 기록과 그 override</text>
+    <line class="rule" x1="60" y1="324" x2="430" y2="324"/>
+    <text class="item" x="60" y="350" fill="#b23b32">호출자가 작성한 정본 이벤트</text>
+  </g>
+  <rect x="60" y="362" width="50" height="18" fill="#fdeeed" stroke="#b23b32"/>
+  <text class="s chip" x="68" y="375" fill="#b23b32">거부됨</text>
+
+  <!-- the gate -->
+  <g class="s"><text class="zone" x="482" y="180">gate</text></g>
+  <rect x="482" y="192" width="240" height="204" fill="#ffffff" stroke="#14211f"/>
+  <rect x="482" y="192" width="240" height="4" fill="#14211f"/>
+  <g class="s">
+    <text class="item" x="502" y="228">계약 검증</text>
+    <text class="key" x="502" y="246">모든 필드, 닫힌 어휘</text>
+    <line class="rule" x1="502" y1="262" x2="702" y2="262"/>
+    <text class="item" x="502" y="288">승인 결속</text>
+    <text class="key" x="502" y="306">제안된 아티팩트 해시에 묶임</text>
+    <line class="rule" x1="502" y1="322" x2="702" y2="322"/>
+    <text class="item" x="502" y="348">행 일치</text>
+    <text class="key" x="502" y="366">커밋된 행과 대조</text>
+  </g>
+
+  <!-- deterministic core -->
+  <g class="s"><text class="zone" x="754" y="180">결정론적 core</text></g>
+  <rect x="754" y="192" width="406" height="204" fill="#ffffff" stroke="#14211f"/>
+  <g class="m">
+    <text class="key" x="774" y="224">정렬</text>
+    <text class="val" x="864" y="224">eventTime &#8594; sequence &#8594; eventId</text>
+    <text class="key" x="774" y="258">동률</text>
+    <text class="val" x="864" y="258">UTF-16 코드 단위</text>
+    <text class="key" x="774" y="292">시각</text>
+    <text class="val" x="864" y="292">고정 너비 UTC 나노초</text>
+    <text class="key" x="774" y="326">소수</text>
+    <text class="val" x="864" y="326">스케일 정수, 부동소수점 아님</text>
+    <text class="key" x="774" y="360">수 표기</text>
+    <text class="val" x="864" y="360">RFC 8785 binary64 표기</text>
+  </g>
+
+  <g fill="#0b6e6a">
+    <path d="M456 286l10 6-10 6z"/>
+    <path d="M728 286l10 6-10 6z"/>
+  </g>
+  <text class="s key" x="482" y="420" font-size="12">통과하지 못한 gate는 결과 해시 없이 검토 상태와 HTTP 422를 돌려줍니다.</text>
+
+  <line class="rule" x1="40" y1="444" x2="1160" y2="444"/>
+
+  <g class="s">
+    <text class="zone" x="40" y="474">canonicalResultHash가 덮는 것</text>
+    <text class="zone" x="1160" y="474" text-anchor="end">덮지 않는 것</text>
+  </g>
+  <g class="m">
+    <text class="val" x="40" y="498">엔진 버전 &#183; 정본 이벤트 투영</text>
+    <text class="val" x="40" y="518">규칙 결과 &#183; 다섯 gate의 발견 &#183; sensitivity</text>
+    <text class="val" x="1160" y="498" text-anchor="end">receivedAt &#183; rawRowHash &#183; workflowState</text>
+    <text class="val" x="1160" y="518" text-anchor="end">검토자 신원 &#183; 승인 시각</text>
+  </g>
+</svg>

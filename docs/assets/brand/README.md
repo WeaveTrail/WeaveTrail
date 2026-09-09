@@ -20,4 +20,7 @@ the design system is vendored into `apps/web`.
 
 The three README diagrams in the parent directory are hand-authored from the
 same revision's token files. Each carries a comment mapping its literal hex
-values back to their token names.
+values back to their token names. Each also has a hand-authored `.ko.svg`
+counterpart drawn from the same tokens and the same geometry, with its own
+Korean line breaks and chip widths; `entry-point-diagrams.test.ts` holds the
+two halves of a pair to the same components and marks.
