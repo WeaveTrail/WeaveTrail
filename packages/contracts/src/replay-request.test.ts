@@ -12,6 +12,7 @@ describe("ReplayRequestSchema", () => {
     "concentrated-buy-dialect-a.csv",
     "concentrated-buy-dialect-b.jsonl",
     "published-execution-fix44.csv",
+    "published-execution-fix44-conflicting-evidence.csv",
     "published-execution-h0stcnt0.jsonl",
     "real/fsc-kospi-index-family-20260903/source.jsonl",
     "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",

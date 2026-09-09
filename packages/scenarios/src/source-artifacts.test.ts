@@ -124,6 +124,10 @@ describe("synthetic source artifacts", () => {
       "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
     ],
     [
+      "published-execution-fix44-conflicting-evidence.csv",
+      "fb1f933e6c979c75bd4631fb581fb5c4796b84d89d73a28bf414dc7d9e2fdc57",
+    ],
+    [
       "published-execution-h0stcnt0.jsonl",
       "c6fb040df7cf060d43795424f95a8261b0ca4a06486750639c9762e39893c8ef",
     ],
@@ -137,7 +141,7 @@ describe("synthetic source artifacts", () => {
     ],
     [
       "rapid-price-lift-insufficient-evidence.csv",
-      "15f79ef0265f836b5a01635bbcdd8e2f241431fbcc87fc504a1e2f7ea05582f7",
+      "33db4b61e5bb86a057f9f2c80f9c9d0033d024d0499d3ef2133f7c5aa102bb4b",
     ],
   ])("pins the exact bytes of %s", (name, expectedHash) => {
     const bytes = artifactBytes(name);

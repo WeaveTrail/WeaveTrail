@@ -13,6 +13,7 @@ import {
   committedReplayScenarios,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
+  publishedExecutionConflictProposal,
   publishedExecutionManifest,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
@@ -86,6 +87,8 @@ const syntheticProposals: Record<string, SchemaMappingProposal> = {
   ),
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"].mappingProposal,
+  "published-execution-fix44-conflicting-evidence.csv":
+    publishedExecutionConflictProposal,
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"]
       .mappingProposal,
@@ -158,11 +161,15 @@ describe("Evidence Bundle 1.3 assembly and independent verification", () => {
         verified: true,
         bundle,
       });
-      expect(
-        bundle.replay?.events.every(
-          ({ rawRowHash }) => rawRowHash.length === 64,
-        ),
-      ).toBe(true);
+      if (bundle.replay === undefined) {
+        expect(bundle.workflowState).toBe("INPUT_REVIEW_REQUIRED");
+      } else {
+        expect(
+          bundle.replay.events.every(
+            ({ rawRowHash }) => rawRowHash.length === 64,
+          ),
+        ).toBe(true);
+      }
     },
   );
 

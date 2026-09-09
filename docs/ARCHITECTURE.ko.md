@@ -20,17 +20,20 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
 확인된 공개 원본이면 `REVIEWER_FACING`, 엔진 동작을 고정하기 위한 픽스처이면
 `ENGINE_REGRESSION`으로 표시합니다. 전체 레지스트리는 엔진·공급자·API·계약 시험에서
 계속 사용할 수 있습니다. 사례 재현 목록에는 검토용 원본과, 세 가지 선언된 결과
-의미를 모두 도달 가능하게 유지하는 데 필요한 회귀 대체 사례만 나옵니다. FIX 4.4
-사례가 `SUPPORTED`를 재현하므로 예전 `SUPPORTED` placeholder는 목록에서 빠지고,
-`NOT_SUPPORTED`와 `INCONCLUSIVE` placeholder는 같은 의미를 재현하는 검토용 사례가
-생길 때까지 남습니다. 기대 결과 페이지는 두 용도를 모두 나열하며 사례 재현 목록
-표시 여부도 함께 밝힙니다.
+의미를 모두 도달 가능하게 유지하는 데 필요한 회귀 대체 사례만 나옵니다. 완전한
+FIX 4.4 사례는 `SUPPORTED`, 매수·매도 구분이 빠진 FIX 기반 사례는
+`INCONCLUSIVE`를 재현하므로 두 예전 placeholder는 목록에서 빠집니다.
+`NOT_SUPPORTED` placeholder만 같은 의미를 재현하는 검토용 사례가 생길 때까지
+남습니다. 별도의 FIX 기반 식별자 충돌 원본은 재현 전에
+`INPUT_REVIEW_REQUIRED`에 이릅니다. 기대 결과 페이지는 각 사례가 보여 주는 정확한
+조건, 두 용도, 사례 재현 목록 표시 여부, 결과 해시 생성 여부를 함께 밝힙니다.
 
 카탈로그에는 원본마다 제공되는 입력 변경도 선언합니다. 공개 스키마 기반 합성
 자료와 결과 대체 사례에는 `baseline`, `shuffle`, `duplicate`를 제공하고, 라이선스
 공개 자료에는 `baseline`과 `shuffle`만 제공합니다. 어느 조작도 커밋된 값을
 고쳐 쓰지 않으며, 참여자나 패턴 결과를 붙이는 조작은 없습니다.
-[ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md)(영문)을
+[ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md)(영문)과
+[ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)(영문)을
 참고하세요.
 
 개요 화면은 `/replay?mode=guided`와 `/why`로 이어집니다. `/why`는 기존

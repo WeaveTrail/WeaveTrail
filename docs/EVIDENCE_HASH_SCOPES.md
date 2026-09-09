@@ -4,7 +4,7 @@ This is the published definition used by Evidence Bundle assembly and
 independent verification. The contracts, hash primitives, byte-backed
 assembler and verifier are implemented in `@weavetrail/replay-engine`. See
 [ADR 0024](adr/0024-define-evidence-hash-scopes.md) and
-[ADR 0039](adr/0039-verify-evidence-bundles-from-source-bytes.md).
+[ADR 0040](adr/0040-verify-evidence-bundles-from-source-bytes.md).
 
 ## Canonical serialization
 

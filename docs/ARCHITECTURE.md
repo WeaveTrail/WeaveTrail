@@ -22,18 +22,23 @@ in a published schema or licensed published source and therefore
 `REVIEWER_FACING`, or exists as an `ENGINE_REGRESSION` fixture. The complete
 registry remains available to the engine, provider, API, and contract suites.
 Case Replay lists the grounded set plus only those regression fallbacks needed
-to keep all three declared result meanings reachable. Because the FIX 4.4 case
-produces `SUPPORTED`, the older `SUPPORTED` placeholder is absent from the
-picker; the `NOT_SUPPORTED` and `INCONCLUSIVE` placeholders remain until
-grounded cases reproduce those meanings. The expectations page lists both
-purposes and says whether each source appears in Case Replay.
+to keep all three declared result meanings reachable. The complete FIX 4.4
+case produces `SUPPORTED`, and the FIX-shaped missing-side case produces
+`INCONCLUSIVE`, so both older placeholders are absent from the picker. The
+`NOT_SUPPORTED` placeholder remains until a grounded case reproduces that
+meaning. A separate FIX-shaped identity-conflict source reaches
+`INPUT_REVIEW_REQUIRED` before replay. The expectations page states the exact
+condition each case demonstrates, both purposes, Case Replay availability, and
+whether a result hash is produced.
 
 Catalog metadata also declares the input mutations offered per source.
 Published-schema synthetic sources and result fallbacks offer `baseline`,
 `shuffle`, and `duplicate`. Licensed published artifacts offer only `baseline`
 and `shuffle`; neither rewrites a committed value, and no control adds a
 participant or pattern verdict. See
-[ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md).
+[ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md)
+and
+[ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md).
 
 The overview links to `/replay?mode=guided` and `/why`. `/why` states where the
 gate sits relative to an existing surveillance pipeline, cites the published

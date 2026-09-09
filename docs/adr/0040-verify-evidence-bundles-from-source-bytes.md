@@ -1,4 +1,4 @@
-# ADR 0039: Verify evidence bundles from declared source bytes
+# ADR 0040: Verify evidence bundles from declared source bytes
 
 ## Status
 

@@ -148,7 +148,7 @@ function approvalFor(proposal: SchemaMappingProposal): ApprovalRecord {
   };
 }
 
-// Test declarations only; no production bundle assembler is introduced.
+// Hash-scope specimens stay independent from the production bundle assembler.
 function specimen(
   rows: readonly SourceRow[],
   proposal: SchemaMappingProposal,
@@ -191,16 +191,23 @@ function specimen(
   });
 }
 
-const cases = Object.entries(rapidPriceLiftScenarios).map(
-  ([name, scenario]) => ({
+const bundleV13CaseNames = [
+  "rapid-price-lift-supported.csv",
+  "rapid-price-lift-broad-participation.csv",
+  "rapid-price-lift-insufficient-evidence.csv",
+] as const;
+const bundleV13Cases = bundleV13CaseNames.map((name) => {
+  const scenario = rapidPriceLiftScenarios[name];
+  return {
     name,
     bundle: specimen(
       scenario.rows,
       scenario.mappingProposal,
       scenario.manifest,
     ),
-  }),
-);
+  };
+});
+const cases = bundleV13Cases;
 const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
 const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
