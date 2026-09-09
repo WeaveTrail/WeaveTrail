@@ -2389,8 +2389,8 @@ export function CaseReplay({
               ) : null}
               <p>
                 {t(
-                  "Independent Evidence Bundle assembly and verification are planned. Each displayed hash states what it covers where it is shown.",
-                  "증거 묶음을 따로 만들고 검증하는 기능은 아직 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
+                  "The engine can independently assemble and verify an Evidence Bundle from source bytes; browser export is planned. Each displayed hash states what it covers where it is shown.",
+                  "엔진은 원본 바이트에서 증거 묶음을 독립적으로 조립하고 검증할 수 있으며, 브라우저 내보내기는 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
                 )}
               </p>
               <p>

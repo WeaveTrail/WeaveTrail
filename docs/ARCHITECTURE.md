@@ -132,7 +132,7 @@ the input-order change.
 
 ## Component chain
 
-![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
+![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly and verification recompute the declaration from source bytes. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
 
 A `PLANNED` component is specified in contracts and tracked as open work rather
 than implemented today.
@@ -346,8 +346,9 @@ required versioned `sourceTrace` member and validate its exact finding-reference
 set. It is not optional on newly produced case responses. Foundation and review
 response shapes are unchanged. The projection and its version remain outside
 `canonicalResultHash` and approval artifacts; engine/rule versions, three rule
-outcomes, and semantic hashes are unchanged. Trace inspection is implemented;
-Evidence Bundle assembly, export, and independent verification remain planned.
+outcomes, and semantic hashes are unchanged. Trace inspection and engine-package
+Evidence Bundle assembly and independent verification are implemented; the
+browser export surface remains planned.
 See [ADR 0017](adr/0017-resolve-finding-source-traces-on-the-server.md).
 
 Profile failures use `CANONICAL_DATASET_HASH_MISMATCH`,
@@ -432,8 +433,8 @@ approved actor set and reports the resulting metric difference. It does not
 establish attribution, guilt, or causation. Schema validation establishes the
 bundle's shape, not that metrics were recomputed or that evidence is authentic.
 
-Runtime replay behavior is unchanged. Bundle assembly, export, and independent
-verification remain planned. The 1.2 contract continues to require a
+Runtime replay behavior is unchanged. The 1.2 contract has no assembler or
+independent verifier and continues to require a
 sensitivity object, while the running rule result uses `null` for
 `INCONCLUSIVE`. The opt-in 1.3 contract below resolves this shape mismatch;
 1.2 consumers retain their explicit migration boundary.
@@ -443,8 +444,9 @@ exercise these strict migration boundaries with illustrative synthetic inputs.
 
 ### Evidence Bundle 1.3 hash scopes
 
-`EvidenceBundleV13Schema` is a separate, strict declaration for planned assembly
-and verification. `EvidenceBundleSchema` still validates only 1.2; there is no
+`EvidenceBundleV13Schema` is a separate, strict declaration used by the
+byte-backed assembler and independent verifier. `EvidenceBundleSchema` still
+validates only 1.2; there is no
 implicit conversion. Version 1.3 stores source-artifact declarations, complete
 mapping/case proposals and supplied approval records, workflow state, and an
 optional `replay` group. A present group contains canonical events, engine
@@ -455,11 +457,11 @@ normalization without a rule result omits only `replay.evaluation`.
 
 The original FSC daily quotation artifact ends at `MAPPING_APPROVED` with a
 result hash but no evaluation or case manifest. Evidence Bundle `1.3` remains
-frozen to Event 1.1/1.2, Proposal 1.4/1.5/1.6 and Manifest 1.3. Hashing converts none
-of them and invents no missing fields.
+defined for Event 1.1–1.3, Proposal 1.4–1.8 and Manifest 1.3. Hashing converts
+none of them and invents no missing fields.
 
-`canonicalResultHash` protects exactly the engine version, 15-field canonical
-event projection and evaluation when present. It alone does not bind case
+`canonicalResultHash` protects exactly the engine version, the versioned
+canonical event projection and evaluation when present. It alone does not bind case
 scope, approved mappings or manifests. `bundleHash` covers every 1.3 field
 except itself, including the complete proposals, approvals, source-artifact
 declarations and event collection metadata. Audit metadata can change this
@@ -469,11 +471,12 @@ The normative preimages, exhaustive protected/excluded field table, canonical
 serialization and migration notes are published in
 [Evidence hash scopes](EVIDENCE_HASH_SCOPES.md), with the decision in
 [ADR 0024](adr/0024-define-evidence-hash-scopes.md). Schema and serialization
-coverage tests enforce their agreement. Only contracts and the pure bundle
-hash primitive are implemented here: assembly, export and independent
-verification remain planned in
-[#13](https://github.com/WeaveTrail/WeaveTrail/issues/13). Hashing a declaration
-does not validate its claimed relationships or authenticate its evidence.
+coverage tests enforce their agreement. `assembleEvidenceBundle` hashes and
+parses exact CSV or JSON Lines source bytes before producing a declaration;
+`verifyBundle` repeats normalization, approval binding, evaluation and hash
+calculation from separately supplied bytes. It fails closed for multi-mapping
+declarations because multi-source replay is not defined. Verification does not
+authenticate a reviewer or source publisher and is not a signature.
 
 ## Package boundaries
 

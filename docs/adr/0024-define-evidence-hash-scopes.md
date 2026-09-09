@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted.
+Accepted; version coverage and verification were extended by
+[ADR 0039](0039-verify-evidence-bundles-from-source-bytes.md).
 
 ## Context
 

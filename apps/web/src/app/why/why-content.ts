@@ -303,8 +303,8 @@ export const layerAuthorities: readonly LayerAuthority[] = [
       ko: "계보를 되짚지 못하는 발견은 보여주지 않고 거부합니다. INCONCLUSIVE 결과에는 발견 증거가 없습니다.",
     },
     status: {
-      en: "Independent Evidence Bundle assembly and verification are planned.",
-      ko: "독립적인 증거 번들 조립과 검증은 계획입니다.",
+      en: "Byte-backed Evidence Bundle assembly and independent verification are implemented; browser export is planned.",
+      ko: "원본 바이트 기반 증거 번들 조립과 독립 검증은 구현되어 있고, 브라우저 내보내기는 계획입니다.",
     },
   },
 ];
