@@ -6,14 +6,16 @@ const read = (path: string) =>
   readFileSync(resolve(process.cwd(), path), "utf8");
 
 /**
- * The four figures the entry point explains the product with. The layer
- * diagram is rendered from `how-it-works-diagram.ts` and pinned by
- * `architecture-diagram.test.ts`; the other three are drawn by hand in each
- * language, which is what the checks below are here to hold together.
+ * The figures the entry points explain the product with. The architecture
+ * page's layer diagram is rendered from `how-it-works-diagram.ts` and pinned by
+ * `architecture-diagram.test.ts`; the others, including the readme's
+ * `layer-separation` figure, are drawn by hand in each language, which is what
+ * the checks below are here to hold together.
  */
 const DIAGRAM_PAIRS = [
   ["docs/assets/problem.svg", "docs/assets/problem.ko.svg"],
   ["docs/assets/how-it-works.svg", "docs/assets/how-it-works.ko.svg"],
+  ["docs/assets/layer-separation.svg", "docs/assets/layer-separation.ko.svg"],
   ["docs/assets/design.svg", "docs/assets/design.ko.svg"],
   ["docs/assets/component-chain.svg", "docs/assets/component-chain.ko.svg"],
 ] as const;
