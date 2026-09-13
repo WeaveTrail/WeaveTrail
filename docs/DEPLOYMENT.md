@@ -66,6 +66,30 @@ path. Create its branch from the current `origin/main` and open it into `main`
 so unreleased `develop` changes are not included. After the hotfix reaches
 production, carry the same change into `develop` before the next release.
 
+### Versions and release tags
+
+Each GitHub milestone names one version, such as `v0.1.0`, and holds the issues
+that version ships. One `develop` to `main` promotion ships one milestone.
+Milestones carry no due dates.
+
+After a promotion merges and its production deployment passes the
+[promotion gate](#promotion-gate), mark the release on that exact `main`
+commit:
+
+1. Create an annotated tag `vX.Y.Z` on the promoted `main` commit, the same
+   full Git SHA recorded for the gate, and push the tag.
+2. Publish a GitHub release from that tag. Its notes list the milestone's
+   issues and name the production deployment URL.
+3. Close the milestone.
+
+A tag does not trigger a deployment. The Vercel Git integration on `main`
+remains the only production trigger, and this repository adds no tag-driven
+deployment workflow. A hotfix promoted to `main` takes the next patch version
+and is tagged the same way. A tag is never moved or reused; a rollback restores
+an earlier deployment without removing any tag, and the corrected revision
+receives a new patch version. Workspace package versions are not release
+versions; the tag is the version of record.
+
 The published quotation flow also requires verification at the promoted revision;
 this document does not claim that the current checkout has been deployed.
 

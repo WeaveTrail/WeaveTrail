@@ -37,6 +37,10 @@ reproducible check confirms it.
   `develop` so the integration branch does not regress the fix.
 - Existing pull requests retain their current base unless the owner requests
   a retargeting.
+- Each GitHub milestone names one version, and one promotion to `main` ships
+  one milestone. Version tags `vX.Y.Z` and GitHub releases are created only on
+  the promoted `main` commit. Do not create, move or delete a tag, release or
+  milestone without an explicit instruction.
 
 ## Trust boundary
 
