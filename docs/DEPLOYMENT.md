@@ -76,7 +76,9 @@ reserved for hotfixes. Milestones carry no due dates.
 A `develop` to `main` promotion ships the whole `develop` branch, not a
 selection from it, so the milestone follows the branch. The promoted range is
 every pull request merged into `develop` since `develop` was last merged into
-`main`. Before the promotion merges, reconcile the milestone with that range:
+`main`, up to the exact `develop` head SHA the promotion pull request will
+merge. Reconcile the milestone with that range immediately before the
+promotion merges; if `develop` advances first, reconcile again:
 
 - Every issue closed by a pull request in the range moves into the milestone
   being promoted, even if it was planned for a later version.
