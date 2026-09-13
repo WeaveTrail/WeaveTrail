@@ -28,11 +28,44 @@ function walk(directory) {
   });
 }
 
+function withoutMarkdownCode(content) {
+  let fence;
+  const visibleLines = content.split(/\r?\n/).map((line) => {
+    const candidate = line.match(/^\s{0,3}(`{3,}|~{3,})(.*)$/);
+
+    if (fence) {
+      if (
+        candidate &&
+        candidate[1][0] === fence.character &&
+        candidate[1].length >= fence.length &&
+        candidate[2].trim() === ""
+      ) {
+        fence = undefined;
+      }
+      return "";
+    }
+
+    if (candidate) {
+      fence = {
+        character: candidate[1][0],
+        length: candidate[1].length,
+      };
+      return "";
+    }
+
+    return line;
+  });
+
+  return visibleLines.join("\n").replace(/(`+)[\s\S]*?\1/g, "");
+}
+
 function adrLinkTarget(file, target, root) {
   const cleanTarget = target.replace(/^<|>$/g, "").split("#", 1)[0];
   if (!cleanTarget || /^(?:[a-z]+:|\/)/i.test(cleanTarget)) return undefined;
 
-  const resolved = resolve(dirname(file), cleanTarget);
+  const resolved = cleanTarget.startsWith(`${ADR_DIRECTORY}/`)
+    ? resolve(root, cleanTarget)
+    : resolve(dirname(file), cleanTarget);
   const adrDirectory = resolve(root, ADR_DIRECTORY);
   const pathFromAdrDirectory = relative(adrDirectory, resolved);
   return pathFromAdrDirectory &&
@@ -80,8 +113,11 @@ export function validateAdrIndex(root) {
   for (const file of walk(root)) {
     const content = readFileSync(file, "utf8");
     if (content.includes("\0")) continue;
+    const linkableContent = file.endsWith(".md")
+      ? withoutMarkdownCode(content)
+      : content;
 
-    for (const match of content.matchAll(MARKDOWN_LINK)) {
+    for (const match of linkableContent.matchAll(MARKDOWN_LINK)) {
       const target = adrLinkTarget(file, match[1], root);
       if (target && !existsSync(target)) {
         errors.push(
@@ -90,7 +126,9 @@ export function validateAdrIndex(root) {
       }
     }
 
-    for (const match of content.matchAll(MARKDOWN_REFERENCE_DEFINITION)) {
+    for (const match of linkableContent.matchAll(
+      MARKDOWN_REFERENCE_DEFINITION,
+    )) {
       const target = adrLinkTarget(file, match[1] ?? match[2], root);
       if (target && !existsSync(target)) {
         errors.push(

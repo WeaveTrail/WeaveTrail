@@ -6,6 +6,8 @@ import test from "node:test";
 
 import { isDirectExecution, validateAdrIndex } from "./verify-adr-index.mjs";
 
+const ADR_DIRECTORY = "docs/adr";
+
 function fixture(files) {
   const root = mkdtempSync(resolve(tmpdir(), "weavetrail-adr-"));
 
@@ -30,7 +32,7 @@ test("rejects duplicate ADR numbers", () => {
 test("rejects links to ADR files that do not exist", () => {
   const root = fixture({
     "docs/adr/0001-first.md": "# ADR 0001: First\n",
-    "README.md": "[ADR 0002](docs/adr/0002-missing.md)\n",
+    "README.md": `[ADR 0002](${ADR_DIRECTORY}/0002-missing.md)\n`,
   });
 
   assert.match(validateAdrIndex(root).join("\n"), /links to missing ADR/);
@@ -50,8 +52,7 @@ test("rejects malformed ADR filenames and still indexes their headings", () => {
 test("rejects reference-style links to ADR files that do not exist", () => {
   const root = fixture({
     "docs/adr/0001-first.md": "# ADR 0001: First\n",
-    "README.md":
-      "[ADR 0002][decision]\n\n[decision]: docs/adr/0002-missing.md\n",
+    "README.md": `[ADR 0002][decision]\n\n[decision]: ${ADR_DIRECTORY}/0002-missing.md\n`,
   });
 
   assert.match(validateAdrIndex(root).join("\n"), /links to missing ADR/);
@@ -65,4 +66,29 @@ test("recognizes direct execution when the script path must be URL-encoded", () 
     ),
     true,
   );
+});
+
+test("ignores ADR-like links in Markdown code examples", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "README.md": [
+      "```md",
+      `[fenced ADR](${ADR_DIRECTORY}/9999-removed.md)`,
+      "```",
+      "",
+      `\`[inline ADR](${ADR_DIRECTORY}/9998-removed.md)\``,
+      "",
+    ].join("\n"),
+  });
+
+  assert.deepEqual(validateAdrIndex(root), []);
+});
+
+test("resolves repository-root ADR links from nested source files", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "apps/web/example.test.ts": `// [ADR 0002](${ADR_DIRECTORY}/0002-missing.md)\n`,
+  });
+
+  assert.match(validateAdrIndex(root).join("\n"), /links to missing ADR/);
 });
