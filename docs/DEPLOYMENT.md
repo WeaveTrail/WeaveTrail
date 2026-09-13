@@ -78,8 +78,10 @@ promotion merges, every issue closed by a pull request merged into `develop`
 since the previous promotion moves into the milestone being promoted, even if
 it was planned for a later version. An issue that already belongs to a released
 milestone stays there. The milestone then lists every issue the release
-contains; pull requests that close no issue, such as dependency updates, are
-listed in the release notes instead.
+contains. A merged pull request that no issue in the promoted milestone
+represents is listed in the release notes instead: one that closes no issue,
+such as a dependency update, or one that closes an issue kept in a released
+milestone, such as a follow-up fix to a reopened issue.
 
 An emergency hotfix is a promotion to `main` too. It gets its own milestone
 named for the next patch version, such as `v0.1.1`, holding the hotfix issue,
@@ -93,8 +95,9 @@ commit:
 1. Create an annotated tag `vX.Y.Z` on the promoted `main` commit, the same
    full Git SHA recorded for the gate, and push the tag.
 2. Publish a GitHub release from that tag. Its notes list the milestone's
-   issues, every pull request merged into the promoted range that closes no
-   issue, and the immutable Vercel deployment URL built from that SHA. The
+   issues, every pull request merged into the promoted range that no issue in
+   the milestone represents, and the immutable Vercel deployment URL built from
+   that SHA. The
    stable production origin may appear beside that URL but never replaces it,
    because it moves to whichever deployment is current.
 3. Close the milestone.

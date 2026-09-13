@@ -78,7 +78,8 @@ plans it yet. A promotion ships everything merged into `develop`, so work
 merged ahead of its planned version moves into the milestone being promoted;
 an issue already in a released milestone, such as a backported hotfix, stays
 there. Pull requests do not carry milestones, and the release notes list each
-pull request that closes no issue. Milestones have no due dates. The promoted
+merged pull request that no issue in the promoted milestone represents.
+Milestones have no due dates. The promoted
 `main` commit is tagged `vX.Y.Z` and published as a GitHub release; see
 [versions and release tags](docs/DEPLOYMENT.md#versions-and-release-tags).
 
