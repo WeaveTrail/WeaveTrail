@@ -29,10 +29,12 @@ literals are not documentation. These comments may use repository-root
 Other relative targets are relative to the source file.
 
 Strip query and fragment components and decode percent escapes before local
-filesystem lookup. External URI schemes are outside this check. Check both
-paths inside `docs/adr` and paths containing an `adr/` segment, so a mistakenly
-duplicated `docs/docs/adr/...` path fails at its actual rendered destination.
-Links to the ADR directory itself are navigation, not record references.
+filesystem lookup. Resolve `/docs/adr/...` links from the repository root while
+leaving protocol-relative and other absolute targets outside this check.
+External URI schemes are also outside this check. Check both paths inside
+`docs/adr` and paths containing an `adr/` segment, so a mistakenly duplicated
+`docs/docs/adr/...` path fails at its actual rendered destination. Links to the
+ADR directory itself are navigation, not record references.
 
 Every Markdown record directly in `docs/adr` must use a lowercase `.md`
 extension, a four-digit filename and the matching ADR heading on its first line.

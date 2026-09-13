@@ -283,3 +283,17 @@ test("rejects case-mistyped ADR directory links", () => {
   });
   assert.match(validateAdrIndex(root).join("\n"), /docs\/ADR\/0001-first.md/);
 });
+
+test("resolves root-relative ADR links from the repository root", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "README.md": [
+      "[existing](/docs/adr/0001-first.md)",
+      "[missing](/docs/adr/9999-missing.md)",
+      "[external](//example.com/docs/adr/9998-external.md)",
+    ].join("\n"),
+  });
+  const errors = validateAdrIndex(root);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /docs\/adr\/9999-missing.md/);
+});

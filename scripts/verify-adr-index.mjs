@@ -117,13 +117,19 @@ function isWithin(directory, path) {
 
 function adrLinkTarget(file, target, root, markdown) {
   const cleanTarget = target.split(/[?#]/, 1)[0];
-  if (!cleanTarget || /^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(cleanTarget)) {
+  if (
+    !cleanTarget ||
+    /^[a-z][a-z0-9+.-]*:/i.test(cleanTarget) ||
+    cleanTarget.startsWith("//")
+  ) {
     return undefined;
   }
   const decoded = decodeURIComponent(cleanTarget);
+  const rootRelativeAdr = /^\/docs\/adr(?:\/|$)/i.test(decoded);
+  if (decoded.startsWith("/") && !rootRelativeAdr) return undefined;
   const resolved =
-    !markdown && decoded.startsWith(`${ADR_DIRECTORY}/`)
-      ? resolve(root, decoded)
+    rootRelativeAdr || (!markdown && decoded.startsWith(`${ADR_DIRECTORY}/`))
+      ? resolve(root, decoded.replace(/^\//, ""))
       : resolve(dirname(file), decoded);
   const adrDirectory = resolve(root, ADR_DIRECTORY);
   if (resolved === adrDirectory) return undefined;
