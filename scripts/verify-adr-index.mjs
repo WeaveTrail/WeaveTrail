@@ -53,6 +53,8 @@ function withoutMarkdownCode(content) {
       return "";
     }
 
+    if (/^(?: {4}|\t)/.test(line)) return "";
+
     return line;
   });
 
@@ -60,8 +62,10 @@ function withoutMarkdownCode(content) {
 }
 
 function adrLinkTarget(file, target, root) {
-  const cleanTarget = target.replace(/^<|>$/g, "").split("#", 1)[0];
-  if (!cleanTarget || /^(?:[a-z]+:|\/)/i.test(cleanTarget)) return undefined;
+  const cleanTarget = target.replace(/^<|>$/g, "").split(/[?#]/, 1)[0];
+  if (!cleanTarget || /^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(cleanTarget)) {
+    return undefined;
+  }
 
   const resolved = cleanTarget.startsWith(`${ADR_DIRECTORY}/`)
     ? resolve(root, cleanTarget)

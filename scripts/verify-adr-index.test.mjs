@@ -78,6 +78,8 @@ test("ignores ADR-like links in Markdown code examples", () => {
       "",
       `\`[inline ADR](${ADR_DIRECTORY}/9998-removed.md)\``,
       "",
+      `    [indented ADR](${ADR_DIRECTORY}/9997-removed.md)`,
+      "",
     ].join("\n"),
   });
 
@@ -91,4 +93,22 @@ test("resolves repository-root ADR links from nested source files", () => {
   });
 
   assert.match(validateAdrIndex(root).join("\n"), /links to missing ADR/);
+});
+
+test("ignores external links with punctuated URI schemes", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md":
+      "# ADR 0001: First\n\n[upstream](git+https://example.com/repo.git)\n",
+  });
+
+  assert.deepEqual(validateAdrIndex(root), []);
+});
+
+test("ignores query strings and fragments when resolving ADR files", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "README.md": `[ADR 0001](${ADR_DIRECTORY}/0001-first.md?plain=1#decision)\n`,
+  });
+
+  assert.deepEqual(validateAdrIndex(root), []);
 });
