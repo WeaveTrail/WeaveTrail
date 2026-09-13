@@ -222,6 +222,7 @@ test("checks real source comments while ignoring literal test data", () => {
     "apps/example.test.ts": [
       'const specimen = "[example](docs/adr/9999-missing.md)";',
       "const template = `[example](docs/adr/9998-missing.md)`;",
+      "const interpolated = `before ${value} // [example](docs/adr/9994-missing.md)`;",
       "// [leading](docs/adr/9997-missing.md)",
       "const value = 1; // [trailing](docs/adr/9996-missing.md)",
       "/**",
@@ -235,4 +236,50 @@ test("checks real source comments while ignoring literal test data", () => {
   for (const number of ["9997", "9996", "9995"]) {
     assert.ok(errors.some((error) => error.includes(number)));
   }
+});
+
+test("rejects uppercase Markdown extensions without hiding duplicate headings", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "docs/adr/0046-second.MD": "# ADR 0001: Second\n",
+  });
+  const errors = validateAdrIndex(root).join("\n");
+  assert.match(errors, /0046-second\.MD must use a four-digit ADR filename/);
+  assert.match(errors, /ADR 0001 is used by both/);
+});
+
+test("keeps Markdown state separate between source comment blocks", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "apps/example.ts": [
+      "/**",
+      " * ```md",
+      " */",
+      "const first = 1;",
+      "/** [ADR](docs/adr/9999-missing.md) */",
+      "export { first };",
+    ].join("\n"),
+  });
+  assert.match(validateAdrIndex(root).join("\n"), /9999-missing/);
+});
+
+test("groups contiguous line comments into one Markdown block", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "apps/example.ts": [
+      "// [ADR][decision]",
+      "//",
+      "// [decision]: docs/adr/9999-missing.md",
+      "export {};",
+    ].join("\n"),
+  });
+  assert.match(validateAdrIndex(root).join("\n"), /9999-missing/);
+});
+
+test("rejects case-mistyped ADR directory links", () => {
+  const root = fixture({
+    "docs/adr/0001-first.md": "# ADR 0001: First\n",
+    "README.md": "[ADR](docs/ADR/0001-first.md)\n",
+  });
+  assert.match(validateAdrIndex(root).join("\n"), /docs\/ADR\/0001-first.md/);
 });

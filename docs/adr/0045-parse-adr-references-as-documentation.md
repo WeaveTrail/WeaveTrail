@@ -22,10 +22,11 @@ relative to their own directory, including links spelled `docs/adr/...`.
 
 For JavaScript and TypeScript files (including JSX, TSX, MJS, CJS, MTS and CTS),
 use the existing TypeScript parser to collect documentation comments. Parse
-their prose as CommonMark; string, template and regex literals are not
-documentation. These comments may use repository-root `docs/adr/...` targets,
-as the repository's existing source references do. Other relative targets are
-relative to the source file.
+each block as an independent CommonMark document, grouping contiguous `//`
+lines so their reference definitions still work. String, template and regex
+literals are not documentation. These comments may use repository-root
+`docs/adr/...` targets, as the repository's existing source references do.
+Other relative targets are relative to the source file.
 
 Strip query and fragment components and decode percent escapes before local
 filesystem lookup. External URI schemes are outside this check. Check both
@@ -33,10 +34,10 @@ paths inside `docs/adr` and paths containing an `adr/` segment, so a mistakenly
 duplicated `docs/docs/adr/...` path fails at its actual rendered destination.
 Links to the ADR directory itself are navigation, not record references.
 
-Every Markdown record directly in `docs/adr` must use a four-digit filename and
-begin on its first line with the matching ADR heading. Duplicate headings and
-malformed filenames fail validation. The CLI is also importable from Node eval
-without a script argument.
+Every Markdown record directly in `docs/adr` must use a lowercase `.md`
+extension, a four-digit filename and the matching ADR heading on its first line.
+Case-mistyped `ADR/` links, duplicate headings and malformed filenames fail
+validation. The CLI is also importable from Node eval without a script argument.
 
 ## Consequences
 

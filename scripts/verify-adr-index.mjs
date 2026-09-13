@@ -59,7 +59,7 @@ function linkDestinations(markdown) {
 
 // Read documentation comments through the existing TypeScript parser so test
 // strings, regex literals and template literals cannot become live references.
-function sourceComments(file, content) {
+function sourceCommentBlocks(file, content) {
   const source = ts.createSourceFile(
     file,
     content,
@@ -77,18 +77,34 @@ function sourceComments(file, content) {
     for (const child of node.getChildren(source)) visit(child);
   }
   visit(source);
-  return [...ranges.values()]
-    .sort((a, b) => a.pos - b.pos)
-    .map(({ pos, end }) => {
-      const comment = content.slice(pos, end);
-      return comment.startsWith("//")
+
+  const blocks = [];
+  let previous;
+  for (const { pos: start, end, kind: token } of [...ranges.values()].sort(
+    (a, b) => a.pos - b.pos,
+  )) {
+    const comment = content.slice(start, end);
+    const markdown =
+      token === ts.SyntaxKind.SingleLineCommentTrivia
         ? comment.slice(2).trimStart()
         : comment
             .slice(2, -2)
             .replace(/^[ \t]*\* ?/gm, "")
             .trim();
-    })
-    .join("\n\n");
+    const continuesLineComment =
+      previous?.token === ts.SyntaxKind.SingleLineCommentTrivia &&
+      token === ts.SyntaxKind.SingleLineCommentTrivia &&
+      /^[ \t]*\r?\n[ \t]*$/.test(content.slice(previous.end, start));
+
+    if (continuesLineComment) {
+      blocks[blocks.length - 1] += `\n${markdown}`;
+    } else {
+      blocks.push(markdown);
+    }
+    previous = { token, end };
+  }
+
+  return blocks;
 }
 
 function isWithin(directory, path) {
@@ -113,7 +129,7 @@ function adrLinkTarget(file, target, root, markdown) {
   if (resolved === adrDirectory) return undefined;
   // Also check ADR-looking paths that resolve outside the real ADR directory:
   // a nested document's erroneous docs/adr/... link must fail at its actual path.
-  return isWithin(adrDirectory, resolved) || /(?:^|\/)adr\//.test(decoded)
+  return isWithin(adrDirectory, resolved) || /(?:^|\/)adr\//i.test(decoded)
     ? resolved
     : undefined;
 }
@@ -124,7 +140,7 @@ export function validateAdrIndex(root) {
   const records = new Map();
 
   for (const file of readdirSync(adrDirectory)) {
-    if (!file.endsWith(".md")) continue;
+    if (extname(file).toLowerCase() !== ".md") continue;
 
     const filename = file.match(ADR_FILENAME);
     const path = resolve(adrDirectory, file);
@@ -158,8 +174,10 @@ export function validateAdrIndex(root) {
     const markdown = extension === ".md";
     if (!markdown && !SOURCE_EXTENSIONS.has(extension)) continue;
     const content = readFileSync(file, "utf8");
-    const linkableContent = markdown ? content : sourceComments(file, content);
-    for (const destination of linkDestinations(linkableContent)) {
+    const linkableDocuments = markdown
+      ? [content]
+      : sourceCommentBlocks(file, content);
+    for (const destination of linkableDocuments.flatMap(linkDestinations)) {
       let target;
       try {
         target = adrLinkTarget(file, destination, root, markdown);
