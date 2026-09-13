@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { resolve, relative, dirname } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const ADR_DIRECTORY = "docs/adr";
 const IGNORED_DIRECTORIES = new Set([
@@ -12,6 +13,8 @@ const IGNORED_DIRECTORIES = new Set([
 const ADR_HEADING = /^# ADR (\d{4}): /m;
 const ADR_FILENAME = /^(\d{4})-.+\.md$/;
 const MARKDOWN_LINK = /\[[^\]]+\]\(([^)\s]+)(?:\s+[^)]*)?\)/g;
+const MARKDOWN_REFERENCE_DEFINITION =
+  /^\s{0,3}\[[^\]]+\]:\s*(?:<([^>\n]+)>|(\S+))/gm;
 
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -31,7 +34,12 @@ function adrLinkTarget(file, target, root) {
 
   const resolved = resolve(dirname(file), cleanTarget);
   const adrDirectory = resolve(root, ADR_DIRECTORY);
-  return resolved.startsWith(`${adrDirectory}/`) ? resolved : undefined;
+  const pathFromAdrDirectory = relative(adrDirectory, resolved);
+  return pathFromAdrDirectory &&
+    !pathFromAdrDirectory.startsWith("..") &&
+    !isAbsolute(pathFromAdrDirectory)
+    ? resolved
+    : undefined;
 }
 
 export function validateAdrIndex(root) {
@@ -40,16 +48,20 @@ export function validateAdrIndex(root) {
   const records = new Map();
 
   for (const file of readdirSync(adrDirectory)) {
-    const filename = file.match(ADR_FILENAME);
-    if (!filename) continue;
+    if (!file.endsWith(".md")) continue;
 
+    const filename = file.match(ADR_FILENAME);
     const path = resolve(adrDirectory, file);
+    if (!filename) {
+      errors.push(`${relative(root, path)} must use a four-digit ADR filename`);
+    }
+
     const heading = readFileSync(path, "utf8").match(ADR_HEADING);
     if (!heading) {
       errors.push(`${relative(root, path)} must begin with an ADR heading`);
       continue;
     }
-    if (heading[1] !== filename[1]) {
+    if (filename && heading[1] !== filename[1]) {
       errors.push(
         `${relative(root, path)} names ADR ${filename[1]} but its heading names ADR ${heading[1]}`,
       );
@@ -77,12 +89,25 @@ export function validateAdrIndex(root) {
         );
       }
     }
+
+    for (const match of content.matchAll(MARKDOWN_REFERENCE_DEFINITION)) {
+      const target = adrLinkTarget(file, match[1] ?? match[2], root);
+      if (target && !existsSync(target)) {
+        errors.push(
+          `${relative(root, file)} links to missing ADR ${relative(root, target)}`,
+        );
+      }
+    }
   }
 
   return errors;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+export function isDirectExecution(moduleUrl, scriptPath) {
+  return moduleUrl === pathToFileURL(resolve(scriptPath)).href;
+}
+
+if (isDirectExecution(import.meta.url, process.argv[1])) {
   const errors = validateAdrIndex(process.cwd());
   if (errors.length > 0) {
     console.error(errors.join("\n"));
