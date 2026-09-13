@@ -83,12 +83,14 @@ every pull request merged into `develop` since `develop` was last merged into
 - An issue whose change a later pull request in the range reverts is reopened
   and left out.
 - An issue that already belongs to a released milestone stays there.
+- An issue still open in the milestone being promoted did not ship; move it to
+  a later milestone, or leave it without one.
 
-The milestone then lists every issue the release contains. A pull request in
-the range that no issue in the milestone represents is listed in the release
-notes instead: one that closes no issue, such as a dependency update, or one
-that closes an issue kept in a released milestone, such as a follow-up fix to a
-reopened issue or a hotfix backport.
+The milestone then lists every issue the release contains, and only those. A
+pull request in the range that no issue in the milestone represents is listed
+in the release notes instead: one that closes no issue, such as a dependency
+update, or one that closes an issue kept in a released milestone, such as a
+follow-up fix to a reopened issue or a hotfix backport.
 
 An emergency hotfix is a promotion to `main` too. It takes the next patch
 version, such as `v0.1.1`, in a milestone of its own holding the hotfix issue,
