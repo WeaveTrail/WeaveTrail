@@ -5,7 +5,7 @@
     Korean counterpart of component-chain.svg. Same geometry and same design
     tokens; every chip is measured for its Korean label, the body copy is
     broken where Korean breaks rather than where English does, and the product
-    vocabulary follows the deployed surface as ADR 0035 requires.
+    vocabulary follows the deployed surface as ADR 0044 requires.
 
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.

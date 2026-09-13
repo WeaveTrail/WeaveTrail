@@ -44,7 +44,7 @@ FIX 4.4 사례는 `SUPPORTED`, 매수·매도 구분이 빠진 FIX 기반 사례
 않습니다.
 
 화면은 하나의 경로 집합 위에서 한국어와 영어로 제공됩니다. 방식은
-[ADR 0030](adr/0030-hold-language-selection-outside-react.md)(영문)에 있습니다.
+[ADR 0041](adr/0041-hold-language-selection-outside-react.md)(영문)에 있습니다.
 표제, 절 제목, 행동 유도 문구는 서로를 번역한 것이 아니라 각 언어로 따로
 씁니다. 단계의 목적, 판단 항목 설명, 막힌 이유, 한계, 고지는 같은 범위와 같은
 유보를 담아 두 언어에서 같은 것을 말합니다. 한쪽 언어에만 있는 기능을 말하거나
@@ -53,9 +53,9 @@ FIX 4.4 사례는 `SUPPORTED`, 매수·매도 구분이 빠진 FIX 기반 사례
 확인합니다. 계약 어휘는 두 언어에서 한 가지 표기를 씁니다. 픽스처 모드와 합성
 자료에 대한 고지는 모든 페이지에 나타나는 사이트 하단에 있습니다. 한국어는
 커밋된 서체로 조판하고
-([ADR 0031](adr/0031-commit-a-korean-face-for-the-korean-surface.md)(영문)),
+([ADR 0042](adr/0042-commit-a-korean-face-for-the-korean-surface.md)(영문)),
 층위 다이어그램은 지역화된 문구에서 그립니다
-([ADR 0032](adr/0032-draw-the-layer-diagram-from-localized-copy.md)(영문)).
+([ADR 0043](adr/0043-draw-the-layer-diagram-from-localized-copy.md)(영문)).
 `/replay`의 사례 재현은 이전의 `/lab` 경로를 별칭 없이 대체합니다. 따라가기와
 직접 조작은 하나의 서버 시나리오 로더와 하나의 마운트된 클라이언트 화면을
 공유하며, 승인 직렬화, 요청 생성, 서버가 만든 결과의 표시도 함께 공유합니다.

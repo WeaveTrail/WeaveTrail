@@ -48,7 +48,7 @@ const CONTRACT_VOCABULARY = [
 ] as const;
 
 /**
- * ADR 0035 holds the Korean product vocabulary to the deployed surface, so a
+ * ADR 0044 holds the Korean product vocabulary to the deployed surface, so a
  * reader moving between the site and the repository meets one set of words.
  * Each pair is a word the surface uses and a plausible synonym it does not.
  */

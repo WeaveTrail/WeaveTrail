@@ -12,6 +12,15 @@ pnpm check
 pnpm build
 ```
 
+`pnpm adr:check` validates ADR filenames, first-line headings, unique numbers,
+and local ADR links. `pnpm adr:test` exercises the validator's regression
+fixtures; both commands run in `pnpm check` and CI. Markdown links are relative
+to the containing document. JavaScript and TypeScript documentation comments
+may also use repository-root `docs/adr/...` references. Code examples and source
+string literals are not live references. See
+[ADR 0045](docs/adr/0045-parse-adr-references-as-documentation.md) for the parser
+boundary and check limitations.
+
 `pnpm dev` serves the workbench at <http://localhost:3000> with Node 22 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.

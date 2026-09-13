@@ -1,4 +1,4 @@
-# ADR 0032: Draw the layer diagram from localized copy
+# ADR 0043: Draw the layer diagram from localized copy
 
 - Status: Accepted
 - Date: 2026-09-07
@@ -8,7 +8,7 @@
 The layer-separation diagram was a committed SVG with forty-two hand-positioned
 `<text>` elements, served to the architecture page as an image and embedded in
 the readme. Its words were English, and the language mechanism in
-[ADR 0030](0030-hold-language-selection-outside-react.md) does not reach text
+[ADR 0041](0041-hold-language-selection-outside-react.md) does not reach text
 baked into a committed asset.
 
 Localizing it as a second committed file would mean hand-positioning a second
@@ -47,6 +47,6 @@ kind the pages already use.
 - Standalone files name font families literally, because a committed SVG cannot
   read the application's custom properties; the inlined copy goes through
   `--font-sans` so it resolves the committed Korean face from
-  [ADR 0031](0031-commit-a-korean-face-for-the-korean-surface.md).
+  [ADR 0042](0042-commit-a-korean-face-for-the-korean-surface.md).
 - The same treatment would suit `where-the-gate-sits.svg`, which is still a
   hand-positioned English asset. It is not converted here.
