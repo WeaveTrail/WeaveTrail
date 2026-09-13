@@ -313,4 +313,43 @@ describe("Korean entry-point diagrams", () => {
         expect(svg, `${koreanPath} ${family}`).toContain(family);
     }
   });
+
+  // A README figure is an image and cannot load the site's faces, so each
+  // Korean one carries cuts of them (ADR 0047). A copy change that sets a
+  // character the cut does not hold would fall back to the reader's system
+  // face without anything looking broken here, so the coverage is checked.
+  it("embeds the site's faces for every character a Korean readme figure sets", () => {
+    const figures = [
+      ...read("README.ko.md").matchAll(/!\[[^\]]*\]\(([^)]+\.ko\.svg)\)/g),
+    ].map((match) => match[1] ?? "");
+    expect(figures.length).toBeGreaterThan(0);
+
+    for (const figure of figures) {
+      const svg = read(figure);
+      for (const family of [
+        "WeaveTrail Figure Sans",
+        "WeaveTrail Figure Sans KR",
+      ])
+        expect(svg, `${figure} ${family}`).toContain(
+          `@font-face{font-family:"${family}";`,
+        );
+      expect(svg, figure).not.toMatch(/src:url\((?!data:font\/woff2;)/);
+
+      const covered = new Set(svg.match(/^\s*covers: (.*)$/m)?.[1] ?? "");
+      const set = [...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)]
+        .map((match) => (match[1] ?? "").replace(/<[^>]+>/g, ""))
+        .join("")
+        .replace(/&#(\d+);/g, (_, code: string) =>
+          String.fromCodePoint(Number(code)),
+        )
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, "&");
+      const missing = [...new Set(set)].filter(
+        (character) => character.trim() !== "" && !covered.has(character),
+      );
+      expect(missing, `${figure}: rerun pnpm diagram:fonts`).toEqual([]);
+    }
+  });
 });

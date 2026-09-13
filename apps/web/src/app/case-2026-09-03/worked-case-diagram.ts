@@ -117,15 +117,44 @@ export function workedCaseFigures(): WorkedCaseFigures {
 
 /**
  * Standalone files name the families literally, because a committed SVG has no
- * access to the application's custom properties.
+ * access to the application's custom properties. The Korean file names the
+ * faces embedded in it first, so it is set in the site's own faces wherever it
+ * is shown ([ADR 0047](docs/adr/0047-embed-the-site-faces-in-the-korean-figures.md)).
  */
 const FONTS = {
   file: {
-    sans: '"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif',
-    mono: '"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace',
+    en: {
+      sans: '"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif',
+      mono: '"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace',
+    },
+    ko: {
+      sans: '"WeaveTrail Figure Sans","WeaveTrail Figure Sans KR","IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif',
+      mono: '"WeaveTrail Figure Mono","WeaveTrail Figure Sans KR","JetBrains Mono","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",ui-monospace,monospace',
+    },
   },
-  inline: { sans: "var(--font-sans)", mono: "var(--font-mono)" },
+  inline: {
+    en: { sans: "var(--font-sans)", mono: "var(--font-mono)" },
+    ko: { sans: "var(--font-sans)", mono: "var(--font-mono)" },
+  },
 } as const;
+
+/**
+ * Small labels. English sets them tracked out, the way the design system sets
+ * a label; Hangul spaced that way falls apart into single syllables, so Korean
+ * sets them untracked and a size larger.
+ */
+const LABELS: Readonly<
+  Record<Language, { readonly eyebrow: string; readonly label: string }>
+> = {
+  en: {
+    eyebrow: "font-size:11px;font-weight:600;letter-spacing:.08em",
+    label: "font-size:11px;font-weight:600;letter-spacing:.06em",
+  },
+  ko: {
+    eyebrow: "font-size:12px;font-weight:600",
+    label: "font-size:12px;font-weight:600",
+  },
+};
 
 const BAR_X = 40;
 const BAR_WIDTH = 340;
@@ -155,8 +184,25 @@ const FUTURE_ROW = {
 } as const;
 /** The caveat that keeps the drawn line outside the evidence chain. */
 const CAVEAT_ROWS = [482, 497, 512] as const;
-/** Each returned figure's band in the right-hand panel. */
-const FIGURE_ROWS = [240, 328, 404] as const;
+/**
+ * The right-hand panel: where each returned figure's band starts, the step
+ * between the lines that read it, and where the agreement note sits. Korean
+ * readings run to two lines where English runs to one, so the bands open up to
+ * keep an even gap between one threshold and the next figure.
+ */
+const RETURNED: Readonly<
+  Record<
+    Language,
+    {
+      readonly rows: readonly [number, number, number];
+      readonly step: number;
+      readonly agreeing: number;
+    }
+  >
+> = {
+  en: { rows: [240, 328, 404], step: 17, agreeing: 466 },
+  ko: { rows: [236, 330, 406], step: 18, agreeing: 480 },
+};
 /** The rule under the panels, then the three lines of small print. */
 const PANEL_BOTTOM = 524;
 const FOOT_ROWS = [546, 566, 582] as const;
@@ -291,7 +337,7 @@ const copy: Readonly<Record<Language, Copy>> = {
       "분 단위 값은 공개 포털을 거쳤고 재배포 대상이 아닙니다.",
       "판단에는 쓰이지 않습니다. 판단은 일별 값으로만 합니다.",
     ],
-    legNames: ["코스피 200 지수", "코스피200 선물 · 최근월물"],
+    legNames: ["코스피 200 지수", "코스피 200 선물 · 최근월물"],
     open: "시가",
     close: "종가",
     low: "저가",
@@ -323,7 +369,7 @@ const copy: Readonly<Record<Language, Copy>> = {
       "기준값은 이 날의 값을 이미 본 사람이 이 사례를 만들면서 정했습니다.",
     footer: [
       "발행처 값: 금융위원회 공개 데이터. 저장소에는 fsc-kospi-200-baseline-20260701-20260903, fsc-kospi-200-futures-20260903으로 커밋되어 있습니다.",
-      "이 그림의 수치는 그 아티팩트에 버전이 고정된 규칙을 적용해 생성했습니다. 결정론적 출력이며 승인된 사례나 증거가 아닙니다. 사이트에서는 사람이 범위를 승인해야 같은 사례가 실행됩니다.",
+      "수치는 그 아티팩트에 버전이 고정된 규칙을 적용한 결정론적 출력이며, 승인된 사례나 증거가 아닙니다. 사이트에서는 사람이 범위를 승인해야 같은 사례가 실행됩니다.",
     ],
   },
 };
@@ -335,13 +381,21 @@ const escape = (value: string) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+/**
+ * The complete figure for one language. `embeddedFaces` is the block
+ * `scripts/embed-figure-fonts.py` writes for the Korean file, inlined verbatim
+ * so the committed figure carries the faces it is set in.
+ */
 export function workedCaseSvg(
   language: Language,
   figures: WorkedCaseFigures = workedCaseFigures(),
   variant: "file" | "inline" = "file",
+  embeddedFaces = "",
 ): string {
   const text = copy[language];
-  const fonts = FONTS[variant];
+  const fonts = FONTS[variant][language];
+  const labels = LABELS[language];
+  const returned = RETURNED[language];
   const out: string[] = [];
   const push = (line: string) => out.push(line);
 
@@ -369,23 +423,18 @@ export function workedCaseSvg(
     `    #0b6e6a teal-700 | #d0d7de ledger-rule | #a9bebc ledger-rule-strong`,
   );
   push(`  -->`);
+  if (embeddedFaces !== "") push(embeddedFaces.trimEnd());
   push(`  <defs>`);
   push(`    <style>`);
   push(`      .s{font-family:${fonts.sans}}`);
   push(`      .m{font-family:${fonts.mono}}`);
-  push(
-    `      .eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#0b6e6a}`,
-  );
+  push(`      .eyebrow{${labels.eyebrow};fill:#0b6e6a}`);
   push(
     `      .title{font-size:27px;font-weight:600;fill:#0c1513;letter-spacing:-.01em}`,
   );
   push(`      .sub{font-size:14px;fill:#566461}`);
-  push(
-    `      .panelLabel{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#566461}`,
-  );
-  push(
-    `      .who{font-size:11px;font-weight:600;letter-spacing:.06em;fill:#7d8b88}`,
-  );
+  push(`      .panelLabel{${labels.label};fill:#566461}`);
+  push(`      .who{${labels.label};fill:#7d8b88}`);
   push(`      .leg{font-size:13px;font-weight:600;fill:#263230}`);
   push(`      .key{font-size:12px;fill:#566461}`);
   push(`      .val{font-size:13px;fill:#263230}`);
@@ -624,7 +673,7 @@ export function workedCaseSvg(
     },
   ];
   rows.forEach((row, index) => {
-    const y = FIGURE_ROWS[index];
+    const y = returned.rows[index];
     if (y === undefined) return;
     push(``);
     push(
@@ -632,18 +681,18 @@ export function workedCaseSvg(
     );
     row.reading.forEach((line, offset) =>
       push(
-        `    <text class="key" x="${PANEL_X.returned}" y="${y + 20 + offset * 17}">${escape(line)}</text>`,
+        `    <text class="key" x="${PANEL_X.returned}" y="${y + 20 + offset * returned.step}">${escape(line)}</text>`,
       ),
     );
     // The state each gate actually reported. A figure that says a failed
     // comparison passed would be worse than one showing no state at all.
     push(
-      `    <text class="gate" x="${PANEL_X.returned}" y="${y + 23 + row.reading.length * 17}">${escape(`${row.threshold} \u00b7 ${row.passed ? text.met : text.notMet}`)}</text>`,
+      `    <text class="gate" x="${PANEL_X.returned}" y="${y + 23 + row.reading.length * returned.step}">${escape(`${row.threshold} \u00b7 ${row.passed ? text.met : text.notMet}`)}</text>`,
     );
   });
   push(``);
   push(
-    `    <text class="note" x="${PANEL_X.returned}" y="466">${escape(
+    `    <text class="note" x="${PANEL_X.returned}" y="${returned.agreeing}">${escape(
       text.agreeing(
         figures.agreeingLegs,
         figures.agreeingThreshold,
