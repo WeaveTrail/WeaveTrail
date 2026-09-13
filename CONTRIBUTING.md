@@ -75,9 +75,11 @@ Each GitHub milestone names one version, such as `v0.1.0`, and every promotion
 to `main`, a hotfix included, ships one milestone. Give an issue the milestone
 of the version it is planned for; leave it without a milestone when no version
 plans it yet. A promotion ships everything merged into `develop`, so work
-merged ahead of its planned version moves into the milestone being promoted.
-Pull requests do not carry milestones, and milestones have no due dates. The
-promoted `main` commit is tagged `vX.Y.Z` and published as a GitHub release; see
+merged ahead of its planned version moves into the milestone being promoted;
+an issue already in a released milestone, such as a backported hotfix, stays
+there. Pull requests do not carry milestones, and the release notes list each
+pull request that closes no issue. Milestones have no due dates. The promoted
+`main` commit is tagged `vX.Y.Z` and published as a GitHub release; see
 [versions and release tags](docs/DEPLOYMENT.md#versions-and-release-tags).
 
 Use these distinct title forms:

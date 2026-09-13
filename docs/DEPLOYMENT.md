@@ -76,12 +76,15 @@ A `develop` to `main` promotion ships the whole `develop` branch, not a
 selection from it. The milestone therefore follows the branch: before the
 promotion merges, every issue closed by a pull request merged into `develop`
 since the previous promotion moves into the milestone being promoted, even if
-it was planned for a later version. The milestone then lists exactly what the
-release contains.
+it was planned for a later version. An issue that already belongs to a released
+milestone stays there. The milestone then lists every issue the release
+contains; pull requests that close no issue, such as dependency updates, are
+listed in the release notes instead.
 
 An emergency hotfix is a promotion to `main` too. It gets its own milestone
 named for the next patch version, such as `v0.1.1`, holding the hotfix issue,
-and follows the same steps below.
+and follows the same steps below. Its issue closes only when the backport
+merges into `develop`, and it stays in the hotfix milestone.
 
 After a promotion merges and its production deployment passes the
 [promotion gate](#promotion-gate), mark the release on that exact `main`
@@ -90,8 +93,9 @@ commit:
 1. Create an annotated tag `vX.Y.Z` on the promoted `main` commit, the same
    full Git SHA recorded for the gate, and push the tag.
 2. Publish a GitHub release from that tag. Its notes list the milestone's
-   issues and name the immutable Vercel deployment URL built from that SHA;
-   the stable production origin may appear beside it but never replaces it,
+   issues, every pull request merged into the promoted range that closes no
+   issue, and the immutable Vercel deployment URL built from that SHA. The
+   stable production origin may appear beside that URL but never replaces it,
    because it moves to whichever deployment is current.
 3. Close the milestone.
 
@@ -209,9 +213,12 @@ incorrect canonical metadata or credentials.
 ## Promotion gate
 
 Promote only a CI-green commit on `main`. Record its full Git commit SHA and
-the resulting production deployment URL before running the checks below. A
-preview that cannot be rebuilt from the settings above is not promotion
-evidence.
+the immutable Vercel deployment URL built from it before running the checks
+below. Run every browser and HTTP check against that immutable URL, not the
+stable production origin, which can move to a newer deployment while the gate
+runs. Separately confirm that the stable production origin points to the same
+immutable deployment. A preview that cannot be rebuilt from the settings above
+is not promotion evidence.
 
 Run the repository checks on that exact revision:
 
@@ -225,7 +232,7 @@ pnpm build
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
 `/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, and `/methodology`
-from the production origin. In `/replay`:
+from the recorded immutable deployment URL. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve
