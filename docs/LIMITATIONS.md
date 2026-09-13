@@ -64,6 +64,12 @@ verification. It is not a production market-surveillance system.
   [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
+- Public-source persistence has a SQLite implementation with immutable bytes,
+  provenance and derived-result input bindings. Its collection and resolution
+  APIs are tested with synthetic responses on local disk; the web app does not
+  yet use them. Scheduled collection, event/share routes, multi-host storage and
+  backup automation are not implemented. See
+  [service snapshot operations](SERVICE_SNAPSHOTS.md).
 - Finite-number spelling is specified, but the implementation does not claim
   full JSON Canonicalization Scheme compliance.
 - [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define the

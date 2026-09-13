@@ -21,7 +21,7 @@ string literals are not live references. See
 [ADR 0045](docs/adr/0045-parse-adr-references-as-documentation.md) for the parser
 boundary and check limitations.
 
-`pnpm dev` serves the workbench at <http://localhost:3000> with Node 22 or newer
+`pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.
 
