@@ -71,10 +71,12 @@ requests a retarget. An explicitly authorized emergency hotfix is the
 exception: create it from an up-to-date `origin/main`, target `main`, and carry
 the merged fix back into `develop` before ordinary development continues.
 
-Each GitHub milestone names one version, such as `v0.1.0`, and one promotion to
-`main` ships one milestone. Give an issue the milestone of the version it is
-planned for; leave it without a milestone when no version plans it yet. Pull
-requests do not carry milestones, and milestones have no due dates. The
+Each GitHub milestone names one version, such as `v0.1.0`, and every promotion
+to `main`, a hotfix included, ships one milestone. Give an issue the milestone
+of the version it is planned for; leave it without a milestone when no version
+plans it yet. A promotion ships everything merged into `develop`, so work
+merged ahead of its planned version moves into the milestone being promoted.
+Pull requests do not carry milestones, and milestones have no due dates. The
 promoted `main` commit is tagged `vX.Y.Z` and published as a GitHub release; see
 [versions and release tags](docs/DEPLOYMENT.md#versions-and-release-tags).
 
