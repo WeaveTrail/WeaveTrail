@@ -70,23 +70,32 @@ production, carry the same change into `develop` before the next release.
 
 Each GitHub milestone names one version, such as `v0.1.0`, and holds the issues
 that version ships. Every promotion to `main` ships exactly one milestone.
-Milestones carry no due dates.
+Planned work targets minor versions (`v0.1.0`, `v0.2.0`); patch versions are
+reserved for hotfixes. Milestones carry no due dates.
 
 A `develop` to `main` promotion ships the whole `develop` branch, not a
-selection from it. The milestone therefore follows the branch: before the
-promotion merges, every issue closed by a pull request merged into `develop`
-since the previous promotion moves into the milestone being promoted, even if
-it was planned for a later version. An issue that already belongs to a released
-milestone stays there. The milestone then lists every issue the release
-contains. A merged pull request that no issue in the promoted milestone
-represents is listed in the release notes instead: one that closes no issue,
-such as a dependency update, or one that closes an issue kept in a released
-milestone, such as a follow-up fix to a reopened issue.
+selection from it, so the milestone follows the branch. The promoted range is
+every pull request merged into `develop` since `develop` was last merged into
+`main`. Before the promotion merges, reconcile the milestone with that range:
 
-An emergency hotfix is a promotion to `main` too. It gets its own milestone
-named for the next patch version, such as `v0.1.1`, holding the hotfix issue,
-and follows the same steps below. Its issue closes only when the backport
-merges into `develop`, and it stays in the hotfix milestone.
+- Every issue closed by a pull request in the range moves into the milestone
+  being promoted, even if it was planned for a later version.
+- An issue whose change a later pull request in the range reverts is reopened
+  and left out.
+- An issue that already belongs to a released milestone stays there.
+
+The milestone then lists every issue the release contains. A pull request in
+the range that no issue in the milestone represents is listed in the release
+notes instead: one that closes no issue, such as a dependency update, or one
+that closes an issue kept in a released milestone, such as a follow-up fix to a
+reopened issue or a hotfix backport.
+
+An emergency hotfix is a promotion to `main` too. It takes the next patch
+version, such as `v0.1.1`, in a milestone of its own holding the hotfix issue,
+and follows the same steps below. Because planned work never uses a patch
+version, that version is always free. A hotfix does not merge `develop`, so it
+does not move the start of the next promoted range. Its issue closes only when
+the backport merges into `develop`, and it stays in the hotfix milestone.
 
 After a promotion merges and its production deployment passes the
 [promotion gate](#promotion-gate), mark the release on that exact `main`
@@ -95,11 +104,10 @@ commit:
 1. Create an annotated tag `vX.Y.Z` on the promoted `main` commit, the same
    full Git SHA recorded for the gate, and push the tag.
 2. Publish a GitHub release from that tag. Its notes list the milestone's
-   issues, every pull request merged into the promoted range that no issue in
-   the milestone represents, and the immutable Vercel deployment URL built from
-   that SHA. The
-   stable production origin may appear beside that URL but never replaces it,
-   because it moves to whichever deployment is current.
+   issues, every pull request in the promoted range that no issue in the
+   milestone represents, and the immutable Vercel deployment URL built from
+   that SHA. The stable production origin may appear beside that URL but never
+   replaces it, because it moves to whichever deployment is current.
 3. Close the milestone.
 
 A tag does not trigger a deployment. The Vercel Git integration on `main`
