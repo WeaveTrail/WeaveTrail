@@ -48,7 +48,7 @@ surveillance layer raises a candidate, WeaveTrail confirms the scope,
 re-verifies and opens the evidence, and a person decides. It detects nothing.
 
 The surface is Korean and English on one set of routes; see
-[ADR 0030](adr/0030-hold-language-selection-outside-react.md) for the
+[ADR 0041](adr/0041-hold-language-selection-outside-react.md) for the
 mechanism. Headlines, section headings and calls to action are written in each
 language rather than translated from the other; step purposes, gate
 descriptions, blockers, limitations and disclosures say the same things in
@@ -58,9 +58,9 @@ capability the other omits or present a planned component as working, and
 than by string. Contract vocabulary carries one spelling in both. The
 fixture-mode and synthetic-source disclosures sit in the site footer, where
 every page shows them. Korean is set in a committed face
-([ADR 0031](adr/0031-commit-a-korean-face-for-the-korean-surface.md)) and the
+([ADR 0042](adr/0042-commit-a-korean-face-for-the-korean-surface.md)) and the
 layer diagram is drawn from localized copy
-([ADR 0032](adr/0032-draw-the-layer-diagram-from-localized-copy.md)). Case Replay
+([ADR 0043](adr/0043-draw-the-layer-diagram-from-localized-copy.md)). Case Replay
 at `/replay` replaces the former `/lab` route with no alias. Guided and working
 modes share one server scenario loader and one mounted client surface, including
 approval serialization, request generation and server-derived result rendering.

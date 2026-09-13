@@ -5,7 +5,7 @@
     Korean counterpart of design.svg. Same geometry and same design tokens; the
     copy is set in Korean and broken where Korean breaks, the REJECTED chip is
     measured for its Korean label, and the product vocabulary follows the
-    deployed surface as ADR 0035 requires.
+    deployed surface as ADR 0044 requires.
 
     WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.

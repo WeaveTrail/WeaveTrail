@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 /**
  * The repository entry point is bilingual, and English is the source of record
- * ([ADR 0035](docs/adr/0035-translate-the-product-explanation-and-keep-the-record-in-english.md)).
+ * ([ADR 0044](docs/adr/0044-translate-the-product-explanation-and-keep-the-record-in-english.md)).
  *
  * These checks are structural, because structure is what a translation drops
  * without anyone noticing: a section, a command, a working link. What a
@@ -108,7 +108,7 @@ describe("entry point", () => {
 
 describe.each([...KOREAN_FILES])("%s", (path) => {
   it("states under its heading that English governs", () => {
-    // ADR 0035: a translation must not be mistaken for a second
+    // ADR 0044: a translation must not be mistaken for a second
     // specification, so the rule is stated before the explanation starts.
     expect(opening(path)).toContain("영문 문서가 기준입니다");
   });

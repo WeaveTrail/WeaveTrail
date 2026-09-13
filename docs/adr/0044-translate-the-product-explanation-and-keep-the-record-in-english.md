@@ -1,4 +1,4 @@
-# ADR 0035: Translate the product explanation and keep the working record in English
+# ADR 0044: Translate the product explanation and keep the working record in English
 
 - Status: Accepted
 - Date: 2026-09-07
@@ -6,7 +6,7 @@
 ## Context
 
 The deployed surface has carried Korean and English since
-[ADR 0030](0030-hold-language-selection-outside-react.md), and a visitor who
+[ADR 0041](0041-hold-language-selection-outside-react.md), and a visitor who
 arrives in Korean can complete the whole journey in Korean. The repository
 entry point could not: `README.md` and every document it links were English
 only. A reader who reached the repository from the deployed site — the path a
@@ -59,9 +59,9 @@ in both languages, under the same `.ko.svg` suffix: the worked case, the
 problem, the layer, the design boundary and the component chain.
 
 The layer and worked-case figures are rendered from localized copy, following
-[ADR 0032](0032-draw-the-layer-diagram-from-localized-copy.md). The other three
+[ADR 0043](0043-draw-the-layer-diagram-from-localized-copy.md). The other three
 are hand-authored in each language. Substituting Korean strings into the
-English drawing was tried and rejected for the reason ADR 0032 already
+English drawing was tried and rejected for the reason ADR 0043 already
 records: Korean does not wrap where English wraps and a Korean label does not
 measure like an English one, so a Korean figure fitted into English line breaks
 and English chip widths sets its copy in fragments and runs its lines out of

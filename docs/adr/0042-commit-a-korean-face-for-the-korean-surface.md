@@ -1,4 +1,4 @@
-# ADR 0031: Commit a Korean face for the Korean surface
+# ADR 0042: Commit a Korean face for the Korean surface
 
 - Status: Accepted
 - Date: 2026-09-07
