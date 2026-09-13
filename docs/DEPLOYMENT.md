@@ -66,6 +66,63 @@ path. Create its branch from the current `origin/main` and open it into `main`
 so unreleased `develop` changes are not included. After the hotfix reaches
 production, carry the same change into `develop` before the next release.
 
+### Versions and release tags
+
+Each GitHub milestone names one version, such as `v0.1.0`, and holds the issues
+that version ships. Every promotion to `main` ships exactly one milestone.
+Planned work targets minor versions (`v0.1.0`, `v0.2.0`); patch versions are
+reserved for hotfixes. Milestones carry no due dates.
+
+A `develop` to `main` promotion ships the whole `develop` branch, not a
+selection from it, so the milestone follows the branch. The promoted range is
+every pull request merged into `develop` since `develop` was last merged into
+`main`, up to the exact `develop` head SHA the promotion pull request will
+merge. Reconcile the milestone with that range immediately before the
+promotion merges; if `develop` advances first, reconcile again:
+
+- Every issue closed by a pull request in the range moves into the milestone
+  being promoted, even if it was planned for a later version.
+- An issue whose change a later pull request in the range reverts is reopened
+  and left out.
+- An issue that already belongs to a released milestone stays there.
+- An issue still open in the milestone being promoted did not ship; move it to
+  a later milestone, or leave it without one.
+
+The milestone then lists every issue the release contains, and only those. A
+pull request in the range that no issue in the milestone represents is listed
+in the release notes instead: one that closes no issue, such as a dependency
+update, or one that closes an issue kept in a released milestone, such as a
+follow-up fix to a reopened issue or a hotfix backport.
+
+An emergency hotfix is a promotion to `main` too. It takes the next patch
+version, such as `v0.1.1`, in a milestone of its own holding the hotfix issue,
+and follows the same steps below. Because planned work never uses a patch
+version, that version is always free. A hotfix does not merge `develop`, so it
+does not move the start of the next promoted range. Its issue closes only when
+the backport merges into `develop`, and it stays in the hotfix milestone.
+
+After a promotion merges and its production deployment passes the
+[promotion gate](#promotion-gate), mark the release on that exact `main`
+commit:
+
+1. Create an annotated tag `vX.Y.Z` on the promoted `main` commit, the same
+   full Git SHA recorded for the gate, and push the tag.
+2. Publish a GitHub release from that tag. Its notes list the milestone's
+   issues, every pull request in the promoted range that no issue in the
+   milestone represents, and the immutable Vercel deployment URL built from
+   that SHA. The stable production origin may appear beside that URL but never
+   replaces it, because it moves to whichever deployment is current.
+3. Close the milestone.
+
+A tag does not trigger a deployment. The Vercel Git integration on `main`
+remains the only production trigger, and this repository adds no tag-driven
+deployment workflow. A tag is never moved or reused. If the promotion gate
+fails, no tag or release exists yet, so the corrected revision keeps the
+planned version and milestone. Once a version is tagged, a rollback restores an
+earlier deployment without removing any tag, and the corrected revision
+receives the next patch version. Workspace package versions are not release
+versions; the tag is the version of record.
+
 The published quotation flow also requires verification at the promoted revision;
 this document does not claim that the current checkout has been deployed.
 
@@ -171,9 +228,12 @@ incorrect canonical metadata or credentials.
 ## Promotion gate
 
 Promote only a CI-green commit on `main`. Record its full Git commit SHA and
-the resulting production deployment URL before running the checks below. A
-preview that cannot be rebuilt from the settings above is not promotion
-evidence.
+the immutable Vercel deployment URL built from it before running the checks
+below. Run every browser and HTTP check against that immutable URL, not the
+stable production origin, which can move to a newer deployment while the gate
+runs. Separately confirm that the stable production origin points to the same
+immutable deployment. A preview that cannot be rebuilt from the settings above
+is not promotion evidence.
 
 Run the repository checks on that exact revision:
 
@@ -187,7 +247,7 @@ pnpm build
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
 `/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, and `/methodology`
-from the production origin. In `/replay`:
+from the recorded immutable deployment URL. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve

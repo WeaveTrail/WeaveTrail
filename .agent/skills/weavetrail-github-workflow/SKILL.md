@@ -20,6 +20,15 @@ acting.
   merged change back into `develop`.
 - Do not retarget an existing pull request unless the user explicitly requests
   it.
+- Give a new issue the milestone of the version that plans it, or none when no
+  version does yet; pull requests carry no milestone. Version tags `vX.Y.Z` and
+  GitHub releases exist only on a promoted `main` commit. Never create, move or
+  delete a tag, release or milestone unless that is explicitly requested. See
+  `docs/DEPLOYMENT.md` "Versions and release tags".
+- Merging a pull request into `main` starts a release but does not finish it.
+  Production stays untagged until the promotion gate passes, by design. After
+  such a merge, report the promotion gate, the tag, the GitHub release and the
+  milestone closure as outstanding, and perform each only when requested.
 - Issue title: `<type>: <lowercase summary>`.
 - Pull request title: repeat the linked issue title verbatim, with no scope,
   trailing `#<number>`, or paraphrase.
