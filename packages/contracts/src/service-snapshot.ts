@@ -6,7 +6,10 @@ const PublicUrlSchema = z.url().refine((value) => {
   if (!URL.canParse(value)) return false;
   const url = new URL(value);
   return (
-    url.protocol === "https:" && !url.username && !url.password && !url.hash
+    url.protocol === "https:" &&
+    !url.username &&
+    !url.password &&
+    !value.includes("#")
   );
 }, "Use a credential-free HTTPS URL without a fragment");
 
@@ -31,6 +34,34 @@ export const PublicSourceSchema = z
   })
   .strict();
 
+function isoDatetimeIsAfter(left: string, right: string): boolean {
+  const split = (value: string) => {
+    const match = /^(.*?)(?:\.(\d+))?Z$/.exec(value);
+    if (!match?.[1]) throw new Error("Expected a validated UTC ISO datetime");
+    return { seconds: match[1], fraction: match[2] ?? "" };
+  };
+  const leftParts = split(left);
+  const rightParts = split(right);
+  if (leftParts.seconds !== rightParts.seconds) {
+    return leftParts.seconds > rightParts.seconds;
+  }
+  const precision = Math.max(
+    leftParts.fraction.length,
+    rightParts.fraction.length,
+  );
+  return (
+    leftParts.fraction.padEnd(precision, "0") >
+    rightParts.fraction.padEnd(precision, "0")
+  );
+}
+
+export function permissionWasReviewedBy(
+  source: z.infer<typeof PublicSourceSchema>,
+  instant: string,
+): boolean {
+  return !isoDatetimeIsAfter(source.licence.checkedAt, instant);
+}
+
 export const ServiceSnapshotSchema = z
   .object({
     schemaVersion: z.literal("1.0"),
@@ -39,7 +70,16 @@ export const ServiceSnapshotSchema = z
     sha256: SnapshotHashSchema,
     previousSnapshotId: SnapshotHashSchema.nullable(),
   })
-  .strict();
+  .strict()
+  .superRefine((snapshot, ctx) => {
+    if (!permissionWasReviewedBy(snapshot.source, snapshot.retrievedAt)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["source", "licence", "checkedAt"],
+        message: "Permission must be reviewed no later than retrieval",
+      });
+    }
+  });
 
 export const SnapshotReferenceSchema = z
   .object({

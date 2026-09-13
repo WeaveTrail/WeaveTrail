@@ -1,4 +1,5 @@
 import {
+  permissionWasReviewedBy,
   PublicSourceSchema,
   type PublicSource,
   type SnapshotReference,
@@ -12,6 +13,9 @@ export async function collectPublicSource(
   fetchResponse: typeof fetch = globalThis.fetch,
 ): Promise<SnapshotReference> {
   const admitted = PublicSourceSchema.parse(source);
+  if (!permissionWasReviewedBy(admitted, new Date().toISOString())) {
+    throw new Error("Permission review cannot be future-dated");
+  }
   let bytes: Uint8Array;
   try {
     const response = await fetchResponse(admitted.originUrl, {

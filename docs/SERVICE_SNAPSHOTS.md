@@ -21,8 +21,10 @@ licence evidence. The licence fields are `label`, `termsUrl`, UTC `checkedAt`,
 `attributionRequirements`, `attribution`, and explicit `true` values for
 `permitsStorage`, `permitsModification` and `permitsRedistribution`. An operator
 must review the actual terms; these assertions are not automatic licence
-verification. Neither a model proposal nor an arbitrary browser URL is an
-admitted source. URLs and public query parameters must contain no secrets.
+verification. The recorded review time must be no later than collection.
+Neither a model proposal nor an arbitrary browser URL is an admitted source.
+URLs and public query parameters must contain no secrets or fragment delimiter,
+including an otherwise empty trailing `#`.
 
 The built-in transport is for unauthenticated public endpoints. It omits
 credentials, refuses redirects and non-success/partial HTTP responses, applies

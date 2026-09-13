@@ -80,6 +80,24 @@ describe("durable public source snapshots", () => {
     expect(store.getSnapshot(reference.snapshotId).bytes[0]).toBe(0);
   });
 
+  it("rejects collection before the recorded permission review", () => {
+    expect(() =>
+      store.storeSnapshot(Buffer.from("original"), {
+        source: {
+          ...source,
+          licence: {
+            ...source.licence,
+            checkedAt: "2026-09-13T01:00:00.000000001Z",
+          },
+        },
+        retrievedAt: "2026-09-13T01:00:00Z",
+      }),
+    ).toThrow("Permission must be reviewed no later than retrieval");
+    expect(
+      inspect().prepare("SELECT COUNT(*) AS count FROM snapshots").get()?.count,
+    ).toBe(0);
+  });
+
   it("deduplicates unchanged recollections and links changes, including a return to old bytes", () => {
     const first = store.storeSnapshot(Buffer.from("first\r\n"), metadata);
     const unchanged = store.storeSnapshot(Buffer.from("first\r\n"), {
@@ -342,18 +360,44 @@ describe("durable public source snapshots", () => {
     const fetchResponse = vi.fn<typeof fetch>();
     for (const invalid of [
       { ...source, originUrl: "not a URL" },
+      { ...source, originUrl: "https://publisher.example/document#" },
       { ...source, publisher: " " },
       { ...source, originUrl: "https://user:password@publisher.example/" },
       { ...source, originUrl: "http://publisher.example/" },
       { ...source, pastedText: "do not retain" },
       { ...source, licence: { ...source.licence, permitsStorage: false } },
       { ...source, licence: { ...source.licence, termsUrl: "not a URL" } },
+      {
+        ...source,
+        licence: {
+          ...source.licence,
+          termsUrl: "https://publisher.example/terms#",
+        },
+      },
     ]) {
       expect(PublicSourceSchema.safeParse(invalid).success).toBe(false);
       await expect(
         collectPublicSource(store, invalid as PublicSource, fetchResponse),
       ).rejects.toThrow();
     }
+    expect(fetchResponse).not.toHaveBeenCalled();
+  });
+
+  it("rejects a future permission review before any network request", async () => {
+    const fetchResponse = vi.fn<typeof fetch>();
+    await expect(
+      collectPublicSource(
+        store,
+        {
+          ...source,
+          licence: {
+            ...source.licence,
+            checkedAt: "9999-12-31T23:59:59Z",
+          },
+        },
+        fetchResponse,
+      ),
+    ).rejects.toThrow("Permission review cannot be future-dated");
     expect(fetchResponse).not.toHaveBeenCalled();
   });
 
