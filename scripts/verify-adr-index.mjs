@@ -1,7 +1,16 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import {
+  dirname,
+  extname,
+  isAbsolute,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { Parser } from "commonmark";
+import ts from "typescript";
 
 const ADR_DIRECTORY = "docs/adr";
 const IGNORED_DIRECTORIES = new Set([
@@ -10,11 +19,19 @@ const IGNORED_DIRECTORIES = new Set([
   "coverage",
   "node_modules",
 ]);
-const ADR_HEADING = /^# ADR (\d{4}): /m;
+const ADR_HEADING = /^# ADR (\d{4}): /;
 const ADR_FILENAME = /^(\d{4})-.+\.md$/;
-const MARKDOWN_LINK = /\[[^\]]+\]\(([^)\s]+)(?:\s+[^)]*)?\)/g;
-const MARKDOWN_REFERENCE_DEFINITION =
-  /^\s{0,3}\[[^\]]+\]:\s*(?:<([^>\n]+)>|(\S+))/gm;
+const SOURCE_EXTENSIONS = new Set([
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".ts",
+  ".tsx",
+  ".mts",
+  ".cts",
+]);
+const parser = new Parser();
 
 function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -28,53 +45,75 @@ function walk(directory) {
   });
 }
 
-function withoutMarkdownCode(content) {
-  let fence;
-  const visibleLines = content.split(/\r?\n/).map((line) => {
-    const candidate = line.match(/^\s{0,3}(`{3,}|~{3,})(.*)$/);
-
-    if (fence) {
-      if (
-        candidate &&
-        candidate[1][0] === fence.character &&
-        candidate[1].length >= fence.length &&
-        candidate[2].trim() === ""
-      ) {
-        fence = undefined;
-      }
-      return "";
+function linkDestinations(markdown) {
+  const walker = parser.parse(markdown).walker();
+  const targets = [];
+  let event;
+  while ((event = walker.next())) {
+    if (event.entering && ["link", "image"].includes(event.node.type)) {
+      targets.push(event.node.destination);
     }
-
-    if (candidate) {
-      fence = {
-        character: candidate[1][0],
-        length: candidate[1].length,
-      };
-      return "";
-    }
-
-    if (/^(?: {4}|\t)/.test(line)) return "";
-
-    return line;
-  });
-
-  return visibleLines.join("\n").replace(/(`+)[\s\S]*?\1/g, "");
+  }
+  return targets;
 }
 
-function adrLinkTarget(file, target, root) {
-  const cleanTarget = target.replace(/^<|>$/g, "").split(/[?#]/, 1)[0];
+// Read documentation comments through the existing TypeScript parser so test
+// strings, regex literals and template literals cannot become live references.
+function sourceComments(file, content) {
+  const source = ts.createSourceFile(
+    file,
+    content,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+  const ranges = new Map();
+  function visit(node) {
+    for (const range of [
+      ...(ts.getLeadingCommentRanges(content, node.pos) ?? []),
+      ...(ts.getTrailingCommentRanges(content, node.end) ?? []),
+    ]) {
+      ranges.set(range.pos, range);
+    }
+    for (const child of node.getChildren(source)) visit(child);
+  }
+  visit(source);
+  return [...ranges.values()]
+    .sort((a, b) => a.pos - b.pos)
+    .map(({ pos, end }) => {
+      const comment = content.slice(pos, end);
+      return comment.startsWith("//")
+        ? comment.slice(2).trimStart()
+        : comment
+            .slice(2, -2)
+            .replace(/^[ \t]*\* ?/gm, "")
+            .trim();
+    })
+    .join("\n\n");
+}
+
+function isWithin(directory, path) {
+  const child = relative(directory, path);
+  return (
+    child === "" ||
+    (child !== ".." && !child.startsWith(`..${sep}`) && !isAbsolute(child))
+  );
+}
+
+function adrLinkTarget(file, target, root, markdown) {
+  const cleanTarget = target.split(/[?#]/, 1)[0];
   if (!cleanTarget || /^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(cleanTarget)) {
     return undefined;
   }
-
-  const resolved = cleanTarget.startsWith(`${ADR_DIRECTORY}/`)
-    ? resolve(root, cleanTarget)
-    : resolve(dirname(file), cleanTarget);
+  const decoded = decodeURIComponent(cleanTarget);
+  const resolved =
+    !markdown && decoded.startsWith(`${ADR_DIRECTORY}/`)
+      ? resolve(root, decoded)
+      : resolve(dirname(file), decoded);
   const adrDirectory = resolve(root, ADR_DIRECTORY);
-  const pathFromAdrDirectory = relative(adrDirectory, resolved);
-  return pathFromAdrDirectory &&
-    !pathFromAdrDirectory.startsWith("..") &&
-    !isAbsolute(pathFromAdrDirectory)
+  if (resolved === adrDirectory) return undefined;
+  // Also check ADR-looking paths that resolve outside the real ADR directory:
+  // a nested document's erroneous docs/adr/... link must fail at its actual path.
+  return isWithin(adrDirectory, resolved) || /(?:^|\/)adr\//.test(decoded)
     ? resolved
     : undefined;
 }
@@ -115,26 +154,22 @@ export function validateAdrIndex(root) {
   }
 
   for (const file of walk(root)) {
+    const extension = extname(file).toLowerCase();
+    const markdown = extension === ".md";
+    if (!markdown && !SOURCE_EXTENSIONS.has(extension)) continue;
     const content = readFileSync(file, "utf8");
-    if (content.includes("\0")) continue;
-    const linkableContent = file.endsWith(".md")
-      ? withoutMarkdownCode(content)
-      : content;
-
-    for (const match of linkableContent.matchAll(MARKDOWN_LINK)) {
-      const target = adrLinkTarget(file, match[1], root);
-      if (target && !existsSync(target)) {
+    const linkableContent = markdown ? content : sourceComments(file, content);
+    for (const destination of linkDestinations(linkableContent)) {
+      let target;
+      try {
+        target = adrLinkTarget(file, destination, root, markdown);
+      } catch {
         errors.push(
-          `${relative(root, file)} links to missing ADR ${relative(root, target)}`,
+          `${relative(root, file)} has an invalid link URL: ${destination}`,
         );
+        continue;
       }
-    }
-
-    for (const match of linkableContent.matchAll(
-      MARKDOWN_REFERENCE_DEFINITION,
-    )) {
-      const target = adrLinkTarget(file, match[1] ?? match[2], root);
-      if (target && !existsSync(target)) {
+      if (target && !statSync(target, { throwIfNoEntry: false })?.isFile()) {
         errors.push(
           `${relative(root, file)} links to missing ADR ${relative(root, target)}`,
         );
@@ -146,7 +181,10 @@ export function validateAdrIndex(root) {
 }
 
 export function isDirectExecution(moduleUrl, scriptPath) {
-  return moduleUrl === pathToFileURL(resolve(scriptPath)).href;
+  return (
+    typeof scriptPath === "string" &&
+    moduleUrl === pathToFileURL(resolve(scriptPath)).href
+  );
 }
 
 if (isDirectExecution(import.meta.url, process.argv[1])) {
