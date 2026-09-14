@@ -1,5 +1,10 @@
 # ADR 0014: Keep replay workflows request-local
 
+Partially superseded by
+[ADR 0046](0046-retain-public-sources-in-two-provenance-tiers.md) for persistent
+collected public sources and derived service records. Replay HTTP workflow
+state and transition history remain request-local as described here.
+
 ## Context
 
 The replay HTTP boundary exposes a workflow state and the replay engine records

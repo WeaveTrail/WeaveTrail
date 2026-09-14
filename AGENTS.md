@@ -8,16 +8,17 @@ this file covers the judgment calls that process does not spell out.
 
 ## Repository shape
 
-| Path                      | Responsibility                                                         |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `apps/web`                | The public explanation pages and guided Case Replay                    |
-| `packages/contracts`      | Versioned runtime contracts and shared types                           |
-| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes      |
-| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures               |
-| `packages/scenarios`      | Synthetic datasets and controlled input mutations                      |
-| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings |
-| `packages/evals`          | Versioned evaluation cases and aggregate runners                       |
-| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations |
+| Path                      | Responsibility                                                          |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `apps/web`                | The public explanation pages and guided Case Replay                     |
+| `packages/contracts`      | Versioned runtime contracts and shared types                            |
+| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes       |
+| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures                |
+| `packages/scenarios`      | Synthetic datasets and controlled input mutations                       |
+| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings  |
+| `packages/service-store`  | Immutable collected public-source snapshots and derived-result bindings |
+| `packages/evals`          | Versioned evaluation cases and aggregate runners                        |
+| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations  |
 
 Describe only behavior that exists. Mark planned work as planned until a
 reproducible check confirms it.
@@ -80,6 +81,21 @@ reproducible check confirms it.
 ## Data provenance
 
 - Synthetic data is the default for repository fixtures and examples.
+- Public sources have two provenance tiers: committed artifacts for offline
+  verification, goldens and regressions, and immutable service snapshots for
+  collected documents and data responses. Service snapshots are not committed.
+  Both tiers retain original bytes, SHA-256, publisher, origin URL, retrieval
+  time, reuse terms and attribution; service snapshots also require a collector
+  version. Existing committed acquisition records retain their versioned shape.
+- Admit a public source to the service store only after recording reviewed
+  permission to store, modify and redistribute it. Never store credentials,
+  personal/customer/production trading data, or pasted user text by default.
+  A public URL alone is not permission evidence.
+- Never overwrite a stored snapshot. Deduplicate unchanged recollections;
+  link changed content to the preceding snapshot for that exact origin URL.
+  Derived service events, conclusions and checks carry immutable snapshot
+  references, original-byte hashes and the computation version. Resolve and
+  re-hash those stored inputs instead of refetching their current URLs.
 - Any real data may be committed only when its published licence permits
   commitment, modification, and redistribution, and only with its provider,
   origin, retrieval date, licence, and required attribution recorded beside it.

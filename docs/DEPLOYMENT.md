@@ -6,6 +6,12 @@ published daily quotation artifact; it never retrieves source data at runtime.
 No provider credential, database, analytics,
 telemetry, or third-party script is part of the current deployment.
 
+The separate `@weavetrail/service-store` package implements persistent public
+source snapshots, but is not connected to this deployment. Running a collector
+requires Node 22.13 or newer and an explicitly provisioned persistent local
+SQLite volume. Vercel's ephemeral filesystem must not be used as that store.
+See [service snapshot operations](SERVICE_SNAPSHOTS.md).
+
 Production is live at
 [weave-trail-web-flax.vercel.app](https://weave-trail-web-flax.vercel.app).
 The first production deployment uses Git revision
