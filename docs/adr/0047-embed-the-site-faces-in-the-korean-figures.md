@@ -38,13 +38,13 @@ characters it sets.
   metrics and hinting are the committed faces' own; their copyright and licence
   records are kept.
 - Each block names its source files with their SHA-256 and the fontTools
-  version, and lists the characters it covers. The output is byte-for-byte
-  reproducible.
+  version. The output is byte-for-byte reproducible.
 - The worked case stays generated: its generator inlines the block the script
   writes to `docs/assets/fonts/worked-case.ko.faces.svg`, so
   `pnpm diagram:case` still reproduces the committed figure.
-- `entry-point-diagrams.test.ts` fails when a Korean README figure sets a
-  character its embedded faces do not cover.
+- `entry-point-diagrams.test.ts` resolves every text run of a Korean README
+  figure to the face and weight the site would set it in, reads that embedded
+  face's own `cmap`, and fails when the glyph is not there.
 - The Korean figures are laid out for Korean: labels untracked and a size
   larger, lines broken at word boundaries, and contract identifiers kept in the
   mono face with the Korean words beside them in the sans.

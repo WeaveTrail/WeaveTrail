@@ -20,8 +20,8 @@ Run it after changing the words of a Korean figure:
     pnpm diagram:fonts
 
 The output is byte-for-byte reproducible from the committed faces.
-`entry-point-diagrams.test.ts` fails when a figure sets a character its
-embedded faces do not cover.
+`entry-point-diagrams.test.ts` fails when a figure sets a character that the
+embedded face and weight the site would draw it in does not hold.
 """
 
 from __future__ import annotations
@@ -205,7 +205,6 @@ def faces_block(svg_path: Path) -> str:
                 resolved = css_weight(weight, sorted(SOURCES[role]))
                 needs.setdefault((role, resolved), set()).update(chars)
 
-    covered = sorted({c for chars in needs.values() for c in chars} - {" "})
     lines = [
         f"{BEGIN}",
         "    Written by scripts/embed-figure-fonts.py; do not hand-edit (ADR 0047).",
@@ -217,7 +216,6 @@ def faces_block(svg_path: Path) -> str:
     for role, weight in sorted(needs):
         source = SOURCES[role][weight]
         lines.append(f"    {FAMILY[role]} {weight}: {source} sha256:{digest(source)}")
-    lines.append(f"    covers: {''.join(covered)}")
     lines.append("  -->")
     lines.append("  <style>")
     for role, weight in sorted(needs):
