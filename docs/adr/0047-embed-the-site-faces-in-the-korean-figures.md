@@ -53,8 +53,9 @@ characters it sets.
 
 - The Korean figures look like the Korean site on every platform, at 34–64 KB
   each.
-- Changing the words of a Korean figure needs `pnpm diagram:fonts`, which needs
-  Python with `fonttools` and `brotli`; the test names the command when it is
-  due. Tests and builds need neither.
+- Changing the words of a Korean figure needs `pnpm diagram:fonts`, which
+  requires `fonttools==4.65.0` and `brotli==1.2.0` and rejects other versions
+  before reading or writing a figure. The test names the command when it is due.
+  Tests and builds need neither tool.
 - The English figures are unchanged and still name the families without
   embedding them.

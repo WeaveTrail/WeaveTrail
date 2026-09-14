@@ -32,14 +32,13 @@ import io
 import re
 import sys
 import xml.etree.ElementTree as ET
+from collections.abc import Callable
+from importlib import metadata
 from pathlib import Path
-
-import fontTools
-from fontTools import subset
-from fontTools.ttLib import TTFont
 
 ROOT = Path(__file__).resolve().parent.parent
 SVG = "{http://www.w3.org/2000/svg}"
+TOOL_VERSIONS = (("fonttools", "4.65.0"), ("brotli", "1.2.0"))
 
 # Figure, and the fragment file its generator reads, if it has one.
 FIGURES = [
@@ -74,6 +73,28 @@ SOURCES = {"latin": LATIN, "hangul": HANGUL, "mono": MONO}
 
 BEGIN = "<!-- embedded faces: begin"
 END = "<!-- embedded faces: end -->"
+
+
+def require_tool_versions(
+    version_reader: Callable[[str], str] = metadata.version,
+) -> None:
+    """Reject generators that cannot reproduce the committed WOFF2 bytes."""
+    mismatches = []
+    for distribution, expected in TOOL_VERSIONS:
+        try:
+            actual = version_reader(distribution)
+        except metadata.PackageNotFoundError:
+            actual = "not installed"
+        if actual != expected:
+            mismatches.append(f"{distribution} {actual} (expected {expected})")
+
+    if mismatches:
+        expected = " ".join(f"{name}=={version}" for name, version in TOOL_VERSIONS)
+        raise RuntimeError(
+            "diagram font generation requires the declared tool versions; "
+            + ", ".join(mismatches)
+            + f". Install them with: python3 -m pip install {expected}"
+        )
 
 
 def css_weight(wanted: int, available: list[int]) -> int:
@@ -153,6 +174,9 @@ def set_characters(svg_path: Path) -> dict[tuple[str, int], set[str]]:
 
 
 def cut(source: str, characters: str, family: str, weight: int) -> bytes:
+    from fontTools import subset
+    from fontTools.ttLib import TTFont
+
     font = TTFont(ROOT / source, recalcTimestamp=False)
     options = subset.Options()
     options.flavor = "woff2"
@@ -190,6 +214,9 @@ def digest(path: str) -> str:
 
 
 def faces_block(svg_path: Path) -> str:
+    import fontTools
+    from fontTools.ttLib import TTFont
+
     wanted = set_characters(svg_path)
     latin_cmap = TTFont(ROOT / LATIN[400]).getBestCmap()
     mono_cmap = TTFont(ROOT / MONO[400]).getBestCmap()
@@ -231,6 +258,7 @@ def faces_block(svg_path: Path) -> str:
 
 
 def main() -> int:
+    require_tool_versions()
     for figure, fragment in FIGURES:
         path = ROOT / figure
         svg = path.read_text("utf8")
