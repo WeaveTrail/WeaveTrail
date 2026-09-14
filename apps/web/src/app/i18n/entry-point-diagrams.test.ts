@@ -2,18 +2,27 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import {
+  embeddedFaces,
+  matchedWeight,
+  textRuns,
+  woff2CodePoints,
+} from "./embedded-faces";
+
 const read = (path: string) =>
   readFileSync(resolve(process.cwd(), path), "utf8");
 
 /**
- * The four figures the entry point explains the product with. The layer
- * diagram is rendered from `how-it-works-diagram.ts` and pinned by
- * `architecture-diagram.test.ts`; the other three are drawn by hand in each
- * language, which is what the checks below are here to hold together.
+ * The figures the entry points explain the product with. The architecture
+ * page's layer diagram is rendered from `how-it-works-diagram.ts` and pinned by
+ * `architecture-diagram.test.ts`; the others, including the readme's
+ * `layer-separation` figure, are drawn by hand in each language, which is what
+ * the checks below are here to hold together.
  */
 const DIAGRAM_PAIRS = [
   ["docs/assets/problem.svg", "docs/assets/problem.ko.svg"],
   ["docs/assets/how-it-works.svg", "docs/assets/how-it-works.ko.svg"],
+  ["docs/assets/layer-separation.svg", "docs/assets/layer-separation.ko.svg"],
   ["docs/assets/design.svg", "docs/assets/design.ko.svg"],
   ["docs/assets/component-chain.svg", "docs/assets/component-chain.ko.svg"],
 ] as const;
@@ -309,6 +318,71 @@ describe("Korean entry-point diagrams", () => {
         "Noto Sans KR",
       ])
         expect(svg, `${koreanPath} ${family}`).toContain(family);
+    }
+  });
+
+  // A README figure is an image and cannot load the site's faces, so each
+  // Korean one carries cuts of them (ADR 0047). A copy change that sets a
+  // character the cut does not hold falls back to the reader's system face
+  // without anything looking broken, so every run is checked against the
+  // glyphs of the face and weight the site would set it in.
+  it("embeds, for every character a Korean readme figure sets, the face the site sets it in", () => {
+    const figures = [
+      ...read("README.ko.md").matchAll(/!\[[^\]]*\]\(([^)]+\.ko\.svg)\)/g),
+    ].map((match) => match[1] ?? "");
+    expect(figures.length).toBeGreaterThan(0);
+
+    // The committed faces decide which family draws a character on the site:
+    // Latin and machine values in their own face, everything else in the
+    // Korean one. The weights are the ones committed for each family.
+    const committed = {
+      latin: woff2CodePoints(
+        readFileSync(
+          resolve(
+            process.cwd(),
+            "apps/web/src/fonts/ibm-plex-sans/IBMPlexSans-Regular.woff2",
+          ),
+        ),
+      ),
+      mono: woff2CodePoints(
+        readFileSync(
+          resolve(
+            process.cwd(),
+            "apps/web/src/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2",
+          ),
+        ),
+      ),
+    };
+    const FACES = {
+      latin: { family: "WeaveTrail Figure Sans", weights: [400, 500, 600] },
+      hangul: { family: "WeaveTrail Figure Sans KR", weights: [400, 500, 600] },
+      mono: { family: "WeaveTrail Figure Mono", weights: [400, 500, 700] },
+    } as const;
+
+    for (const figure of figures) {
+      const svg = read(figure);
+      expect(svg, figure).not.toMatch(/src:url\((?!data:font\/woff2;)/);
+      const embedded = embeddedFaces(svg);
+      expect(embedded.size, figure).toBeGreaterThan(0);
+
+      const missing = new Set<string>();
+      for (const run of textRuns(svg))
+        for (const character of run.text.replace(/[\n\r\t]/g, "")) {
+          const point = character.codePointAt(0) ?? 0;
+          const role =
+            run.stack === "mono"
+              ? committed.mono.has(point)
+                ? "mono"
+                : "hangul"
+              : committed.latin.has(point)
+                ? "latin"
+                : "hangul";
+          const { family, weights } = FACES[role];
+          const weight = matchedWeight(run.weight, weights);
+          if (!embedded.get(`${family}|${weight}`)?.has(point))
+            missing.add(`${character} (${family} ${weight})`);
+        }
+      expect([...missing], `${figure}: rerun pnpm diagram:fonts`).toEqual([]);
     }
   });
 });

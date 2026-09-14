@@ -28,14 +28,21 @@ const DIAGRAMS = {
   ko: "docs/assets/worked-case.ko.svg",
 } as const;
 
+/** The faces `scripts/embed-figure-fonts.py` cut for the Korean figure. */
+const EMBEDDED_FACES = {
+  en: "",
+  ko: read("docs/assets/fonts/worked-case.ko.faces.svg"),
+} as const;
+
 describe("the worked-case diagram", () => {
   const figures = workedCaseFigures();
 
   it.each(Object.entries(DIAGRAMS))(
     "writes %s from this module",
     async (language, file) => {
+      const key = language as keyof typeof DIAGRAMS;
       await expect(
-        workedCaseSvg(language as keyof typeof DIAGRAMS, figures),
+        workedCaseSvg(key, figures, "file", EMBEDDED_FACES[key]),
       ).toMatchFileSnapshot(resolve(process.cwd(), file));
     },
   );
