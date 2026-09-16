@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   CalculatedEvidenceVerificationError,
+  MissingEvidenceVerificationError,
   QuotedEvidenceVerificationError,
   verifyCalculatedEvidence,
   verifyQuotedEvidence,
+  verifyUnconfirmableEvidence,
 } from "./evidence-grade";
 import { sourceArtifactHash } from "./source-ingest";
 
@@ -86,8 +88,10 @@ describe("quoted evidence verification", () => {
             grade: "COMPUTED",
             evidence: {
               reportedValue: "1032.82",
+              displayedValueRange: { start: 0, end: 7 },
               calculation: {
-                calculationRef: "daily-close@1.0.0",
+                calculationId: "daily-close",
+                calculationVersion: "1.0.0",
                 sourceRows: [
                   { eventId: "event-1", rawRowHash: "a".repeat(64) },
                 ],
@@ -112,8 +116,9 @@ const trustedRows = [
 ] as const;
 const calculations = new Map([
   [
-    "daily-close@1.0.0",
+    "daily-close",
     {
+      calculationVersion: "1.0.0",
       sourceRows: trustedRows,
       calculate: (rows: readonly { close: string }[]) => rows[0]!.close,
     },
@@ -132,8 +137,10 @@ function calculatedSentence(
     grade,
     evidence: {
       reportedValue,
+      displayedValueRange: { start: 0, end: reportedValue.length },
       calculation: {
-        calculationRef: "daily-close@1.0.0",
+        calculationId: "daily-close",
+        calculationVersion: "1.0.0",
         sourceRows: [{ eventId: "event-1", rawRowHash: rowHash }],
         computedValue,
       },
@@ -179,15 +186,32 @@ describe("calculated evidence verification", () => {
     );
   });
 
+  it("rejects a calculated value that is not the value in the sentence", () => {
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.text = "0";
+    candidate.evidence.displayedValueRange = { start: 0, end: 1 };
+    expectCalculatedCode(
+      () => verifyCalculatedEvidence(candidate, { calculations }),
+      "CONTRACT_INVALID",
+    );
+  });
+
   it("rejects unregistered calculations and altered source selections", () => {
     const unregistered = calculatedSentence("COMPUTED", "1032.82");
-    unregistered.evidence.calculation.calculationRef = "unknown@1.0.0";
+    unregistered.evidence.calculation.calculationId = "unknown";
     expectCalculatedCode(
       () =>
         verifyCalculatedEvidence(unregistered, {
           calculations,
         }),
       "CALCULATION_NOT_REGISTERED",
+    );
+
+    const wrongVersion = calculatedSentence("COMPUTED", "1032.82");
+    wrongVersion.evidence.calculation.calculationVersion = "2.0.0";
+    expectCalculatedCode(
+      () => verifyCalculatedEvidence(wrongVersion, { calculations }),
+      "CALCULATION_VERSION_MISMATCH",
     );
 
     const mismatchedRows = calculatedSentence("COMPUTED", "1032.82");
@@ -207,5 +231,97 @@ describe("calculated evidence verification", () => {
       () => verifyCalculatedEvidence(mismatchedRows, { calculations }),
       "SOURCE_ROWS_MISMATCH",
     );
+  });
+});
+
+const datasetHash = "d".repeat(64);
+
+function unconfirmableSentence() {
+  return {
+    evidenceVersion: "1.0",
+    sentenceId: "unconfirmable-1",
+    text: "Public quotes do not contain a time of day.",
+    grade: "UNCONFIRMABLE",
+    evidence: {
+      reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+      missingEvidenceCheck: {
+        checkId: "daily-quote-time-of-day",
+        checkVersion: "1.0.0",
+        approvedDatasetHash: datasetHash,
+      },
+    },
+  };
+}
+
+function missingChecks(granularity: "daily" | "minute") {
+  return new Map([
+    [
+      "daily-quote-time-of-day",
+      {
+        checkVersion: "1.0.0",
+        approvedDatasetHash: datasetHash,
+        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+        dataset: { granularity },
+        isMissing: (dataset: { granularity: "daily" | "minute" }) =>
+          dataset.granularity === "daily",
+      },
+    ],
+  ]);
+}
+
+function expectMissingCode(run: () => unknown, code: string) {
+  try {
+    run();
+    throw new Error("Expected missing-evidence verification to fail");
+  } catch (error) {
+    expect(error).toBeInstanceOf(MissingEvidenceVerificationError);
+    expect((error as MissingEvidenceVerificationError).code).toBe(code);
+  }
+}
+
+describe("missing evidence verification", () => {
+  it("reruns a registered absence check against its approved dataset", () => {
+    expect(
+      verifyUnconfirmableEvidence(unconfirmableSentence(), {
+        checks: missingChecks("daily"),
+      }),
+    ).toMatchObject({ grade: "UNCONFIRMABLE" });
+  });
+
+  it("refuses UNCONFIRMABLE when the approved dataset has the evidence", () => {
+    expectMissingCode(
+      () =>
+        verifyUnconfirmableEvidence(unconfirmableSentence(), {
+          checks: missingChecks("minute"),
+        }),
+      "EVIDENCE_AVAILABLE",
+    );
+  });
+
+  it("rejects unregistered, reversioned, or rebound absence checks", () => {
+    const unregistered = unconfirmableSentence();
+    unregistered.evidence.missingEvidenceCheck.checkId = "unknown";
+    expectMissingCode(
+      () =>
+        verifyUnconfirmableEvidence(unregistered, {
+          checks: missingChecks("daily"),
+        }),
+      "MISSING_EVIDENCE_CHECK_NOT_REGISTERED",
+    );
+
+    for (const mutation of [
+      { checkVersion: "2.0.0" },
+      { approvedDatasetHash: "e".repeat(64) },
+    ]) {
+      const candidate = unconfirmableSentence();
+      Object.assign(candidate.evidence.missingEvidenceCheck, mutation);
+      expectMissingCode(
+        () =>
+          verifyUnconfirmableEvidence(candidate, {
+            checks: missingChecks("daily"),
+          }),
+        "MISSING_EVIDENCE_CHECK_MISMATCH",
+      );
+    }
   });
 });

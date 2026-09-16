@@ -13,9 +13,20 @@ const base = {
   text: "The close was 1032.82.",
 } as const;
 const calculation = {
-  calculationRef: "daily-close@1.0.0",
+  calculationId: "daily-close",
+  calculationVersion: "1.0.0",
   sourceRows: [{ eventId: "event-1", rawRowHash: hash }],
   computedValue: "1032.82",
+};
+const computedEvidence = {
+  reportedValue: "1032.82",
+  displayedValueRange: { start: 14, end: 21 },
+  calculation,
+};
+const missingEvidenceCheck = {
+  checkId: "daily-quote-time-of-day",
+  checkVersion: "1.0.0",
+  approvedDatasetHash: hash,
 };
 
 describe("evidence grade contracts", () => {
@@ -61,11 +72,12 @@ describe("evidence grade contracts", () => {
       EvidenceGradedSentenceSchema.safeParse({
         ...base,
         grade: "COMPUTED",
-        evidence: { reportedValue: "1032.82", calculation },
+        evidence: computedEvidence,
       }).success,
     ).toBe(true);
     for (const invalidCalculation of [
-      { ...calculation, calculationRef: "" },
+      { ...calculation, calculationId: "" },
+      { ...calculation, calculationVersion: "daily" },
       { ...calculation, sourceRows: [] },
     ])
       expect(
@@ -73,7 +85,7 @@ describe("evidence grade contracts", () => {
           ...base,
           grade: "COMPUTED",
           evidence: {
-            reportedValue: "1032.82",
+            ...computedEvidence,
             calculation: invalidCalculation,
           },
         }).success,
@@ -82,7 +94,31 @@ describe("evidence grade contracts", () => {
       EvidenceGradedSentenceSchema.safeParse({
         ...base,
         grade: "COMPUTED",
-        evidence: { reportedValue: "1031.5", calculation },
+        evidence: { ...computedEvidence, reportedValue: "1031.5" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("binds a calculated grade to the value inside the displayed sentence", () => {
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        text: "The close was 0.",
+        grade: "COMPUTED",
+        evidence: {
+          ...computedEvidence,
+          displayedValueRange: { start: 14, end: 15 },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "COMPUTED",
+        evidence: {
+          ...computedEvidence,
+          displayedValueRange: { start: 14, end: 200 },
+        },
       }).success,
     ).toBe(false);
   });
@@ -91,8 +127,13 @@ describe("evidence grade contracts", () => {
     expect(
       EvidenceGradedSentenceSchema.parse({
         ...base,
+        text: "The close was 1031.5.",
         grade: "DIFFERS",
-        evidence: { reportedValue: "1031.5", calculation },
+        evidence: {
+          reportedValue: "1031.5",
+          displayedValueRange: { start: 14, end: 20 },
+          calculation,
+        },
       }).evidence,
     ).toMatchObject({
       reportedValue: "1031.5",
@@ -103,6 +144,7 @@ describe("evidence grade contracts", () => {
         ...base,
         grade: "DIFFERS",
         evidence: {
+          ...computedEvidence,
           reportedValue: "1032.820",
           calculation: { ...calculation, computedValue: "1032.82" },
         },
@@ -110,36 +152,24 @@ describe("evidence grade contracts", () => {
     ).toBe(false);
   });
 
-  it("requires both localized reason fields for unconfirmable text", () => {
-    const missing = {
-      ko: "공개 시세는 하루 단위라 시각이 없습니다",
-      en: "Public quotes are daily, so there is no time of day",
-    };
-    const wouldSettle = {
-      ko: "분 단위 자료",
-      en: "Minute-level data",
-    };
+  it("accepts only closed reason codes with a versioned absence check", () => {
     expect(
       EvidenceGradedSentenceSchema.safeParse({
         ...base,
         grade: "UNCONFIRMABLE",
-        evidence: { missing, wouldSettle },
+        evidence: {
+          reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+          missingEvidenceCheck,
+        },
       }).success,
     ).toBe(true);
     expect(
       EvidenceGradedSentenceSchema.safeParse({
         ...base,
         grade: "UNCONFIRMABLE",
-        evidence: { missing },
-      }).success,
-    ).toBe(false);
-    expect(
-      EvidenceGradedSentenceSchema.safeParse({
-        ...base,
-        grade: "UNCONFIRMABLE",
         evidence: {
-          missing,
-          wouldSettle: { ...wouldSettle, ko: "분 단위 자료가 연결되면" },
+          reasonCode: "CALLER_AUTHORED_REASON",
+          missingEvidenceCheck,
         },
       }).success,
     ).toBe(false);
@@ -148,11 +178,23 @@ describe("evidence grade contracts", () => {
         ...base,
         grade: "UNCONFIRMABLE",
         evidence: {
-          missing: {
-            ...missing,
-            en: "AI determined this was fraudulent",
+          reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+          missing: "The trades prove illegal market manipulation",
+          wouldSettle: "Minute-level data",
+          missingEvidenceCheck,
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "UNCONFIRMABLE",
+        evidence: {
+          reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+          missingEvidenceCheck: {
+            ...missingEvidenceCheck,
+            checkVersion: "daily",
           },
-          wouldSettle,
         },
       }).success,
     ).toBe(false);
@@ -161,8 +203,7 @@ describe("evidence grade contracts", () => {
         ...base,
         grade: "UNCONFIRMABLE",
         evidence: {
-          missing: { ...missing, ko: "자료 오류" },
-          wouldSettle,
+          reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
         },
       }).success,
     ).toBe(false);
@@ -196,7 +237,7 @@ describe("evidence grade contracts", () => {
     const computed = EvidenceGradedSentenceSchema.parse({
       ...base,
       grade: "COMPUTED",
-      evidence: { reportedValue: "1032.82", calculation },
+      evidence: computedEvidence,
     });
     const interpreted = EvidenceGradedSentenceSchema.parse({
       ...base,

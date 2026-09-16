@@ -1,6 +1,10 @@
 import React from "react";
 
-import { EVIDENCE_GRADES, type EvidenceGrade } from "@weavetrail/contracts";
+import {
+  EVIDENCE_GRADES,
+  type EvidenceGrade,
+  type UnconfirmableReasonCode,
+} from "@weavetrail/contracts";
 
 import type { Language } from "./i18n/language";
 
@@ -14,6 +18,9 @@ type EvidenceGradeCopy = {
   relation: string;
   grades: Readonly<Record<EvidenceGrade, GradeCopy>>;
   differenceNote: string;
+  unconfirmableReasons: Readonly<
+    Record<UnconfirmableReasonCode, { missing: string; wouldSettle: string }>
+  >;
   unconfirmableReason: (missing: string, wouldSettle: string) => string;
 };
 
@@ -53,6 +60,12 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
         },
       },
       differenceNote: "정의나 기준(종가·고가)의 차이일 수 있습니다.",
+      unconfirmableReasons: {
+        DAILY_QUOTES_HAVE_NO_TIME_OF_DAY: {
+          missing: "공개 시세는 하루 단위라 시각이 없습니다",
+          wouldSettle: "분 단위 자료",
+        },
+      },
       unconfirmableReason: (missing, wouldSettle) =>
         `${missing}. ${wouldSettle}가 연결되면 확인할 수 있습니다.`,
     },
@@ -90,6 +103,12 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
       },
       differenceNote:
         "The difference can come from a different definition or reference price (close, high).",
+      unconfirmableReasons: {
+        DAILY_QUOTES_HAVE_NO_TIME_OF_DAY: {
+          missing: "Public quotes are daily, so there is no time of day",
+          wouldSettle: "Minute-level data",
+        },
+      },
       unconfirmableReason: (missing, wouldSettle) =>
         `${missing}. ${wouldSettle} would let us confirm it.`,
     },
@@ -111,16 +130,16 @@ export type EvidenceBadgeProps = BadgeBaseProps &
   (
     | {
         grade: "UNCONFIRMABLE";
-        reason: { missing: string; wouldSettle: string };
+        reasonCode: UnconfirmableReasonCode;
       }
     | {
         grade: "DIFFERS";
         computedValue: string;
-        reason?: never;
+        reasonCode?: never;
       }
     | {
         grade: Exclude<EvidenceGrade, "DIFFERS" | "UNCONFIRMABLE">;
-        reason?: never;
+        reasonCode?: never;
         computedValue?: never;
       }
   );
@@ -132,6 +151,10 @@ export type EvidenceBadgeProps = BadgeBaseProps &
 export function EvidenceBadge(props: EvidenceBadgeProps) {
   const text = evidenceGradeCopy[props.language];
   const grade = text.grades[props.grade];
+  const unconfirmableReason =
+    props.grade === "UNCONFIRMABLE"
+      ? text.unconfirmableReasons[props.reasonCode]
+      : undefined;
   return (
     <span className="evidence-mark">
       <span className={`evidence-badge ${gradeClass[props.grade]}`}>
@@ -147,8 +170,8 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
       {props.grade === "UNCONFIRMABLE" && (
         <span className="evidence-companion">
           {text.unconfirmableReason(
-            props.reason.missing,
-            props.reason.wouldSettle,
+            unconfirmableReason!.missing,
+            unconfirmableReason!.wouldSettle,
           )}
         </span>
       )}

@@ -4,6 +4,8 @@ import {
   type CalculatedEvidenceSentence,
   type EvidenceSourceRowReference,
   type QuotedEvidenceSentence,
+  type UnconfirmableEvidenceSentence,
+  type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
 
 import { sourceArtifactHash } from "./source-ingest";
@@ -30,6 +32,7 @@ export type CalculatedEvidenceVerificationCode =
   | "GRADE_NOT_CALCULATED"
   | "SOURCE_ROWS_MISMATCH"
   | "CALCULATION_NOT_REGISTERED"
+  | "CALCULATION_VERSION_MISMATCH"
   | "CALCULATION_FAILED"
   | "COMPUTED_VALUE_MISMATCH";
 
@@ -50,8 +53,40 @@ export type TrustedEvidenceSourceRow<Row> = EvidenceSourceRowReference & {
 export type EvidenceCalculator<Row> = (sourceRows: readonly Row[]) => string;
 
 export type RegisteredEvidenceCalculation<Row> = {
+  calculationVersion: string;
   sourceRows: readonly TrustedEvidenceSourceRow<Row>[];
   calculate: EvidenceCalculator<Row>;
+};
+
+export type MissingEvidenceVerificationCode =
+  | "CONTRACT_INVALID"
+  | "GRADE_NOT_UNCONFIRMABLE"
+  | "MISSING_EVIDENCE_CHECK_NOT_REGISTERED"
+  | "MISSING_EVIDENCE_CHECK_MISMATCH"
+  | "MISSING_EVIDENCE_CHECK_FAILED"
+  | "EVIDENCE_AVAILABLE";
+
+export class MissingEvidenceVerificationError extends Error {
+  constructor(
+    readonly code: MissingEvidenceVerificationCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = "MissingEvidenceVerificationError";
+  }
+}
+
+export type RegisteredMissingEvidenceCheck<Dataset> = {
+  checkVersion: string;
+  approvedDatasetHash: string;
+  reasonCode: UnconfirmableReasonCode;
+  dataset: Dataset;
+  isMissing: (dataset: Dataset) => boolean;
+};
+
+export type MissingEvidenceVerificationContext<Dataset> = {
+  /** Only versioned, code-owned absence checks belong in this registry. */
+  checks: ReadonlyMap<string, RegisteredMissingEvidenceCheck<Dataset>>;
 };
 
 export type CalculatedEvidenceVerificationContext<Row> = {
@@ -140,12 +175,21 @@ export function verifyCalculatedEvidence<Row>(
 
   const sentence = parsed.data;
   const registered = context.calculations.get(
-    sentence.evidence.calculation.calculationRef,
+    sentence.evidence.calculation.calculationId,
   );
   if (registered === undefined) {
     throw new CalculatedEvidenceVerificationError(
       "CALCULATION_NOT_REGISTERED",
       "The declared calculation is not registered in versioned code.",
+    );
+  }
+  if (
+    registered.calculationVersion !==
+    sentence.evidence.calculation.calculationVersion
+  ) {
+    throw new CalculatedEvidenceVerificationError(
+      "CALCULATION_VERSION_MISMATCH",
+      "The declared calculation version does not match registered code.",
     );
   }
   const declaredRows = sentence.evidence.calculation.sourceRows;
@@ -194,6 +238,66 @@ export function verifyCalculatedEvidence<Row>(
     throw new CalculatedEvidenceVerificationError(
       "COMPUTED_VALUE_MISMATCH",
       "The attached computed value does not match versioned recalculation.",
+    );
+  }
+  return sentence;
+}
+
+/**
+ * Rerun a registered absence check against its approved dataset before
+ * exposing an UNCONFIRMABLE grade and its closed reason code.
+ */
+export function verifyUnconfirmableEvidence<Dataset>(
+  candidate: unknown,
+  context: MissingEvidenceVerificationContext<Dataset>,
+): UnconfirmableEvidenceSentence {
+  const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
+  if (!parsed.success) {
+    throw new MissingEvidenceVerificationError(
+      "CONTRACT_INVALID",
+      "Missing evidence does not satisfy the evidence-grade contract.",
+    );
+  }
+  if (parsed.data.grade !== "UNCONFIRMABLE") {
+    throw new MissingEvidenceVerificationError(
+      "GRADE_NOT_UNCONFIRMABLE",
+      "Only UNCONFIRMABLE evidence can be absence-verified.",
+    );
+  }
+
+  const sentence = parsed.data;
+  const reference = sentence.evidence.missingEvidenceCheck;
+  const registered = context.checks.get(reference.checkId);
+  if (registered === undefined) {
+    throw new MissingEvidenceVerificationError(
+      "MISSING_EVIDENCE_CHECK_NOT_REGISTERED",
+      "The declared missing-evidence check is not registered in versioned code.",
+    );
+  }
+  if (
+    registered.checkVersion !== reference.checkVersion ||
+    registered.approvedDatasetHash !== reference.approvedDatasetHash ||
+    registered.reasonCode !== sentence.evidence.reasonCode
+  ) {
+    throw new MissingEvidenceVerificationError(
+      "MISSING_EVIDENCE_CHECK_MISMATCH",
+      "The missing-evidence declaration does not match its registered check.",
+    );
+  }
+
+  let missing: boolean;
+  try {
+    missing = registered.isMissing(registered.dataset);
+  } catch {
+    throw new MissingEvidenceVerificationError(
+      "MISSING_EVIDENCE_CHECK_FAILED",
+      "The registered missing-evidence check failed.",
+    );
+  }
+  if (missing !== true) {
+    throw new MissingEvidenceVerificationError(
+      "EVIDENCE_AVAILABLE",
+      "The approved dataset contains the evidence declared missing.",
     );
   }
   return sentence;

@@ -4,6 +4,7 @@ import { DecimalStringSchema } from "./decimal-string";
 
 const HashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 const IdentifierSchema = z.string().trim().min(1);
+const VersionSchema = z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
 const DisplayedTextSchema = z
   .string()
   .refine((value) => value.trim().length > 0, "Displayed text is required");
@@ -34,13 +35,14 @@ export const EvidenceSourceRowReferenceSchema = z
  */
 export const EvidenceCalculationReferenceSchema = z
   .object({
-    calculationRef: IdentifierSchema,
+    calculationId: IdentifierSchema,
+    calculationVersion: VersionSchema,
     sourceRows: z.array(EvidenceSourceRowReferenceSchema).min(1),
     computedValue: DecimalStringSchema,
   })
   .strict();
 
-const ByteRangeSchema = z
+const NonemptyRangeSchema = z
   .object({
     start: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
     end: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
@@ -48,70 +50,21 @@ const ByteRangeSchema = z
   .strict()
   .refine(({ start, end }) => end > start, {
     path: ["end"],
-    message: "The byte range end must follow its start",
+    message: "The range end must follow its start",
   });
 
-const forbiddenKoreanReasonLanguage = [
-  "의심",
-  "이상거래",
-  "때문에 올랐다",
-  "AI가 판단했다",
-  "틀렸다",
-  "오류",
-  "가짜",
-  "허위",
-] as const;
+export const UnconfirmableReasonCodeSchema = z.enum([
+  "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+]);
+export type UnconfirmableReasonCode = z.infer<
+  typeof UnconfirmableReasonCodeSchema
+>;
 
-const forbiddenEnglishReasonLanguage = [
-  /\b(?:suspicion|suspicious|suspected)\b/i,
-  /\babnormal trading\b/i,
-  /\bAI (?:decided|determined|judged)\b/i,
-  /\b(?:wrong|incorrect|error|fake|false|fraud|fraudulent)\b/i,
-  /\bbecause\b.{0,80}\b(?:rose|increased|went up)\b/i,
-] as const;
-
-const ReasonFragmentBaseSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .refine(
-    (value) => !/[.!?。！？]$/.test(value),
-    "A reason fragment must not include terminal punctuation",
-  );
-
-const KoreanReasonFragmentSchema = ReasonFragmentBaseSchema.refine(
-  (value) =>
-    forbiddenKoreanReasonLanguage.every((term) => !value.includes(term)),
-  "Evidence reasons must use neutral evidence language",
-);
-
-const EnglishReasonFragmentSchema = ReasonFragmentBaseSchema.refine(
-  (value) =>
-    forbiddenEnglishReasonLanguage.every((pattern) => !pattern.test(value)),
-  "Evidence reasons must use neutral evidence language",
-);
-
-const KoreanSettlementFragmentSchema = KoreanReasonFragmentSchema.refine(
-  (value) => !/연결되면$/.test(value),
-  "The material that would settle a result must be a noun phrase",
-);
-
-const EnglishSettlementFragmentSchema = EnglishReasonFragmentSchema.refine(
-  (value) => !/would let us confirm it$/i.test(value),
-  "The material that would settle a result must be a noun phrase",
-);
-
-export const LocalizedEvidenceReasonSchema = z
+export const MissingEvidenceCheckReferenceSchema = z
   .object({
-    ko: KoreanReasonFragmentSchema,
-    en: EnglishReasonFragmentSchema,
-  })
-  .strict();
-
-export const LocalizedEvidenceSettlementSchema = z
-  .object({
-    ko: KoreanSettlementFragmentSchema,
-    en: EnglishSettlementFragmentSchema,
+    checkId: IdentifierSchema,
+    checkVersion: VersionSchema,
+    approvedDatasetHash: HashSchema,
   })
   .strict();
 
@@ -128,7 +81,7 @@ const QuotedEvidenceSentenceSchema = z
     evidence: z
       .object({
         sourceArtifactHash: HashSchema,
-        byteRange: ByteRangeSchema,
+        byteRange: NonemptyRangeSchema,
       })
       .strict(),
   })
@@ -141,6 +94,7 @@ const ComputedEvidenceSentenceSchema = z
     evidence: z
       .object({
         reportedValue: DecimalStringSchema,
+        displayedValueRange: NonemptyRangeSchema,
         calculation: EvidenceCalculationReferenceSchema,
       })
       .strict(),
@@ -154,6 +108,7 @@ const DiffersEvidenceSentenceSchema = z
     evidence: z
       .object({
         reportedValue: DecimalStringSchema,
+        displayedValueRange: NonemptyRangeSchema,
         calculation: EvidenceCalculationReferenceSchema,
       })
       .strict(),
@@ -166,8 +121,8 @@ const UnconfirmableEvidenceSentenceSchema = z
     grade: z.literal("UNCONFIRMABLE"),
     evidence: z
       .object({
-        missing: LocalizedEvidenceReasonSchema,
-        wouldSettle: LocalizedEvidenceSettlementSchema,
+        reasonCode: UnconfirmableReasonCodeSchema,
+        missingEvidenceCheck: MissingEvidenceCheckReferenceSchema,
       })
       .strict(),
   })
@@ -199,6 +154,24 @@ export const EvidenceGradedSentenceSchema = z
     InterpretationEvidenceSentenceSchema,
   ])
   .superRefine((sentence, context) => {
+    if (sentence.grade === "COMPUTED" || sentence.grade === "DIFFERS") {
+      const { start, end } = sentence.evidence.displayedValueRange;
+      const displayedValue =
+        end <= sentence.text.length
+          ? DecimalStringSchema.safeParse(sentence.text.slice(start, end))
+          : undefined;
+      if (
+        !displayedValue?.success ||
+        displayedValue.data !== sentence.evidence.reportedValue
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["evidence", "displayedValueRange"],
+          message:
+            "The displayed value range must resolve the reported decimal in the sentence",
+        });
+      }
+    }
     if (
       sentence.grade === "COMPUTED" &&
       sentence.evidence.reportedValue !==
@@ -233,6 +206,10 @@ export type QuotedEvidenceSentence = Extract<
 export type CalculatedEvidenceSentence = Extract<
   EvidenceGradedSentence,
   { grade: "COMPUTED" | "DIFFERS" }
+>;
+export type UnconfirmableEvidenceSentence = Extract<
+  EvidenceGradedSentence,
+  { grade: "UNCONFIRMABLE" }
 >;
 export type EvidenceSourceRowReference = z.infer<
   typeof EvidenceSourceRowReferenceSchema

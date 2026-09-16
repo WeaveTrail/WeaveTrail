@@ -94,6 +94,10 @@ describe("evidence badges", () => {
           text.grades[grade].tallyLabel,
           text.grades[grade].explanation,
         ]),
+        ...Object.values(text.unconfirmableReasons).flatMap((reason) => [
+          reason.missing,
+          reason.wouldSettle,
+        ]),
       ].join("\n");
       for (const phrase of prohibited)
         expect(rendered, `${language}: ${phrase}`).not.toContain(phrase);
@@ -156,10 +160,7 @@ describe("evidence badges", () => {
       createElement(EvidenceBadge, {
         grade: "UNCONFIRMABLE",
         language: "ko",
-        reason: {
-          missing: "공개 시세는 하루 단위라 시각이 없습니다",
-          wouldSettle: "분 단위 자료",
-        },
+        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
       }),
     );
     expect(korean).toContain(
@@ -169,15 +170,13 @@ describe("evidence badges", () => {
       createElement(EvidenceBadge, {
         grade: "UNCONFIRMABLE",
         language: "en",
-        reason: {
-          missing: "Public quotes are daily, so there is no time of day",
-          wouldSettle: "Minute-level data",
-        },
+        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
       }),
     );
     expect(english).toContain(
       "Public quotes are daily, so there is no time of day. Minute-level data would let us confirm it.",
     );
+    expect(english).not.toContain("DAILY_QUOTES_HAVE_NO_TIME_OF_DAY");
   });
 });
 
