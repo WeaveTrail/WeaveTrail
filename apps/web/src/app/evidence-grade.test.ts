@@ -131,14 +131,22 @@ describe("evidence badges", () => {
   it("always shows the fixed companion sentence beside a differing badge", () => {
     expect(
       renderToStaticMarkup(
-        createElement(EvidenceBadge, { grade: "DIFFERS", language: "ko" }),
+        createElement(EvidenceBadge, {
+          grade: "DIFFERS",
+          language: "ko",
+          computedValue: "1032.82",
+        }),
       ),
     ).toContain("정의나 기준(종가·고가)의 차이일 수 있습니다.");
-    expect(
-      renderToStaticMarkup(
-        createElement(EvidenceBadge, { grade: "DIFFERS", language: "en" }),
-      ),
-    ).toContain(
+    const english = renderToStaticMarkup(
+      createElement(EvidenceBadge, {
+        grade: "DIFFERS",
+        language: "en",
+        computedValue: "1032.82",
+      }),
+    );
+    expect(english).toContain("1032.82");
+    expect(english).toContain(
       "The difference can come from a different definition or reference price (close, high).",
     );
   });
@@ -291,5 +299,17 @@ describe("evidence grade presentation rules", () => {
       "border: 1px solid var(--result-inconclusive)",
     );
     expect(badgeStyles).toContain("border: var(--border-proposal)");
+  });
+
+  it("keeps the inverse label visible when print backgrounds are disabled", () => {
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    const print = styles.slice(styles.indexOf("@media print"));
+    expect(print).toContain(".evidence-badge--inverse");
+    expect(print).toContain("border: var(--hairline-ink)");
+    expect(print).toContain("color: var(--authorship-code)");
+    expect(print).toContain("background: transparent");
   });
 });

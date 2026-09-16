@@ -20,7 +20,7 @@ export const EVIDENCE_GRADES = [
 export const EvidenceGradeSchema = z.enum(EVIDENCE_GRADES);
 export type EvidenceGrade = z.infer<typeof EvidenceGradeSchema>;
 
-const SourceRowReferenceSchema = z
+export const EvidenceSourceRowReferenceSchema = z
   .object({
     eventId: IdentifierSchema,
     rawRowHash: HashSchema,
@@ -35,7 +35,7 @@ const SourceRowReferenceSchema = z
 export const EvidenceCalculationReferenceSchema = z
   .object({
     calculationRef: IdentifierSchema,
-    sourceRows: z.array(SourceRowReferenceSchema).min(1),
+    sourceRows: z.array(EvidenceSourceRowReferenceSchema).min(1),
     computedValue: DecimalStringSchema,
   })
   .strict();
@@ -51,7 +51,7 @@ const ByteRangeSchema = z
     message: "The byte range end must follow its start",
   });
 
-const forbiddenReasonLanguage = [
+const forbiddenKoreanReasonLanguage = [
   "의심",
   "이상거래",
   "때문에 올랐다",
@@ -62,23 +62,56 @@ const forbiddenReasonLanguage = [
   "허위",
 ] as const;
 
-const ReasonFragmentSchema = z
+const forbiddenEnglishReasonLanguage = [
+  /\b(?:suspicion|suspicious|suspected)\b/i,
+  /\babnormal trading\b/i,
+  /\bAI (?:decided|determined|judged)\b/i,
+  /\b(?:wrong|incorrect|error|fake|false|fraud|fraudulent)\b/i,
+  /\bbecause\b.{0,80}\b(?:rose|increased|went up)\b/i,
+] as const;
+
+const ReasonFragmentBaseSchema = z
   .string()
   .trim()
   .min(1)
   .refine(
     (value) => !/[.!?。！？]$/.test(value),
     "A reason fragment must not include terminal punctuation",
-  )
-  .refine(
-    (value) => forbiddenReasonLanguage.every((term) => !value.includes(term)),
-    "Evidence reasons must use neutral evidence language",
   );
+
+const KoreanReasonFragmentSchema = ReasonFragmentBaseSchema.refine(
+  (value) =>
+    forbiddenKoreanReasonLanguage.every((term) => !value.includes(term)),
+  "Evidence reasons must use neutral evidence language",
+);
+
+const EnglishReasonFragmentSchema = ReasonFragmentBaseSchema.refine(
+  (value) =>
+    forbiddenEnglishReasonLanguage.every((pattern) => !pattern.test(value)),
+  "Evidence reasons must use neutral evidence language",
+);
+
+const KoreanSettlementFragmentSchema = KoreanReasonFragmentSchema.refine(
+  (value) => !/연결되면$/.test(value),
+  "The material that would settle a result must be a noun phrase",
+);
+
+const EnglishSettlementFragmentSchema = EnglishReasonFragmentSchema.refine(
+  (value) => !/would let us confirm it$/i.test(value),
+  "The material that would settle a result must be a noun phrase",
+);
 
 export const LocalizedEvidenceReasonSchema = z
   .object({
-    ko: ReasonFragmentSchema,
-    en: ReasonFragmentSchema,
+    ko: KoreanReasonFragmentSchema,
+    en: EnglishReasonFragmentSchema,
+  })
+  .strict();
+
+export const LocalizedEvidenceSettlementSchema = z
+  .object({
+    ko: KoreanSettlementFragmentSchema,
+    en: EnglishSettlementFragmentSchema,
   })
   .strict();
 
@@ -105,7 +138,12 @@ const ComputedEvidenceSentenceSchema = z
   .object({
     ...EvidenceSentenceBase,
     grade: z.literal("COMPUTED"),
-    evidence: EvidenceCalculationReferenceSchema,
+    evidence: z
+      .object({
+        reportedValue: DecimalStringSchema,
+        calculation: EvidenceCalculationReferenceSchema,
+      })
+      .strict(),
   })
   .strict();
 
@@ -129,7 +167,7 @@ const UnconfirmableEvidenceSentenceSchema = z
     evidence: z
       .object({
         missing: LocalizedEvidenceReasonSchema,
-        wouldSettle: LocalizedEvidenceReasonSchema,
+        wouldSettle: LocalizedEvidenceSettlementSchema,
       })
       .strict(),
   })
@@ -162,6 +200,17 @@ export const EvidenceGradedSentenceSchema = z
   ])
   .superRefine((sentence, context) => {
     if (
+      sentence.grade === "COMPUTED" &&
+      sentence.evidence.reportedValue !==
+        sentence.evidence.calculation.computedValue
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["evidence", "reportedValue"],
+        message: "A recomputed value must equal the reported value",
+      });
+    }
+    if (
       sentence.grade === "DIFFERS" &&
       sentence.evidence.reportedValue ===
         sentence.evidence.calculation.computedValue
@@ -180,6 +229,13 @@ export type EvidenceGradedSentence = z.infer<
 export type QuotedEvidenceSentence = Extract<
   EvidenceGradedSentence,
   { grade: "QUOTED" }
+>;
+export type CalculatedEvidenceSentence = Extract<
+  EvidenceGradedSentence,
+  { grade: "COMPUTED" | "DIFFERS" }
+>;
+export type EvidenceSourceRowReference = z.infer<
+  typeof EvidenceSourceRowReferenceSchema
 >;
 
 /** A page declaration cannot silently grade the same sentence twice. */

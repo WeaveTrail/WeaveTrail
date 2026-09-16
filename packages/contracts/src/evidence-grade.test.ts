@@ -61,10 +61,10 @@ describe("evidence grade contracts", () => {
       EvidenceGradedSentenceSchema.safeParse({
         ...base,
         grade: "COMPUTED",
-        evidence: calculation,
+        evidence: { reportedValue: "1032.82", calculation },
       }).success,
     ).toBe(true);
-    for (const evidence of [
+    for (const invalidCalculation of [
       { ...calculation, calculationRef: "" },
       { ...calculation, sourceRows: [] },
     ])
@@ -72,9 +72,19 @@ describe("evidence grade contracts", () => {
         EvidenceGradedSentenceSchema.safeParse({
           ...base,
           grade: "COMPUTED",
-          evidence,
+          evidence: {
+            reportedValue: "1032.82",
+            calculation: invalidCalculation,
+          },
         }).success,
       ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "COMPUTED",
+        evidence: { reportedValue: "1031.5", calculation },
+      }).success,
+    ).toBe(false);
   });
 
   it("attaches the different recomputed value and rejects equal decimals", () => {
@@ -106,7 +116,7 @@ describe("evidence grade contracts", () => {
       en: "Public quotes are daily, so there is no time of day",
     };
     const wouldSettle = {
-      ko: "분 단위 자료가 연결되면",
+      ko: "분 단위 자료",
       en: "Minute-level data",
     };
     expect(
@@ -121,6 +131,29 @@ describe("evidence grade contracts", () => {
         ...base,
         grade: "UNCONFIRMABLE",
         evidence: { missing },
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "UNCONFIRMABLE",
+        evidence: {
+          missing,
+          wouldSettle: { ...wouldSettle, ko: "분 단위 자료가 연결되면" },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "UNCONFIRMABLE",
+        evidence: {
+          missing: {
+            ...missing,
+            en: "AI determined this was fraudulent",
+          },
+          wouldSettle,
+        },
       }).success,
     ).toBe(false);
     expect(
@@ -163,7 +196,7 @@ describe("evidence grade contracts", () => {
     const computed = EvidenceGradedSentenceSchema.parse({
       ...base,
       grade: "COMPUTED",
-      evidence: calculation,
+      evidence: { reportedValue: "1032.82", calculation },
     });
     const interpreted = EvidenceGradedSentenceSchema.parse({
       ...base,

@@ -114,8 +114,14 @@ export type EvidenceBadgeProps = BadgeBaseProps &
         reason: { missing: string; wouldSettle: string };
       }
     | {
-        grade: Exclude<EvidenceGrade, "UNCONFIRMABLE">;
+        grade: "DIFFERS";
+        computedValue: string;
         reason?: never;
+      }
+    | {
+        grade: Exclude<EvidenceGrade, "DIFFERS" | "UNCONFIRMABLE">;
+        reason?: never;
+        computedValue?: never;
       }
   );
 
@@ -133,7 +139,10 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
         {grade.label}
       </span>
       {props.grade === "DIFFERS" && (
-        <span className="evidence-companion">{text.differenceNote}</span>
+        <>
+          <code className="evidence-computed-value">{props.computedValue}</code>
+          <span className="evidence-companion">{text.differenceNote}</span>
+        </>
       )}
       {props.grade === "UNCONFIRMABLE" && (
         <span className="evidence-companion">

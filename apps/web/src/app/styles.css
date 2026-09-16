@@ -126,6 +126,11 @@ button:disabled {
   color: var(--text-muted);
   font-size: 0.8125rem;
 }
+.evidence-computed-value {
+  color: var(--authorship-code);
+  font: var(--type-mono-sm);
+  white-space: nowrap;
+}
 .evidence-tally {
   max-width: 100%;
   margin: 0;
@@ -1463,6 +1468,11 @@ code {
    the stepper work would otherwise reduce a printed case to whichever chapter
    happened to be open. The paper copy carries the whole procedure. */
 @media print {
+  .evidence-badge--inverse {
+    border: var(--hairline-ink);
+    color: var(--authorship-code);
+    background: transparent;
+  }
   .case-split {
     display: block;
   }
