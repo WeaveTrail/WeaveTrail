@@ -599,9 +599,13 @@ Manifest coexistence and per-instrument validation are recorded in
 
 The MVP uses one Next.js application and local workspace packages. Fixture mode
 works without an external model or database. Provider adapters run server-side;
-browser bundles must never receive provider credentials. A separate replay
-service or database is deferred until measured scale or persistence needs
-justify it.
+browser bundles must never receive provider credentials. The separate
+`@weavetrail/service-store` package now implements immutable public-source
+snapshots and derived-result bindings in SQLite, alongside the committed
+verification tier. It requires an explicit persistent disk path and is not
+wired into the current web deployment. Replay workflow histories remain
+request-local. See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md)
+and [service snapshot operations](SERVICE_SNAPSHOTS.md).
 
 ## Presentation boundary
 

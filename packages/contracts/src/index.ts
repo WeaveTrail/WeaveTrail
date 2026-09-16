@@ -14,3 +14,4 @@ export * from "./trade-event";
 export * from "./source-trace";
 export * from "./workflow";
 export * from "./source-provenance";
+export * from "./service-snapshot";
