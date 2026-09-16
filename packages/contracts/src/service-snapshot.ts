@@ -2,16 +2,19 @@ import { z } from "zod";
 
 export const SnapshotHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
-const PublicUrlSchema = z.url().refine((value) => {
-  if (!URL.canParse(value)) return false;
-  const url = new URL(value);
-  return (
-    url.protocol === "https:" &&
-    !url.username &&
-    !url.password &&
-    !value.includes("#")
-  );
-}, "Use a credential-free HTTPS URL without a fragment");
+const PublicUrlSchema = z
+  .url()
+  .refine((value) => {
+    if (!URL.canParse(value)) return false;
+    const url = new URL(value);
+    return (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !value.includes("#")
+    );
+  }, "Use a credential-free HTTPS URL without a fragment")
+  .transform((value) => new URL(value).href);
 
 // Operator-reviewed admission evidence, not a model's assessment of permission.
 export const PublicSourceSchema = z

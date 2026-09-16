@@ -24,7 +24,10 @@ must review the actual terms; these assertions are not automatic licence
 verification. The recorded review time must be no later than collection.
 Neither a model proposal nor an arbitrary browser URL is an admitted source.
 URLs and public query parameters must contain no secrets or fragment delimiter,
-including an otherwise empty trailing `#`.
+including an otherwise empty trailing `#`. Accepted URLs are stored using the
+WHATWG canonical serialization that Fetch resolves, so equivalent scheme,
+host, default-port and parser-normalized whitespace spellings share one source
+identity.
 
 The built-in transport is for unauthenticated public endpoints. It omits
 credentials, refuses redirects and non-success/partial HTTP responses, applies

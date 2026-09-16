@@ -128,6 +128,41 @@ describe("durable public source snapshots", () => {
     ).toBe(3);
   });
 
+  it("canonicalizes parser-normalized URLs before transport and lineage storage", async () => {
+    const dirtySource = {
+      ...source,
+      originUrl: " HTTPS://PUBLISHER.EXA\tMPLE:443/document ",
+      licence: {
+        ...source.licence,
+        termsUrl: " HTTPS://PUBLISHER.EXAMPLE:443/terms ",
+      },
+    };
+    const cleanOrigin = "https://publisher.example/document";
+    const fetchResponse = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response("first"))
+      .mockResolvedValueOnce(new Response("second"));
+
+    const first = await collectPublicSource(store, dirtySource, fetchResponse);
+    const second = await collectPublicSource(
+      store,
+      { ...source, originUrl: cleanOrigin },
+      fetchResponse,
+    );
+
+    expect(fetchResponse.mock.calls.map(([url]) => url)).toEqual([
+      cleanOrigin,
+      cleanOrigin,
+    ]);
+    expect(store.getSnapshot(first.snapshotId).record.source).toMatchObject({
+      originUrl: cleanOrigin,
+      licence: { termsUrl: "https://publisher.example/terms" },
+    });
+    expect(store.getSnapshot(second.snapshotId).record.previousSnapshotId).toBe(
+      first.snapshotId,
+    );
+  });
+
   it("deduplicates bytes across origins while preserving each publisher's provenance", () => {
     const first = store.storeSnapshot(Buffer.from("same"), metadata);
     const second = store.storeSnapshot(Buffer.from("same"), {

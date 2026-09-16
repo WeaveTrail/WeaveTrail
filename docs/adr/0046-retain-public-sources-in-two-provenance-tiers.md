@@ -38,9 +38,11 @@ against an administrator replacing the database or removing its triggers.
 
 Raw-byte SHA-256 identifies a blob. Each canonical snapshot record has its own
 SHA-256 `snapshotId`, including its provenance and predecessor. Origin identity
-is the exact credential-free, fragment-free HTTPS URL, including public
-selection parameters. Empty fragment delimiters are rejected instead of
-creating a second identity for the same HTTP resource. A snapshot's recorded
+is the canonical WHATWG serialization of a credential-free, fragment-free
+HTTPS URL, including public selection parameters. This is the address Fetch
+resolves, so parser-normalized whitespace, scheme or host case, default ports
+and equivalent URL spellings cannot create separate histories. Empty fragment
+delimiters are rejected instead of being normalized away. A snapshot's recorded
 permission review must be no later than its retrieval time.
 Unchanged consecutive recollections return the existing reference and retain
 the first retrieval's metadata. Changed bytes append a record pointing to the
