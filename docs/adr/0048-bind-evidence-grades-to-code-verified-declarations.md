@@ -37,19 +37,24 @@ Code-backed grades have a second verification boundary in the replay engine:
   reversible HTML, PDF, or HWP coordinates are not implemented by this
   verifier.
 - `COMPUTED` and `DIFFERS` declare the displayed decimal range, the reported
-  value, a calculation identifier and explicit version, exact `eventId` and
-  `rawRowHash` inputs, and the computed value. The contract binds the displayed
-  range to the reported value and enforces equality for `COMPUTED` and
-  inequality for `DIFFERS`. Verification resolves a code-owned registry entry,
-  matches its version and complete ordered input set, reruns its function, and
-  compares the result with the attached computed value. Data can select a
-  registered identifier; it cannot supply executable calculation logic.
+  value, a calculation identifier and explicit version, a display-template
+  identifier, exact `eventId` and `rawRowHash` inputs, and the computed value.
+  The contract binds the displayed range to the reported value and enforces
+  equality for `COMPUTED` and inequality for `DIFFERS`. Verification resolves
+  the code-owned calculation by both identifier and version, derives each raw
+  hash again from the registered `SourceRow`, passes those same rows to the
+  calculation, and compares the result with the attached computed value. It
+  then renders the selected code-owned template and requires the entire text
+  and value range to match, so an unverified second claim cannot be appended to
+  the graded sentence. Data can select registered identifiers; it cannot
+  supply executable calculation or display logic.
 - `UNCONFIRMABLE` declares a closed reason code and a missing-evidence check
   identifier, explicit version, and approved dataset hash. Verification
-  resolves a code-owned check bound to that reason and dataset and awards the
-  grade only when the check returns that the required evidence is absent.
-  User-visible reason fragments come from bilingual application copy keyed by
-  the closed code, never from caller-authored prose.
+  resolves the code-owned check by both identifier and version, recomputes the
+  canonical hash of the registered dataset, and awards the grade only when
+  that content matches the declaration and the check returns that the required
+  evidence is absent. User-visible reason fragments come from bilingual
+  application copy keyed by the closed code, never from caller-authored prose.
 - `INTERPRETATION` records either a validated model proposal reference or that
   the sentence is not a data question. It carries no claim of code-backed
   confirmation.
@@ -61,8 +66,9 @@ uses the contract order and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or
-absence check requires a new explicit version; retained evidence is never
-reinterpreted under changed code with the same version.
+absence check requires a new explicit version. Registries retain implementations
+under both stable identifier and version, so retained evidence resolves its
+original implementation instead of being reinterpreted by the newest version.
 
 ## Consequences
 

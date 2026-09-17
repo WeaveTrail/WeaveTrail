@@ -37,6 +37,7 @@ export const EvidenceCalculationReferenceSchema = z
   .object({
     calculationId: IdentifierSchema,
     calculationVersion: VersionSchema,
+    displayTemplateId: IdentifierSchema,
     sourceRows: z.array(EvidenceSourceRowReferenceSchema).min(1),
     computedValue: DecimalStringSchema,
   })

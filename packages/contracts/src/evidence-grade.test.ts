@@ -15,6 +15,7 @@ const base = {
 const calculation = {
   calculationId: "daily-close",
   calculationVersion: "1.0.0",
+  displayTemplateId: "english-daily-close",
   sourceRows: [{ eventId: "event-1", rawRowHash: hash }],
   computedValue: "1032.82",
 };
@@ -78,6 +79,7 @@ describe("evidence grade contracts", () => {
     for (const invalidCalculation of [
       { ...calculation, calculationId: "" },
       { ...calculation, calculationVersion: "daily" },
+      { ...calculation, displayTemplateId: "" },
       { ...calculation, sourceRows: [] },
     ])
       expect(

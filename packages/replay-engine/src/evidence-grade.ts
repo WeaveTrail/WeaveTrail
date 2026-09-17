@@ -8,7 +8,13 @@ import {
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
 
-import { sourceArtifactHash } from "./source-ingest";
+import { sha256Canonical } from "./canonical-hash";
+import type { CanonicalJsonInput } from "./canonical-json";
+import {
+  deriveRawRowHash,
+  sourceArtifactHash,
+  type SourceRow,
+} from "./source-ingest";
 
 export type QuotedEvidenceVerificationCode =
   | "CONTRACT_INVALID"
@@ -33,6 +39,9 @@ export type CalculatedEvidenceVerificationCode =
   | "SOURCE_ROWS_MISMATCH"
   | "CALCULATION_NOT_REGISTERED"
   | "CALCULATION_VERSION_MISMATCH"
+  | "DISPLAY_TEMPLATE_NOT_REGISTERED"
+  | "DISPLAY_TEMPLATE_FAILED"
+  | "DISPLAY_TEMPLATE_MISMATCH"
   | "CALCULATION_FAILED"
   | "COMPUTED_VALUE_MISMATCH";
 
@@ -46,16 +55,31 @@ export class CalculatedEvidenceVerificationError extends Error {
   }
 }
 
-export type TrustedEvidenceSourceRow<Row> = EvidenceSourceRowReference & {
-  row: Row;
+export type TrustedEvidenceSourceRow = Pick<
+  EvidenceSourceRowReference,
+  "eventId"
+> & {
+  sourceRow: SourceRow;
 };
 
-export type EvidenceCalculator<Row> = (sourceRows: readonly Row[]) => string;
+export type EvidenceCalculator = (sourceRows: readonly SourceRow[]) => string;
 
-export type RegisteredEvidenceCalculation<Row> = {
+export type EvidenceDisplayTemplateInput = {
+  grade: CalculatedEvidenceSentence["grade"];
+  reportedValue: string;
+  computedValue: string;
+};
+
+export type EvidenceDisplayTemplate = (input: EvidenceDisplayTemplateInput) => {
+  text: string;
+  displayedValueRange: { start: number; end: number };
+};
+
+export type RegisteredEvidenceCalculation = {
   calculationVersion: string;
-  sourceRows: readonly TrustedEvidenceSourceRow<Row>[];
-  calculate: EvidenceCalculator<Row>;
+  sourceRows: readonly TrustedEvidenceSourceRow[];
+  calculate: EvidenceCalculator;
+  displayTemplates: ReadonlyMap<string, EvidenceDisplayTemplate>;
 };
 
 export type MissingEvidenceVerificationCode =
@@ -76,22 +100,30 @@ export class MissingEvidenceVerificationError extends Error {
   }
 }
 
-export type RegisteredMissingEvidenceCheck<Dataset> = {
-  checkVersion: string;
-  approvedDatasetHash: string;
-  reasonCode: UnconfirmableReasonCode;
-  dataset: Dataset;
-  isMissing: (dataset: Dataset) => boolean;
+export type RegisteredMissingEvidenceCheck<Dataset extends CanonicalJsonInput> =
+  {
+    checkVersion: string;
+    reasonCode: UnconfirmableReasonCode;
+    dataset: Dataset;
+    isMissing: (dataset: Dataset) => boolean;
+  };
+
+export type MissingEvidenceVerificationContext<
+  Dataset extends CanonicalJsonInput,
+> = {
+  /** Retain every code-owned check under its stable ID and explicit version. */
+  checks: ReadonlyMap<
+    string,
+    ReadonlyMap<string, RegisteredMissingEvidenceCheck<Dataset>>
+  >;
 };
 
-export type MissingEvidenceVerificationContext<Dataset> = {
-  /** Only versioned, code-owned absence checks belong in this registry. */
-  checks: ReadonlyMap<string, RegisteredMissingEvidenceCheck<Dataset>>;
-};
-
-export type CalculatedEvidenceVerificationContext<Row> = {
-  /** Only versioned, code-owned calculations belong in this registry. */
-  calculations: ReadonlyMap<string, RegisteredEvidenceCalculation<Row>>;
+export type CalculatedEvidenceVerificationContext = {
+  /** Retain every code-owned calculation under its stable ID and version. */
+  calculations: ReadonlyMap<
+    string,
+    ReadonlyMap<string, RegisteredEvidenceCalculation>
+  >;
 };
 
 /**
@@ -151,13 +183,13 @@ export function verifyQuotedEvidence(
 }
 
 /**
- * Resolve every declared row and rerun an allowlisted calculation before a
- * code-backed calculation grade is exposed. Data selects a registry key; it
- * never supplies executable calculation logic.
+ * Resolve an ID-and-version registry entry, re-hash every registered source
+ * row, rerun its allowlisted calculation, and reconstruct the complete display
+ * sentence from a code-owned template before a calculation grade is exposed.
  */
-export function verifyCalculatedEvidence<Row>(
+export function verifyCalculatedEvidence(
   candidate: unknown,
-  context: CalculatedEvidenceVerificationContext<Row>,
+  context: CalculatedEvidenceVerificationContext,
 ): CalculatedEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
@@ -174,25 +206,27 @@ export function verifyCalculatedEvidence<Row>(
   }
 
   const sentence = parsed.data;
-  const registered = context.calculations.get(
-    sentence.evidence.calculation.calculationId,
+  const calculation = sentence.evidence.calculation;
+  const registeredVersions = context.calculations.get(
+    calculation.calculationId,
   );
-  if (registered === undefined) {
+  if (registeredVersions === undefined) {
     throw new CalculatedEvidenceVerificationError(
       "CALCULATION_NOT_REGISTERED",
       "The declared calculation is not registered in versioned code.",
     );
   }
+  const registered = registeredVersions.get(calculation.calculationVersion);
   if (
-    registered.calculationVersion !==
-    sentence.evidence.calculation.calculationVersion
+    registered === undefined ||
+    registered.calculationVersion !== calculation.calculationVersion
   ) {
     throw new CalculatedEvidenceVerificationError(
       "CALCULATION_VERSION_MISMATCH",
       "The declared calculation version does not match registered code.",
     );
   }
-  const declaredRows = sentence.evidence.calculation.sourceRows;
+  const declaredRows = calculation.sourceRows;
   const duplicateIds =
     new Set(registered.sourceRows.map(({ eventId }) => eventId)).size !==
     registered.sourceRows.length;
@@ -204,7 +238,7 @@ export function verifyCalculatedEvidence<Row>(
       return (
         trusted !== undefined &&
         trusted.eventId === declared.eventId &&
-        trusted.rawRowHash === declared.rawRowHash
+        deriveRawRowHash(trusted.sourceRow) === declared.rawRowHash
       );
     });
   if (!rowsMatch) {
@@ -217,7 +251,9 @@ export function verifyCalculatedEvidence<Row>(
   let recalculated: string;
   try {
     const output = DecimalStringSchema.safeParse(
-      registered.calculate(registered.sourceRows.map(({ row }) => row)),
+      registered.calculate(
+        registered.sourceRows.map(({ sourceRow }) => sourceRow),
+      ),
     );
     if (!output.success) {
       throw new CalculatedEvidenceVerificationError(
@@ -234,20 +270,54 @@ export function verifyCalculatedEvidence<Row>(
     );
   }
 
-  if (recalculated !== sentence.evidence.calculation.computedValue) {
+  if (recalculated !== calculation.computedValue) {
     throw new CalculatedEvidenceVerificationError(
       "COMPUTED_VALUE_MISMATCH",
       "The attached computed value does not match versioned recalculation.",
+    );
+  }
+
+  const displayTemplate = registered.displayTemplates.get(
+    calculation.displayTemplateId,
+  );
+  if (displayTemplate === undefined) {
+    throw new CalculatedEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_NOT_REGISTERED",
+      "The declared display template is not registered with the calculation.",
+    );
+  }
+  let expectedDisplay: ReturnType<EvidenceDisplayTemplate>;
+  try {
+    expectedDisplay = displayTemplate({
+      grade: sentence.grade,
+      reportedValue: sentence.evidence.reportedValue,
+      computedValue: calculation.computedValue,
+    });
+  } catch {
+    throw new CalculatedEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_FAILED",
+      "The registered display template failed.",
+    );
+  }
+  const declaredRange = sentence.evidence.displayedValueRange;
+  if (
+    expectedDisplay.text !== sentence.text ||
+    expectedDisplay.displayedValueRange.start !== declaredRange.start ||
+    expectedDisplay.displayedValueRange.end !== declaredRange.end
+  ) {
+    throw new CalculatedEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_MISMATCH",
+      "The displayed sentence does not match its registered template.",
     );
   }
   return sentence;
 }
 
 /**
- * Rerun a registered absence check against its approved dataset before
- * exposing an UNCONFIRMABLE grade and its closed reason code.
+ * Resolve a versioned absence check, re-hash its actual approved dataset, and
+ * rerun it before exposing an UNCONFIRMABLE grade and its closed reason code.
  */
-export function verifyUnconfirmableEvidence<Dataset>(
+export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
   candidate: unknown,
   context: MissingEvidenceVerificationContext<Dataset>,
 ): UnconfirmableEvidenceSentence {
@@ -267,16 +337,17 @@ export function verifyUnconfirmableEvidence<Dataset>(
 
   const sentence = parsed.data;
   const reference = sentence.evidence.missingEvidenceCheck;
-  const registered = context.checks.get(reference.checkId);
-  if (registered === undefined) {
+  const registeredVersions = context.checks.get(reference.checkId);
+  if (registeredVersions === undefined) {
     throw new MissingEvidenceVerificationError(
       "MISSING_EVIDENCE_CHECK_NOT_REGISTERED",
       "The declared missing-evidence check is not registered in versioned code.",
     );
   }
+  const registered = registeredVersions.get(reference.checkVersion);
   if (
+    registered === undefined ||
     registered.checkVersion !== reference.checkVersion ||
-    registered.approvedDatasetHash !== reference.approvedDatasetHash ||
     registered.reasonCode !== sentence.evidence.reasonCode
   ) {
     throw new MissingEvidenceVerificationError(
@@ -287,8 +358,15 @@ export function verifyUnconfirmableEvidence<Dataset>(
 
   let missing: boolean;
   try {
+    if (sha256Canonical(registered.dataset) !== reference.approvedDatasetHash) {
+      throw new MissingEvidenceVerificationError(
+        "MISSING_EVIDENCE_CHECK_MISMATCH",
+        "The approved dataset content does not match its declared hash.",
+      );
+    }
     missing = registered.isMissing(registered.dataset);
-  } catch {
+  } catch (error) {
+    if (error instanceof MissingEvidenceVerificationError) throw error;
     throw new MissingEvidenceVerificationError(
       "MISSING_EVIDENCE_CHECK_FAILED",
       "The registered missing-evidence check failed.",

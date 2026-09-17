@@ -8,7 +8,12 @@ import {
   verifyQuotedEvidence,
   verifyUnconfirmableEvidence,
 } from "./evidence-grade";
-import { sourceArtifactHash } from "./source-ingest";
+import { sha256Canonical } from "./canonical-hash";
+import {
+  deriveRawRowHash,
+  sourceArtifactHash,
+  type SourceRow,
+} from "./source-ingest";
 
 const encoder = new TextEncoder();
 const sourceText = "머리말\n원문 해당 구간과 글자 그대로 같습니다.\n꼬리말";
@@ -92,6 +97,7 @@ describe("quoted evidence verification", () => {
               calculation: {
                 calculationId: "daily-close",
                 calculationVersion: "1.0.0",
+                displayTemplateId: "english-daily-close",
                 sourceRows: [
                   { eventId: "event-1", rawRowHash: "a".repeat(64) },
                 ],
@@ -106,41 +112,71 @@ describe("quoted evidence verification", () => {
   });
 });
 
-const rowHash = "b".repeat(64);
+const sourceRow: SourceRow = {
+  coordinate: {
+    sourceArtifactHash: "a".repeat(64),
+    rowNumber: "2",
+  },
+  values: { close: "1032.82" },
+};
+const rowHash = deriveRawRowHash(sourceRow);
 const trustedRows = [
   {
     eventId: "event-1",
-    rawRowHash: rowHash,
-    row: { close: "1032.82" },
+    sourceRow,
   },
 ] as const;
-const calculations = new Map([
+const closePrefix = "The close was ";
+const displayTemplates = new Map([
   [
-    "daily-close",
-    {
-      calculationVersion: "1.0.0",
-      sourceRows: trustedRows,
-      calculate: (rows: readonly { close: string }[]) => rows[0]!.close,
-    },
+    "english-daily-close",
+    ({ reportedValue }: { reportedValue: string }) => ({
+      text: `${closePrefix}${reportedValue}.`,
+      displayedValueRange: {
+        start: closePrefix.length,
+        end: closePrefix.length + reportedValue.length,
+      },
+    }),
   ],
 ]);
+const registeredCalculation = {
+  calculationVersion: "1.0.0",
+  sourceRows: trustedRows,
+  calculate: (rows: readonly SourceRow[]) => rows[0]!.values.close!,
+  displayTemplates,
+};
+const calculations = new Map([
+  ["daily-close", new Map([["1.0.0", registeredCalculation]])],
+]);
+
+function calculatedDisplay(reportedValue: string) {
+  return {
+    text: `${closePrefix}${reportedValue}.`,
+    displayedValueRange: {
+      start: closePrefix.length,
+      end: closePrefix.length + reportedValue.length,
+    },
+  };
+}
 
 function calculatedSentence(
   grade: "COMPUTED" | "DIFFERS",
   reportedValue: string,
   computedValue = "1032.82",
 ) {
+  const display = calculatedDisplay(reportedValue);
   return {
     evidenceVersion: "1.0",
     sentenceId: "calculated-1",
-    text: reportedValue,
+    text: display.text,
     grade,
     evidence: {
       reportedValue,
-      displayedValueRange: { start: 0, end: reportedValue.length },
+      displayedValueRange: display.displayedValueRange,
       calculation: {
         calculationId: "daily-close",
         calculationVersion: "1.0.0",
+        displayTemplateId: "english-daily-close",
         sourceRows: [{ eventId: "event-1", rawRowHash: rowHash }],
         computedValue,
       },
@@ -196,6 +232,53 @@ describe("calculated evidence verification", () => {
     );
   });
 
+  it("rejects an unverified claim appended to a calculated sentence", () => {
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.text = "The close was 1032.82 and volume was 999999.";
+    expectCalculatedCode(
+      () => verifyCalculatedEvidence(candidate, { calculations }),
+      "DISPLAY_TEMPLATE_MISMATCH",
+    );
+  });
+
+  it("rejects changed source-row content that retains an old hash label", () => {
+    const candidate = calculatedSentence("COMPUTED", "999", "999");
+    const changedSourceRow: SourceRow = {
+      ...sourceRow,
+      values: { close: "999" },
+    };
+    const changedRows = [
+      {
+        eventId: "event-1",
+        sourceRow: changedSourceRow,
+      },
+    ] as const;
+    const changedCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              calculationVersion: "1.0.0",
+              sourceRows: changedRows,
+              calculate: (rows: readonly SourceRow[]) => rows[0]!.values.close!,
+              displayTemplates,
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: changedCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
+  });
+
   it("rejects unregistered calculations and altered source selections", () => {
     const unregistered = calculatedSentence("COMPUTED", "1032.82");
     unregistered.evidence.calculation.calculationId = "unknown";
@@ -214,12 +297,47 @@ describe("calculated evidence verification", () => {
       "CALCULATION_VERSION_MISMATCH",
     );
 
+    const unknownTemplate = calculatedSentence("COMPUTED", "1032.82");
+    unknownTemplate.evidence.calculation.displayTemplateId = "unknown";
+    expectCalculatedCode(
+      () => verifyCalculatedEvidence(unknownTemplate, { calculations }),
+      "DISPLAY_TEMPLATE_NOT_REGISTERED",
+    );
+
     const mismatchedRows = calculatedSentence("COMPUTED", "1032.82");
     mismatchedRows.evidence.calculation.sourceRows[0]!.eventId = "event-2";
     expectCalculatedCode(
       () => verifyCalculatedEvidence(mismatchedRows, { calculations }),
       "SOURCE_ROWS_MISMATCH",
     );
+  });
+
+  it("retains and resolves historical calculation versions independently", () => {
+    const versionedCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          ["1.0.0", registeredCalculation],
+          [
+            "2.0.0",
+            {
+              ...registeredCalculation,
+              calculationVersion: "2.0.0",
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expect(versionedCalculations.get("daily-close")?.size).toBe(2);
+    expect(
+      verifyCalculatedEvidence(calculatedSentence("COMPUTED", "1032.82"), {
+        calculations: versionedCalculations,
+      }),
+    ).toMatchObject({
+      grade: "COMPUTED",
+      evidence: { calculation: { calculationVersion: "1.0.0" } },
+    });
   });
 
   it("rejects a declared row hash outside the registered calculation", () => {
@@ -234,7 +352,7 @@ describe("calculated evidence verification", () => {
   });
 });
 
-const datasetHash = "d".repeat(64);
+const datasetHash = sha256Canonical({ granularity: "daily" });
 
 function unconfirmableSentence() {
   return {
@@ -257,14 +375,18 @@ function missingChecks(granularity: "daily" | "minute") {
   return new Map([
     [
       "daily-quote-time-of-day",
-      {
-        checkVersion: "1.0.0",
-        approvedDatasetHash: datasetHash,
-        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
-        dataset: { granularity },
-        isMissing: (dataset: { granularity: "daily" | "minute" }) =>
-          dataset.granularity === "daily",
-      },
+      new Map([
+        [
+          "1.0.0",
+          {
+            checkVersion: "1.0.0",
+            reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+            dataset: { granularity },
+            isMissing: (dataset: { granularity: "daily" | "minute" }) =>
+              dataset.granularity === "daily",
+          },
+        ],
+      ]),
     ],
   ]);
 }
@@ -289,12 +411,48 @@ describe("missing evidence verification", () => {
   });
 
   it("refuses UNCONFIRMABLE when the approved dataset has the evidence", () => {
+    const candidate = unconfirmableSentence();
+    candidate.evidence.missingEvidenceCheck.approvedDatasetHash =
+      sha256Canonical({ granularity: "minute" });
     expectMissingCode(
       () =>
-        verifyUnconfirmableEvidence(unconfirmableSentence(), {
+        verifyUnconfirmableEvidence(candidate, {
           checks: missingChecks("minute"),
         }),
       "EVIDENCE_AVAILABLE",
+    );
+  });
+
+  it("rejects changed dataset content that retains an approved hash label", () => {
+    const changedDataset = {
+      granularity: "daily" as const,
+      rows: [] as string[],
+    };
+    const checks = new Map([
+      [
+        "daily-quote-time-of-day",
+        new Map([
+          [
+            "1.0.0",
+            {
+              checkVersion: "1.0.0",
+              reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+              dataset: changedDataset,
+              isMissing: (dataset: typeof changedDataset) =>
+                dataset.granularity === "daily",
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expectMissingCode(
+      () =>
+        verifyUnconfirmableEvidence<typeof changedDataset>(
+          unconfirmableSentence(),
+          { checks },
+        ),
+      "MISSING_EVIDENCE_CHECK_MISMATCH",
     );
   });
 
