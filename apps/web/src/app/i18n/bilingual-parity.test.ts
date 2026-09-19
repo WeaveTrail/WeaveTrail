@@ -8,6 +8,7 @@ import { architectureCopy } from "../architecture/architecture-content";
 import { whyCopy } from "../why/why-view";
 import { guideStepsByLanguage, guideUi } from "../replay/case-replay";
 import { methodologyCopy } from "../methodology/methodology-content";
+import { evidenceGradeCopy } from "../evidence-grade";
 import { checks } from "../evals/page";
 import { howItWorksSvg } from "../architecture/how-it-works-diagram";
 import {
@@ -72,6 +73,7 @@ const surfaces: readonly (readonly [
   ["guide UI", guideUi],
   ["guide steps", guideStepsByLanguage],
   ["methodology", methodologyCopy],
+  ["evidence grades", evidenceGradeCopy],
 ];
 
 const koreanEvaluationCheckNames = [

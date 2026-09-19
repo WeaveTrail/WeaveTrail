@@ -4,6 +4,7 @@ export * from "./cross-market-session-reversal";
 export * from "./dataset-profile";
 export * from "./decimal-string";
 export * from "./evidence-bundle";
+export * from "./evidence-grade";
 export * from "./rapid-price-lift";
 export * from "./rule-parameters";
 export * from "./replay-request";
