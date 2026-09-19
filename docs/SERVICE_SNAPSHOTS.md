@@ -8,31 +8,7 @@ checks, goldens and hashes
 
 ## Storage and collection
 
-```text
-new SnapshotStore(path)        Node ≥ 22.13 · existing directory on a persistent local disk
-                               explicit absolute SQLite filename
-                               initializes the version-1 database on first use
-                               rejects unsupported database versions
-no default store               imports · web requests · builds · manual acquisition scripts
-                               never start collection      (.service-store/ is Git-ignored)
-
-collectPublicSource(store, source, fetchResponse?)
-  PublicSource   exact HTTPS origin URL · publisher · collector version · licence evidence
-  licence        label · termsUrl · checkedAt (UTC) · attributionRequirements · attribution
-                 · permitsStorage · permitsModification · permitsRedistribution (explicit true)
-  refused        secrets or a fragment delimiter in the URL, including a trailing "#"
-                 · a model proposal or an arbitrary browser URL as a source
-                 · a review time later than collection
-  stored URL     WHATWG canonical serialization Fetch resolves, so equivalent scheme, host,
-                 default-port and whitespace spellings share one source identity
-
-built-in transport   unauthenticated public endpoints only
-  omits credentials · refuses redirects and non-success/partial responses · 30 s timeout
-  reads arrayBuffer() before storing the original entity bytes
-  preserves binary documents, invalid UTF-8, whitespace, line endings
-  entity bytes = the Fetch response body, never headers, TLS traffic or wire framing
-  retrievedAt recorded after the body arrives · transport errors use a fixed message
-```
+![Opening the store, admitting a source and the built-in transport](assets/boundary/snapshot-collection.svg)
 
 - An operator must review the actual terms; the licence assertions are not
   automatic verification. There is no pasted-text input and no upload
@@ -52,20 +28,7 @@ built-in transport   unauthenticated public endpoints only
 | `snapshotId` | Canonical `ServiceSnapshot` 1.0 metadata, including byte hash and predecessor | `getSnapshot(snapshotId)` returns metadata and verified bytes                         |
 | `resultId`   | Canonical `ServiceDerivedResult` 1.0 envelope                                 | `resolveDerivedResult(resultId)` returns the result and every verified original input |
 
-```text
-same URL, changed bytes    → new snapshot, previousSnapshotId → the one before it
-same URL, unchanged bytes  → the original reference, unchanged first retrievedAt,
-                             collector version and licence record; not a durable record
-                             of a new permission review
-A → B → A                  → the third record links back to B, A's blob deduplicated
-different origin URLs      → independent histories
-
-no replace, no delete      SQLite triggers reject updates, deletes and replacement inserts
-one transaction            snapshot bytes + metadata; result + its input bindings
-every read                 Zod contract validation + hash recalculation
-fail closed                missing snapshot · hash mismatch · invalid record · corruption
-                           resolution never falls back to the current source
-```
+![What recollection produces and what the store refuses](assets/boundary/snapshot-immutability.svg)
 
 Snapshot metadata is `schemaVersion`, `source`, UTC `retrievedAt`, `sha256` and
 nullable `previousSnapshotId`; all hashes are lowercase hexadecimal SHA-256.
@@ -73,20 +36,7 @@ Call `close()` when finished.
 
 ## Derived results
 
-```text
-storeDerivedResult(record)   every service event, conclusion or check
-  schemaVersion "1.0" · kind "event" | "conclusion" | "check"
-  computationVersion  nonempty, identifies the reviewed implementation
-  inputs              nonempty, unique, each { snapshotId, sha256 }
-  value               JSON, already validated by the application
-
-getSnapshot bytes ──compute──► value ──store──► resultId
-  identical envelope              → the same resultId
-  changed version | input | output → a different resultId
-  input order                      preserved
-  a later collection               cannot retarget an old result: readers use the
-                                   retained resultId, never an origin's current head
-```
+![The derived-result envelope and what changes its identity](assets/boundary/derived-result.svg)
 
 - Domain contracts and approvals are enforced by the application before
   insertion. Persist every input dependency, including separately collected
@@ -104,18 +54,7 @@ getSnapshot bytes ──compute──► value ──store──► resultId
 
 ## Migration and deployment
 
-```text
-additive               SourceProvenance · committed artifact records · replay responses
-                       · bundles need no migration or regeneration
-new installs           Node ≥ 22.13, so storage tests load node:sqlite without a flag
-new producers          store admitted inputs first, then use the envelope
-user_version = 1       names the storage layout; a later version needs an explicit
-                       migration, never silent replacement
-workflow histories     remain request-local
-dependencies           existing contracts + canonical JSON + Node's built-in SQLite;
-                       no third-party database dependency
-current deployment     mounts no store and performs no runtime collection
-```
+![What the service tier adds and what it leaves unchanged](assets/boundary/snapshot-migration.svg)
 
 For an actual collector: provision a persistent local volume with restricted
 filesystem access and backups, outside Git and public asset directories; use a
@@ -123,16 +62,7 @@ consistent SQLite backup, or stop all writers and close connections before
 copying; retain result IDs outside the database where independent integrity
 comparison is required.
 
-```text
-not implemented   streaming ingestion · multi-host database · retention deletion
-                  · backup automation · publisher authenticity · production-scale benchmark
-known limits      full responses are buffered, SQLite calls are synchronous
-                  an operator who can replace the database or drop triggers can tamper:
-                  hash verification detects mismatches against retained IDs, not an
-                  independently replaced set of records
-errors            a full disk or the five-second lock timeout is an error; never fall back
-                  to temporary or request-local storage after a persistence error
-```
+![What is not implemented and how it fails](assets/boundary/snapshot-limits.svg)
 
 ## Reproducible verification
 
