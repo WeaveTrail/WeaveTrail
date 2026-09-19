@@ -17,6 +17,9 @@
     "test": "vitest run",
     "adr:check": "node scripts/verify-adr-index.mjs",
     "adr:test": "node --test scripts/verify-adr-index.test.mjs",
+    "figures:build": "node scripts/build-boundary-figures.mjs",
+    "figures:check": "node scripts/build-boundary-figures.mjs --check",
+    "figures:test": "node --test scripts/boundary-figures.test.mjs",
     "test:watch": "vitest",
     "expectations:update": "vitest run packages/replay-engine/src/published-scenario-expectations.test.ts -u",
     "format": "prettier --write .",
@@ -25,7 +28,7 @@
     "diagram:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-how-it-works-diagram.mjs",
     "diagram:case": "vitest run apps/web/src/app/case-2026-09-03/worked-case-diagram.test.ts -u",
     "diagram:fonts": "python3 scripts/embed-figure-fonts.py",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm adr:check && pnpm adr:test && pnpm format:check"
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm adr:check && pnpm adr:test && pnpm figures:check && pnpm figures:test && pnpm format:check"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

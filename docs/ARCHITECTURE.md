@@ -8,16 +8,7 @@ code produce a replay result.
 
 ## Entry and Case Replay
 
-```text
-/                     → /why → /architecture · /replay?mode=guided
-/replay               guided ──hand off──► working      one server loader, one client surface
-/case-2026-09-03      approve scope ──► POST /api/case-2026-09-03
-                                          └─► CROSS_MARKET_SESSION_REVERSAL 1.0
-
-scenarios ─────────┐                          ┌─ REVIEWER_FACING  → Case Replay picker
-                   ├─► src/lib/replay-sources ┤
-published-data ────┘   src/lib/replay-sources.ts └─ ENGINE_REGRESSION → engine, provider, API, contracts
-```
+![Entry routes and where each one leads](assets/boundary/entry-routes.svg)
 
 - `packages/scenarios` owns synthetic datasets and controlled mutations;
   `packages/published-data` owns licensed artifacts, provenance, offline
@@ -45,14 +36,7 @@ published-data ────┘   src/lib/replay-sources.ts └─ ENGINE_REGRESS
   mechanism: surveillance raises a candidate, WeaveTrail confirms the scope,
   re-verifies and opens the evidence, a person decides. It detects nothing.
 
-```text
-guided step rail    position · title · imperative · unmet condition · the one advancing control
-                    then, in its own scroll region: why · authority · step list
-                    below the rail breakpoint: action block fixed to the viewport bottom
-completion          explicit mapping and case approvals → REPLAYED with evaluation and
-                    sourceTrace → open a finding's disclosure → repeat the same approved case
-                    → string equality between the baseline hash and the later hash
-```
+![What a guided step shows and what completes the walkthrough](assets/boundary/guided-steps.svg)
 
 - One navigation entry, `Walk through a case`. `Guided walkthrough` and
   `Working mode` name the two ways to use it and mark the running one. `/replay`
@@ -103,16 +87,7 @@ The surface is Korean and English on one set of routes
 KOSPI 200 index and its front-month future on 2026-09-03 against the index's own
 2026-07-01 baseline.
 
-```text
-published prices (artifact, labelled as published)
-  → visitor approves scope in the browser
-  → POST /api/case-2026-09-03 → server rebuilds scope from committed artifacts
-      approval hash does not cover it            → refuse
-      committed mapping approval pins differ     → mapping review stop
-  → CROSS_MARKET_SESSION_REVERSAL 1.0 → rank in approved baseline · per-leg reversal
-      and multiple · canonicalResultHash
-candidate selection: STATED_DATE_ONLY_NO_CANDIDATE_SCAN
-```
+![The published case: approve the scope, then the rule runs on the server](assets/boundary/published-case-run.svg)
 
 - Nothing the rule produces is shown before the rule runs, and nothing it
   returns is written into page copy: the closing statement is read from the
@@ -137,15 +112,7 @@ than implemented today.
 
 ### Published acquisition scopes
 
-```text
-bounded-window   first page, unchanged (existing FSC window)
-complete-series  closed identity/family/date selector fixed before retrieval
-                 → every returned page retained in order
-                 → row count == unchanged publisher total
-                 refused: value predicate · incomplete pagination
-acquisition scope ──✗──► canonical events · approval hashes
-network transport ──✗──► tests · CI · builds · runtime
-```
+![The two acquisition scopes and what they never reach](assets/boundary/acquisition-scopes.svg)
 
 - The manual collector uses reviewed publisher adapters; automated transport
   tests stay synthetic. Offline admission compares committed rows, generated
@@ -156,16 +123,7 @@ network transport ──✗──► tests · CI · builds · runtime
 
 ### Layer boundaries
 
-```text
-          proposal        approval         result          lineage
-L1 interpret ──► L2 approve ──► L3 decide ──► L4 evidence
-     ▲                │              │
-     │                └── cannot compute
-     └── cannot approve               └── cannot widen its own scope
-
-any layer ──► REVIEW_REQUIRED (no result, no result hash)
-HTTP boundary: validates every input before L1 acts; not one of the layers
-```
+![Four layers, one authority each, and the refusal path out of any of them](assets/boundary/layer-authority.svg)
 
 Authority is separated by layer rather than by location. The README states the
 model; this document is where each layer's enforcement lives.
@@ -184,16 +142,7 @@ model; this document is where each layer's enforcement lives.
 
 ### Interpretation boundary
 
-```text
-provider output (untrusted data)
-  → columns: existing source columns only · transforms: fixed allowlist
-  → strict 1.4 validation
-      invalid shape | low confidence | unknown column | unsupported transform
-        → REVIEW_REQUIRED
-  → proposal (not an approval)
-browser (Web Crypto) ─┬─ one runtime-neutral canonical serializer ─┬─► same proposal hash
-server (recompute)  ──┘                                            └─► required overrides enforced
-```
+![Provider output becomes a proposal only after strict validation](assets/boundary/interpretation-boundary.svg)
 
 - Case Replay executes the server-only fixture provider against a table keyed by
   committed `sourceArtifactHash`. A `1.4` proposal carries approved dataset and
@@ -205,42 +154,14 @@ server (recompute)  ──┘                                            └─�
 
 ### Replay HTTP boundary
 
-```text
-POST /api/mapping { scenario }
-  → provider from server configuration + closed artifact eligibility registry
-      eligible: the two synthetic source dialects; all others keep fixture mappings
-  → strict mapping validation
-  → { mode, proposal, mappingReceipt? }        provider failure → 422 mapping review
-  receipt: model id + prompt version recorded server-side, encrypted, expires 30 min,
-           revalidated before the approval gate; neither receipt nor model output approves
-
-POST /api/replay { scenario, mutation, rows 1..64, mappingApproval?, mappingReceipt?, caseManifest? (approved CaseManifest) }
-  1 obtain the scenario proposal            caller-authored canonical events → rejected
-  2 verify the approval against that exact proposal
-  3 derive the executable mapping as a pure projection
-  4 compare every submitted row with the server-owned committed row at the same coordinate
-      missing coordinate | differing column → fail closed, never substituted
-  5 derive events, preserving submitted order
-  → no case manifest: stops at MAPPING_APPROVED, no sourceTrace
-  → approved case:    REPLAYED + closed rule result + 5 gate findings (conclusive)
-                      + mechanical sensitivity comparison + sourceTrace
-```
+![The mapping and replay endpoints and the five server steps between them](assets/boundary/replay-pipeline.svg)
 
 - Page preparation and replay never call the configured provider. Fixture
   clients are unchanged; configured clients request a proposal, approve its
   exact hash, then include `mappingReceipt` in the replay request
   ([ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md)).
 
-```text
-baseline   committed order
-shuffle    caller permutes parsed rows before submission
-           working mode: browser-local Fisher–Yates, swap the first two if the draw
-           matches the previous submitted order; ≥2 rows differ from the previous
-           submission; history starts at committed order, resets on source change
-           or guided re-entry
-duplicate  committed order, then repeat the first derived event after mapping
-server     adds no randomness, substitutes no stored row, rejects repeated coordinates
-```
+![The three source-row mutations and what the server never does](assets/boundary/row-mutations.svg)
 
 - **Submitted source row order** is read from the same request snapshot; the
   source preview stays in committed order. Explicit same-input repeats resend
@@ -252,14 +173,7 @@ server     adds no randomness, substitutes no stored row, rejects repeated coord
   deterministic result for that submitted order
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)).
 
-```text
-HTTP 422  { status: REVIEW_REQUIRED, issues[{ code, path, message }], workflowState }
-  input | canonicalization ambiguity     → INPUT_REVIEW_REQUIRED
-  mapping gate                           → MAPPING_REVIEW_REQUIRED
-  case approval | profile | rule config  → CASE_REVIEW_REQUIRED
-  never: a replay result or canonical result hash
-HTTP 500  reserved for defects outside these declared input failures
-```
+![Which failing stage selects which review state](assets/boundary/review-responses.svg)
 
 - The failing execution stage selects the state directly; shared issue codes
   such as `APPROVAL_RECORD_REQUIRED` are not reclassified from their strings,
@@ -306,16 +220,7 @@ A successful response is contract-validated and carries the actual provider mode
 engine version, event counts, ordered event identifiers and the canonical result
 hash.
 
-```text
-sourceTrace.traceVersion "1.0"
-  entries: exactly one per distinct finding event, in canonical replay order
-    event     schemaVersion · eventId · sourceEventId · datasetId · venueId · eventTime
-              · instrumentId · eventType · rawRowHash
-              + sequence · side · actorId · counterpartyId · orderId · price · quantity when present
-    sourceRow coordinate { sourceArtifactHash, rowNumber } + unchanged string values
-              CSV rowNumber starts at 2 after the header; JSON Lines starts at 1
-INCONCLUSIVE → no findings, empty trace
-```
+![What one source-trace entry carries](assets/boundary/source-trace.svg)
 
 - After approval, source validation and replay succeed,
   `buildFindingSourceTrace` resolves returned canonical events against trusted
@@ -348,12 +253,7 @@ INCONCLUSIVE → no findings, empty trace
 
 ### Approval boundary
 
-```text
-UPLOADED -> MAPPING_PROPOSED -> MAPPING_REVIEW_REQUIRED
-                           \-> MAPPING_APPROVED -> CASE_PROPOSED
-CASE_PROPOSED -> CASE_REVIEW_REQUIRED
-             \-> CASE_APPROVED -> REPLAYED -> EXPORTED
-```
+![The executed approval state machine](assets/boundary/approval-states.svg)
 
 - The route creates a request-local workflow at `UPLOADED` and sends every
   change through the contracts package's `applyTransition`; contracts own the
@@ -366,11 +266,7 @@ CASE_PROPOSED -> CASE_REVIEW_REQUIRED
   of their proposed artifacts. A flagged or non-exact mapping field additionally
   requires a justified reviewed override.
 
-```text
-canonical events → DatasetProfile { canonicalDatasetHash, instruments[], actors[], timeBounds }
-case validation ⊆ profile facts                    (validation cannot widen them)
-reviewer identity · approval time → audit metadata (outside the semantic result hash)
-```
+![Case validation stays inside the dataset profile](assets/boundary/dataset-profile.svg)
 
 - The direct profile validator reports `1.4` instruments at
   `["hypothesis", "instrumentIds", i]`. An actorless `1.4` hypothesis against a
@@ -381,22 +277,11 @@ reviewer identity · approval time → audit metadata (outside the semantic resu
 
 ### Decision boundary
 
-```text
-replay engine owns  ordering · deduplication · decimal arithmetic · window aggregation
-                    · rule evaluation · mechanical sensitivity comparison · canonical hashes
-replay engine never executes code written by a model
-```
+![What the replay engine owns and what it never does](assets/boundary/decision-boundary.svg)
 
 ### Evidence boundary
 
-```text
-finding ──► eventId ──► rawRowHash ──► committed source row
-canonicalResultHash ⊇ engineVersion · canonical event projection · evaluation when present
-                    ⊉ mapping · manifest · approval hash        (does not bind case scope)
-bundleHash          ⊇ every 1.3 field except itself, including complete proposals,
-                      supplied approvals, source-artifact declarations, collection metadata
-excluded from the semantic hashes: receivedAt · rawRowHash · workflowState · audit metadata
-```
+![Lineage from a finding to its source row, and what each hash covers](assets/boundary/evidence-scopes.svg)
 
 - Findings refer to canonical `eventId` values, and those events retain
   `sourceEventId` and `rawRowHash` so a reviewer reaches the source row. The
@@ -436,22 +321,7 @@ automatic converter.
 
 ### Evidence Bundle 1.3 hash scopes
 
-```text
-EvidenceBundleV13Schema (strict, separate)   used by the byte-backed assembler and verifier
-  source-artifact declarations · complete mapping/case proposals · supplied approvals
-  · workflowState · replay?
-      replay          canonical events · engineVersion · dataset/result hashes · evaluation?
-      evaluation      reused as produced: finding gate · INCONCLUSIVE reason · empty findings
-                      · null sensitivity
-  no normalization        → omit replay
-  no rule result          → omit replay.evaluation only
-EvidenceBundleSchema validates 1.2 only; no implicit conversion
-
-assembleEvidenceBundle  exact CSV/JSON Lines bytes → hash → parse → declaration
-verifyBundle            separately supplied bytes → normalization → approval binding
-                        → evaluation → hash calculation
-                        multi-mapping declaration → fail closed (multi-source replay undefined)
-```
+![What Evidence Bundle 1.3 declares, assembles and verifies](assets/boundary/bundle-13.svg)
 
 - The original FSC daily quotation artifact ends at `MAPPING_APPROVED` with a
   result hash but no evaluation or case manifest. Bundle `1.3` is defined for
@@ -480,16 +350,7 @@ verifyBundle            separately supplied bytes → normalization → approval
 
 ### Dependency direction
 
-```text
-0  contracts        —
-1  scenarios        → contracts
-   published-data   → contracts
-2  replay-engine    → contracts   (devDependencies: scenarios, published-data)
-   ai-harness       → contracts, scenarios, published-data
-3  service-store    → contracts, replay-engine/canonical-json
-4  web              → contracts, scenarios, published-data, ai-harness, replay-engine
-   evals            —
-```
+![Every workspace dependency edge, by tier](assets/boundary/dependency-direction.svg)
 
 Every workspace edge that exists today. The leading number is the package's
 tier, an arrow points from the importer to what it imports, and an em dash means
@@ -533,21 +394,7 @@ collection work starts, so the graph above stays drawable in full.
 
 ## Determinism contract
 
-```text
-committed source row ──hash──► rawRowHash
-   │ normalize  UTC nanoseconds (fixed width) · canonical decimal strings · signed zero
-   │            · RFC 8785 §3.2.2.3 finite-number spelling
-   ▼
-canonical event ──order──► eventTime -> sequence -> eventId    UTF-16 code units
-   │ exact duplicate       collapse, result unchanged
-   │ conflicting duplicate fail closed, canonical source-identity order
-   │ repeated eventId      CONFLICTING_EVENT_IDENTIFIER before ordering and hashing
-   ▼
-canonical dataset ──hash──► canonicalDatasetHash
-   │ rule  exact scaled-integer cross-products, never binary floating point
-   ▼
-evaluation ──hash──► canonicalResultHash                       reruns are identical
-```
+![From a committed source row to the canonical result hash](assets/boundary/determinism-pipeline.svg)
 
 For one validated dataset and approved manifest:
 
@@ -594,13 +441,7 @@ for the rule formula and abstention boundary.
 
 ## Provenance contract migration
 
-```text
-mapping proposal 1.4 / 1.5   sourceArtifactHash
-case manifest 1.3            canonicalDatasetHash
-evidence bundle 1.2          canonicalDatasetHash
-evidence bundle 1.3.replay   canonicalDatasetHash + every declared sourceArtifactHash
-datasetHash (legacy)         not accepted by the strict contracts
-```
+![Which hash name each artifact version carries](assets/boundary/provenance-hashes.svg)
 
 Hash names identify one boundary rather than relying on context. See
 [ADR 0005](adr/0005-derive-source-provenance.md) for derivation and migration
@@ -608,16 +449,7 @@ rules.
 
 ## Approval contract migration
 
-```text
-manifest 1.3   immutable approval record (from 1.2) · ≥1 actor
-               · only registered rule parameters for the declared rule version
-manifest 1.4   non-empty instrument set · closed pattern-to-participant policy
-               · empty actor list = identity absent from the source, so profile
-                 validation requires an empty actor profile
-proposal 1.4   closed identity constants and transform pairs
-               · DECIMAL_STRING produces canonical decimal spelling
-request 2.0    source rows + mapping approval, not canonical events
-```
+![What each approval artifact version declares](assets/boundary/approval-versions.svg)
 
 - Existing `1.3` artifacts stay valid without migration; both artifact types use
   the shared RFC 8785 finite-number rule for JSON numbers. Superseded artifacts
@@ -633,26 +465,14 @@ request 2.0    source rows + mapping approval, not canonical events
 
 ## Deployment boundary
 
-```text
-Vercel (main)     one Next.js application + local workspace packages
-                  fixture mode: no external model, no database
-                  server-side only: provider adapters and credentials
-                  browser bundles: never a provider credential
-service tier      @weavetrail/service-store → SQLite at an explicit persistent path
-                  immutable snapshots + derived-result input bindings
-                  not wired into the current web deployment
-replay workflow   request-local
-```
+![What the deployment runs and what the service tier still needs](assets/boundary/deployment-boundary.svg)
 
 See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 [service snapshot operations](SERVICE_SNAPSHOTS.md).
 
 ## Presentation boundary
 
-```text
-public routes   / · /why · /architecture · /methodology · /evals · /expectations
-                · /replay (guided, working) · /case-2026-09-03
-```
+![The eight public routes: /, /why, /architecture, /methodology, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03](assets/boundary/public-routes.svg)
 
 - The eight public routes use a product-local snapshot of the paper-first design
   tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
@@ -664,43 +484,19 @@ public routes   / · /why · /architecture · /methodology · /evals · /expecta
 
 ## Daily quote and cross-market rule version coexistence
 
-```text
-registry metadata carries versions and constants by artifact hash
-Event 1.2 (daily only) + Proposal 1.5 / 1.6
-  approved DAILY_QUOTE constant · trading-date anchor transform
-Proposal 1.6
-  injective ordered composite for sourceEventId only; components stay original
-  source columns; duplicate-source and duplicate-target checks retained
-unchanged: existing input branches · engine version · canonical processing · result shapes
-```
+![How daily-quote versions coexist in the registry](assets/boundary/daily-quote-versions.svg)
 
 The published FSC KOSPI daily artifact is registered without a case manifest.
 See [daily quote normalization](DAILY_QUOTES.md),
 [ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
 [ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md).
 
-```text
-Event 1.3 + Proposal 1.7 (separate opt-in)
-  retain trading date · OHLC · the publisher's absolute net change
-engine 0.8.0-cross-market-session-reversal
-  one declared date over an approved Case Manifest 1.4
-  exact scaled-integer arithmetic · declared baseline · per-leg gates
-  accepts combined canonical events from the declared published artifacts
-  single-source HTTP Case Replay: unchanged
-```
+![The separate cross-market entry point and what it accepts](assets/boundary/cross-market-entry.svg)
 
 CROSS_MARKET_SESSION_REVERSAL `1.1` is a further opt-in rule contract
 ([ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md)).
 
-```text
-per leg (approved configuration)   one denominator + ≥1 declared alternative
-conclusive output                  approved and recomputed metrics · their ratio
-                                   · denominator values and meanings
-                                   under the shared MECHANICAL_METRIC_COMPARISON marker
-minimum price increment            INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL
-                                   an inline approved value retains its provenance
-missing declared field | denominator ≤ 0 → INCONCLUSIVE, sensitivity null
-```
+![What a conclusive cross-market 1.1 result reports](assets/boundary/denominator-substitution.svg)
 
 - Version `1.0` stays accepted with its existing engine version and hashes.
   Strict consumers opt into `1.1`, add the denominator declarations to every leg
@@ -713,16 +509,7 @@ missing declared field | denominator ≤ 0 → INCONCLUSIVE, sensitivity null
 
 ## Published execution-schema mapping support
 
-```text
-Mapping Proposal 1.8 (opt-in)   synthetic intraday executions shaped as published
-                                FIX 4.4 ExecutionReport and H0STCNT0 response fields
-  eventType: TRADE (fixed) · both published side code sets converted
-  FIX UTC timestamps converted · H0STCNT0 business date + execution time → explicit KST
-  unmappedFields: H0STCNT0 has no participant/account column
-    → requires a justified approval override
-    → never enters the executable mapping, never creates an actor
-Proposals 1.4–1.7   unchanged, no migration
-```
+![What Mapping Proposal 1.8 fixes, converts and refuses to invent](assets/boundary/execution-schema-mapping.svg)
 
 - See
   [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md) and

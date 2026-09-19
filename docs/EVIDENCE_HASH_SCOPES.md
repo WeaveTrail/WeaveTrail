@@ -8,19 +8,7 @@ assembler and verifier are implemented in `@weavetrail/replay-engine`. See
 
 ## Canonical serialization
 
-```text
-sha256Canonical = SHA-256(UTF-8 bytes of canonicalJson(value)) → 64 lowercase hex
-  no BOM · no whitespace padding · no trailing newline
-  object keys      lexicographic by UTF-16 code unit at every depth, integer-looking keys included
-  undefined        object properties omitted
-  arrays           supplied order kept; holes, undefined elements and a top-level
-                   undefined value rejected
-  null             a value, distinct from an absent property
-  numbers          finite only; ECMAScript JSON.stringify spelling, negative zero as 0
-                   (RFC 8785 §3.2.2.3)
-  strings          JSON escaping, no Unicode normalization
-not claimed        full JCS compliance (no extra lone-surrogate validation)
-```
+![The canonical serialization rules both hashes use](assets/boundary/canonical-serialization.svg)
 
 - Prices, quantities, money, rates and thresholds stay decimal strings: the
   serializer neither turns them into numbers nor normalizes their spelling.
@@ -35,25 +23,9 @@ not claimed        full JCS compliance (no extra lone-surrogate validation)
 
 `canonicalResultHash` is exactly the existing `canonicalReplayResultHash`:
 
-```text
-SHA256(canonicalJson({
-  engineVersion: "0.7.0-canonical-decimal",
-  events: canonicalEvents.map(projectCanonicalEvent),
-  ...the evaluation property only when evaluation exists
-}))
-```
+![The canonical result hash preimage](assets/boundary/result-preimage.svg)
 
-```text
-preimage keys   engineVersion · events · evaluation (only when it exists)
-  evaluation    the complete engine result: rule identity and version · non-comparable
-                event count · all findings including gate · sensitivity · INCONCLUSIVE reason
-  events        Event 1.1/1.2 → the 15 CANONICAL_EVENT_FIELDS
-                Event 1.3     → those plus the six OHLC_DAILY_CANONICAL_EVENT_FIELDS
-                absent optional fields stay absent
-outside         approved mapping · manifest · their hashes · their approvals
-                reviewer identity · approval and export timestamps · run IDs
-                receivedAt · workflowState · response counts and source traces
-```
+![What the result preimage contains and what stays outside it](assets/boundary/result-scope.svg)
 
 - No result is synthesized for normalization alone, and the hash function neither
   sorts nor validates its arguments: callers supply ordered, deduplicated
@@ -66,22 +38,7 @@ outside         approved mapping · manifest · their hashes · their approvals
 
 ## Bundle declaration
 
-```text
-EvidenceBundleV13Schema   separate, opt-in bundleVersion "1.3"
-bundleHash = SHA256(canonicalJson(bundle with only bundleHash omitted))   evidenceBundleHash
-  covered      source-artifact hash declarations · complete mapping and case proposals
-               · complete supplied approval records · workflowState
-               · event collection metadata · the claimed result and dataset hashes
-  excluded     bundleHash itself, to avoid self-reference; nothing else
-  consequence  a changed approval time changes bundleHash and leaves
-               canonicalResultHash unchanged
-
-verifyBundle(bundle as untrusted input, separately supplied CSV/JSON Lines bytes)
-  strict shape → source byte hashes → re-parse rows → bind approvals to proposals
-  → replay the deterministic engine → compare dataset, result and bundle hashes
-  multi-mapping declaration → rejected until multi-source replay semantics exist
-  hash equality ≠ authenticity, reviewer authentication or signature
-```
+![What the bundle hash covers and what verification repeats](assets/boundary/bundle-hash-scope.svg)
 
 - An omitted approval records absence; it does not mean `APPROVED`. A present
   record carries `approvedArtifactHash`, `reviewerRef`, `decision`, every
@@ -92,16 +49,7 @@ verifyBundle(bundle as untrusted input, separately supplied CSV/JSON Lines bytes
   with no automatic sorting and no approval-history reconstruction. The current
   workflow persists no audit log.
 
-```text
-ADR 0005's four provenance identities, unchanged and one-to-one
-  sourceArtifactHash    exact source bytes
-  rawRowHash            a coordinate and its verbatim row strings
-  eventId               the composite source identity
-  canonicalDatasetHash  ordered semantic event projections
-neither hash adds a fifth identity or broadens one of the four
-a bundle covers source declarations, not embedded raw bytes; raw rows and display
-provenance are not fields of this export shape
-```
+![The four provenance identities, one boundary each](assets/boundary/provenance-identities.svg)
 
 ## Exhaustive 1.3 field table
 
@@ -233,24 +181,7 @@ scope or adding an undocumented field fails CI.
 
 ## Stopped artifacts and version coexistence
 
-```text
-no successful normalization      omit replay entirely — no events, dataset hash, result
-                                 hash or evaluation to claim; bundleHash still covers the
-                                 source declarations and whatever proposals and approvals
-                                 are present. A failed HTTP request keeps its 422 review
-                                 shape with no result hash.
-foundation normalization         replay present (events, dataset hash, result hash),
-                                 replay.evaluation omitted
-  the FSC real/fsc-stock-quotes-20260903.jsonl artifact after explicit mapping approval:
-  workflowState MAPPING_APPROVED · Event 1.2 · Proposal 1.5 · no case · no actor
-  · no rule verdict
-  result hash protects engineVersion + canonical event projection;
-  bundleHash additionally protects its declaration and approval
-case proposal without a valid approval   the same foundation replay is retained,
-  workflowState CASE_REVIEW_REQUIRED, no rule evaluation claimed
-INCONCLUSIVE                     a completed evaluation: reason, empty findings,
-                                 null sensitivity — all of it result-hashed
-```
+![What a bundle claims when replay stopped early](assets/boundary/stopped-artifacts.svg)
 
 - Event 1.1 and 1.2 use the original 15-field projection; Event 1.3 adds its six
   OHLC daily fields to that protected projection. Absent optional fields are
@@ -266,32 +197,12 @@ INCONCLUSIVE                     a completed evaluation: reason, empty findings,
 
 ## Bundle 1.2 compatibility
 
-```text
-EvidenceBundleSchema / EvidenceBundle        strictly 1.2, migration rejection tests intact
-EvidenceBundleV13Schema / EvidenceBundleV13  explicit opt-in
-neither schema accepts the other version · no automatic conversion
-assembly and verification: complete 1.3 declaration + original source bytes only
-
-1.2 cannot represent   the stopped FSC artifact · full engine findings · complete approvals
-1.2 has no bundleHash  and no bundle-hash scope is assigned to it
-1.2 canonicalResultHash still names the existing engine hash, but the lossy 1.2
-                        summary alone cannot reconstruct that preimage
-```
+![Where bundle 1.2 stops and 1.3 begins](assets/boundary/bundle-12-boundary.svg)
 
 The field table above describes 1.3 fields only. Migration needs the original
 artifacts and engine output:
 
-```text
-full engine evaluation            → replay.evaluation   (gate included; null sensitivity
-                                                         when INCONCLUSIVE)
-canonical events and hashes       → replay
-mapping proposals and approvals   → mappings
-Manifest 1.3 proposal + approval  → case
-old top-level caseId              → case.proposal.caseId
-approved proposal hash            → case.approval.approvedArtifactHash, when it exists
-old standalone manifestHash       → neither a substitute for the proposal and approval
-                                    record nor an additional result-hash input
-```
+![Where each 1.2 field moves in a 1.3 declaration](assets/boundary/bundle-12-migration.svg)
 
 Do not recover missing events, approvals, gates or abstention reasons by
 inventing them from a 1.2 summary.

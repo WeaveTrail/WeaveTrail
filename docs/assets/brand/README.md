@@ -18,6 +18,10 @@ The pinned revision above will change: `design-reference` is scheduled for a
 history rewrite, which replaces every commit hash. Re-record the pin here when
 the design system is vendored into `apps/web`.
 
+The boundary figures under `boundary/` are generated from
+`scripts/boundary-figures.mjs` and carry the same literal token values; rebuild
+them with `pnpm figures:build` rather than editing an SVG.
+
 The three README diagrams in the parent directory are hand-authored from the
 same revision's token files. Each carries a comment mapping its literal hex
 values back to their token names. Each also has a hand-authored `.ko.svg`

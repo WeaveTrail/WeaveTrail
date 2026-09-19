@@ -7,16 +7,7 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
 
 ## 시작 화면과 사례 재현
 
-```text
-/                     → /why → /architecture · /replay?mode=guided
-/replay               guided ──hand off──► working      one server loader, one client surface
-/case-2026-09-03      approve scope ──► POST /api/case-2026-09-03
-                                          └─► CROSS_MARKET_SESSION_REVERSAL 1.0
-
-scenarios ─────────┐                          ┌─ REVIEWER_FACING  → Case Replay picker
-                   ├─► src/lib/replay-sources ┤
-published-data ────┘   src/lib/replay-sources.ts └─ ENGINE_REGRESSION → engine, provider, API, contracts
-```
+![진입 경로와 각 경로가 여는 것](assets/boundary/entry-routes.svg)
 
 - `packages/scenarios`는 합성 데이터셋과 통제된 변형을 소유하고,
   `packages/published-data`는 라이선스가 확인된 아티팩트와 출처 기록, 오프라인에서
@@ -43,14 +34,7 @@ published-data ────┘   src/lib/replay-sources.ts └─ ENGINE_REGRESS
   올리고, WeaveTrail이 범위를 확인해 다시 계산하고 근거를 열고, 사람이 판단합니다.
   탐지는 하지 않습니다.
 
-```text
-guided step rail    position · title · imperative · unmet condition · the one advancing control
-                    then, in its own scroll region: why · authority · step list
-                    below the rail breakpoint: action block fixed to the viewport bottom
-completion          explicit mapping and case approvals → REPLAYED with evaluation and
-                    sourceTrace → open a finding's disclosure → repeat the same approved case
-                    → string equality between the baseline hash and the later hash
-```
+![안내 단계가 보여 주는 것과 완료 조건](assets/boundary/guided-steps.svg)
 
 - 내비게이션 항목은 `사례 따라가기` 하나입니다. `안내 따라가기`와 `직접 조작`이 두
   가지 사용 방식을 이름 붙이고 실행 중인 쪽을 표시합니다. `/replay`는 안내를 열고
@@ -96,16 +80,7 @@ completion          explicit mapping and case approvals → REPLAYED with evalua
 `/case-2026-09-03`은 커밋된 라이선스 아티팩트 위에 작성한 사례 하나입니다. 2026-09-03의
 KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선에 견줍니다.
 
-```text
-published prices (artifact, labelled as published)
-  → visitor approves scope in the browser
-  → POST /api/case-2026-09-03 → server rebuilds scope from committed artifacts
-      approval hash does not cover it            → refuse
-      committed mapping approval pins differ     → mapping review stop
-  → CROSS_MARKET_SESSION_REVERSAL 1.0 → rank in approved baseline · per-leg reversal
-      and multiple · canonicalResultHash
-candidate selection: STATED_DATE_ONLY_NO_CANDIDATE_SCAN
-```
+![공개 사례: 범위를 승인해야 서버에서 규칙이 돈다](assets/boundary/published-case-run.svg)
 
 - 규칙이 돌기 전에는 규칙이 만든 것을 보여 주지 않고, 규칙이 낸 값은 페이지 문구에
   적지 않습니다. 결과를 요약하는 마지막 문장은 반환된 분석에서 읽습니다. 해시는
@@ -127,15 +102,7 @@ candidate selection: STATED_DATE_ONLY_NO_CANDIDATE_SCAN
 
 ### 공개 자료 취득 범위
 
-```text
-bounded-window   first page, unchanged (existing FSC window)
-complete-series  closed identity/family/date selector fixed before retrieval
-                 → every returned page retained in order
-                 → row count == unchanged publisher total
-                 refused: value predicate · incomplete pagination
-acquisition scope ──✗──► canonical events · approval hashes
-network transport ──✗──► tests · CI · builds · runtime
-```
+![두 취득 범위와 그것이 닿지 않는 곳](assets/boundary/acquisition-scopes.svg)
 
 - 수동 수집기는 검토된 발행처 어댑터를 쓰고, 자동 전송 시험은 합성으로 유지합니다.
   오프라인 승인 절차는 커밋된 행과 생성된 원본 좌표, 요청을 원래 페이지 바이트와
@@ -147,16 +114,7 @@ network transport ──✗──► tests · CI · builds · runtime
 
 ### 층위 경계
 
-```text
-          proposal        approval         result          lineage
-L1 interpret ──► L2 approve ──► L3 decide ──► L4 evidence
-     ▲                │              │
-     │                └── cannot compute
-     └── cannot approve               └── cannot widen its own scope
-
-any layer ──► REVIEW_REQUIRED (no result, no result hash)
-HTTP boundary: validates every input before L1 acts; not one of the layers
-```
+![네 층위와 각 층의 권한, 그리고 어디서나 가능한 거부 경로](assets/boundary/layer-authority.svg)
 
 권한은 위치가 아니라 층위로 나눕니다. README가 모델을 말하고, 각 층위를 무엇이
 강제하는지는 이 문서에 있습니다.
@@ -175,16 +133,7 @@ HTTP boundary: validates every input before L1 acts; not one of the layers
 
 ### 해석 경계
 
-```text
-provider output (untrusted data)
-  → columns: existing source columns only · transforms: fixed allowlist
-  → strict 1.4 validation
-      invalid shape | low confidence | unknown column | unsupported transform
-        → REVIEW_REQUIRED
-  → proposal (not an approval)
-browser (Web Crypto) ─┬─ one runtime-neutral canonical serializer ─┬─► same proposal hash
-server (recompute)  ──┘                                            └─► required overrides enforced
-```
+![공급자 출력은 엄격한 검증을 통과해야 제안이 된다](assets/boundary/interpretation-boundary.svg)
 
 - 사례 재현은 커밋된 `sourceArtifactHash`로 색인한 표에 대해 서버 전용 픽스처
   공급자를 실행합니다. `1.4` 제안은 승인된 데이터셋·거래소 상수와 각 원본 열, 닫힌
@@ -194,42 +143,14 @@ server (recompute)  ──┘                                            └─�
 
 ### 재현 HTTP 경계
 
-```text
-POST /api/mapping { scenario }
-  → provider from server configuration + closed artifact eligibility registry
-      eligible: the two synthetic source dialects; all others keep fixture mappings
-  → strict mapping validation
-  → { mode, proposal, mappingReceipt? }        provider failure → 422 mapping review
-  receipt: model id + prompt version recorded server-side, encrypted, expires 30 min,
-           revalidated before the approval gate; neither receipt nor model output approves
-
-POST /api/replay { scenario, mutation, rows 1..64, mappingApproval?, mappingReceipt?, caseManifest? (approved CaseManifest) }
-  1 obtain the scenario proposal            caller-authored canonical events → rejected
-  2 verify the approval against that exact proposal
-  3 derive the executable mapping as a pure projection
-  4 compare every submitted row with the server-owned committed row at the same coordinate
-      missing coordinate | differing column → fail closed, never substituted
-  5 derive events, preserving submitted order
-  → no case manifest: stops at MAPPING_APPROVED, no sourceTrace
-  → approved case:    REPLAYED + closed rule result + 5 gate findings (conclusive)
-                      + mechanical sensitivity comparison + sourceTrace
-```
+![항목 연결과 재현 엔드포인트, 그 사이 서버 다섯 단계](assets/boundary/replay-pipeline.svg)
 
 - 페이지 준비와 재현은 구성된 공급자를 호출하지 않습니다. 픽스처 사용자는 그대로이고,
   구성된 사용자는 제안을 먼저 요청해 그 정확한 해시를 승인한 뒤 재현 요청에
   `mappingReceipt`를 넣습니다
   ([ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md)(영문)).
 
-```text
-baseline   committed order
-shuffle    caller permutes parsed rows before submission
-           working mode: browser-local Fisher–Yates, swap the first two if the draw
-           matches the previous submitted order; ≥2 rows differ from the previous
-           submission; history starts at committed order, resets on source change
-           or guided re-entry
-duplicate  committed order, then repeat the first derived event after mapping
-server     adds no randomness, substitutes no stored row, rejects repeated coordinates
-```
+![세 가지 원본 행 변형과 서버가 하지 않는 것](assets/boundary/row-mutations.svg)
 
 - **제출된 원본 행 순서**는 같은 요청 스냅숏에서 읽습니다. 원본 미리보기는 커밋된
   순서를 유지합니다. 같은 입력을 다시 보내면 새 순열을 뽑지 않고 이전 행을 그대로
@@ -240,14 +161,7 @@ server     adds no randomness, substitutes no stored row, rejects repeated coord
   대한 결정론적 결과를 받습니다
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)(영문)).
 
-```text
-HTTP 422  { status: REVIEW_REQUIRED, issues[{ code, path, message }], workflowState }
-  input | canonicalization ambiguity     → INPUT_REVIEW_REQUIRED
-  mapping gate                           → MAPPING_REVIEW_REQUIRED
-  case approval | profile | rule config  → CASE_REVIEW_REQUIRED
-  never: a replay result or canonical result hash
-HTTP 500  reserved for defects outside these declared input failures
-```
+![어느 단계가 실패하면 어떤 검토 상태가 되는가](assets/boundary/review-responses.svg)
 
 - 실패한 실행 단계가 상태를 직접 고릅니다. `APPROVAL_RECORD_REQUIRED`처럼 공유되는
   문제 코드를 문자열로 다시 분류하지 않으며, 응답 계약은 선택된 단계와 맞지 않는
@@ -290,16 +204,7 @@ HTTP 500  reserved for defects outside these declared input failures
 변형, 경계 문구, 최종 `workflowState`, 엔진 버전, 사건 수, 순서가 있는 사건 식별자,
 정본 결과 해시를 담습니다.
 
-```text
-sourceTrace.traceVersion "1.0"
-  entries: exactly one per distinct finding event, in canonical replay order
-    event     schemaVersion · eventId · sourceEventId · datasetId · venueId · eventTime
-              · instrumentId · eventType · rawRowHash
-              + sequence · side · actorId · counterpartyId · orderId · price · quantity when present
-    sourceRow coordinate { sourceArtifactHash, rowNumber } + unchanged string values
-              CSV rowNumber starts at 2 after the header; JSON Lines starts at 1
-INCONCLUSIVE → no findings, empty trace
-```
+![원본 추적 항목 하나가 담는 것](assets/boundary/source-trace.svg)
 
 - 승인과 원본 검증, 재현이 모두 성공한 뒤 `buildFindingSourceTrace`가 반환된 정규
   사건을 신뢰된 커밋 행에 대해 `deriveRawRowHash`로 해결합니다. 이 해시는 좌표와 값을
@@ -327,12 +232,7 @@ INCONCLUSIVE → no findings, empty trace
 
 ### 승인 경계
 
-```text
-UPLOADED -> MAPPING_PROPOSED -> MAPPING_REVIEW_REQUIRED
-                           \-> MAPPING_APPROVED -> CASE_PROPOSED
-CASE_PROPOSED -> CASE_REVIEW_REQUIRED
-             \-> CASE_APPROVED -> REPLAYED -> EXPORTED
-```
+![실행되는 승인 상태기계](assets/boundary/approval-states.svg)
 
 - 경로는 요청 단위 워크플로를 `UPLOADED`에서 만들고 모든 상태 변화를 계약 패키지의
   `applyTransition`으로 보냅니다. 합법 전이 표는 계약이 소유하며 나머지 전이는 모두
@@ -344,11 +244,7 @@ CASE_PROPOSED -> CASE_REVIEW_REQUIRED
   표시된 항목이나 정확히 일치하지 않는 항목에는 이유를 적은 검토 재정의가 더
   필요합니다.
 
-```text
-canonical events → DatasetProfile { canonicalDatasetHash, instruments[], actors[], timeBounds }
-case validation ⊆ profile facts                    (validation cannot widen them)
-reviewer identity · approval time → audit metadata (outside the semantic result hash)
-```
+![사례 검증은 데이터셋 프로파일 안에 머문다](assets/boundary/dataset-profile.svg)
 
 - 직접 프로파일 검증기는 `1.4` 종목을
   `["hypothesis", "instrumentIds", i]`로 보고합니다. 행위자를 담은 프로파일에 대해
@@ -358,22 +254,11 @@ reviewer identity · approval time → audit metadata (outside the semantic resu
 
 ### 결정 경계
 
-```text
-replay engine owns  ordering · deduplication · decimal arithmetic · window aggregation
-                    · rule evaluation · mechanical sensitivity comparison · canonical hashes
-replay engine never executes code written by a model
-```
+![재현 엔진이 소유하는 것과 절대 하지 않는 것](assets/boundary/decision-boundary.svg)
 
 ### 근거 경계
 
-```text
-finding ──► eventId ──► rawRowHash ──► committed source row
-canonicalResultHash ⊇ engineVersion · canonical event projection · evaluation when present
-                    ⊉ mapping · manifest · approval hash        (does not bind case scope)
-bundleHash          ⊇ every 1.3 field except itself, including complete proposals,
-                      supplied approvals, source-artifact declarations, collection metadata
-excluded from the semantic hashes: receivedAt · rawRowHash · workflowState · audit metadata
-```
+![판단 항목에서 원본 행까지의 계보와 각 해시의 범위](assets/boundary/evidence-scopes.svg)
 
 - 판단 항목은 정규 `eventId`를 가리키고, 그 사건은 `sourceEventId`와 `rawRowHash`를
   유지해 검토자가 원본 행까지 갈 수 있게 합니다. 커밋된 합성 픽스처는 그 식별자를
@@ -409,22 +294,7 @@ excluded from the semantic hashes: receivedAt · rawRowHash · workflowState · 
 
 ### 증거 번들 1.3 해시 범위
 
-```text
-EvidenceBundleV13Schema (strict, separate)   used by the byte-backed assembler and verifier
-  source-artifact declarations · complete mapping/case proposals · supplied approvals
-  · workflowState · replay?
-      replay          canonical events · engineVersion · dataset/result hashes · evaluation?
-      evaluation      reused as produced: finding gate · INCONCLUSIVE reason · empty findings
-                      · null sensitivity
-  no normalization        → omit replay
-  no rule result          → omit replay.evaluation only
-EvidenceBundleSchema validates 1.2 only; no implicit conversion
-
-assembleEvidenceBundle  exact CSV/JSON Lines bytes → hash → parse → declaration
-verifyBundle            separately supplied bytes → normalization → approval binding
-                        → evaluation → hash calculation
-                        multi-mapping declaration → fail closed (multi-source replay undefined)
-```
+![증거 번들 1.3이 선언·조립·검증하는 것](assets/boundary/bundle-13.svg)
 
 - 원래의 FSC 일별 시세 아티팩트는 결과 해시는 있고 평가나 사례 매니페스트는 없는
   `MAPPING_APPROVED`에서 끝납니다. 번들 `1.3`은 Event 1.1–1.3, Proposal 1.4–1.8,
@@ -451,16 +321,7 @@ verifyBundle            separately supplied bytes → normalization → approval
 
 ### 의존 방향
 
-```text
-0  contracts        —
-1  scenarios        → contracts
-   published-data   → contracts
-2  replay-engine    → contracts   (devDependencies: scenarios, published-data)
-   ai-harness       → contracts, scenarios, published-data
-3  service-store    → contracts, replay-engine/canonical-json
-4  web              → contracts, scenarios, published-data, ai-harness, replay-engine
-   evals            —
-```
+![층위별 워크스페이스 의존 간선 전부](assets/boundary/dependency-direction.svg)
 
 지금 존재하는 워크스페이스 간선 전부입니다. 앞의 숫자가 그 패키지의 층이고, 화살표는
 가져다 쓰는 쪽에서 가져다 쓰이는 쪽으로 향하며, 줄표는 워크스페이스 의존이 없다는
@@ -499,21 +360,7 @@ verifyBundle            separately supplied bytes → normalization → approval
 
 ## 결정성 계약
 
-```text
-committed source row ──hash──► rawRowHash
-   │ normalize  UTC nanoseconds (fixed width) · canonical decimal strings · signed zero
-   │            · RFC 8785 §3.2.2.3 finite-number spelling
-   ▼
-canonical event ──order──► eventTime -> sequence -> eventId    UTF-16 code units
-   │ exact duplicate       collapse, result unchanged
-   │ conflicting duplicate fail closed, canonical source-identity order
-   │ repeated eventId      CONFLICTING_EVENT_IDENTIFIER before ordering and hashing
-   ▼
-canonical dataset ──hash──► canonicalDatasetHash
-   │ rule  exact scaled-integer cross-products, never binary floating point
-   ▼
-evaluation ──hash──► canonicalResultHash                       reruns are identical
-```
+![커밋된 원본 행에서 정본 결과 해시까지](assets/boundary/determinism-pipeline.svg)
 
 검증된 하나의 데이터셋과 승인된 매니페스트에 대해 다음이 성립합니다.
 
@@ -551,29 +398,14 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ## 출처 계약 이전
 
-```text
-mapping proposal 1.4 / 1.5   sourceArtifactHash
-case manifest 1.3            canonicalDatasetHash
-evidence bundle 1.2          canonicalDatasetHash
-evidence bundle 1.3.replay   canonicalDatasetHash + every declared sourceArtifactHash
-datasetHash (legacy)         not accepted by the strict contracts
-```
+![산출물 버전마다 어떤 해시 이름을 쓰는가](assets/boundary/provenance-hashes.svg)
 
 해시 이름은 맥락에 기대지 않고 하나의 경계를 가리킵니다. 도출과 이전 규칙은
 [ADR 0005](adr/0005-derive-source-provenance.md)(영문)를 참고하세요.
 
 ## 승인 계약 이전
 
-```text
-manifest 1.3   immutable approval record (from 1.2) · ≥1 actor
-               · only registered rule parameters for the declared rule version
-manifest 1.4   non-empty instrument set · closed pattern-to-participant policy
-               · empty actor list = identity absent from the source, so profile
-                 validation requires an empty actor profile
-proposal 1.4   closed identity constants and transform pairs
-               · DECIMAL_STRING produces canonical decimal spelling
-request 2.0    source rows + mapping approval, not canonical events
-```
+![승인 산출물 버전이 각각 선언하는 것](assets/boundary/approval-versions.svg)
 
 - 기존 `1.3` 산출물은 이전 없이 그대로 유효하고, 두 산출물 모두 JSON 수에 공유 RFC 8785
   규칙을 씁니다. 대체된 산출물은 거부되며 이전과 재승인이 필요하고, 오래된 산출물은
@@ -588,26 +420,14 @@ request 2.0    source rows + mapping approval, not canonical events
 
 ## 배포 경계
 
-```text
-Vercel (main)     one Next.js application + local workspace packages
-                  fixture mode: no external model, no database
-                  server-side only: provider adapters and credentials
-                  browser bundles: never a provider credential
-service tier      @weavetrail/service-store → SQLite at an explicit persistent path
-                  immutable snapshots + derived-result input bindings
-                  not wired into the current web deployment
-replay workflow   request-local
-```
+![배포가 돌리는 것과 서비스 층에 아직 필요한 것](assets/boundary/deployment-boundary.svg)
 
 [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md)(영문)과
 [서비스 스냅숏 운영](SERVICE_SNAPSHOTS.md)(영문)을 참고하세요.
 
 ## 표현 경계
 
-```text
-public routes   / · /why · /architecture · /methodology · /evals · /expectations
-                · /replay (guided, working) · /case-2026-09-03
-```
+![여덟 개의 공개 경로: /, /why, /architecture, /methodology, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03](assets/boundary/public-routes.svg)
 
 - 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
   스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
@@ -619,15 +439,7 @@ public routes   / · /why · /architecture · /methodology · /evals · /expecta
 
 ## 일별 시세와 교차시장 규칙 버전의 공존
 
-```text
-registry metadata carries versions and constants by artifact hash
-Event 1.2 (daily only) + Proposal 1.5 / 1.6
-  approved DAILY_QUOTE constant · trading-date anchor transform
-Proposal 1.6
-  injective ordered composite for sourceEventId only; components stay original
-  source columns; duplicate-source and duplicate-target checks retained
-unchanged: existing input branches · engine version · canonical processing · result shapes
-```
+![일별 시세 버전이 레지스트리에서 공존하는 방식](assets/boundary/daily-quote-versions.svg)
 
 공개된 FSC KOSPI 일별 아티팩트는 사례 매니페스트 없이 등록돼 있습니다.
 [일별 시세 정규화](DAILY_QUOTES.ko.md),
@@ -635,28 +447,12 @@ unchanged: existing input branches · engine version · canonical processing · 
 [ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md)(영문)을
 참고하세요.
 
-```text
-Event 1.3 + Proposal 1.7 (separate opt-in)
-  retain trading date · OHLC · the publisher's absolute net change
-engine 0.8.0-cross-market-session-reversal
-  one declared date over an approved Case Manifest 1.4
-  exact scaled-integer arithmetic · declared baseline · per-leg gates
-  accepts combined canonical events from the declared published artifacts
-  single-source HTTP Case Replay: unchanged
-```
+![별도의 교차시장 진입점과 그것이 받아들이는 것](assets/boundary/cross-market-entry.svg)
 
 CROSS_MARKET_SESSION_REVERSAL `1.1`은 또 하나의 선택 규칙 계약입니다
 ([ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md)(영문)).
 
-```text
-per leg (approved configuration)   one denominator + ≥1 declared alternative
-conclusive output                  approved and recomputed metrics · their ratio
-                                   · denominator values and meanings
-                                   under the shared MECHANICAL_METRIC_COMPARISON marker
-minimum price increment            INSTRUMENT_MINIMUM_PRICE_INCREMENT_NOT_TRADE_ESTABLISHED_LEVEL
-                                   an inline approved value retains its provenance
-missing declared field | denominator ≤ 0 → INCONCLUSIVE, sensitivity null
-```
+![교차시장 1.1이 결론을 낼 때 보고하는 것](assets/boundary/denominator-substitution.svg)
 
 - `1.0`은 기존 엔진 버전과 해시로 계속 받아들입니다. 엄격한 사용자는 `1.1`을 택해 모든
   구간에 분모 선언을 더하고 버전 있는 민감도 분기를 받아들입니다. 기본값이나 변환은
@@ -667,16 +463,7 @@ missing declared field | denominator ≤ 0 → INCONCLUSIVE, sensitivity null
 
 ## 공개 체결 스키마 항목 연결 지원
 
-```text
-Mapping Proposal 1.8 (opt-in)   synthetic intraday executions shaped as published
-                                FIX 4.4 ExecutionReport and H0STCNT0 response fields
-  eventType: TRADE (fixed) · both published side code sets converted
-  FIX UTC timestamps converted · H0STCNT0 business date + execution time → explicit KST
-  unmappedFields: H0STCNT0 has no participant/account column
-    → requires a justified approval override
-    → never enters the executable mapping, never creates an actor
-Proposals 1.4–1.7   unchanged, no migration
-```
+![항목 연결 제안 1.8이 고정·변환하고 만들어 내지 않는 것](assets/boundary/execution-schema-mapping.svg)
 
 - [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md)(영문)과
   옆에 둔
