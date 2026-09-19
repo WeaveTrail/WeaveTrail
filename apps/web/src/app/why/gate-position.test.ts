@@ -298,13 +298,14 @@ describe("where the gate sits", () => {
     );
     for (const route of routes)
       expect(deployment, route).toContain(`\`${route}\``);
-    const architecture = readFileSync(
-      resolve(process.cwd(), "docs/ARCHITECTURE.md"),
-      "utf8",
-    );
-    expect(architecture).toContain(
-      "The overview links to `/replay?mode=guided` and `/why`",
-    );
+    for (const document of ["ARCHITECTURE.md", "ARCHITECTURE.ko.md"]) {
+      const architecture = readFileSync(
+        resolve(process.cwd(), "docs", document),
+        "utf8",
+      );
+      for (const route of routes)
+        expect(architecture, `${document} ${route}`).toContain(route);
+    }
   });
 
   it("lists the page under the navigation group about the project", () => {
