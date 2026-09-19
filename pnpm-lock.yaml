@@ -101,13 +101,13 @@ importers:
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@weavetrail/scenarios':
-        specifier: workspace:*
-        version: link:../scenarios
     devDependencies:
       '@weavetrail/published-data':
         specifier: workspace:*
         version: link:../published-data
+      '@weavetrail/scenarios':
+        specifier: workspace:*
+        version: link:../scenarios
 
   packages/scenarios:
     dependencies:

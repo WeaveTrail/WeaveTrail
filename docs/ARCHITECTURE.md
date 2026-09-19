@@ -492,8 +492,67 @@ authenticate a reviewer or source publisher and is not a signature.
 | `replay-engine`  | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
 | `scenarios`      | Synthetic datasets and controlled mutations                     | Published, production, or personal data  |
 | `published-data` | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data   |
+| `service-store`  | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input    |
 | `evals`          | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
 | `web`            | Human review flow and export surface                            | A second implementation of replay logic  |
+
+### Dependency direction
+
+Every workspace edge that exists today. The leading number is the package's
+tier, an arrow points from the package that imports to the package it imports,
+and an em dash means no workspace dependency:
+
+```text
+0  contracts        —
+1  scenarios        → contracts
+   published-data   → contracts
+2  replay-engine    → contracts   (devDependencies: scenarios, published-data)
+   ai-harness       → contracts, scenarios, published-data
+3  service-store    → contracts, replay-engine/canonical-json
+4  web              → contracts, scenarios, published-data, ai-harness, replay-engine
+   evals            —
+```
+
+Four rules keep that graph finite as components are added:
+
+1. **Every edge points down a tier.** There is no sideways or upward edge, and no
+   cycle. `pnpm typecheck` and the workspace manifests are the record; nothing
+   imports a path inside another package, only its published entry point.
+2. **The decision tier receives its inputs as arguments.** Rules, verifiers and
+   evidence assembly take rows, registries, calculators and display templates
+   from their caller. They never resolve a store, a URL, a clock or a provider
+   themselves, which is why a new source or a new storage arrangement cannot
+   reverse an edge.
+3. **Storage may not depend on the decision tier.** One edge crosses this line
+   today, because the canonical kernel (canonical JSON, hashing, ordering,
+   scaled decimals) lives in the same package as the rules and the request
+   workflow. `service-store` reaches it through the runtime-neutral
+   `@weavetrail/replay-engine/canonical-json` entry point, so serialization is
+   the only thing it imports and no rule, threshold, hypothesis or verdict type
+   is reachable from the storage package. The manifest edge stays until the
+   kernel has a home of its own, which is
+   [#211](https://github.com/WeaveTrail/WeaveTrail/issues/211).
+4. **Fixtures are test inputs, not runtime inputs, of the decision tier.**
+   `scenarios` and `published-data` are development dependencies of
+   `replay-engine`. `ai-harness` depends on both at runtime because fixture mode
+   is a shipped provider, not a test aid.
+
+The planned components add nodes, not directions. Collection
+([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179)–[#181](https://github.com/WeaveTrail/WeaveTrail/issues/181))
+sits above storage and below the rules; document parsing
+([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182)), event structuring
+([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184)) and instrument
+resolution ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185)) sit in
+the interpretation tier and may reach contracts, the parser model and the
+published artifacts; fixed-definition conclusions
+([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186)), feed statistics
+([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187)) and claim checks
+([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)) stay in the
+decision tier and may not reach storage. The application wires a resolved
+snapshot into a rule; the rule never fetches one. Which package each planned
+component lands in is settled in
+[#212](https://github.com/WeaveTrail/WeaveTrail/issues/212) before the collection
+work starts, so the graph above stays drawable in full.
 
 ## Determinism contract
 
