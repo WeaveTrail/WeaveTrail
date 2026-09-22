@@ -5,7 +5,11 @@ import {
   type EvidenceGrade,
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
-import type { VerifiedCalculatedEvidenceSentence } from "@weavetrail/replay-engine";
+import type {
+  VerifiedCalculatedEvidenceSentence,
+  VerifiedQuotedEvidenceSentence,
+  VerifiedUnconfirmableEvidenceSentence,
+} from "@weavetrail/replay-engine";
 
 import type { Language } from "./i18n/language";
 
@@ -124,32 +128,21 @@ const gradeClass: Readonly<Record<EvidenceGrade, string>> = {
   INTERPRETATION: "evidence-badge--dashed",
 };
 
-type BadgeBaseProps = {
-  language: Language;
-};
+type VerifiedCodeBackedEvidenceSentence =
+  | VerifiedQuotedEvidenceSentence
+  | VerifiedCalculatedEvidenceSentence
+  | VerifiedUnconfirmableEvidenceSentence;
 
-type VerifiedDifferingEvidenceSentence = Extract<
-  VerifiedCalculatedEvidenceSentence,
-  { readonly grade: "DIFFERS" }
->;
-
-export type EvidenceBadgeProps = BadgeBaseProps &
-  (
-    | {
-        grade: "UNCONFIRMABLE";
-        reasonCode: UnconfirmableReasonCode;
-      }
-    | {
-        grade: "DIFFERS";
-        verifiedSentence: VerifiedDifferingEvidenceSentence;
-        reasonCode?: never;
-      }
-    | {
-        grade: Exclude<EvidenceGrade, "DIFFERS" | "UNCONFIRMABLE">;
-        reasonCode?: never;
-        verifiedSentence?: never;
-      }
-  );
+export type EvidenceBadgeProps = { language: Language } & (
+  | {
+      verifiedSentence: VerifiedCodeBackedEvidenceSentence;
+      grade?: never;
+    }
+  | {
+      grade: "INTERPRETATION";
+      verifiedSentence?: never;
+    }
+);
 
 /**
  * A non-interactive evidence mark. Required companion copy is rendered with
@@ -157,26 +150,29 @@ export type EvidenceBadgeProps = BadgeBaseProps &
  */
 export function EvidenceBadge(props: EvidenceBadgeProps) {
   const text = evidenceGradeCopy[props.language];
-  const grade = text.grades[props.grade];
+  const verifiedSentence =
+    "verifiedSentence" in props ? props.verifiedSentence : undefined;
+  const gradeCode: EvidenceGrade = verifiedSentence?.grade ?? "INTERPRETATION";
+  const grade = text.grades[gradeCode];
   const unconfirmableReason =
-    props.grade === "UNCONFIRMABLE"
-      ? text.unconfirmableReasons[props.reasonCode]
+    verifiedSentence?.grade === "UNCONFIRMABLE"
+      ? text.unconfirmableReasons[verifiedSentence.evidence.reasonCode]
       : undefined;
   return (
     <span className="evidence-mark">
-      <span className={`evidence-badge ${gradeClass[props.grade]}`}>
+      <span className={`evidence-badge ${gradeClass[gradeCode]}`}>
         <span className="visually-hidden">{text.relation}: </span>
         {grade.label}
       </span>
-      {props.grade === "DIFFERS" && (
+      {verifiedSentence?.grade === "DIFFERS" && (
         <>
           <code className="evidence-computed-value">
-            {props.verifiedSentence.evidence.calculation.computedValue}
+            {verifiedSentence.evidence.calculation.computedValue}
           </code>
           <span className="evidence-companion">{text.differenceNote}</span>
         </>
       )}
-      {props.grade === "UNCONFIRMABLE" && (
+      {verifiedSentence?.grade === "UNCONFIRMABLE" && (
         <span className="evidence-companion">
           {text.unconfirmableReason(
             unconfirmableReason!.missing,

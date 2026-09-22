@@ -2,19 +2,24 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
 import type { EvidenceGrade } from "@weavetrail/contracts";
 import {
   deriveEventId,
   deriveRawRowHash,
+  sha256Canonical,
+  sourceArtifactHash,
   verifyCalculatedEvidence,
+  verifyQuotedEvidence,
+  verifyUnconfirmableEvidence,
   type SourceRow,
 } from "@weavetrail/replay-engine";
 
 import {
   EvidenceBadge,
   EvidenceGradeTally,
+  type EvidenceBadgeProps,
   countEvidenceGrades,
   evidenceGradeCopy,
   evidenceGradeForResult,
@@ -37,7 +42,7 @@ const exampleCounts = {
   INTERPRETATION: 3,
 } as const;
 
-function verifiedDifferingSentence() {
+function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
   const sourceRow: SourceRow = {
     coordinate: {
       sourceArtifactHash: "a".repeat(64),
@@ -52,12 +57,15 @@ function verifiedDifferingSentence() {
     sourceEventId: "source-1",
   });
   const prefix = "The close was ";
-  const reportedValue = sourceRow.values.reportedClose!;
+  const reportedValue =
+    grade === "COMPUTED"
+      ? sourceRow.values.close!
+      : sourceRow.values.reportedClose!;
   const candidate = {
     evidenceVersion: "1.0",
-    sentenceId: "differs-1",
+    sentenceId: `calculated-${grade.toLowerCase()}`,
     text: `${prefix}${reportedValue}.`,
-    grade: "DIFFERS",
+    grade,
     evidence: {
       reportedValue,
       displayedValueRange: {
@@ -119,9 +127,71 @@ function verifiedDifferingSentence() {
       ],
     ]),
   });
-  if (verified.grade !== "DIFFERS")
-    throw new Error("Expected a verified DIFFERS sentence");
+  if (verified.grade !== grade)
+    throw new Error(`Expected a verified ${grade} sentence`);
   return verified;
+}
+
+function verifiedQuotedSentence() {
+  const text = "Matches the source text exactly.";
+  const sourceBytes = new TextEncoder().encode(text);
+  return verifyQuotedEvidence(
+    {
+      evidenceVersion: "1.0",
+      sentenceId: "quoted-1",
+      text,
+      grade: "QUOTED",
+      evidence: {
+        sourceArtifactHash: sourceArtifactHash(sourceBytes),
+        byteRange: { start: 0, end: sourceBytes.byteLength },
+      },
+    },
+    sourceBytes,
+  );
+}
+
+function verifiedUnconfirmableSentence() {
+  const dataset = { granularity: "daily" as const };
+  const text = "Source quotes do not contain a time of day.";
+  return verifyUnconfirmableEvidence(
+    {
+      evidenceVersion: "1.0",
+      sentenceId: "unconfirmable-1",
+      text,
+      grade: "UNCONFIRMABLE",
+      evidence: {
+        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+        missingEvidenceCheck: {
+          checkId: "daily-quote-time-of-day",
+          checkVersion: "1.0.0",
+          displayTemplateId: "english-daily-quote-time-of-day",
+          approvedDatasetHash: sha256Canonical(dataset),
+        },
+      },
+    },
+    {
+      checks: new Map([
+        [
+          "daily-quote-time-of-day",
+          new Map([
+            [
+              "1.0.0",
+              {
+                checkVersion: "1.0.0",
+                reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+                dataset,
+                isMissing: (value: typeof dataset) =>
+                  value.granularity === "daily",
+                displayTemplates: new Map([
+                  ["english-daily-quote-time-of-day", () => text],
+                ]),
+              },
+            ],
+          ]),
+        ],
+      ]),
+    },
+  );
 }
 
 describe("evidence badges", () => {
@@ -201,11 +271,12 @@ describe("evidence badges", () => {
   });
 
   it("gives the visible badge a hidden relationship without exposing codes", () => {
+    const verifiedSentence = verifiedCalculatedSentence("COMPUTED");
     const korean = renderToStaticMarkup(
-      createElement(EvidenceBadge, { grade: "COMPUTED", language: "ko" }),
+      createElement(EvidenceBadge, { verifiedSentence, language: "ko" }),
     );
     const english = renderToStaticMarkup(
-      createElement(EvidenceBadge, { grade: "COMPUTED", language: "en" }),
+      createElement(EvidenceBadge, { verifiedSentence, language: "en" }),
     );
     expect(korean).toContain("근거: ");
     expect(korean).toContain("계산 확인");
@@ -228,12 +299,38 @@ describe("evidence badges", () => {
     expect(english).not.toContain("title=");
   });
 
+  it("requires verifier outputs for every code-backed badge", () => {
+    expectTypeOf<{
+      language: "en";
+      grade: "QUOTED";
+    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    expectTypeOf<{
+      language: "en";
+      grade: "COMPUTED";
+    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    expectTypeOf<{
+      language: "en";
+      grade: "UNCONFIRMABLE";
+    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    expectTypeOf<{
+      language: "en";
+      grade: "INTERPRETATION";
+    }>().toMatchTypeOf<EvidenceBadgeProps>();
+
+    const quoted = renderToStaticMarkup(
+      createElement(EvidenceBadge, {
+        language: "en",
+        verifiedSentence: verifiedQuotedSentence(),
+      }),
+    );
+    expect(quoted).toContain("Quoted");
+  });
+
   it("always shows the fixed companion sentence beside a differing badge", () => {
-    const verifiedSentence = verifiedDifferingSentence();
+    const verifiedSentence = verifiedCalculatedSentence("DIFFERS");
     expect(
       renderToStaticMarkup(
         createElement(EvidenceBadge, {
-          grade: "DIFFERS",
           language: "ko",
           verifiedSentence,
         }),
@@ -241,7 +338,6 @@ describe("evidence badges", () => {
     ).toContain("정의나 기준(종가·고가)의 차이일 수 있습니다.");
     const english = renderToStaticMarkup(
       createElement(EvidenceBadge, {
-        grade: "DIFFERS",
         language: "en",
         verifiedSentence,
       }),
@@ -253,11 +349,11 @@ describe("evidence badges", () => {
   });
 
   it("renders the complete unconfirmable reason in the selected language", () => {
+    const verifiedSentence = verifiedUnconfirmableSentence();
     const korean = renderToStaticMarkup(
       createElement(EvidenceBadge, {
-        grade: "UNCONFIRMABLE",
         language: "ko",
-        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+        verifiedSentence,
       }),
     );
     expect(korean).toContain(
@@ -265,9 +361,8 @@ describe("evidence badges", () => {
     );
     const english = renderToStaticMarkup(
       createElement(EvidenceBadge, {
-        grade: "UNCONFIRMABLE",
         language: "en",
-        reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+        verifiedSentence,
       }),
     );
     expect(english).toContain(

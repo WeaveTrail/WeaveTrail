@@ -571,6 +571,60 @@ describe("calculated evidence verification", () => {
     );
   });
 
+  it("rejects padded row numbers before source-coordinate deduplication", () => {
+    const paddedSourceRow: SourceRow = {
+      ...sourceRow,
+      coordinate: { ...sourceRow.coordinate, rowNumber: "02" },
+    };
+    const paddedRowHash = deriveRawRowHash(paddedSourceRow);
+    const secondEventId = deriveEventId({
+      datasetId: "dataset-1",
+      venueId: "venue-1",
+      sourceEventId: "source-2",
+    });
+    const paddedRows = [
+      { event: canonicalEvent, sourceRow },
+      {
+        event: {
+          ...canonicalEvent,
+          eventId: secondEventId,
+          sourceEventId: "source-2",
+          eventTime: "2026-09-03T00:01:00Z",
+          rawRowHash: paddedRowHash,
+        },
+        sourceRow: paddedSourceRow,
+      },
+    ] as const;
+    const paddedCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              ...registeredCalculation,
+              sourceRows: paddedRows,
+              calculate: (rows: readonly SourceRow[]) => String(rows.length),
+            },
+          ],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "2", "2");
+    candidate.evidence.calculation.sourceRows.push({
+      eventId: secondEventId,
+      rawRowHash: paddedRowHash,
+    });
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: paddedCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
+  });
+
   it("does not let a calculator mutate authenticated source rows", () => {
     const mutableRow: SourceRow = structuredClone(sourceRow);
     const mutatingCalculations = new Map([

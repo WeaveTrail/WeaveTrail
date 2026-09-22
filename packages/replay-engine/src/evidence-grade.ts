@@ -1,6 +1,7 @@
 import {
   DecimalStringSchema,
   EvidenceGradedSentenceSchema,
+  SourceTraceRowSchema,
   TradeEventSchema,
   type CalculatedEvidenceSentence,
   type QuotedEvidenceSentence,
@@ -284,7 +285,9 @@ export function verifyCalculatedEvidence(
   try {
     trustedRows = registered.sourceRows.map(({ event, sourceRow }) => ({
       event: deepFreeze(TradeEventSchema.parse(event)),
-      sourceRow: immutableCanonicalSnapshot(sourceRow),
+      sourceRow: immutableCanonicalSnapshot(
+        SourceTraceRowSchema.parse(sourceRow),
+      ),
     }));
     requireUniqueSourceCoordinates(
       trustedRows.map(({ sourceRow }) => sourceRow),

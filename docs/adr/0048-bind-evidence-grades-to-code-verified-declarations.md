@@ -43,13 +43,14 @@ Code-backed grades have a second verification boundary in the replay engine:
   equality for `COMPUTED` and inequality for `DIFFERS`. Verification resolves
   the code-owned calculation by both identifier and version. Each registered
   input is a canonical event paired with its `SourceRow`: the verifier derives
-  the event ID from its source identity, re-derives the row hash, requires both
-  values to match the event and declaration, and rejects duplicate event IDs or
-  source coordinates. It orders the authenticated event-row pairs by
-  `eventTime -> sequence -> eventId`, rejects mixed sequence presence, and
-  freezes isolated row snapshots. It then passes those exact canonical
-  snapshots to the calculation and compares the result with the attached
-  computed value. `DIFFERS` additionally
+  the event ID from its source identity, parses the row through the canonical
+  source-trace row contract before hashing or duplicate detection, re-derives
+  the row hash, requires both values to match the event and declaration, and
+  rejects duplicate event IDs or source coordinates. It orders the
+  authenticated event-row pairs by `eventTime -> sequence -> eventId`, rejects
+  mixed sequence presence, and freezes isolated row snapshots. It then passes
+  those exact canonical snapshots to the calculation and compares the result
+  with the attached computed value. `DIFFERS` additionally
   requires a code-owned resolver to read the reported side from those trusted
   rows; callers cannot invent that value. Verification then renders the
   selected code-owned template and requires the entire text and value range to
@@ -81,10 +82,11 @@ verified values therefore cannot be changed into a different claim without
 crossing the verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
-and tooltip text. The badge component renders the fixed bilingual names and
-required companion text; `DIFFERS` accepts a branded verified sentence and
-derives the recomputed value from it rather than accepting a second caller-owned
-value. The tally uses the contract order and omits zero-count grades.
+and tooltip text. The badge component requires a branded verified sentence for
+every code-backed grade; only `INTERPRETATION` can render without one. It renders
+the fixed bilingual names and required companion text, and derives the
+`DIFFERS` recomputed value and `UNCONFIRMABLE` reason from that verified
+sentence. The tally uses the contract order and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or
