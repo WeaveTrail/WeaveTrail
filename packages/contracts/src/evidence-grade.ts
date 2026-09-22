@@ -65,6 +65,7 @@ export const MissingEvidenceCheckReferenceSchema = z
   .object({
     checkId: IdentifierSchema,
     checkVersion: VersionSchema,
+    displayTemplateId: IdentifierSchema,
     approvedDatasetHash: HashSchema,
   })
   .strict();

@@ -41,20 +41,28 @@ Code-backed grades have a second verification boundary in the replay engine:
   identifier, exact `eventId` and `rawRowHash` inputs, and the computed value.
   The contract binds the displayed range to the reported value and enforces
   equality for `COMPUTED` and inequality for `DIFFERS`. Verification resolves
-  the code-owned calculation by both identifier and version, derives each raw
-  hash again from the registered `SourceRow`, passes those same rows to the
-  calculation, and compares the result with the attached computed value. It
-  then renders the selected code-owned template and requires the entire text
-  and value range to match, so an unverified second claim cannot be appended to
-  the graded sentence. Data can select registered identifiers; it cannot
-  supply executable calculation or display logic.
+  the code-owned calculation by both identifier and version. Each registered
+  input is a canonical event paired with its `SourceRow`: the verifier derives
+  the event ID from its source identity, re-derives the row hash, requires both
+  values to match the event and declaration, and rejects duplicate event IDs or
+  source coordinates. It canonicalizes and freezes isolated row snapshots,
+  then passes those exact authenticated snapshots to the calculation and
+  compares the result with the attached computed value. `DIFFERS` additionally
+  requires a code-owned resolver to read the reported side from those trusted
+  rows; callers cannot invent that value. Verification then renders the
+  selected code-owned template and requires the entire text and value range to
+  match, so an unverified second claim cannot be appended to the graded
+  sentence. Data can select registered identifiers; it cannot supply
+  executable calculation, reported-value, or display logic.
 - `UNCONFIRMABLE` declares a closed reason code and a missing-evidence check
-  identifier, explicit version, and approved dataset hash. Verification
-  resolves the code-owned check by both identifier and version, recomputes the
-  canonical hash of the registered dataset, and awards the grade only when
-  that content matches the declaration and the check returns that the required
-  evidence is absent. User-visible reason fragments come from bilingual
-  application copy keyed by the closed code, never from caller-authored prose.
+  identifier, explicit version, display-template identifier, and approved
+  dataset hash. Verification resolves the code-owned check by both identifier
+  and version, canonicalizes and freezes an isolated dataset snapshot,
+  authenticates that exact snapshot, and awards the grade only when the check
+  reports that the required evidence is absent. The complete displayed claim
+  must match the selected code-owned template, while user-visible reason
+  fragments come from bilingual application copy keyed by the closed code;
+  neither comes from caller-authored prose.
 - `INTERPRETATION` records either a validated model proposal reference or that
   the sentence is not a data question. It carries no claim of code-backed
   confirmation.

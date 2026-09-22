@@ -27,6 +27,7 @@ const computedEvidence = {
 const missingEvidenceCheck = {
   checkId: "daily-quote-time-of-day",
   checkVersion: "1.0.0",
+  displayTemplateId: "english-daily-quote-time-of-day",
   approvedDatasetHash: hash,
 };
 
@@ -44,6 +45,19 @@ describe("evidence grade contracts", () => {
         ...base,
         grade: "SUPPORTED",
         evidence: calculation,
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceGradedSentenceSchema.safeParse({
+        ...base,
+        grade: "UNCONFIRMABLE",
+        evidence: {
+          reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+          missingEvidenceCheck: {
+            ...missingEvidenceCheck,
+            displayTemplateId: "",
+          },
+        },
       }).success,
     ).toBe(false);
   });

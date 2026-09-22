@@ -10,6 +10,7 @@ import {
 } from "./evidence-grade";
 import { sha256Canonical } from "./canonical-hash";
 import {
+  deriveEventId,
   deriveRawRowHash,
   sourceArtifactHash,
   type SourceRow,
@@ -117,12 +118,28 @@ const sourceRow: SourceRow = {
     sourceArtifactHash: "a".repeat(64),
     rowNumber: "2",
   },
-  values: { close: "1032.82" },
+  values: { close: "1032.82", reportedClose: "1031.5" },
 };
 const rowHash = deriveRawRowHash(sourceRow);
+const eventId = deriveEventId({
+  datasetId: "dataset-1",
+  venueId: "venue-1",
+  sourceEventId: "source-1",
+});
+const canonicalEvent = {
+  schemaVersion: "1.1",
+  eventId,
+  sourceEventId: "source-1",
+  datasetId: "dataset-1",
+  venueId: "venue-1",
+  eventTime: "2026-09-03T00:00:00Z",
+  instrumentId: "instrument-1",
+  eventType: "TRADE",
+  rawRowHash: rowHash,
+} as const;
 const trustedRows = [
   {
-    eventId: "event-1",
+    event: canonicalEvent,
     sourceRow,
   },
 ] as const;
@@ -143,6 +160,8 @@ const registeredCalculation = {
   calculationVersion: "1.0.0",
   sourceRows: trustedRows,
   calculate: (rows: readonly SourceRow[]) => rows[0]!.values.close!,
+  reportedValueFromSourceRows: (rows: readonly SourceRow[]) =>
+    rows[0]!.values.reportedClose!,
   displayTemplates,
 };
 const calculations = new Map([
@@ -177,7 +196,7 @@ function calculatedSentence(
         calculationId: "daily-close",
         calculationVersion: "1.0.0",
         displayTemplateId: "english-daily-close",
-        sourceRows: [{ eventId: "event-1", rawRowHash: rowHash }],
+        sourceRows: [{ eventId, rawRowHash: rowHash }],
         computedValue,
       },
     },
@@ -249,7 +268,7 @@ describe("calculated evidence verification", () => {
     };
     const changedRows = [
       {
-        eventId: "event-1",
+        event: canonicalEvent,
         sourceRow: changedSourceRow,
       },
     ] as const;
@@ -350,6 +369,116 @@ describe("calculated evidence verification", () => {
       "SOURCE_ROWS_MISMATCH",
     );
   });
+
+  it("rejects a registered event ID that is rebound to another source row", () => {
+    const reboundRows = [
+      {
+        event: { ...canonicalEvent, eventId: "event-rebound" },
+        sourceRow,
+      },
+    ] as const;
+    const reboundCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          ["1.0.0", { ...registeredCalculation, sourceRows: reboundRows }],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.evidence.calculation.sourceRows[0]!.eventId = "event-rebound";
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: reboundCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
+  });
+
+  it("rejects duplicate registered source coordinates under distinct event IDs", () => {
+    const secondEventId = deriveEventId({
+      datasetId: "dataset-1",
+      venueId: "venue-1",
+      sourceEventId: "source-2",
+    });
+    const duplicateRows = [
+      { event: canonicalEvent, sourceRow },
+      {
+        event: {
+          ...canonicalEvent,
+          eventId: secondEventId,
+          sourceEventId: "source-2",
+        },
+        sourceRow,
+      },
+    ] as const;
+    const duplicateCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          ["1.0.0", { ...registeredCalculation, sourceRows: duplicateRows }],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.evidence.calculation.sourceRows.push({
+      eventId: secondEventId,
+      rawRowHash: rowHash,
+    });
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: duplicateCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
+  });
+
+  it("does not let a calculator mutate authenticated source rows", () => {
+    const mutableRow: SourceRow = structuredClone(sourceRow);
+    const mutatingCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              ...registeredCalculation,
+              sourceRows: [{ event: canonicalEvent, sourceRow: mutableRow }],
+              calculate: (rows: readonly SourceRow[]) => {
+                rows[0]!.values.close = "999";
+                return rows[0]!.values.close!;
+              },
+            },
+          ],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "999", "999");
+    candidate.evidence.calculation.sourceRows[0]!.rawRowHash =
+      deriveRawRowHash(mutableRow);
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: mutatingCalculations,
+        }),
+      "CALCULATION_FAILED",
+    );
+  });
+
+  it("rejects a DIFFERS value that no trusted source row reported", () => {
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(calculatedSentence("DIFFERS", "999"), {
+          calculations,
+        }),
+      "REPORTED_VALUE_MISMATCH",
+    );
+  });
 });
 
 const datasetHash = sha256Canonical({ granularity: "daily" });
@@ -365,6 +494,7 @@ function unconfirmableSentence() {
       missingEvidenceCheck: {
         checkId: "daily-quote-time-of-day",
         checkVersion: "1.0.0",
+        displayTemplateId: "english-daily-quote-time-of-day",
         approvedDatasetHash: datasetHash,
       },
     },
@@ -384,6 +514,12 @@ function missingChecks(granularity: "daily" | "minute") {
             dataset: { granularity },
             isMissing: (dataset: { granularity: "daily" | "minute" }) =>
               dataset.granularity === "daily",
+            displayTemplates: new Map([
+              [
+                "english-daily-quote-time-of-day",
+                () => "Public quotes do not contain a time of day.",
+              ],
+            ]),
           },
         ],
       ]),
@@ -440,6 +576,12 @@ describe("missing evidence verification", () => {
               dataset: changedDataset,
               isMissing: (dataset: typeof changedDataset) =>
                 dataset.granularity === "daily",
+              displayTemplates: new Map([
+                [
+                  "english-daily-quote-time-of-day",
+                  () => "Public quotes do not contain a time of day.",
+                ],
+              ]),
             },
           ],
         ]),
@@ -481,5 +623,55 @@ describe("missing evidence verification", () => {
         "MISSING_EVIDENCE_CHECK_MISMATCH",
       );
     }
+  });
+
+  it("does not let an absence check remove evidence from its authenticated dataset", () => {
+    const dataset = { granularity: "minute" as const, rows: ["09:00"] };
+    const candidate = unconfirmableSentence();
+    candidate.evidence.missingEvidenceCheck.approvedDatasetHash =
+      sha256Canonical(dataset);
+    const checks = new Map([
+      [
+        "daily-quote-time-of-day",
+        new Map([
+          [
+            "1.0.0",
+            {
+              checkVersion: "1.0.0",
+              reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+              dataset,
+              isMissing: (input: typeof dataset) => {
+                input.rows.splice(0);
+                return input.rows.length === 0;
+              },
+              displayTemplates: new Map([
+                [
+                  "english-daily-quote-time-of-day",
+                  () => "Public quotes do not contain a time of day.",
+                ],
+              ]),
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expectMissingCode(
+      () => verifyUnconfirmableEvidence(candidate, { checks }),
+      "MISSING_EVIDENCE_CHECK_FAILED",
+    );
+  });
+
+  it("rejects a displayed claim unrelated to the registered absence check", () => {
+    const candidate = unconfirmableSentence();
+    candidate.text = "The close was 0.";
+
+    expectMissingCode(
+      () =>
+        verifyUnconfirmableEvidence(candidate, {
+          checks: missingChecks("daily"),
+        }),
+      "DISPLAY_TEMPLATE_MISMATCH",
+    );
   });
 });

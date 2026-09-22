@@ -1,17 +1,20 @@
 import {
   DecimalStringSchema,
   EvidenceGradedSentenceSchema,
+  TradeEventSchema,
   type CalculatedEvidenceSentence,
-  type EvidenceSourceRowReference,
   type QuotedEvidenceSentence,
+  type TradeEvent,
   type UnconfirmableEvidenceSentence,
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
 
 import { sha256Canonical } from "./canonical-hash";
-import type { CanonicalJsonInput } from "./canonical-json";
+import { canonicalJson, type CanonicalJsonInput } from "./canonical-json";
 import {
+  deriveEventId,
   deriveRawRowHash,
+  requireUniqueSourceCoordinates,
   sourceArtifactHash,
   type SourceRow,
 } from "./source-ingest";
@@ -43,7 +46,10 @@ export type CalculatedEvidenceVerificationCode =
   | "DISPLAY_TEMPLATE_FAILED"
   | "DISPLAY_TEMPLATE_MISMATCH"
   | "CALCULATION_FAILED"
-  | "COMPUTED_VALUE_MISMATCH";
+  | "COMPUTED_VALUE_MISMATCH"
+  | "REPORTED_VALUE_NOT_REGISTERED"
+  | "REPORTED_VALUE_FAILED"
+  | "REPORTED_VALUE_MISMATCH";
 
 export class CalculatedEvidenceVerificationError extends Error {
   constructor(
@@ -55,10 +61,8 @@ export class CalculatedEvidenceVerificationError extends Error {
   }
 }
 
-export type TrustedEvidenceSourceRow = Pick<
-  EvidenceSourceRowReference,
-  "eventId"
-> & {
+export type TrustedEvidenceSourceRow = {
+  event: TradeEvent;
   sourceRow: SourceRow;
 };
 
@@ -79,6 +83,8 @@ export type RegisteredEvidenceCalculation = {
   calculationVersion: string;
   sourceRows: readonly TrustedEvidenceSourceRow[];
   calculate: EvidenceCalculator;
+  /** Required for DIFFERS; resolves the reported side from trusted rows. */
+  reportedValueFromSourceRows?: EvidenceCalculator;
   displayTemplates: ReadonlyMap<string, EvidenceDisplayTemplate>;
 };
 
@@ -88,7 +94,10 @@ export type MissingEvidenceVerificationCode =
   | "MISSING_EVIDENCE_CHECK_NOT_REGISTERED"
   | "MISSING_EVIDENCE_CHECK_MISMATCH"
   | "MISSING_EVIDENCE_CHECK_FAILED"
-  | "EVIDENCE_AVAILABLE";
+  | "EVIDENCE_AVAILABLE"
+  | "DISPLAY_TEMPLATE_NOT_REGISTERED"
+  | "DISPLAY_TEMPLATE_FAILED"
+  | "DISPLAY_TEMPLATE_MISMATCH";
 
 export class MissingEvidenceVerificationError extends Error {
   constructor(
@@ -106,6 +115,7 @@ export type RegisteredMissingEvidenceCheck<Dataset extends CanonicalJsonInput> =
     reasonCode: UnconfirmableReasonCode;
     dataset: Dataset;
     isMissing: (dataset: Dataset) => boolean;
+    displayTemplates: ReadonlyMap<string, () => string>;
   };
 
 export type MissingEvidenceVerificationContext<
@@ -125,6 +135,22 @@ export type CalculatedEvidenceVerificationContext = {
     ReadonlyMap<string, RegisteredEvidenceCalculation>
   >;
 };
+
+function deepFreeze<T>(value: T): T {
+  if (Array.isArray(value)) {
+    for (const child of value) deepFreeze(child);
+    Object.freeze(value);
+  } else if (value !== null && typeof value === "object") {
+    for (const child of Object.values(value)) deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+/** Canonical serialization creates the isolated snapshot that is then frozen. */
+function immutableCanonicalSnapshot<T extends CanonicalJsonInput>(value: T): T {
+  return deepFreeze(JSON.parse(canonicalJson(value)) as T);
+}
 
 /**
  * Re-match a quoted display sentence against the declared bytes. A valid
@@ -226,19 +252,44 @@ export function verifyCalculatedEvidence(
       "The declared calculation version does not match registered code.",
     );
   }
+  let trustedRows: TrustedEvidenceSourceRow[];
+  try {
+    trustedRows = registered.sourceRows.map(({ event, sourceRow }) => ({
+      event: deepFreeze(TradeEventSchema.parse(event)),
+      sourceRow: immutableCanonicalSnapshot(sourceRow),
+    }));
+    requireUniqueSourceCoordinates(
+      trustedRows.map(({ sourceRow }) => sourceRow),
+    );
+  } catch {
+    throw new CalculatedEvidenceVerificationError(
+      "SOURCE_ROWS_MISMATCH",
+      "Registered calculation inputs are not unique canonical event traces.",
+    );
+  }
+
   const declaredRows = calculation.sourceRows;
   const duplicateIds =
-    new Set(registered.sourceRows.map(({ eventId }) => eventId)).size !==
-    registered.sourceRows.length;
+    new Set(trustedRows.map(({ event }) => event.eventId)).size !==
+    trustedRows.length;
   const rowsMatch =
     !duplicateIds &&
-    declaredRows.length === registered.sourceRows.length &&
+    declaredRows.length === trustedRows.length &&
     declaredRows.every((declared, index) => {
-      const trusted = registered.sourceRows[index];
+      const trusted = trustedRows[index];
+      const rawRowHash =
+        trusted === undefined ? undefined : deriveRawRowHash(trusted.sourceRow);
       return (
         trusted !== undefined &&
-        trusted.eventId === declared.eventId &&
-        deriveRawRowHash(trusted.sourceRow) === declared.rawRowHash
+        trusted.event.eventId ===
+          deriveEventId({
+            datasetId: trusted.event.datasetId,
+            venueId: trusted.event.venueId,
+            sourceEventId: trusted.event.sourceEventId,
+          }) &&
+        trusted.event.eventId === declared.eventId &&
+        trusted.event.rawRowHash === rawRowHash &&
+        rawRowHash === declared.rawRowHash
       );
     });
   if (!rowsMatch) {
@@ -251,9 +302,7 @@ export function verifyCalculatedEvidence(
   let recalculated: string;
   try {
     const output = DecimalStringSchema.safeParse(
-      registered.calculate(
-        registered.sourceRows.map(({ sourceRow }) => sourceRow),
-      ),
+      registered.calculate(trustedRows.map(({ sourceRow }) => sourceRow)),
     );
     if (!output.success) {
       throw new CalculatedEvidenceVerificationError(
@@ -275,6 +324,42 @@ export function verifyCalculatedEvidence(
       "COMPUTED_VALUE_MISMATCH",
       "The attached computed value does not match versioned recalculation.",
     );
+  }
+
+  if (sentence.grade === "DIFFERS") {
+    if (registered.reportedValueFromSourceRows === undefined) {
+      throw new CalculatedEvidenceVerificationError(
+        "REPORTED_VALUE_NOT_REGISTERED",
+        "A DIFFERS grade requires a code-owned reported-value resolver.",
+      );
+    }
+    let reportedValue: string;
+    try {
+      const output = DecimalStringSchema.safeParse(
+        registered.reportedValueFromSourceRows(
+          trustedRows.map(({ sourceRow }) => sourceRow),
+        ),
+      );
+      if (!output.success) {
+        throw new CalculatedEvidenceVerificationError(
+          "REPORTED_VALUE_FAILED",
+          "The registered reported-value resolver did not return an exact decimal string.",
+        );
+      }
+      reportedValue = output.data;
+    } catch (error) {
+      if (error instanceof CalculatedEvidenceVerificationError) throw error;
+      throw new CalculatedEvidenceVerificationError(
+        "REPORTED_VALUE_FAILED",
+        "The registered reported-value resolver failed.",
+      );
+    }
+    if (reportedValue !== sentence.evidence.reportedValue) {
+      throw new CalculatedEvidenceVerificationError(
+        "REPORTED_VALUE_MISMATCH",
+        "The reported value does not match the trusted source rows.",
+      );
+    }
   }
 
   const displayTemplate = registered.displayTemplates.get(
@@ -358,13 +443,14 @@ export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
 
   let missing: boolean;
   try {
-    if (sha256Canonical(registered.dataset) !== reference.approvedDatasetHash) {
+    const dataset = immutableCanonicalSnapshot(registered.dataset);
+    if (sha256Canonical(dataset) !== reference.approvedDatasetHash) {
       throw new MissingEvidenceVerificationError(
         "MISSING_EVIDENCE_CHECK_MISMATCH",
         "The approved dataset content does not match its declared hash.",
       );
     }
-    missing = registered.isMissing(registered.dataset);
+    missing = registered.isMissing(dataset);
   } catch (error) {
     if (error instanceof MissingEvidenceVerificationError) throw error;
     throw new MissingEvidenceVerificationError(
@@ -376,6 +462,31 @@ export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
     throw new MissingEvidenceVerificationError(
       "EVIDENCE_AVAILABLE",
       "The approved dataset contains the evidence declared missing.",
+    );
+  }
+
+  const displayTemplate = registered.displayTemplates.get(
+    reference.displayTemplateId,
+  );
+  if (displayTemplate === undefined) {
+    throw new MissingEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_NOT_REGISTERED",
+      "The declared missing-evidence display template is not registered.",
+    );
+  }
+  let expectedText: string;
+  try {
+    expectedText = displayTemplate();
+  } catch {
+    throw new MissingEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_FAILED",
+      "The registered missing-evidence display template failed.",
+    );
+  }
+  if (sentence.text !== expectedText) {
+    throw new MissingEvidenceVerificationError(
+      "DISPLAY_TEMPLATE_MISMATCH",
+      "The displayed sentence does not match its registered missing-evidence template.",
     );
   }
   return sentence;
