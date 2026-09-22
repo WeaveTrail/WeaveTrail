@@ -12,10 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@weavetrail/contracts": "workspace:*",
-    "@weavetrail/scenarios": "workspace:*"
+    "@weavetrail/contracts": "workspace:*"
   },
   "devDependencies": {
-    "@weavetrail/published-data": "workspace:*"
+    "@weavetrail/published-data": "workspace:*",
+    "@weavetrail/scenarios": "workspace:*"
   }
 }

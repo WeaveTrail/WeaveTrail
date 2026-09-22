@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="layersTitle layersDesc">
   <title id="layersTitle">Layer separation: a model proposes, a person approves, fixed code decides, and every sentence carries the badge of the layer that vouches for it</title>
-  <desc id="layersDesc">Four layers run left to right, from an official release, published market data or a pasted analysis to a sentence on screen with its evidence. Layer one, interpret: a model proposes a release's facts with the passages they came from, and the claims worth checking in a pasted text; it computes nothing. Layer two, approve: a person fixes what will be examined before anything runs and adopts the conclusions that go into a brief; approval cannot edit a result. Layer three, decide: fixed code matches every quotation against the original bytes and recomputes every number from verified source data, and where data is absent it says so instead of guessing. Layer four, evidence: every sentence opens onto its source passage, or onto its rows, formula and definition, and a shared link pins the snapshots it used. Beneath the layers are the five evidence badges: quoted, computed, differs and unconfirmable are checked by code, and AI interpretation is a model's proposal.</desc>
+  <desc id="layersDesc">Four layers run left to right, from an official release, published market data or a pasted analysis to a sentence on screen with its evidence. Layer one, interpret: a model proposes a release's facts with the passages they came from, and the claims worth checking in a pasted text; it computes nothing. Layer two, approve: a person fixes what will be examined before anything runs and adopts the conclusions that go into a brief; approval cannot edit a result. Layer three, decide: fixed code matches every quotation against the original bytes and recomputes every number from verified source data, and where data is absent it says so instead of guessing. Layer four, evidence: every sentence opens onto its source passage, or onto its rows, formula and definition, and a shared link pins the snapshots it used. Beneath the layers are the five evidence badges: quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal.</desc>
   <!--
     Hand-authored README figure. The English and Korean files share one geometry;
     each language brings its own line breaks and chip widths.
@@ -116,12 +116,12 @@
   <g>
     <rect x="40" y="464" width="66" height="24" fill="#ffffff" stroke="#14211f"/>
     <text class="s badge" x="52" y="480" fill="#14211f">Quoted</text>
-    <rect x="116" y="464" width="82" height="24" fill="#0b6e6a" stroke="#0b6e6a"/>
-    <text class="s badge" x="128" y="480" fill="#ffffff">Computed</text>
-    <rect x="208" y="464" width="68" height="24" fill="#14211f" stroke="#14211f"/>
-    <text class="s badge" x="220" y="480" fill="#ffffff">Differs</text>
-    <rect x="286" y="464" width="112" height="24" fill="#fbf4e4" stroke="#8a6a12"/>
-    <text class="s badge" x="298" y="480" fill="#8a6a12">Unconfirmable</text>
+    <rect x="116" y="464" width="94" height="24" fill="#0b6e6a" stroke="#0b6e6a"/>
+    <text class="s badge" x="128" y="480" fill="#ffffff">Recomputed</text>
+    <rect x="220" y="464" width="68" height="24" fill="#14211f" stroke="#14211f"/>
+    <text class="s badge" x="232" y="480" fill="#ffffff">Differs</text>
+    <rect x="298" y="464" width="122" height="24" fill="#fbf4e4" stroke="#8a6a12"/>
+    <text class="s badge" x="310" y="480" fill="#8a6a12">Not confirmable</text>
     <rect x="1026" y="464" width="134" height="24" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
     <text class="s badge" x="1038" y="480" fill="#4f6270">AI interpretation</text>
   </g>

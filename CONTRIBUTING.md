@@ -12,6 +12,12 @@ pnpm check
 pnpm build
 ```
 
+`pnpm figures:build` writes the boundary figures the design documents embed
+from `scripts/boundary-figures.mjs`; `pnpm figures:check` fails when a committed
+figure no longer matches that source, and `pnpm figures:test` exercises the
+renderer. Both run in `pnpm check` and CI, so a diagram and the words around it
+change together.
+
 `pnpm adr:check` validates ADR filenames, first-line headings, unique numbers,
 and local ADR links. `pnpm adr:test` exercises the validator's regression
 fixtures; both commands run in `pnpm check` and CI. Markdown links are relative

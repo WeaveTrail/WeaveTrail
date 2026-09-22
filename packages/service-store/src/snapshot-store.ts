@@ -10,7 +10,7 @@ import {
   type ServiceSnapshot,
   type SnapshotReference,
 } from "@weavetrail/contracts";
-import { canonicalJson } from "@weavetrail/replay-engine";
+import { canonicalJson } from "@weavetrail/replay-engine/canonical-json";
 
 const sha256 = (bytes: Uint8Array | string) =>
   createHash("sha256").update(bytes).digest("hex");
