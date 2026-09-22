@@ -25,6 +25,7 @@ export const EvidenceSourceRowReferenceSchema = z
   .object({
     eventId: IdentifierSchema,
     rawRowHash: HashSchema,
+    canonicalEventHash: HashSchema,
   })
   .strict();
 
@@ -212,6 +213,10 @@ export type CalculatedEvidenceSentence = Extract<
 export type UnconfirmableEvidenceSentence = Extract<
   EvidenceGradedSentence,
   { grade: "UNCONFIRMABLE" }
+>;
+export type InterpretationEvidenceSentence = Extract<
+  EvidenceGradedSentence,
+  { grade: "INTERPRETATION" }
 >;
 export type EvidenceSourceRowReference = z.infer<
   typeof EvidenceSourceRowReferenceSchema

@@ -6,6 +6,7 @@ import {
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
 import type {
+  ValidatedInterpretationEvidenceSentence,
   VerifiedCalculatedEvidenceSentence,
   VerifiedQuotedEvidenceSentence,
   VerifiedUnconfirmableEvidenceSentence,
@@ -133,16 +134,13 @@ type VerifiedCodeBackedEvidenceSentence =
   | VerifiedCalculatedEvidenceSentence
   | VerifiedUnconfirmableEvidenceSentence;
 
-export type EvidenceBadgeProps = { language: Language } & (
-  | {
-      verifiedSentence: VerifiedCodeBackedEvidenceSentence;
-      grade?: never;
-    }
-  | {
-      grade: "INTERPRETATION";
-      verifiedSentence?: never;
-    }
-);
+export type DisplayableEvidenceSentence =
+  VerifiedCodeBackedEvidenceSentence | ValidatedInterpretationEvidenceSentence;
+
+export type EvidenceBadgeProps = {
+  language: Language;
+  sentence: DisplayableEvidenceSentence;
+};
 
 /**
  * A non-interactive evidence mark. Required companion copy is rendered with
@@ -150,13 +148,12 @@ export type EvidenceBadgeProps = { language: Language } & (
  */
 export function EvidenceBadge(props: EvidenceBadgeProps) {
   const text = evidenceGradeCopy[props.language];
-  const verifiedSentence =
-    "verifiedSentence" in props ? props.verifiedSentence : undefined;
-  const gradeCode: EvidenceGrade = verifiedSentence?.grade ?? "INTERPRETATION";
+  const sentence = props.sentence;
+  const gradeCode: EvidenceGrade = sentence.grade;
   const grade = text.grades[gradeCode];
   const unconfirmableReason =
-    verifiedSentence?.grade === "UNCONFIRMABLE"
-      ? text.unconfirmableReasons[verifiedSentence.evidence.reasonCode]
+    sentence.grade === "UNCONFIRMABLE"
+      ? text.unconfirmableReasons[sentence.evidence.reasonCode]
       : undefined;
   return (
     <span className="evidence-mark">
@@ -164,15 +161,15 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
         <span className="visually-hidden">{text.relation}: </span>
         {grade.label}
       </span>
-      {verifiedSentence?.grade === "DIFFERS" && (
+      {sentence.grade === "DIFFERS" && (
         <>
           <code className="evidence-computed-value">
-            {verifiedSentence.evidence.calculation.computedValue}
+            {sentence.evidence.calculation.computedValue}
           </code>
           <span className="evidence-companion">{text.differenceNote}</span>
         </>
       )}
-      {verifiedSentence?.grade === "UNCONFIRMABLE" && (
+      {sentence.grade === "UNCONFIRMABLE" && (
         <span className="evidence-companion">
           {text.unconfirmableReason(
             unconfirmableReason!.missing,
@@ -187,7 +184,7 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
 export type EvidenceGradeCounts = Readonly<Record<EvidenceGrade, number>>;
 
 export function countEvidenceGrades(
-  grades: readonly EvidenceGrade[],
+  sentences: readonly DisplayableEvidenceSentence[],
 ): EvidenceGradeCounts {
   const counts: Record<EvidenceGrade, number> = {
     QUOTED: 0,
@@ -196,7 +193,7 @@ export function countEvidenceGrades(
     UNCONFIRMABLE: 0,
     INTERPRETATION: 0,
   };
-  for (const grade of grades) counts[grade] += 1;
+  for (const sentence of sentences) counts[sentence.grade] += 1;
   return counts;
 }
 
@@ -253,12 +250,13 @@ export function formatEvidenceGradeTally(
 }
 
 export function EvidenceGradeTally({
-  counts,
+  sentences,
   language,
 }: {
-  counts: EvidenceGradeCounts;
+  sentences: readonly DisplayableEvidenceSentence[];
   language: Language;
 }) {
+  const counts = countEvidenceGrades(sentences);
   const tally = formatEvidenceGradeTally(counts, language);
   if (tally === null) return null;
   return (

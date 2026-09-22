@@ -32,13 +32,15 @@ award a code-backed grade.
 Code-backed grades have a second verification boundary in the replay engine:
 
 - `QUOTED` declares an immutable source-artifact hash and a nonempty UTF-8 byte
-  range. Verification re-hashes the supplied artifact and compares the exact
-  range with the displayed sentence. Format-aware document extraction and
+  range. Verification resolves retained bytes from a trusted artifact registry
+  by that hash, re-hashes them, and compares the exact range with the displayed
+  sentence. Candidate-supplied bytes cannot award this grade. Format-aware document extraction and
   reversible HTML, PDF, or HWP coordinates are not implemented by this
   verifier.
 - `COMPUTED` and `DIFFERS` declare the displayed decimal range, the reported
   value, a calculation identifier and explicit version, a display-template
-  identifier, exact `eventId` and `rawRowHash` inputs, and the computed value.
+  identifier, exact `eventId`, `rawRowHash`, and canonical semantic-event hash
+  inputs, and the computed value.
   The contract binds the displayed range to the reported value and enforces
   equality for `COMPUTED` and inequality for `DIFFERS`. Verification resolves
   the code-owned calculation by both identifier and version. Each registered
@@ -46,8 +48,9 @@ Code-backed grades have a second verification boundary in the replay engine:
   the event ID from its source identity, parses the row through the canonical
   source-trace row contract before hashing or duplicate detection, re-derives
   the row hash, requires both values to match the event and declaration, and
-  rejects duplicate event IDs or source coordinates. It orders the
-  authenticated event-row pairs by `eventTime -> sequence -> eventId`, rejects
+  rejects duplicate event IDs or source coordinates. The semantic-event hash
+  binds ordering fields while excluding volatile `receivedAt`. Verification
+  orders the authenticated event-row pairs by `eventTime -> sequence -> eventId`, rejects
   mixed sequence presence, and freezes isolated row snapshots. It then passes
   those exact canonical snapshots to the calculation and compares the result
   with the attached computed value. `DIFFERS` additionally
@@ -60,14 +63,16 @@ Code-backed grades have a second verification boundary in the replay engine:
 - `UNCONFIRMABLE` declares a closed reason code and a missing-evidence check
   identifier, explicit version, display-template identifier, and approved
   dataset hash. Verification resolves the code-owned check by both identifier
-  and version, canonicalizes and freezes an isolated dataset snapshot,
-  authenticates that exact snapshot, and awards the grade only when the check
+  and version, canonicalizes and freezes an isolated dataset snapshot, hashes
+  the check's versioned semantic projection so volatile metadata is explicitly
+  excluded, and awards the grade only when the check
   reports that the required evidence is absent. The complete displayed claim
   must match the selected code-owned template, while user-visible reason
   fragments come from bilingual application copy keyed by the closed code;
   neither comes from caller-authored prose.
 - `INTERPRETATION` records either a validated model proposal reference or that
-  the sentence is not a data question. It carries no claim of code-backed
+  the sentence is not a data question. A dedicated validator freezes the parsed
+  declaration before presentation. It carries no claim of code-backed
   confirmation.
 
 The grade describes the verification relationship, not the provenance tier.
@@ -83,10 +88,12 @@ crossing the verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
 and tooltip text. The badge component requires a branded verified sentence for
-every code-backed grade; only `INTERPRETATION` can render without one. It renders
+every code-backed grade and a branded validated declaration for
+`INTERPRETATION`. It renders
 the fixed bilingual names and required companion text, and derives the
 `DIFFERS` recomputed value and `UNCONFIRMABLE` reason from that verified
-sentence. The tally uses the contract order and omits zero-count grades.
+sentence. The tally derives its counts from the same verified or validated
+sentences, uses the contract order, and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or
@@ -109,3 +116,8 @@ fails closed for an unsupported explanation.
 Evidence Grade `1.0` is new and opt-in. Existing replay, result, event, and
 Evidence Bundle contracts require no migration. A future incompatible change
 uses a new evidence version instead of silently changing `1.0` semantics.
+
+This decision implements the opt-in contract, verifier boundary, and
+presentation primitives. No current public route consumes them. Wiring
+validated declarations, badges, and a tally into every displayed sentence is
+planned work and must not be described as already available.

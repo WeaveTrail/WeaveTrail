@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   CalculatedEvidenceVerificationError,
+  canonicalEvidenceEventHash,
+  InterpretationEvidenceValidationError,
   MissingEvidenceVerificationError,
   QuotedEvidenceVerificationError,
   verifyCalculatedEvidence,
   verifyQuotedEvidence,
   verifyUnconfirmableEvidence,
+  validateInterpretationEvidence,
 } from "./evidence-grade";
 import { sha256Canonical } from "./canonical-hash";
 import {
@@ -22,6 +25,12 @@ const sourceBytes = encoder.encode(sourceText);
 const quote = "원문 해당 구간과 글자 그대로 같습니다.";
 const prefixBytes = encoder.encode("머리말\n");
 const quoteBytes = encoder.encode(quote);
+
+function quotationContext(bytes: Uint8Array = sourceBytes) {
+  return {
+    sourceArtifacts: new Map([[sourceArtifactHash(sourceBytes), bytes]]),
+  };
+}
 
 function quotedSentence() {
   return {
@@ -51,14 +60,13 @@ function expectCode(run: () => unknown, code: string) {
 
 describe("quoted evidence verification", () => {
   it("re-matches a Unicode sentence by byte offsets", () => {
-    expect(verifyQuotedEvidence(quotedSentence(), sourceBytes)).toMatchObject({
-      grade: "QUOTED",
-      text: quote,
-    });
+    expect(
+      verifyQuotedEvidence(quotedSentence(), quotationContext()),
+    ).toMatchObject({ grade: "QUOTED", text: quote });
   });
 
   it("returns a deeply frozen verified quotation", () => {
-    const verified = verifyQuotedEvidence(quotedSentence(), sourceBytes);
+    const verified = verifyQuotedEvidence(quotedSentence(), quotationContext());
 
     expect(Object.isFrozen(verified)).toBe(true);
     expect(Object.isFrozen(verified.evidence)).toBe(true);
@@ -72,7 +80,7 @@ describe("quoted evidence verification", () => {
   it("fails closed when the source artifact bytes change", () => {
     const changed = encoder.encode(sourceText.replace("꼬리말", "다른 꼬리말"));
     expectCode(
-      () => verifyQuotedEvidence(quotedSentence(), changed),
+      () => verifyQuotedEvidence(quotedSentence(), quotationContext(changed)),
       "SOURCE_ARTIFACT_HASH_MISMATCH",
     );
   });
@@ -81,7 +89,7 @@ describe("quoted evidence verification", () => {
     const candidate = quotedSentence();
     candidate.evidence.byteRange.start += 1;
     expectCode(
-      () => verifyQuotedEvidence(candidate, sourceBytes),
+      () => verifyQuotedEvidence(candidate, quotationContext()),
       "SOURCE_SPAN_TEXT_MISMATCH",
     );
   });
@@ -90,7 +98,7 @@ describe("quoted evidence verification", () => {
     const candidate = quotedSentence();
     candidate.evidence.byteRange.end = sourceBytes.byteLength + 1;
     expectCode(
-      () => verifyQuotedEvidence(candidate, sourceBytes),
+      () => verifyQuotedEvidence(candidate, quotationContext()),
       "SOURCE_SPAN_OUT_OF_BOUNDS",
     );
   });
@@ -112,16 +120,60 @@ describe("quoted evidence verification", () => {
                 calculationVersion: "1.0.0",
                 displayTemplateId: "english-daily-close",
                 sourceRows: [
-                  { eventId: "event-1", rawRowHash: "a".repeat(64) },
+                  {
+                    eventId: "event-1",
+                    rawRowHash: "a".repeat(64),
+                    canonicalEventHash: "b".repeat(64),
+                  },
                 ],
                 computedValue: "1032.82",
               },
             },
           },
-          sourceBytes,
+          quotationContext(),
         ),
       "GRADE_NOT_QUOTED",
     );
+  });
+
+  it("does not trust caller-supplied bytes outside the artifact registry", () => {
+    expectCode(
+      () =>
+        verifyQuotedEvidence(quotedSentence(), {
+          sourceArtifacts: new Map(),
+        }),
+      "SOURCE_ARTIFACT_NOT_REGISTERED",
+    );
+  });
+});
+
+describe("interpretation evidence validation", () => {
+  it("requires the model proposal audit reference", () => {
+    const candidate = {
+      evidenceVersion: "1.0",
+      sentenceId: "interpretation-1",
+      text: "This is a model-authored summary.",
+      grade: "INTERPRETATION",
+      evidence: { basis: "MODEL_AUTHORED" },
+    };
+
+    expect(() => validateInterpretationEvidence(candidate)).toThrow(
+      InterpretationEvidenceValidationError,
+    );
+  });
+
+  it("returns a frozen validated interpretation declaration", () => {
+    const validated = validateInterpretationEvidence({
+      evidenceVersion: "1.0",
+      sentenceId: "interpretation-1",
+      text: "This is a model-authored summary.",
+      grade: "INTERPRETATION",
+      evidence: { basis: "MODEL_AUTHORED", proposalRef: "proposal-1" },
+    });
+
+    expect(validated).toMatchObject({ grade: "INTERPRETATION" });
+    expect(Object.isFrozen(validated)).toBe(true);
+    expect(Object.isFrozen(validated.evidence)).toBe(true);
   });
 });
 
@@ -149,6 +201,7 @@ const canonicalEvent = {
   eventType: "TRADE",
   rawRowHash: rowHash,
 } as const;
+const eventHash = canonicalEvidenceEventHash(canonicalEvent);
 const trustedRows = [
   {
     event: canonicalEvent,
@@ -208,7 +261,9 @@ function calculatedSentence(
         calculationId: "daily-close",
         calculationVersion: "1.0.0",
         displayTemplateId: "english-daily-close",
-        sourceRows: [{ eventId, rawRowHash: rowHash }],
+        sourceRows: [
+          { eventId, rawRowHash: rowHash, canonicalEventHash: eventHash },
+        ],
         computedValue,
       },
     },
@@ -302,6 +357,7 @@ describe("calculated evidence verification", () => {
     candidate.evidence.calculation.sourceRows.push({
       eventId: laterEventId,
       rawRowHash: deriveRawRowHash(laterSourceRow),
+      canonicalEventHash: canonicalEvidenceEventHash(laterEvent),
     });
 
     expect(
@@ -309,6 +365,40 @@ describe("calculated evidence verification", () => {
         calculations: outOfOrderCalculations,
       }),
     ).toMatchObject({ grade: "COMPUTED" });
+  });
+
+  it("rejects changed event ordering fields under the same row identity", () => {
+    const changedOrderingCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              ...registeredCalculation,
+              sourceRows: [
+                {
+                  event: {
+                    ...canonicalEvent,
+                    eventTime: "2026-09-03T00:02:00Z",
+                    sequence: "2",
+                  },
+                  sourceRow,
+                },
+              ],
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(calculatedSentence("COMPUTED", "1032.82"), {
+          calculations: changedOrderingCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
   });
 
   it("rejects calculation inputs with mixed sequence presence", () => {
@@ -353,6 +443,7 @@ describe("calculated evidence verification", () => {
     candidate.evidence.calculation.sourceRows.push({
       eventId: secondEventId,
       rawRowHash: deriveRawRowHash(secondSourceRow),
+      canonicalEventHash: canonicalEvidenceEventHash(secondEvent),
     });
 
     expectCalculatedCode(
@@ -560,6 +651,7 @@ describe("calculated evidence verification", () => {
     candidate.evidence.calculation.sourceRows.push({
       eventId: secondEventId,
       rawRowHash: rowHash,
+      canonicalEventHash: canonicalEvidenceEventHash(duplicateRows[1]!.event),
     });
 
     expectCalculatedCode(
@@ -614,6 +706,7 @@ describe("calculated evidence verification", () => {
     candidate.evidence.calculation.sourceRows.push({
       eventId: secondEventId,
       rawRowHash: paddedRowHash,
+      canonicalEventHash: canonicalEvidenceEventHash(paddedRows[1]!.event),
     });
 
     expectCalculatedCode(
@@ -700,6 +793,9 @@ function missingChecks(granularity: "daily" | "minute") {
             checkVersion: "1.0.0",
             reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
             dataset: { granularity },
+            canonicalDatasetForHash: (dataset: {
+              granularity: "daily" | "minute";
+            }) => dataset,
             isMissing: (dataset: { granularity: "daily" | "minute" }) =>
               dataset.granularity === "daily",
             displayTemplates: new Map([
@@ -731,6 +827,44 @@ describe("missing evidence verification", () => {
       verifyUnconfirmableEvidence(unconfirmableSentence(), {
         checks: missingChecks("daily"),
       }),
+    ).toMatchObject({ grade: "UNCONFIRMABLE" });
+  });
+
+  it("excludes volatile metadata through the versioned hash projection", () => {
+    const dataset = {
+      granularity: "daily" as const,
+      receivedAt: "2026-09-22T00:00:00Z",
+      runId: "run-later",
+    };
+    const checks = new Map([
+      [
+        "daily-quote-time-of-day",
+        new Map([
+          [
+            "1.0.0",
+            {
+              checkVersion: "1.0.0",
+              reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+              dataset,
+              canonicalDatasetForHash: (input: typeof dataset) => ({
+                granularity: input.granularity,
+              }),
+              isMissing: (input: typeof dataset) =>
+                input.granularity === "daily",
+              displayTemplates: new Map([
+                [
+                  "english-daily-quote-time-of-day",
+                  () => "Public quotes do not contain a time of day.",
+                ],
+              ]),
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expect(
+      verifyUnconfirmableEvidence(unconfirmableSentence(), { checks }),
     ).toMatchObject({ grade: "UNCONFIRMABLE" });
   });
 
@@ -780,6 +914,8 @@ describe("missing evidence verification", () => {
               checkVersion: "1.0.0",
               reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
               dataset: changedDataset,
+              canonicalDatasetForHash: (dataset: typeof changedDataset) =>
+                dataset,
               isMissing: (dataset: typeof changedDataset) =>
                 dataset.granularity === "daily",
               displayTemplates: new Map([
@@ -846,6 +982,7 @@ describe("missing evidence verification", () => {
               checkVersion: "1.0.0",
               reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
               dataset,
+              canonicalDatasetForHash: (input: typeof dataset) => input,
               isMissing: (input: typeof dataset) => {
                 input.rows.splice(0);
                 return input.rows.length === 0;

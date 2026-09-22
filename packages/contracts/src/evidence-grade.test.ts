@@ -16,7 +16,9 @@ const calculation = {
   calculationId: "daily-close",
   calculationVersion: "1.0.0",
   displayTemplateId: "english-daily-close",
-  sourceRows: [{ eventId: "event-1", rawRowHash: hash }],
+  sourceRows: [
+    { eventId: "event-1", rawRowHash: hash, canonicalEventHash: hash },
+  ],
   computedValue: "1032.82",
 };
 const computedEvidence = {

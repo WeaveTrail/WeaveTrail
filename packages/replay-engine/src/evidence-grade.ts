@@ -4,6 +4,7 @@ import {
   SourceTraceRowSchema,
   TradeEventSchema,
   type CalculatedEvidenceSentence,
+  type InterpretationEvidenceSentence,
   type QuotedEvidenceSentence,
   type TradeEvent,
   type UnconfirmableEvidenceSentence,
@@ -12,7 +13,8 @@ import {
 
 import { sha256Canonical } from "./canonical-hash";
 import { canonicalJson, type CanonicalJsonInput } from "./canonical-json";
-import { canonicalizeEvents } from "./canonicalize";
+import { normalizeEventTime } from "./canonical-order";
+import { canonicalizeEvents, projectCanonicalEvent } from "./canonicalize";
 import {
   deriveEventId,
   deriveRawRowHash,
@@ -24,6 +26,7 @@ import {
 export type QuotedEvidenceVerificationCode =
   | "CONTRACT_INVALID"
   | "GRADE_NOT_QUOTED"
+  | "SOURCE_ARTIFACT_NOT_REGISTERED"
   | "SOURCE_ARTIFACT_HASH_MISMATCH"
   | "SOURCE_SPAN_OUT_OF_BOUNDS"
   | "SOURCE_SPAN_TEXT_MISMATCH";
@@ -58,6 +61,13 @@ export type VerifiedCalculatedEvidenceSentence =
   VerifiedEvidence<CalculatedEvidenceSentence>;
 export type VerifiedUnconfirmableEvidenceSentence =
   VerifiedEvidence<UnconfirmableEvidenceSentence>;
+export type ValidatedInterpretationEvidenceSentence =
+  VerifiedEvidence<InterpretationEvidenceSentence>;
+
+export type QuotedEvidenceVerificationContext = {
+  /** Retained artifacts indexed by their immutable SHA-256. */
+  sourceArtifacts: ReadonlyMap<string, Uint8Array>;
+};
 
 export type CalculatedEvidenceVerificationCode =
   | "CONTRACT_INVALID"
@@ -137,6 +147,8 @@ export type RegisteredMissingEvidenceCheck<Dataset extends CanonicalJsonInput> =
     checkVersion: string;
     reasonCode: UnconfirmableReasonCode;
     dataset: Dataset;
+    /** Versioned semantic projection used for the approved dataset hash. */
+    canonicalDatasetForHash: (dataset: Dataset) => CanonicalJsonInput;
     isMissing: (dataset: Dataset) => boolean;
     displayTemplates: ReadonlyMap<string, () => string>;
   };
@@ -188,7 +200,7 @@ function immutableCanonicalSnapshot<T extends CanonicalJsonInput>(value: T): T {
  */
 export function verifyQuotedEvidence(
   candidate: unknown,
-  sourceBytes: Uint8Array,
+  context: QuotedEvidenceVerificationContext,
 ): VerifiedQuotedEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
@@ -205,6 +217,16 @@ export function verifyQuotedEvidence(
   }
 
   const sentence = parsed.data;
+  const registeredBytes = context.sourceArtifacts.get(
+    sentence.evidence.sourceArtifactHash,
+  );
+  if (registeredBytes === undefined) {
+    throw new QuotedEvidenceVerificationError(
+      "SOURCE_ARTIFACT_NOT_REGISTERED",
+      "The declared source artifact is not available in the trusted store.",
+    );
+  }
+  const sourceBytes = new Uint8Array(registeredBytes);
   if (
     sourceArtifactHash(sourceBytes) !== sentence.evidence.sourceArtifactHash
   ) {
@@ -235,6 +257,50 @@ export function verifyQuotedEvidence(
   }
 
   return freezeVerifiedEvidence(sentence);
+}
+
+export type InterpretationEvidenceValidationCode =
+  "CONTRACT_INVALID" | "GRADE_NOT_INTERPRETATION";
+
+export class InterpretationEvidenceValidationError extends Error {
+  constructor(
+    readonly code: InterpretationEvidenceValidationCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = "InterpretationEvidenceValidationError";
+  }
+}
+
+/** Validate and freeze the audit declaration required by an interpretation. */
+export function validateInterpretationEvidence(
+  candidate: unknown,
+): ValidatedInterpretationEvidenceSentence {
+  const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
+  if (!parsed.success) {
+    throw new InterpretationEvidenceValidationError(
+      "CONTRACT_INVALID",
+      "Interpretation evidence does not satisfy the evidence-grade contract.",
+    );
+  }
+  if (parsed.data.grade !== "INTERPRETATION") {
+    throw new InterpretationEvidenceValidationError(
+      "GRADE_NOT_INTERPRETATION",
+      "Only an INTERPRETATION evidence declaration can be validated here.",
+    );
+  }
+  return freezeVerifiedEvidence(parsed.data);
+}
+
+/** Hash the complete semantic event while excluding volatile receipt metadata. */
+export function canonicalEvidenceEventHash(event: TradeEvent): string {
+  const parsed = TradeEventSchema.parse(event);
+  return sha256Canonical(
+    projectCanonicalEvent({
+      ...parsed,
+      eventTime: normalizeEventTime(parsed.eventTime),
+    }),
+  );
 }
 
 /**
@@ -342,7 +408,9 @@ export function verifyCalculatedEvidence(
           }) &&
         trusted.event.eventId === declared.eventId &&
         trusted.event.rawRowHash === rawRowHash &&
-        rawRowHash === declared.rawRowHash
+        rawRowHash === declared.rawRowHash &&
+        canonicalEvidenceEventHash(trusted.event) ===
+          declared.canonicalEventHash
       );
     });
   if (!rowsMatch) {
@@ -497,7 +565,10 @@ export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
   let missing: boolean;
   try {
     const dataset = immutableCanonicalSnapshot(registered.dataset);
-    if (sha256Canonical(dataset) !== reference.approvedDatasetHash) {
+    const canonicalDataset = immutableCanonicalSnapshot(
+      registered.canonicalDatasetForHash(dataset),
+    );
+    if (sha256Canonical(canonicalDataset) !== reference.approvedDatasetHash) {
       throw new MissingEvidenceVerificationError(
         "MISSING_EVIDENCE_CHECK_MISMATCH",
         "The approved dataset content does not match its declared hash.",

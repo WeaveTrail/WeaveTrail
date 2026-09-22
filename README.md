@@ -35,11 +35,15 @@ publish official releases: exact, but scattered and hard to read. Analysts and
 AI tools publish summaries: easy to read, but nothing in them shows which
 sentence was checked and which is the writer's own inference.
 
-WeaveTrail joins the two. It collects official releases and the published
-market data behind them, turns each release into an event, and leads with the
-conclusions that data supports — on one screen, with the evidence for every
-sentence beside it. Paste in an analysis and it is checked sentence by sentence
-against the same data.
+WeaveTrail is being built to join the two: collect official releases and the
+published market data behind them, turn each release into an event, and lead
+with the conclusions that data supports on one screen.
+
+**Current status:** Evidence Grade `1.0`, its deterministic verification
+boundaries, and bilingual badge and tally components are implemented. No public
+route renders those badges or tallies yet; connecting validated declarations to
+each displayed sentence remains planned. Existing pages must not be read as
+sentence-graded output.
 
 - **What it reads ·** releases from the Financial Services Commission, the
   Financial Supervisory Service and the SEC, and published market data. Primary
@@ -47,8 +51,8 @@ against the same data.
 - **Who it is for ·** anyone who has to explain a market event to someone else:
   research, risk, compliance and planning staff at financial firms, and
   individual analysts who read and write in depth.
-- **What it returns ·** conclusions first, every sentence graded by its
-  evidence, and a one-page brief whose link reopens the same numbers.
+- **What it is planned to return ·** conclusions first, every sentence graded
+  by its evidence, and a one-page brief whose link reopens the same numbers.
 - **What it never does ·** state a cause, intent or legality, single out an
   account, forecast a price, or recommend a trade.
 
@@ -97,8 +101,9 @@ seen the day, which is part of how the result should be read.
 
 A model reads faster than anyone, and a fluent summary can hide a gap. So the
 work is separated by authority: each layer holds what it may do, what it may
-never do, and the record it leaves behind. On screen, that separation is the
-evidence badge on every sentence.
+never do, and the record it leaves behind. The planned public surface makes
+that separation visible with an evidence badge on every sentence; current
+routes do not yet render it.
 
 ![Four layers between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number from verified source data, and every sentence opens onto its evidence. Beneath them, quoted, computed, differs and unconfirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
 
@@ -113,9 +118,9 @@ evidence badge on every sentence.
   and recomputes every number from verified source data. Where the data is
   absent it says so instead of guessing. A source's provenance tier is recorded
   separately.
-- **Evidence ·** every sentence opens onto its source passage, or onto the
-  source rows, the formula and the definition behind it. A number whose origin
-  cannot be resolved is withheld rather than shown.
+- **Evidence ·** the planned surface opens every sentence onto its source
+  passage, or onto the source rows, the formula and the definition behind it. A
+  number whose origin cannot be resolved is withheld rather than shown.
 
 | Badge             | What it means                                                            | Who vouches for it               |
 | ----------------- | ------------------------------------------------------------------------ | -------------------------------- |

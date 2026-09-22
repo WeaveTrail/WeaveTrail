@@ -6,6 +6,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 
 import type { EvidenceGrade } from "@weavetrail/contracts";
 import {
+  canonicalEvidenceEventHash,
   deriveEventId,
   deriveRawRowHash,
   sha256Canonical,
@@ -13,6 +14,7 @@ import {
   verifyCalculatedEvidence,
   verifyQuotedEvidence,
   verifyUnconfirmableEvidence,
+  validateInterpretationEvidence,
   type SourceRow,
 } from "@weavetrail/replay-engine";
 
@@ -56,6 +58,17 @@ function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
     venueId: "venue-1",
     sourceEventId: "source-1",
   });
+  const event = {
+    schemaVersion: "1.1" as const,
+    eventId,
+    sourceEventId: "source-1",
+    datasetId: "dataset-1",
+    venueId: "venue-1",
+    eventTime: "2026-09-03T00:00:00Z",
+    instrumentId: "instrument-1",
+    eventType: "TRADE" as const,
+    rawRowHash,
+  };
   const prefix = "The close was ";
   const reportedValue =
     grade === "COMPUTED"
@@ -76,7 +89,13 @@ function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
         calculationId: "daily-close",
         calculationVersion: "1.0.0",
         displayTemplateId: "english-daily-close",
-        sourceRows: [{ eventId, rawRowHash }],
+        sourceRows: [
+          {
+            eventId,
+            rawRowHash,
+            canonicalEventHash: canonicalEvidenceEventHash(event),
+          },
+        ],
         computedValue: sourceRow.values.close!,
       },
     },
@@ -92,17 +111,7 @@ function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
               calculationVersion: "1.0.0",
               sourceRows: [
                 {
-                  event: {
-                    schemaVersion: "1.1",
-                    eventId,
-                    sourceEventId: "source-1",
-                    datasetId: "dataset-1",
-                    venueId: "venue-1",
-                    eventTime: "2026-09-03T00:00:00Z",
-                    instrumentId: "instrument-1",
-                    eventType: "TRADE",
-                    rawRowHash,
-                  },
+                  event,
                   sourceRow,
                 },
               ],
@@ -146,7 +155,11 @@ function verifiedQuotedSentence() {
         byteRange: { start: 0, end: sourceBytes.byteLength },
       },
     },
-    sourceBytes,
+    {
+      sourceArtifacts: new Map([
+        [sourceArtifactHash(sourceBytes), sourceBytes],
+      ]),
+    },
   );
 }
 
@@ -180,6 +193,7 @@ function verifiedUnconfirmableSentence() {
                 checkVersion: "1.0.0",
                 reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
                 dataset,
+                canonicalDatasetForHash: (value: typeof dataset) => value,
                 isMissing: (value: typeof dataset) =>
                   value.granularity === "daily",
                 displayTemplates: new Map([
@@ -192,6 +206,26 @@ function verifiedUnconfirmableSentence() {
       ]),
     },
   );
+}
+
+function validatedInterpretationSentence() {
+  return validateInterpretationEvidence({
+    evidenceVersion: "1.0",
+    sentenceId: "interpretation-1",
+    text: "This sentence is a model-authored summary.",
+    grade: "INTERPRETATION",
+    evidence: { basis: "MODEL_AUTHORED", proposalRef: "proposal-1" },
+  });
+}
+
+function exampleSentences() {
+  return [
+    ...Array.from({ length: 7 }, () => verifiedQuotedSentence()),
+    ...Array.from({ length: 5 }, () => verifiedCalculatedSentence("COMPUTED")),
+    verifiedCalculatedSentence("DIFFERS"),
+    ...Array.from({ length: 2 }, () => verifiedUnconfirmableSentence()),
+    ...Array.from({ length: 3 }, () => validatedInterpretationSentence()),
+  ];
 }
 
 describe("evidence badges", () => {
@@ -273,10 +307,16 @@ describe("evidence badges", () => {
   it("gives the visible badge a hidden relationship without exposing codes", () => {
     const verifiedSentence = verifiedCalculatedSentence("COMPUTED");
     const korean = renderToStaticMarkup(
-      createElement(EvidenceBadge, { verifiedSentence, language: "ko" }),
+      createElement(EvidenceBadge, {
+        sentence: verifiedSentence,
+        language: "ko",
+      }),
     );
     const english = renderToStaticMarkup(
-      createElement(EvidenceBadge, { verifiedSentence, language: "en" }),
+      createElement(EvidenceBadge, {
+        sentence: verifiedSentence,
+        language: "en",
+      }),
     );
     expect(korean).toContain("근거: ");
     expect(korean).toContain("계산 확인");
@@ -315,12 +355,16 @@ describe("evidence badges", () => {
     expectTypeOf<{
       language: "en";
       grade: "INTERPRETATION";
+    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    expectTypeOf<{
+      language: "en";
+      sentence: ReturnType<typeof validatedInterpretationSentence>;
     }>().toMatchTypeOf<EvidenceBadgeProps>();
 
     const quoted = renderToStaticMarkup(
       createElement(EvidenceBadge, {
         language: "en",
-        verifiedSentence: verifiedQuotedSentence(),
+        sentence: verifiedQuotedSentence(),
       }),
     );
     expect(quoted).toContain("Quoted");
@@ -332,14 +376,14 @@ describe("evidence badges", () => {
       renderToStaticMarkup(
         createElement(EvidenceBadge, {
           language: "ko",
-          verifiedSentence,
+          sentence: verifiedSentence,
         }),
       ),
     ).toContain("정의나 기준(종가·고가)의 차이일 수 있습니다.");
     const english = renderToStaticMarkup(
       createElement(EvidenceBadge, {
         language: "en",
-        verifiedSentence,
+        sentence: verifiedSentence,
       }),
     );
     expect(english).toContain("1032.82");
@@ -353,7 +397,7 @@ describe("evidence badges", () => {
     const korean = renderToStaticMarkup(
       createElement(EvidenceBadge, {
         language: "ko",
-        verifiedSentence,
+        sentence: verifiedSentence,
       }),
     );
     expect(korean).toContain(
@@ -362,7 +406,7 @@ describe("evidence badges", () => {
     const english = renderToStaticMarkup(
       createElement(EvidenceBadge, {
         language: "en",
-        verifiedSentence,
+        sentence: verifiedSentence,
       }),
     );
     expect(english).toContain(
@@ -374,6 +418,7 @@ describe("evidence badges", () => {
 
 describe("evidence tally", () => {
   it("uses the fixed order, separators and spoken form", () => {
+    expect(countEvidenceGrades(exampleSentences())).toEqual(exampleCounts);
     expect(formatEvidenceGradeTally(exampleCounts, "ko")).toEqual({
       visible:
         "문장 18 — 원문 인용 7 · 계산 확인 5 · 불일치 1 · 확인 불가 2 · AI 해석 3",
@@ -420,7 +465,7 @@ describe("evidence tally", () => {
     expect(formatEvidenceGradeTally(counts, "ko")).toBeNull();
     expect(
       renderToStaticMarkup(
-        createElement(EvidenceGradeTally, { counts, language: "ko" }),
+        createElement(EvidenceGradeTally, { sentences: [], language: "ko" }),
       ),
     ).toBe("");
   });
@@ -440,7 +485,7 @@ describe("evidence tally", () => {
   it("puts the spoken sentence on the rendered tally", () => {
     const markup = renderToStaticMarkup(
       createElement(EvidenceGradeTally, {
-        counts: exampleCounts,
+        sentences: exampleSentences(),
         language: "en",
       }),
     );
