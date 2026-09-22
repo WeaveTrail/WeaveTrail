@@ -36,7 +36,7 @@ describe("evidence badges", () => {
     const expected = {
       ko: [
         ["원문 인용", "원문 해당 구간과 글자 그대로 같습니다."],
-        ["계산 확인", "공개 데이터로 다시 계산한 값과 같습니다."],
+        ["계산 확인", "검증된 원자료로 다시 계산한 값과 같습니다."],
         [
           "불일치",
           "다시 계산하면 다른 값이 나옵니다. 계산한 값을 함께 표시합니다.",
@@ -49,7 +49,10 @@ describe("evidence badges", () => {
       ],
       en: [
         ["Quoted", "Matches the source text exactly."],
-        ["Recomputed", "Equals the value recomputed from public data."],
+        [
+          "Recomputed",
+          "Equals the value recomputed from verified source data.",
+        ],
         [
           "Differs",
           "Recomputing gives a different value. The computed value is shown with it.",

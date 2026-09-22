@@ -38,7 +38,7 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
         COMPUTED: {
           label: "계산 확인",
           tallyLabel: "계산 확인",
-          explanation: "공개 데이터로 다시 계산한 값과 같습니다.",
+          explanation: "검증된 원자료로 다시 계산한 값과 같습니다.",
         },
         DIFFERS: {
           label: "불일치",
@@ -80,7 +80,7 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
         COMPUTED: {
           label: "Recomputed",
           tallyLabel: "recomputed",
-          explanation: "Equals the value recomputed from public data.",
+          explanation: "Equals the value recomputed from verified source data.",
         },
         DIFFERS: {
           label: "Differs",

@@ -57,6 +57,18 @@ describe("quoted evidence verification", () => {
     });
   });
 
+  it("returns a deeply frozen verified quotation", () => {
+    const verified = verifyQuotedEvidence(quotedSentence(), sourceBytes);
+
+    expect(Object.isFrozen(verified)).toBe(true);
+    expect(Object.isFrozen(verified.evidence)).toBe(true);
+    expect(Object.isFrozen(verified.evidence.byteRange)).toBe(true);
+    expect(() =>
+      Object.defineProperty(verified, "text", { value: "Changed text" }),
+    ).toThrow(TypeError);
+    expect(verified.text).toBe(quote);
+  });
+
   it("fails closed when the source artifact bytes change", () => {
     const changed = encoder.encode(sourceText.replace("꼬리말", "다른 꼬리말"));
     expectCode(
@@ -228,6 +240,128 @@ describe("calculated evidence verification", () => {
         calculations,
       }),
     ).toMatchObject({ grade: "DIFFERS" });
+  });
+
+  it("returns a deeply frozen verified calculation", () => {
+    const verified = verifyCalculatedEvidence(
+      calculatedSentence("COMPUTED", "1032.82"),
+      { calculations },
+    );
+
+    expect(Object.isFrozen(verified)).toBe(true);
+    expect(Object.isFrozen(verified.evidence)).toBe(true);
+    expect(Object.isFrozen(verified.evidence.calculation)).toBe(true);
+    expect(Object.isFrozen(verified.evidence.calculation.sourceRows)).toBe(
+      true,
+    );
+    expect(() =>
+      Object.defineProperty(verified, "grade", { value: "DIFFERS" }),
+    ).toThrow(TypeError);
+    expect(verified.grade).toBe("COMPUTED");
+  });
+
+  it("calculates with canonical event order instead of registry insertion order", () => {
+    const laterSourceRow: SourceRow = {
+      coordinate: {
+        sourceArtifactHash: "a".repeat(64),
+        rowNumber: "3",
+      },
+      values: { close: "999" },
+    };
+    const laterEventId = deriveEventId({
+      datasetId: "dataset-1",
+      venueId: "venue-1",
+      sourceEventId: "source-2",
+    });
+    const laterEvent = {
+      ...canonicalEvent,
+      eventId: laterEventId,
+      sourceEventId: "source-2",
+      eventTime: "2026-09-03T00:01:00Z",
+      rawRowHash: deriveRawRowHash(laterSourceRow),
+    };
+    const outOfOrderCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              ...registeredCalculation,
+              sourceRows: [
+                { event: laterEvent, sourceRow: laterSourceRow },
+                trustedRows[0],
+              ],
+              calculate: (rows: readonly SourceRow[]) => rows[0]!.values.close!,
+            },
+          ],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.evidence.calculation.sourceRows.push({
+      eventId: laterEventId,
+      rawRowHash: deriveRawRowHash(laterSourceRow),
+    });
+
+    expect(
+      verifyCalculatedEvidence(candidate, {
+        calculations: outOfOrderCalculations,
+      }),
+    ).toMatchObject({ grade: "COMPUTED" });
+  });
+
+  it("rejects calculation inputs with mixed sequence presence", () => {
+    const secondSourceRow: SourceRow = {
+      coordinate: {
+        sourceArtifactHash: "a".repeat(64),
+        rowNumber: "3",
+      },
+      values: { close: "999" },
+    };
+    const secondEventId = deriveEventId({
+      datasetId: "dataset-1",
+      venueId: "venue-1",
+      sourceEventId: "source-2",
+    });
+    const secondEvent = {
+      ...canonicalEvent,
+      eventId: secondEventId,
+      sourceEventId: "source-2",
+      eventTime: "2026-09-03T00:01:00Z",
+      sequence: "2",
+      rawRowHash: deriveRawRowHash(secondSourceRow),
+    };
+    const mixedSequenceCalculations = new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              ...registeredCalculation,
+              sourceRows: [
+                trustedRows[0],
+                { event: secondEvent, sourceRow: secondSourceRow },
+              ],
+            },
+          ],
+        ]),
+      ],
+    ]);
+    const candidate = calculatedSentence("COMPUTED", "1032.82");
+    candidate.evidence.calculation.sourceRows.push({
+      eventId: secondEventId,
+      rawRowHash: deriveRawRowHash(secondSourceRow),
+    });
+
+    expectCalculatedCode(
+      () =>
+        verifyCalculatedEvidence(candidate, {
+          calculations: mixedSequenceCalculations,
+        }),
+      "SOURCE_ROWS_MISMATCH",
+    );
   });
 
   it("rejects a fabricated computed value", () => {
@@ -544,6 +678,24 @@ describe("missing evidence verification", () => {
         checks: missingChecks("daily"),
       }),
     ).toMatchObject({ grade: "UNCONFIRMABLE" });
+  });
+
+  it("returns a deeply frozen verified absence declaration", () => {
+    const verified = verifyUnconfirmableEvidence(unconfirmableSentence(), {
+      checks: missingChecks("daily"),
+    });
+
+    expect(Object.isFrozen(verified)).toBe(true);
+    expect(Object.isFrozen(verified.evidence)).toBe(true);
+    expect(Object.isFrozen(verified.evidence.missingEvidenceCheck)).toBe(true);
+    expect(() =>
+      Object.defineProperty(verified.evidence, "reasonCode", {
+        value: "CHANGED",
+      }),
+    ).toThrow(TypeError);
+    expect(verified.evidence.reasonCode).toBe(
+      "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY",
+    );
   });
 
   it("refuses UNCONFIRMABLE when the approved dataset has the evidence", () => {

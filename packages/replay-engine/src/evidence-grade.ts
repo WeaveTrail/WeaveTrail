@@ -11,6 +11,7 @@ import {
 
 import { sha256Canonical } from "./canonical-hash";
 import { canonicalJson, type CanonicalJsonInput } from "./canonical-json";
+import { canonicalizeEvents } from "./canonicalize";
 import {
   deriveEventId,
   deriveRawRowHash,
@@ -35,6 +36,27 @@ export class QuotedEvidenceVerificationError extends Error {
     this.name = "QuotedEvidenceVerificationError";
   }
 }
+
+type DeepReadonly<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends readonly (infer Item)[]
+    ? readonly DeepReadonly<Item>[]
+    : T extends object
+      ? { readonly [Key in keyof T]: DeepReadonly<T[Key]> }
+      : T;
+
+declare const verifiedEvidenceBrand: unique symbol;
+
+type VerifiedEvidence<Sentence> = DeepReadonly<Sentence> & {
+  readonly [verifiedEvidenceBrand]: true;
+};
+
+export type VerifiedQuotedEvidenceSentence =
+  VerifiedEvidence<QuotedEvidenceSentence>;
+export type VerifiedCalculatedEvidenceSentence =
+  VerifiedEvidence<CalculatedEvidenceSentence>;
+export type VerifiedUnconfirmableEvidenceSentence =
+  VerifiedEvidence<UnconfirmableEvidenceSentence>;
 
 export type CalculatedEvidenceVerificationCode =
   | "CONTRACT_INVALID"
@@ -147,6 +169,12 @@ function deepFreeze<T>(value: T): T {
   return value;
 }
 
+function freezeVerifiedEvidence<Sentence>(
+  sentence: Sentence,
+): VerifiedEvidence<Sentence> {
+  return deepFreeze(sentence) as unknown as VerifiedEvidence<Sentence>;
+}
+
 /** Canonical serialization creates the isolated snapshot that is then frozen. */
 function immutableCanonicalSnapshot<T extends CanonicalJsonInput>(value: T): T {
   return deepFreeze(JSON.parse(canonicalJson(value)) as T);
@@ -160,7 +188,7 @@ function immutableCanonicalSnapshot<T extends CanonicalJsonInput>(value: T): T {
 export function verifyQuotedEvidence(
   candidate: unknown,
   sourceBytes: Uint8Array,
-): QuotedEvidenceSentence {
+): VerifiedQuotedEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
     throw new QuotedEvidenceVerificationError(
@@ -205,7 +233,7 @@ export function verifyQuotedEvidence(
     );
   }
 
-  return sentence;
+  return freezeVerifiedEvidence(sentence);
 }
 
 /**
@@ -216,7 +244,7 @@ export function verifyQuotedEvidence(
 export function verifyCalculatedEvidence(
   candidate: unknown,
   context: CalculatedEvidenceVerificationContext,
-): CalculatedEvidenceSentence {
+): VerifiedCalculatedEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
     throw new CalculatedEvidenceVerificationError(
@@ -261,6 +289,32 @@ export function verifyCalculatedEvidence(
     requireUniqueSourceCoordinates(
       trustedRows.map(({ sourceRow }) => sourceRow),
     );
+
+    const duplicateIds =
+      new Set(trustedRows.map(({ event }) => event.eventId)).size !==
+      trustedRows.length;
+    if (duplicateIds) {
+      throw new Error(
+        "Duplicate event identifiers are not calculation inputs.",
+      );
+    }
+
+    const canonicalEvents = canonicalizeEvents(
+      trustedRows.map(({ event }) => event),
+    ).events;
+    if (canonicalEvents.length !== trustedRows.length) {
+      throw new Error("Calculation inputs must remain distinct.");
+    }
+    const sourceRowsByEventId = new Map(
+      trustedRows.map(({ event, sourceRow }) => [event.eventId, sourceRow]),
+    );
+    trustedRows = canonicalEvents.map((event) => {
+      const sourceRow = sourceRowsByEventId.get(event.eventId);
+      if (sourceRow === undefined) {
+        throw new Error("Canonical event lost its authenticated source row.");
+      }
+      return { event: deepFreeze(event), sourceRow };
+    });
   } catch {
     throw new CalculatedEvidenceVerificationError(
       "SOURCE_ROWS_MISMATCH",
@@ -269,11 +323,7 @@ export function verifyCalculatedEvidence(
   }
 
   const declaredRows = calculation.sourceRows;
-  const duplicateIds =
-    new Set(trustedRows.map(({ event }) => event.eventId)).size !==
-    trustedRows.length;
   const rowsMatch =
-    !duplicateIds &&
     declaredRows.length === trustedRows.length &&
     declaredRows.every((declared, index) => {
       const trusted = trustedRows[index];
@@ -395,7 +445,7 @@ export function verifyCalculatedEvidence(
       "The displayed sentence does not match its registered template.",
     );
   }
-  return sentence;
+  return freezeVerifiedEvidence(sentence);
 }
 
 /**
@@ -405,7 +455,7 @@ export function verifyCalculatedEvidence(
 export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
   candidate: unknown,
   context: MissingEvidenceVerificationContext<Dataset>,
-): UnconfirmableEvidenceSentence {
+): VerifiedUnconfirmableEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
     throw new MissingEvidenceVerificationError(
@@ -489,5 +539,5 @@ export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
       "The displayed sentence does not match its registered missing-evidence template.",
     );
   }
-  return sentence;
+  return freezeVerifiedEvidence(sentence);
 }

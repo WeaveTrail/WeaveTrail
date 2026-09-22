@@ -45,9 +45,11 @@ Code-backed grades have a second verification boundary in the replay engine:
   input is a canonical event paired with its `SourceRow`: the verifier derives
   the event ID from its source identity, re-derives the row hash, requires both
   values to match the event and declaration, and rejects duplicate event IDs or
-  source coordinates. It canonicalizes and freezes isolated row snapshots,
-  then passes those exact authenticated snapshots to the calculation and
-  compares the result with the attached computed value. `DIFFERS` additionally
+  source coordinates. It orders the authenticated event-row pairs by
+  `eventTime -> sequence -> eventId`, rejects mixed sequence presence, and
+  freezes isolated row snapshots. It then passes those exact canonical
+  snapshots to the calculation and compares the result with the attached
+  computed value. `DIFFERS` additionally
   requires a code-owned resolver to read the reported side from those trusted
   rows; callers cannot invent that value. Verification then renders the
   selected code-owned template and requires the entire text and value range to
@@ -66,6 +68,17 @@ Code-backed grades have a second verification boundary in the replay engine:
 - `INTERPRETATION` records either a validated model proposal reference or that
   the sentence is not a data question. It carries no claim of code-backed
   confirmation.
+
+The grade describes the verification relationship, not the provenance tier.
+Calculated inputs may be synthetic fixtures or admitted real sources, so the
+presentation calls them verified source data rather than implying that every
+registered calculation uses public data. Provenance is declared and presented
+separately.
+
+Every successful code-backed verifier returns a branded, deeply read-only
+value and freezes the complete parsed sentence before returning it. Retained
+verified values therefore cannot be changed into a different claim without
+crossing the verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
 and tooltip text. The badge component renders the fixed bilingual names and
