@@ -105,7 +105,7 @@ never do, and the record it leaves behind. The planned public surface makes
 that separation visible with an evidence badge on every sentence; current
 routes do not yet render it.
 
-![Four layers between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number from verified source data, and every sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
+![Planned four-layer surface between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number from verified source data, and each planned sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
 
 - **Interpret · a model ·** proposes the structure of a release — who, when,
   what, how much, which action, under which provision — with the passage each
