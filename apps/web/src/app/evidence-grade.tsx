@@ -5,6 +5,7 @@ import {
   type EvidenceGrade,
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
+import type { VerifiedCalculatedEvidenceSentence } from "@weavetrail/replay-engine";
 
 import type { Language } from "./i18n/language";
 
@@ -50,7 +51,7 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
           label: "확인 불가",
           tallyLabel: "확인 불가",
           explanation:
-            "공개 자료로는 확인할 수 없습니다. 이유와 필요한 자료를 함께 표시합니다.",
+            "검증된 원자료로는 확인할 수 없습니다. 이유와 필요한 자료를 함께 표시합니다.",
         },
         INTERPRETATION: {
           label: "AI 해석",
@@ -62,7 +63,7 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
       differenceNote: "정의나 기준(종가·고가)의 차이일 수 있습니다.",
       unconfirmableReasons: {
         DAILY_QUOTES_HAVE_NO_TIME_OF_DAY: {
-          missing: "공개 시세는 하루 단위라 시각이 없습니다",
+          missing: "검증된 시세 자료는 하루 단위라 시각이 없습니다",
           wouldSettle: "분 단위 자료",
         },
       },
@@ -92,7 +93,7 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
           label: "Not confirmable",
           tallyLabel: "not confirmable",
           explanation:
-            "Public data cannot confirm this. The reason and what would settle it are shown with it.",
+            "Verified source data cannot confirm this. The reason and what would settle it are shown with it.",
         },
         INTERPRETATION: {
           label: "AI interpretation",
@@ -105,7 +106,8 @@ export const evidenceGradeCopy: Readonly<Record<Language, EvidenceGradeCopy>> =
         "The difference can come from a different definition or reference price (close, high).",
       unconfirmableReasons: {
         DAILY_QUOTES_HAVE_NO_TIME_OF_DAY: {
-          missing: "Public quotes are daily, so there is no time of day",
+          missing:
+            "Verified source quotes are daily, so there is no time of day",
           wouldSettle: "Minute-level data",
         },
       },
@@ -126,6 +128,11 @@ type BadgeBaseProps = {
   language: Language;
 };
 
+type VerifiedDifferingEvidenceSentence = Extract<
+  VerifiedCalculatedEvidenceSentence,
+  { readonly grade: "DIFFERS" }
+>;
+
 export type EvidenceBadgeProps = BadgeBaseProps &
   (
     | {
@@ -134,13 +141,13 @@ export type EvidenceBadgeProps = BadgeBaseProps &
       }
     | {
         grade: "DIFFERS";
-        computedValue: string;
+        verifiedSentence: VerifiedDifferingEvidenceSentence;
         reasonCode?: never;
       }
     | {
         grade: Exclude<EvidenceGrade, "DIFFERS" | "UNCONFIRMABLE">;
         reasonCode?: never;
-        computedValue?: never;
+        verifiedSentence?: never;
       }
   );
 
@@ -163,7 +170,9 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
       </span>
       {props.grade === "DIFFERS" && (
         <>
-          <code className="evidence-computed-value">{props.computedValue}</code>
+          <code className="evidence-computed-value">
+            {props.verifiedSentence.evidence.calculation.computedValue}
+          </code>
           <span className="evidence-companion">{text.differenceNote}</span>
         </>
       )}

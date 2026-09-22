@@ -82,8 +82,9 @@ crossing the verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
 and tooltip text. The badge component renders the fixed bilingual names and
-required companion text; `DIFFERS` also renders the recomputed value. The tally
-uses the contract order and omits zero-count grades.
+required companion text; `DIFFERS` accepts a branded verified sentence and
+derives the recomputed value from it rather than accepting a second caller-owned
+value. The tally uses the contract order and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or

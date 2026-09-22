@@ -100,7 +100,7 @@ work is separated by authority: each layer holds what it may do, what it may
 never do, and the record it leaves behind. On screen, that separation is the
 evidence badge on every sentence.
 
-![Four layers between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number, and every sentence opens onto its evidence. Beneath them, quoted, computed, differs and unconfirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
+![Four layers between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number from verified source data, and every sentence opens onto its evidence. Beneath them, quoted, computed, differs and unconfirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
 
 - **Interpret · a model ·** proposes the structure of a release — who, when,
   what, how much, which action, under which provision — with the passage each
@@ -110,19 +110,20 @@ evidence badge on every sentence.
   and chooses which conclusions go into a brief. Approval cannot edit what comes
   back.
 - **Decide · fixed code ·** matches every quotation against the original bytes
-  and recomputes every number from published data. Where the data is absent it
-  says so instead of guessing.
+  and recomputes every number from verified source data. Where the data is
+  absent it says so instead of guessing. A source's provenance tier is recorded
+  separately.
 - **Evidence ·** every sentence opens onto its source passage, or onto the
   source rows, the formula and the definition behind it. A number whose origin
   cannot be resolved is withheld rather than shown.
 
-| Badge             | What it means                                                           | Who vouches for it               |
-| ----------------- | ----------------------------------------------------------------------- | -------------------------------- |
-| Quoted            | The sentence stands in the original, at that passage                    | Code, against the original bytes |
-| Computed          | Recomputed from public data, or equal to the recomputed value           | Code                             |
-| Differs           | Recomputing gives another value, shown beside it                        | Code                             |
-| Unconfirmable     | Public data cannot settle it; the reason and the missing data are shown | Code                             |
-| AI interpretation | A model's summary, or a question data cannot answer                     | Nobody — it is a proposal        |
+| Badge             | What it means                                                            | Who vouches for it               |
+| ----------------- | ------------------------------------------------------------------------ | -------------------------------- |
+| Quoted            | The sentence stands in the original, at that passage                     | Code, against the original bytes |
+| Computed          | Recomputed from verified source data, or equal to that value             | Code                             |
+| Differs           | Recomputing gives another value, shown beside it                         | Code                             |
+| Unconfirmable     | Verified source data cannot settle it; reason and missing data are shown | Code                             |
+| AI interpretation | A model's summary, or a question data cannot answer                      | Nobody — it is a proposal        |
 
 Two rules hold the separation up, and both live in code rather than in
 guidance:

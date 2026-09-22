@@ -5,6 +5,12 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { EvidenceGrade } from "@weavetrail/contracts";
+import {
+  deriveEventId,
+  deriveRawRowHash,
+  verifyCalculatedEvidence,
+  type SourceRow,
+} from "@weavetrail/replay-engine";
 
 import {
   EvidenceBadge,
@@ -31,6 +37,93 @@ const exampleCounts = {
   INTERPRETATION: 3,
 } as const;
 
+function verifiedDifferingSentence() {
+  const sourceRow: SourceRow = {
+    coordinate: {
+      sourceArtifactHash: "a".repeat(64),
+      rowNumber: "2",
+    },
+    values: { close: "1032.82", reportedClose: "1031.5" },
+  };
+  const rawRowHash = deriveRawRowHash(sourceRow);
+  const eventId = deriveEventId({
+    datasetId: "dataset-1",
+    venueId: "venue-1",
+    sourceEventId: "source-1",
+  });
+  const prefix = "The close was ";
+  const reportedValue = sourceRow.values.reportedClose!;
+  const candidate = {
+    evidenceVersion: "1.0",
+    sentenceId: "differs-1",
+    text: `${prefix}${reportedValue}.`,
+    grade: "DIFFERS",
+    evidence: {
+      reportedValue,
+      displayedValueRange: {
+        start: prefix.length,
+        end: prefix.length + reportedValue.length,
+      },
+      calculation: {
+        calculationId: "daily-close",
+        calculationVersion: "1.0.0",
+        displayTemplateId: "english-daily-close",
+        sourceRows: [{ eventId, rawRowHash }],
+        computedValue: sourceRow.values.close!,
+      },
+    },
+  };
+  const verified = verifyCalculatedEvidence(candidate, {
+    calculations: new Map([
+      [
+        "daily-close",
+        new Map([
+          [
+            "1.0.0",
+            {
+              calculationVersion: "1.0.0",
+              sourceRows: [
+                {
+                  event: {
+                    schemaVersion: "1.1",
+                    eventId,
+                    sourceEventId: "source-1",
+                    datasetId: "dataset-1",
+                    venueId: "venue-1",
+                    eventTime: "2026-09-03T00:00:00Z",
+                    instrumentId: "instrument-1",
+                    eventType: "TRADE",
+                    rawRowHash,
+                  },
+                  sourceRow,
+                },
+              ],
+              calculate: (rows) => rows[0]!.values.close!,
+              reportedValueFromSourceRows: (rows) =>
+                rows[0]!.values.reportedClose!,
+              displayTemplates: new Map([
+                [
+                  "english-daily-close",
+                  ({ reportedValue: value }) => ({
+                    text: `${prefix}${value}.`,
+                    displayedValueRange: {
+                      start: prefix.length,
+                      end: prefix.length + value.length,
+                    },
+                  }),
+                ],
+              ]),
+            },
+          ],
+        ]),
+      ],
+    ]),
+  });
+  if (verified.grade !== "DIFFERS")
+    throw new Error("Expected a verified DIFFERS sentence");
+  return verified;
+}
+
 describe("evidence badges", () => {
   it("renders every fixed name and explanation in both languages", () => {
     const expected = {
@@ -43,7 +136,7 @@ describe("evidence badges", () => {
         ],
         [
           "확인 불가",
-          "공개 자료로는 확인할 수 없습니다. 이유와 필요한 자료를 함께 표시합니다.",
+          "검증된 원자료로는 확인할 수 없습니다. 이유와 필요한 자료를 함께 표시합니다.",
         ],
         ["AI 해석", "모델이 요약·분류했거나, 데이터로 판단할 문장이 아닙니다."],
       ],
@@ -59,7 +152,7 @@ describe("evidence badges", () => {
         ],
         [
           "Not confirmable",
-          "Public data cannot confirm this. The reason and what would settle it are shown with it.",
+          "Verified source data cannot confirm this. The reason and what would settle it are shown with it.",
         ],
         [
           "AI interpretation",
@@ -136,12 +229,13 @@ describe("evidence badges", () => {
   });
 
   it("always shows the fixed companion sentence beside a differing badge", () => {
+    const verifiedSentence = verifiedDifferingSentence();
     expect(
       renderToStaticMarkup(
         createElement(EvidenceBadge, {
           grade: "DIFFERS",
           language: "ko",
-          computedValue: "1032.82",
+          verifiedSentence,
         }),
       ),
     ).toContain("정의나 기준(종가·고가)의 차이일 수 있습니다.");
@@ -149,7 +243,7 @@ describe("evidence badges", () => {
       createElement(EvidenceBadge, {
         grade: "DIFFERS",
         language: "en",
-        computedValue: "1032.82",
+        verifiedSentence,
       }),
     );
     expect(english).toContain("1032.82");
@@ -167,7 +261,7 @@ describe("evidence badges", () => {
       }),
     );
     expect(korean).toContain(
-      "공개 시세는 하루 단위라 시각이 없습니다. 분 단위 자료가 연결되면 확인할 수 있습니다.",
+      "검증된 시세 자료는 하루 단위라 시각이 없습니다. 분 단위 자료가 연결되면 확인할 수 있습니다.",
     );
     const english = renderToStaticMarkup(
       createElement(EvidenceBadge, {
@@ -177,7 +271,7 @@ describe("evidence badges", () => {
       }),
     );
     expect(english).toContain(
-      "Public quotes are daily, so there is no time of day. Minute-level data would let us confirm it.",
+      "Verified source quotes are daily, so there is no time of day. Minute-level data would let us confirm it.",
     );
     expect(english).not.toContain("DAILY_QUOTES_HAVE_NO_TIME_OF_DAY");
   });
