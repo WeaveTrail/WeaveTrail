@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CalculatedEvidenceVerificationError,
+  assertAuthenticatedEvidence,
   canonicalEvidenceEventHash,
   InterpretationEvidenceValidationError,
   MissingEvidenceVerificationError,
@@ -75,6 +76,20 @@ describe("quoted evidence verification", () => {
       Object.defineProperty(verified, "text", { value: "Changed text" }),
     ).toThrow(TypeError);
     expect(verified.text).toBe(quote);
+  });
+
+  it("authenticates only the original verifier result", () => {
+    const verified = verifyQuotedEvidence(quotedSentence(), quotationContext());
+    expect(() => assertAuthenticatedEvidence(verified)).not.toThrow();
+    expect(() =>
+      assertAuthenticatedEvidence({ ...verified, text: "Changed text" }),
+    ).toThrow("Evidence sentence was not authenticated by a verifier.");
+    expect(() =>
+      assertAuthenticatedEvidence({
+        ...verified,
+        evidence: { ...verified.evidence },
+      }),
+    ).toThrow("Evidence sentence was not authenticated by a verifier.");
   });
 
   it("fails closed when the source artifact bytes change", () => {

@@ -370,6 +370,27 @@ describe("evidence badges", () => {
     expect(quoted).toContain("Quoted");
   });
 
+  it("rejects copied declarations that retain the TypeScript brand", () => {
+    for (const verified of [
+      verifiedQuotedSentence(),
+      verifiedCalculatedSentence("COMPUTED"),
+      verifiedCalculatedSentence("DIFFERS"),
+      verifiedUnconfirmableSentence(),
+      validatedInterpretationSentence(),
+    ]) {
+      const copied = { ...verified, text: "Model-authored replacement." };
+      expectTypeOf(copied).toMatchTypeOf<EvidenceBadgeProps["sentence"]>();
+      expect(() =>
+        renderToStaticMarkup(
+          createElement(EvidenceBadge, { language: "en", sentence: copied }),
+        ),
+      ).toThrow("Evidence sentence was not authenticated by a verifier.");
+      expect(() => countEvidenceGrades([copied])).toThrow(
+        "Evidence sentence was not authenticated by a verifier.",
+      );
+    }
+  });
+
   it("always shows the fixed companion sentence beside a differing badge", () => {
     const verifiedSentence = verifiedCalculatedSentence("DIFFERS");
     expect(

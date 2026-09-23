@@ -81,10 +81,12 @@ presentation calls them verified source data rather than implying that every
 registered calculation uses public data. Provenance is declared and presented
 separately.
 
-Every successful code-backed verifier returns a branded, deeply read-only
-value and freezes the complete parsed sentence before returning it. Retained
-verified values therefore cannot be changed into a different claim without
-crossing the verification boundary again.
+Every successful evidence verifier or validator returns a branded, deeply
+read-only value and freezes the complete parsed sentence before returning it.
+It also registers that exact object in a private runtime identity set. TypeScript spreads retain
+the compile-time brand, so presentation checks runtime identity before using a
+sentence. Copies, deserialized objects, and changed declarations must cross the
+verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
 and tooltip text. The badge component requires a branded verified sentence for
@@ -92,8 +94,8 @@ every code-backed grade and a branded validated declaration for
 `INTERPRETATION`. It renders
 the fixed bilingual names and required companion text, and derives the
 `DIFFERS` recomputed value and `UNCONFIRMABLE` reason from that verified
-sentence. The tally derives its counts from the same verified or validated
-sentences, uses the contract order, and omits zero-count grades.
+sentence. The tally authenticates each sentence before deriving counts, uses
+the contract order, and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or

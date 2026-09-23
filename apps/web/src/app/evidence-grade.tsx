@@ -5,11 +5,12 @@ import {
   type EvidenceGrade,
   type UnconfirmableReasonCode,
 } from "@weavetrail/contracts";
-import type {
-  ValidatedInterpretationEvidenceSentence,
-  VerifiedCalculatedEvidenceSentence,
-  VerifiedQuotedEvidenceSentence,
-  VerifiedUnconfirmableEvidenceSentence,
+import {
+  assertAuthenticatedEvidence,
+  type ValidatedInterpretationEvidenceSentence,
+  type VerifiedCalculatedEvidenceSentence,
+  type VerifiedQuotedEvidenceSentence,
+  type VerifiedUnconfirmableEvidenceSentence,
 } from "@weavetrail/replay-engine";
 
 import type { Language } from "./i18n/language";
@@ -149,6 +150,7 @@ export type EvidenceBadgeProps = {
 export function EvidenceBadge(props: EvidenceBadgeProps) {
   const text = evidenceGradeCopy[props.language];
   const sentence = props.sentence;
+  assertAuthenticatedEvidence(sentence);
   const gradeCode: EvidenceGrade = sentence.grade;
   const grade = text.grades[gradeCode];
   const unconfirmableReason =
@@ -193,7 +195,10 @@ export function countEvidenceGrades(
     UNCONFIRMABLE: 0,
     INTERPRETATION: 0,
   };
-  for (const sentence of sentences) counts[sentence.grade] += 1;
+  for (const sentence of sentences) {
+    assertAuthenticatedEvidence(sentence);
+    counts[sentence.grade] += 1;
+  }
   return counts;
 }
 

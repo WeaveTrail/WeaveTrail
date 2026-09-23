@@ -55,6 +55,8 @@ type VerifiedEvidence<Sentence> = DeepReadonly<Sentence> & {
   readonly [verifiedEvidenceBrand]: true;
 };
 
+const authenticatedEvidence = new WeakSet<object>();
+
 export type VerifiedQuotedEvidenceSentence =
   VerifiedEvidence<QuotedEvidenceSentence>;
 export type VerifiedCalculatedEvidenceSentence =
@@ -63,6 +65,19 @@ export type VerifiedUnconfirmableEvidenceSentence =
   VerifiedEvidence<UnconfirmableEvidenceSentence>;
 export type ValidatedInterpretationEvidenceSentence =
   VerifiedEvidence<InterpretationEvidenceSentence>;
+
+/** Only the exact frozen declaration returned by a verifier is authenticated. */
+export function assertAuthenticatedEvidence(
+  sentence:
+    | VerifiedQuotedEvidenceSentence
+    | VerifiedCalculatedEvidenceSentence
+    | VerifiedUnconfirmableEvidenceSentence
+    | ValidatedInterpretationEvidenceSentence,
+): void {
+  if (!authenticatedEvidence.has(sentence)) {
+    throw new Error("Evidence sentence was not authenticated by a verifier.");
+  }
+}
 
 export type QuotedEvidenceVerificationContext = {
   /** Retained artifacts indexed by their immutable SHA-256. */
@@ -185,7 +200,9 @@ function deepFreeze<T>(value: T): T {
 function freezeVerifiedEvidence<Sentence>(
   sentence: Sentence,
 ): VerifiedEvidence<Sentence> {
-  return deepFreeze(sentence) as unknown as VerifiedEvidence<Sentence>;
+  const frozen = deepFreeze(sentence) as unknown as VerifiedEvidence<Sentence>;
+  authenticatedEvidence.add(frozen);
+  return frozen;
 }
 
 /** Canonical serialization creates the isolated snapshot that is then frozen. */
