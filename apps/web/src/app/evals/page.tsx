@@ -89,13 +89,20 @@ export const checks = [
   {
     name: "Identity-conflict rejection",
     status: "Implemented",
-    detail: "Reject conflicting reuse of an event or source identity.",
+    detail:
+      "Reject conflicting reuse of an event or source identity, including the committed FIX case that stops at INPUT_REVIEW_REQUIRED with no result hash.",
     evidence: [
       {
         file: "packages/replay-engine/src/replay-foundation.test.ts",
         titles: [
           "rejects a shared event identifier independent of input order",
           "rejects conflicting reuse of a source identity independent of input order",
+        ],
+      },
+      {
+        file: "packages/replay-engine/src/published-execution-schema.test.ts",
+        titles: [
+          "routes committed conflicting FIX identity evidence to input review with no result hash",
         ],
       },
     ],
@@ -283,7 +290,8 @@ export const checks = [
   {
     name: "Scenario classification",
     status: "Implemented",
-    detail: "Pin three synthetic cases to their declared rule outcomes.",
+    detail:
+      "Pin complete evidence that passes every gate to SUPPORTED, sufficient broad-participation evidence that fails concentration gates to NOT_SUPPORTED, and four in-window trades missing side evidence to INCONCLUSIVE with all four non-comparable.",
     evidence: [
       {
         file: "packages/replay-engine/src/rapid-price-lift-golden.test.ts",

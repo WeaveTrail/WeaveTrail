@@ -1,4 +1,8 @@
 // Display metadata only. Never included in mapping approvals or event hashes.
+type RecordedSource = {
+  recordUrl: string;
+};
+
 type RealSourceDateScope =
   | { basDt: string; basDtRange?: never }
   | {
@@ -7,7 +11,12 @@ type RealSourceDateScope =
     };
 
 export type SourceProvenance =
-  | { kind: "synthetic"; provider: string; attribution: string }
+  | (RecordedSource & {
+      kind: "synthetic";
+      provider: string;
+      title: string;
+      attribution: string;
+    })
   | ({
       kind: "real";
       provider: string;
@@ -23,4 +32,5 @@ export type SourceProvenance =
         attributionRequirements: string;
         attribution: string;
       };
-    } & RealSourceDateScope);
+    } & RealSourceDateScope &
+      RecordedSource);

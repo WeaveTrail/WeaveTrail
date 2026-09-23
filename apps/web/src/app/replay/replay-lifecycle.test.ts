@@ -97,7 +97,7 @@ function deferred<T>() {
   });
   return { promise, resolve, reject };
 }
-const first = "rapid-price-lift-supported.csv";
+const first = "published-execution-fix44.csv";
 const second = "rapid-price-lift-insufficient-evidence.csv";
 function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
   const slots: unknown[] = [];
@@ -110,8 +110,10 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     return {
       value: value as ReplayScenarioOption["value"],
       label: fixture.label,
+      purpose: "ENGINE_REGRESSION",
       sourceArtifactHash: fixture.sourceArtifactHash,
       rows: fixture.rows,
+      availableMutations: ["baseline", "shuffle", "duplicate"],
       manifest,
     };
   });
@@ -239,15 +241,26 @@ function ok(hash = "a".repeat(64)) {
 describe("configured mapping proposal lifecycle", () => {
   async function configuredView() {
     const prepared = await prepareReplayScenarios();
-    const dialect = prepared.scenarios.find(
-      (option) => option.value === "concentrated-buy-dialect-a.csv",
-    )!;
+    const source = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
+    const dialect: ReplayScenarioOption = {
+      value: "concentrated-buy-dialect-a.csv",
+      label: source.label,
+      purpose: "ENGINE_REGRESSION",
+      sourceArtifactHash: source.sourceArtifactHash,
+      rows: source.rows,
+      availableMutations: ["baseline", "shuffle", "duplicate"],
+      mappingRequestRequired: true,
+    };
     return setup({
       ...prepared,
       scenarios: [
-        { ...dialect, mappingRequestRequired: true },
+        dialect,
         ...prepared.scenarios.filter((option) => option.value === first),
       ],
+      proposals: {
+        ...prepared.proposals,
+        [source.sourceArtifactHash]: concentratedBuyDialectAProposal,
+      },
     });
   }
   const mappingResponse = () =>

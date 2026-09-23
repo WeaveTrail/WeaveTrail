@@ -15,10 +15,19 @@ verification. It is not a production market-surveillance system.
   not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
 - The deployment configuration uses fixture proposals over committed synthetic
   and licensed published source artifacts; it contains no model-provider credential.
-- Case Replay uses a supported synthetic case and a separate Dialect B mapping
-  review example. Dialect B has no rule manifest; its justified override cannot
-  authorize the worked case. The guide is not a missing/conflicting-source
-  scenario suite.
+- Case Replay uses the complete published-schema FIX 4.4 projection as its
+  supported synthetic case and the actorless H0STCNT0 projection as its
+  separate mapping-review example. H0STCNT0 has no rule manifest;
+  acknowledging its absent actor cannot authorize the worked case. The source
+  list also exposes a missing-side case that reaches `INCONCLUSIVE` and a
+  conflicting-identity case that reaches `INPUT_REVIEW_REQUIRED`; the guided
+  walkthrough itself still follows only the complete supported case.
+- The source picker contains published-schema projections, licensed published
+  sources, and a temporary engine-regression fallback for `NOT_SUPPORTED`.
+  Other placeholders remain reachable to tests and the replay
+  API but are not offered to a reviewer. Licensed published sources offer only
+  baseline and row-order shuffle; no control invents a value, participant, or
+  pattern verdict.
 - Guided completion preserves approvals and results only in the mounted
   browser view. Refresh starts unapproved. Repeating a case compares two actual
   hashes for same-input repeatability; it establishes neither authenticity nor
@@ -55,14 +64,19 @@ verification. It is not a production market-surveillance system.
   [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
-- Finite-number spelling is specified, but independent Evidence Bundle
-  assembly and verification remain planned. The implementation does not claim
+- Public-source persistence has a SQLite implementation with immutable bytes,
+  provenance and derived-result input bindings. Its collection and resolution
+  APIs are tested with synthetic responses on local disk; the web app does not
+  yet use them. Scheduled collection, event/share routes, multi-host storage and
+  backup automation are not implemented. See
+  [service snapshot operations](SERVICE_SNAPSHOTS.md).
+- Finite-number spelling is specified, but the implementation does not claim
   full JSON Canonicalization Scheme compliance.
-- [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define contracts
-  and a pure declaration hash, not an exported or independently verified bundle.
-  Schema validation and hashing do not resolve source bytes, bind approval
-  records, recompute a replay or authenticate evidence; those checks remain
-  planned in #13. The legacy 1.2 schema stays available but cannot represent
+- [Evidence Bundle 1.3 hash scopes](EVIDENCE_HASH_SCOPES.md) define the
+  byte-backed assembly and independent verification boundary. Verification
+  recomputes source, approval, replay and hash relationships, but it does not
+  authenticate a publisher or reviewer, provide a signature, or define
+  multi-source replay. The legacy 1.2 schema stays available but cannot represent
   normalization without a rule result or the complete engine evaluation.
 - `canonicalResultHash` alone does not bind case scope: approved mappings,
   manifests and complete audit records belong to `bundleHash`. A changed

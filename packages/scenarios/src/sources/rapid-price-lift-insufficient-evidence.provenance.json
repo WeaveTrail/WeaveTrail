@@ -1,0 +1,93 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic FIX 4.4 projection with missing side evidence",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors from the cited published FIX schema.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "rapid-price-lift-insufficient-evidence.csv",
+      "sha256": "33db4b61e5bb86a057f9f2c80f9c9d0033d024d0499d3ef2133f7c5aa102bb4b"
+    }
+  },
+  "syntheticity": {
+    "values": "Every value is synthetic, including execution IDs, timestamps, instrument, account identifiers, prices and quantities.",
+    "entities": "ZZ79X1 and every SYNTH-ACCOUNT identifier are fictional. No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was retrieved, committed, redistributed or used to choose these values."
+  },
+  "derivation": {
+    "kind": "published-schema-projection",
+    "description": "The CSV projects selected FIX 4.4 ExecutionReport fields over invented values but deliberately carries no Side(54) column. The omission is source evidence, not an inferred side: all four normalized in-window trades therefore remain unclassifiable to RAPID_PRICE_LIFT.",
+    "schemaSources": [
+      {
+        "id": "fix44-execution-report",
+        "title": "FIX 4.4 ExecutionReport message",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/body_5756.html",
+        "retrievedOn": "2026-09-08"
+      },
+      {
+        "id": "fix44-datatypes",
+        "title": "FIX 4.4 datatypes",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/fix_datatypes.html",
+        "retrievedOn": "2026-09-08"
+      }
+    ],
+    "ruleSources": [],
+    "fieldCorrespondence": [
+      {
+        "publishedField": "ExecID",
+        "committedColumn": "ExecID(17)",
+        "canonicalUse": "sourceEventId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "TransactTime",
+        "committedColumn": "TransactTime(60)",
+        "canonicalUse": "eventTime",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Symbol",
+        "committedColumn": "Symbol(55)",
+        "canonicalUse": "instrumentId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "LastPx",
+        "committedColumn": "LastPx(31)",
+        "canonicalUse": "price",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "LastQty",
+        "committedColumn": "LastQty(32)",
+        "canonicalUse": "quantity",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Account",
+        "committedColumn": "Account(1)",
+        "canonicalUse": "actorId; the values are synthetic",
+        "schemaSourceIds": ["fix44-execution-report"]
+      }
+    ],
+    "takenFromSpecifications": [
+      "FIX field names and numeric tags",
+      "FIX UTC timestamp spelling YYYYMMDD-HH:MM:SS",
+      "FIX Price and Qty decimal notation"
+    ],
+    "inventedProperties": [
+      "instrument and issuer identity",
+      "account and actor identities",
+      "execution identity",
+      "timestamps",
+      "prices and quantities"
+    ],
+    "absentFields": [
+      {
+        "investigationField": "side",
+        "reason": "The committed source deliberately omits FIX Side(54) to exercise missing classification evidence.",
+        "workbenchHandling": "Normalization does not invent a side. RAPID_PRICE_LIFT counts each in-window trade as non-comparable and returns INCONCLUSIVE."
+      }
+    ]
+  }
+}

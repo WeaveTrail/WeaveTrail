@@ -61,8 +61,21 @@ describe("rapid price lift declared scenario goldens", () => {
     expectGolden(
       "rapid-price-lift-insufficient-evidence.csv",
       "INCONCLUSIVE",
-      "e9e7a01885d47f21d7372f9b4008418e7585dbdc35abe272adbc3f703a3408fc",
+      "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14",
     );
+
+    const { scenario, events } = scenarioEvents(
+      "rapid-price-lift-insufficient-evidence.csv",
+    );
+    expect(replayRapidPriceLift(events, scenario.manifest).evaluation).toEqual({
+      ruleId: "RAPID_PRICE_LIFT",
+      ruleVersion: "1.1",
+      result: "INCONCLUSIVE",
+      reason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+      nonComparableEventCount: 4,
+      findings: [],
+      sensitivity: null,
+    });
   });
 
   it.each([

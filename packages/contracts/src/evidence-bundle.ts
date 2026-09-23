@@ -6,8 +6,8 @@ import {
   RapidPriceLiftResultSchema,
   RapidPriceLiftSensitivitySchema,
 } from "./rapid-price-lift";
-import { PreOhlcSchemaMappingProposalSchema } from "./schema-mapping";
-import { PreOhlcTradeEventSchema } from "./trade-event";
+import { SchemaMappingProposalSchema } from "./schema-mapping";
+import { TradeEventSchema } from "./trade-event";
 import { WorkflowStateSchema } from "./workflow";
 
 const HashSchema = z.string().regex(/^[a-f0-9]{64}$/);
@@ -49,7 +49,6 @@ export const EvidenceBundleSchema = z
 export type EvidenceBundle = z.infer<typeof EvidenceBundleSchema>;
 
 // A separate opt-in contract: 1.2 consumers and migration checks stay intact.
-// Assembly, approval binding and independent verification remain planned (#13).
 export const EvidenceBundleV13Schema = z
   .object({
     bundleVersion: z.literal("1.3"),
@@ -59,7 +58,7 @@ export const EvidenceBundleV13Schema = z
     mappings: z.array(
       z
         .object({
-          proposal: PreOhlcSchemaMappingProposalSchema,
+          proposal: SchemaMappingProposalSchema,
           approval: ApprovalRecordSchema.optional(),
         })
         .strict(),
@@ -76,7 +75,7 @@ export const EvidenceBundleV13Schema = z
       .object({
         engineVersion: z.literal("0.7.0-canonical-decimal"),
         canonicalDatasetHash: HashSchema,
-        events: z.array(PreOhlcTradeEventSchema),
+        events: z.array(TradeEventSchema),
         evaluation: RapidPriceLiftResultSchema.optional(),
         canonicalResultHash: HashSchema,
       })

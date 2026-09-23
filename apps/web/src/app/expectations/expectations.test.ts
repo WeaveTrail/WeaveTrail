@@ -12,16 +12,25 @@ describe("published scenario expectations page", () => {
     expect(markup).toContain("Reproduce a baseline from a clean session");
     expect(markup).toContain("Approval hashing requires Web Crypto");
     expect(markup).toContain("same-input repeatability only");
-    expect(markup).toContain("including Dialect A and Dialect B");
+    expect(markup).toContain("marked engine regression");
     expect(markup).toContain("pnpm expectations:update");
     expect(markup).toContain("Vitest");
     expect(markup).toContain("Linux WSL2 x86_64");
     for (const scenario of publication.scenarios) {
       expect(markup).toContain(scenario.scenario);
       expect(markup).toContain(scenario.workflowState);
-      expect(markup).toContain(scenario.canonicalDatasetHash);
-      expect(markup).toContain(scenario.canonicalResultHash);
+      if (scenario.canonicalDatasetHash !== null)
+        expect(markup).toContain(scenario.canonicalDatasetHash);
+      if (scenario.canonicalResultHash !== null)
+        expect(markup).toContain(scenario.canonicalResultHash);
+      else
+        expect(markup).toContain("Not produced; stopped for pre-replay review");
+      expect(markup).toContain(scenario.availableMutations.join(", "));
       if (scenario.result !== null) expect(markup).toContain(scenario.result);
+      if (scenario.demonstrates !== null)
+        expect(markup).toContain(scenario.demonstrates);
+      for (const reviewIssue of scenario.reviewIssues)
+        expect(markup).toContain(reviewIssue);
       if (scenario.hypothesis !== null) {
         expect(markup).toContain(scenario.hypothesis.pattern);
         expect(markup).toContain(scenario.hypothesis.manifestVersion);

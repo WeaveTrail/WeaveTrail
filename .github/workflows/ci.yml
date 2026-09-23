@@ -35,6 +35,14 @@ jobs:
         run: pnpm typecheck
       - name: Run unit and golden tests
         run: pnpm test
+      - name: Verify ADR index
+        run: pnpm adr:check
+      - name: Test ADR index validator
+        run: pnpm adr:test
+      - name: Verify committed boundary figures
+        run: pnpm figures:check
+      - name: Test boundary figure renderer
+        run: pnpm figures:test
       - name: Verify generated fixture reproducibility
         run: |
           pnpm --filter @weavetrail/scenarios generate:fixtures

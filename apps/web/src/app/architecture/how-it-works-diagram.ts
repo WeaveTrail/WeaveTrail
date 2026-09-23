@@ -26,12 +26,22 @@ export const DIAGRAM_HEIGHT = 520;
  * including the Korean one, which is the reason the diagram is localized at
  * all.
  */
-const FONTS = {
-  file: {
+const FILE_FONTS: Readonly<
+  Record<Language, { readonly sans: string; readonly mono: string }>
+> = {
+  en: {
     sans: '"IBM Plex Sans","IBM Plex Sans KR","Segoe UI",Helvetica,Arial,sans-serif',
     mono: '"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace',
   },
-  inline: { sans: "var(--font-sans)", mono: "var(--font-mono)" },
+  ko: {
+    sans: '"IBM Plex Sans","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Helvetica,Arial,sans-serif',
+    mono: '"JetBrains Mono","IBM Plex Mono","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",ui-monospace,SFMono-Regular,Consolas,monospace',
+  },
+} as const;
+
+const INLINE_FONTS = {
+  sans: "var(--font-sans)",
+  mono: "var(--font-mono)",
 } as const;
 
 /** One stage box: its frame, its chip, and where its text sits. */
@@ -275,7 +285,7 @@ export function howItWorksSvg(
   variant: "file" | "inline" = "file",
 ): string {
   const text = copy[language];
-  const fonts = FONTS[variant];
+  const fonts = variant === "file" ? FILE_FONTS[language] : INLINE_FONTS;
   const out: string[] = [];
   const push = (line: string) => out.push(line);
 

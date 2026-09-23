@@ -66,8 +66,9 @@ HTTP `422`와 함께, 조치 가능한 경로와 최종 진행 상태를 담아 
 `INCONCLUSIVE` 응답에는 발견도 원본 증거도 없습니다. 발견 없는 개수만으로 대체
 행을 가져오지 않습니다. 입력이나 승인이 바뀌거나, 새로 실행하거나, 실패하면 이전
 증거를 지웁니다. 지나간 요청이 새 선택을 다시 채울 수 없습니다. 이 추적은 합성
-원본 기록까지의 출처를 세울 뿐, 인과나 법적 결론을 세우지 않습니다. 증거 번들의
-조립, 내보내기, 독립 검증은 아직 계획 단계입니다.
+원본 기록까지의 출처를 세울 뿐, 인과나 법적 결론을 세우지 않습니다. 엔진
+패키지의 증거 번들 조립과 독립 검증은 구현되어 있고, 브라우저 내보내기는 아직
+계획 단계입니다.
 
 진행 상태는 요청 하나의 수명 동안에만 존재합니다. `INPUT_REVIEW_REQUIRED`
 응답 이후 입력을 고치면 `UPLOADED`에서 새 실행이 시작되며, 영속화와 요청 간
@@ -482,5 +483,14 @@ actor를 추가하거나 참여자에 의존하는 단기 급등 사례를 승�
 마이그레이션 경계는
 [ADR 0036](adr/0036-normalize-published-execution-schema-projections.md)(영문)에,
 명세와 시장 규칙 출처는
-[아티팩트 옆 기록](../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md)(영문)에
-있습니다.
+[FIX](../packages/scenarios/src/sources/published-execution-fix44.provenance.json) 및
+[H0STCNT0](../packages/scenarios/src/sources/published-execution-h0stcnt0.provenance.json)
+인접 기록에 항목별 대응, 합성 값의 경계와 함께 있습니다.
+
+커밋된 모든 CSV 또는 JSON Lines 재현 원본은 기계가 읽을 수 있는 출처 기록 하나에
+정확히 대응합니다. 기록은 실행에 쓰는 아티팩트의 이름과 해시를 담고, 원본 행
+패널은 한 번의 링크로 그 기록에 이어집니다. 합성 기록은 그 모양이 저장소에서
+직접 만들어졌는지 공개 스키마에서 투영됐는지를 밝힙니다. 이 화면 표시용 기록은
+항목 연결 승인, 정본 이벤트, 결과 해시에는 들어가지 않습니다.
+[ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md)(영문)을
+참고하세요.

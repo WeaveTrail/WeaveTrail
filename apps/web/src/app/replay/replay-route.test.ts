@@ -104,7 +104,7 @@ describe("Case Replay entry contract", () => {
       expect(props).not.toHaveProperty("result");
       const markup = renderToStaticMarkup(createElement(CaseReplay, props));
       expect(markup).toContain(
-        'value="rapid-price-lift-supported.csv" selected=""',
+        'value="published-execution-fix44.csv" selected=""',
       );
       expect(markup).not.toContain('class="approval-receipt"');
       expect(markup).not.toContain("data-result=");

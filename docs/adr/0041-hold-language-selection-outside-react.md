@@ -1,4 +1,4 @@
-# ADR 0030: Hold language selection outside React
+# ADR 0041: Hold language selection outside React
 
 - Status: Accepted
 - Date: 2026-09-07

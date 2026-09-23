@@ -42,9 +42,13 @@ can reach the participant-based rule. H0STCNT0 produces a different canonical
 dataset hash and cannot authorize that case, even after a reviewer acknowledges
 the absent field.
 
-The exact field, market-rule and no-market-data provenance is recorded beside
-the artifacts in
-[`published-execution-schema-synthetic.README.md`](../../packages/scenarios/src/sources/published-execution-schema-synthetic.README.md).
+The exact field, market-rule and no-market-data provenance is recorded in the
+adjacent
+[`published-execution-fix44.provenance.json`](../../packages/scenarios/src/sources/published-execution-fix44.provenance.json)
+and
+[`published-execution-h0stcnt0.provenance.json`](../../packages/scenarios/src/sources/published-execution-h0stcnt0.provenance.json)
+records. [ADR 0037](0037-record-every-replay-source-with-adjacent-provenance.md)
+defines the common source-record mechanism.
 
 ## Consequences
 

@@ -15,6 +15,8 @@ const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
   "concentrated-buy-dialect-a.csv": "매수 집중 · 형식 A · CSV",
   "concentrated-buy-dialect-b.jsonl": "매수 집중 · 형식 B · JSON Lines",
   "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목 · CSV",
+  "published-execution-fix44-conflicting-evidence.csv":
+    "합성 · 공개 FIX 4.4 체결 식별자 충돌 · CSV",
   "published-execution-h0stcnt0.jsonl":
     "합성 · 공개 H0STCNT0 체결 항목 · JSON Lines",
   "rapid-price-lift-supported.csv": "단기 급등 · 기준을 충족한 사례 · CSV",
@@ -44,10 +46,19 @@ export function scenarioOptionLabel(
   scenario: ReplayScenario,
   committedLabel: string,
   kind: string,
+  purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION",
   language: Language,
 ): string {
-  if (language !== "ko") return `${committedLabel} · ${kind}`;
+  const role =
+    purpose === "REVIEWER_FACING"
+      ? language === "ko"
+        ? "검토용"
+        : "reviewer-facing"
+      : language === "ko"
+        ? "엔진 회귀 대체 사례"
+        : "engine regression fallback";
+  if (language !== "ko") return `${committedLabel} · ${kind} · ${role}`;
   return `${SCENARIO_LABELS_KO[scenario] ?? committedLabel} · ${
     SOURCE_KIND_KO[kind] ?? kind
-  }`;
+  } · ${role}`;
 }

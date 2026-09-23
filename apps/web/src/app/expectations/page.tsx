@@ -7,7 +7,7 @@ import { ExpectationsContent } from "./expectations-content";
 export const metadata: Metadata = {
   title: "Scenario expectations",
   description:
-    "Compare committed replay sources with their engine-derived workflow state, result, gate readings, and canonical hashes.",
+    "Compare reviewer-facing and engine-regression sources with their workflow state, result, gate readings, and canonical hashes.",
   alternates: { canonical: "/expectations" },
 };
 

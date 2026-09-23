@@ -217,7 +217,7 @@ async function nestedExample(ui: Awaited<ReturnType<typeof guide>>) {
 function replayed() {
   return Response.json({
     workflowState: "REPLAYED",
-    scenario: "rapid-price-lift-supported.csv",
+    scenario: "published-execution-fix44.csv",
     replay: {
       inputEventCount: 6,
       canonicalEventCount: 6,

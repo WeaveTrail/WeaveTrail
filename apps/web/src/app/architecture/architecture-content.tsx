@@ -103,7 +103,7 @@ export const architectureCopy: Readonly<Record<Language, ArchitectureCopy>> = {
       ["Case approval", "Person · exact scope hash", false],
       ["Replay engine", "Code · five rule gates", false],
       ["Finding source trace", "Code · original rows", false],
-      ["Evidence Bundle assembly", "Planned", true],
+      ["Evidence Bundle", "Code · byte-backed verification", false],
     ],
     refusedNote: "A refused request carries a review state and no result hash.",
     layers: LAYERS_EN,
@@ -111,7 +111,7 @@ export const architectureCopy: Readonly<Record<Language, ArchitectureCopy>> = {
     canonicalOne:
       " hashes the engine version, semantic event projection and evaluation when present. Volatile run metadata is excluded.",
     canonicalTwo:
-      "Complete approval records, all mapping and manifest fields, and source trace are not protected by this result hash. A future bundle hash and independent bundle assembly and verification remain planned.",
+      "Complete approval records and all mapping and manifest fields are protected by the separate bundle hash. The engine independently verifies that declaration from source bytes; browser export remains planned.",
     canonicalThree:
       "The browser's guide progress is presentation state. Each API replay creates a request-local workflow; durable audit history is not implemented.",
     walkThrough: "Walk through a case",
@@ -145,7 +145,7 @@ export const architectureCopy: Readonly<Record<Language, ArchitectureCopy>> = {
       ["사례 승인", "사람 · 범위 해시와 정확히 일치", false],
       ["리플레이 엔진", "코드 · 다섯 규칙 gate", false],
       ["발견 소스 추적", "코드 · 원본 행", false],
-      ["증거 번들 조립", "계획", true],
+      ["증거 번들", "코드 · 원본 바이트 기반 검증", false],
     ],
     refusedNote:
       "거부된 요청에는 검토 상태만 담기고, 결과 해시는 담기지 않습니다.",
@@ -154,7 +154,7 @@ export const architectureCopy: Readonly<Record<Language, ArchitectureCopy>> = {
     canonicalOne:
       "는 엔진 버전, 의미 이벤트, 평가를 해시합니다. 실행 메타데이터는 제외합니다.",
     canonicalTwo:
-      "승인 기록, 매핑·manifest, 소스 추적은 이 해시에 포함되지 않습니다. 번들 검증은 계획입니다.",
+      "승인 기록과 모든 매핑·manifest 항목은 별도 번들 해시로 보호합니다. 엔진은 원본 바이트에서 그 선언을 독립 검증하며, 브라우저 내보내기는 계획 단계입니다.",
     canonicalThree:
       "가이드 진행은 화면 상태입니다. 지속되는 감사 이력은 아직 없습니다.",
     walkThrough: "사례 따라가기",

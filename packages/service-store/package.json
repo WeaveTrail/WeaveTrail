@@ -1,0 +1,20 @@
+{
+  "name": "@weavetrail/service-store",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@weavetrail/contracts": "workspace:*",
+    "@weavetrail/replay-engine": "workspace:*"
+  }
+}

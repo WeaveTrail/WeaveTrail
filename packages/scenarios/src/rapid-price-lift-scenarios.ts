@@ -20,6 +20,10 @@ type ScenarioDefinition = {
   mappingProposal: SchemaMappingProposal;
   manifest: CaseManifest;
   expectedResult: "SUPPORTED" | "NOT_SUPPORTED" | "INCONCLUSIVE";
+  expectedWorkflowState: "REPLAYED";
+  demonstrates: string;
+  expectedInconclusiveReason?: "INSUFFICIENT_ELIGIBLE_EVENTS";
+  expectedNonComparableEventCount?: number;
 };
 
 const SOURCE_COLUMNS = [
@@ -173,57 +177,6 @@ const SCENARIO_INPUTS = {
       ],
     ],
   },
-  "rapid-price-lift-insufficient-evidence.csv": {
-    label: "Rapid price lift · insufficient evidence",
-    sourceArtifactHash:
-      "15f79ef0265f836b5a01635bbcdd8e2f241431fbcc87fc504a1e2f7ea05582f7",
-    datasetId: "synthetic-rapid-price-lift-insufficient-v1",
-    expectedResult: "INCONCLUSIVE",
-    startTime: "2026-09-01T00:00:00Z",
-    endTime: "2026-09-01T00:00:03Z",
-    canonicalDatasetHash:
-      "0deca356833da2703b3a307b31b5426302a985ea91bdaad64218f5999a0965c2",
-    approvedManifestHash:
-      "75f042f8768934ac440d5f8f89f81fe4fbfd221cf8ce148fb96b60462504c096",
-    rows: [
-      [
-        "insufficient-001",
-        "2026-09-01T00:00:00Z",
-        "1",
-        "B",
-        "participant-focus",
-        "100",
-        "2",
-      ],
-      [
-        "insufficient-002",
-        "2026-09-01T00:00:01Z",
-        "2",
-        "B",
-        "participant-focus",
-        "101",
-        "2",
-      ],
-      [
-        "insufficient-003",
-        "2026-09-01T00:00:02Z",
-        "3",
-        "B",
-        "participant-focus",
-        "102",
-        "2",
-      ],
-      [
-        "insufficient-004",
-        "2026-09-01T00:00:03Z",
-        "4",
-        "S",
-        "participant-wide-a",
-        "100.5",
-        "1",
-      ],
-    ],
-  },
 } as const;
 
 function buildScenario(
@@ -326,12 +279,132 @@ function buildScenario(
     mappingProposal,
     manifest,
     expectedResult: input.expectedResult,
+    expectedWorkflowState: "REPLAYED",
+    demonstrates:
+      input.expectedResult === "SUPPORTED"
+        ? "Complete evidence satisfies every declared RAPID_PRICE_LIFT gate."
+        : "Complete evidence is sufficient to evaluate, but broad participation fails the declared concentration gates.",
   };
 }
 
-export const rapidPriceLiftScenarios = Object.fromEntries(
+const legacyRapidPriceLiftScenarios = Object.fromEntries(
   Object.entries(SCENARIO_INPUTS).map(([name, input]) => [
     name,
     buildScenario(input),
   ]),
 ) as Record<keyof typeof SCENARIO_INPUTS, ScenarioDefinition>;
+
+function buildMissingEvidenceScenario(): ScenarioDefinition {
+  const sourceArtifactHash =
+    "33db4b61e5bb86a057f9f2c80f9c9d0033d024d0499d3ef2133f7c5aa102bb4b";
+  const constants = {
+    schemaVersion: "1.1" as const,
+    datasetId: "synthetic-rapid-price-lift-missing-evidence-v1",
+    venueId: "SYNTH-KRX-RULES",
+    eventType: "TRADE" as const,
+  };
+  const fields = [
+    ["ExecID(17)", "sourceEventId", "IDENTITY"],
+    ["TransactTime(60)", "eventTime", "FIX_UTC_TIMESTAMP_TO_ISO"],
+    ["Symbol(55)", "instrumentId", "IDENTITY"],
+    ["LastPx(31)", "price", "DECIMAL_STRING"],
+    ["LastQty(32)", "quantity", "DECIMAL_STRING"],
+    ["Account(1)", "actorId", "IDENTITY"],
+  ] as const;
+  const mappingProposal = SchemaMappingProposalSchema.parse({
+    mappingVersion: "1.8",
+    sourceArtifactHash,
+    constants,
+    unmappedFields: [],
+    fields: fields.map(([sourceColumn, targetField, transform]) => ({
+      sourceColumn,
+      targetField,
+      transform,
+      confidence: 1,
+      evidence:
+        "Matched to the named FIX 4.4 execution field; Side(54) is absent from this committed source.",
+      status: "PROPOSED",
+    })),
+  });
+  const sourceRows = [
+    ["110000", "20260903-01:01:00", "12000", "3", "SYNTH-ACCOUNT-BASE"],
+    ["110001", "20260903-01:01:01", "12150", "4", "SYNTH-ACCOUNT-FOCUS"],
+    ["110002", "20260903-01:01:02", "12300", "4", "SYNTH-ACCOUNT-FOCUS"],
+    ["110003", "20260903-01:01:03", "12050", "1", "SYNTH-ACCOUNT-WIDE-A"],
+  ] as const;
+  const rows = sourceRows.map(
+    ([sourceEventId, eventTime, price, quantity, actorId], index) => ({
+      coordinate: { sourceArtifactHash, rowNumber: String(index + 2) },
+      values: {
+        "ExecID(17)": sourceEventId,
+        "TransactTime(60)": eventTime,
+        "Symbol(55)": "ZZ79X1",
+        "LastPx(31)": price,
+        "LastQty(32)": quantity,
+        "Account(1)": actorId,
+      },
+    }),
+  );
+  const manifest = CaseManifestSchema.parse({
+    manifestVersion: "1.3",
+    caseId: constants.datasetId,
+    canonicalDatasetHash:
+      "df9992cf54c354d5d9c4feb3d68929af0f36dfc59435fba0c5f26056972a7298",
+    hypothesis: {
+      pattern: "RAPID_PRICE_LIFT",
+      instrumentId: "ZZ79X1",
+      actorIds: ["SYNTH-ACCOUNT-FOCUS"],
+      startTime: "2026-09-03T01:01:00Z",
+      endTime: "2026-09-03T01:01:03Z",
+    },
+    rules: [
+      {
+        ruleId: "RAPID_PRICE_LIFT",
+        ruleVersion: "1.1",
+        parameters: {
+          minimumPriceChangeBps: "100",
+          minimumAggressiveBuyShareBps: "7000",
+          minimumActorConcentrationShareBps: "8000",
+          minimumExecutionsAboveReference: "2",
+          minimumRemovalSensitivityBps: "50",
+        },
+      },
+    ],
+    aiTrace: {
+      provider: "fixture",
+      model: "deterministic",
+      promptVersion: "rapid-price-lift-case-v1",
+      confidence: 1,
+      referencedEventIds: [],
+    },
+    approval: {
+      approvedArtifactHash:
+        "a9e6e047b611cd5a2b392f494bea2d01e8404bf93a57e9bde6d0b6e41f4bc257",
+      reviewerRef: "reviewer-fixture",
+      decision: "APPROVED",
+      overrides: [],
+      approvedAt: "2026-09-08T00:00:00Z",
+    },
+  });
+
+  return {
+    label: "Rapid price lift · missing side evidence",
+    sourceArtifactHash,
+    constants,
+    columns: fields.map(([sourceColumn]) => sourceColumn),
+    rows,
+    mappingProposal,
+    manifest,
+    expectedResult: "INCONCLUSIVE",
+    expectedWorkflowState: "REPLAYED",
+    expectedInconclusiveReason: "INSUFFICIENT_ELIGIBLE_EVENTS",
+    expectedNonComparableEventCount: 4,
+    demonstrates:
+      "Every in-window trade lacks Side(54), so the rule withholds all four as non-comparable evidence and abstains.",
+  };
+}
+
+export const rapidPriceLiftScenarios = {
+  ...legacyRapidPriceLiftScenarios,
+  "rapid-price-lift-insufficient-evidence.csv": buildMissingEvidenceScenario(),
+} as const;

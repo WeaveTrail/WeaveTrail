@@ -108,8 +108,10 @@ describe("canonical product presentation", () => {
       const replayScenario: ReplayScenarioOption = {
         value: value as ReplayScenarioOption["value"],
         label: scenario.label,
+        purpose: "ENGINE_REGRESSION",
         sourceArtifactHash: scenario.sourceArtifactHash,
         rows: scenario.rows,
+        availableMutations: ["baseline", "shuffle", "duplicate"],
         manifest: scenario.manifest,
       };
       const markup = renderToStaticMarkup(

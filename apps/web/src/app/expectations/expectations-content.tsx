@@ -7,10 +7,17 @@ import { useLanguage } from "../i18n/language";
 type Scenario = {
   scenario: string;
   label: string;
+  purpose: string;
+  availableInCaseReplay: boolean;
+  availableMutations: readonly string[];
   workflowState: string;
+  demonstrates: string | null;
   result: string | null;
-  canonicalDatasetHash: string;
-  canonicalResultHash: string;
+  inconclusiveReason: string | null;
+  nonComparableEventCount: number | null;
+  reviewIssues: readonly string[];
+  canonicalDatasetHash: string | null;
+  canonicalResultHash: string | null;
   gates: readonly {
     gate: string;
     observedValue: string | null;
@@ -39,11 +46,23 @@ const ko = {
   eyebrow: "커밋된 검증 기준",
   heading: "사례별 기대 결과",
   intro:
-    "기준 실행의 워크플로 상태, 결과, gate 관측값, 정본 해시를 비교합니다. 법적·인과적·투자 결론은 아닙니다.",
+    "검토용 원본과 엔진 동작 고정용 fixture의 기준 실행을 함께 기록합니다. 워크플로 상태, 결과, gate 관측값, 정본 해시는 법적·인과적·투자 결론이 아닙니다.",
   guide: "새 세션에서 기준 실행 재현하기",
   output: "기대 출력",
+  purpose: "용도",
+  reviewerFacing: "검토용",
+  engineRegression: "엔진 회귀 동작 고정용",
+  caseReplay: "사례 재현 목록",
+  available: "표시됨",
+  unavailable: "표시되지 않음",
+  mutations: "제공되는 입력 변경",
   final: "최종 워크플로 상태",
   result: "패턴 결과",
+  condition: "이 사례가 보여 주는 조건",
+  reason: "판단 보류 사유",
+  nonComparable: "비교할 수 없는 이벤트",
+  reviewIssues: "검토 사유",
+  noHash: "검토 전에 멈춰 생성되지 않음",
   noManifest:
     "이 소스에는 사례 manifest가 없습니다. 정규화만 하고 패턴은 평가하지 않습니다.",
   hypothesis: "버전이 붙은 가설",
@@ -66,6 +85,8 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
   "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
   "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목",
+  "published-execution-fix44-conflicting-evidence.csv":
+    "합성 · 공개 FIX 4.4 체결 식별자 충돌",
   "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
   "published-daily-quotes.csv": "공개 일별 시세 · 정규화",
   "real/fsc-kospi-index-family-20260903/source.jsonl":
@@ -75,6 +96,17 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "real/fsc-kospi-200-futures-20260903/source.jsonl":
     "FSC · 코스피 200 선물 · 정규화",
   "real/fsc-weekly-options-20260903/source.jsonl": "FSC · 위클리 옵션 · 정규화",
+};
+
+const koreanScenarioConditions: Readonly<Record<string, string>> = {
+  "rapid-price-lift-supported.csv":
+    "완전한 증거가 선언된 RAPID_PRICE_LIFT 판단 기준을 모두 충족합니다.",
+  "rapid-price-lift-broad-participation.csv":
+    "평가할 증거는 충분하지만 참여자가 분산되어 선언된 집중도 판단 기준을 충족하지 못합니다.",
+  "rapid-price-lift-insufficient-evidence.csv":
+    "구간 내 체결 네 건에 Side(54)가 모두 없어 규칙이 전부 비교 불가 증거로 제외하고 판단을 보류합니다.",
+  "published-execution-fix44-conflicting-evidence.csv":
+    "ExecID(17) 120001이 서로 다른 TransactTime(60)과 LastPx(31) 값으로 재사용되어, 재현 전에 입력 검토가 필요하고 결과 해시는 생성되지 않습니다.",
 };
 
 export function ExpectationsContent({
@@ -93,7 +125,7 @@ export function ExpectationsContent({
         <h1>{t?.heading ?? "Expected scenario results"}</h1>
         <p>
           {t?.intro ??
-            "Use these engine-derived values to check a baseline run in Case Replay. They describe one fixed source, approved mapping, approved case where present, and the versioned rule. They do not establish the truth of the source or a legal, causal, or investment conclusion."}
+            "This publication records baseline runs for both reviewer-facing sources and fixtures that pin engine behavior. The values describe one fixed source, approved mapping, approved case where present, and the versioned rule. They do not establish the truth of the source or a legal, causal, or investment conclusion."}
         </p>
       </div>
       <section className="panel expectations-guide">
@@ -107,7 +139,11 @@ export function ExpectationsContent({
                 브라우저 세션에서 열고, 입력 자료 변경 실험은{" "}
                 <strong>원본 그대로</strong>에 둡니다.
               </li>
-              <li>아래 레코드에 적힌 커밋된 원본 거래자료를 고릅니다.</li>
+              <li>
+                사례 재현 목록에 <strong>표시됨</strong>인 레코드는 아래에 적힌
+                커밋된 원본을 고릅니다. 표시되지 않는 엔진 회귀 레코드는
+                <code>pnpm test</code>로 재현합니다.
+              </li>
               <li>
                 연결된 항목이 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
                 받아들이는 확인 이유를 적고 <strong>연결 제안 승인</strong>을
@@ -134,7 +170,12 @@ export function ExpectationsContent({
                 in a fresh browser session and leave the advanced variation on{" "}
                 <strong>Baseline</strong>.
               </li>
-              <li>Select the committed source artifact named below.</li>
+              <li>
+                For a record marked <strong>Available</strong>, select the
+                committed source artifact named below. Reproduce engine
+                regression records marked <strong>Not available</strong> with
+                <code>pnpm test</code>.
+              </li>
               <li>
                 For every mapping field marked <code>REVIEW_REQUIRED</code>,
                 enter a nonblank reason, then select{" "}
@@ -145,11 +186,12 @@ export function ExpectationsContent({
                 select <strong>Approve case manifest</strong>.
               </li>
               <li>
-                Run mapping 1.4 sources deterministically, including Dialect A
-                and Dialect B, plus mapping 1.8 execution sources, or normalize
-                mapping 1.5, 1.6 and 1.7 daily-quote sources. Compare the final
-                workflow state, result, gate readings, and canonical result hash
-                below.
+                Run a source offered in Case Replay. The records marked engine
+                regression remain published here to pin engine behavior but do
+                not appear in the source picker unless they preserve a result
+                meaning that no grounded source yet reproduces. Compare the
+                final workflow state, result, gate readings, and canonical
+                result hash below.
               </li>
             </>
           )}
@@ -204,6 +246,36 @@ export function ExpectationsContent({
               <code>{s.scenario}</code>
             </h2>
             <dl className="expectation-facts">
+              {s.demonstrates && (
+                <div>
+                  <dt>{t?.condition ?? "Condition demonstrated"}</dt>
+                  <dd>
+                    {korean
+                      ? (koreanScenarioConditions[s.scenario] ?? s.demonstrates)
+                      : s.demonstrates}
+                  </dd>
+                </div>
+              )}
+              <div>
+                <dt>{t?.purpose ?? "Purpose"}</dt>
+                <dd>
+                  {s.purpose === "REVIEWER_FACING"
+                    ? (t?.reviewerFacing ?? "Reviewer-facing")
+                    : (t?.engineRegression ?? "Pins engine behavior")}
+                </dd>
+              </div>
+              <div>
+                <dt>{t?.caseReplay ?? "Case Replay source list"}</dt>
+                <dd>
+                  {s.availableInCaseReplay
+                    ? (t?.available ?? "Available")
+                    : (t?.unavailable ?? "Not available")}
+                </dd>
+              </div>
+              <div>
+                <dt>{t?.mutations ?? "Available input mutations"}</dt>
+                <dd>{s.availableMutations.join(", ")}</dd>
+              </div>
               <div>
                 <dt>{t?.final ?? "Final workflow state"}</dt>
                 <dd>
@@ -225,7 +297,24 @@ export function ExpectationsContent({
                 </dd>
               </div>
             </dl>
-            {s.result === null && (
+            {s.inconclusiveReason && (
+              <p>
+                {t?.reason ?? "Abstention reason"}: {s.inconclusiveReason}
+                {s.nonComparableEventCount !== null && (
+                  <>
+                    {" · "}
+                    {t?.nonComparable ?? "Non-comparable events"}:{" "}
+                    {s.nonComparableEventCount}
+                  </>
+                )}
+              </p>
+            )}
+            {s.reviewIssues.length > 0 && (
+              <p>
+                {t?.reviewIssues ?? "Review issue"}: {s.reviewIssues.join(", ")}
+              </p>
+            )}
+            {s.result === null && s.reviewIssues.length === 0 && (
               <p>
                 {t?.noManifest ??
                   "This source has no committed case manifest. The workflow ends after approved mapping and deterministic normalization, before any pattern gate or verdict is evaluated."}
@@ -271,14 +360,23 @@ export function ExpectationsContent({
                 </dl>
               </section>
             )}
-            <Hash
-              label={t?.dataset ?? "Canonical dataset hash"}
-              value={s.canonicalDatasetHash}
-            />
-            <Hash
-              label={t?.hash ?? "Canonical result hash"}
-              value={s.canonicalResultHash}
-            />
+            {s.canonicalDatasetHash ? (
+              <Hash
+                label={t?.dataset ?? "Canonical dataset hash"}
+                value={s.canonicalDatasetHash}
+              />
+            ) : null}
+            {s.canonicalResultHash ? (
+              <Hash
+                label={t?.hash ?? "Canonical result hash"}
+                value={s.canonicalResultHash}
+              />
+            ) : s.reviewIssues.length > 0 ? (
+              <p>
+                {t?.hash ?? "Canonical result hash"}:{" "}
+                {t?.noHash ?? "Not produced; stopped for pre-replay review"}
+              </p>
+            ) : null}
             {s.gates.length ? (
               <div
                 className="gate-list"

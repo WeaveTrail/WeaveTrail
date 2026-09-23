@@ -1,0 +1,24 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic broad-participation rapid-price-lift case",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "rapid-price-lift-broad-participation.csv",
+      "sha256": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0"
+    }
+  },
+  "syntheticity": {
+    "values": "Every field value is synthetic.",
+    "entities": "No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was retrieved, committed, redistributed or used to choose these values."
+  },
+  "derivation": {
+    "kind": "repository-authored",
+    "description": "The field names and values were authored to pin a deterministic NOT_SUPPORTED rule outcome. No derivation from a published schema or market-data source is claimed.",
+    "schemaSources": [],
+    "ruleSources": [],
+    "fieldCorrespondence": []
+  }
+}

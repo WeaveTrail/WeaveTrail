@@ -12,10 +12,15 @@ const read = (path: string) => readFileSync(resolve(process.cwd(), path));
 
 const DIAGRAM_SOURCE = "docs/assets/how-it-works.svg";
 const DIAGRAM_SERVED = "apps/web/public/diagrams/how-it-works.svg";
+const KOREAN_DIAGRAM_SOURCE = "docs/assets/how-it-works.ko.svg";
+const KOREAN_DIAGRAM_SERVED = "apps/web/public/diagrams/how-it-works.ko.svg";
 
 describe("architecture layer diagram", () => {
   it("serves the diagram the repository documentation commits, byte for byte", () => {
     expect(read(DIAGRAM_SERVED).equals(read(DIAGRAM_SOURCE))).toBe(true);
+    expect(
+      read(KOREAN_DIAGRAM_SERVED).equals(read(KOREAN_DIAGRAM_SOURCE)),
+    ).toBe(true);
   });
 
   it("keeps both committed files equal to what the diagram module renders", () => {
@@ -25,6 +30,10 @@ describe("architecture layer diagram", () => {
     const english = howItWorksSvg("en");
     for (const file of [DIAGRAM_SOURCE, DIAGRAM_SERVED])
       expect(read(file).toString("utf8"), file).toBe(english);
+
+    const korean = howItWorksSvg("ko");
+    for (const file of [KOREAN_DIAGRAM_SOURCE, KOREAN_DIAGRAM_SERVED])
+      expect(read(file).toString("utf8"), file).toBe(korean);
   });
 
   it("draws the diagram inline so its words follow the reader's language", () => {
@@ -73,14 +82,15 @@ describe("architecture layer diagram", () => {
 
   it("keeps unimplemented components labelled as planned", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    for (const planned of [
-      "Bounded case proposer",
-      "Evidence Bundle assembly",
-    ]) {
-      const index = markup.indexOf(planned);
-      expect(index).toBeGreaterThan(-1);
-      expect(markup.slice(index, index + 200)).toContain("Planned");
-    }
+    const planned = markup.indexOf("Bounded case proposer");
+    expect(planned).toBeGreaterThan(-1);
+    expect(markup.slice(planned, planned + 200)).toContain("Planned");
+
+    const implemented = markup.indexOf("Evidence Bundle");
+    expect(implemented).toBeGreaterThan(-1);
+    expect(markup.slice(implemented, implemented + 200)).toContain(
+      "byte-backed verification",
+    );
   });
 
   it("groups the primary navigation by investigation stage", () => {

@@ -8,19 +8,40 @@ this file covers the judgment calls that process does not spell out.
 
 ## Repository shape
 
-| Path                      | Responsibility                                                         |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `apps/web`                | The public explanation pages and guided Case Replay                    |
-| `packages/contracts`      | Versioned runtime contracts and shared types                           |
-| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes      |
-| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures               |
-| `packages/scenarios`      | Synthetic datasets and controlled input mutations                      |
-| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings |
-| `packages/evals`          | Versioned evaluation cases and aggregate runners                       |
-| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations |
+| Path                      | Responsibility                                                          |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `apps/web`                | The public explanation pages and guided Case Replay                     |
+| `packages/contracts`      | Versioned runtime contracts and shared types                            |
+| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes       |
+| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures                |
+| `packages/scenarios`      | Synthetic datasets and controlled input mutations                       |
+| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings  |
+| `packages/service-store`  | Immutable collected public-source snapshots and derived-result bindings |
+| `packages/evals`          | Versioned evaluation cases and aggregate runners                        |
+| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations  |
 
 Describe only behavior that exists. Mark planned work as planned until a
 reproducible check confirms it.
+
+## Branch and pull-request workflow
+
+- The default base branch for a new pull request is `develop`.
+- Work on a short-lived feature or fix branch, push that branch, and open the
+  pull request into `develop`; do not push directly to `develop` or `main`.
+- `develop` is the integration branch. `main` is reserved for production
+  promotion through a separate `develop`-to-`main` pull request.
+- Start ordinary new work from an up-to-date `origin/develop`. If that branch
+  is unexpectedly unavailable, stop and report it instead of silently using
+  `main`.
+- An explicitly authorized emergency hotfix starts from an up-to-date
+  `origin/main` and targets `main`. After it merges, carry the same change into
+  `develop` so the integration branch does not regress the fix.
+- Existing pull requests retain their current base unless the owner requests
+  a retargeting.
+- Each GitHub milestone names one version, and every promotion to `main`, a
+  hotfix included, ships one milestone. Version tags `vX.Y.Z` and GitHub releases are created only on
+  the promoted `main` commit. Do not create, move or delete a tag, release or
+  milestone without an explicit instruction.
 
 ## Trust boundary
 
@@ -60,6 +81,21 @@ reproducible check confirms it.
 ## Data provenance
 
 - Synthetic data is the default for repository fixtures and examples.
+- Public sources have two provenance tiers: committed artifacts for offline
+  verification, goldens and regressions, and immutable service snapshots for
+  collected documents and data responses. Service snapshots are not committed.
+  Both tiers retain original bytes, SHA-256, publisher, origin URL, retrieval
+  time, reuse terms and attribution; service snapshots also require a collector
+  version. Existing committed acquisition records retain their versioned shape.
+- Admit a public source to the service store only after recording reviewed
+  permission to store, modify and redistribute it. Never store credentials,
+  personal/customer/production trading data, or pasted user text by default.
+  A public URL alone is not permission evidence.
+- Never overwrite a stored snapshot. Deduplicate unchanged recollections;
+  link changed content to the preceding snapshot for that exact origin URL.
+  Derived service events, conclusions and checks carry immutable snapshot
+  references, original-byte hashes and the computation version. Resolve and
+  re-hash those stored inputs instead of refetching their current URLs.
 - Any real data may be committed only when its published licence permits
   commitment, modification, and redistribution, and only with its provider,
   origin, retrieval date, licence, and required attribution recorded beside it.

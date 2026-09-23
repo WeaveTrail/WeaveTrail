@@ -135,8 +135,10 @@ describe("displayed hashes on the core surface", () => {
           scenario: {
             value: scenario,
             label: fixture.label,
+            purpose: "ENGINE_REGRESSION",
             sourceArtifactHash: fixture.sourceArtifactHash,
             rows: fixture.rows,
+            availableMutations: ["baseline", "shuffle", "duplicate"],
             manifest: fixture.manifest,
           },
         }),

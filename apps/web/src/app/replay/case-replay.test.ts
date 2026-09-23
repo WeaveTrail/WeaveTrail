@@ -74,11 +74,12 @@ describe("replay mapping status boundary", () => {
     // English committed label in the Korean list is one they cannot find.
     const { scenarios } = await prepareReplayScenarios();
     expect(scenarios.length).toBeGreaterThan(0);
-    for (const { value, label, provenance } of scenarios) {
+    for (const { value, label, provenance, purpose } of scenarios) {
       const korean = scenarioOptionLabel(
         value,
         label,
         provenance?.kind ?? "synthetic",
+        purpose ?? "ENGINE_REGRESSION",
         "ko",
       );
       expect(/[가-힣]/.test(korean), value).toBe(true);
@@ -88,6 +89,7 @@ describe("replay mapping status boundary", () => {
           value,
           label,
           provenance?.kind ?? "synthetic",
+          purpose ?? "ENGINE_REGRESSION",
           "en",
         ),
         value,
@@ -255,8 +257,10 @@ describe("replay mapping status boundary", () => {
       {
         value: scenarioName,
         label: scenario.label,
+        purpose: "ENGINE_REGRESSION",
         sourceArtifactHash: scenario.sourceArtifactHash,
         rows: scenario.rows,
+        availableMutations: ["baseline", "shuffle", "duplicate"],
       },
     ];
 
@@ -293,8 +297,10 @@ describe("replay mapping status boundary", () => {
       {
         value: scenarioName,
         label: scenario.label,
+        purpose: "ENGINE_REGRESSION",
         sourceArtifactHash: scenario.sourceArtifactHash,
         rows: scenario.rows,
+        availableMutations: ["baseline", "shuffle", "duplicate"],
       },
     ];
 
@@ -472,8 +478,10 @@ describe("replay mapping status boundary", () => {
           {
             value: "published-execution-h0stcnt0.jsonl",
             label: scenario.label,
+            purpose: "REVIEWER_FACING",
             sourceArtifactHash: scenario.sourceArtifactHash,
             rows: scenario.rows,
+            availableMutations: ["baseline", "shuffle", "duplicate"],
           },
         ],
       }),
@@ -554,8 +562,10 @@ describe("replay mapping status boundary", () => {
           {
             value: "published-execution-h0stcnt0.jsonl",
             label: scenario.label,
+            purpose: "REVIEWER_FACING",
             sourceArtifactHash: scenario.sourceArtifactHash,
             rows: scenario.rows,
+            availableMutations: ["baseline", "shuffle", "duplicate"],
           },
         ],
       }),

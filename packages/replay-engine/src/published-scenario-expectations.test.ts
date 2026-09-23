@@ -9,13 +9,17 @@ import {
   type RapidPriceLiftGate,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
+import {
+  publishedReplaySourceCatalog,
+  publishedReplaySources,
+} from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   actorlessMultiInstrumentScenario,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   committedReplayScenarios,
+  replayScenarioCatalog,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
@@ -41,6 +45,7 @@ type Source = {
   rows: Parameters<typeof replayApproved>[0];
   mappingProposal: SchemaMappingProposal;
   manifest?: CaseManifest;
+  demonstrates?: string;
 };
 
 const sources: Record<string, Source> = {
@@ -58,10 +63,26 @@ const sources: Record<string, Source> = {
   },
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-conflicting-evidence.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-conflicting-evidence.csv"
+    ],
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   ...rapidPriceLiftScenarios,
   ...publishedReplaySources,
+};
+
+const sourceCatalog: Record<
+  string,
+  {
+    purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION";
+    availableInCaseReplay: boolean;
+    availableMutations: readonly ("baseline" | "shuffle" | "duplicate")[];
+  }
+> = {
+  ...replayScenarioCatalog,
+  ...publishedReplaySourceCatalog,
 };
 
 function approvalFor(
@@ -121,8 +142,27 @@ function publication() {
         "baseline",
         workflow,
       );
+      const common = {
+        scenario,
+        label: source.label,
+        purpose: sourceCatalog[scenario]!.purpose,
+        availableInCaseReplay: sourceCatalog[scenario]!.availableInCaseReplay,
+        availableMutations: sourceCatalog[scenario]!.availableMutations,
+        demonstrates: source.demonstrates ?? null,
+        workflowState: workflow.state,
+      };
       if (!("canonicalResultHash" in replay)) {
-        throw new Error(`Expected committed source to replay: ${scenario}`);
+        return {
+          ...common,
+          result: null,
+          inconclusiveReason: null,
+          nonComparableEventCount: null,
+          reviewIssues: replay.issues.map(({ code }) => code),
+          canonicalDatasetHash: null,
+          canonicalResultHash: null,
+          hypothesis: null,
+          gates: [],
+        };
       }
 
       const evaluation =
@@ -138,12 +178,12 @@ function publication() {
       );
 
       return {
-        scenario,
-        label: source.label,
-        workflowState: workflow.state,
+        ...common,
         result: evaluation?.result ?? null,
         inconclusiveReason:
           evaluation?.result === "INCONCLUSIVE" ? evaluation.reason : null,
+        nonComparableEventCount: evaluation?.nonComparableEventCount ?? null,
+        reviewIssues: [],
         canonicalDatasetHash: computeDatasetProfile(replay.events)
           .canonicalDatasetHash,
         canonicalResultHash: replay.canonicalResultHash,

@@ -219,8 +219,8 @@ export function evaluateRapidPriceLift(
       nonComparableEventCount,
     );
   }
-  const approvedActorBuys = buys.filter(
-    ({ actorId }) => actorId !== undefined && approvedActors.has(actorId),
+  const approvedActorBuys = buys.filter(({ actorId }) =>
+    approvedActors.has(actorId),
   );
   const approvedActorBuyNotional = sum(approvedActorBuys.map(notional));
   const priceChangeBps = priceChange(eligible);

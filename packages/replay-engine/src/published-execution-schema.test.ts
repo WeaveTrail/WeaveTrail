@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 
 import { CaseManifestSchema } from "@weavetrail/contracts";
 import {
+  publishedExecutionConflictProposal,
+  publishedExecutionConflictRows,
   publishedExecutionFixMapping,
   publishedExecutionFixProposal,
   publishedExecutionFixRows,
@@ -93,7 +95,53 @@ describe("published execution schema synthetic scenario", () => {
         publishedExecutionH0stcnt0Proposal.sourceArtifactHash,
       ),
     ).toEqual(publishedExecutionH0stcnt0Rows);
+    expect(
+      parseCsvSourceArtifact(
+        artifactBytes("published-execution-fix44-conflicting-evidence.csv"),
+        publishedExecutionConflictProposal.sourceArtifactHash,
+      ),
+    ).toEqual(publishedExecutionConflictRows);
   });
+
+  it.each([
+    [publishedExecutionConflictRows],
+    [[...publishedExecutionConflictRows].reverse()],
+  ])(
+    "routes committed conflicting FIX identity evidence to input review with no result hash",
+    (rows) => {
+      const workflow = new RequestWorkflow();
+      const result = replayApproved(
+        rows,
+        publishedExecutionConflictRows,
+        publishedExecutionConflictProposal,
+        {
+          approvedArtifactHash: sha256Canonical(
+            mappingApprovalArtifact(publishedExecutionConflictProposal),
+          ),
+          reviewerRef: "reviewer-fixture",
+          decision: "APPROVED",
+          overrides: [],
+          approvedAt: "2026-09-08T00:00:00Z",
+        },
+        undefined,
+        "baseline",
+        workflow,
+      );
+
+      expect(workflow.state).toBe("INPUT_REVIEW_REQUIRED");
+      expect(result).toMatchObject({
+        accepted: false,
+        status: "REVIEW_REQUIRED",
+        issues: [
+          expect.objectContaining({
+            code: "CONFLICTING_SOURCE_IDENTITY",
+            path: ["rows"],
+          }),
+        ],
+      });
+      expect(result).not.toHaveProperty("canonicalResultHash");
+    },
+  );
 
   it("normalizes every field carried by both published schemas to the same value", () => {
     const fixEvents = approvedEvents(

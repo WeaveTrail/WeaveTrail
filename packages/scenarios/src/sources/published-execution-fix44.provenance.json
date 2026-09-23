@@ -1,0 +1,136 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic FIX 4.4 execution projection",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors from the cited published schema and rule documents.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "published-execution-fix44.csv",
+      "sha256": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b"
+    }
+  },
+  "syntheticity": {
+    "values": "Every value in this dialect is synthetic, including the execution IDs, timestamps, instrument, side selections, account/actor identifiers, prices and quantities or volumes.",
+    "entities": "ZZ79X1 is fictional and is not a six-digit domestic listing code. Every account starts with SYNTH-ACCOUNT-. No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was requested, retrieved, committed, redistributed or used to calibrate or choose these values. The cited market rules are published rules, not data."
+  },
+  "derivation": {
+    "kind": "published-schema-projection",
+    "description": "The committed CSV projects selected FIX 4.4 ExecutionReport field names, tags, code values and notations over invented values. It copies no FIX message or market-data response bytes.",
+    "schemaSources": [
+      {
+        "id": "fix44-execution-report",
+        "title": "FIX 4.4 ExecutionReport message",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/body_5756.html",
+        "retrievedOn": "2026-09-08"
+      },
+      {
+        "id": "fix44-datatypes",
+        "title": "FIX 4.4 datatypes",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/fix_datatypes.html",
+        "retrievedOn": "2026-09-08"
+      },
+      {
+        "id": "fix44-side",
+        "title": "FIX 4.4 Side field (tag 54)",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/tag54.html",
+        "retrievedOn": "2026-09-08"
+      }
+    ],
+    "ruleSources": [
+      {
+        "id": "krx-tick-size-rules",
+        "title": "Korea Exchange — Guide to Trading in the Korean Stock Market",
+        "url": "https://global.krx.co.kr/contents/GLB/01/0109/0109000000/guide_to_trading_in_the_korean_stock_market.pdf",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published tick-size rule only; no market observations or response data were taken from it."
+      },
+      {
+        "id": "krx-session-hours",
+        "title": "Korea Exchange — Trading Hours",
+        "url": "https://global.krx.co.kr/contents/GLB/06/0602/0602020204/GLB0602020204T1.jsp",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published regular-session rule only; no market observations or response data were taken from it."
+      }
+    ],
+    "fieldCorrespondence": [
+      {
+        "publishedField": "ExecID",
+        "publishedTag": "17",
+        "committedColumn": "ExecID(17)",
+        "canonicalUse": "sourceEventId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "TransactTime",
+        "publishedTag": "60",
+        "committedColumn": "TransactTime(60)",
+        "canonicalUse": "eventTime",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Symbol",
+        "publishedTag": "55",
+        "committedColumn": "Symbol(55)",
+        "canonicalUse": "instrumentId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "Side",
+        "publishedTag": "54",
+        "committedColumn": "Side(54)",
+        "canonicalUse": "side; published codes 1=BUY and 2=SELL",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-side"]
+      },
+      {
+        "publishedField": "LastPx",
+        "publishedTag": "31",
+        "committedColumn": "LastPx(31)",
+        "canonicalUse": "price",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "LastQty",
+        "publishedTag": "32",
+        "committedColumn": "LastQty(32)",
+        "canonicalUse": "quantity",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Account",
+        "publishedTag": "1",
+        "committedColumn": "Account(1)",
+        "canonicalUse": "actorId; the values are synthetic",
+        "schemaSourceIds": ["fix44-execution-report"]
+      }
+    ],
+    "takenFromSpecifications": [
+      "FIX field names and numeric tags",
+      "FIX Side code values 1 and 2",
+      "FIX UTC timestamp spelling YYYYMMDD-HH:MM:SS",
+      "FIX Price and Qty decimal notation",
+      "KRX regular-session hours 09:00–15:30 Korea Standard Time",
+      "KRX KOSPI tick size of KRW 50 for prices from KRW 10,000 through less than KRW 50,000"
+    ],
+    "inventedProperties": [
+      "instrument and issuer identity",
+      "account and actor identities",
+      "execution and order identity",
+      "timestamps within the cited session",
+      "side sequence",
+      "prices on the cited tick ladder",
+      "quantities and volumes"
+    ],
+    "actorDimension": "Per-execution actor attribution is not published in any domestic source; no domestic source recorded by this repository supplies it. The RAPID_PRICE_LIFT rule treats actorId as an eligibility condition, so the participant dimension must remain synthetic and may not be inferred from a public market feed.",
+    "absentFields": []
+  },
+  "validation": {
+    "command": "pnpm exec vitest run packages/replay-engine/src/published-execution-schema.test.ts packages/scenarios/src/source-artifacts.test.ts",
+    "environment": "Node 22.18.0, pnpm 10.33.2, Vitest 4.1.11, Linux WSL2 x86_64",
+    "capturedOutput": {
+      "canonicalDatasetHash": "8ff6d5cd9b8c5362e9bcfd9337a8c52c5cbfb226eba29c10d353134e39c0d3c5",
+      "canonicalSupportedResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    "limitations": "This single deterministic synthetic case measures neither mapping quality nor detection performance. SUPPORTED means only that the approved FIX projection satisfies the declared RAPID_PRICE_LIFT 1.1 thresholds. It is not market evidence or a legal, causal or investment conclusion."
+  }
+}

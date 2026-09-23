@@ -1,6 +1,6 @@
 ---
 name: weavetrail-github-workflow
-description: Prepare or execute an explicitly requested WeaveTrail GitHub stage—branch, commit, pull request, review update, or merge—while preserving issue linkage, validation evidence, and private-to-public boundaries.
+description: Prepare or execute an explicitly requested WeaveTrail GitHub stage—branch, commit, pull request, review update, or merge—using develop as the default integration base and main only for release promotion while preserving issue linkage, validation evidence, and private-to-public boundaries.
 ---
 
 # WeaveTrail GitHub Workflow
@@ -11,6 +11,24 @@ acting.
 
 ## Conventions
 
+- Start ordinary new work from an up-to-date `origin/develop` and open its pull
+  request into `develop` by default. Never silently substitute `main` if
+  `develop` is unavailable.
+- Reserve `main` for an explicitly requested release pull request from
+  `develop`, or for an explicitly authorized emergency hotfix. Create a hotfix
+  branch from an up-to-date `origin/main`, target `main`, and then carry the
+  merged change back into `develop`.
+- Do not retarget an existing pull request unless the user explicitly requests
+  it.
+- Give a new issue the milestone of the version that plans it, or none when no
+  version does yet; pull requests carry no milestone. Version tags `vX.Y.Z` and
+  GitHub releases exist only on a promoted `main` commit. Never create, move or
+  delete a tag, release or milestone unless that is explicitly requested. See
+  `docs/DEPLOYMENT.md` "Versions and release tags".
+- Merging a pull request into `main` starts a release but does not finish it.
+  Production stays untagged until the promotion gate passes, by design. After
+  such a merge, report the promotion gate, the tag, the GitHub release and the
+  milestone closure as outstanding, and perform each only when requested.
 - Issue title: `<type>: <lowercase summary>`.
 - Pull request title: repeat the linked issue title verbatim, with no scope,
   trailing `#<number>`, or paraphrase.

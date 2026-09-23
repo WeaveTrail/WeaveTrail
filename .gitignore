@@ -4,6 +4,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.service-store/
 *.tsbuildinfo
 .env
 .env.local

@@ -87,14 +87,24 @@ pnpm test
 - **Reachable mapping review** — dialect B presents its `source_note` for
   review; replay fails without a matching justified override and succeeds with
   one, while dialect A remains fully resolvable.
-- **Scenario classification** — the supported, broad-participation, and
-  insufficient-evidence synthetic scenarios are pinned to `SUPPORTED`,
-  `NOT_SUPPORTED`, and `INCONCLUSIVE` respectively. The same suite pins their
-  semantic result hashes, declared orders, duplicate tolerance, finding
-  references, and dataset-hash independence.
+- **Scenario classification** — the complete-evidence case satisfies every
+  declared gate and is pinned to `SUPPORTED`; the broad-participation case has
+  enough evidence to evaluate but fails concentration gates and is pinned to
+  `NOT_SUPPORTED`; the missing-side case withholds all four in-window trades as
+  non-comparable and is pinned to `INCONCLUSIVE` with
+  `INSUFFICIENT_ELIGIBLE_EVENTS`. The same suite pins their semantic result
+  hashes, declared orders, duplicate tolerance, finding references, and
+  dataset-hash independence.
+- **Committed conflict review** — a published-schema synthetic FIX source
+  reuses one `ExecID(17)` with different `TransactTime(60)` and `LastPx(31)`
+  values. It is pinned to `INPUT_REVIEW_REQUIRED` with
+  `CONFLICTING_SOURCE_IDENTITY`; no rule result or canonical result hash is
+  produced.
 
-The scenario-classification sample is three authored synthetic fixtures. Run
-`pnpm test -- packages/replay-engine/src/rapid-price-lift-golden.test.ts` on
+The scenario-classification sample is three authored synthetic fixtures, with
+the separate conflicting-input fixture pinning a pre-replay review path. Run
+`pnpm test -- packages/replay-engine/src/rapid-price-lift-golden.test.ts packages/replay-engine/src/published-execution-schema.test.ts`
+on
 Node 22.18.0, pnpm 10.33.2, Vitest 4.1.11, Linux WSL2 x86_64. These outcomes
 verify only the declared cases and illustrative per-case thresholds; they do
 not estimate performance on independent or real-market data.

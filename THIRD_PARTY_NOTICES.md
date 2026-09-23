@@ -80,6 +80,15 @@ Its license text is byte-identical to the IBM Plex Sans copy already recorded
 here: one SIL OFL 1.1 grant covers both families under the reserved font name
 "Plex".
 
+The Korean README figures (`docs/assets/*.ko.svg` that `README.ko.md` embeds)
+carry cuts of these three families, reduced to the characters each figure sets
+and renamed `WeaveTrail Figure Sans`, `WeaveTrail Figure Sans KR` and
+`WeaveTrail Figure Mono` so that no modified version carries the reserved font
+name. They remain under the SIL OFL 1.1 with their copyright and license
+records intact; each figure names the source files and their digests.
+`scripts/embed-figure-fonts.py` reproduces them
+([ADR 0047](docs/adr/0047-embed-the-site-faces-in-the-korean-figures.md)).
+
 ## Published FSC stock quotations
 
 Source: Financial Services Commission (금융위원회),

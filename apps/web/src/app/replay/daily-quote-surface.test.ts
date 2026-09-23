@@ -2,7 +2,7 @@ import type { SourceProvenance } from "@weavetrail/contracts";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { syntheticSourceProvenance } from "@weavetrail/scenarios";
+import { syntheticSourceProvenanceByArtifact } from "@weavetrail/scenarios";
 import {
   mappingApprovalArtifact,
   sha256Canonical,
@@ -48,7 +48,13 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     expect(markup).not.toContain("approve its mapping and case");
     expect(markup).toContain("Ready to normalize");
     expect(markup).not.toContain("Repeat the same approved case");
-    expect(markup).toContain("one licensed published daily-quote source");
+    expect(markup).toContain("licensed published sources");
+    expect(markup).toContain("Complete source record");
+    expect(markup).toContain(scenario.provenance!.recordUrl);
+    expect(markup).toContain('value="baseline"');
+    expect(markup).toContain('value="shuffle"');
+    expect(markup).not.toContain('value="duplicate"');
+    expect(markup).toContain("Neither control invents a value or participant");
     expect(markup).not.toContain(
       "Synthetic committed sources, a deterministic fixture mapping",
     );
@@ -76,7 +82,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
   it("keeps case approval and repeat guidance for a source with a manifest", async () => {
     const prepared = await prepareReplayScenarios();
     const scenario = prepared.scenarios.find(
-      ({ value }) => value === "rapid-price-lift-supported.csv",
+      ({ value }) => value === "published-execution-fix44.csv",
     )!;
     expect(scenario).toHaveProperty("manifest");
     const markup = renderToStaticMarkup(
@@ -93,9 +99,12 @@ describe("daily quote display plumbing with synthetic specimens", () => {
     const scenario: ReplayScenarioOption = {
       value: "concentrated-buy-dialect-a.csv",
       label: "Synthetic daily interpretation specimen",
+      purpose: "ENGINE_REGRESSION",
       sourceArtifactHash: proposal.sourceArtifactHash,
       rows,
-      provenance: syntheticSourceProvenance,
+      availableMutations: ["baseline", "shuffle", "duplicate"],
+      provenance:
+        syntheticSourceProvenanceByArtifact["concentrated-buy-dialect-a.csv"],
     };
     const markup = renderToStaticMarkup(
       createElement(CaseReplay, {
@@ -114,6 +123,8 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       "Case approval unavailable",
       "Adding an actor alone",
       "WeaveTrail contributors",
+      "Open the complete source record",
+      scenario.provenance!.recordUrl,
     ])
       expect(markup).toContain(text);
     expect(markup).not.toContain("Approve case manifest");
@@ -150,6 +161,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
         attributionRequirements: "Synthetic attribution condition",
         attribution: "Synthetic provider credit",
       },
+      recordUrl: "https://example.invalid/provenance",
     };
     const markup = renderToStaticMarkup(
       createElement(SourceProvenanceDetails, { provenance }),
@@ -186,6 +198,7 @@ describe("daily quote display plumbing with synthetic specimens", () => {
         attributionRequirements: "Synthetic attribution condition",
         attribution: "Synthetic provider credit",
       },
+      recordUrl: "https://example.invalid/provenance",
     };
     const markup = renderToStaticMarkup(
       createElement(SourceProvenanceDetails, { provenance }),
@@ -198,8 +211,11 @@ describe("daily quote display plumbing with synthetic specimens", () => {
   it("prepares scenario provenance outside protected mapping artifacts", async () => {
     const prepared = await prepareReplayScenarios();
     for (const scenario of prepared.scenarios) {
+      expect(scenario.provenance?.recordUrl).toContain("/blob/main/");
       if (scenario.provenance?.kind === "synthetic") {
-        expect(scenario.provenance).toEqual(syntheticSourceProvenance);
+        expect(scenario.provenance.recordUrl).toMatch(
+          /packages\/scenarios\/src\/sources\/.+\.provenance\.json$/,
+        );
         expect(scenario.provenance).not.toHaveProperty("retrievedAt");
       } else {
         expect(scenario.provenance?.kind).toBe("real");
@@ -210,7 +226,9 @@ describe("daily quote display plumbing with synthetic specimens", () => {
       scenario.provenance = {
         kind: "synthetic",
         provider: "WeaveTrail",
+        title: "Updated display record",
         attribution: "Updated display credit",
+        recordUrl: "https://example.invalid/updated-provenance",
       };
       expect(sha256Canonical(mappingApprovalArtifact(proposal))).toBe(before);
       expect(proposal).not.toHaveProperty("provenance");

@@ -12,7 +12,22 @@ pnpm check
 pnpm build
 ```
 
-`pnpm dev` serves the workbench at <http://localhost:3000> with Node 22 or newer
+`pnpm figures:build` writes the boundary figures the design documents embed
+from `scripts/boundary-figures.mjs`; `pnpm figures:check` fails when a committed
+figure no longer matches that source, and `pnpm figures:test` exercises the
+renderer. Both run in `pnpm check` and CI, so a diagram and the words around it
+change together.
+
+`pnpm adr:check` validates ADR filenames, first-line headings, unique numbers,
+and local ADR links. `pnpm adr:test` exercises the validator's regression
+fixtures; both commands run in `pnpm check` and CI. Markdown links are relative
+to the containing document. JavaScript and TypeScript documentation comments
+may also use repository-root `docs/adr/...` references. Code examples and source
+string literals are not live references. See
+[ADR 0045](docs/adr/0045-parse-adr-references-as-documentation.md) for the parser
+boundary and check limitations.
+
+`pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.
 
@@ -43,6 +58,36 @@ See [AGENTS.md](AGENTS.md) for the trust, determinism, evidence, and language
 invariants that apply to every change.
 
 ## GitHub conventions
+
+The release-batching branch workflow is:
+
+```text
+feature/* -> develop -> main
+```
+
+New work is pushed to a short-lived feature branch and opened as a pull
+request into `develop`. The `develop` branch is the integration branch. A
+separate pull request from `develop` into `main` promotes an accumulated,
+reviewed set of changes for production. Do not push directly to `develop` or
+`main`. The default base branch for a new pull request is `develop`, and new
+work starts from an up-to-date `origin/develop`. If `origin/develop` is
+unexpectedly unavailable, stop and report it rather than silently using `main`
+as the base. Existing pull requests keep their current base unless their owner
+requests a retarget. An explicitly authorized emergency hotfix is the
+exception: create it from an up-to-date `origin/main`, target `main`, and carry
+the merged fix back into `develop` before ordinary development continues.
+
+Each GitHub milestone names one version, such as `v0.1.0`, and every promotion
+to `main`, a hotfix included, ships one milestone. Give an issue the milestone
+of the minor version it is planned for; patch versions are reserved for
+hotfixes. Leave an issue without a milestone when no version plans it yet. A
+promotion ships everything merged into `develop` since its last merge into
+`main`, and the milestone is reconciled with that range before the promotion
+merges; an issue still open then moves out of it. Pull requests do not carry
+milestones; the release notes list those no issue in the milestone represents.
+Milestones have no due dates. The promoted `main` commit is tagged `vX.Y.Z` and
+published as a GitHub release; see
+[versions and release tags](docs/DEPLOYMENT.md#versions-and-release-tags).
 
 Use these distinct title forms:
 

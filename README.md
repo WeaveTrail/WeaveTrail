@@ -7,7 +7,7 @@
 <h1 align="center">WeaveTrail</h1>
 
 <p align="center">
-  Weave signals into replayable evidence.
+  Evidence-graded market event analysis from official releases and public data.
 </p>
 
 <p align="center">
@@ -17,51 +17,57 @@
 </p>
 
 <p align="center">
-  <a href="https://weave-trail-web-flax.vercel.app"><b>Open the workbench</b></a>
+  <a href="https://weave-trail-web-flax.vercel.app"><b>Open WeaveTrail</b></a>
   &middot;
   <a href="README.ko.md">한국어</a>
 </p>
 
 <p align="center">
-  <a href="#an-alert-is-not-yet-evidence">Problem</a> &middot;
+  <a href="#a-summary-is-not-yet-evidence">Problem</a> &middot;
   <a href="#a-worked-case">A worked case</a> &middot;
   <a href="#layer-separation">Layers</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
-  <a href="#how-it-is-built">How it is built</a>
+  <a href="#how-it-fits-together">How it fits together</a>
 </p>
 
-A surveillance system flags a day, an account, a price move. Someone then has to
-show that the flag holds up — which records produced the number, who decided
-what those records meant, and what changes if any of those decisions change.
-Answering that a second time, from the same records, is harder than raising the
-flag was.
+When something happens in the market, two kinds of text follow. Regulators
+publish official releases: exact, but scattered and hard to read. Analysts and
+AI tools publish summaries: easy to read, but nothing in them shows which
+sentence was checked and which is the writer's own inference.
 
-WeaveTrail is a workbench for that step. It takes one case, re-derives it from
-the records it rests on, and leaves a trail a second person can walk without
-trusting the first.
+WeaveTrail is being built to join the two: collect official releases and the
+published market data behind them, turn each release into an event, and lead
+with the conclusions that data supports on one screen.
 
-- **Where it sits ·** after an alert or a referral, before an investigation
-  concludes. It finds nothing on its own; something else names the case.
-- **Who it is for ·** surveillance teams at a trading venue, compliance
-  reviewers at a broker or bank, supervisory investigators, internal audit.
-- **What it returns ·** an answer computed by fixed code, the arithmetic behind
-  it, and the published record behind each value it read.
-- **What it never does ·** decide guilt, infer intent, or recommend a trade.
+**Current status:** Evidence Grade `1.0`, its deterministic verification
+boundaries, and bilingual badge and tally components are implemented. No public
+route renders those badges or tallies yet; connecting validated declarations to
+each displayed sentence remains planned. Existing pages must not be read as
+sentence-graded output.
 
-## An alert is not yet evidence
+- **What it reads ·** releases from the Financial Services Commission, the
+  Financial Supervisory Service and the SEC, and published market data. Primary
+  sources only, and no affiliation with any of them.
+- **Who it is for ·** anyone who has to explain a market event to someone else:
+  research, risk, compliance and planning staff at financial firms, and
+  individual analysts who read and write in depth.
+- **What it is planned to return ·** conclusions first, every sentence graded
+  by its evidence, and a one-page brief whose link reopens the same numbers.
+- **What it never does ·** state a cause, intent or legality, single out an
+  account, forecast a price, or recommend a trade.
 
-Whoever picks the alert up has to say which records produced the number, how
-those records were read, and under which version of which rule. The data makes
-that hard before a model is anywhere near it.
+## A summary is not yet evidence
 
-![An alert names a candidate whose executions arrive in two dialects with different field names and time notations; a model can propose how they line up, but an alert alone never records which rows, which mapping, or which rule version produced its number](docs/assets/problem.svg)
+Whoever has to explain an event goes between the two by hand: find the release,
+look up the prices somewhere else, match the numbers, and still end up without
+one page of evidence to pass on.
 
-- **Systems disagree by construction ·** two venues name the same field
-  differently, write time differently, and spell the same number differently.
-- **Sameness is not given ·** a duplicate, a reused reference and a late arrival
-  all look alike until something decides what counts as one record.
-- **A model helps and adds a risk ·** it can read an unfamiliar file quickly,
-  but a fluent summary can hide a gap, and nobody can see which is which.
+- **Releases are scattered ·** each institution publishes on its own site, in
+  HTML, PDF or HWP, and the first sentence is already statute and acronyms.
+- **The numbers live elsewhere ·** checking one figure in a release means
+  opening the market data on another site.
+- **Every sentence weighs the same ·** in a fluent summary a quotation, a
+  calculation and a guess look alike, and the reader cannot tell which is which.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
@@ -77,11 +83,10 @@ worth a second look.
 
 The published records are read exactly as published. A person fixes what will be
 examined — the date, the period it is compared against, how large a pull-back
-has to be — and fixes it before anything runs. Then fixed code does the
-arithmetic and reports where the day stands within that period. Each observed
-value opens onto the published row it was read from; the thresholds are a
-person's and say so, and the standing is computed across the whole approved
-period. Running it again on the same inputs produces the same result.
+has to be — before anything runs. Fixed code then does the arithmetic and
+reports where the day stands within that period. Each observed value opens onto
+the published row it was read from, and running it again on the same inputs
+produces the same result.
 
 What it does not say: who traded, why, or whether anything was wrong. The
 comparison period and the thresholds were chosen by a person who had already
@@ -94,32 +99,36 @@ seen the day, which is part of how the result should be read.
 
 **AI proposes. A person approves. Code decides. Evidence carries it back.**
 
-Keeping a model off the network protects the data and leaves the harder problem
-open: an unchecked judgement can still walk into a case file from inside the
-building. So the work is separated by authority rather than by location. Each
-layer holds what it may do, what it may never do, and the record it leaves
-behind.
+A model reads faster than anyone, and a fluent summary can hide a gap. So the
+work is separated by authority: each layer holds what it may do, what it may
+never do, and the record it leaves behind. The planned public surface makes
+that separation visible with an evidence badge on every sentence; current
+routes do not yet render it.
 
-The first case the workbench answers is deliberately narrow:
+![Planned four-layer surface between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches quotations against source bytes and recomputes calculated claims from verified source data, and each planned sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
 
-> Does a short run-up in price match a declared pattern of repeated,
-> concentrated buying by one approved group of accounts — and what do the same
-> numbers look like with that group's trades taken out?
-
-![Four layers between a surveillance alert and a re-derivable result: a constrained mapper proposes a field mapping, a reviewer approves that exact proposal by hash, versioned code decides the outcome, and the evidence layer resolves every finding back to its source rows](docs/assets/how-it-works.svg)
-
-- **Interpret · a model ·** reads an unfamiliar file and proposes what each
-  column means, with its reason and how sure it is. It never edits a row,
-  computes a number, or owns an answer.
-- **Approve · a person ·** approves that exact proposal, and anything the model
-  flagged needs a written reason before it can pass. Approval fixes what will be
-  examined; it cannot edit what comes back.
-- **Decide · fixed code ·** compares the approved data against the approved
-  thresholds and returns one of three answers: the pattern holds, it does not
-  hold, or the evidence was not enough to say. The third is a real answer, not
-  a failure.
-- **Evidence ·** open any check and read the original rows underneath it. A
+- **Interpret · a model ·** proposes the structure of a release — who, when,
+  what, how much, which action, under which provision — with the passage each
+  fact was read from, and picks out the claims worth checking in a pasted text.
+  It never computes a number or owns an answer.
+- **Approve · a person ·** fixes what will be examined before anything runs,
+  and chooses which conclusions go into a brief. Approval cannot edit what comes
+  back.
+- **Decide · fixed code ·** matches quotations against retained source bytes,
+  including numbers in quoted text. For calculated claims, it recomputes the
+  value from verified source data. Where the data is absent it says so instead
+  of guessing. A source's provenance tier is recorded separately.
+- **Evidence ·** the planned surface opens every sentence onto its source
+  passage, or onto the source rows, the formula and the definition behind it. A
   number whose origin cannot be resolved is withheld rather than shown.
+
+| Badge             | What it means                                                            | Who vouches for it               |
+| ----------------- | ------------------------------------------------------------------------ | -------------------------------- |
+| Quoted            | The sentence stands in the original, at that passage                     | Code, against the original bytes |
+| Recomputed        | Recomputed from verified source data, or equal to that value             | Code                             |
+| Differs           | Recomputing gives another value, shown beside it                         | Code                             |
+| Not confirmable   | Verified source data cannot settle it; reason and missing data are shown | Code                             |
+| AI interpretation | A model's summary, or a question data cannot answer                      | Nobody — it is a proposal        |
 
 Two rules hold the separation up, and both live in code rather than in
 guidance:
@@ -128,22 +137,21 @@ guidance:
    the layer that approves cannot compute, and the layer that computes cannot
    widen what it was given.
 2. **An answer carries the conditions it is true under.** Not true in general,
-   but true for this version of this rule, against this approved scope, at the
-   thresholds shown beside it.
+   but true for this version of this definition, against this snapshot of the
+   data, at the thresholds shown beside it.
 
-The answer is about a technical pattern, not about legality, intent or guilt,
-and taking a group's trades out is arithmetic, not a statement of cause.
+A conclusion says what the public data supports, not why it happened, whether
+anyone did wrong, or where a price goes next.
 
 Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
 since 22 June 2026, holds that the final decision and the responsibility for it
 stay with a person, and the supervisory risk-management framework issued
 alongside it asks for verification before release and documentation across the
-process. Layer separation is one way to carry that out inside a single
-investigation. It is a design alignment, not a certification, an approval, or an
-endorsement.
+process. Layer separation is one way to carry that out, sentence by sentence.
+It is a design alignment, not a certification, an approval, or an endorsement.
 
-See [Methodology](docs/METHODOLOGY.md) for the rule, its checks and where it
-declines to answer.
+See [Methodology](docs/METHODOLOGY.md) for the rules, their checks and where
+they decline to answer.
 
 ## The boundary is a contract, not a convention
 
@@ -153,59 +161,74 @@ fixed choices, written down and tested.
 
 ![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the stored row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
 
-- **Nothing a model wrote crosses unapproved ·** the records are rebuilt from
-  the stored file through the approved reading, not from anything the model
-  handed over.
+- **Nothing a model wrote crosses unapproved ·** a quotation is shown only when
+  it matches the original, and records are rebuilt from the stored source, not
+  from anything the model handed over.
 - **No floating point where it matters ·** prices and thresholds are compared
   exactly, never through a rounded quotient.
+- **A snapshot is never overwritten ·** a collected document keeps its original
+  bytes and hash, and a changed one is linked to the one before it, so a shared
+  link reopens the same numbers after new data arrives.
 - **The fingerprint covers the answer, not the run ·** shuffling the same rows
-  leaves it unchanged. Change the scope or the thresholds and the answer moves
-  with them; change who approved and when, and that is kept in the approval
-  record instead, where it can still be read.
+  leaves it unchanged; who approved and when is kept in the approval record
+  instead, where it can still be read.
 - **Refusal is explicit ·** a check that cannot be satisfied stops there and
   returns no answer at all, rather than a weaker one.
 
-The model behind the reading step is defined by what it is allowed to hand over,
-so it can be replaced without moving the boundary.
+Each model is defined by what it is allowed to hand over, so it can be replaced
+without moving the boundary.
 
 See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries, and the
 [decision records](docs/adr) for why each choice was made.
 
-## How it is built
+## How it fits together
 
-One chain runs from stored records to evidence, and every handover between
-components is a contract rather than a convention. A component is coloured by
-who authors it — a model, a person, or fixed code — so the question "who decided
-this?" is answered by the diagram itself. Two components are specified and not
-yet built, and they say so.
+One chain runs from a collected document to a sentence on screen, and every
+handover is a contract rather than a convention. Each step names who authors
+its output — a model, a person, or fixed code — so "who decided this?" has an
+answer at every step.
 
-![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly remains planned. Any gate can refuse, and a refused request carries no result hash](docs/assets/component-chain.svg)
+- **Collect · code ·** official releases and published market data, kept as
+  immutable snapshots with their original bytes, hash, origin and reuse terms.
+- **Read · code ·** HTML, PDF and HWP parsed into text and tables that keep the
+  position of every character in the original.
+- **Structure · a model, then code ·** a model proposes the event's facts and
+  their passages; code keeps a quotation only if it matches the original.
+- **Link · code ·** names of instruments and indices resolved to their
+  published market data as of the event's date.
+- **Conclude · code ·** fixed-definition conclusions for each event, and
+  market-wide statistics for every day that flag nothing.
+- **Check · a model, then code ·** claims picked out of a pasted text, each
+  recomputed or matched and graded like any other sentence.
+- **Pass on · a person ·** adopted conclusions exported as a one-page brief,
+  whose link pins the snapshots and definitions it used.
+
+Case replay is the expert view of the same separation: a model proposes what the
+columns of an unfamiliar file mean, a person approves that reading and the
+scope, versioned code replays the case, and every finding opens onto its source
+rows.
 
 [Architecture](docs/ARCHITECTURE.md) carries the trust boundaries and what the
-result fingerprint covers, [Methodology](docs/METHODOLOGY.md) the rule and its
-checks, and the [decision records](docs/adr) the reason behind each choice.
+result fingerprint covers, [Methodology](docs/METHODOLOGY.md) the rules and
+their checks, and the [decision records](docs/adr) the reason behind each
+choice.
 
 ## See it running
 
-The [deployed workbench](https://weave-trail-web-flax.vercel.app) opens on a
-guided walkthrough of one case at `/replay`. Its deployed revision may differ
-from this checkout, and nothing here is a claim that this revision has been
-deployed.
+The [deployed site](https://weave-trail-web-flax.vercel.app) follows the `main`
+branch and may differ from this checkout. It serves the worked case above and
+case replay at `/replay`; the rest of the chain is tracked in the
+[v0.1.0 milestone](https://github.com/WeaveTrail/WeaveTrail/milestone/1).
 
-The walkthrough carries one file along the whole chain: read the actual rows,
-review what a model proposed the columns mean, approve that reading and the
-scope explicitly, run it, and open a result back to the rows it rests on. A
-second example holds a column the model cannot resolve, so it needs a written
-reason before it can be approved — and approving it does not authorize the
-case. Running the same approved case again returns a second fingerprint to
-compare against the first.
-
-Approvals and results live in the open page only, so a refresh starts
-unapproved. The cases are synthetic except for the published market records,
-which are committed under a licence that permits it, with their origin and
-retrieval recorded beside them. By default the reading step runs from stored
-fixtures rather than calling a model, and the deployed configuration carries no
-model credential. [Contributing](CONTRIBUTING.md) covers running it locally.
+Case replay carries one file along the whole chain: read the actual rows, review
+what a model proposed the columns mean, approve that reading and the scope, run
+it, and open a result back to the rows it rests on. Approvals and results live
+in the open page only, so a refresh starts unapproved. The cases are synthetic
+except for the published market records, which are committed under a licence
+that permits it, with their origin and retrieval recorded beside them. By
+default the reading step runs from stored fixtures rather than calling a model,
+and the deployed configuration carries no model credential.
+[Contributing](CONTRIBUTING.md) covers running it locally.
 
 ## Documentation
 
