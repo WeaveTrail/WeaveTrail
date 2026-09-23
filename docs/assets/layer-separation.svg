@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="layersTitle layersDesc">
-  <title id="layersTitle">Layer separation: a model proposes, a person approves, fixed code decides, and every sentence carries the badge of the layer that vouches for it</title>
-  <desc id="layersDesc">Four layers run left to right, from an official release, published market data or a pasted analysis to a sentence on screen with its evidence. Layer one, interpret: a model proposes a release's facts with the passages they came from, and the claims worth checking in a pasted text; it computes nothing. Layer two, approve: a person fixes what will be examined before anything runs and adopts the conclusions that go into a brief; approval cannot edit a result. Layer three, decide: fixed code matches every quotation against the original bytes and recomputes every number from published data, and where data is absent it says so instead of guessing. Layer four, evidence: every sentence opens onto its source passage, or onto its rows, formula and definition, and a shared link pins the snapshots it used. Beneath the layers are the five evidence badges: quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal.</desc>
+  <title id="layersTitle">Planned layer separation: a model proposes, a person approves, fixed code decides, and each sentence will carry the badge of the layer that vouches for it</title>
+  <desc id="layersDesc">The planned four layers run left to right, from an official release, published market data or a pasted analysis to a sentence on screen with its evidence. Layer one, interpret: a model proposes a release's facts with the passages they came from, and the claims worth checking in a pasted text; it computes nothing. Layer two, approve: a person fixes what will be examined before anything runs and adopts the conclusions that go into a brief; approval cannot edit a result. Layer three, decide: fixed code matches quotations, including numbers in them, against retained source bytes and recomputes calculated claims from verified source data; where data is absent it says so instead of guessing. Layer four, evidence: on the planned surface, each sentence opens onto its source passage, or onto its rows, formula and definition, and a shared link pins the snapshots it used. Beneath the layers are the five evidence badges: quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal.</desc>
   <!--
     Hand-authored README figure. The English and Korean files share one geometry;
     each language brings its own line breaks and chip widths.
@@ -39,13 +39,13 @@
     <text class="eyebrow" x="40" y="48">LAYER SEPARATION</text>
     <text class="title" x="40" y="84">AI proposes. A person approves. Code decides.</text>
     <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a person's decision. Ink is fixed code.</text>
-    <text class="sub" x="40" y="132">No layer holds two authorities, and every sentence on screen carries the badge of the layer that vouches for it.</text>
+    <text class="sub" x="40" y="132">No layer holds two authorities. On the planned surface, each sentence carries the badge of the layer that vouches for it.</text>
   </g>
   <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
 
   <g class="s">
     <text class="ctx" x="40" y="176">FROM · an official release, published market data, or a pasted analysis</text>
-    <text class="ctx" x="1160" y="176" text-anchor="end">TO · a sentence on screen, with its evidence</text>
+    <text class="ctx" x="1160" y="176" text-anchor="end">TO · a planned sentence on screen, with its evidence</text>
   </g>
 
   <!-- stage 1 -->
@@ -80,10 +80,10 @@
   <text class="s chip" x="636" y="221" fill="#14211f">CODE DECIDES</text>
   <g class="s">
     <text class="stage" x="628" y="256">L3 · Decide</text>
-    <text class="body" x="628" y="284">Fixed code matches every</text>
-    <text class="body" x="628" y="304">quotation against the original</text>
-    <text class="body" x="628" y="324">bytes and recomputes every</text>
-    <text class="body" x="628" y="344">number from published data.</text>
+    <text class="body" x="628" y="284">Code checks quotations against</text>
+    <text class="body" x="628" y="304">source bytes, including numbers,</text>
+    <text class="body" x="628" y="324">and recomputes calculated values</text>
+    <text class="body" x="628" y="344">from verified source data.</text>
     <text class="foot" x="628" y="374">no data, no guess</text>
   </g>
 
@@ -93,11 +93,11 @@
   <text class="s chip" x="922" y="221" fill="#14211f">CODE RECORDS</text>
   <g class="s">
     <text class="stage" x="914" y="256">L4 · Evidence</text>
-    <text class="body" x="914" y="284">Every sentence opens onto its</text>
-    <text class="body" x="914" y="304">source passage, or its rows,</text>
-    <text class="body" x="914" y="324">formula and definition. A link</text>
-    <text class="body" x="914" y="344">pins the snapshots it used.</text>
-    <text class="foot" x="914" y="374">sentence → source</text>
+    <text class="body" x="914" y="284">On the planned surface, each</text>
+    <text class="body" x="914" y="304">sentence opens onto its source</text>
+    <text class="body" x="914" y="324">passage, rows, formula and</text>
+    <text class="body" x="914" y="344">definition; links pin inputs.</text>
+    <text class="foot" x="914" y="374">planned sentence → source</text>
   </g>
 
   <g fill="#0b6e6a">

@@ -9,6 +9,7 @@ export * from "./cross-market-session-reversal";
 export * from "./dataset-profile";
 export * from "./evidence-bundle-hash";
 export * from "./evidence-bundle";
+export * from "./evidence-grade";
 export * from "./mapping-evaluation";
 export * from "./rapid-price-lift";
 export * from "./request-workflow";
