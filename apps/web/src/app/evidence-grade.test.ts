@@ -144,8 +144,10 @@ function verifiedCalculatedSentence(
   return verified;
 }
 
-function verifiedQuotedSentence(sentenceId = "quoted-1") {
-  const text = "Matches the source text exactly.";
+function verifiedQuotedSentence(
+  sentenceId = "quoted-1",
+  text = "Matches the source text exactly.",
+) {
   const sourceBytes = new TextEncoder().encode(text);
   return verifyQuotedEvidence(
     {
@@ -399,6 +401,24 @@ describe("evidence badges", () => {
     expect(quoted).toContain("Quoted");
   });
 
+  it("preserves verified quotation whitespace in the displayed sentence", () => {
+    const quote = "Two  spaces\tand\na line.";
+    const markup = renderToStaticMarkup(
+      createElement(EvidenceSentence, {
+        language: "en",
+        sentence: verifiedQuotedSentence("quoted-whitespace", quote),
+      }),
+    );
+    const styles = readFileSync(
+      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      "utf8",
+    );
+    expect(markup).toContain(`class="evidence-sentence-text">${quote}</span>`);
+    expect(styles).toMatch(
+      /\.evidence-sentence-text\s*\{\s*white-space: pre-wrap;/,
+    );
+  });
+
   it("rejects copied declarations that retain the TypeScript brand", () => {
     for (const verified of [
       verifiedQuotedSentence(),
@@ -547,7 +567,7 @@ describe("evidence tally", () => {
     ).toThrow("nonnegative safe integers");
   });
 
-  it("puts the spoken sentence on the rendered tally", () => {
+  it("keeps the spoken sentence as readable text in the rendered tally", () => {
     const markup = renderToStaticMarkup(
       createElement(EvidenceGradeTally, {
         sentences: exampleSentences(),
@@ -555,9 +575,10 @@ describe("evidence tally", () => {
       }),
     );
     expect(markup).toContain(
-      'aria-label="Of 18 sentences: 7 quoted, 5 recomputed, 1 differs, 2 not confirmable, 3 AI interpretation."',
+      '<span class="visually-hidden">Of 18 sentences: 7 quoted, 5 recomputed, 1 differs, 2 not confirmable, 3 AI interpretation.</span>',
     );
     expect(markup).toContain('aria-hidden="true"');
+    expect(markup).not.toContain("aria-label=");
   });
 });
 

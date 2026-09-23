@@ -864,8 +864,10 @@ describe("missing evidence verification", () => {
               canonicalDatasetForHash: (input: typeof dataset) => ({
                 granularity: input.granularity,
               }),
-              isMissing: (input: typeof dataset) =>
-                input.granularity === "daily",
+              isMissing: (input: { granularity: "daily" }) => {
+                expect(input).toEqual({ granularity: "daily" });
+                return input.granularity === "daily";
+              },
               displayTemplates: new Map([
                 [
                   "english-daily-quote-time-of-day",
@@ -881,6 +883,43 @@ describe("missing evidence verification", () => {
     expect(
       verifyUnconfirmableEvidence(unconfirmableSentence(), { checks }),
     ).toMatchObject({ grade: "UNCONFIRMABLE" });
+  });
+
+  it("does not let an absence check inspect rows omitted from the approved hash", () => {
+    const dataset = { granularity: "daily" as const, rows: [] as string[] };
+    const checks = new Map([
+      [
+        "daily-quote-time-of-day",
+        new Map([
+          [
+            "1.0.0",
+            {
+              checkVersion: "1.0.0",
+              reasonCode: "DAILY_QUOTES_HAVE_NO_TIME_OF_DAY" as const,
+              dataset,
+              canonicalDatasetForHash: (input: typeof dataset) => ({
+                granularity: input.granularity,
+              }),
+              isMissing: (input: { granularity: "daily" }) =>
+                "rows" in input &&
+                Array.isArray(input.rows) &&
+                input.rows.length === 0,
+              displayTemplates: new Map([
+                [
+                  "english-daily-quote-time-of-day",
+                  () => "Public quotes do not contain a time of day.",
+                ],
+              ]),
+            },
+          ],
+        ]),
+      ],
+    ]);
+
+    expectMissingCode(
+      () => verifyUnconfirmableEvidence(unconfirmableSentence(), { checks }),
+      "EVIDENCE_AVAILABLE",
+    );
   });
 
   it("returns a deeply frozen verified absence declaration", () => {
@@ -947,10 +986,10 @@ describe("missing evidence verification", () => {
 
     expectMissingCode(
       () =>
-        verifyUnconfirmableEvidence<typeof changedDataset>(
-          unconfirmableSentence(),
-          { checks },
-        ),
+        verifyUnconfirmableEvidence<
+          typeof changedDataset,
+          typeof changedDataset
+        >(unconfirmableSentence(), { checks }),
       "MISSING_EVIDENCE_CHECK_MISMATCH",
     );
   });

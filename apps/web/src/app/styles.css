@@ -139,6 +139,9 @@ button:disabled {
   letter-spacing: 0.01em;
   text-wrap: balance;
 }
+.evidence-sentence-text {
+  white-space: pre-wrap;
+}
 .evidence-graded-row {
   display: grid;
   grid-template-columns: 9.5rem minmax(0, 1fr);

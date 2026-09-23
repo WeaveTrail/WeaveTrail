@@ -157,24 +157,30 @@ export class MissingEvidenceVerificationError extends Error {
   }
 }
 
-export type RegisteredMissingEvidenceCheck<Dataset extends CanonicalJsonInput> =
-  {
-    checkVersion: string;
-    reasonCode: UnconfirmableReasonCode;
-    dataset: Dataset;
-    /** Versioned semantic projection used for the approved dataset hash. */
-    canonicalDatasetForHash: (dataset: Dataset) => CanonicalJsonInput;
-    isMissing: (dataset: Dataset) => boolean;
-    displayTemplates: ReadonlyMap<string, () => string>;
-  };
+export type RegisteredMissingEvidenceCheck<
+  Dataset extends CanonicalJsonInput,
+  CanonicalDataset extends CanonicalJsonInput,
+> = {
+  checkVersion: string;
+  reasonCode: UnconfirmableReasonCode;
+  dataset: Dataset;
+  /** Versioned semantic projection used for the approved dataset hash. */
+  canonicalDatasetForHash: (dataset: Dataset) => CanonicalDataset;
+  isMissing: (dataset: CanonicalDataset) => boolean;
+  displayTemplates: ReadonlyMap<string, () => string>;
+};
 
 export type MissingEvidenceVerificationContext<
   Dataset extends CanonicalJsonInput,
+  CanonicalDataset extends CanonicalJsonInput,
 > = {
   /** Retain every code-owned check under its stable ID and explicit version. */
   checks: ReadonlyMap<
     string,
-    ReadonlyMap<string, RegisteredMissingEvidenceCheck<Dataset>>
+    ReadonlyMap<
+      string,
+      RegisteredMissingEvidenceCheck<Dataset, CanonicalDataset>
+    >
   >;
 };
 
@@ -540,9 +546,12 @@ export function verifyCalculatedEvidence(
  * Resolve a versioned absence check, re-hash its actual approved dataset, and
  * rerun it before exposing an UNCONFIRMABLE grade and its closed reason code.
  */
-export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
+export function verifyUnconfirmableEvidence<
+  Dataset extends CanonicalJsonInput,
+  CanonicalDataset extends CanonicalJsonInput,
+>(
   candidate: unknown,
-  context: MissingEvidenceVerificationContext<Dataset>,
+  context: MissingEvidenceVerificationContext<Dataset, CanonicalDataset>,
 ): VerifiedUnconfirmableEvidenceSentence {
   const parsed = EvidenceGradedSentenceSchema.safeParse(candidate);
   if (!parsed.success) {
@@ -591,7 +600,7 @@ export function verifyUnconfirmableEvidence<Dataset extends CanonicalJsonInput>(
         "The approved dataset content does not match its declared hash.",
       );
     }
-    missing = registered.isMissing(dataset);
+    missing = registered.isMissing(canonicalDataset);
   } catch (error) {
     if (error instanceof MissingEvidenceVerificationError) throw error;
     throw new MissingEvidenceVerificationError(

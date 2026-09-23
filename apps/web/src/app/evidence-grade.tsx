@@ -274,8 +274,9 @@ export function EvidenceGradeTally({
   const tally = formatEvidenceGradeTally(counts, language);
   if (tally === null) return null;
   return (
-    <p aria-label={tally.spoken} className="evidence-tally">
+    <p className="evidence-tally">
       <span aria-hidden="true">{tally.visible}</span>
+      <span className="visually-hidden">{tally.spoken}</span>
     </p>
   );
 }

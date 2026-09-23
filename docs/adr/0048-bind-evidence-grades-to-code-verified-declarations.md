@@ -65,7 +65,9 @@ Code-backed grades have a second verification boundary in the replay engine:
   dataset hash. Verification resolves the code-owned check by both identifier
   and version, canonicalizes and freezes an isolated dataset snapshot, hashes
   the check's versioned semantic projection so volatile metadata is explicitly
-  excluded, and awards the grade only when the check
+  excluded, then passes that same frozen projection to the absence check. Every
+  field inspected for absence must therefore be in the hashed projection. It
+  awards the grade only when the check
   reports that the required evidence is absent. The complete displayed claim
   must match the selected code-owned template, while user-visible reason
   fragments come from bilingual application copy keyed by the closed code;
@@ -96,6 +98,8 @@ bilingual name, and required companion text as one unit, and derives the
 `DIFFERS` recomputed value and `UNCONFIRMABLE` reason from that verified
 sentence. The tally authenticates each sentence, rejects duplicate sentence
 IDs before deriving counts, uses the contract order, and omits zero-count grades.
+Its spoken tally is actual visually hidden text. Verified quotation text uses
+preserved whitespace so its displayed spacing matches the authenticated text.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or
@@ -118,6 +122,9 @@ fails closed for an unsupported explanation.
 Evidence Grade `1.0` is new and opt-in. Existing replay, result, event, and
 Evidence Bundle contracts require no migration. A future incompatible change
 uses a new evidence version instead of silently changing `1.0` semantics.
+Registered absence checks must migrate `isMissing` to consume the canonical
+projection returned by `canonicalDatasetForHash`; any semantic field it reads
+must be included in that projection.
 
 This decision implements the opt-in contract, verifier boundary, and
 presentation primitives. No current public route consumes them. Wiring
