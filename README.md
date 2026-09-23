@@ -105,7 +105,7 @@ never do, and the record it leaves behind. The planned public surface makes
 that separation visible with an evidence badge on every sentence; current
 routes do not yet render it.
 
-![Planned four-layer surface between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches every quotation against the original and recomputes every number from verified source data, and each planned sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
+![Planned four-layer surface between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches quotations against source bytes and recomputes calculated claims from verified source data, and each planned sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
 
 - **Interpret · a model ·** proposes the structure of a release — who, when,
   what, how much, which action, under which provision — with the passage each
@@ -114,10 +114,10 @@ routes do not yet render it.
 - **Approve · a person ·** fixes what will be examined before anything runs,
   and chooses which conclusions go into a brief. Approval cannot edit what comes
   back.
-- **Decide · fixed code ·** matches every quotation against the original bytes
-  and recomputes every number from verified source data. Where the data is
-  absent it says so instead of guessing. A source's provenance tier is recorded
-  separately.
+- **Decide · fixed code ·** matches quotations against retained source bytes,
+  including numbers in quoted text. For calculated claims, it recomputes the
+  value from verified source data. Where the data is absent it says so instead
+  of guessing. A source's provenance tier is recorded separately.
 - **Evidence ·** the planned surface opens every sentence onto its source
   passage, or onto the source rows, the formula and the definition behind it. A
   number whose origin cannot be resolved is withheld rather than shown.

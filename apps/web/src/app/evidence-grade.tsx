@@ -138,16 +138,17 @@ type VerifiedCodeBackedEvidenceSentence =
 export type DisplayableEvidenceSentence =
   VerifiedCodeBackedEvidenceSentence | ValidatedInterpretationEvidenceSentence;
 
-export type EvidenceBadgeProps = {
+export type EvidenceSentenceProps = {
   language: Language;
   sentence: DisplayableEvidenceSentence;
+  children?: never;
 };
 
 /**
- * A non-interactive evidence mark. Required companion copy is rendered with
- * DIFFERS and UNCONFIRMABLE so consumers cannot hide it in a tooltip.
+ * Render the authenticated claim and its evidence mark as one unit. Callers
+ * cannot supply separate prose to receive a grade for a different sentence.
  */
-export function EvidenceBadge(props: EvidenceBadgeProps) {
+export function EvidenceSentence(props: EvidenceSentenceProps) {
   const text = evidenceGradeCopy[props.language];
   const sentence = props.sentence;
   assertAuthenticatedEvidence(sentence);
@@ -158,27 +159,30 @@ export function EvidenceBadge(props: EvidenceBadgeProps) {
       ? text.unconfirmableReasons[sentence.evidence.reasonCode]
       : undefined;
   return (
-    <span className="evidence-mark">
-      <span className={`evidence-badge ${gradeClass[gradeCode]}`}>
-        <span className="visually-hidden">{text.relation}: </span>
-        {grade.label}
-      </span>
-      {sentence.grade === "DIFFERS" && (
-        <>
-          <code className="evidence-computed-value">
-            {sentence.evidence.calculation.computedValue}
-          </code>
-          <span className="evidence-companion">{text.differenceNote}</span>
-        </>
-      )}
-      {sentence.grade === "UNCONFIRMABLE" && (
-        <span className="evidence-companion">
-          {text.unconfirmableReason(
-            unconfirmableReason!.missing,
-            unconfirmableReason!.wouldSettle,
-          )}
+    <span className="evidence-sentence">
+      <span className="evidence-sentence-text">{sentence.text}</span>{" "}
+      <span className="evidence-mark">
+        <span className={`evidence-badge ${gradeClass[gradeCode]}`}>
+          <span className="visually-hidden">{text.relation}: </span>
+          {grade.label}
         </span>
-      )}
+        {sentence.grade === "DIFFERS" && (
+          <>
+            <code className="evidence-computed-value">
+              {sentence.evidence.calculation.computedValue}
+            </code>
+            <span className="evidence-companion">{text.differenceNote}</span>
+          </>
+        )}
+        {sentence.grade === "UNCONFIRMABLE" && (
+          <span className="evidence-companion">
+            {text.unconfirmableReason(
+              unconfirmableReason!.missing,
+              unconfirmableReason!.wouldSettle,
+            )}
+          </span>
+        )}
+      </span>
     </span>
   );
 }
@@ -195,8 +199,13 @@ export function countEvidenceGrades(
     UNCONFIRMABLE: 0,
     INTERPRETATION: 0,
   };
+  const seen = new Set<string>();
   for (const sentence of sentences) {
     assertAuthenticatedEvidence(sentence);
+    if (seen.has(sentence.sentenceId)) {
+      throw new Error(`Duplicate evidence sentence ID: ${sentence.sentenceId}`);
+    }
+    seen.add(sentence.sentenceId);
     counts[sentence.grade] += 1;
   }
   return counts;

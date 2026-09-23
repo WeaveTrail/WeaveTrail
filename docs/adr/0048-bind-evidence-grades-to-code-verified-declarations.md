@@ -89,13 +89,13 @@ sentence. Copies, deserialized objects, and changed declarations must cross the
 verification boundary again.
 
 Presentation keeps internal grade and result codes out of visible, assistive,
-and tooltip text. The badge component requires a branded verified sentence for
-every code-backed grade and a branded validated declaration for
-`INTERPRETATION`. It renders
-the fixed bilingual names and required companion text, and derives the
+and tooltip text. The sentence component requires a branded verified sentence
+for every code-backed grade and a branded validated declaration for
+`INTERPRETATION`. It renders the authenticated sentence text, badge, fixed
+bilingual name, and required companion text as one unit, and derives the
 `DIFFERS` recomputed value and `UNCONFIRMABLE` reason from that verified
-sentence. The tally authenticates each sentence before deriving counts, uses
-the contract order, and omits zero-count grades.
+sentence. The tally authenticates each sentence, rejects duplicate sentence
+IDs before deriving counts, uses the contract order, and omits zero-count grades.
 
 Adding a missing-data reason requires adding a contract code, both language
 entries, and parity tests together. Changing the meaning of a calculation or

@@ -19,9 +19,9 @@ import {
 } from "@weavetrail/replay-engine";
 
 import {
-  EvidenceBadge,
+  EvidenceSentence,
   EvidenceGradeTally,
-  type EvidenceBadgeProps,
+  type EvidenceSentenceProps,
   countEvidenceGrades,
   evidenceGradeCopy,
   evidenceGradeForResult,
@@ -44,7 +44,10 @@ const exampleCounts = {
   INTERPRETATION: 3,
 } as const;
 
-function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
+function verifiedCalculatedSentence(
+  grade: "COMPUTED" | "DIFFERS",
+  sentenceId = `calculated-${grade.toLowerCase()}`,
+) {
   const sourceRow: SourceRow = {
     coordinate: {
       sourceArtifactHash: "a".repeat(64),
@@ -76,7 +79,7 @@ function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
       : sourceRow.values.reportedClose!;
   const candidate = {
     evidenceVersion: "1.0",
-    sentenceId: `calculated-${grade.toLowerCase()}`,
+    sentenceId,
     text: `${prefix}${reportedValue}.`,
     grade,
     evidence: {
@@ -141,13 +144,13 @@ function verifiedCalculatedSentence(grade: "COMPUTED" | "DIFFERS") {
   return verified;
 }
 
-function verifiedQuotedSentence() {
+function verifiedQuotedSentence(sentenceId = "quoted-1") {
   const text = "Matches the source text exactly.";
   const sourceBytes = new TextEncoder().encode(text);
   return verifyQuotedEvidence(
     {
       evidenceVersion: "1.0",
-      sentenceId: "quoted-1",
+      sentenceId,
       text,
       grade: "QUOTED",
       evidence: {
@@ -163,13 +166,13 @@ function verifiedQuotedSentence() {
   );
 }
 
-function verifiedUnconfirmableSentence() {
+function verifiedUnconfirmableSentence(sentenceId = "unconfirmable-1") {
   const dataset = { granularity: "daily" as const };
   const text = "Source quotes do not contain a time of day.";
   return verifyUnconfirmableEvidence(
     {
       evidenceVersion: "1.0",
-      sentenceId: "unconfirmable-1",
+      sentenceId,
       text,
       grade: "UNCONFIRMABLE",
       evidence: {
@@ -208,10 +211,10 @@ function verifiedUnconfirmableSentence() {
   );
 }
 
-function validatedInterpretationSentence() {
+function validatedInterpretationSentence(sentenceId = "interpretation-1") {
   return validateInterpretationEvidence({
     evidenceVersion: "1.0",
-    sentenceId: "interpretation-1",
+    sentenceId,
     text: "This sentence is a model-authored summary.",
     grade: "INTERPRETATION",
     evidence: { basis: "MODEL_AUTHORED", proposalRef: "proposal-1" },
@@ -220,11 +223,19 @@ function validatedInterpretationSentence() {
 
 function exampleSentences() {
   return [
-    ...Array.from({ length: 7 }, () => verifiedQuotedSentence()),
-    ...Array.from({ length: 5 }, () => verifiedCalculatedSentence("COMPUTED")),
+    ...Array.from({ length: 7 }, (_, index) =>
+      verifiedQuotedSentence(`quoted-${index + 1}`),
+    ),
+    ...Array.from({ length: 5 }, (_, index) =>
+      verifiedCalculatedSentence("COMPUTED", `computed-${index + 1}`),
+    ),
     verifiedCalculatedSentence("DIFFERS"),
-    ...Array.from({ length: 2 }, () => verifiedUnconfirmableSentence()),
-    ...Array.from({ length: 3 }, () => validatedInterpretationSentence()),
+    ...Array.from({ length: 2 }, (_, index) =>
+      verifiedUnconfirmableSentence(`unconfirmable-${index + 1}`),
+    ),
+    ...Array.from({ length: 3 }, (_, index) =>
+      validatedInterpretationSentence(`interpretation-${index + 1}`),
+    ),
   ];
 }
 
@@ -307,13 +318,13 @@ describe("evidence badges", () => {
   it("gives the visible badge a hidden relationship without exposing codes", () => {
     const verifiedSentence = verifiedCalculatedSentence("COMPUTED");
     const korean = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         sentence: verifiedSentence,
         language: "ko",
       }),
     );
     const english = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         sentence: verifiedSentence,
         language: "en",
       }),
@@ -339,30 +350,48 @@ describe("evidence badges", () => {
     expect(english).not.toContain("title=");
   });
 
+  it("renders only the authenticated sentence beside its badge", () => {
+    const verified = verifiedCalculatedSentence("COMPUTED");
+    const markup = renderToStaticMarkup(
+      createElement(EvidenceSentence, { language: "en", sentence: verified }),
+    );
+    expect(markup).toContain(
+      '<span class="evidence-sentence-text">The close was 1032.82.</span>',
+    );
+    expect(markup).toMatch(
+      /The close was 1032\.82\.<\/span> <span class="evidence-mark">/,
+    );
+    expectTypeOf<{
+      language: "en";
+      sentence: typeof verified;
+      children: "The close was 0.";
+    }>().not.toMatchTypeOf<EvidenceSentenceProps>();
+  });
+
   it("requires verifier outputs for every code-backed badge", () => {
     expectTypeOf<{
       language: "en";
       grade: "QUOTED";
-    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    }>().not.toMatchTypeOf<EvidenceSentenceProps>();
     expectTypeOf<{
       language: "en";
       grade: "COMPUTED";
-    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    }>().not.toMatchTypeOf<EvidenceSentenceProps>();
     expectTypeOf<{
       language: "en";
       grade: "UNCONFIRMABLE";
-    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    }>().not.toMatchTypeOf<EvidenceSentenceProps>();
     expectTypeOf<{
       language: "en";
       grade: "INTERPRETATION";
-    }>().not.toMatchTypeOf<EvidenceBadgeProps>();
+    }>().not.toMatchTypeOf<EvidenceSentenceProps>();
     expectTypeOf<{
       language: "en";
       sentence: ReturnType<typeof validatedInterpretationSentence>;
-    }>().toMatchTypeOf<EvidenceBadgeProps>();
+    }>().toMatchTypeOf<EvidenceSentenceProps>();
 
     const quoted = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         language: "en",
         sentence: verifiedQuotedSentence(),
       }),
@@ -379,10 +408,10 @@ describe("evidence badges", () => {
       validatedInterpretationSentence(),
     ]) {
       const copied = { ...verified, text: "Model-authored replacement." };
-      expectTypeOf(copied).toMatchTypeOf<EvidenceBadgeProps["sentence"]>();
+      expectTypeOf(copied).toMatchTypeOf<EvidenceSentenceProps["sentence"]>();
       expect(() =>
         renderToStaticMarkup(
-          createElement(EvidenceBadge, { language: "en", sentence: copied }),
+          createElement(EvidenceSentence, { language: "en", sentence: copied }),
         ),
       ).toThrow("Evidence sentence was not authenticated by a verifier.");
       expect(() => countEvidenceGrades([copied])).toThrow(
@@ -395,14 +424,14 @@ describe("evidence badges", () => {
     const verifiedSentence = verifiedCalculatedSentence("DIFFERS");
     expect(
       renderToStaticMarkup(
-        createElement(EvidenceBadge, {
+        createElement(EvidenceSentence, {
           language: "ko",
           sentence: verifiedSentence,
         }),
       ),
     ).toContain("정의나 기준(종가·고가)의 차이일 수 있습니다.");
     const english = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         language: "en",
         sentence: verifiedSentence,
       }),
@@ -416,7 +445,7 @@ describe("evidence badges", () => {
   it("renders the complete unconfirmable reason in the selected language", () => {
     const verifiedSentence = verifiedUnconfirmableSentence();
     const korean = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         language: "ko",
         sentence: verifiedSentence,
       }),
@@ -425,7 +454,7 @@ describe("evidence badges", () => {
       "검증된 시세 자료는 하루 단위라 시각이 없습니다. 분 단위 자료가 연결되면 확인할 수 있습니다.",
     );
     const english = renderToStaticMarkup(
-      createElement(EvidenceBadge, {
+      createElement(EvidenceSentence, {
         language: "en",
         sentence: verifiedSentence,
       }),
@@ -489,6 +518,21 @@ describe("evidence tally", () => {
         createElement(EvidenceGradeTally, { sentences: [], language: "ko" }),
       ),
     ).toBe("");
+  });
+
+  it("rejects repeated sentence IDs, including separately verified objects", () => {
+    const quoted = verifiedQuotedSentence();
+    expect(() => countEvidenceGrades([quoted, quoted])).toThrow(
+      "Duplicate evidence sentence ID: quoted-1",
+    );
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(EvidenceGradeTally, {
+          sentences: [quoted, verifiedQuotedSentence()],
+          language: "en",
+        }),
+      ),
+    ).toThrow("Duplicate evidence sentence ID: quoted-1");
   });
 
   it("rejects invalid counts instead of producing a misleading tally", () => {
