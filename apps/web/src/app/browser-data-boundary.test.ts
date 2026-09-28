@@ -6,8 +6,9 @@ import { describe, expect, it } from "vitest";
 
 /**
  * docs/DATA_HANDLING.md states what the site's own code does in a browser: it
- * sends requests only to this site's routes, loads no script of its own from
- * elsewhere, and keeps nothing in browser storage except the language choice.
+ * sends request data only to this site's API routes, adds no script element,
+ * and keeps nothing in browser storage except the language choice. Following
+ * an ordinary link to another site is navigation, not a request this code makes.
  */
 
 const webSourceDirectory = resolve(
@@ -36,7 +37,7 @@ const matches = (pattern: RegExp) =>
   );
 
 describe("browser data boundary", () => {
-  it("sends requests only to this site's own routes", () => {
+  it("sends request data only to this site's own API routes", () => {
     const requests = matches(/\bfetch\s*\(\s*[^)]{0,80}/g);
     expect(requests.length).toBeGreaterThan(0);
     expect(requests.filter((call) => !/fetch\(\s*"\/api\//.test(call))).toEqual(

@@ -19,24 +19,47 @@ const repositoryDirectory = resolve(webDirectory, "../..");
 
 const CANARY = "WT-CANARY-PASTED-TEXT-7f3a";
 
-/** Requests carrying the canary in every free-text field, valid and invalid. */
-const canaryRequests: Readonly<Record<string, readonly unknown[]>> = {
+type CanaryRequest = { readonly body: unknown; readonly status: number };
+
+/**
+ * Requests carrying the canary in every free-text field. Each route needs at
+ * least one that passes validation (HTTP 200), so the run-time check covers
+ * the processing path and not only the refusal.
+ */
+const canaryRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
   "coverage/route.ts": [
     {
-      instrumentId: CANARY,
-      dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-      field: CANARY,
-      resolution: "DAILY",
-      definition: { definitionId: CANARY, version: "1.0" },
+      body: {
+        instrumentId: CANARY,
+        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
+        field: CANARY,
+        resolution: "DAILY",
+        definition: { definitionId: CANARY, version: "1.0.0" },
+      },
+      status: 200,
     },
     {
-      instrumentId: "코스피 200",
-      dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-      field: "clpr",
-      resolution: "DAILY",
-      note: CANARY,
+      // Covered scope, so the definition lookup runs as well.
+      body: {
+        instrumentId: "코스피 200",
+        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
+        field: "clpr",
+        resolution: "DAILY",
+        definition: { definitionId: CANARY, version: "1.0.0" },
+      },
+      status: 200,
     },
-    CANARY,
+    {
+      body: {
+        instrumentId: "코스피 200",
+        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
+        field: "clpr",
+        resolution: "DAILY",
+        note: CANARY,
+      },
+      status: 422,
+    },
+    { body: CANARY, status: 422 },
   ],
 };
 
@@ -123,7 +146,7 @@ const posted = async (route: string, body: unknown) => {
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
   );
-  await response.text();
+  return { status: response.status, text: await response.text() };
 };
 
 const carriesCanary = (calls: readonly (readonly unknown[])[]) =>
@@ -193,7 +216,14 @@ describe("check routes keep no pasted text", () => {
         .spyOn(globalThis, "fetch")
         .mockRejectedValue(new Error("A check route must not send requests."));
 
-      for (const body of canaryRequests[route] ?? []) await posted(route, body);
+      const requests = canaryRequests[route] ?? [];
+      expect(requests.some(({ status }) => status === 200)).toBe(true);
+      for (const { body, status } of requests) {
+        const response = await posted(route, body);
+        expect(response.status).toBe(status);
+        // A processed request returns its validated scope to the caller only.
+        if (status === 200) expect(response.text).toContain(CANARY);
+      }
 
       for (const spy of [...logs, ...streams])
         expect(carriesCanary(spy.mock.calls)).toBe(false);

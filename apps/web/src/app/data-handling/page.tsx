@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import { DataHandlingContent } from "./data-handling-content";
+import { sourceRevision } from "./source-revision";
 
 export const metadata: Metadata = {
   title: "Data handling",
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function DataHandlingPage() {
-  return <DataHandlingContent />;
+  return <DataHandlingContent revision={sourceRevision()} />;
 }
