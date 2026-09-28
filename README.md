@@ -240,6 +240,7 @@ and the deployed configuration carries no model credential.
   and reproduced ([한국어](docs/EVALUATION.ko.md))
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
   ([한국어](docs/LIMITATIONS.ko.md))
+- [Instrument and index resolution](docs/INSTRUMENT_RESOLUTION.md) — dated name/code matching, ambiguity, quotation links and snapshot references ([한국어](docs/INSTRUMENT_RESOLUTION.ko.md))
 - [Daily quote normalization](docs/DAILY_QUOTES.md) — the published market
   records, their permission and their exact reproduction
   ([한국어](docs/DAILY_QUOTES.ko.md))

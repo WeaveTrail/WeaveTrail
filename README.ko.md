@@ -221,6 +221,7 @@ WeaveTrail은 그 둘을 한자리에 모으는 방향으로 개발 중입니다
 - [평가 프로토콜](docs/EVALUATION.ko.md) — 공개하는 모든 측정값의 정의와 재현
   방법
 - [한계](docs/LIMITATIONS.ko.md) — 하지 않는 일과 해석의 경계
+- [종목과 지수 연결](docs/INSTRUMENT_RESOLUTION.ko.md) — 날짜별 이름·코드 매칭, 모호한 후보, 시세 연결과 스냅숏 참조
 - [일별 시세 정규화](docs/DAILY_QUOTES.ko.md) — 공개 시장 자료의 출처, 이용
   허락 범위, 재현 절차
 - [시나리오별 예상 결과](https://weave-trail-web-flax.vercel.app/expectations)
