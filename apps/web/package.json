@@ -12,6 +12,7 @@
   "dependencies": {
     "@weavetrail/ai-harness": "workspace:*",
     "@weavetrail/contracts": "workspace:*",
+    "@weavetrail/instrument-resolver": "workspace:*",
     "@weavetrail/published-data": "workspace:*",
     "@weavetrail/replay-engine": "workspace:*",
     "@weavetrail/scenarios": "workspace:*",

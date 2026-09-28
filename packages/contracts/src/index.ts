@@ -16,3 +16,4 @@ export * from "./source-trace";
 export * from "./workflow";
 export * from "./source-provenance";
 export * from "./service-snapshot";
+export * from "./instrument-resolution";

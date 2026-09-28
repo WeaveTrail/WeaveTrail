@@ -337,17 +337,18 @@ automatic converter.
 
 ## Package boundaries
 
-| Package            | Owns                                                            | Must not own                              |
-| ------------------ | --------------------------------------------------------------- | ----------------------------------------- |
-| `contracts`        | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic           |
-| `ai-harness`       | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval  |
-| `canonical-kernel` | Canonical JSON, hashing, ordering and scaled-decimal arithmetic | Rules, thresholds, hypotheses or verdicts |
-| `replay-engine`    | Event normalization, rules, evidence hash scopes and assembly   | Free-form inference or legal conclusions  |
-| `scenarios`        | Synthetic datasets and controlled mutations                     | Published, production, or personal data   |
-| `published-data`   | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data    |
-| `service-store`    | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input     |
-| `evals`            | Versioned cases and measurement aggregation                     | Undocumented benchmark claims             |
-| `web`              | Human review flow and export surface                            | A second implementation of replay logic   |
+| Package               | Owns                                                            | Must not own                              |
+| --------------------- | --------------------------------------------------------------- | ----------------------------------------- |
+| `contracts`           | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic           |
+| `ai-harness`          | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval  |
+| `canonical-kernel`    | Canonical JSON, hashing, ordering and scaled-decimal arithmetic | Rules, thresholds, hypotheses or verdicts |
+| `replay-engine`       | Event normalization, rules, evidence hash scopes and assembly   | Free-form inference or legal conclusions  |
+| `scenarios`           | Synthetic datasets and controlled mutations                     | Published, production, or personal data   |
+| `published-data`      | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data    |
+| `service-store`       | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input     |
+| `instrument-resolver` | Exact dated names/codes, match reasons and supplied quote links | Acquisition, guessed aliases or verdicts  |
+| `evals`               | Versioned cases and measurement aggregation                     | Undocumented benchmark claims             |
+| `web`                 | Human review flow and export surface                            | A second implementation of replay logic   |
 
 ### Dependency direction
 
@@ -391,10 +392,15 @@ golden expectations are unchanged. See
 
 ### Planned service component placement
 
-The following placement is accepted; the components and new packages remain
-**planned**, not implemented. [ADR 0050](adr/0050-place-planned-service-components.md)
-records the rationale. Paths below are package homes, not claims that a module
-or export already exists. Shared versioned input/output schemas belong to
+The following placement is accepted. Instrument resolution is implemented at
+tier 2 with direct dependencies on `contracts` and `canonical-kernel`; web at
+tier 3 composes it with the tier 1 published listing. Its exported API, coverage
+and checks are documented in [instrument resolution](INSTRUMENT_RESOLUTION.md)
+and [ADR 0051](adr/0051-resolve-exact-dated-identifiers-over-admitted-listings.md).
+The remaining components and packages below remain **planned**.
+[ADR 0050](adr/0050-place-planned-service-components.md) records their placement
+rationale. Planned paths are package homes, not existing exports.
+Shared versioned input/output schemas belong to
 `packages/contracts` (tier 0), regardless of the component that uses them.
 
 These are dependency tiers, not the L1–L4 authority layers. Keep tiers 0–2 in
@@ -408,7 +414,7 @@ records only existing edges.
 | Collectors ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | New `packages/collectors`: shared collector lifecycle, publisher adapters, retries and collection health                | 3                                | `contracts` through collection/snapshot-only entries, `canonical-kernel`, `service-store` |
 | Document parser ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                      | New `packages/document-parser`: HTML/PDF/HWP text, tables and original coordinates                                      | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Event structurer ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                     | Existing `packages/ai-harness`: event proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
-| Instrument resolver ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                  | New `packages/instrument-resolver`: date-aware names/codes and explicit ambiguous candidates over a supplied listing    | 2                                | `contracts`, `canonical-kernel`                                                           |
+| Instrument resolver ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                  | Implemented `packages/instrument-resolver`: exact dated names/codes and candidates over a supplied listing              | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Conclusion definitions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                               | Existing `packages/replay-engine`: versioned descriptive definitions and calculations                                   | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                      | Existing `packages/replay-engine`: statistics module reusing conclusion definitions; scheduling and cards in `apps/web` | 2 (calculation), 4 (application) | Engine: `contracts`, `canonical-kernel`; application: the tier 4 list below               |
 | Claim extraction ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                     | Existing `packages/ai-harness`: claim proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
