@@ -508,9 +508,9 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ## 표현 경계
 
-![여덟 개의 공개 경로: /, /why, /architecture, /methodology, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03](assets/boundary/public-routes.svg)
+![아홉 개의 공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03](assets/boundary/public-routes.svg)
 
-- 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
+- 아홉 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
   스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
   `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 디자인 저장소는
   빌드나 런타임 의존성이 아닙니다.

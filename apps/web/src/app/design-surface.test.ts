@@ -14,6 +14,7 @@ import EvalsPage from "./evals/page";
 import ExpectationsPage from "./expectations/page";
 import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
 import MethodologyPage from "./methodology/page";
+import DataHandlingPage from "./data-handling/page";
 import HomePage from "./page";
 import WhyPage from "./why/page";
 
@@ -74,6 +75,7 @@ describe("canonical product presentation", () => {
       "/evals",
       "/expectations",
       "/methodology",
+      "/data-handling",
       "/why",
     ])
       expect(navigation).toContain(`"${href}"`);
@@ -89,6 +91,7 @@ describe("canonical product presentation", () => {
       EvalsPage,
       ExpectationsPage,
       MethodologyPage,
+      DataHandlingPage,
       WhyPage,
     ]
       .map((Page) => renderToStaticMarkup(createElement(Page)))
