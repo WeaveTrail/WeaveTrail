@@ -1,0 +1,20 @@
+{
+  "name": "@weavetrail/canonical-kernel",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./canonical-json": "./src/canonical-json.ts",
+    "./canonical-hash": "./src/canonical-hash.ts",
+    "./canonical-order": "./src/canonical-order.ts",
+    "./scaled-decimal": "./src/scaled-decimal.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@weavetrail/contracts": "workspace:*"
+  }
+}

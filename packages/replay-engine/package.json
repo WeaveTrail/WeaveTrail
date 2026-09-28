@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@weavetrail/canonical-kernel": "workspace:*",
     "@weavetrail/contracts": "workspace:*"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ import {
   PublicSourceSchema,
   type PublicSource,
   type SnapshotReference,
-} from "@weavetrail/contracts";
+} from "@weavetrail/contracts/service-snapshot";
 import type { SnapshotStore } from "./snapshot-store";
 
 /** Operator-selected, unauthenticated public endpoints only; no browser URL input. */
