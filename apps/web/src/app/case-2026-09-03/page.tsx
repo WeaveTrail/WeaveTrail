@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import React from "react";
+import { publishedCoverageManifest } from "@weavetrail/published-data";
+import { coverageSummary } from "../../lib/coverage-copy";
+import { CoverageLine } from "../coverage-line";
 
 import {
   publishedCaseColumns,
@@ -22,6 +25,7 @@ export default function PublishedCasePage() {
   return (
     <main className="shell page-shell case-page">
       <CaseHeading />
+      <CoverageLine summary={coverageSummary(publishedCoverageManifest)} />
       <CaseBoundary
         columns={publishedCaseColumns()}
         futureArtifactHash={futureArtifactHash}

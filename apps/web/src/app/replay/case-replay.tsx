@@ -44,6 +44,8 @@ import {
   useReplayLanguage,
 } from "./replay-language";
 import { type Language } from "../i18n/language";
+import { CoverageLine } from "../coverage-line";
+import type { CoverageCopy } from "../../lib/coverage-copy";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -60,6 +62,7 @@ export type ReplayScenarioOption = {
 };
 
 export type CaseReplayProps = {
+  coverage?: CoverageCopy;
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: ReplayScenarioOption[];
@@ -1051,6 +1054,7 @@ const mutationOptions: Readonly<
 };
 
 export function CaseReplay({
+  coverage,
   proposals,
   providerMode,
   scenarios,
@@ -2321,6 +2325,7 @@ export function CaseReplay({
           <span className="panel-label">
             {panelLabel("04", t("Canonical result", "분석 결과"))}
           </span>
+          {coverage && <CoverageLine summary={coverage} language={language} />}
           {result ? (
             <>
               <WorkflowStateBadge state={result.workflowState} />

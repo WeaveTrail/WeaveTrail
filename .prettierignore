@@ -1,6 +1,8 @@
 .next
 dist
-coverage
+/coverage
+/packages/*/coverage
+/apps/*/coverage
 node_modules
 pnpm-lock.yaml
 _workbench

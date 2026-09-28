@@ -397,7 +397,11 @@ tier 2 with direct dependencies on `contracts` and `canonical-kernel`; web at
 tier 3 composes it with the tier 1 published listing. Its exported API, coverage
 and checks are documented in [instrument resolution](INSTRUMENT_RESOLUTION.md)
 and [ADR 0051](adr/0051-resolve-exact-dated-identifiers-over-admitted-listings.md).
-The remaining components and packages below remain **planned**.
+Published coverage and a manifest-only claim scope preflight are also implemented;
+their API, limits and checks are documented in [published coverage](COVERAGE.md)
+and [ADR 0052](adr/0052-derive-claim-resolution-scope-from-acquisitions.md).
+Full claim extraction, computation and the remaining components and packages
+below remain **planned**.
 [ADR 0050](adr/0050-place-planned-service-components.md) records their placement
 rationale. Planned paths are package homes, not existing exports.
 Shared versioned input/output schemas belong to
