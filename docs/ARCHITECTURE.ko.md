@@ -356,19 +356,84 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 [ADR 0049](adr/0049-place-the-canonical-kernel-below-storage.md)(영문)에 결정 근거를
 기록했습니다.
 
-| 계획된 구성요소                                                                                                                                                                                                      | 층      | 닿으면 안 되는 곳 |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------- |
-| 수집 ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179)–[#181](https://github.com/WeaveTrail/WeaveTrail/issues/181))                                                                                       | 저장 위 | 규칙              |
-| 문서 파싱 ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                                              | 해석    | 저장, web         |
-| 사건 구조화 ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                                            | 해석    | 규칙              |
-| 종목 연결 ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                                              | 해석    | web               |
-| 결론 ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186)), 피드 통계 ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187)), 주장 확인 ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)) | 결정    | 저장              |
-| 브리프와 공유 링크 ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                                     | 표현    | —                 |
+### 계획된 서비스 구성요소의 배치
 
-해석된 스냅숏을 규칙에 넘기는 일은 애플리케이션이 하며, 규칙이 스냅숏을 직접 가져오지
-않습니다. 각 구성요소가 어느 패키지에 놓이는지는 수집 작업을 시작하기 전에
-[#212](https://github.com/WeaveTrail/WeaveTrail/issues/212)에서 정합니다. 그래서 위
-그래프는 끝까지 그릴 수 있는 상태로 남습니다.
+다음 배치 결정은 채택했지만 구성요소와 새 패키지는 아직 **계획**이며 구현되지
+않았습니다. 결정 근거는
+[ADR 0050](adr/0050-place-planned-service-components.md)(영문)에 있습니다. 아래 경로는
+패키지 소유 위치이며 모듈이나 내보내기가 이미 존재한다는 뜻이 아닙니다. 공유하는
+버전별 입출력 스키마는 사용하는 구성요소와 관계없이 `packages/contracts`(0층)에 둡니다.
+
+이 숫자는 의존 층이며 L1–L4 권한 층과 다릅니다. 현재 그래프의 0–2층은 유지합니다.
+수집에는 3층, 애플리케이션 조립에는 4층을 배정합니다. `apps/web`은 수집기를 가져다
+쓸 때 3층에서 4층으로 옮깁니다. `evals`는 3층에 남으며 이번 결정으로 새 의존성을
+추가하지 않습니다. 위 그림은 지금 존재하는 간선만 기록합니다.
+
+| 계획된 구성요소                                                                                                                                                                                | 패키지 위치와 모듈 책임                                                                              | 층                         | 허용하는 직접 런타임 워크스페이스 의존성                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
+| 수집기 ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | 새 `packages/collectors`: 공통 수집 수명 주기, 발행기관 어댑터, 재시도와 수집 상태                   | 3                          | 수집·스냅숏 전용 진입점을 통한 `contracts`, `canonical-kernel`, `service-store`   |
+| 문서 파서 ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                        | 새 `packages/document-parser`: HTML/PDF/HWP의 텍스트, 표, 원본 좌표                                  | 2                          | `contracts`, `canonical-kernel`                                                   |
+| 사건 구조화 ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                      | 기존 `packages/ai-harness`: 사건 제안 어댑터와 결정론적 인용 구간 검증                               | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`, `published-data` |
+| 종목 연결 ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                        | 새 `packages/instrument-resolver`: 전달받은 종목 목록의 날짜별 이름·코드 연결과 명시적인 모호한 후보 | 2                          | `contracts`, `canonical-kernel`                                                   |
+| 결론 정의 ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                                        | 기존 `packages/replay-engine`: 버전 있는 기술 통계 정의와 계산                                       | 2                          | `contracts`, `canonical-kernel`                                                   |
+| 피드 통계 ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                        | 기존 `packages/replay-engine`: 결론 정의를 재사용하는 통계 모듈; 예약 실행과 카드는 `apps/web`       | 2 (계산), 4 (애플리케이션) | 엔진: `contracts`, `canonical-kernel`; 애플리케이션: 아래 4층 목록                |
+| 주장 추출 ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                        | 기존 `packages/ai-harness`: 주장 제안 어댑터와 결정론적 인용 구간 검증                               | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`, `published-data` |
+| 주장 확인 ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                        | 기존 `packages/replay-engine`: 전달받은 입력의 재계산, 선언된 반올림, 근거 등급 결정                 | 2                          | `contracts`, `canonical-kernel`                                                   |
+| 브리프와 공유 링크 ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                               | 기존 `apps/web`: 채택, 한·영 브리프/PDF 렌더링, URL 프래그먼트 인코딩과 다시 열기                    | 4                          | 아래 4층 목록                                                                     |
+
+4층 애플리케이션이 직접 가져다 쓸 수 있는 런타임 워크스페이스 패키지는
+`contracts`, `canonical-kernel`, `scenarios`, `published-data`, `service-store`,
+`collectors`, `document-parser`, `ai-harness`, `instrument-resolver`,
+`replay-engine`입니다. 서버 조립, 예약 실행과 화면은 `apps/web`의 모듈로 둡니다.
+저장소, 수집기, 공급자 자격 증명과 원시 모델 추적은 서버에만 남습니다. 낮은 층이라는
+이유만으로 가져다 쓸 수는 없으며 위에서 해당 패키지에 허용한 의존성만 씁니다.
+타입 import와 재수출도 같은 방향을 따릅니다. 특히 수집기는 규칙이나 공급자에 닿을
+수 없고, 2층 패키지끼리는 서로 가져다 쓸 수 없습니다.
+
+계획된 전달 경로는 같은 층 사이의 의존 없이 그래프가 작동하도록 합니다.
+
+- 수집기는 서버 조립에서 저장소 핸들을 받고, 허용된 원본 바이트와 검토된 출처를 기존
+  `service-store` 스냅숏 API에 넘깁니다. 불변 삽입, 해싱, 중복 제거와 이전 스냅숏
+  연결은 저장소가 소유합니다. 기존 `collectPublicSource` 도우미는 허용된 공개 원천의
+  공통 전송 기능으로 남고, 발행기관 어댑터와 재시도·상태 정책은 수집기가 소유합니다.
+  수집 상태는 운영 상태이며 불변 스냅숏을 수정하지 않습니다. 수집기는 규칙이나
+  모델을 실행하지 않습니다.
+- 서버는 저장된 스냅숏을 찾아 해시를 다시 확인한 뒤 바이트와 참조를 파서에 넘깁니다.
+  파싱된 문서는 사건 구조화에, 찾아낸 라이선스 확인 종목 목록과 스냅숏 참조는 종목
+  연결에 넘깁니다. 파서와 종목 연결기는 저장소를 열거나 URL을 가져오지 않습니다.
+  구조화기와 주장 추출기는 전달받은 원본 구간에 비추어 모델 제안을 검증하며, 제안을
+  승인하거나 최종 수치·근거 등급을 결정하지 않습니다.
+- 서버는 검증된 제안, 찾아낸 원본 행, 제공 범위, 정의와 필요한 사람 승인 범위를
+  엔진에 넘깁니다. 엔진은 통계와 주장 확인에서 자체 결론 정의를 재사용합니다.
+  기술 통계 계산이 패턴 가설 실행을 승인하지는 않습니다. 엔진은 저장소·공급자·URL을
+  직접 찾지 않습니다. 서버가 도메인 출력을 검증한 뒤 `service-store`로 스냅숏에
+  결속하며 저장소는 엔진을 가져다 쓰지 않습니다.
+- 브리프 렌더링은 검증된 결과와 근거를 받습니다. 프래그먼트를 다시 열면 고정된
+  커밋 아티팩트를 찾아 엔진을 다시 실행하고 불일치는 거부합니다. UI 구성요소에서
+  다시 계산하지 않습니다. 계획된 #159 프래그먼트 흐름은 붙여 넣은 글을 서버에
+  저장하지 않습니다. 수집된 서비스 스냅숏 링크는 별도의 계획된 작업입니다
+  ([#237](https://github.com/WeaveTrail/WeaveTrail/issues/237)).
+
+### 새 패키지 추가 조건
+
+이 패키지들을 추가하는 구현은 먼저 다음을 충족해야 합니다.
+
+1. 워크스페이스 매니페스트와 `exports`의 공개 진입점, 의도적으로 공개하는 하위 경로를
+   선언합니다. 여기서 공개는 패키지 레지스트리 배포가 아니라 워크스페이스 API
+   내보내기입니다. 사용자는 워크스페이스 의존성을 선언하고 이 API만 가져다 씁니다.
+   다른 패키지의 `src` 경로, 그 안으로 들어가는 상대 경로나 내보내기를 우회하는
+   별칭은 쓰지 않습니다.
+2. 이 문서와 의존 그림에 숫자로 된 층과 모든 직접 의존성을 기록합니다. 개발 의존성,
+   타입 import, 재수출을 포함한 모든 워크스페이스 간선은 반드시 아래로 향해야 하며
+   같은 층, 위층, 순환은 허용하지 않습니다. 위 목록 밖의 새 의존성은 낮은 층을
+   고르는 것만으로 추가할 수 없고 배치 결정을 갱신해야 합니다.
+3. 전이 소스 그래프에서도 저장과 결정의 경계를 지킵니다. 필요하면 좁은 계약
+   내보내기를 추가해 수집과 저장이 contracts의 전체 진입점을 통해 결정 어휘를
+   불러오지 않게 합니다. 간선을 추가할 때 관련 의존 경계 검사도 확장합니다. 기존
+   저장소·커널 검사가 계획된 모든 패키지의 허용 목록을 강제하는 것은 아닙니다.
+4. 패키지 타입 검사, 경계 시험과 해당 저장소 검사를 갖추고 통과한 뒤 구성요소가
+   구현되었다고 기록합니다. 그전까지 이 배치는 설계 결정이며 실행 중인 서비스의
+   증거가 아닙니다.
 
 ## 결정성 계약
 

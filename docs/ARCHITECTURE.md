@@ -389,19 +389,93 @@ duplicate handling and hash preimages. Engine versions, contracts and committed
 golden expectations are unchanged. See
 [ADR 0049](adr/0049-place-the-canonical-kernel-below-storage.md).
 
-| Planned component                                                                                                                                                                                                                   | Tier           | May not reach |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------- |
-| Collection ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179)–[#181](https://github.com/WeaveTrail/WeaveTrail/issues/181))                                                                                                | above storage  | rules         |
-| Document parsing ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                                                      | interpretation | storage, web  |
-| Event structuring ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                                                     | interpretation | rules         |
-| Instrument resolution ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                                                 | interpretation | web           |
-| Conclusions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186)), feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187)), claim check ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)) | decision       | storage       |
-| Brief and share link ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                                                  | presentation   | —             |
+### Planned service component placement
 
-The application wires a resolved snapshot into a rule; the rule never fetches
-one. Which package each planned component lands in is settled in
-[#212](https://github.com/WeaveTrail/WeaveTrail/issues/212) before the
-collection work starts, so the graph above stays drawable in full.
+The following placement is accepted; the components and new packages remain
+**planned**, not implemented. [ADR 0050](adr/0050-place-planned-service-components.md)
+records the rationale. Paths below are package homes, not claims that a module
+or export already exists. Shared versioned input/output schemas belong to
+`packages/contracts` (tier 0), regardless of the component that uses them.
+
+These are dependency tiers, not the L1–L4 authority layers. Keep tiers 0–2 in
+the current graph. Reserve tier 3 for collection and tier 4 for application
+composition: `apps/web` moves from 3 to 4 when it imports collectors. `evals`
+remains at 3 with no new dependency in this decision. The diagram above still
+records only existing edges.
+
+| Planned component                                                                                                                                                                                  | Package home and module responsibility                                                                                  | Tier                             | Allowed direct runtime workspace imports                                                  |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
+| Collectors ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | New `packages/collectors`: shared collector lifecycle, publisher adapters, retries and collection health                | 3                                | `contracts` through collection/snapshot-only entries, `canonical-kernel`, `service-store` |
+| Document parser ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                      | New `packages/document-parser`: HTML/PDF/HWP text, tables and original coordinates                                      | 2                                | `contracts`, `canonical-kernel`                                                           |
+| Event structurer ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                     | Existing `packages/ai-harness`: event proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
+| Instrument resolver ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                  | New `packages/instrument-resolver`: date-aware names/codes and explicit ambiguous candidates over a supplied listing    | 2                                | `contracts`, `canonical-kernel`                                                           |
+| Conclusion definitions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                               | Existing `packages/replay-engine`: versioned descriptive definitions and calculations                                   | 2                                | `contracts`, `canonical-kernel`                                                           |
+| Feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                      | Existing `packages/replay-engine`: statistics module reusing conclusion definitions; scheduling and cards in `apps/web` | 2 (calculation), 4 (application) | Engine: `contracts`, `canonical-kernel`; application: the tier 4 list below               |
+| Claim extraction ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                     | Existing `packages/ai-harness`: claim proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
+| Claim check ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                          | Existing `packages/replay-engine`: recomputation, declared rounding and evidence grading over supplied inputs           | 2                                | `contracts`, `canonical-kernel`                                                           |
+| Brief and share link ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                 | Existing `apps/web`: adoption, bilingual brief/PDF rendering, fragment encoding and reopening                           | 4                                | The tier 4 list below                                                                     |
+
+The tier 4 application's allowed direct runtime workspace imports are
+`contracts`, `canonical-kernel`, `scenarios`, `published-data`, `service-store`,
+`collectors`, `document-parser`, `ai-harness`, `instrument-resolver` and
+`replay-engine`. Server orchestration, scheduling and presentation are modules
+of `apps/web`; storage, collectors, provider credentials and raw model traces
+remain server-only. A lower tier is necessary but not sufficient permission:
+use only the imports allowed for that package above. Type imports and
+re-exports follow the same direction. In particular, collectors cannot reach
+rules or providers, and the tier 2 packages cannot import one another.
+
+The planned hand-offs make this graph usable without sideways imports:
+
+- A collector takes a store handle from server composition and hands admitted
+  original bytes and reviewed provenance to the existing `service-store`
+  snapshot API. Storage owns immutable insertion, hashing, deduplication and
+  predecessor links. Its existing `collectPublicSource` helper remains the
+  generic admitted-public-source transport; publisher adapters and retry/health
+  policy belong to collectors. Collection health is operational state, not a
+  mutation of an immutable snapshot. No collector runs a rule or model.
+- The server resolves and re-hashes a stored snapshot before passing bytes and
+  its reference to the parser. It passes the parsed document to event
+  structuring, and a resolved, licensed listing plus its snapshot reference to
+  instrument resolution. Neither parser nor resolver opens a store or fetches
+  a URL. The structurer and claim extractor validate model proposals against
+  supplied source spans; they neither approve proposals nor assign final
+  numeric results or evidence grades.
+- The server supplies validated proposals, resolved source rows, coverage,
+  definitions and any required human-approved scope to the engine. The engine
+  reuses its own conclusion definitions for statistics and claim checks;
+  descriptive computation never authorizes a pattern hypothesis. It resolves
+  no store, provider or URL. The server validates domain output before binding
+  it to snapshots through `service-store`; storage does not import the engine.
+- Brief rendering consumes validated results and their evidence. Reopening a
+  fragment resolves pinned committed artifacts and reruns the engine, refusing
+  mismatches; it does not recalculate in a UI component. The planned #159
+  fragment flow stores no pasted text on the server. Links to collected service
+  snapshots remain separate planned work
+  ([#237](https://github.com/WeaveTrail/WeaveTrail/issues/237)).
+
+### Admission of a new package
+
+Before adding one of these packages, its implementation must:
+
+1. Declare a workspace manifest and a published entry point in `exports`
+   (including any deliberately public subpaths). “Published” means an exported
+   workspace API, not publication to a package registry. Consumers declare the
+   workspace dependency and import only that API, never another package's
+   `src` path, a relative path into it, or an alias bypassing its exports.
+2. Record its numeric tier and every direct dependency in this document and the
+   dependency figure. Every workspace edge, including development dependencies,
+   type imports and re-exports, must point strictly down; no sideways edge,
+   upward edge or cycle is allowed. A new dependency outside the lists above
+   requires updating the placement decision, not just picking a lower tier.
+3. Preserve the storage/decision boundary through the transitive source graph.
+   Add narrow contract exports when needed so collection and storage cannot
+   load decision vocabulary through a contracts barrel. Extend the relevant
+   dependency-boundary checks when adding edges; the existing storage/kernel
+   check does not yet enforce every planned package's allowlist.
+4. Supply package typechecking, boundary tests and the applicable repository
+   checks before documenting the component as implemented. Until then, this
+   placement is a design commitment, not evidence of a running service.
 
 ## Determinism contract
 
