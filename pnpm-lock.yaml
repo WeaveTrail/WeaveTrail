@@ -82,6 +82,12 @@ importers:
         specifier: workspace:*
         version: link:../scenarios
 
+  packages/canonical-kernel:
+    dependencies:
+      '@weavetrail/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+
   packages/contracts:
     dependencies:
       zod:
@@ -98,6 +104,9 @@ importers:
 
   packages/replay-engine:
     dependencies:
+      '@weavetrail/canonical-kernel':
+        specifier: workspace:*
+        version: link:../canonical-kernel
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -117,12 +126,12 @@ importers:
 
   packages/service-store:
     dependencies:
+      '@weavetrail/canonical-kernel':
+        specifier: workspace:*
+        version: link:../canonical-kernel
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@weavetrail/replay-engine':
-        specifier: workspace:*
-        version: link:../replay-engine
 
 packages:
 

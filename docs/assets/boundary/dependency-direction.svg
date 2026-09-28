@@ -1,12 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 711 236" role="img" aria-labelledby="t dependency-direction">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 797 257" role="img" aria-labelledby="t dependency-direction">
   <title id="t">Every workspace dependency edge, by tier · 층위별 워크스페이스 의존 간선 전부</title>
   <desc id="dependency-direction">0  contracts        —
-1  scenarios        → contracts
+1  canonical-kernel → contracts/decimal-string-runtime
+   scenarios        → contracts
    published-data   → contracts
-2  replay-engine    → contracts   (devDependencies: scenarios, published-data)
+2  replay-engine    → contracts, canonical-kernel   (devDependencies: scenarios, published-data)
    ai-harness       → contracts, scenarios, published-data
-3  service-store    → contracts, replay-engine/canonical-json
-4  web              → contracts, scenarios, published-data, ai-harness, replay-engine
+   service-store    → contracts/service-snapshot, canonical-kernel/canonical-json
+3  web              → contracts, scenarios, published-data, ai-harness, replay-engine
    evals            —
 
 층위별 워크스페이스 의존 간선 전부 도식입니다. 그림 안의 글자는 위 내용과 같습니다.</desc>
@@ -31,17 +32,18 @@
     </style>
   </defs>
 
-  <rect width="711" height="236" fill="#ffffff"/>
-  <rect width="711" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="710" height="235" fill="none" stroke="#d0d7de"/>
+  <rect width="797" height="257" fill="#ffffff"/>
+  <rect width="797" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="796" height="256" fill="none" stroke="#d0d7de"/>
   <text class="eyebrow" x="24" y="26">EVERY WORKSPACE DEPENDENCY EDGE, BY TIER</text>
 
     <text><tspan class="l" x="24.0" y="46">0</tspan><tspan class="t" x="47.4" y="46">contracts</tspan><tspan class="g" x="180.0" y="46">—</tspan></text>
-    <text><tspan class="l" x="24.0" y="67">1</tspan><tspan class="t" x="47.4" y="67">scenarios</tspan><tspan class="g" x="180.0" y="67">→</tspan><tspan class="t" x="195.6" y="67">contracts</tspan></text>
-    <text><tspan class="t" x="47.4" y="88">published-data</tspan><tspan class="g" x="180.0" y="88">→</tspan><tspan class="t" x="195.6" y="88">contracts</tspan></text>
-    <text><tspan class="l" x="24.0" y="109">2</tspan><tspan class="t" x="47.4" y="109">replay-engine</tspan><tspan class="g" x="180.0" y="109">→</tspan><tspan class="t" x="195.6" y="109">contracts</tspan><tspan class="t" x="289.2" y="109">(devDependencies:</tspan><tspan class="t" x="429.6" y="109">scenarios,</tspan><tspan class="t" x="515.4" y="109">published-data)</tspan></text>
-    <text><tspan class="t" x="47.4" y="130">ai-harness</tspan><tspan class="g" x="180.0" y="130">→</tspan><tspan class="t" x="195.6" y="130">contracts,</tspan><tspan class="t" x="281.4" y="130">scenarios,</tspan><tspan class="t" x="367.2" y="130">published-data</tspan></text>
-    <text><tspan class="l" x="24.0" y="151">3</tspan><tspan class="t" x="47.4" y="151">service-store</tspan><tspan class="g" x="180.0" y="151">→</tspan><tspan class="t" x="195.6" y="151">contracts,</tspan><tspan class="t" x="281.4" y="151">replay-engine/canonical-json</tspan></text>
-    <text><tspan class="l" x="24.0" y="172">4</tspan><tspan class="t" x="47.4" y="172">web</tspan><tspan class="g" x="180.0" y="172">→</tspan><tspan class="t" x="195.6" y="172">contracts,</tspan><tspan class="t" x="281.4" y="172">scenarios,</tspan><tspan class="t" x="367.2" y="172">published-data,</tspan><tspan class="t" x="492.0" y="172">ai-harness,</tspan><tspan class="t" x="585.6" y="172">replay-engine</tspan></text>
-    <text><tspan class="t" x="47.4" y="193">evals</tspan><tspan class="g" x="180.0" y="193">—</tspan></text>
+    <text><tspan class="l" x="24.0" y="67">1</tspan><tspan class="t" x="47.4" y="67">canonical-kernel</tspan><tspan class="g" x="180.0" y="67">→</tspan><tspan class="t" x="195.6" y="67">contracts/decimal-string-runtime</tspan></text>
+    <text><tspan class="t" x="47.4" y="88">scenarios</tspan><tspan class="g" x="180.0" y="88">→</tspan><tspan class="t" x="195.6" y="88">contracts</tspan></text>
+    <text><tspan class="t" x="47.4" y="109">published-data</tspan><tspan class="g" x="180.0" y="109">→</tspan><tspan class="t" x="195.6" y="109">contracts</tspan></text>
+    <text><tspan class="l" x="24.0" y="130">2</tspan><tspan class="t" x="47.4" y="130">replay-engine</tspan><tspan class="g" x="180.0" y="130">→</tspan><tspan class="t" x="195.6" y="130">contracts,</tspan><tspan class="t" x="281.4" y="130">canonical-kernel</tspan><tspan class="t" x="429.6" y="130">(devDependencies:</tspan><tspan class="t" x="570.0" y="130">scenarios,</tspan><tspan class="t" x="655.8" y="130">published-data)</tspan></text>
+    <text><tspan class="t" x="47.4" y="151">ai-harness</tspan><tspan class="g" x="180.0" y="151">→</tspan><tspan class="t" x="195.6" y="151">contracts,</tspan><tspan class="t" x="281.4" y="151">scenarios,</tspan><tspan class="t" x="367.2" y="151">published-data</tspan></text>
+    <text><tspan class="t" x="47.4" y="172">service-store</tspan><tspan class="g" x="180.0" y="172">→</tspan><tspan class="t" x="195.6" y="172">contracts/service-snapshot,</tspan><tspan class="t" x="414.0" y="172">canonical-kernel/canonical-json</tspan></text>
+    <text><tspan class="l" x="24.0" y="193">3</tspan><tspan class="t" x="47.4" y="193">web</tspan><tspan class="g" x="180.0" y="193">→</tspan><tspan class="t" x="195.6" y="193">contracts,</tspan><tspan class="t" x="281.4" y="193">scenarios,</tspan><tspan class="t" x="367.2" y="193">published-data,</tspan><tspan class="t" x="492.0" y="193">ai-harness,</tspan><tspan class="t" x="585.6" y="193">replay-engine</tspan></text>
+    <text><tspan class="t" x="47.4" y="214">evals</tspan><tspan class="g" x="180.0" y="214">—</tspan></text>
 </svg>

@@ -6,7 +6,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./decimal-string-runtime": "./src/canonical-decimal-runtime.mjs"
+    "./decimal-string-runtime": "./src/canonical-decimal-runtime.mjs",
+    "./service-snapshot": "./src/service-snapshot.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

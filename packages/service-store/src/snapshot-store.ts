@@ -9,8 +9,8 @@ import {
   type ServiceDerivedResult,
   type ServiceSnapshot,
   type SnapshotReference,
-} from "@weavetrail/contracts";
-import { canonicalJson } from "@weavetrail/replay-engine/canonical-json";
+} from "@weavetrail/contracts/service-snapshot";
+import { canonicalJson } from "@weavetrail/canonical-kernel/canonical-json";
 
 const sha256 = (bytes: Uint8Array | string) =>
   createHash("sha256").update(bytes).digest("hex");

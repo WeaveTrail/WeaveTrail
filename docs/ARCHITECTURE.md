@@ -337,16 +337,17 @@ automatic converter.
 
 ## Package boundaries
 
-| Package          | Owns                                                            | Must not own                             |
-| ---------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| `contracts`      | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic          |
-| `ai-harness`     | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval |
-| `replay-engine`  | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
-| `scenarios`      | Synthetic datasets and controlled mutations                     | Published, production, or personal data  |
-| `published-data` | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data   |
-| `service-store`  | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input    |
-| `evals`          | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
-| `web`            | Human review flow and export surface                            | A second implementation of replay logic  |
+| Package            | Owns                                                            | Must not own                              |
+| ------------------ | --------------------------------------------------------------- | ----------------------------------------- |
+| `contracts`        | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic           |
+| `ai-harness`       | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval  |
+| `canonical-kernel` | Canonical JSON, hashing, ordering and scaled-decimal arithmetic | Rules, thresholds, hypotheses or verdicts |
+| `replay-engine`    | Event normalization, rules, evidence hash scopes and assembly   | Free-form inference or legal conclusions  |
+| `scenarios`        | Synthetic datasets and controlled mutations                     | Published, production, or personal data   |
+| `published-data`   | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data    |
+| `service-store`    | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input     |
+| `evals`            | Versioned cases and measurement aggregation                     | Undocumented benchmark claims             |
+| `web`              | Human review flow and export surface                            | A second implementation of replay logic   |
 
 ### Dependency direction
 
@@ -365,18 +366,28 @@ added:
    evidence assembly take rows, registries, calculators and display templates
    from their caller, and resolve no store, URL, clock or provider themselves.
    That is why a new source or storage arrangement cannot reverse an edge.
-3. **Storage may not depend on the decision tier.** One edge crosses this line
-   today, because the canonical kernel — canonical JSON, hashing, ordering,
-   scaled decimals — lives beside the rules and the request workflow.
-   `service-store` reaches it through the runtime-neutral
-   `@weavetrail/replay-engine/canonical-json` entry, so serialization is all it
-   imports and no rule, threshold, hypothesis or verdict type is reachable from
-   storage. The manifest edge stays until the kernel has a home of its own
-   ([#211](https://github.com/WeaveTrail/WeaveTrail/issues/211)).
+3. **Storage may not depend on the decision tier.** `service-store` depends
+   only on `contracts` and `canonical-kernel`. It imports the snapshot-only
+   `@weavetrail/contracts/service-snapshot` entry and the runtime-neutral
+   `@weavetrail/canonical-kernel/canonical-json` entry. The kernel imports only
+   the decimal runtime entry of contracts; no rule, threshold, hypothesis or
+   verdict type is reachable from storage. `dependency-boundary.test.ts` checks
+   the workspace manifest closure and follows source imports, re-exports and
+   type imports, including the engine's independence from storage.
 4. **Fixtures are test inputs of the decision tier, not runtime inputs.**
    `scenarios` and `published-data` are development dependencies of
    `replay-engine`; `ai-harness` depends on both at runtime because fixture mode
    is a shipped provider, not a test aid.
+
+The kernel has its own workspace package so the manifest graph expresses the
+boundary. Its root and `canonical-hash` entry use Node crypto; `canonical-json`,
+`canonical-order` and `scaled-decimal` are runtime-neutral subpaths. Existing
+`@weavetrail/replay-engine` exports and its `canonical-json` subpath re-export
+the same implementations, including error classes, so callers need no
+migration. The engine still owns event validation, semantic projection,
+duplicate handling and hash preimages. Engine versions, contracts and committed
+golden expectations are unchanged. See
+[ADR 0049](adr/0049-place-the-canonical-kernel-below-storage.md).
 
 | Planned component                                                                                                                                                                                                                   | Tier           | May not reach |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------- |
