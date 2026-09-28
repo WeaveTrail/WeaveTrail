@@ -8,7 +8,9 @@ export default defineConfig([
   globalIgnores([
     "**/.next/**",
     "**/dist/**",
-    "**/coverage/**",
+    "coverage/**",
+    "packages/*/coverage/**",
+    "apps/*/coverage/**",
     "_workbench/**",
   ]),
   js.configs.recommended,

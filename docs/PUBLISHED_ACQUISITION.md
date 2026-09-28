@@ -1,5 +1,10 @@
 # Published acquisition scopes
 
+The admitted records also generate the versioned
+[published check coverage manifest](COVERAGE.md), served at `GET /api/coverage`.
+Coverage is derived from receipts, provenance and actual observations; it is
+never widened by editing a display line or a generated file.
+
 Every committed real artifact declares one of two acquisition scopes beside its
 provenance. Both require permission to commit, modify and redistribute the data,
 verified manually on the acquisition date.
