@@ -3,14 +3,30 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  requiresMappingOverride,
+  type ApprovalRecord,
+} from "@weavetrail/contracts";
+import {
+  fscStockQuotesProposal,
+  publishedReplaySources,
+} from "@weavetrail/published-data";
+import {
+  mappingApprovalArtifact,
+  sha256Canonical,
+} from "@weavetrail/replay-engine";
 import ts from "typescript";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { publishedCaseProposal } from "../../../lib/published-case";
 
 /**
  * docs/DATA_HANDLING.md states that a check route keeps nothing a person sends
  * it: no store, no file, no log line and no outbound call. These checks enforce
  * that for every route under `api/check`, including ones added later, which
- * fail here until they are given a canary request below.
+ * fail here until they are given a canary request below. The two approval
+ * routes take a reviewer reference and reasons a person types, so the run-time
+ * check covers them too.
  */
 
 const checkDirectory = dirname(fileURLToPath(import.meta.url));
@@ -63,6 +79,71 @@ const canaryRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
   ],
 };
 
+const quotesKey = "real/fsc-stock-quotes-20260903.jsonl";
+
+/** An approval whose reviewer reference and every reason carry the canary. */
+const canaryApproval = (
+  approvedArtifactHash: string,
+  overrides: ApprovalRecord["overrides"] = [],
+): ApprovalRecord => ({
+  approvedArtifactHash,
+  reviewerRef: CANARY,
+  decision: "APPROVED",
+  overrides,
+  approvedAt: "2026-09-07T00:00:00Z",
+});
+
+/** Routes outside `api/check` that accept text a person types. */
+const approvalRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
+  "../replay/route.ts": [
+    {
+      body: {
+        scenario: quotesKey,
+        mutation: "baseline",
+        rows: publishedReplaySources[quotesKey].rows,
+        mappingApproval: canaryApproval(
+          sha256Canonical(mappingApprovalArtifact(fscStockQuotesProposal)),
+          fscStockQuotesProposal.fields.flatMap((field, index) =>
+            requiresMappingOverride(field)
+              ? [{ fieldPath: `fields.${index}`, reason: CANARY }]
+              : [],
+          ),
+        ),
+      },
+      status: 200,
+    },
+    {
+      body: {
+        scenario: quotesKey,
+        mutation: "baseline",
+        rows: publishedReplaySources[quotesKey].rows,
+        mappingApproval: canaryApproval("f".repeat(64), [
+          { fieldPath: "fields.0", reason: CANARY },
+        ]),
+      },
+      status: 422,
+    },
+  ],
+  "../case-2026-09-03/route.ts": [
+    {
+      body: {
+        approval: canaryApproval(
+          sha256Canonical(publishedCaseProposal().proposal),
+        ),
+      },
+      status: 200,
+    },
+    {
+      body: {
+        approval: canaryApproval("f".repeat(64), [
+          { fieldPath: "fields.0", reason: CANARY },
+        ]),
+      },
+      status: 422,
+    },
+  ],
+};
+
 /**
  * Packages a check route may load. Anything that can persist, log or send a
  * request (a file system, database, network client, provider adapter or
@@ -80,6 +161,14 @@ const forbiddenWorkspaceDirectories = [
 /** Source that writes to a log, a stream, a file or the network. */
 const forbiddenCalls =
   /\bconsole\s*\.|\bprocess\s*\.\s*(?:stdout|stderr)\b|\bfetch\s*\(|\b(?:writeFile|appendFile|createWriteStream)\w*\s*\(/;
+
+/**
+ * The same calls without `fetch`: the mapping adapter an approval route loads
+ * may call a configured provider, which the run-time check rules out for these
+ * requests in fixture mode.
+ */
+const storageOrLogCalls =
+  /\bconsole\s*\.|\bprocess\s*\.\s*(?:stdout|stderr)\b|\b(?:writeFile|appendFile|createWriteStream)\w*\s*\(/;
 
 const compilerOptions: ts.CompilerOptions = {
   baseUrl: webDirectory,
@@ -140,7 +229,7 @@ const posted = async (route: string, body: unknown) => {
   };
   expect(handlers.POST).toBeTypeOf("function");
   const response = await handlers.POST!(
-    new Request(`http://localhost/api/check/${dirname(route)}`, {
+    new Request(`http://localhost/api/${dirname(route)}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: typeof body === "string" ? body : JSON.stringify(body),
@@ -162,6 +251,45 @@ const carriesCanary = (calls: readonly (readonly unknown[])[]) =>
       }
     }),
   );
+
+async function expectNothingRetained(
+  route: string,
+  requests: readonly CanaryRequest[],
+  echoesScope: boolean,
+) {
+  const logs = (
+    ["log", "info", "warn", "error", "debug", "trace"] as const
+  ).map((method) => vi.spyOn(console, method));
+  const streams = [
+    vi.spyOn(process.stdout, "write"),
+    vi.spyOn(process.stderr, "write"),
+  ];
+  const files = [
+    vi.spyOn(fs, "writeFileSync"),
+    vi.spyOn(fs, "appendFileSync"),
+    vi.spyOn(fs, "writeFile"),
+    vi.spyOn(fs, "appendFile"),
+    vi.spyOn(fs, "createWriteStream"),
+    vi.spyOn(fs.promises, "writeFile"),
+    vi.spyOn(fs.promises, "appendFile"),
+  ];
+  const network = vi
+    .spyOn(globalThis, "fetch")
+    .mockRejectedValue(new Error("This route must not send requests."));
+
+  expect(requests.some(({ status }) => status === 200)).toBe(true);
+  for (const { body, status } of requests) {
+    const response = await posted(route, body);
+    expect(response.status).toBe(status);
+    // A processed check returns its validated scope to the caller only.
+    if (echoesScope && status === 200) expect(response.text).toContain(CANARY);
+  }
+
+  for (const spy of [...logs, ...streams])
+    expect(carriesCanary(spy.mock.calls)).toBe(false);
+  for (const spy of files) expect(spy).not.toHaveBeenCalled();
+  expect(network).not.toHaveBeenCalled();
+}
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -195,40 +323,29 @@ describe("check routes keep no pasted text", () => {
       ).toEqual([]);
     });
 
-    it("writes the request to no log, stream or file and sends it nowhere", async () => {
-      const logs = (
-        ["log", "info", "warn", "error", "debug", "trace"] as const
-      ).map((method) => vi.spyOn(console, method));
-      const streams = [
-        vi.spyOn(process.stdout, "write"),
-        vi.spyOn(process.stderr, "write"),
-      ];
-      const files = [
-        vi.spyOn(fs, "writeFileSync"),
-        vi.spyOn(fs, "appendFileSync"),
-        vi.spyOn(fs, "writeFile"),
-        vi.spyOn(fs, "appendFile"),
-        vi.spyOn(fs, "createWriteStream"),
-        vi.spyOn(fs.promises, "writeFile"),
-        vi.spyOn(fs.promises, "appendFile"),
-      ];
-      const network = vi
-        .spyOn(globalThis, "fetch")
-        .mockRejectedValue(new Error("A check route must not send requests."));
+    it("writes the request to no log, stream or file and sends it nowhere", () =>
+      expectNothingRetained(route, canaryRequests[route] ?? [], true));
+  });
+});
 
-      const requests = canaryRequests[route] ?? [];
-      expect(requests.some(({ status }) => status === 200)).toBe(true);
-      for (const { body, status } of requests) {
-        const response = await posted(route, body);
-        expect(response.status).toBe(status);
-        // A processed request returns its validated scope to the caller only.
-        if (status === 200) expect(response.text).toContain(CANARY);
-      }
-
-      for (const spy of [...logs, ...streams])
-        expect(carriesCanary(spy.mock.calls)).toBe(false);
-      for (const spy of files) expect(spy).not.toHaveBeenCalled();
-      expect(network).not.toHaveBeenCalled();
+describe("approval routes keep no reviewer text", () => {
+  describe.each(Object.keys(approvalRequests))("%s", (route) => {
+    it("loads no store and writes to no log, stream or file", () => {
+      const graph = moduleGraph(resolve(checkDirectory, route));
+      expect(
+        graph.local
+          .map((file) => relative(repositoryDirectory, file))
+          .filter((file) => file.startsWith("packages/service-store/")),
+      ).toEqual([]);
+      expect(
+        graph.local
+          .filter((file) => !file.endsWith(".json"))
+          .filter((file) => storageOrLogCalls.test(readFileSync(file, "utf8")))
+          .map((file) => relative(repositoryDirectory, file)),
+      ).toEqual([]);
     });
+
+    it("writes reviewer text to no log, stream or file and sends it nowhere", () =>
+      expectNothingRetained(route, approvalRequests[route] ?? [], false));
   });
 });

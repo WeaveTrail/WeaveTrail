@@ -12,16 +12,17 @@
 
 ## 한눈에 보기
 
-| 질문                                  | 현재                                                                                                                             | 강제하는 곳                                                                                                                                             |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 붙여넣은 텍스트를 받는 경로가 있나요? | 없습니다. 유일한 확인 경로는 자유 텍스트가 아닌 정해진 형식의 범위를 받습니다. 붙여넣은 글 확인은 예정입니다.                    | [`api/check/coverage/route.ts`](../apps/web/src/app/api/check/coverage/route.ts), [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts) |
-| 확인 요청을 저장하나요?               | 저장하지 않습니다. 확인 경로는 저장소, 데이터베이스, 파일 쓰기 모듈을 불러오지 않습니다.                                         | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 확인 요청을 로그에 남기나요?          | 애플리케이션은 확인 요청의 내용을 로그, 출력 스트림, 파일에 쓰지 않습니다. 호스팅 플랫폼 로그는 코드 밖에 있습니다.              | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 확인할 때 모델을 호출하나요?          | 호출하지 않습니다. 확인 경로는 모델 공급자를 불러오지 않고 외부로 요청을 보내지 않습니다.                                        | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 브라우저는 데이터를 어디로 보내나요?  | 사이트 코드는 요청 데이터를 이 사이트의 `/api/` 경로로만 보냅니다. 출처나 근거 링크를 누르면 여느 링크처럼 그 사이트가 열립니다. | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)                                                                    |
-| 브라우저에는 무엇이 남나요?           | 언어 선택 하나를 `localStorage` 키 하나에 남깁니다.                                                                              | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts), [`language.tsx`](../apps/web/src/app/i18n/language.tsx)           |
-| 모델 인증 정보가 드러나나요?          | 드러나지 않습니다. 공급자 설정은 서버에서만 읽고, 운영 환경에는 설정하지 않습니다.                                               | [`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts), [배포 환경](DEPLOYMENT.md#environment)(영문)                |
-| 공유 링크는 값을 어떻게 담나요?       | 예정: URL 조각에 담고, 붙여넣은 글을 서버에 저장하지 않습니다.                                                                   | [#159](https://github.com/WeaveTrail/WeaveTrail/issues/159), [ADR 0050](adr/0050-place-planned-service-components.md)(영문)                             |
+| 질문                                  | 현재                                                                                                                                                           | 강제하는 곳                                                                                                                                             |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 붙여넣은 글을 확인하는 경로가 있나요? | 없습니다. 유일한 확인 경로는 자유 텍스트가 아닌 정해진 형식의 범위를 받습니다. 붙여넣은 글 확인은 예정입니다.                                                  | [`api/check/coverage/route.ts`](../apps/web/src/app/api/check/coverage/route.ts), [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts) |
+| 그 밖에 입력한 글을 보내나요?         | 보냅니다. 사례 따라가기와 사건 사례의 승인은 검토자 참조와 확인 이유를 보냅니다. 검증에만 쓰며, 응답으로 돌려주거나 저장·기록하지 않고 모델에 보내지 않습니다. | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| 확인 요청을 저장하나요?               | 저장하지 않습니다. 확인 경로는 저장소, 데이터베이스, 파일 쓰기 모듈을 불러오지 않습니다.                                                                       | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| 확인 요청을 로그에 남기나요?          | 애플리케이션은 확인 요청의 내용을 로그, 출력 스트림, 파일에 쓰지 않습니다. 호스팅 플랫폼 로그는 코드 밖에 있습니다.                                            | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| 확인할 때 모델을 호출하나요?          | 호출하지 않습니다. 확인 경로는 모델 공급자를 불러오지 않고 외부로 요청을 보내지 않습니다.                                                                      | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| 브라우저는 데이터를 어디로 보내나요?  | 사이트 코드는 요청 데이터를 이 사이트의 `/api/` 경로로만 보냅니다. 출처나 근거 링크를 누르면 여느 링크처럼 그 사이트가 열립니다.                               | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)                                                                    |
+| 브라우저에는 무엇이 남나요?           | 언어 선택 하나를 `localStorage` 키 하나에 남깁니다.                                                                                                            | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts), [`language.tsx`](../apps/web/src/app/i18n/language.tsx)           |
+| 모델 인증 정보가 드러나나요?          | 드러나지 않습니다. 공급자 설정은 서버에서만 읽고, 운영 환경에는 설정하지 않습니다.                                                                             | [`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts), [배포 환경](DEPLOYMENT.md#environment)(영문)                |
+| 공유 링크는 값을 어떻게 담나요?       | 예정: URL 조각에 담고, 붙여넣은 글을 서버에 저장하지 않습니다.                                                                                                 | [#159](https://github.com/WeaveTrail/WeaveTrail/issues/159), [ADR 0050](adr/0050-place-planned-service-components.md)(영문)                             |
 
 ## 확인 요청의 경로
 
@@ -46,6 +47,25 @@
 ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155)), 그 주장을 확인하는
 기능([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)), 문장별 확인
 화면([#157](https://github.com/WeaveTrail/WeaveTrail/issues/157))은 예정입니다.
+
+## 승인에 담기는 검토자 입력
+
+사람이 입력한 글을 받는 경로가 이미 두 개 있습니다. 다만 두 경로 모두 그 글을
+확인 대상으로 다루지는 않습니다. 사례 따라가기(`/replay`)는 검토가 필요한 데이터
+항목마다 확인 이유를 받고, 이를 검토자 참조와 함께 승인 기록에 담아
+`POST /api/replay`로 보냅니다. 사건 페이지(`/case-2026-09-03`)는 조사 범위 승인
+기록을 `POST /api/case-2026-09-03`으로 보냅니다. 두 경로는
+[`ApprovalRecordSchema`](../packages/contracts/src/approval-record.ts)로 기록을
+검증합니다. 이 스키마는 확인 이유가 비어 있지 않은지만 보고 내용은 제한하지
+않습니다. 경로는 기록을 실행 승인 여부를 판단하는 데에만 쓰며, 응답에는 확인
+이유나 검토자 참조를 담지 않습니다.
+
+[`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)는 검토자 참조와 모든 확인 이유에 표식 문자열을 넣은 승인 기록을 두
+경로에 보냅니다. 승인되는 요청과 거부되는 요청을 모두 보냅니다. 그 표식이 콘솔,
+표준 출력, 표준 오류에 나타나거나, 파일 쓰기가 일어나거나, 외부로 요청을 보내면
+실패합니다. 두 경로의 모듈이 서비스 스냅샷 저장소를 불러오거나 로그·스트림·파일
+쓰기 호출을 담고 있어도 실패합니다. 이 입력란에는 개인 정보나 기밀을 적지
+마십시오.
 
 ## 모델 호출
 
@@ -112,7 +132,8 @@ pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts ap
 ```
 
 `apps/web/src/app/api/check` 아래 경로 파일은 모두 자동으로 찾습니다. 새 확인
-경로는 표식 요청을 추가하기 전까지 보관 금지 테스트를 통과하지 못합니다.
+경로는 표식 요청을 추가하기 전까지 보관 금지 테스트를 통과하지 못합니다. 승인
+경로 두 개는 같은 테스트에 따로 적혀 있습니다.
 
 ## 한계
 

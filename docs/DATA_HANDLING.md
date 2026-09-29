@@ -13,16 +13,17 @@ the commit its deployment was built from (`VERCEL_GIT_COMMIT_SHA`), and at
 
 ## At a glance
 
-| Question                            | Today                                                                                                                                             | Enforced by                                                                                                                                             |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Does any route accept pasted text?  | No. The only check route takes a structured scope, not free text. Pasted-text checking is planned.                                                | [`api/check/coverage/route.ts`](../apps/web/src/app/api/check/coverage/route.ts), [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts) |
-| Is a check request stored?          | No. A check route loads no store, database or file writer.                                                                                        | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| Is a check request logged?          | The application writes nothing from a check request to a log, stream or file. Hosting-platform logs are outside the code.                         | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| Does a check call a model?          | No. A check route loads no model provider and sends no outbound request.                                                                          | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| Where does the browser send data?   | The site's code sends request data only to this site's own `/api/` routes. Following a source or evidence link opens that site, as any link does. | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)                                                                    |
-| What does the browser keep?         | The language choice, under one `localStorage` key.                                                                                                | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts), [`language.tsx`](../apps/web/src/app/i18n/language.tsx)           |
-| Are model credentials exposed?      | No. Provider settings are read on the server only, and production runs without them.                                                              | [`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts), [deployment environment](DEPLOYMENT.md#environment)         |
-| How does a share link carry values? | Planned: a URL fragment, with no server storage of pasted text.                                                                                   | [#159](https://github.com/WeaveTrail/WeaveTrail/issues/159), [ADR 0050](adr/0050-place-planned-service-components.md)                                   |
+| Question                            | Today                                                                                                                                                      | Enforced by                                                                                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Does any route check pasted text?   | No. The only check route takes a structured scope, not free text. Pasted-text checking is planned.                                                         | [`api/check/coverage/route.ts`](../apps/web/src/app/api/check/coverage/route.ts), [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts) |
+| Is other typed text sent?           | Yes. Case Replay and event-case approvals send a reviewer reference and reasons. They are validated, not returned, stored or logged, and sent to no model. | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| Is a check request stored?          | No. A check route loads no store, database or file writer.                                                                                                 | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| Is a check request logged?          | The application writes nothing from a check request to a log, stream or file. Hosting-platform logs are outside the code.                                  | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| Does a check call a model?          | No. A check route loads no model provider and sends no outbound request.                                                                                   | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
+| Where does the browser send data?   | The site's code sends request data only to this site's own `/api/` routes. Following a source or evidence link opens that site, as any link does.          | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)                                                                    |
+| What does the browser keep?         | The language choice, under one `localStorage` key.                                                                                                         | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts), [`language.tsx`](../apps/web/src/app/i18n/language.tsx)           |
+| Are model credentials exposed?      | No. Provider settings are read on the server only, and production runs without them.                                                                       | [`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts), [deployment environment](DEPLOYMENT.md#environment)         |
+| How does a share link carry values? | Planned: a URL fragment, with no server storage of pasted text.                                                                                            | [#159](https://github.com/WeaveTrail/WeaveTrail/issues/159), [ADR 0050](adr/0050-place-planned-service-components.md)                                   |
 
 ## Request path of a check
 
@@ -49,6 +50,25 @@ Extracting claims from pasted text
 ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)) and the
 sentence-by-sentence screen
 ([#157](https://github.com/WeaveTrail/WeaveTrail/issues/157)) are planned.
+
+## Reviewer text in approvals
+
+Two existing routes take text a person types, although neither checks it.
+Case Replay (`/replay`) asks for a reviewer reason for each flagged mapping
+field and sends it with the reviewer reference in the approval record to
+`POST /api/replay`. The event page (`/case-2026-09-03`) sends its case-scope
+approval record to `POST /api/case-2026-09-03`. Both validate the record with
+[`ApprovalRecordSchema`](../packages/contracts/src/approval-record.ts), which
+requires a nonblank reason but does not limit what it says, and use it only to
+decide whether the run is approved. Neither response returns the reason or the
+reviewer reference.
+
+[`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts) posts approval records with a marker string as the reviewer
+reference and every reason to both routes, approved and refused. It fails if
+the marker reaches the console, standard output or standard error, if any file
+write happens, or if either route makes an outbound request. It also fails if
+either route's modules load the service snapshot store or contain a log, stream
+or file write call. Type no personal or confidential text into these fields.
 
 ## Model call
 
@@ -118,6 +138,7 @@ pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts ap
 
 Every route file under `apps/web/src/app/api/check` is found automatically. A
 new check route fails the retention test until it is given a marker request.
+The two approval routes are listed in the same test.
 
 ## Limits
 

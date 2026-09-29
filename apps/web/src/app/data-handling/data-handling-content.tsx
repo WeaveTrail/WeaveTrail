@@ -55,9 +55,16 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "Pasted text",
         answer:
-          "No route accepts pasted text yet. The one check route takes a structured scope, and a malformed or extended request is refused.",
+          "No route checks pasted text yet. The one check route takes a structured scope, and a malformed or extended request is refused.",
         planned: false,
         links: [["Check route", "route"]],
+      },
+      {
+        question: "Reviewer text",
+        answer:
+          "Case Replay and event-case approvals send a reviewer reference and reasons a person types. They are validated only, never returned, stored, logged or sent to a model. Type nothing personal or confidential there.",
+        planned: false,
+        links: [["Retention test", "retention"]],
       },
       {
         question: "Storage",
@@ -114,9 +121,16 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "붙여넣은 글",
         answer:
-          "아직 붙여넣은 글을 받는 경로는 없습니다. 유일한 확인 경로는 정해진 형식의 범위만 받고, 형식이 틀리거나 항목이 더 붙은 요청은 거부합니다.",
+          "아직 붙여넣은 글을 확인하는 경로는 없습니다. 유일한 확인 경로는 정해진 형식의 범위만 받고, 형식이 틀리거나 항목이 더 붙은 요청은 거부합니다.",
         planned: false,
         links: [["확인 경로", "route"]],
+      },
+      {
+        question: "검토자 입력",
+        answer:
+          "사례 따라가기와 사건 사례의 승인은 사람이 입력한 검토자 참조와 확인 이유를 보냅니다. 검증에만 쓰며, 응답으로 돌려주거나 저장·기록하거나 모델에 보내지 않습니다. 개인 정보나 기밀은 적지 마십시오.",
+        planned: false,
+        links: [["보관 금지 테스트", "retention"]],
       },
       {
         question: "저장",
