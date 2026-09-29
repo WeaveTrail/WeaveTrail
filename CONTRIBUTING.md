@@ -27,6 +27,12 @@ string literals are not live references. See
 [ADR 0045](docs/adr/0045-parse-adr-references-as-documentation.md) for the parser
 boundary and check limitations.
 
+`pnpm eval` verifies the committed fixture evaluation and writes a stable JSON
+summary plus an actual environment and checkout receipt to `dist/evaluation/`.
+It never updates expectations. See [the evaluation protocol](docs/EVALUATION.md)
+for case definitions, captured results and limits. Its publication assertion also
+runs in `pnpm test`; CI runs the command to exercise receipt generation.
+
 `pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.

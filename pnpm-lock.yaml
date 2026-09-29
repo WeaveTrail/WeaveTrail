@@ -97,7 +97,23 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
 
-  packages/evals: {}
+  packages/evals:
+    dependencies:
+      '@weavetrail/ai-harness':
+        specifier: workspace:*
+        version: link:../ai-harness
+      '@weavetrail/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@weavetrail/published-data':
+        specifier: workspace:*
+        version: link:../published-data
+      '@weavetrail/replay-engine':
+        specifier: workspace:*
+        version: link:../replay-engine
+      '@weavetrail/scenarios':
+        specifier: workspace:*
+        version: link:../scenarios
 
   packages/instrument-resolver:
     dependencies:

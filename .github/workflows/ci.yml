@@ -35,6 +35,8 @@ jobs:
         run: pnpm typecheck
       - name: Run unit and golden tests
         run: pnpm test
+      - name: Reproduce fixture evaluation and run receipt
+        run: pnpm eval
       - name: Verify ADR index
         run: pnpm adr:check
       - name: Test ADR index validator
