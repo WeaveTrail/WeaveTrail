@@ -4,8 +4,32 @@ import { describe, expect, it } from "vitest";
 
 import publication from "./scenario-expectations.json";
 import ExpectationsPage from "./page";
+import { LanguageProvider } from "../i18n/language";
+import capture from "../../../../../packages/evals/results/financial-replay-v2.run.json";
+import broadProvenance from "../../../../../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json";
 
 describe("published scenario expectations page", () => {
+  it.each(["en", "ko"] as const)(
+    "reports the captured oracle environment in %s",
+    (language) => {
+      const page = createElement(ExpectationsPage);
+      const markup = renderToStaticMarkup(
+        language === "ko" ? createElement(LanguageProvider, null, page) : page,
+      );
+      expect(markup).toContain("pnpm expectations:update");
+      expect(markup).toContain(
+        `Node <code>${capture.environment.node.slice(1)}</code>`,
+      );
+      expect(markup).toContain(`pnpm <code>${capture.environment.pnpm}</code>`);
+      expect(markup).toContain(
+        `Vitest <code>${capture.environment.vitest}</code>`,
+      );
+      expect(broadProvenance.validation.environment).toContain(
+        `Vitest ${capture.environment.vitest}`,
+      );
+    },
+  );
+
   it("renders every generated expected value and the clean-session boundary", () => {
     const markup = renderToStaticMarkup(createElement(ExpectationsPage));
 

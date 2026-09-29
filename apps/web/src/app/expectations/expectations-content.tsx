@@ -229,14 +229,22 @@ export function ExpectationsContent({
             </>
           )}
         </p>
-        {!korean && (
-          <p>
-            The committed publication is regenerated with{" "}
-            <code>pnpm expectations:update</code> using Node{" "}
-            <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
-            <code>4.1.11</code>, and Linux WSL2 x86_64.
-          </p>
-        )}
+        <p>
+          {korean ? (
+            <>
+              커밋된 기대값은 <code>pnpm expectations:update</code>로
+              캡처했습니다. 실행 환경은{" "}
+            </>
+          ) : (
+            <>
+              The committed publication was captured with{" "}
+              <code>pnpm expectations:update</code> using{" "}
+            </>
+          )}
+          Node <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
+          <code>5.0.1</code>
+          {korean ? ", Linux WSL2 x86_64입니다." : ", and Linux WSL2 x86_64."}
+        </p>
       </section>
       <section
         className="expectations-list"

@@ -294,10 +294,14 @@ export const checks = [
       "Published-schema synthetic cases reach SUPPORTED, NOT_SUPPORTED and INCONCLUSIVE. The FIX broad-participation case has six comparable executions, fails ACTOR_CONCENTRATION and REMOVAL_SENSITIVITY, and passes the other three gates.",
     evidence: [
       {
+        file: "packages/replay-engine/src/published-execution-schema.test.ts",
+        titles: [
+          "pins the artifact, dataset, manifest approval and canonical result hashes",
+        ],
+      },
+      {
         file: "packages/replay-engine/src/rapid-price-lift-golden.test.ts",
         titles: [
-          "pins rapid-price-lift-supported.csv to SUPPORTED",
-          "pins rapid-price-lift-broad-participation.csv to NOT_SUPPORTED",
           "pins rapid-price-lift-insufficient-evidence.csv to INCONCLUSIVE",
         ],
       },
