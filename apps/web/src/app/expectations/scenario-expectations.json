@@ -114,6 +114,67 @@
       ]
     },
     {
+      "scenario": "published-execution-fix44-broad-participation.csv",
+      "label": "Synthetic · published FIX 4.4 broad participation · CSV",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
+      "demonstrates": "Six FIX-shaped executions carry every comparable input. Broad buy participation fails ACTOR_CONCENTRATION (below 8000 bps), and removing the approved actor leaves the same price lift, failing REMOVAL_SENSITIVITY (0 bps below 100); the other three gates pass.",
+      "workflowState": "REPLAYED",
+      "result": "NOT_SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "35785e7ed4c4ce9b1b4c7cb390d4c2117b9509ac5eefb951b82803bed2e2f33d",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["ZZ79X1"],
+        "actorIds": ["SYNTH-ACCOUNT-FOCUS"],
+        "startTime": "2026-09-03T01:03:00Z",
+        "endTime": "2026-09-03T01:03:05Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
+      "gates": [
+        {
+          "gate": "PRICE_CHANGE",
+          "observedValue": "250.0000",
+          "threshold": "200",
+          "passed": true
+        },
+        {
+          "gate": "AGGRESSIVE_BUY_SHARE",
+          "observedValue": "7542.1994",
+          "threshold": "7000",
+          "passed": true
+        },
+        {
+          "gate": "ACTOR_CONCENTRATION",
+          "observedValue": "1658.1892",
+          "threshold": "8000",
+          "passed": false
+        },
+        {
+          "gate": "REPEATED_EXECUTION",
+          "observedValue": "2",
+          "threshold": "2",
+          "passed": true
+        },
+        {
+          "gate": "REMOVAL_SENSITIVITY",
+          "observedValue": "0.0000",
+          "threshold": "100",
+          "passed": false
+        }
+      ]
+    },
+    {
       "scenario": "published-execution-fix44-conflicting-evidence.csv",
       "label": "Synthetic · conflicting FIX 4.4 execution evidence · CSV",
       "purpose": "REVIEWER_FACING",
@@ -212,7 +273,7 @@
       "scenario": "rapid-price-lift-broad-participation.csv",
       "label": "Rapid price lift · broad participation",
       "purpose": "ENGINE_REGRESSION",
-      "availableInCaseReplay": true,
+      "availableInCaseReplay": false,
       "availableMutations": ["baseline", "shuffle", "duplicate"],
       "demonstrates": "Complete evidence is sufficient to evaluate, but broad participation fails the declared concentration gates.",
       "workflowState": "REPLAYED",

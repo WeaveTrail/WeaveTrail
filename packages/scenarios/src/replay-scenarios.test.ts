@@ -127,6 +127,29 @@ describe("committed replay scenarios", () => {
     expect(scenario.demonstrates).toContain("lacks Side(54)");
   });
 
+  it("replaces the not-supported fallback with comparable FIX evidence", () => {
+    const scenario =
+      committedReplayScenarios[
+        "published-execution-fix44-broad-participation.csv"
+      ];
+    expect(scenario.expectedResult).toBe("NOT_SUPPORTED");
+    expect(scenario.expectedWorkflowState).toBe("REPLAYED");
+    expect(scenario.expectedNonComparableEventCount).toBe(0);
+    expect(scenario.expectedFailingGates).toEqual([
+      "ACTOR_CONCENTRATION",
+      "REMOVAL_SENSITIVITY",
+    ]);
+    expect(
+      replayScenarioCatalog["rapid-price-lift-broad-participation.csv"],
+    ).toMatchObject({
+      purpose: "ENGINE_REGRESSION",
+      availableInCaseReplay: false,
+    });
+    expect(reviewerFacingReplayScenarios).not.toHaveProperty(
+      "rapid-price-lift-broad-participation.csv",
+    );
+  });
+
   it("states the conflicting-evidence review outcome with the source", () => {
     const scenario =
       committedReplayScenarios[

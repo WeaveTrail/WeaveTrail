@@ -19,12 +19,12 @@ verification. It is not a production market-surveillance system.
   supported synthetic case and the actorless H0STCNT0 projection as its
   separate mapping-review example. H0STCNT0 has no rule manifest;
   acknowledging its absent actor cannot authorize the worked case. The source
-  list also exposes a missing-side case that reaches `INCONCLUSIVE` and a
+  list also exposes a comparable broad-participation case that reaches
+  `NOT_SUPPORTED`, a missing-side case that reaches `INCONCLUSIVE` and a
   conflicting-identity case that reaches `INPUT_REVIEW_REQUIRED`; the guided
   walkthrough itself still follows only the complete supported case.
-- The source picker contains published-schema projections, licensed published
-  sources, and a temporary engine-regression fallback for `NOT_SUPPORTED`.
-  Other placeholders remain reachable to tests and the replay
+- The source picker contains published-schema projections and licensed published
+  sources. Engine-regression placeholders remain reachable to tests and the replay
   API but are not offered to a reviewer. Licensed published sources offer only
   baseline and row-order shuffle; no control invents a value, participant, or
   pattern verdict.

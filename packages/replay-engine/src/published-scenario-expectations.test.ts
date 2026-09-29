@@ -63,6 +63,10 @@ const sources: Record<string, Source> = {
   },
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-broad-participation.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-broad-participation.csv"
+    ],
   "published-execution-fix44-conflicting-evidence.csv":
     committedReplayScenarios[
       "published-execution-fix44-conflicting-evidence.csv"

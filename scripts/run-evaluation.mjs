@@ -45,7 +45,10 @@ const paths = git(
   .split("\n")
   .filter(
     (path) =>
-      path && path !== "packages/evals/results/financial-replay-v1.run.json",
+      path &&
+      !/^packages\/evals\/results\/financial-replay-v\d+\.run\.json$/.test(
+        path,
+      ),
   )
   .sort();
 const fingerprints = paths.map((path) => [
@@ -62,7 +65,7 @@ writeFileSync(
       workingTreeDirty: git("status", "--porcelain").length > 0,
       inputTreeSha256: sha256(JSON.stringify(fingerprints)),
       inputTreeDefinition:
-        "SHA-256 of JSON-encoded, path-sorted [path, SHA-256(bytes)] pairs from git ls-files --cached --others --exclude-standard over packages, the scenario expectations, the runner script, package.json, pnpm-lock.yaml, tsconfig.base.json and vitest.config.ts; excludes this captured run receipt.",
+        "SHA-256 of JSON-encoded, path-sorted [path, SHA-256(bytes)] pairs from git ls-files --cached --others --exclude-standard over packages, the scenario expectations, the runner script, package.json, pnpm-lock.yaml, tsconfig.base.json and vitest.config.ts; excludes captured evaluation run receipts.",
       summarySha256: sha256(readFileSync(summary)),
       environment: {
         node: process.version,

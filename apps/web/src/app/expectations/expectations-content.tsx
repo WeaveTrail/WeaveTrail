@@ -85,6 +85,8 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
   "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
   "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목",
+  "published-execution-fix44-broad-participation.csv":
+    "합성 · 공개 FIX 4.4 참여자가 분산된 사례",
   "published-execution-fix44-conflicting-evidence.csv":
     "합성 · 공개 FIX 4.4 체결 식별자 충돌",
   "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
@@ -99,6 +101,8 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
 };
 
 const koreanScenarioConditions: Readonly<Record<string, string>> = {
+  "published-execution-fix44-broad-participation.csv":
+    "FIX 형태 체결 여섯 건 모두 비교할 입력을 갖춥니다. 매수 참여자가 분산되어 ACTOR_CONCENTRATION 기준(8000 bps)을 충족하지 못하고, 승인된 행위자를 제외해도 가격 상승폭이 같아 REMOVAL_SENSITIVITY 기준(100 bps)에 못 미치는 0 bps가 됩니다. 나머지 세 기준은 통과합니다.",
   "rapid-price-lift-supported.csv":
     "완전한 증거가 선언된 RAPID_PRICE_LIFT 판단 기준을 모두 충족합니다.",
   "rapid-price-lift-broad-participation.csv":
@@ -142,7 +146,8 @@ export function ExpectationsContent({
               <li>
                 사례 재현 목록에 <strong>표시됨</strong>인 레코드는 아래에 적힌
                 커밋된 원본을 고릅니다. 표시되지 않는 엔진 회귀 레코드는
-                <code>pnpm test</code>로 재현합니다.
+                <code>pnpm test</code>로 재현합니다. 공개 스키마 기반 합성
+                사례로 세 결과 의미를 모두 재현할 수 있습니다.
               </li>
               <li>
                 연결된 항목이 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
@@ -188,10 +193,10 @@ export function ExpectationsContent({
               <li>
                 Run a source offered in Case Replay. The records marked engine
                 regression remain published here to pin engine behavior but do
-                not appear in the source picker unless they preserve a result
-                meaning that no grounded source yet reproduces. Compare the
-                final workflow state, result, gate readings, and canonical
-                result hash below.
+                not appear in the source picker. Published-schema synthetic
+                cases reproduce all three result meanings. Compare the final
+                workflow state, result, gate readings, and canonical result hash
+                below.
               </li>
             </>
           )}

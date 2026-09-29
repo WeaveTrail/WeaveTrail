@@ -1,0 +1,153 @@
+{
+  "kind": "synthetic",
+  "provider": "WeaveTrail",
+  "title": "Synthetic FIX 4.4 projection with broad buy participation",
+  "attribution": "Synthetic fixture authored by the WeaveTrail contributors from the cited published schema and rule documents.",
+  "artifacts": {
+    "runtimeSource": {
+      "path": "published-execution-fix44-broad-participation.csv",
+      "sha256": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680"
+    }
+  },
+  "syntheticity": {
+    "values": "Every value in this dialect is synthetic, including the execution IDs, timestamps, instrument, side selections, account/actor identifiers, prices and quantities or volumes.",
+    "entities": "ZZ79X1 is fictional and is not a six-digit domestic listing code. Every account starts with SYNTH-ACCOUNT-. No real issuer, customer, account, order or production system is represented.",
+    "marketData": "No market data was requested, retrieved, committed, redistributed or used to calibrate or choose these values. The cited market rules are published rules, not data."
+  },
+  "derivation": {
+    "kind": "published-schema-projection",
+    "description": "The CSV projects the same selected FIX 4.4 ExecutionReport fields as published-execution-fix44.csv over invented values. All six executions carry price, quantity, side and account. Buy notional is spread across three synthetic accounts, so the approved focus account fails concentration and removing it leaves the peak price unchanged. It copies no FIX message or market-data response bytes; the session and tick constraints reuse the published rule basis recorded for that existing projection.",
+    "schemaSources": [
+      {
+        "id": "fix44-execution-report",
+        "title": "FIX 4.4 ExecutionReport message",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/body_5756.html",
+        "retrievedOn": "2026-09-29"
+      },
+      {
+        "id": "fix44-datatypes",
+        "title": "FIX 4.4 datatypes",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/fix_datatypes.html",
+        "retrievedOn": "2026-09-29"
+      },
+      {
+        "id": "fix44-side",
+        "title": "FIX 4.4 Side field (tag 54)",
+        "url": "https://fiximate.fixtrading.org/legacy/en/FIX.4.4/tag54.html",
+        "retrievedOn": "2026-09-29"
+      }
+    ],
+    "ruleSources": [
+      {
+        "id": "krx-tick-size-rules",
+        "title": "Korea Exchange — Guide to Trading in the Korean Stock Market",
+        "url": "https://global.krx.co.kr/contents/GLB/01/0109/0109000000/guide_to_trading_in_the_korean_stock_market.pdf",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published tick-size rule only; no market observations or response data were taken from it."
+      },
+      {
+        "id": "krx-session-hours",
+        "title": "Korea Exchange — Trading Hours",
+        "url": "https://global.krx.co.kr/contents/GLB/06/0602/0602020204/GLB0602020204T1.jsp",
+        "retrievedOn": "2026-09-08",
+        "usage": "Published regular-session rule only; no market observations or response data were taken from it."
+      }
+    ],
+    "fieldCorrespondence": [
+      {
+        "publishedField": "ExecID",
+        "publishedTag": "17",
+        "committedColumn": "ExecID(17)",
+        "canonicalUse": "sourceEventId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "TransactTime",
+        "publishedTag": "60",
+        "committedColumn": "TransactTime(60)",
+        "canonicalUse": "eventTime",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Symbol",
+        "publishedTag": "55",
+        "committedColumn": "Symbol(55)",
+        "canonicalUse": "instrumentId",
+        "schemaSourceIds": ["fix44-execution-report"]
+      },
+      {
+        "publishedField": "Side",
+        "publishedTag": "54",
+        "committedColumn": "Side(54)",
+        "canonicalUse": "side; published codes 1=BUY and 2=SELL",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-side"]
+      },
+      {
+        "publishedField": "LastPx",
+        "publishedTag": "31",
+        "committedColumn": "LastPx(31)",
+        "canonicalUse": "price",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "LastQty",
+        "publishedTag": "32",
+        "committedColumn": "LastQty(32)",
+        "canonicalUse": "quantity",
+        "schemaSourceIds": ["fix44-execution-report", "fix44-datatypes"]
+      },
+      {
+        "publishedField": "Account",
+        "publishedTag": "1",
+        "committedColumn": "Account(1)",
+        "canonicalUse": "actorId; the values are synthetic",
+        "schemaSourceIds": ["fix44-execution-report"]
+      }
+    ],
+    "takenFromSpecifications": [
+      "FIX field names and numeric tags",
+      "FIX Side code values 1 and 2",
+      "FIX UTC timestamp spelling YYYYMMDD-HH:MM:SS",
+      "FIX Price and Qty decimal notation",
+      "KRX regular-session hours 09:00–15:30 Korea Standard Time",
+      "KRX KOSPI tick size of KRW 50 for prices from KRW 10,000 through less than KRW 50,000"
+    ],
+    "inventedProperties": [
+      "instrument and issuer identity",
+      "account and actor identities",
+      "execution and order identity",
+      "timestamps within the cited session",
+      "side sequence",
+      "prices on the cited tick ladder",
+      "quantities and volumes"
+    ],
+    "actorDimension": "Per-execution actor attribution is not published in any domestic source; no domestic source recorded by this repository supplies it. The RAPID_PRICE_LIFT rule treats actorId as an eligibility condition, so the participant dimension must remain synthetic and may not be inferred from a public market feed.",
+    "absentFields": []
+  },
+  "validation": {
+    "command": "pnpm exec vitest run packages/replay-engine/src/published-execution-not-supported.test.ts packages/scenarios/src/source-artifacts.test.ts",
+    "environment": "Node 22.18.0, pnpm 10.33.2, Vitest 5.0.1, Linux x86_64",
+    "capturedOutput": {
+      "expectedResult": "NOT_SUPPORTED",
+      "nonComparableEventCount": 0,
+      "canonicalDatasetHash": "35785e7ed4c4ce9b1b4c7cb390d4c2117b9509ac5eefb951b82803bed2e2f33d",
+      "approvedManifestHash": "fa3b1b1136ac8f925dfd2b76caae9657e36845f7ad7a3c5f83c2cad944e8a094",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5",
+      "failingGates": [
+        {
+          "gate": "ACTOR_CONCENTRATION",
+          "observedValue": "1658.1892",
+          "threshold": "8000",
+          "passed": false
+        },
+        {
+          "gate": "REMOVAL_SENSITIVITY",
+          "observedValue": "0.0000",
+          "threshold": "100",
+          "passed": false
+        }
+      ]
+    },
+    "limitations": "This deterministic synthetic case measures neither mapping quality nor detection performance. NOT_SUPPORTED reports only failure of ACTOR_CONCENTRATION and REMOVAL_SENSITIVITY under the authored RAPID_PRICE_LIFT 1.1 thresholds; the other three gates pass. Thresholds are illustrative case configuration, not FIX or KRX rules. Actor removal is a mechanical sensitivity comparison, not a causal conclusion. No market evidence or legal or investment conclusion is claimed."
+  }
+}

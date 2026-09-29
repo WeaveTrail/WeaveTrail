@@ -62,7 +62,7 @@ const koreanChecks = [
   ],
   [
     "사례 분류",
-    "완전한 증거가 모든 기준을 통과하는 사례는 SUPPORTED, 충분하지만 참여자가 분산된 증거가 집중도 기준을 통과하지 못하는 사례는 NOT_SUPPORTED, 구간 내 체결 네 건에 매수·매도 구분이 없어 모두 비교 불가인 사례는 INCONCLUSIVE에 고정합니다.",
+    "공개 스키마 기반 합성 사례로 SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE에 도달합니다. FIX 참여자 분산 사례는 비교 가능한 체결 여섯 건으로 ACTOR_CONCENTRATION과 REMOVAL_SENSITIVITY를 통과하지 못하고 나머지 세 기준은 통과합니다.",
   ],
   [
     "증거 완전성",

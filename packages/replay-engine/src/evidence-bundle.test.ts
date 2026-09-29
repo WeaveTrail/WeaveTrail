@@ -15,6 +15,7 @@ import {
   concentratedBuyDialectBProposal,
   publishedExecutionConflictProposal,
   publishedExecutionManifest,
+  publishedExecutionBroadManifest,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 import { describe, expect, it } from "vitest";
@@ -87,6 +88,10 @@ const syntheticProposals: Record<string, SchemaMappingProposal> = {
   ),
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"].mappingProposal,
+  "published-execution-fix44-broad-participation.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-broad-participation.csv"
+    ].mappingProposal,
   "published-execution-fix44-conflicting-evidence.csv":
     publishedExecutionConflictProposal,
   "published-execution-h0stcnt0.jsonl":
@@ -108,7 +113,9 @@ const syntheticEntries: Entry[] = Object.entries(syntheticProposals).map(
         }
       : name === "published-execution-fix44.csv"
         ? { manifest: publishedExecutionManifest }
-        : {}),
+        : name === "published-execution-fix44-broad-participation.csv"
+          ? { manifest: publishedExecutionBroadManifest }
+          : {}),
   }),
 );
 

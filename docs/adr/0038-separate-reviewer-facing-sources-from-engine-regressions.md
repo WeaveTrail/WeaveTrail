@@ -6,6 +6,10 @@ Accepted. Verified by catalog, reviewer-list, result-coverage, and existing
 engine golden tests. [ADR 0039](0039-separate-missing-evidence-abstention-from-conflict-review.md)
 later replaces the `INCONCLUSIVE` fallback with a published-schema-grounded
 case; the selection rule remains unchanged.
+The published FIX broad-participation replacement now reproduces `NOT_SUPPORTED`
+with comparable evidence, so no engine-regression fixture remains in Case Replay.
+Its [provenance](../../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)
+and `published-execution-not-supported.test.ts` pin the failed gates and hashes.
 
 ## Context
 

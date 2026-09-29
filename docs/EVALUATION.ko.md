@@ -17,10 +17,10 @@ pnpm eval
 
 픽스처 전용 명령이 `dist/evaluation/summary.json`과
 `dist/evaluation/run.json`을 만듭니다. 요약은 커밋된
-[원시 요약](../packages/evals/results/financial-replay-v1.json)과 바이트 단위로
+[원시 요약](../packages/evals/results/financial-replay-v2.json)과 바이트 단위로
 일치해야 합니다. 실행 기록에는 실제 Node, pnpm, Vitest, 운영체제, 아키텍처,
 커밋 SHA, 작업 트리 변경 여부, 입력 트리 지문과 요약 체크섬이 담깁니다.
-[캡처한 실행 기록](../packages/evals/results/financial-replay-v1.run.json)이 공개
+[캡처한 실행 기록](../packages/evals/results/financial-replay-v2.run.json)이 공개
 결과의 환경을 기록합니다. 환경과 체크아웃 정보는 안정적인 요약 밖에 두며,
 두 파일이 기계가 읽을 수 있는 공개 결과를 이룹니다. API 자격 증명이나 네트워크
 요청, 설정된 AI 제공자는 사용하지 않습니다.
@@ -43,11 +43,11 @@ Linux x86_64입니다. 직접 작성한 픽스처 건수이며 독립 표본이 
 | ------------------ | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | 항목 연결 제안     | 13개 일치                                                                                   | FIX 4.4 항목 7개, H0STCNT0 항목 6개; 등록된 픽스처 제안을 작성된 기대값과 대조하며 모델 정확도가 아님 |
 | 연결 검토          | FIX 승인 가능, H0STCNT0은 주체 부재 재정의 없이 검토 필요, 픽스처 재정의 후 둘 다 승인 가능 | 공개 스키마 기반 합성 형식 2개이며 사람의 자동 승인을 뜻하지 않음                                     |
-| 합성 규칙 결과     | `SUPPORTED` 2개, `NOT_SUPPORTED` 1개, `INCONCLUSIVE` 1개                                    | `RAPID_PRICE_LIFT/1.1` 사례 4개를 한 번씩 집계하며 실제 시장 해석이 아님                              |
-| 정본 변형          | 유지 40개, 선언한 오류로 거부 24개                                                          | 성공한 합성 기준 사례 8개에 각각 변형 8개; 공개자료와 재현 전 충돌 사례 제외                          |
-| 발견 추적          | 참조 75개 중 75개 연결, 발견 15개                                                           | 발견 간 중복 참조도 각각 집계하며 발견이 없는 사례는 성공 건수에 포함하지 않음                        |
+| 합성 규칙 결과     | `SUPPORTED` 2개, `NOT_SUPPORTED` 2개, `INCONCLUSIVE` 1개                                    | `RAPID_PRICE_LIFT/1.1` 사례 5개를 한 번씩 집계하며 실제 시장 해석이 아님                              |
+| 정본 변형          | 유지 45개, 선언한 오류로 거부 27개                                                          | 성공한 합성 기준 사례 9개에 각각 변형 8개; 공개자료와 재현 전 충돌 사례 제외                          |
+| 발견 추적          | 참조 100개 중 100개 연결, 발견 20개                                                         | 발견 간 중복 참조도 각각 집계하며 발견이 없는 사례는 성공 건수에 포함하지 않음                        |
 | 공개자료 기준 사례 | 정규화 5개                                                                                  | 이용 허락이 기록된 커밋 자료이며 규칙 결과와 변형을 집계하지 않음                                     |
-| 기준 사례 전체     | 14개                                                                                        | 입력 검토가 필요한 충돌 사례를 포함한 합성 소스 9개와 공개 소스 5개                                   |
+| 기준 사례 전체     | 15개                                                                                        | 입력 검토가 필요한 충돌 사례를 포함한 합성 소스 10개와 공개 소스 5개                                  |
 
 항목 연결은 원본 열, 대상 항목, 허용 변환과 검토 상태를 대조합니다. 합성 시각
 변환과 부재 항목 선언도 별도로 검사합니다. 연결 평가는 공개 스키마 기반의
@@ -71,7 +71,11 @@ Linux x86_64입니다. 직접 작성한 픽스처 건수이며 독립 표본이 
 
 기대값을 변경할 때는 평가 정의 또는 공유 시나리오 기대값을 명시적으로 수정하고,
 새로 캡처한 버전 요약을 함께 검토합니다. 일상적인 실행은 기대값을 갱신하지
-않습니다. 이번에 요약 v1을 도입하므로 이전 평가 형식의 마이그레이션은 없습니다.
+않습니다. 평가 v2는 FIX 형태 참여자 분산 기준 사례와 그 변형 검사 8개를
+추가합니다. JSON 형식과 연결·변형 기대값은 바뀌지 않습니다. 이전
+[v1 요약](../packages/evals/results/financial-replay-v1.json)과
+[v1 실행 기록](../packages/evals/results/financial-replay-v1.run.json)은 과거 캡처로
+그대로 보존하며 현재 명령은 v2를 검증합니다.
 설계 근거는 [ADR 0053](adr/0053-publish-fixture-evaluations-with-separate-run-receipts.md)(영문)에
 기록합니다.
 
@@ -143,6 +147,12 @@ pnpm test
   `INSUFFICIENT_ELIGIBLE_EVENTS` 사유의 `INCONCLUSIVE`에 고정됩니다. 같은 시험이
   의미상의 결과 해시, 선언된 순서, 중복 허용, 발견 참조, 데이터셋 해시 독립성도
   함께 고정합니다.
+- **공개 스키마의 지지되지 않음 사례** — 비교 가능한 FIX 형태 체결 여섯 건은
+  `ACTOR_CONCENTRATION`과 `REMOVAL_SENSITIVITY`만 통과하지 못해 `NOT_SUPPORTED`를
+  냅니다. `published-execution-not-supported.test.ts`가 승인된 원본·순서 섞기·중복
+  실행의 기준 관측값, 데이터셋·manifest·결과 해시와 원본 추적을 고정합니다.
+  [출처 기록](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)은
+  정확한 명령, 환경, 작성한 임계값과 한계를 기록합니다.
 - **커밋된 충돌 검토** — 공개 스키마 기반 합성 FIX 원본에서 하나의 `ExecID(17)`가
   서로 다른 `TransactTime(60)`과 `LastPx(31)` 값으로 재사용됩니다. 이 사례는
   `CONFLICTING_SOURCE_IDENTITY` 사유의 `INPUT_REVIEW_REQUIRED`에 고정되며, 규칙
