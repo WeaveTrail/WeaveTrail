@@ -1,6 +1,6 @@
 /** Authored oracles: changing these requires review, never an update flag. */
 export const evaluationCases = {
-  version: "financial-replay-evaluation/1",
+  version: "financial-replay-evaluation/2",
   mutationVersion: "canonical-mutations/1",
   mappingCases: [
     {

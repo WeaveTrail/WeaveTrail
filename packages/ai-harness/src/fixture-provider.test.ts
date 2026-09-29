@@ -8,6 +8,7 @@ import {
   concentratedBuyDialectAMapping,
   concentratedBuyDialectBMapping,
   publishedExecutionSchemaScenario,
+  publishedExecutionBroadScenario,
 } from "@weavetrail/scenarios";
 
 import {
@@ -52,7 +53,10 @@ describe("FixtureSchemaMappingProvider", () => {
   });
 
   it("serves the registered published execution mappings with absent actor review", async () => {
-    for (const scenario of Object.values(publishedExecutionSchemaScenario)) {
+    for (const scenario of [
+      ...Object.values(publishedExecutionSchemaScenario),
+      publishedExecutionBroadScenario,
+    ]) {
       const proposal = await provider.propose({
         sourceArtifactHash: scenario.sourceArtifactHash,
         constants: scenario.constants,
@@ -75,7 +79,10 @@ describe("FixtureSchemaMappingProvider", () => {
   });
 
   it("rejects constants that rebind a registered execution artifact", async () => {
-    for (const scenario of Object.values(publishedExecutionSchemaScenario)) {
+    for (const scenario of [
+      ...Object.values(publishedExecutionSchemaScenario),
+      publishedExecutionBroadScenario,
+    ]) {
       const input = {
         sourceArtifactHash: scenario.sourceArtifactHash,
         constants: scenario.constants,

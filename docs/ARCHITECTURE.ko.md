@@ -16,19 +16,29 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   항목 연결을 명시적으로 가져옵니다
   ([ADR 0023](adr/0023-separate-published-data-ownership.md)(영문)).
 - 카탈로그 메타데이터가 커밋된 원본마다 `REVIEWER_FACING`인지
-  `ENGINE_REGRESSION`인지 표시합니다. 선택 목록에는 근거가 있는 원본과, 세 결과
-  의미를 모두 도달 가능하게 유지하는 데 필요한 픽스처만 올립니다. 완전한 FIX 4.4
-  사례는 `SUPPORTED`, 한쪽이 빠진 FIX 형태 사례는 `INCONCLUSIVE`를 내고,
-  `NOT_SUPPORTED` 자리는 근거가 있는 사례가 그 의미를 재현할 때까지 남습니다. FIX
+  `ENGINE_REGRESSION`인지 표시합니다. 선택 목록에는 검토용 원본만 올립니다. 공개
+  FIX 4.4 스키마 기반 합성 사례가 세 결과 의미를 모두 재현합니다. 완전한 증거는
+  모든 기준을 통과해 `SUPPORTED`, 비교 가능한 참여자 분산 사례는
+  `ACTOR_CONCENTRATION`과 `REMOVAL_SENSITIVITY`를 통과하지 못해 `NOT_SUPPORTED`,
+  매수·매도 구분이 빠진 사례는 `INCONCLUSIVE`를 냅니다. FIX
   형태의 식별자 충돌 원본은 재현 전에 `INPUT_REVIEW_REQUIRED`에서 멈춥니다.
   `/expectations`는 각 사례가 증명하는 정확한 조건, 두 용도, 사례 재현 제공 여부,
   결과 해시 생성 여부를 밝힙니다.
-- 메타데이터는 원본별로 제공하는 변형도 선언합니다. 공개 스키마 합성 원본과 결과
-  픽스처는 `baseline`·`shuffle`·`duplicate`를, 라이선스가 확인된 아티팩트는
+- 메타데이터는 원본별로 제공하는 변형도 선언합니다. 공개 스키마 합성 원본은
+  `baseline`·`shuffle`·`duplicate`를, 라이선스가 확인된 아티팩트는
   `baseline`·`shuffle`만 제공합니다. 어떤 조작도 커밋된 값을 고치거나 참여자나
   판정을 더하지 않습니다
   ([ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md)(영문),
   [ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)(영문)).
+- 재현 시나리오 계약에 `published-execution-fix44-broad-participation.csv`를
+  추가합니다. 시나리오 목록을 전부 열거하는 클라이언트는 이 식별자를 추가해야
+  합니다. 기존 요청·응답 형태, mapping `1.8`, manifest `1.3`, 규칙
+  `RAPID_PRICE_LIFT/1.1`은 호환됩니다.
+  `rapid-price-lift-broad-participation.csv`는 바이트·manifest·해시가 그대로인
+  API와 엔진 회귀 입력으로 남지만 사례 재현 목록에서는 제외합니다. 새 원본의
+  [출처 기록](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)은
+  스키마와 시장 규칙의 근거, 합성 속성, 작성한 임계값, 실패한 기준, 재현 명령과
+  캡처한 해시를 기록합니다.
 - `/why`는 기존 시장감시 흐름에 대해 게이트가 어디에 있는지 밝히고 근거로 삼은 공개
   자료를 인용합니다. 개요는 작동 방식보다 자리를 먼저 말합니다. 시장감시가 후보를
   올리고, WeaveTrail이 범위를 확인해 다시 계산하고 근거를 열고, 사람이 판단합니다.

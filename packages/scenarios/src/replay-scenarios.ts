@@ -11,6 +11,7 @@ import {
 } from "./source-mappings";
 import { rapidPriceLiftScenarios } from "./rapid-price-lift-scenarios";
 import { publishedExecutionSchemaScenario } from "./published-execution-schema";
+import { publishedExecutionBroadScenario } from "./published-execution-not-supported";
 import { syntheticSourceProvenanceByArtifact } from "./source-provenance";
 
 const syntheticScenarios = {
@@ -34,6 +35,8 @@ const syntheticScenarios = {
     rows: concentratedBuyDialectBRows,
   },
   "published-execution-fix44.csv": publishedExecutionSchemaScenario.fix,
+  "published-execution-fix44-broad-participation.csv":
+    publishedExecutionBroadScenario,
   "published-execution-fix44-conflicting-evidence.csv":
     publishedExecutionSchemaScenario.conflict,
   "published-execution-h0stcnt0.jsonl":
@@ -75,8 +78,7 @@ const syntheticMutations = ["baseline", "shuffle", "duplicate"] as const;
 /**
  * Classification stays beside the synthetic registry. Published-schema
  * projections are reviewer-facing. Placeholder sources remain engine regression
- * fixtures; the not-supported fallback stays selectable until a grounded source
- * reproduces that declared result meaning.
+ * fixtures and remain available only through the complete registry.
  */
 export const replayScenarioCatalog = {
   "actorless-multi-instrument-quotes.jsonl": {
@@ -99,6 +101,11 @@ export const replayScenarioCatalog = {
     availableInCaseReplay: true,
     availableMutations: syntheticMutations,
   },
+  "published-execution-fix44-broad-participation.csv": {
+    purpose: "REVIEWER_FACING",
+    availableInCaseReplay: true,
+    availableMutations: syntheticMutations,
+  },
   "published-execution-fix44-conflicting-evidence.csv": {
     purpose: "REVIEWER_FACING",
     availableInCaseReplay: true,
@@ -116,7 +123,7 @@ export const replayScenarioCatalog = {
   },
   "rapid-price-lift-broad-participation.csv": {
     purpose: "ENGINE_REGRESSION",
-    availableInCaseReplay: true,
+    availableInCaseReplay: false,
     availableMutations: syntheticMutations,
   },
   "rapid-price-lift-insufficient-evidence.csv": {
@@ -132,14 +139,16 @@ export const replayScenarioCatalog = {
 export const reviewerFacingReplayScenarios = {
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-broad-participation.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-broad-participation.csv"
+    ],
   "published-execution-fix44-conflicting-evidence.csv":
     committedReplayScenarios[
       "published-execution-fix44-conflicting-evidence.csv"
     ],
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
-  "rapid-price-lift-broad-participation.csv":
-    committedReplayScenarios["rapid-price-lift-broad-participation.csv"],
   "rapid-price-lift-insufficient-evidence.csv":
     committedReplayScenarios["rapid-price-lift-insufficient-evidence.csv"],
 } as const;

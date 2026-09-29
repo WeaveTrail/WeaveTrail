@@ -11,7 +11,7 @@ function declaredResult(source: object) {
 }
 
 describe("replay source audiences", () => {
-  it("includes every grounded source and only justified regression fallbacks", () => {
+  it("includes every grounded source and no engine regression fixture", () => {
     for (const [name, metadata] of Object.entries(replaySourceCatalog)) {
       if (metadata.purpose === "REVIEWER_FACING")
         expect(reviewerFacingReplaySources).toHaveProperty(name);
@@ -20,6 +20,7 @@ describe("replay source audiences", () => {
       const metadata =
         replaySourceCatalog[name as keyof typeof replaySourceCatalog];
       expect(metadata.availableInCaseReplay).toBe(true);
+      expect(metadata.purpose).toBe("REVIEWER_FACING");
     }
   });
 
@@ -61,8 +62,10 @@ describe("replay source audiences", () => {
       .map(([, source]) => declaredResult(source))
       .filter((result) => result !== undefined);
 
-    expect(groundedResults).toEqual(new Set(["SUPPORTED", "INCONCLUSIVE"]));
-    expect(surfacedPlaceholders).toEqual(["NOT_SUPPORTED"]);
+    expect(groundedResults).toEqual(
+      new Set(["SUPPORTED", "NOT_SUPPORTED", "INCONCLUSIVE"]),
+    );
+    expect(surfacedPlaceholders).toEqual([]);
     for (const result of surfacedPlaceholders)
       expect(groundedResults.has(result)).toBe(false);
   });

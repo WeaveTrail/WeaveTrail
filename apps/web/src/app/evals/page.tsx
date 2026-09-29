@@ -291,14 +291,24 @@ export const checks = [
     name: "Scenario classification",
     status: "Implemented",
     detail:
-      "Pin complete evidence that passes every gate to SUPPORTED, sufficient broad-participation evidence that fails concentration gates to NOT_SUPPORTED, and four in-window trades missing side evidence to INCONCLUSIVE with all four non-comparable.",
+      "Published-schema synthetic cases reach SUPPORTED, NOT_SUPPORTED and INCONCLUSIVE. The FIX broad-participation case has six comparable executions, fails ACTOR_CONCENTRATION and REMOVAL_SENSITIVITY, and passes the other three gates.",
     evidence: [
+      {
+        file: "packages/replay-engine/src/published-execution-schema.test.ts",
+        titles: [
+          "pins the artifact, dataset, manifest approval and canonical result hashes",
+        ],
+      },
       {
         file: "packages/replay-engine/src/rapid-price-lift-golden.test.ts",
         titles: [
-          "pins rapid-price-lift-supported.csv to SUPPORTED",
-          "pins rapid-price-lift-broad-participation.csv to NOT_SUPPORTED",
           "pins rapid-price-lift-insufficient-evidence.csv to INCONCLUSIVE",
+        ],
+      },
+      {
+        file: "packages/replay-engine/src/published-execution-not-supported.test.ts",
+        titles: [
+          "pins NOT_SUPPORTED, the failing gates and result hash through approved %s replay",
         ],
       },
     ],

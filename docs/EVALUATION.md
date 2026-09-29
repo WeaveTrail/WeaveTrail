@@ -17,10 +17,10 @@ pnpm eval
 
 This fixture-only command writes `dist/evaluation/summary.json` and
 `dist/evaluation/run.json`. The summary must reproduce the committed
-[raw summary](../packages/evals/results/financial-replay-v1.json) byte for byte.
+[raw summary](../packages/evals/results/financial-replay-v2.json) byte for byte.
 The run receipt records the actual Node, pnpm, Vitest, OS and architecture,
 commit SHA, working-tree state, input-tree fingerprint and summary checksum.
-The [captured receipt](../packages/evals/results/financial-replay-v1.run.json)
+The [captured receipt](../packages/evals/results/financial-replay-v2.run.json)
 records the publication environment. Environment and checkout metadata stay
 outside the stable summary; both files form the machine-readable publication.
 No API credentials, network requests or configured AI providers are used.
@@ -45,11 +45,11 @@ Vitest 5.0.1, Linux x86_64). They count authored fixtures, not independent sampl
 | ------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Mapping proposal fields  | 13 agreements                                                                                                  | 7 FIX 4.4 fields and 6 H0STCNT0 fields; registered fixture proposals against authored targets, not model accuracy      |
 | Mapping review           | FIX accepted; H0STCNT0 requires review without its absent-actor override; both accepted with fixture overrides | 2 schema-grounded synthetic dialects; no automatic human approval is claimed                                           |
-| Synthetic rule results   | 2 `SUPPORTED`, 1 `NOT_SUPPORTED`, 1 `INCONCLUSIVE`                                                             | 4 `RAPID_PRICE_LIFT/1.1` cases, counted once each; no real-market interpretation                                       |
-| Canonical mutations      | 40 preserved, 24 rejected with declared errors                                                                 | 8 mutations on each of 8 successful synthetic baselines; excludes published artifacts and the pre-replay conflict case |
-| Finding traces           | 75 of 75 references resolve; 15 findings                                                                       | Counts reference occurrences, including reuse across findings; zero-finding cases contribute no successful references  |
+| Synthetic rule results   | 2 `SUPPORTED`, 2 `NOT_SUPPORTED`, 1 `INCONCLUSIVE`                                                             | 5 `RAPID_PRICE_LIFT/1.1` cases, counted once each; no real-market interpretation                                       |
+| Canonical mutations      | 45 preserved, 27 rejected with declared errors                                                                 | 8 mutations on each of 9 successful synthetic baselines; excludes published artifacts and the pre-replay conflict case |
+| Finding traces           | 100 of 100 references resolve; 20 findings                                                                     | Counts reference occurrences, including reuse across findings; zero-finding cases contribute no successful references  |
 | Published baselines      | 5 normalized                                                                                                   | Licensed committed artifacts only, with no rule verdict or mutation included                                           |
-| Total baseline inventory | 14 cases                                                                                                       | 9 synthetic sources, including one conflicting source that requires input review, plus 5 published sources             |
+| Total baseline inventory | 15 cases                                                                                                       | 10 synthetic sources, including one conflicting source that requires input review, plus 5 published sources            |
 
 **Evidence completeness** is checked over baseline finding references.
 
@@ -81,8 +81,11 @@ inputs and do not satisfy the human approval requirements for case evidence.
 
 For a reviewed change to a target, edit the case definition or shared scenario
 expectation deliberately and review a newly captured versioned summary alongside
-it; routine evaluation never updates targets. Summary v1 is introduced here,
-so there is no earlier evaluation format to migrate. See
+it; routine evaluation never updates targets. Evaluation v2 adds the FIX-shaped broad-participation baseline and its eight
+mutation probes. The JSON format and mapping/mutation oracles are unchanged.
+The previous [v1 summary](../packages/evals/results/financial-replay-v1.json) and
+[v1 receipt](../packages/evals/results/financial-replay-v1.run.json) remain
+unchanged historical captures; the current command verifies v2. See
 [ADR 0053](adr/0053-publish-fixture-evaluations-with-separate-run-receipts.md).
 
 ## Measurements still planned
@@ -158,6 +161,13 @@ pnpm test
   `INSUFFICIENT_ELIGIBLE_EVENTS`. The same suite pins their semantic result
   hashes, declared orders, duplicate tolerance, finding references, and
   dataset-hash independence.
+- **Published-schema not-supported case** — six FIX-shaped comparable executions
+  fail only `ACTOR_CONCENTRATION` and `REMOVAL_SENSITIVITY`, producing
+  `NOT_SUPPORTED`. Literal gate readings, dataset/manifest/result hashes and
+  source traces are pinned through approved baseline, shuffle and duplicate
+  runs in `published-execution-not-supported.test.ts`. Its
+  [provenance](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)
+  records the exact command, environment, authored thresholds and limitations.
 - **Committed conflict review** — a published-schema synthetic FIX source
   reuses one `ExecID(17)` with different `TransactTime(60)` and `LastPx(31)`
   values. It is pinned to `INPUT_REVIEW_REQUIRED` with

@@ -7,7 +7,7 @@ import { runEvaluation } from "./runner";
 it("reproduces the committed evaluation without updating any oracle", async () => {
   const result = await runEvaluation();
   const committed = readFileSync(
-    new URL("../results/financial-replay-v1.json", import.meta.url),
+    new URL("../results/financial-replay-v2.json", import.meta.url),
     "utf8",
   );
   // Explicit assertion, deliberately independent of Vitest's snapshot update mode.

@@ -9,6 +9,7 @@ import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   publishedExecutionConflictProposal,
+  publishedExecutionBroadProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
   rapidPriceLiftScenarios,
@@ -76,6 +77,7 @@ const registeredProposals = [
   publishedExecutionConflictProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
+  publishedExecutionBroadProposal,
   ...Object.values(rapidPriceLiftScenarios).map(
     ({ mappingProposal }) => mappingProposal,
   ),

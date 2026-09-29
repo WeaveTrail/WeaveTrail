@@ -15,6 +15,8 @@ const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
   "concentrated-buy-dialect-a.csv": "매수 집중 · 형식 A · CSV",
   "concentrated-buy-dialect-b.jsonl": "매수 집중 · 형식 B · JSON Lines",
   "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목 · CSV",
+  "published-execution-fix44-broad-participation.csv":
+    "합성 · 공개 FIX 4.4 참여자가 분산된 사례 · CSV",
   "published-execution-fix44-conflicting-evidence.csv":
     "합성 · 공개 FIX 4.4 체결 식별자 충돌 · CSV",
   "published-execution-h0stcnt0.jsonl":

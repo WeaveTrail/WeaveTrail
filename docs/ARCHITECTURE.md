@@ -17,20 +17,30 @@ code produce a replay result.
   provider imports mappings from both owners
   ([ADR 0023](adr/0023-separate-published-data-ownership.md)).
 - Catalog metadata marks each committed source `REVIEWER_FACING` or
-  `ENGINE_REGRESSION`. The picker lists the grounded set plus only the
-  regression fallbacks needed to keep all three result meanings reachable: the
-  complete FIX 4.4 case returns `SUPPORTED`, the FIX-shaped missing-side case
-  `INCONCLUSIVE`, and a `NOT_SUPPORTED` placeholder stays until a grounded case
-  reproduces that meaning. A FIX-shaped identity-conflict source stops at
+  `ENGINE_REGRESSION`. The picker lists only reviewer-facing sources. Published
+  FIX 4.4 projections reproduce all three result meanings: complete evidence
+  passes every gate for `SUPPORTED`; comparable broad participation fails
+  `ACTOR_CONCENTRATION` and `REMOVAL_SENSITIVITY` for `NOT_SUPPORTED`; missing
+  side evidence yields `INCONCLUSIVE`. A FIX-shaped identity-conflict source stops at
   `INPUT_REVIEW_REQUIRED` before replay. `/expectations` states each case's
   exact condition, both purposes, its Case Replay availability and whether a
   result hash is produced.
 - Metadata also declares the mutations offered per source: published-schema
-  synthetic sources and result fallbacks offer `baseline`, `shuffle` and
+  synthetic sources offer `baseline`, `shuffle` and
   `duplicate`; licensed artifacts offer `baseline` and `shuffle` only. No
   control rewrites a committed value, adds a participant or adds a verdict
   ([ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md),
   [ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)).
+- The replay scenario contract additively accepts
+  `published-execution-fix44-broad-participation.csv`. Clients with exhaustive
+  scenario lists must add that identifier; existing request and response
+  shapes, mapping `1.8`, manifest `1.3` and rule `RAPID_PRICE_LIFT/1.1` stay
+  compatible. `rapid-price-lift-broad-participation.csv` remains an API and
+  engine-regression input with unchanged artifact bytes, manifest and hashes,
+  but is no longer offered in Case Replay. The new source's
+  [provenance](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)
+  records the schema and market-rule basis, synthetic attributes, authored
+  thresholds, failed gates, reproduction command and captured hashes.
 - `/why` states where the gate sits against an existing surveillance pipeline
   and cites its published sources. The overview states position before
   mechanism: surveillance raises a candidate, WeaveTrail confirms the scope,
