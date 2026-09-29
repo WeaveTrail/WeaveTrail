@@ -70,3 +70,11 @@ The [adjacent source record](../packages/published-data/src/sources/real/README.
 links the official distribution, terms, recorded attribution and immutable bytes.
 [Third-party notices](../THIRD_PARTY_NOTICES.md) preserves that credit for source
 distribution. Future acquisitions must recheck permission on their own date.
+
+The [2026-09-29 admission review](PUBLISHED_DATA_ADMISSION.md) found modification
+and redistribution restrictions on the current FSC stock, index and listing
+distributions, and a prior-consent requirement in KRX's legal notice. These
+conditions prevent the proposed new acquisitions from meeting repository
+admission rules. Previous acquisition-time records stay immutable and do not
+authorize fresh retrievals. The review does not determine the retroactive
+application of later terms.

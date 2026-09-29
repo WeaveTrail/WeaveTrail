@@ -29,6 +29,13 @@ only the approved canonical projection normalizes mapped dates and decimals.
 
 ## Source and permission prerequisite
 
+The [2026-09-29 source review](../../../../../docs/PUBLISHED_DATA_ADMISSION.md)
+found KOGL type 4 and an express unauthorized redistribution prohibition on the
+current stock distribution. New acquisition under those terms is blocked.
+The commands below document the existing acquisition mechanism and historical
+capture; a new run requires separately reviewed permission satisfying the
+repository's storage, modification and redistribution requirements.
+
 Use only the Financial Services Commission (금융위원회) distribution
 [금융위원회_주식시세정보](https://www.data.go.kr/data/15094808/openapi.do).
 Its linked [official operation guide](https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003526398&fileDetailSn=1)

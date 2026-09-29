@@ -5,6 +5,11 @@ The admitted records also generate the versioned
 Coverage is derived from receipts, provenance and actual observations; it is
 never widened by editing a display line or a generated file.
 
+The [current source admission review](PUBLISHED_DATA_ADMISSION.md) records the
+2026-09-29 permission blockers for the proposed coverage expansion, the retained
+dataset byte budget and the reproducible scope baseline. Existing acquisition
+records do not authorize new collection under restricted current terms.
+
 Every committed real artifact declares one of two acquisition scopes beside its
 provenance. Both require permission to commit, modify and redistribute the data,
 verified manually on the acquisition date.

@@ -10,6 +10,12 @@ admitted source rows determine its contents. Adding coverage means admitting a
 source under [the acquisition rules](PUBLISHED_ACQUISITION.md), not editing a
 coverage line.
 
+The [2026-09-29 admission review](PUBLISHED_DATA_ADMISSION.md) records why a full
+stock window, longer major-index window, expiry calendar and investor-type
+aggregates are outside this manifest. Current source terms block new admission;
+the review also publishes a reproducible structured-scope baseline and retained
+dataset sizes. It does not widen this coverage.
+
 Each dataset records its identity, acquisition record and scope, declared
 instrument family, publisher fields, inclusive date window, resolution, source
 artifact and original-byte hashes, publisher, origin URL, licence, attribution
