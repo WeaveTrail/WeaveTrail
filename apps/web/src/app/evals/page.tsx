@@ -305,8 +305,38 @@ export const checks = [
   },
   {
     name: "Evidence completeness",
+    status: "Implemented",
+    detail:
+      "Resolve each baseline finding reference through eventId and rawRowHash to a hash-verified committed source row.",
+    evidence: [
+      {
+        file: "packages/evals/src/runner.test.ts",
+        titles: [
+          "rejects unresolved references and source-row tampering",
+          "rejects a changed published trace reference",
+        ],
+      },
+    ],
+  },
+  {
+    name: "Versioned fixture evaluation",
+    status: "Implemented",
+    detail:
+      "Reproduce committed mapping, review, mutation, scenario and trace counts with a separate environment receipt. These authored cases do not estimate accuracy.",
+    evidence: [
+      {
+        file: "packages/evals/src/publication.test.ts",
+        titles: [
+          "reproduces the committed evaluation without updating any oracle",
+        ],
+      },
+    ],
+  },
+  {
+    name: "Independent provider accuracy",
     status: "Planned",
-    detail: "Resolve each finding through eventId to rawRowHash.",
+    detail:
+      "Evaluate configured providers on independent mappings under a separately declared protocol.",
   },
 ] as const satisfies readonly (ImplementedCheck | PlannedCheck)[];
 

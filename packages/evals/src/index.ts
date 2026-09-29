@@ -1,2 +1,2 @@
-// Evaluation cases will be exported from this package as they become runnable.
-export {};
+export { evaluationCases } from "./cases";
+export { runEvaluation } from "./runner";

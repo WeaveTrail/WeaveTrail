@@ -2,33 +2,96 @@
 
 _[한국어](EVALUATION.ko.md)_
 
-WeaveTrail has no published accuracy or performance result yet. This page
-defines the measurements that future results must follow so a target cannot be
-presented as an achieved number.
+WeaveTrail publishes fixture agreement counts, not accuracy or performance
+estimates. The versioned offline runner checks committed source dialects,
+canonical mutations, declared rule results, and finding-to-source traces.
 
-## Versioned evaluation units
+## Versioned fixture evaluation
 
-Each result must record:
+From a clean checkout, install the locked dependencies with
+`pnpm install --frozen-lockfile`, then run:
 
-- dataset and mutation-set version;
-- contract, rule, prompt, model, and engine versions where applicable;
-- exact command and commit SHA;
-- runtime environment;
-- sample count and aggregation method; and
-- known limitations and abstentions.
+```bash
+pnpm eval
+```
 
-## Planned measurements
+This fixture-only command writes `dist/evaluation/summary.json` and
+`dist/evaluation/run.json`. The summary must reproduce the committed
+[raw summary](../packages/evals/results/financial-replay-v1.json) byte for byte.
+The run receipt records the actual Node, pnpm, Vitest, OS and architecture,
+commit SHA, working-tree state, input-tree fingerprint and summary checksum.
+The [captured receipt](../packages/evals/results/financial-replay-v1.run.json)
+records the publication environment. Environment and checkout metadata stay
+outside the stable summary; both files form the machine-readable publication.
+No API credentials, network requests or configured AI providers are used.
 
-| Area                  | Definition                                                                         |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| Mapping accuracy      | Field-level agreement with a committed gold mapping                                |
-| Ambiguity handling    | Incorrect auto-approval rate and `REVIEW_REQUIRED` rate                            |
-| Replay determinism    | Canonical-hash agreement for repeated identical inputs                             |
-| Mutation tolerance    | Result agreement after shuffle, duplicate, time-format, and late-arrival mutations |
-| Scenario result       | Agreement with synthetic expected outcomes                                         |
-| Evidence completeness | Findings whose event references resolve to source-row hashes                       |
-| Investigation effort  | Completion time under a documented comparison protocol                             |
-| Performance           | Runtime and peak memory by event count                                             |
+The [case definitions](../packages/evals/src/cases.ts) declare mapping fields,
+review outcomes and mutation oracles. The [runner](../packages/evals/src/runner.ts)
+reads scenario outcomes from the existing
+[scenario expectations](../apps/web/src/app/expectations/scenario-expectations.json),
+also consumed by the public expectations page. It verifies the actual artifact
+bytes against their declared hashes before comparing parsed and registered rows.
+Changes to expected mappings, review outcomes, mutation oracles, scenario results
+or trace references fail the command. Neither the command nor Vitest's snapshot
+update flag rewrites these targets. Tests exercise those failure paths.
+
+## Captured counts and scope
+
+All counts below come from the linked raw summary and its cases, using `pnpm eval`
+on the environment in the captured receipt (Node 22.18.0, pnpm 10.33.2,
+Vitest 5.0.1, Linux x86_64). They count authored fixtures, not independent samples.
+
+| Check                    | Captured outcome                                                                                               | Denominator and limitation                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Mapping proposal fields  | 13 agreements                                                                                                  | 7 FIX 4.4 fields and 6 H0STCNT0 fields; registered fixture proposals against authored targets, not model accuracy      |
+| Mapping review           | FIX accepted; H0STCNT0 requires review without its absent-actor override; both accepted with fixture overrides | 2 schema-grounded synthetic dialects; no automatic human approval is claimed                                           |
+| Synthetic rule results   | 2 `SUPPORTED`, 1 `NOT_SUPPORTED`, 1 `INCONCLUSIVE`                                                             | 4 `RAPID_PRICE_LIFT/1.1` cases, counted once each; no real-market interpretation                                       |
+| Canonical mutations      | 40 preserved, 24 rejected with declared errors                                                                 | 8 mutations on each of 8 successful synthetic baselines; excludes published artifacts and the pre-replay conflict case |
+| Finding traces           | 75 of 75 references resolve; 15 findings                                                                       | Counts reference occurrences, including reuse across findings; zero-finding cases contribute no successful references  |
+| Published baselines      | 5 normalized                                                                                                   | Licensed committed artifacts only, with no rule verdict or mutation included                                           |
+| Total baseline inventory | 14 cases                                                                                                       | 9 synthetic sources, including one conflicting source that requires input review, plus 5 published sources             |
+
+**Evidence completeness** is checked over baseline finding references.
+
+Mapping agreement compares source column, target field, allowed transform and
+review status. Composite event time and declared absent fields are checked
+separately. The two dialects are schema projections with authored values; they
+replace the placeholder dialect pair for mapping publication. Placeholder
+sources remain explicit engine-regression inputs in the baseline and mutation
+inventory. No agreement count is converted to an accuracy percentage.
+
+The mutation matrix operates on mapped synthetic events. Repeat, reverse order,
+exact duplicate, equivalent UTC timestamp spelling and late arrival preserve
+the canonical result hash, including the rule evaluation where present. Source
+identity conflict, event-ID conflict and mixed sequence presence must raise their
+specific canonicalization errors. A rejection yields no result hash. These are
+engine probes; their generated values and retained fixture coordinates do not
+create source evidence. Trace completeness is measured only over baseline
+findings: every reference must resolve through canonical `eventId` and
+`rawRowHash` to a parsed row of the hash-verified committed artifact. The summary
+retains each distinct event's hash and source coordinate for inspection.
+
+Published sources enter only through the admitted
+[published-data registry](../packages/published-data/src/real-market-data.ts)
+and its adjacent provenance and acquisition records. The runner reads committed
+bytes offline and performs baseline normalization only. It does not collect new
+sources, grant reuse permission, alter actual market values, synthesize actors,
+or evaluate a real-instrument hypothesis. Fixture approvals are generated test
+inputs and do not satisfy the human approval requirements for case evidence.
+
+For a reviewed change to a target, edit the case definition or shared scenario
+expectation deliberately and review a newly captured versioned summary alongside
+it; routine evaluation never updates targets. Summary v1 is introduced here,
+so there is no earlier evaluation format to migrate. See
+[ADR 0053](adr/0053-publish-fixture-evaluations-with-separate-run-receipts.md).
+
+## Measurements still planned
+
+Model accuracy on independent mappings, configured-provider comparisons,
+real-market generalization, investigation effort, latency, memory use and
+evidence-grade shares remain separate measurements. The current counts imply
+none of them. Rules, inputs, provider configuration, sample definitions and
+limitations must accompany any future publication.
 
 ## Foundation checks
 

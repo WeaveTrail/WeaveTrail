@@ -97,6 +97,8 @@ const koreanEvaluationCheckNames = [
   "도달 가능한 매핑 검토",
   "사례 분류",
   "증거 완전성",
+  "버전별 픽스처 평가",
+  "독립 자료의 제공자 정확도",
 ];
 
 /** The `why` argument, whose statements are localized one string at a time. */

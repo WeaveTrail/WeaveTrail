@@ -64,7 +64,18 @@ const koreanChecks = [
     "사례 분류",
     "완전한 증거가 모든 기준을 통과하는 사례는 SUPPORTED, 충분하지만 참여자가 분산된 증거가 집중도 기준을 통과하지 못하는 사례는 NOT_SUPPORTED, 구간 내 체결 네 건에 매수·매도 구분이 없어 모두 비교 불가인 사례는 INCONCLUSIVE에 고정합니다.",
   ],
-  ["증거 완전성", "각 발견을 eventId에서 rawRowHash까지 연결합니다."],
+  [
+    "증거 완전성",
+    "기준 사례의 각 발견 참조를 eventId와 rawRowHash를 거쳐 해시를 검증한 커밋 원본 행까지 연결합니다.",
+  ],
+  [
+    "버전별 픽스처 평가",
+    "커밋된 연결, 검토, 변형, 시나리오와 추적 건수를 재현하고 실행 환경을 별도로 기록합니다. 직접 작성한 사례로 정확도를 추정하지 않습니다.",
+  ],
+  [
+    "독립 자료의 제공자 정확도",
+    "별도로 선언한 측정 방식 아래 독립된 연결 자료로 설정된 제공자를 평가할 계획입니다.",
+  ],
 ] as const;
 
 export function EvalsContent({ checks }: { checks: readonly Check[] }) {
@@ -90,6 +101,15 @@ export function EvalsContent({ checks }: { checks: readonly Check[] }) {
         <h1>{heading[1]}</h1>
         <p>{heading[2]}</p>
         <p>{heading[3]}</p>
+        <p>
+          <a
+            href={`https://github.com/WeaveTrail/WeaveTrail/blob/develop/docs/EVALUATION${ko ? ".ko" : ""}.md`}
+          >
+            {ko
+              ? "평가 정의, 재현 명령, 실행 환경과 원시 결과"
+              : "Evaluation cases, reproduction command, environment and raw results"}
+          </a>
+        </p>
       </div>
       <section className="eval-list">
         {checks.map((check, index) => {
