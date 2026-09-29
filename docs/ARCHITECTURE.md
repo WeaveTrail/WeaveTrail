@@ -567,9 +567,9 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 
 ## Presentation boundary
 
-![The eight public routes: /, /why, /architecture, /methodology, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03](assets/boundary/public-routes.svg)
+![The nine public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03](assets/boundary/public-routes.svg)
 
-- The eight public routes use a product-local snapshot of the paper-first design
+- The nine public routes use a product-local snapshot of the paper-first design
   tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
   revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is
   neither a build nor a runtime dependency.

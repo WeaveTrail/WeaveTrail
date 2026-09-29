@@ -252,8 +252,8 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, and `/methodology`
-from the recorded immutable deployment URL. In `/replay`:
+`/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, `/methodology`, and
+`/data-handling` from the recorded immutable deployment URL. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
    the separate Dialect B review stop, supply its justified reason, and approve

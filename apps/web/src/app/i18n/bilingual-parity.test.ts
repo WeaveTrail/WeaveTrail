@@ -8,6 +8,7 @@ import { architectureCopy } from "../architecture/architecture-content";
 import { whyCopy } from "../why/why-view";
 import { guideStepsByLanguage, guideUi } from "../replay/case-replay";
 import { methodologyCopy } from "../methodology/methodology-content";
+import { dataHandlingCopy } from "../data-handling/data-handling-content";
 import { evidenceGradeCopy } from "../evidence-grade";
 import { checks } from "../evals/page";
 import { howItWorksSvg } from "../architecture/how-it-works-diagram";
@@ -73,6 +74,7 @@ const surfaces: readonly (readonly [
   ["guide UI", guideUi],
   ["guide steps", guideStepsByLanguage],
   ["methodology", methodologyCopy],
+  ["data handling", dataHandlingCopy],
   ["evidence grades", evidenceGradeCopy],
 ];
 

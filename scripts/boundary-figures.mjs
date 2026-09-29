@@ -380,16 +380,17 @@ export const BOUNDARY_FIGURES = [
   {
     id: "public-routes",
     doc: "docs/ARCHITECTURE.md",
-    title: { en: "The eight public routes", ko: "여덟 개의 공개 경로" },
+    title: { en: "The nine public routes", ko: "아홉 개의 공개 경로" },
     // The route names stay in the document text, where the deployment check
     // looks for them, rather than only inside the figure.
     alt: {
-      en: "The eight public routes: /, /why, /architecture, /methodology, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03",
-      ko: "여덟 개의 공개 경로: /, /why, /architecture, /methodology, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03",
+      en: "The nine public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03",
+      ko: "아홉 개의 공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03",
     },
     lines: [
-      "public routes   / · /why · /architecture · /methodology · /evals · /expectations",
-      "                · /replay (guided, working) · /case-2026-09-03",
+      "public routes   / · /why · /architecture · /methodology · /data-handling",
+      "                · /evals · /expectations · /replay (guided, working)",
+      "                · /case-2026-09-03",
     ],
   },
   {
