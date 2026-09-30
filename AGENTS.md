@@ -97,8 +97,9 @@ reproducible check confirms it.
   data, or pasted user text by default.
 - Display-only data never leaves the server as original bytes, rows, series,
   downloads or exports, and never enters the repository, CI artifacts or
-  browser bundles. Screens and shared briefs show only the values a checked
-  claim cites, with the source's required attribution. While any display-only
+  browser bundles. Screens, tables and shared briefs show the values a checked
+  claim cites and values computed from them, with the source's required
+  attribution; no file export of the data. While any display-only
   source is shown, the service carries no advertising or paid features
   ([ADR 0055](docs/adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
 - Never overwrite a stored snapshot. Deduplicate unchanged recollections;

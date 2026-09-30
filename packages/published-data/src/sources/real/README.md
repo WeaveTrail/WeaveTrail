@@ -35,7 +35,8 @@ current stock distribution, so new captures cannot be committed here.
 The commands below document the existing acquisition mechanism and historical
 capture; a new committed run requires separately reviewed permission satisfying
 the repository's storage, modification and redistribution requirements. The
-display-only service tier is the planned home for new captures
+display-only service tier is the planned home for new captures and for the
+existing captures in this directory, which will leave the repository
 ([ADR 0055](../../../../../docs/adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
 
 Use only the Financial Services Commission (금융위원회) distribution

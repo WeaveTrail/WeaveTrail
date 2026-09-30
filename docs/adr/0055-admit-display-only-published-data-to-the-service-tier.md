@@ -46,14 +46,14 @@ Display-only data lives only in the server-side snapshot store:
 - Original bytes and normalized rows never leave the server. The committed
   verification tier, repository history, CI artifacts, build output and
   browser bundles never contain them.
-- A response carries only the values its screen shows for the checked claim,
-  each with the source attribution. No endpoint returns a series, table or
-  bulk rows, and no surface offers a download, CSV, JSON or other export of
+- A response carries the values its screen shows, with the source
+  attribution: values a checked claim cites and values computed from them.
+  Screens, briefs and image cards may lay those values out in tables. No
+  endpoint returns stored rows in bulk or a data series beyond what the screen
+  shows, and no surface offers a download, CSV, JSON or other file export of
   the data.
 - A share link carries snapshot and result references, not data values; the
-  server renders the shared view. A brief or image card may show the result
-  and the specific values the checked claim cites, with attribution, and no
-  table or series.
+  server renders the shared view.
 - WeaveTrail stays free of advertising and paid features while it displays
   display-only data. Any commercial use requires a separate agreement first.
 
@@ -83,6 +83,15 @@ contract carrying the permission grade, an export boundary with tests on every
 response and share surface, attribution on every display, and a persistent
 host for the store and collector ([#206](https://github.com/WeaveTrail/WeaveTrail/issues/206)).
 None of these exist yet; this record changes no runtime behavior, contract,
-hash or golden. Existing committed acquisitions keep their recorded
-acquisition-time permission. The listing, derivatives calendar and investor
-statistics datasets are outside the answered scope and need their own review.
+hash or golden.
+
+The five committed FSC acquisitions (stock, index and derivatives quotations)
+carry the same current restriction on repository redistribution. They move to
+the display-only service tier in planned work, and the repository keeps no
+original market bytes: public checks and goldens that read them switch to
+synthetic data or to the private store. Their recorded acquisition-time
+permissions stay with the moved snapshots. The derivatives quotation
+distribution has the same rights holder and terms text as the answered stock
+and index distributions but was not named in the inquiry, so its display is
+confirmed with the rights holder alongside that move. The listing, derivatives
+calendar and investor statistics datasets need their own review.
