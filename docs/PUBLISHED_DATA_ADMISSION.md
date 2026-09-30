@@ -7,7 +7,8 @@ Review date: **2026-09-29 UTC**. This records source admission prerequisites for
 No new market data, listing, calendar or specification was collected or admitted.
 The [coverage manifest](COVERAGE.md) continues to derive only from the five
 existing acquisitions. The work to admit every listed stock and a longer major
-index window remains blocked by source permissions.
+index window to the committed verification tier remains blocked by source
+permissions.
 
 ## Source review and out-of-coverage inventory
 
@@ -23,21 +24,22 @@ source and linked terms on the day of any proposed acquisition.
 | Derivatives expiry calendar and specifications ([#228](https://github.com/WeaveTrail/WeaveTrail/issues/228)) | KRX [KOSPI 200 futures](https://open.krx.co.kr/contents/OPN/01/01040201/OPN01040201.jsp), [options](https://open.krx.co.kr/contents/OPN/01/01040202/OPN01040202.jsp) and linked [legal notice](https://info.krx.co.kr/contents/KRX/06/06070200/KRX06070200.jsp) | Not admitted. The notice requires prior consent for copying, transmitting, publishing or distributing KRX services. No reviewed grant allowing retained source bytes, modification and redistribution was established. Product rules alone are not an admitted holiday-adjusted calendar. |
 | Published investor-type trading aggregates ([#229](https://github.com/WeaveTrail/WeaveTrail/issues/229))     | KRX [Data Marketplace](https://data.krx.co.kr/contents/MDC/MAIN/main.jspx), investor trading statistics, and the KRX legal notice linked above                                                                                                                  | Not admitted. Published aggregate statistics exist, but no dataset-specific permission satisfying all admission requirements was established. Website availability is not a reuse grant.                                                                                                  |
 
-### Stock and index API handling for a proposed service
+### Boundary of this admission review
 
 The stock and index pages label their data KOGL type 4 and expressly prohibit
-unauthorized third-party provision and redistribution. A noncommercial service
-or source attribution does not remove the stated no-modification restriction.
-The proposed flow would retain responses on a server, normalize them, calculate
-values and display results. The reviewed pages do not establish permission for
-that full flow. Obtain and record a grant covering it before implementation.
-Do not publish original data or files containing it
-through GitHub, user downloads or other exports without an applicable grant.
+unauthorized third-party provision and redistribution. This review evaluates
+public repository admission of original responses and derived files. It does
+not decide the terms for private server use or limited result display; those
+uses must be assessed separately. Do not publish original data or files
+containing it through GitHub, user downloads or other exports without an
+applicable grant.
 
-This review establishes no service-use permission for the stock or index APIs,
-and does not cover the separate listing, derivative and investor datasets.
-Repository and service-snapshot admission require the rights described below.
-No new dataset was admitted and the coverage baseline is unchanged.
+The current service-store contract also requires a reviewed redistribution
+right. That is a project admission rule, not a conclusion that the publisher
+prohibits private storage. An internal-only storage path would need a separate
+contract and export boundary. This review does not implement one or cover the
+separate listing, derivative and investor datasets. No new dataset was admitted
+and the coverage baseline is unchanged.
 
 The FSC stock and index pages show a 2026-09-07 modification date; the listing
 page shows 2026-09-23. Those are page metadata, not proof of when any particular
@@ -52,8 +54,9 @@ retained original bytes, repository commitment, deterministic modification and
 third-party redistribution, with its origin, check time and attribution
 requirements. Paid API access or automatic API approval does not itself
 establish those rights.
-Service-tier storage has the same permission prerequisite under
-[the snapshot rules](SERVICE_SNAPSHOTS.md); it cannot bypass these exclusions.
+The current service tier has the same redistribution prerequisite under
+[the snapshot rules](SERVICE_SNAPSHOTS.md); moving data there without changing
+that contract does not bypass the admission rule.
 
 Candidate sizes are **not measured**: acquisition stopped at the permission
 prerequisite. No absent dataset is classified as too large from an estimate.
