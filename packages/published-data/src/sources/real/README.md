@@ -31,10 +31,12 @@ only the approved canonical projection normalizes mapped dates and decimals.
 
 The [2026-09-29 source review](../../../../../docs/PUBLISHED_DATA_ADMISSION.md)
 found KOGL type 4 and an express unauthorized redistribution prohibition on the
-current stock distribution. New acquisition under those terms is blocked.
+current stock distribution, so new captures cannot be committed here.
 The commands below document the existing acquisition mechanism and historical
-capture; a new run requires separately reviewed permission satisfying the
-repository's storage, modification and redistribution requirements.
+capture; a new committed run requires separately reviewed permission satisfying
+the repository's storage, modification and redistribution requirements. The
+display-only service tier is the planned home for new captures
+([ADR 0055](../../../../../docs/adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
 
 Use only the Financial Services Commission (금융위원회) distribution
 [금융위원회_주식시세정보](https://www.data.go.kr/data/15094808/openapi.do).

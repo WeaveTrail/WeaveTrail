@@ -77,4 +77,7 @@ distributions, and a prior-consent requirement in KRX's legal notice. These
 conditions prevent the proposed new acquisitions from meeting repository
 admission rules. Previous acquisition-time records stay immutable and do not
 authorize fresh retrievals. The review does not determine the retroactive
-application of later terms.
+application of later terms. A 2026-09-30 written answer from the Korea Exchange
+permits the stock and index distributions for attributed, non-commercial
+on-screen display from the service tier, never in this repository
+([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md)).

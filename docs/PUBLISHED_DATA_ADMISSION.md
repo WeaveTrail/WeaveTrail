@@ -6,9 +6,12 @@ Review date: **2026-09-29 UTC**. This records source admission prerequisites for
 [the coverage expansion](https://github.com/WeaveTrail/WeaveTrail/issues/225).
 No new market data, listing, calendar or specification was collected or admitted.
 The [coverage manifest](COVERAGE.md) continues to derive only from the five
-existing acquisitions. The work to admit every listed stock and a longer major
-index window to the committed verification tier remains blocked by source
-permissions.
+existing acquisitions. Every listed stock and a longer major index window
+cannot enter the committed verification tier. A written answer from the rights
+holder, received on 2026-09-30, permits the stock and index distributions in
+the service tier as display-only data
+([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md));
+that path is accepted but not yet implemented.
 
 ## Source review and out-of-coverage inventory
 
@@ -18,8 +21,8 @@ source and linked terms on the day of any proposed acquisition.
 
 | Proposed dataset                                                                                             | Official source reviewed                                                                                                                                                                                                                                        | Admission result and missing prerequisite                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Full KOSPI/KOSDAQ daily stock window ([#226](https://github.com/WeaveTrail/WeaveTrail/issues/226))           | [FSC stock quotations](https://www.data.go.kr/data/15094808/openapi.do), license section and description                                                                                                                                                        | Not admitted. KOGL type 4 prohibits modification; the description also expressly prohibits unauthorized third-party provision and redistribution, irrespective of commercial purpose.                                                                                                     |
-| Longer major KOSPI/KOSDAQ index window ([#227](https://github.com/WeaveTrail/WeaveTrail/issues/227))         | [FSC index quotations](https://www.data.go.kr/data/15094807/openapi.do), license section and description                                                                                                                                                        | Not admitted. The same modification and redistribution restrictions apply.                                                                                                                                                                                                                |
+| Full KOSPI/KOSDAQ daily stock window ([#226](https://github.com/WeaveTrail/WeaveTrail/issues/226))           | [FSC stock quotations](https://www.data.go.kr/data/15094808/openapi.do), license section and description                                                                                                                                                        | Not admitted to the repository. KOGL type 4 and the description prohibit third-party provision and redistribution. Admissible to the service tier as display-only data under the 2026-09-30 answer (planned).                                                                             |
+| Longer major KOSPI/KOSDAQ index window ([#227](https://github.com/WeaveTrail/WeaveTrail/issues/227))         | [FSC index quotations](https://www.data.go.kr/data/15094807/openapi.do), license section and description                                                                                                                                                        | Not admitted to the repository for the same reason. Admissible to the service tier as display-only data under the 2026-09-30 answer (planned).                                                                                                                                            |
 | Full dated stock listing to bind identities                                                                  | [FSC KRX listings](https://www.data.go.kr/data/15094775/openapi.do), license section and description                                                                                                                                                            | Not admitted. The same restrictions apply; existing quote-derived identifiers are still a bounded listing.                                                                                                                                                                                |
 | Derivatives expiry calendar and specifications ([#228](https://github.com/WeaveTrail/WeaveTrail/issues/228)) | KRX [KOSPI 200 futures](https://open.krx.co.kr/contents/OPN/01/01040201/OPN01040201.jsp), [options](https://open.krx.co.kr/contents/OPN/01/01040202/OPN01040202.jsp) and linked [legal notice](https://info.krx.co.kr/contents/KRX/06/06070200/KRX06070200.jsp) | Not admitted. The notice requires prior consent for copying, transmitting, publishing or distributing KRX services. No reviewed grant allowing retained source bytes, modification and redistribution was established. Product rules alone are not an admitted holiday-adjusted calendar. |
 | Published investor-type trading aggregates ([#229](https://github.com/WeaveTrail/WeaveTrail/issues/229))     | KRX [Data Marketplace](https://data.krx.co.kr/contents/MDC/MAIN/main.jspx), investor trading statistics, and the KRX legal notice linked above                                                                                                                  | Not admitted. Published aggregate statistics exist, but no dataset-specific permission satisfying all admission requirements was established. Website availability is not a reuse grant.                                                                                                  |
@@ -27,19 +30,22 @@ source and linked terms on the day of any proposed acquisition.
 ### Boundary of this admission review
 
 The stock and index pages label their data KOGL type 4 and expressly prohibit
-unauthorized third-party provision and redistribution. This review evaluates
-public repository admission of original responses and derived files. It does
-not decide the terms for private server use or limited result display; those
-uses must be assessed separately. Do not publish original data or files
-containing it through GitHub, user downloads or other exports without an
-applicable grant.
+unauthorized third-party provision and redistribution. Original data and files
+containing it are not published through GitHub, user downloads or other
+exports.
 
-The current service-store contract also requires a reviewed redistribution
-right. That is a project admission rule, not a conclusion that the publisher
-prohibits private storage. An internal-only storage path would need a separate
-contract and export boundary. This review does not implement one or cover the
-separate listing, derivative and investor datasets. No new dataset was admitted
-and the coverage baseline is unchanged.
+On 2026-09-30 the Korea Exchange data division answered an inquiry naming both
+distributions. For a non-commercial service without advertising or paid
+features, it permits keeping API responses on a server without a retention
+limit, normalizing them and computing values such as change rates, and showing
+quote values and computed results on web screens credited to
+「한국거래소 통계정보」, with no separate permission or contract. It excludes
+publication on GitHub or elsewhere and user download or export.
+[ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md)
+adds a display-only service-tier grade and export boundary for that use. The
+contract, collector, host and screens are planned; no new dataset was admitted
+yet and the coverage baseline is unchanged. The answer does not cover the
+listing, derivative and investor datasets.
 
 The FSC stock and index pages show a 2026-09-07 modification date; the listing
 page shows 2026-09-23. Those are page metadata, not proof of when any particular
@@ -53,10 +59,8 @@ Reopening repository admission requires a reviewed grant explicitly covering
 retained original bytes, repository commitment, deterministic modification and
 third-party redistribution, with its origin, check time and attribution
 requirements. Paid API access or automatic API approval does not itself
-establish those rights.
-The current service tier has the same redistribution prerequisite under
-[the snapshot rules](SERVICE_SNAPSHOTS.md); moving data there without changing
-that contract does not bypass the admission rule.
+establish those rights. The display-only service tier does not need them, but
+its data never enters the repository.
 
 Candidate sizes are **not measured**: acquisition stopped at the permission
 prerequisite. No absent dataset is classified as too large from an estimate.
@@ -76,7 +80,7 @@ does not enforce a network or acquisition size limit. For a future permitted
 dataset, record the same inventory **before staging it**. A complete series must
 not be truncated to fit. Data exceeding the bound remains out of verification
 coverage pending [service-tier work](https://github.com/WeaveTrail/WeaveTrail/issues/206)
-and a reviewed permission grant. See
+and reviewed service-tier permission. See
 [ADR 0054](adr/0054-record-blocked-data-admission-with-a-coverage-baseline.md).
 
 The following existing payload sizes are captured by the evaluation below;

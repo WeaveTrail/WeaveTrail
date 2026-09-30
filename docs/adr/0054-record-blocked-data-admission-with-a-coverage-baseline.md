@@ -2,7 +2,10 @@
 
 ## Status
 
-Accepted.
+Accepted. Partially superseded by
+[ADR 0055](0055-admit-display-only-published-data-to-the-service-tier.md),
+which admits display-only data to the service tier without a redistribution
+right.
 
 ## Context
 
