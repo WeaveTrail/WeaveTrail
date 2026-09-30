@@ -23,6 +23,19 @@ source and linked terms on the day of any proposed acquisition.
 | Derivatives expiry calendar and specifications ([#228](https://github.com/WeaveTrail/WeaveTrail/issues/228)) | KRX [KOSPI 200 futures](https://open.krx.co.kr/contents/OPN/01/01040201/OPN01040201.jsp), [options](https://open.krx.co.kr/contents/OPN/01/01040202/OPN01040202.jsp) and linked [legal notice](https://info.krx.co.kr/contents/KRX/06/06070200/KRX06070200.jsp) | Not admitted. The notice requires prior consent for copying, transmitting, publishing or distributing KRX services. No reviewed grant allowing retained source bytes, modification and redistribution was established. Product rules alone are not an admitted holiday-adjusted calendar. |
 | Published investor-type trading aggregates ([#229](https://github.com/WeaveTrail/WeaveTrail/issues/229))     | KRX [Data Marketplace](https://data.krx.co.kr/contents/MDC/MAIN/main.jspx), investor trading statistics, and the KRX legal notice linked above                                                                                                                  | Not admitted. Published aggregate statistics exist, but no dataset-specific permission satisfying all admission requirements was established. Website availability is not a reuse grant.                                                                                                  |
 
+### Stock and index API handling for a noncommercial service
+
+For a noncommercial web service without advertising or paid features, keep API
+responses on the server, normalize their format and calculate values as needed.
+Display quotation values and calculated results on web pages with the source
+attribution `한국거래소 통계정보`. Do not publish original data or files containing it
+through GitHub, user downloads or other exports.
+
+This guidance does not cover downloadable documents or images, or the separate
+listing, derivative and investor datasets. Repository and service-snapshot
+admission still require redistribution rights. No new dataset was admitted and
+the coverage baseline is unchanged.
+
 The FSC stock and index pages show a 2026-09-07 modification date; the listing
 page shows 2026-09-23. Those are page metadata, not proof of when any particular
 condition changed. The current review does not rewrite the recorded permission
@@ -31,10 +44,11 @@ later condition applies retroactively. Existing records do not authorize new
 retrievals. See [licensing](LICENSING.md) and
 [instrument resolution](INSTRUMENT_RESOLUTION.md).
 
-Reopening a candidate requires a reviewed grant explicitly covering retained
-original bytes, repository commitment, deterministic modification and third-party
-redistribution, with its origin, check time and attribution requirements. Paid
-API access or automatic API approval does not itself establish those rights.
+Reopening repository admission requires a reviewed grant explicitly covering
+retained original bytes, repository commitment, deterministic modification and
+third-party redistribution, with its origin, check time and attribution
+requirements. Paid API access or automatic API approval does not itself
+establish those rights.
 Service-tier storage has the same permission prerequisite under
 [the snapshot rules](SERVICE_SNAPSHOTS.md); it cannot bypass these exclusions.
 
