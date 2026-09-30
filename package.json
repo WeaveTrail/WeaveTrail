@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "commonmark": "^0.31.2",
     "eslint": "^9.36.0",
     "eslint-config-next": "16.3.5",
