@@ -19,6 +19,11 @@ checks, goldens and hashes
   keep saving their original response files and receipts; their outputs are not
   imported automatically, and this tier retrieves and commits no additional real
   source.
+- Every admitted source currently needs a storage, modification and
+  redistribution right. A display-only grade, for data a rights holder permits
+  to store, compute and show on screen but not to redistribute, is accepted and
+  planned ([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md));
+  the contract does not accept it yet.
 
 ## Identities and immutable records
 

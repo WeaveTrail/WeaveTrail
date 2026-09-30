@@ -27,6 +27,8 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["docs/DAILY_QUOTES.md", "docs/DAILY_QUOTES.ko.md"],
   ["docs/INSTRUMENT_RESOLUTION.md", "docs/INSTRUMENT_RESOLUTION.ko.md"],
   ["docs/DATA_HANDLING.md", "docs/DATA_HANDLING.ko.md"],
+  ["docs/COVERAGE.md", "docs/COVERAGE.ko.md"],
+  ["docs/PUBLISHED_DATA_ADMISSION.md", "docs/PUBLISHED_DATA_ADMISSION.ko.md"],
 ];
 
 const KOREAN_FILES = new Set(PAIRS.map(([, korean]) => korean));

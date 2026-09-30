@@ -1,0 +1,921 @@
+{
+  "schemaVersion": "1.0",
+  "evaluationVersion": "published-claim-coverage-v1",
+  "sampleDefinition": "Twelve authored structured claim scopes, counted once each; includes an explicitly synthetic missing-stock probe. No pasted-text extraction or numeric grading.",
+  "definitionRegistry": "Empty, matching the current public coverage endpoint; no test-only definitions.",
+  "before": {
+    "manifestSha256": "5520f43658ddd95d95b917331ba03afafbed391d9a9cf01628862f242e5c79d5",
+    "datasetIds": [
+      "fsc-kospi-200-baseline-20260701-20260903-v1",
+      "fsc-kospi-200-futures-20260903-v1",
+      "fsc-kospi-index-family-20260903-v1",
+      "fsc-stock-quotes-20260903-v1",
+      "fsc-weekly-options-20260903-v1"
+    ],
+    "sampleCount": "12",
+    "unconfirmableShare": {
+      "numerator": "12",
+      "denominator": "12"
+    },
+    "reasons": {
+      "OUTSIDE_COVERAGE": "7",
+      "RESOLUTION_TOO_COARSE": "1",
+      "DEFINITION_NOT_BOUND": "4"
+    },
+    "cases": [
+      {
+        "id": "admitted-stock-close",
+        "description": "Observed stock close",
+        "request": {
+          "instrumentId": "KR7000020008",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-stock-volume",
+        "description": "Observed stock volume",
+        "request": {
+          "instrumentId": "KR7000020008",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "trqu",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-kospi-close",
+        "description": "Observed KOSPI close",
+        "request": {
+          "instrumentId": "코스피",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-index-baseline",
+        "description": "Observed KOSPI 200 baseline window",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-07-01",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "stock-outside-first-page",
+        "description": "Stock identity absent from the admitted first page",
+        "request": {
+          "instrumentId": "KR7005930003",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-kosdaq-stock",
+        "description": "Synthetic identity probe for an unadmitted KOSDAQ stock",
+        "request": {
+          "instrumentId": "SYNTHETIC-UNADMITTED-KOSDAQ-STOCK",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-kosdaq-index",
+        "description": "KOSDAQ index absent from the admitted family",
+        "request": {
+          "instrumentId": "코스닥",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "index-after-window",
+        "description": "KOSPI date after its admitted day",
+        "request": {
+          "instrumentId": "코스피",
+          "dateWindow": {
+            "start": "2026-09-04",
+            "endInclusive": "2026-09-04"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "index-before-baseline",
+        "description": "KOSPI 200 date before its admitted baseline",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-06-30",
+            "endInclusive": "2026-06-30"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "intraday-index-close",
+        "description": "Intraday request against daily observations",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "INTRADAY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "RESOLUTION_TOO_COARSE"
+      },
+      {
+        "id": "unadmitted-expiry-calendar",
+        "description": "Illustrative expiry-calendar field, not a publisher column",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "expiryDate",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-investor-flow",
+        "description": "Illustrative investor-flow field, not a publisher column",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "foreignNetVolume",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      }
+    ]
+  },
+  "after": {
+    "manifestSha256": "5520f43658ddd95d95b917331ba03afafbed391d9a9cf01628862f242e5c79d5",
+    "datasetIds": [
+      "fsc-kospi-200-baseline-20260701-20260903-v1",
+      "fsc-kospi-200-futures-20260903-v1",
+      "fsc-kospi-index-family-20260903-v1",
+      "fsc-stock-quotes-20260903-v1",
+      "fsc-weekly-options-20260903-v1"
+    ],
+    "sampleCount": "12",
+    "unconfirmableShare": {
+      "numerator": "12",
+      "denominator": "12"
+    },
+    "reasons": {
+      "OUTSIDE_COVERAGE": "7",
+      "RESOLUTION_TOO_COARSE": "1",
+      "DEFINITION_NOT_BOUND": "4"
+    },
+    "cases": [
+      {
+        "id": "admitted-stock-close",
+        "description": "Observed stock close",
+        "request": {
+          "instrumentId": "KR7000020008",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-stock-volume",
+        "description": "Observed stock volume",
+        "request": {
+          "instrumentId": "KR7000020008",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "trqu",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-kospi-close",
+        "description": "Observed KOSPI close",
+        "request": {
+          "instrumentId": "코스피",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "admitted-index-baseline",
+        "description": "Observed KOSPI 200 baseline window",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-07-01",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "DEFINITION_NOT_BOUND"
+      },
+      {
+        "id": "stock-outside-first-page",
+        "description": "Stock identity absent from the admitted first page",
+        "request": {
+          "instrumentId": "KR7005930003",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-kosdaq-stock",
+        "description": "Synthetic identity probe for an unadmitted KOSDAQ stock",
+        "request": {
+          "instrumentId": "SYNTHETIC-UNADMITTED-KOSDAQ-STOCK",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-kosdaq-index",
+        "description": "KOSDAQ index absent from the admitted family",
+        "request": {
+          "instrumentId": "코스닥",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "index-after-window",
+        "description": "KOSPI date after its admitted day",
+        "request": {
+          "instrumentId": "코스피",
+          "dateWindow": {
+            "start": "2026-09-04",
+            "endInclusive": "2026-09-04"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "index-before-baseline",
+        "description": "KOSPI 200 date before its admitted baseline",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-06-30",
+            "endInclusive": "2026-06-30"
+          },
+          "field": "clpr",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "intraday-index-close",
+        "description": "Intraday request against daily observations",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "clpr",
+          "resolution": "INTRADAY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "RESOLUTION_TOO_COARSE"
+      },
+      {
+        "id": "unadmitted-expiry-calendar",
+        "description": "Illustrative expiry-calendar field, not a publisher column",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "expiryDate",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      },
+      {
+        "id": "unadmitted-investor-flow",
+        "description": "Illustrative investor-flow field, not a publisher column",
+        "request": {
+          "instrumentId": "코스피 200",
+          "dateWindow": {
+            "start": "2026-09-03",
+            "endInclusive": "2026-09-03"
+          },
+          "field": "foreignNetVolume",
+          "resolution": "DAILY"
+        },
+        "status": "UNCONFIRMABLE",
+        "reasonCode": "OUTSIDE_COVERAGE"
+      }
+    ]
+  },
+  "datasetByteLimit": "16777216",
+  "payloadDefinition": "Uncompressed original responses, runtime JSONL, generated rows, acquisition receipt, provenance and complete-series declaration; unique paths per dataset. Excludes source code, documentation and Git history/compression.",
+  "payloads": [
+    {
+      "datasetId": "fsc-kospi-200-baseline-20260701-20260903-v1",
+      "rowCount": "45",
+      "publisherTotal": "45",
+      "totalBytes": "84245",
+      "withinByteLimit": true,
+      "files": [
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/acquisition.json",
+          "bytes": "4518",
+          "sha256": "b15f8215c6f2dd13f6e6c73eaf3bd201f17255a4864dfd4a1f973353de879adb"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/declaration.json",
+          "bytes": "698",
+          "sha256": "f417b21282382d87cfdc0ebaf60c51d36257df13e0e233190c245924c52344e6"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/fsc-kospi-200-baseline-20260701-20260903.provenance.json",
+          "bytes": "3119",
+          "sha256": "bc9877afed6b0f0582816a219ffb489815b34cd2ef7d272556dcce2a9401eabf"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/page-1.response",
+          "bytes": "4563",
+          "sha256": "d4c14cc20230fe35da9ab780eccedeac0d630718a365e1a434ae854ee2fc7c08"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/page-2.response",
+          "bytes": "4551",
+          "sha256": "7c6c6180b44ff8c47a8697a3b4fd2ed17de06b6e78ad882007c12e4833d4aff0"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/page-3.response",
+          "bytes": "4569",
+          "sha256": "6e1cc2041a946337a7ea86ac1d457dabf1c03a684e88c7399df9a15a06ba2389"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/page-4.response",
+          "bytes": "4571",
+          "sha256": "bb2cf75fce8c90110ff5a8f6ac376bff256f117f769110969bbcdb016b6af8fe"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/page-5.response",
+          "bytes": "2383",
+          "sha256": "ce32e4ecc5d6ab2b60539cc64fe3a19c1d7366345b035a60349f716f045a1ff8"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/rows.json",
+          "bytes": "35351",
+          "sha256": "071a2b40821c054ed7c5096f22ef2ddc4f28bcb623b5950ddd052e5ebe96a41a"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+          "bytes": "19922",
+          "sha256": "0ba6f0b0eb53876f60dcd51d2e1b480da215afdf6954f00f1fc443c08b8c7ae7"
+        }
+      ]
+    },
+    {
+      "datasetId": "fsc-kospi-200-futures-20260903-v1",
+      "rowCount": "13",
+      "publisherTotal": "13",
+      "totalBytes": "20573",
+      "withinByteLimit": true,
+      "files": [
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/acquisition.json",
+          "bytes": "1995",
+          "sha256": "3f25b21eb7d39fa374a48f16600173fdcfebd60bc799d87774a61c7d36660503"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/declaration.json",
+          "bytes": "650",
+          "sha256": "9037584ac6abc091ca3a5d34e36e720a4c9fbebf69bbd2d5e3e08e5afcb048a3"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/fsc-kospi-200-futures-20260903.provenance.json",
+          "bytes": "2914",
+          "sha256": "cac9300dd5f3097cbe21cd8a4fd413e7ae2cbd4f9d897306307d057234144c90"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/page-1.response",
+          "bytes": "2969",
+          "sha256": "544075d8991ad30a674591bfcfb8515ca3576bba0dc8aba774befd3f0600b91f"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/page-2.response",
+          "bytes": "950",
+          "sha256": "d40f2535df55e9bd58115b7e20109c5d9499949fbf4a6ed78f478d0bd9b89be9"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/rows.json",
+          "bytes": "7462",
+          "sha256": "5843577452c36a5c20986508e1c4dec99510cabfb9567feab75e872838f0f80e"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-200-futures-20260903/source.jsonl",
+          "bytes": "3633",
+          "sha256": "49c1bb4fa3f703993308b0508212534e35133952df9be7c614651202f7626d1f"
+        }
+      ]
+    },
+    {
+      "datasetId": "fsc-kospi-index-family-20260903-v1",
+      "rowCount": "32",
+      "publisherTotal": "32",
+      "totalBytes": "61993",
+      "withinByteLimit": true,
+      "files": [
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/acquisition.json",
+          "bytes": "3366",
+          "sha256": "a76bb5a9d8b3abaf2b0236a9cd8f6c7cfe0dfe9fffceca714aad76774f468d2f"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/declaration.json",
+          "bytes": "608",
+          "sha256": "81a2281cf7a9de12f3b452668fe53fe452a9c42e094283f8d112909e5f7f9a63"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/fsc-kospi-index-family-20260903.provenance.json",
+          "bytes": "3088",
+          "sha256": "f0c78d1cb1975d48595e9ce14fa96d989deabf9b245ae2a65df5602d465937c1"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/page-1.response",
+          "bytes": "4637",
+          "sha256": "5fc0ae58fa921305aaec1574726503a1320c59a9867b0bc650c70411f28b1cc0"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/page-2.response",
+          "bytes": "4692",
+          "sha256": "ce42681e2b18a364ce9af70ba3e2c4322ae0221c81c8d39cc06191586deebe3b"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/page-3.response",
+          "bytes": "4656",
+          "sha256": "01f7127874ec9bf79225c6f86ce99a4d98a7956387e82268ae247fecba111f05"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/page-4.response",
+          "bytes": "1050",
+          "sha256": "c346c1aab75127dce0c6670d2e283089348d7d618fb685166fa92a3271d27d1e"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/rows.json",
+          "bytes": "25433",
+          "sha256": "e4eed68cf0a72098ff1050903b929914ca9468f18e750673daa3effb6b1e9bf0"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-kospi-index-family-20260903/source.jsonl",
+          "bytes": "14463",
+          "sha256": "e74903d528a94ce35bab66e25e8b6a784d1e8679195d6ef99aafcf4b3efdcff4"
+        }
+      ]
+    },
+    {
+      "datasetId": "fsc-stock-quotes-20260903-v1",
+      "rowCount": "40",
+      "publisherTotal": "943",
+      "totalBytes": "50195",
+      "withinByteLimit": true,
+      "files": [
+        {
+          "path": "packages/published-data/src/generated/fsc-stock-quotes-20260903-rows.json",
+          "bytes": "22795",
+          "sha256": "b22afd23826096720fa1251bb3ee8908047bc3d4544075d21ae9fbc6d3809b8c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-stock-quotes-20260903.acquisition.json",
+          "bytes": "189",
+          "sha256": "7d6161a2800fd3e6d98e793aa636d69e306a5f0898cd2403936f5ef0d5df0901"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-stock-quotes-20260903.jsonl",
+          "bytes": "11001",
+          "sha256": "17d3e9462f2322b0227554d76a4c7c4022261b4976727b3884f452d68f075eea"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-stock-quotes-20260903.provenance.json",
+          "bytes": "5065",
+          "sha256": "112c44e5fe26572e4744b8a76523396e4b56fbb3b4fee3092502e27de3268206"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-stock-quotes-20260903.response.json",
+          "bytes": "11145",
+          "sha256": "4ad9c1e1677a19b4fd28b766ae32883d82ec824b66a2687f1533198f18cc5b43"
+        }
+      ]
+    },
+    {
+      "datasetId": "fsc-weekly-options-20260903-v1",
+      "rowCount": "546",
+      "publisherTotal": "546",
+      "totalBytes": "687071",
+      "withinByteLimit": true,
+      "files": [
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/acquisition.json",
+          "bytes": "29311",
+          "sha256": "9573d48e1181eccf9d6230d3313a49f0b32673b690ceaa44489030bca9db03d8"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/declaration.json",
+          "bytes": "643",
+          "sha256": "3e01985d47df6dd5d8cc7ddce0894288d670ef081579e5f2ee8d5e7b79b0bd7b"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/fsc-weekly-options-20260903.provenance.json",
+          "bytes": "2765",
+          "sha256": "15da9770f21cd61bb453d0b1ac84b1d866d17c89986cd3c73a27fa638d5d7313"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-1.response",
+          "bytes": "3053",
+          "sha256": "86fa3c6691143eea87518fc049391e1d4ba7ee1cc6cd9f39c5055ca41e2b4c60"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-10.response",
+          "bytes": "3022",
+          "sha256": "7858579a5e1e752321aa7bb297b805f1fe720fac3f6bf68379eafc0286fd74f1"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-11.response",
+          "bytes": "2984",
+          "sha256": "07269d5c64af0437ad41883b2dfe7898d1ef67b2e5b962d0cf11a90d21d2b462"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-12.response",
+          "bytes": "3014",
+          "sha256": "8cdad28d974140259d4477e37e87967acbc00c7fbe5a0cec11c75858206ec398"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-13.response",
+          "bytes": "3034",
+          "sha256": "5a5cc1d1b342e4e983053db349d2357480a41c108340ce0a053cccb313dfe6d5"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-14.response",
+          "bytes": "3054",
+          "sha256": "d57d3da0c3ff7a7d96187257fa8f240e05b36ee7b3718db9aa7ab0ffb42e0b75"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-15.response",
+          "bytes": "3077",
+          "sha256": "5aa1f34755a435a6d8a870bb9ee7a6749e083677a7dfc3979776d2299d3d904a"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-16.response",
+          "bytes": "3060",
+          "sha256": "5dfe0e6c910d2b355a5044830540dda4bde25433b602833acc6360cec18bf339"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-17.response",
+          "bytes": "3212",
+          "sha256": "7429ecccd94cefed091123cd61b3122a2396b46c80797e32b8ff4e55d0d8f761"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-18.response",
+          "bytes": "3188",
+          "sha256": "f601aa7c4c2e3803da03f9570e9a7c0697c7ce50e30c9edcc78ffa8e4ec18e4e"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-19.response",
+          "bytes": "3182",
+          "sha256": "cdd0a3cd2cc7b96362ed6035998a133833cc679820586ca534607486f7bf229c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-2.response",
+          "bytes": "3062",
+          "sha256": "a490ddd6e25189fa445f36abb89a99923e0f7ba1dd67f1fd14b8180fc1c65a1b"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-20.response",
+          "bytes": "3217",
+          "sha256": "67feabaac0c795c856debe7782d9e3e0eaf37c82e74b190451a2f503a18ace1f"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-21.response",
+          "bytes": "3188",
+          "sha256": "4ae828cdedf056cde900d4efd3b8bd665a3ff1a599faed86c75deecbb55ed4a9"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-22.response",
+          "bytes": "3185",
+          "sha256": "e91973ff884d520123a77c17eaed87dc594721eed41befbee2f357b7d788b3cf"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-23.response",
+          "bytes": "3155",
+          "sha256": "0ada438dc0be03e9fec6a3e66b8399f6f4fa1d044664162f3dc1c9b1942c1ef6"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-24.response",
+          "bytes": "3105",
+          "sha256": "3aeb0437c0f06d55e6f1469e5fbcc530559bf1f3e175677f342340cfc626c902"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-25.response",
+          "bytes": "2960",
+          "sha256": "a3acfaca6490288b75e70df650458ca9423ef0966d530a1cbb7188117b5be774"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-26.response",
+          "bytes": "3101",
+          "sha256": "29ff037c8aeda4a77b00c8baec663e4ca91f0260a0a2750f8dd51967f99950fb"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-27.response",
+          "bytes": "3001",
+          "sha256": "801b810c1dd7dbe3519821ca3d9ff1cbd2842138e59e5f03a50ae31fad617b16"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-28.response",
+          "bytes": "3085",
+          "sha256": "283ea3aaa7005acad3bce35261eaa4452d497c6fa6024b1511ca6b3e116a0bf6"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-29.response",
+          "bytes": "3144",
+          "sha256": "699b02796a8ce555653f525819cca3dfdd49a090f9c928af05cb8ea4bde1a040"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-3.response",
+          "bytes": "3064",
+          "sha256": "b74986ca772e26c987ddb73c5e67df8daf91283608f6a793aed3fbd568d02dfe"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-30.response",
+          "bytes": "3184",
+          "sha256": "e0fc8f7b402b8ea36b2ee5ba7f73f17072a2ad06eaaa381ad70ceb1eb03c2c40"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-31.response",
+          "bytes": "3204",
+          "sha256": "150438821243ca47b3d3356c1d85f7740faf111638579b4439b78835289635b4"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-32.response",
+          "bytes": "3220",
+          "sha256": "ca1412a059f10eafac999b743b9d3974f65eaa6e3c91e6895a5929b2cd022c40"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-33.response",
+          "bytes": "3203",
+          "sha256": "a0581b247eacfb1ce09df51baf7975e395fad54185d0972bc14b5b7ab3a39020"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-34.response",
+          "bytes": "3160",
+          "sha256": "21bf27f649c449dc158d25645afb6443c952c8f54b8e61bc417918ea0b94c941"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-35.response",
+          "bytes": "3109",
+          "sha256": "1bb5d95ae21e71e78c788d8115511f9a87dbfef2537d047e18841cb5ac5a581c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-36.response",
+          "bytes": "3003",
+          "sha256": "484c475389a62a85eb3761951eb1773354af166c1464c916f416db47a5bb9650"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-37.response",
+          "bytes": "3002",
+          "sha256": "6119b8372ef397c9315a88ebe4228729aee823d8ba0a1afef65b2c1736818401"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-38.response",
+          "bytes": "2982",
+          "sha256": "f6228eac99e422d207b11fb3b8c871be2fd27ad58d74b5d279a2adfa4e828628"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-39.response",
+          "bytes": "2994",
+          "sha256": "56f548aac43bec10eadc5f185397ea33808afa787b345d6fa88556bd49680fe9"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-4.response",
+          "bytes": "3127",
+          "sha256": "b7ff521033473d0d2332c7d14f6b7d8b81f609ce6528120d2cf47682b19d701e"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-40.response",
+          "bytes": "3152",
+          "sha256": "33ea3b0b9e03f14f5fdf45b3a1669e7f6e34c92102a31ce40fb0d680721fb31c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-41.response",
+          "bytes": "3192",
+          "sha256": "c3b2f714aaf61560b0cf774e773a3ed235d8a574d7ef27995707c1a62769053a"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-42.response",
+          "bytes": "3214",
+          "sha256": "198b2e018fb2876718e72b5abb2275c2e6f4c5124584fab1d172b55d6812b71a"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-43.response",
+          "bytes": "3202",
+          "sha256": "f07e5a41c73bf3a95d2a97187c3f806e58de4822443426cd107402be4e3aff7a"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-44.response",
+          "bytes": "3148",
+          "sha256": "82f1aec40fb08b95971908951c935f5d53a663fd4d87e4707c62af87d3c6a049"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-45.response",
+          "bytes": "3161",
+          "sha256": "1aa447e9fbb20d185ae5abb44729991b6729435e3f1f4e21dc8e3b4503e4ade1"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-46.response",
+          "bytes": "3030",
+          "sha256": "873ed785c92a61fd24a69c65fab9cb6222702c4b2870b3dd2e1b58599381beb8"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-47.response",
+          "bytes": "3112",
+          "sha256": "2d6297441c02b55228b7a203011dd61329bf53cada8cb04678a5611f9917de1c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-48.response",
+          "bytes": "3081",
+          "sha256": "a716283c846abf1ea58a680057a919910cf63b6ede7cd20410c34f811df27f34"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-49.response",
+          "bytes": "3059",
+          "sha256": "46dfa2f18d32cdca2b07b84b6302ae36b57cb42d0f46e1562200e6131f83e996"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-5.response",
+          "bytes": "3203",
+          "sha256": "9f99e72e2a2a3b310166cb0ce167b2a005380a1fd7370f6238607000560889d9"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-50.response",
+          "bytes": "3024",
+          "sha256": "a287a2e073915078b59d6744f4d05708c4cdb835efc0d73a17d3f4297188750d"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-51.response",
+          "bytes": "3053",
+          "sha256": "90aa13093908bd3f061e6f72f40cc39670b623da3da406c8cd23af1dae57855b"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-52.response",
+          "bytes": "2981",
+          "sha256": "a5a282f1f782651d05ff364484353e9b45d9b5bbefd41817e58383816975768f"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-53.response",
+          "bytes": "3033",
+          "sha256": "d388f3ae08c414027b2f240fea6fd91b4264dd6b75daf6ab7a97ff39f65ae232"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-54.response",
+          "bytes": "3045",
+          "sha256": "f28dfccf666b0128695732ee9faccbd138ca1f3671b7f6787ad82ed855af7454"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-55.response",
+          "bytes": "1887",
+          "sha256": "ec57fd6c4c363fe37ef2af2fa1df2911e89db8ce4e2e29d492f1e1a5925aba4c"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-6.response",
+          "bytes": "3232",
+          "sha256": "c0558a56450dfe43dd185c416abe8dba4a94b432c0f3cea27557c2bf2c08a766"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-7.response",
+          "bytes": "3197",
+          "sha256": "caa771659266826dfd10b86485c0408453a981397cdd858bbf40bfa15b6bfc40"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-8.response",
+          "bytes": "3156",
+          "sha256": "392be06da47e911d5a8873747430aa3f71b7d2ee723d3af1242ae8219eda32b4"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/page-9.response",
+          "bytes": "3094",
+          "sha256": "f3a14bc7415d399739ca135a4da1f64b81cef6e4db17bbfabcf047d9a0a6c015"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/rows.json",
+          "bytes": "323136",
+          "sha256": "0189991741e1f7474624484fb1258e5278f21a7ca66844f17018e70c82c0f3b6"
+        },
+        {
+          "path": "packages/published-data/src/sources/real/fsc-weekly-options-20260903/source.jsonl",
+          "bytes": "161625",
+          "sha256": "70ee7e832071df6b8e3f073cb148275aa123402c53e078ba8e6b0909487d0458"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No new dataset was admitted: current candidate permissions do not authorize modification and redistribution.",
+    "UNCONFIRMABLE here is coverage preflight status, not a sentence evidence grade or an estimate for circulating messages.",
+    "Covered daily scopes still lack bound numeric definitions; READY would not establish COMPUTED or DIFFERS.",
+    "Baseline datasets are frozen by identity; the committed summary pins both manifest hashes and every payload file hash.",
+    "The payload budget is a repository admission review bound, not a transport limit or storage/redistribution permission."
+  ]
+}

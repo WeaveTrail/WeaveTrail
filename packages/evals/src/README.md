@@ -19,3 +19,13 @@ There is no configured-provider path or third-party evaluation runtime.
 
 Evaluation v2 adds the published FIX broad-participation source. The v1 summary
 and receipt remain unchanged historical captures; the current command checks v2.
+
+`pnpm eval:coverage` runs a separate coverage preflight evaluation from
+[authored scopes](claim-coverage-cases.ts), using the empty definition registry
+currently bound by the public coverage endpoint. Its
+[runner](claim-coverage-runner.ts) verifies every admitted acquisition offline,
+compares before/after manifests and inventories retained file bytes and hashes.
+The [captured summary](../results/published-claim-coverage-v1.json) and
+[receipt](../results/published-claim-coverage-v1.run.json) record this measurement.
+It assigns no numeric sentence grade. See the
+[admission review](../../../docs/PUBLISHED_DATA_ADMISSION.md) for exclusions and limits.

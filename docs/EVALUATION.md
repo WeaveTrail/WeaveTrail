@@ -90,6 +90,13 @@ unchanged historical captures; the current command verifies v2. See
 
 ## Measurements still planned
 
+A separate [published-scope evaluation](PUBLISHED_DATA_ADMISSION.md#reproducible-scope-evaluation)
+is reproducible with `pnpm eval:coverage`. It pins authored structured requests,
+before/after coverage hashes and retained dataset payload sizes. It measures
+preflight reasons with the current empty numeric-definition registry, and assigns
+no sentence evidence grade. The source admission review states the permission
+blockers and why its captured before/after counts show no improvement.
+
 Model accuracy on independent mappings, configured-provider comparisons,
 real-market generalization, investigation effort, latency, memory use and
 evidence-grade shares remain separate measurements. The current counts imply

@@ -37,6 +37,8 @@ jobs:
         run: pnpm test
       - name: Reproduce fixture evaluation and run receipt
         run: pnpm eval
+      - name: Reproduce published coverage evaluation and run receipt
+        run: pnpm eval:coverage
       - name: Verify ADR index
         run: pnpm adr:check
       - name: Test ADR index validator

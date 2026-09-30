@@ -90,9 +90,18 @@ reproducible check confirms it.
   time, reuse terms and attribution; service snapshots also require a collector
   version. Existing committed acquisition records retain their versioned shape.
 - Admit a public source to the service store only after recording reviewed
-  permission to store, modify and redistribute it. Never store credentials,
-  personal/customer/production trading data, or pasted user text by default.
-  A public URL alone is not permission evidence.
+  permission to store and modify it, and either to redistribute it or to
+  display it on screen (display-only). A dated written answer from the rights
+  holder naming the distribution and use is permission evidence; a public URL
+  alone is not. Never store credentials, personal/customer/production trading
+  data, or pasted user text by default.
+- Display-only data never leaves the server as original bytes, rows, series,
+  downloads or exports, and never enters the repository, CI artifacts or
+  browser bundles. Screens, tables and shared briefs show the values a checked
+  claim cites and values computed from them, with the source's required
+  attribution; no file export of the data. While any display-only
+  source is shown, the service carries no advertising or paid features
+  ([ADR 0055](docs/adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
 - Never overwrite a stored snapshot. Deduplicate unchanged recollections;
   link changed content to the preceding snapshot for that exact origin URL.
   Derived service events, conclusions and checks carry immutable snapshot
