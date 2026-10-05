@@ -1,145 +1,35 @@
 # 데이터 처리
 
-영문 문서가 기준입니다. [English](DATA_HANDLING.md)
+[English](DATA_HANDLING.md) · 영문 문서가 기준입니다.
 
-조직의 보안·준법 검토자가 직원의 확인 기능 사용 여부를 판단할 때 읽는
-문서입니다. 브라우저 밖으로 나가는 내용, 서버가 그 내용으로 하는 일, 보관
-대상과 기간, 그리고 각 설명을 강제하는 파일이나 테스트를 적습니다. 이 저장소
-리비전의 동작을 설명하며, 예정된 작업은 예정이라고 표시하고 이슈를 연결합니다.
-`/data-handling` 페이지는 배포를 빌드한 커밋(`VERCEL_GIT_COMMIT_SHA`) 기준으로
-파일을 연결하고, 그 값이 없는 빌드에서는 `develop` 기준으로 연결합니다
-([`source-revision.ts`](../apps/web/src/app/data-handling/source-revision.ts)).
+## 현재 경로
 
-## 한눈에 보기
+붙여넣은 글을 확인하는 경로는 없습니다. 공개 범위와 실제 사례 API는 철회되어 404를 반환합니다. `/api/mapping`은 등록된 합성 시나리오 이름을 받고 `/api/replay`는 그 원본 행, 승인과 선택적인 조사 범위를 받습니다.
 
-| 질문                                  | 현재                                                                                                                                                           | 강제하는 곳                                                                                                                                             |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 붙여넣은 글을 확인하는 경로가 있나요? | 없습니다. 유일한 확인 경로는 자유 텍스트가 아닌 정해진 형식의 범위를 받습니다. 붙여넣은 글 확인은 예정입니다.                                                  | [`api/check/coverage/route.ts`](../apps/web/src/app/api/check/coverage/route.ts), [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts) |
-| 그 밖에 입력한 글을 보내나요?         | 보냅니다. 사례 따라가기와 사건 사례의 승인은 검토자 참조와 확인 이유를 보냅니다. 검증에만 쓰며, 응답으로 돌려주거나 저장·기록하지 않고 모델에 보내지 않습니다. | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 확인 요청을 저장하나요?               | 저장하지 않습니다. 확인 경로는 저장소, 데이터베이스, 파일 쓰기 모듈을 불러오지 않습니다.                                                                       | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 확인 요청을 로그에 남기나요?          | 애플리케이션은 확인 요청의 내용을 로그, 출력 스트림, 파일에 쓰지 않습니다. 호스팅 플랫폼 로그는 코드 밖에 있습니다.                                            | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 확인할 때 모델을 호출하나요?          | 호출하지 않습니다. 확인 경로는 모델 공급자를 불러오지 않고 외부로 요청을 보내지 않습니다.                                                                      | [`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)                                                          |
-| 브라우저는 데이터를 어디로 보내나요?  | 사이트 코드는 요청 데이터를 이 사이트의 `/api/` 경로로만 보냅니다. 출처나 근거 링크를 누르면 여느 링크처럼 그 사이트가 열립니다.                               | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)                                                                    |
-| 브라우저에는 무엇이 남나요?           | 언어 선택 하나를 `localStorage` 키 하나에 남깁니다.                                                                                                            | [`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts), [`language.tsx`](../apps/web/src/app/i18n/language.tsx)           |
-| 모델 인증 정보가 드러나나요?          | 드러나지 않습니다. 공급자 설정은 서버에서만 읽고, 운영 환경에는 설정하지 않습니다.                                                                             | [`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts), [배포 환경](DEPLOYMENT.md#environment)(영문)                |
-| 공유 링크는 값을 어떻게 담나요?       | 예정: URL 조각에 담고, 붙여넣은 글을 서버에 저장하지 않습니다.                                                                                                 | [#159](https://github.com/WeaveTrail/WeaveTrail/issues/159), [ADR 0050](adr/0050-place-planned-service-components.md)(영문)                             |
+`/data-handling` 화면은 배포된 커밋의 검증 파일을 연결하며 커밋 정보가 없으면 `develop`을 연결합니다.
 
-## 확인 요청의 경로
+## 검토자 입력
 
-`/api/check` 아래 경로는 `POST /api/check/coverage` 하나입니다. 이 경로는 정규
-종목 식별자, 시작일과 종료일, 공시 항목, 시간 해상도, 그리고 선택 사항인 정의
-식별자와 버전으로 이루어진 JSON 범위를 받습니다.
-[경로 코드](../apps/web/src/app/api/check/coverage/route.ts)는 추가 항목을
-허용하지 않는 [`ClaimCoverageRequestSchema`](../packages/contracts/src/coverage.ts)로
-요청을 검증합니다. 정의되지 않은 항목, 형식이 잘못된 본문, 잘못된 JSON은 더
-처리하지 않고 HTTP 422 `REVIEW_REQUIRED`로 돌려보냅니다
-([`route.test.ts`](../apps/web/src/app/api/check/coverage/route.test.ts)).
+사례 재현은 검토자 참조와 빈칸이 아닌 확인 사유를 `/api/replay`로 보냅니다. 승인 기록은 정확한 제안에 묶기 위해 검증하고 응답에는 참조나 사유를 반환하지 않습니다. 픽스처 모드에서 승인 요청을 저장하거나 로그로 남기거나 모델에 보내지 않습니다. 개인정보나 기밀을 입력하지 마세요.
 
-검증을 통과한 범위는
-[`checkPublishedClaimCoverage`](../apps/web/src/lib/published-claim-coverage.ts)가
-서버 시작 시 커밋된 파일에서 만든 조회 범위와 비교합니다
-([공개 데이터 조회 범위](COVERAGE.ko.md)). 응답에는 검증된 범위, 정해진 사유
-코드, 한국어와 영어 설명이 담겨 요청자에게만 돌아갑니다. 외부에서 가져오는
-자료는 없고, 응답을 보내면 요청은 버려집니다. 아직 이 경로를 호출하는 화면은
-없습니다.
+보존 테스트는 유지된 합성 재현 경로에 승인·거부 표식 요청을 보내고 저장·로그 쓰기가 있는지 의존 코드도 검사합니다.
 
-붙여넣은 글에서 주장을 뽑아내는 기능
-([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155)), 그 주장을 확인하는
-기능([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)), 문장별 확인
-화면([#157](https://github.com/WeaveTrail/WeaveTrail/issues/157))은 예정입니다.
+## 제공자와 브라우저 경계
 
-## 승인에 담기는 검토자 입력
+설정된 제공자를 호출할 수 있는 경로는 항목 연결 경로뿐입니다. 허용된 합성 원본 필드와 표본만 보내며 검토자 입력은 보내지 않습니다. 운영 배포는 자격 증명 없이 픽스처 모드를 사용하고 자격 증명과 원시 추적은 서버에만 남습니다.
 
-사람이 입력한 글을 받는 경로가 이미 두 개 있습니다. 다만 두 경로 모두 그 글을
-확인 대상으로 다루지는 않습니다. 사례 따라가기(`/replay`)는 검토가 필요한 데이터
-항목마다 확인 이유를 받고, 이를 검토자 참조와 함께 승인 기록에 담아
-`POST /api/replay`로 보냅니다. 사건 페이지(`/case-2026-09-03`)는 조사 범위 승인
-기록을 `POST /api/case-2026-09-03`으로 보냅니다. 두 경로는
-[`ApprovalRecordSchema`](../packages/contracts/src/approval-record.ts)로 기록을
-검증합니다. 이 스키마는 확인 이유가 비어 있지 않은지만 보고 내용은 제한하지
-않습니다. 경로는 기록을 실행 승인 여부를 판단하는 데에만 쓰며, 응답에는 확인
-이유나 검토자 참조를 담지 않습니다.
+브라우저 코드는 사이트 API로만 요청을 보내고 `localStorage`에는 언어 선택만 보존합니다. 외부 스크립트를 추가하지 않으며 외부 자료 링크는 페이지 이동입니다. 호스팅 요청 로그는 호스팅 계정에서 관리합니다.
 
-[`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)는 검토자 참조와 모든 확인 이유에 표식 문자열을 넣은 승인 기록을 두
-경로에 보냅니다. 승인되는 요청과 거부되는 요청을 모두 보냅니다. 그 표식이 콘솔,
-표준 출력, 표준 오류에 나타나거나, 파일 쓰기가 일어나거나, 외부로 요청을 보내면
-실패합니다. 두 경로의 모듈이 서비스 스냅샷 저장소를 불러오거나 로그·스트림·파일
-쓰기 호출을 담고 있어도 실패합니다. 이 입력란에는 개인 정보나 기밀을 적지
-마십시오.
+## 저장과 예정 기능
 
-## 모델 호출
-
-확인 경로는 모델을 호출하지 않습니다.
-[`pasted-text-retention.test.ts`](../apps/web/src/app/api/check/pasted-text-retention.test.ts)는
-확인 경로가 불러오는 모든 모듈을 따라가며, 모델 공급자 패키지에서 온 모듈이
-있거나 `fetch`를 호출하는 코드가 있으면 실패합니다. 실행 중에 외부로 요청을
-보내도 실패합니다.
-
-모델을 호출할 수 있는 경로는 직접 조작 화면의 데이터 항목 연결에 쓰는
-`/api/mapping` 하나입니다. 이 경로는 커밋된 합성 자료의 이름만 받고, 사람이
-입력한 글은 받지 않습니다
-([`mapping/route.ts`](../apps/web/src/app/api/mapping/route.ts),
-[`mapping-provider.ts`](../apps/web/src/lib/mapping-provider.ts)). 운영 환경은
-공급자 설정 없이 픽스처 모드로 동작하며, 설정 값은 브라우저로 전달되지
-않습니다([배포 환경](DEPLOYMENT.md#environment)(영문),
-[`provider-client-boundary.test.ts`](../apps/web/src/app/provider-client-boundary.test.ts)).
-
-예정된 붙여넣은 글 분석은 글을 모델 공급자에게 보냅니다
-([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155)). 그 한도는
-[#231](https://github.com/WeaveTrail/WeaveTrail/issues/231)에서 정합니다. 확인
-경로에 공급자를 추가하면 허용 목록과 이 문서를 함께 고치기 전까지 보관 금지
-테스트가 실패합니다.
-
-## 보관
-
-확인 요청은 어디에도 보관하지 않습니다. 배포 환경에는 데이터베이스가
-없습니다([배포](DEPLOYMENT.md)(영문)). 보관 금지 테스트는 확인 경로가 서비스
-스냅샷 저장소, 파일 시스템, 또는 허용 목록(`zod`, `node:crypto`, `next/server`)
-밖의 패키지를 불러오면 실패하고, 경로를 호출하는 동안 파일에 쓰기가 일어나도
-실패합니다. 서비스 스냅샷 저장소는 승인된 공개 자료의 원본만 담고, 배포 환경에
-연결되어 있지 않으며, 확인 경로에서 닿지 않습니다
-([서비스 스냅샷](SERVICE_SNAPSHOTS.md)(영문)).
-
-브라우저에서는 사이트 코드가 언어 선택만 `localStorage` 키
-`weavetrail.language`에 저장합니다
-([`browser-data-boundary.test.ts`](../apps/web/src/app/browser-data-boundary.test.ts)).
-
-## 로그
-
-확인 경로에는 `console`, `process.stdout`, `process.stderr` 호출이나 파일 쓰기가
-없고, 경로가 불러오는 모듈에도 없습니다. 보관 금지 테스트는 소스에서 이를
-확인한 뒤, 자유 텍스트 항목마다 표식 문자열을 넣어 각 경로를 호출하고 그
-표식이 콘솔, 표준 출력, 표준 오류에 나타나면 실패합니다.
-
-호스팅 플랫폼은 경로, 상태 코드, 시각 같은 요청 기록을 호스팅 계정의 보관
-설정에 따라 따로 남깁니다. 그 설정은 이 저장소에 없으므로 소스로는 확인할 수
-없습니다. 운영자에게 확인하십시오.
-
-## 공유 링크
-
-예정입니다. 공유 링크는 값을 URL 조각(`#` 뒤 부분)에 담습니다. 브라우저는 이
-부분을 서버로 보내지 않습니다. 링크를 다시 열면 고정된 커밋 아티팩트를 찾아
-엔진을 다시 실행하며, 붙여넣은 글은 서버에 저장하지 않습니다
-([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159),
-[ADR 0050](adr/0050-place-planned-service-components.md)(영문)). 수집한 서비스
-스냅샷의 공유는 별도의 예정 작업입니다
-([#237](https://github.com/WeaveTrail/WeaveTrail/issues/237)).
+웹 앱은 데이터베이스나 서비스 스냅샷 저장소를 사용하지 않습니다. 서버 진행 상태는 요청 하나 동안, 브라우저 승인과 결과는 화면이 유지되는 동안만 존재합니다. 새로고침하면 승인 전 상태로 시작합니다. 글 추출·검사, 영속 감사 이력과 공유는 예정 기능이며 철회된 자료를 위한 비공개 저장소나 호스트를 추가하지 않습니다.
 
 ## 검증
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/api/check/coverage/route.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts
+pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts
 ```
-
-`apps/web/src/app/api/check` 아래 경로 파일은 모두 자동으로 찾습니다. 새 확인
-경로는 표식 요청을 추가하기 전까지 보관 금지 테스트를 통과하지 못합니다. 승인
-경로 두 개는 같은 테스트에 따로 적혀 있습니다.
 
 ## 한계
 
-- 테스트는 이 저장소의 소스를 확인합니다. 배포된 빌드나 호스팅 계정은 확인하지
-  않습니다.
-- 소스 확인은 호출 형태를 대조합니다. 그 형태를 피하는 간접 호출은 테스트가
-  보내는 표식 요청에 한해 실행 중에만 잡힙니다.
-- 사용자와 사이트 사이의 브라우저 확장, 네트워크, 기기는 사이트 코드 밖에
-  있습니다.
+이 검증은 저장소 코드와 픽스처 요청을 다루며 호스팅 계정 설정, 브라우저 확장이나 신원 인증을 검증하지 않습니다. 감사 수준의 사람 신원을 입증하지 않습니다.

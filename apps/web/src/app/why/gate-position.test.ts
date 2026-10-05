@@ -120,7 +120,7 @@ describe("where the gate sits", () => {
     }
     // The guideline the readme already records is among them.
     const readme = readFileSync(resolve(process.cwd(), "README.md"), "utf8");
-    const guideline = sources.find(({ id }) => id === "fsc-ai-guideline");
+    const guideline = sources.find(({ id }) => id === "financial-ai-guideline");
     expect(guideline).toBeDefined();
     expect(readme).toContain(guideline!.href);
   });
@@ -222,7 +222,7 @@ describe("where the gate sits", () => {
 
   it("keeps the page to the product argument", () => {
     const rendered = markup().toLowerCase();
-    for (const outOfScope of [
+    for (const excludedText of [
       "hackathon",
       "competition",
       "submission",
@@ -230,7 +230,7 @@ describe("where the gate sits", () => {
       "curriculum vitae",
       "biography",
     ])
-      expect(rendered, outOfScope).not.toContain(outOfScope);
+      expect(rendered, excludedText).not.toContain(excludedText);
   });
 
   it("serves the diagram the repository documentation commits, byte for byte", () => {

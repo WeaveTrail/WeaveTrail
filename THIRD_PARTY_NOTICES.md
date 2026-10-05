@@ -89,22 +89,8 @@ records intact; each figure names the source files and their digests.
 `scripts/embed-figure-fonts.py` reproduces them
 ([ADR 0047](docs/adr/0047-embed-the-site-faces-in-the-korean-figures.md)).
 
-## Published FSC stock quotations
+## Withdrawn quotation sources
 
-Source: Financial Services Commission (금융위원회),
-[금융위원회_주식시세정보](https://www.data.go.kr/data/15094808/openapi.do),
-via data.go.kr. The committed window is 2026-09-03 KOSPI daily quotes, first
-40 rows of 943, retrieved at 2026-09-05T19:31:27.527Z (2026-09-06 KST).
-
-Recorded permission: **이용허락범위 제한 없음**, checked at
-2026-09-05T19:31:14Z with the linked
-[portal policy](https://www.data.go.kr/ugs/selectPortalPolicyView.do). Neither
-the distribution label nor that policy states a specific attribution condition
-for this unrestricted distribution. This provider credit is retained under
-repository provenance rules; no CC0, Apache-2.0 or KOGL type is inferred.
-
-The original response and deterministically derived JSONL retain every returned
-item and column. These data bytes are not relicensed under the code licence.
-See the [source README and adjacent provenance](packages/published-data/src/sources/real/README.md)
-for the request, checksums, derivation and interpretation. No participant, trade
-side or pattern verdict is attached to a real instrument.
+Earlier FSC sources have been removed because publisher terms do not permit
+GitHub redistribution or user downloads. Historical evaluation captures remain
+labelled with withdrawn sources. See [ADR 0056](docs/adr/0056-withdraw-the-committed-real-data-tier.md).

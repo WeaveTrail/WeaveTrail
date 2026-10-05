@@ -16,7 +16,6 @@
     "@weavetrail/contracts": "workspace:*"
   },
   "devDependencies": {
-    "@weavetrail/published-data": "workspace:*",
     "@weavetrail/scenarios": "workspace:*"
   }
 }

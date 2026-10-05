@@ -21,9 +21,9 @@ export const methodologyCopy: Readonly<Record<Language, MethodologyCopy>> = {
     eyebrow: "Methodology & boundaries",
     heading: "A narrow question with explicit abstention.",
     lede: "The implemented synthetic reference cases evaluate a versioned technical pattern. They do not produce legal or causal conclusions.",
-    quotesLabel: "Published daily quotations",
+    quotesLabel: "Daily quote contracts",
     quotes: [
-      "Working mode also normalizes a published daily quotation source after explicit mapping review. The source panel records its provider, trading date, licence and attribution.",
+      "Current replay sources are synthetic. Daily quote contracts remain supported by synthetic tests; no published quotation source is offered.",
       "Daily quotes have no participant identities, execution side or individual execution time. Mapping approval can produce a normalization hash; case approval is unavailable and no pattern verdict is produced. A date anchor and aggregate volume do not establish individual executions.",
     ],
     resultsLabel: "Closed result vocabulary",
@@ -65,9 +65,9 @@ export const methodologyCopy: Readonly<Record<Language, MethodologyCopy>> = {
     eyebrow: "방법론과 경계",
     heading: "답할 범위와 답하지 않을 범위를 분명히 합니다.",
     lede: "합성 기준 사례로 버전이 붙은 패턴을 평가합니다. 법적·인과적 결론은 내리지 않습니다.",
-    quotesLabel: "공개 일별 시세",
+    quotesLabel: "일별 시세 계약",
     quotes: [
-      "직접 조작 화면에서는 검토를 마친 공개 일별 시세도 정리합니다. 자료 패널에 제공자와 거래일, 이용 허가, 출처를 함께 적어 둡니다.",
+      "현재 재현 자료는 합성 자료입니다. 일별 시세 계약은 합성 테스트로 유지하며 공개 시세 자료는 제공하지 않습니다.",
       "일별 시세에는 참여자, 체결 방향, 개별 시각이 없습니다. 정규화 해시는 만들 수 있지만 패턴은 평가하지 않습니다.",
     ],
     resultsLabel: "결과 표현 방식",

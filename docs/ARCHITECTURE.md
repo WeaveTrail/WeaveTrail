@@ -10,12 +10,7 @@ code produce a replay result.
 
 ![Entry routes and where each one leads](assets/boundary/entry-routes.svg)
 
-- `packages/scenarios` owns synthetic datasets and controlled mutations;
-  `packages/published-data` owns licensed artifacts, provenance, offline
-  generated rows and declared mappings, and depends only on contracts. The
-  scenario package neither imports nor re-exports published data; the fixture
-  provider imports mappings from both owners
-  ([ADR 0023](adr/0023-separate-published-data-ownership.md)).
+- `packages/scenarios` owns the current synthetic datasets, provenance and controlled mutations. The fixture provider registers only synthetic mappings.
 - Catalog metadata marks each committed source `REVIEWER_FACING` or
   `ENGINE_REGRESSION`. The picker lists only reviewer-facing sources. Published
   FIX 4.4 projections reproduce all three result meanings: complete evidence
@@ -27,7 +22,7 @@ code produce a replay result.
   result hash is produced.
 - Metadata also declares the mutations offered per source: published-schema
   synthetic sources offer `baseline`, `shuffle` and
-  `duplicate`; licensed artifacts offer `baseline` and `shuffle` only. No
+  `duplicate`. No
   control rewrites a committed value, adds a participant or adds a verdict
   ([ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md),
   [ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)).
@@ -93,24 +88,6 @@ The surface is Korean and English on one set of routes
   ([ADR 0043](adr/0043-draw-the-layer-diagram-from-localized-copy.md)).
 - `/replay` replaced the former `/lab` route with no alias.
 
-`/case-2026-09-03` is one authored case over committed licensed artifacts: the
-KOSPI 200 index and its front-month future on 2026-09-03 against the index's own
-2026-07-01 baseline.
-
-![The published case: approve the scope, then the rule runs on the server](assets/boundary/published-case-run.svg)
-
-- Nothing the rule produces is shown before the rule runs, and nothing it
-  returns is written into page copy: the closing statement is read from the
-  returned analysis. The hash is pinned by
-  `apps/web/src/lib/published-case.test.ts` and the engine suite.
-- The two published field mappings were reviewed once; their approval records,
-  approved artifact hash included, are committed in
-  `apps/web/src/lib/published-case-approvals.ts`. The page says the mappings
-  were reviewed rather than presenting them as the visitor's approval.
-- Chart geometry parses every published price to a scaled integer and divides
-  once, on the unitless fraction a coordinate needs, so no price reaches binary
-  floating point.
-
 ## Component chain
 
 ![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly and verification recompute the declaration from source bytes. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
@@ -119,17 +96,6 @@ A `PLANNED` component is specified in contracts and tracked as open work rather
 than implemented today.
 
 ## Trust boundaries
-
-### Published acquisition scopes
-
-![The two acquisition scopes and what they never reach](assets/boundary/acquisition-scopes.svg)
-
-- The manual collector uses reviewed publisher adapters; automated transport
-  tests stay synthetic. Offline admission compares committed rows, generated
-  source coordinates and requests against the original page bytes.
-- See [Published acquisition scopes](PUBLISHED_ACQUISITION.md),
-  [ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
-  [ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md).
 
 ### Layer boundaries
 
@@ -333,10 +299,7 @@ automatic converter.
 
 ![What Evidence Bundle 1.3 declares, assembles and verifies](assets/boundary/bundle-13.svg)
 
-- The original FSC daily quotation artifact ends at `MAPPING_APPROVED` with a
-  result hash but no evaluation or case manifest. Bundle `1.3` is defined for
-  Event 1.1–1.3, Proposal 1.4–1.8 and Manifest 1.3; hashing converts none of
-  them and invents no missing field.
+- Synthetic daily normalization stops at `MAPPING_APPROVED` with no case or evaluation. Bundle `1.3` retains Event 1.1–1.3, Proposal 1.4–1.8 and Manifest 1.3; hashing converts none of them and invents no missing field.
 - Verification authenticates neither reviewer nor source publisher and is not a
   signature.
 - Normative preimages, the exhaustive protected/excluded field table, canonical
@@ -354,7 +317,6 @@ automatic converter.
 | `canonical-kernel`    | Canonical JSON, hashing, ordering and scaled-decimal arithmetic | Rules, thresholds, hypotheses or verdicts |
 | `replay-engine`       | Event normalization, rules, evidence hash scopes and assembly   | Free-form inference or legal conclusions  |
 | `scenarios`           | Synthetic datasets and controlled mutations                     | Published, production, or personal data   |
-| `published-data`      | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data    |
 | `service-store`       | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input     |
 | `instrument-resolver` | Exact dated names/codes, match reasons and supplied quote links | Acquisition, guessed aliases or verdicts  |
 | `evals`               | Versioned cases and measurement aggregation                     | Undocumented benchmark claims             |
@@ -386,8 +348,8 @@ added:
    the workspace manifest closure and follows source imports, re-exports and
    type imports, including the engine's independence from storage.
 4. **Fixtures are test inputs of the decision tier, not runtime inputs.**
-   `scenarios` and `published-data` are development dependencies of
-   `replay-engine`; `ai-harness` depends on both at runtime because fixture mode
+   `scenarios` is a development dependency of
+   `replay-engine`; `ai-harness` depends on it at runtime because fixture mode
    is a shipped provider, not a test aid.
 
 The kernel has its own workspace package so the manifest graph expresses the
@@ -402,14 +364,12 @@ golden expectations are unchanged. See
 
 ### Planned service component placement
 
-The following placement is accepted. Instrument resolution is implemented at
-tier 2 with direct dependencies on `contracts` and `canonical-kernel`; web at
-tier 3 composes it with the tier 1 published listing. Its exported API, coverage
-and checks are documented in [instrument resolution](INSTRUMENT_RESOLUTION.md)
-and [ADR 0051](adr/0051-resolve-exact-dated-identifiers-over-admitted-listings.md).
-Published coverage and a manifest-only claim scope preflight are also implemented;
-their API, limits and checks are documented in [published coverage](COVERAGE.md)
-and [ADR 0052](adr/0052-derive-claim-resolution-scope-from-acquisitions.md).
+Instrument resolution remains implemented over caller-supplied listings,
+verified with synthetic inputs. The quotation-derived listing, web adapter and
+published coverage endpoints have been withdrawn. Generic claim scope checking
+still accepts a caller-supplied manifest. See [instrument resolution](INSTRUMENT_RESOLUTION.md)
+and [claim scope contracts](COVERAGE.md).
+
 Full claim extraction, computation and the remaining components and packages
 below remain **planned**.
 [ADR 0050](adr/0050-place-planned-service-components.md) records their placement
@@ -427,16 +387,16 @@ records only existing edges.
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
 | Collectors ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | New `packages/collectors`: shared collector lifecycle, publisher adapters, retries and collection health                | 3                                | `contracts` through collection/snapshot-only entries, `canonical-kernel`, `service-store` |
 | Document parser ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                      | New `packages/document-parser`: HTML/PDF/HWP text, tables and original coordinates                                      | 2                                | `contracts`, `canonical-kernel`                                                           |
-| Event structurer ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                     | Existing `packages/ai-harness`: event proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
+| Event structurer ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                     | Existing `packages/ai-harness`: event proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`                     |
 | Instrument resolver ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                  | Implemented `packages/instrument-resolver`: exact dated names/codes and candidates over a supplied listing              | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Conclusion definitions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                               | Existing `packages/replay-engine`: versioned descriptive definitions and calculations                                   | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                      | Existing `packages/replay-engine`: statistics module reusing conclusion definitions; scheduling and cards in `apps/web` | 2 (calculation), 4 (application) | Engine: `contracts`, `canonical-kernel`; application: the tier 4 list below               |
-| Claim extraction ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                     | Existing `packages/ai-harness`: claim proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`, `published-data`   |
+| Claim extraction ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                     | Existing `packages/ai-harness`: claim proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`                     |
 | Claim check ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                          | Existing `packages/replay-engine`: recomputation, declared rounding and evidence grading over supplied inputs           | 2                                | `contracts`, `canonical-kernel`                                                           |
 | Brief and share link ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                 | Existing `apps/web`: adoption, bilingual brief/PDF rendering, fragment encoding and reopening                           | 4                                | The tier 4 list below                                                                     |
 
 The tier 4 application's allowed direct runtime workspace imports are
-`contracts`, `canonical-kernel`, `scenarios`, `published-data`, `service-store`,
+`contracts`, `canonical-kernel`, `scenarios`, `service-store`,
 `collectors`, `document-parser`, `ai-harness`, `instrument-resolver` and
 `replay-engine`. Server orchestration, scheduling and presentation are modules
 of `apps/web`; storage, collectors, provider credentials and raw model traces
@@ -577,9 +537,9 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 
 ## Presentation boundary
 
-![The nine public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03](assets/boundary/public-routes.svg)
+![The public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations and /replay in guided and working modes](assets/boundary/public-routes.svg)
 
-- The nine public routes use a product-local snapshot of the paper-first design
+- The eight public routes use a product-local snapshot of the paper-first design
   tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
   revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is
   neither a build nor a runtime dependency.
@@ -591,10 +551,7 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 
 ![How daily-quote versions coexist in the registry](assets/boundary/daily-quote-versions.svg)
 
-The published FSC KOSPI daily artifact is registered without a case manifest.
-See [daily quote normalization](DAILY_QUOTES.md),
-[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
-[ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md).
+The contracts and rules are verified with synthetic inputs; the real-data composition has been withdrawn.
 
 ![The separate cross-market entry point and what it accepts](assets/boundary/cross-market-entry.svg)
 
@@ -625,9 +582,8 @@ CROSS_MARKET_SESSION_REVERSAL `1.1` is a further opt-in rule contract
   source records.
 - Every committed replay source has one machine-readable provenance record.
   Synthetic records identify the exact fixture bytes and distinguish
-  repository-authored fields from published-schema projections; licensed real
-  records retain acquisition, permission and derivation details.
+  repository-authored fields from published-schema projections; the committed real-data tier has been withdrawn.
 - The display-only `SourceProvenance.recordUrl` reaches that record from the
   source-row panel and stays outside approval and canonical hash inputs. The
-  coverage and hash check spans both source-owning packages
+  coverage and hash check spans the synthetic source-owning package
   ([ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md)).

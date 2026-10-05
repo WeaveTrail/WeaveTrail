@@ -7,10 +7,7 @@ import {
   requiresMappingOverride,
   type ApprovalRecord,
 } from "@weavetrail/contracts";
-import {
-  fscStockQuotesProposal,
-  publishedReplaySources,
-} from "@weavetrail/published-data";
+import { committedReplayScenarios } from "@weavetrail/scenarios";
 import {
   mappingApprovalArtifact,
   sha256Canonical,
@@ -18,14 +15,12 @@ import {
 import ts from "typescript";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { publishedCaseProposal } from "../../../lib/published-case";
-
 /**
  * docs/DATA_HANDLING.md states that a check route keeps nothing a person sends
  * it: no store, no file, no log line and no outbound call. These checks enforce
  * that for every route under `api/check`, including ones added later, which
- * fail here until they are given a canary request below. The two approval
- * routes take a reviewer reference and reasons a person types, so the run-time
+ * fail here until they are given a canary request below. The remaining approval
+ * route takes a reviewer reference and reasons a person types, so the run-time
  * check covers them too.
  */
 
@@ -42,44 +37,11 @@ type CanaryRequest = { readonly body: unknown; readonly status: number };
  * least one that passes validation (HTTP 200), so the run-time check covers
  * the processing path and not only the refusal.
  */
-const canaryRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
-  "coverage/route.ts": [
-    {
-      body: {
-        instrumentId: CANARY,
-        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-        field: CANARY,
-        resolution: "DAILY",
-        definition: { definitionId: CANARY, version: "1.0.0" },
-      },
-      status: 200,
-    },
-    {
-      // Covered scope, so the definition lookup runs as well.
-      body: {
-        instrumentId: "코스피 200",
-        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-        field: "clpr",
-        resolution: "DAILY",
-        definition: { definitionId: CANARY, version: "1.0.0" },
-      },
-      status: 200,
-    },
-    {
-      body: {
-        instrumentId: "코스피 200",
-        dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-        field: "clpr",
-        resolution: "DAILY",
-        note: CANARY,
-      },
-      status: 422,
-    },
-    { body: CANARY, status: 422 },
-  ],
-};
+const canaryRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {};
 
-const quotesKey = "real/fsc-stock-quotes-20260903.jsonl";
+const quotesKey = "actorless-multi-instrument-quotes.jsonl";
+const source = committedReplayScenarios[quotesKey];
+const proposal = source.mappingProposal;
 
 /** An approval whose reviewer reference and every reason carry the canary. */
 const canaryApproval = (
@@ -100,10 +62,10 @@ const approvalRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
       body: {
         scenario: quotesKey,
         mutation: "baseline",
-        rows: publishedReplaySources[quotesKey].rows,
+        rows: source.rows,
         mappingApproval: canaryApproval(
-          sha256Canonical(mappingApprovalArtifact(fscStockQuotesProposal)),
-          fscStockQuotesProposal.fields.flatMap((field, index) =>
+          sha256Canonical(mappingApprovalArtifact(proposal)),
+          proposal.fields.flatMap((field, index) =>
             requiresMappingOverride(field)
               ? [{ fieldPath: `fields.${index}`, reason: CANARY }]
               : [],
@@ -116,26 +78,8 @@ const approvalRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
       body: {
         scenario: quotesKey,
         mutation: "baseline",
-        rows: publishedReplaySources[quotesKey].rows,
+        rows: source.rows,
         mappingApproval: canaryApproval("f".repeat(64), [
-          { fieldPath: "fields.0", reason: CANARY },
-        ]),
-      },
-      status: 422,
-    },
-  ],
-  "../case-2026-09-03/route.ts": [
-    {
-      body: {
-        approval: canaryApproval(
-          sha256Canonical(publishedCaseProposal().proposal),
-        ),
-      },
-      status: 200,
-    },
-    {
-      body: {
-        approval: canaryApproval("f".repeat(64), [
           { fieldPath: "fields.0", reason: CANARY },
         ]),
       },
@@ -283,6 +227,7 @@ async function expectNothingRetained(
     expect(response.status).toBe(status);
     // A processed check returns its validated scope to the caller only.
     if (echoesScope && status === 200) expect(response.text).toContain(CANARY);
+    if (!echoesScope) expect(response.text).not.toContain(CANARY);
   }
 
   for (const spy of [...logs, ...streams])
@@ -295,7 +240,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("check routes keep no pasted text", () => {
   it("finds the check routes and a canary request for each", () => {
-    expect(routes.length).toBeGreaterThan(0);
+    expect(routes).toEqual([]);
     expect(routes.filter((route) => !(route in canaryRequests))).toEqual([]);
   });
 

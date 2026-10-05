@@ -8,7 +8,7 @@ const REPOSITORY = "https://github.com/WeaveTrail/WeaveTrail";
 
 /** The files each statement points to, resolved at the served revision. */
 const evidencePaths = {
-  route: "apps/web/src/app/api/check/coverage/route.ts",
+  route: "apps/web/src/app/api/replay/route.ts",
   retention: "apps/web/src/app/api/check/pasted-text-retention.test.ts",
   browser: "apps/web/src/app/browser-data-boundary.test.ts",
   provider: "apps/web/src/app/provider-client-boundary.test.ts",
@@ -55,21 +55,21 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "Pasted text",
         answer:
-          "No route checks pasted text yet. The one check route takes a structured scope, and a malformed or extended request is refused.",
+          "No route checks pasted text. Case Replay accepts only registered synthetic source rows and explicit approvals.",
         planned: false,
         links: [["Check route", "route"]],
       },
       {
         question: "Reviewer text",
         answer:
-          "Case Replay and event-case approvals send a reviewer reference and reasons a person types. They are validated only, never returned, stored, logged or sent to a model. Type nothing personal or confidential there.",
+          "Case Replay approvals send a reviewer reference and reasons a person types. They are validated only, never returned, stored, logged or sent to a model. Type nothing personal or confidential there.",
         planned: false,
         links: [["Retention test", "retention"]],
       },
       {
         question: "Storage",
         answer:
-          "A check request is stored nowhere. A check route loads no database, store or file writer, and the deployment has no database.",
+          "Replay approval requests are not stored. The web app uses no database or snapshot store.",
         planned: false,
         links: [["Retention test", "retention"]],
       },
@@ -83,7 +83,7 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "Model",
         answer:
-          "A check calls no model and sends no outbound request. Provider settings stay on the server, and production runs without them.",
+          "Fixture-mode replay approvals call no model. Configured mapping uses eligible synthetic sources; settings stay on the server and production uses fixture mode.",
         planned: false,
         links: [
           ["Retention test", "retention"],
@@ -121,21 +121,21 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "붙여넣은 글",
         answer:
-          "아직 붙여넣은 글을 확인하는 경로는 없습니다. 유일한 확인 경로는 정해진 형식의 범위만 받고, 형식이 틀리거나 항목이 더 붙은 요청은 거부합니다.",
+          "붙여넣은 글을 확인하는 경로는 없습니다. 사례 재현은 등록된 합성 원본 행과 명시적인 승인만 받습니다.",
         planned: false,
         links: [["확인 경로", "route"]],
       },
       {
         question: "검토자 입력",
         answer:
-          "사례 따라가기와 사건 사례의 승인은 사람이 입력한 검토자 참조와 확인 이유를 보냅니다. 검증에만 쓰며, 응답으로 돌려주거나 저장·기록하거나 모델에 보내지 않습니다. 개인 정보나 기밀은 적지 마십시오.",
+          "사례 따라가기의 승인은 사람이 입력한 검토자 참조와 확인 이유를 보냅니다. 검증에만 쓰며, 응답으로 돌려주거나 저장·기록하거나 모델에 보내지 않습니다. 개인 정보나 기밀은 적지 마십시오.",
         planned: false,
         links: [["보관 금지 테스트", "retention"]],
       },
       {
         question: "저장",
         answer:
-          "확인 요청은 어디에도 저장하지 않습니다. 확인 경로는 데이터베이스, 저장소, 파일 쓰기 모듈을 불러오지 않으며, 배포 환경에는 데이터베이스가 없습니다.",
+          "재현 승인 요청은 저장하지 않습니다. 웹 앱은 데이터베이스나 스냅샷 저장소를 사용하지 않습니다.",
         planned: false,
         links: [["보관 금지 테스트", "retention"]],
       },
@@ -149,7 +149,7 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "모델",
         answer:
-          "확인할 때 모델을 호출하거나 외부로 요청을 보내지 않습니다. 공급자 설정은 서버에만 있고, 운영 환경에는 설정하지 않습니다.",
+          "픽스처 모드 재현 승인은 모델을 호출하지 않습니다. 설정된 항목 연결은 허용된 합성 소스를 쓰며 공급자 설정은 서버에만 남고 운영은 픽스처 모드를 사용합니다.",
         planned: false,
         links: [
           ["보관 금지 테스트", "retention"],

@@ -56,28 +56,9 @@ Before publishing an artifact that embeds dependencies:
 This repository does not yet publish a release artifact, so this checklist is a
 release gate rather than a claim that a binary distribution has been audited.
 
-## Published market-data artifact
+## Withdrawn market-data sources
 
-The FSC KOSPI daily quotes for 2026-09-03 are distributed separately from the
-project's Apache-2.0 code licence. The official data.go.kr distribution
-「금융위원회_주식시세정보」 displayed **이용허락범위 제한 없음** when checked at
-2026-09-05T19:31:14Z (2026-09-06 KST), before acquisition. The linked portal policy
-and distribution label state no specific attribution condition for this
-unrestricted distribution; provider/title/origin credit is retained under the
-repository's provenance rules. No CC0, Apache-2.0 or KOGL type is inferred.
-
-The [adjacent source record](../packages/published-data/src/sources/real/README.md)
-links the official distribution, terms, recorded attribution and immutable bytes.
-[Third-party notices](../THIRD_PARTY_NOTICES.md) preserves that credit for source
-distribution. Future acquisitions must recheck permission on their own date.
-
-The [2026-09-29 admission review](PUBLISHED_DATA_ADMISSION.md) found modification
-and redistribution restrictions on the current FSC stock, index and listing
-distributions, and a prior-consent requirement in KRX's legal notice. These
-conditions prevent the proposed new acquisitions from meeting repository
-admission rules. Previous acquisition-time records stay immutable and do not
-authorize fresh retrievals. The review does not determine the retroactive
-application of later terms. A 2026-09-30 written answer from the Korea Exchange
-permits the stock and index distributions for attributed, non-commercial
-on-screen display from the service tier, never in this repository
-([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
+Earlier FSC quotation sources were removed from the current tree because the
+publisher terms do not permit GitHub redistribution or user downloads. No
+project licence grants rights to those removed sources. Historical evaluation
+captures are labelled with withdrawn sources. See [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).

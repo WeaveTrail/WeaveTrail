@@ -252,7 +252,7 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, `/methodology`, and
+`/replay`, `/expectations`, `/evals`, `/methodology`, and
 `/data-handling` from the recorded immutable deployment URL. In `/replay`:
 
 1. From `/`, select **Walk through a case**. Read the supported source, exercise
@@ -266,11 +266,7 @@ Then use a fresh browser session to load `/`, `/why`, `/architecture`,
    response with `status: REVIEW_REQUIRED`, a review workflow state, and no
    replay or canonical result hash.
 
-In `/case-2026-09-03`, approve the case scope, run the evidence analysis, and
-confirm the returned canonical result hash equals the value pinned by
-`apps/web/src/lib/published-case.test.ts` and the engine suite. Then post to
-`/api/case-2026-09-03` with an approval hash that does not cover that scope and
-confirm an HTTP `422` response carrying a case review code and no result.
+Confirm the withdrawn case and coverage endpoints return HTTP `404`; no navigation entry may link to them.
 
 Inspect every production browser asset, any emitted browser source map, and the
 complete public build log. This is a disclosure check, not a check that provider
@@ -312,9 +308,7 @@ To roll back without rewriting Git history:
 2. Use the deployment's rollback action to restore it as production.
 3. Confirm the production alias points to that immutable deployment URL.
 4. Repeat the eight-route fresh-browser smoke check, both Case Replay checks,
-   and both `/case-2026-09-03` checks: approve the scope and confirm the pinned
-   canonical result hash, then post a non-covering approval to
-   `/api/case-2026-09-03` and confirm the HTTP `422` review response.
+   and the withdrawn endpoint HTTP `404` checks.
 5. Record the restored SHA, immutable deployment URL, time, check results, and
    whether any check was skipped.
 

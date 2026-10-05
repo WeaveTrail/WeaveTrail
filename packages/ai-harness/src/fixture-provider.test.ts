@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { MAPPING_CONFIDENCE_REVIEW_THRESHOLD } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
+import {
+  MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
+  SchemaMappingProposalSchema,
+} from "@weavetrail/contracts";
 import {
   actorlessMultiInstrumentScenario,
   committedReplayScenarios,
@@ -23,6 +25,77 @@ afterEach(() => {
 });
 
 describe("FixtureSchemaMappingProvider", () => {
+  it("serves direct and composite mapping 1.7 over synthetic registry specimens", async () => {
+    for (const composite of [false, true]) {
+      const proposal = SchemaMappingProposalSchema.parse({
+        mappingVersion: "1.7",
+        sourceArtifactHash: syntheticDailyHash,
+        constants: {
+          schemaVersion: "1.3",
+          eventType: "DAILY_QUOTE",
+          datasetId: "synthetic-ohlc-provider",
+          venueId: "SYNTH-X",
+        },
+        ...(composite
+          ? {
+              compositeSourceEventId: {
+                sourceColumns: ["date", "instrument"],
+                transform: "NUL_JOIN",
+                confidence: 1,
+                status: "PROPOSED",
+                evidence: "Synthetic composite identity.",
+              },
+            }
+          : {}),
+        fields: [
+          [
+            "id",
+            composite ? null : "sourceEventId",
+            composite ? null : "IDENTITY",
+          ],
+          ["instrument", "instrumentId", "IDENTITY"],
+          ["date", "eventTime", "YYYYMMDD_TO_KST_DAY_START_ISO"],
+          ["open", "openPrice", "PUBLISHER_DECIMAL_STRING"],
+          ["high", "highPrice", "PUBLISHER_DECIMAL_STRING"],
+          ["low", "lowPrice", "PUBLISHER_DECIMAL_STRING"],
+          ["close", "closePrice", "PUBLISHER_DECIMAL_STRING"],
+          ["change", "netChange", "PUBLISHER_DECIMAL_STRING"],
+          ["volume", "quantity", "DECIMAL_STRING"],
+        ].map(([sourceColumn, targetField, transform]) => ({
+          sourceColumn,
+          targetField,
+          transform,
+          confidence: 1,
+          status: "PROPOSED",
+          evidence: "Synthetic registry specimen.",
+        })),
+      });
+      if (proposal.mappingVersion !== "1.7")
+        throw new Error("Expected mapping 1.7");
+      fixtureMappingsByArtifact.set(syntheticDailyHash, {
+        mappingVersion: proposal.mappingVersion,
+        constants: proposal.constants,
+        fields: new Map(
+          proposal.fields.map(({ sourceColumn, ...field }) => [
+            sourceColumn,
+            field,
+          ]),
+        ),
+        ...(proposal.compositeSourceEventId
+          ? { compositeSourceEventId: proposal.compositeSourceEventId }
+          : {}),
+      });
+      expect(
+        await provider.propose({
+          sourceArtifactHash: syntheticDailyHash,
+          constants: proposal.constants,
+          columns: proposal.fields.map((field) => field.sourceColumn),
+          sampleRows: [],
+        }),
+      ).toEqual(proposal);
+    }
+  });
+
   it("serves the committed actorless multi-instrument mapping", async () => {
     const scenario = actorlessMultiInstrumentScenario;
     const proposal = await provider.propose({
@@ -33,23 +106,6 @@ describe("FixtureSchemaMappingProvider", () => {
     });
 
     expect(proposal).toEqual(scenario.mappingProposal);
-  });
-
-  it("serves direct and composite registered mapping 1.7 proposals", async () => {
-    for (const name of [
-      "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
-      "real/fsc-kospi-200-futures-20260903/source.jsonl",
-    ] as const) {
-      const source = publishedReplaySources[name];
-      const proposal = await provider.propose({
-        sourceArtifactHash: source.sourceArtifactHash,
-        constants: source.constants,
-        columns: [...source.columns],
-        sampleRows: [],
-      });
-      expect(proposal).toEqual(source.mappingProposal);
-      expect(proposal.mappingVersion).toBe("1.7");
-    }
   });
 
   it("serves the registered published execution mappings with absent actor review", async () => {

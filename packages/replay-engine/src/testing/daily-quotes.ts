@@ -65,3 +65,54 @@ export function syntheticDailyQuoteSpecimen(date = "20240229") {
   };
   return { rows, proposal, approval, mapping: approvedSourceMapping(proposal) };
 }
+
+/** Synthetic OHLC fields exercise mapping 1.7 without any publisher values. */
+export function syntheticOhlcQuoteSpecimen() {
+  const values = [
+    {
+      id: "synthetic-ohlc",
+      instrument: "SYNTH-A",
+      date: "20240229",
+      open: "90",
+      high: "110",
+      low: "80",
+      close: "100",
+      change: "10",
+      volume: "2000",
+    },
+  ];
+  const bytes = Buffer.from(
+    values.map((value) => JSON.stringify(value)).join("\n") + "\n",
+  );
+  const hash = sourceArtifactHash(bytes);
+  const rows = parseJsonLinesSourceArtifact(bytes, hash);
+  const proposal = SchemaMappingProposalSchema.parse({
+    mappingVersion: "1.7",
+    sourceArtifactHash: hash,
+    constants: {
+      schemaVersion: "1.3",
+      datasetId: "synthetic-ohlc-v1",
+      venueId: "SYNTH-X",
+      eventType: "DAILY_QUOTE",
+    },
+    fields: [
+      ["id", "sourceEventId", "IDENTITY"],
+      ["instrument", "instrumentId", "IDENTITY"],
+      ["date", "eventTime", "YYYYMMDD_TO_KST_DAY_START_ISO"],
+      ["open", "openPrice", "PUBLISHER_DECIMAL_STRING"],
+      ["high", "highPrice", "PUBLISHER_DECIMAL_STRING"],
+      ["low", "lowPrice", "PUBLISHER_DECIMAL_STRING"],
+      ["close", "closePrice", "PUBLISHER_DECIMAL_STRING"],
+      ["change", "netChange", "PUBLISHER_DECIMAL_STRING"],
+      ["volume", "quantity", "DECIMAL_STRING"],
+    ].map(([sourceColumn, targetField, transform]) => ({
+      sourceColumn,
+      targetField,
+      transform,
+      confidence: 1,
+      evidence: "Synthetic explicit OHLC interpretation.",
+      status: "PROPOSED",
+    })),
+  });
+  return { rows, proposal };
+}

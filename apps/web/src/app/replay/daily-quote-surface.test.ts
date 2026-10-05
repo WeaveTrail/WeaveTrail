@@ -17,68 +17,6 @@ import {
 import { prepareReplayScenarios } from "./prepare-scenarios";
 
 describe("daily quote display plumbing with synthetic specimens", () => {
-  it("renders the registered published source with licence, columns, reasons and a manifest-free limitation", async () => {
-    const prepared = await prepareReplayScenarios();
-    const scenario = prepared.scenarios.find(
-      ({ value }) => value === "real/fsc-stock-quotes-20260903.jsonl",
-    )!;
-    expect(scenario.provenance?.kind).toBe("real");
-    expect(scenario).not.toHaveProperty("manifest");
-    const markup = renderToStaticMarkup(
-      createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
-    );
-    for (const text of [
-      "금융위원회_주식시세정보",
-      "20260903",
-      "이용허락범위 제한 없음",
-      "Official source distribution",
-      "DAILY_QUOTE",
-      "Reviewer reason for basDt",
-      "Reviewer reason for clpr",
-      "Reviewer reason for trqu",
-      "Normalize source",
-      "Case approval unavailable",
-      "actor profile is empty",
-    ])
-      expect(markup).toContain(text);
-    expect(markup).not.toContain("Approve case manifest");
-    expect(markup).not.toContain("Pattern outcome:");
-    expect(markup).not.toContain("These synthetic source records");
-    expect(markup).not.toContain("case before replay");
-    expect(markup).not.toContain("approve its mapping and case");
-    expect(markup).toContain("Ready to normalize");
-    expect(markup).not.toContain("Repeat the same approved case");
-    expect(markup).toContain("licensed published sources");
-    expect(markup).toContain("Complete source record");
-    expect(markup).toContain(scenario.provenance!.recordUrl);
-    expect(markup).toContain('value="baseline"');
-    expect(markup).toContain('value="shuffle"');
-    expect(markup).not.toContain('value="duplicate"');
-    expect(markup).toContain("Neither control invents a value or participant");
-    expect(markup).not.toContain(
-      "Synthetic committed sources, a deterministic fixture mapping",
-    );
-  });
-  it("treats mapping 1.6 index observations as daily normalization", async () => {
-    const prepared = await prepareReplayScenarios();
-    const scenario = prepared.scenarios.find(
-      ({ value }) =>
-        value === "real/fsc-kospi-index-family-20260903/source.jsonl",
-    )!;
-    const markup = renderToStaticMarkup(
-      createElement(CaseReplay, { ...prepared, scenarios: [scenario] }),
-    );
-    expect(markup).toContain("DAILY_QUOTE");
-    expect(markup).toContain("Composite source event identity");
-    expect(markup).toContain("basDt + idxNm");
-    expect(markup).toContain("NUL_JOIN");
-    expect(markup.indexOf("Composite source event identity")).toBeLessThan(
-      markup.indexOf("Approve executed mapping"),
-    );
-    expect(markup).toContain("Normalize source");
-    expect(markup).toContain("Case approval unavailable");
-    expect(markup).not.toContain("Run deterministic replay");
-  });
   it("keeps case approval and repeat guidance for a source with a manifest", async () => {
     const prepared = await prepareReplayScenarios();
     const scenario = prepared.scenarios.find(

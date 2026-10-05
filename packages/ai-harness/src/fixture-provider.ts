@@ -1,4 +1,3 @@
-import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   SchemaMappingProposalSchema,
   type AllowedTransform,
@@ -68,9 +67,6 @@ function eventTypeOf(
 }
 
 const registeredProposals = [
-  ...Object.values(publishedReplaySources).map(
-    ({ mappingProposal }) => mappingProposal,
-  ),
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,

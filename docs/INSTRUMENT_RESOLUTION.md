@@ -72,47 +72,14 @@ are included. The fingerprint identifies this lookup input; it is neither a
 replay result hash nor proof of publisher authenticity or human approval.
 Resolver version `exact-dated-identifiers-v1` is recorded separately.
 
-## Committed published coverage
+## Synthetic input coverage
 
-`@weavetrail/published-data` exports `publishedInstrumentListing` and
-`publishedDailyQuoteBindings`. Projection version
-`fsc-admitted-quote-identifiers-v1` uses only the already admitted FSC stock,
-KOSPI index family, KOSPI 200 baseline, futures and weekly-option artifacts.
-For each source row it copies `itmsNm`/`idxNm`, `srtnCd` and `isinCd` when present,
-with the original coordinate and `basDt` as both validity endpoints. It combines
-rows with the same canonical instrument identity; quotation bindings retain
-every observed date for that instrument in each dataset. It does not infer a
-name's validity between observations or before/after the source coverage.
-
-This is a bounded name/code listing projected from quotations, not a complete
-exchange listing. Stock coverage remains the committed first 40 rows out of
-943 on 2026-09-03. Indices have no invented ISIN or short code. These artifacts
-contain no English-name, abbreviation or issuer-rename listing fields; those
-capabilities are exercised by explicitly synthetic fixtures. An English alias
-absent from this listing stays unlinked. Historical published name coverage
-requires a separately admitted source with actual dated names.
-
-`resolvePublishedInstrument` in `apps/web/src/lib/published-instrument-resolution.ts`
-composes the two packages and returns the resolution plus pinned source rows
-for a chart or numeric display. It checks quotation artifact pins, keeps numeric
-values as publisher strings, and excludes rows after the event date. Ambiguous
-or unresolved requests return no quotation rows. This is an application library
-entry, not a new HTTP endpoint or input screen. It changes no source row, event,
-participant, approval, pattern rule or result hash.
-
-No new real listing is acquired by this implementation. The
-[official KRX listing distribution](https://www.data.go.kr/data/15094775/openapi.do)
-displayed attribution, noncommercial-use and no-modification conditions, with
-a prohibition on unauthorized third-party redistribution, when checked on
-2026-09-28. It is not admitted. The existing committed artifacts retain their
-original acquisition-time permission records; those records do not authorize a
-new retrieval under today's terms. New listing or alias sources must satisfy
-[the provenance requirements](../AGENTS.md#data-provenance) before admission.
+The quotation-derived listing and web composition have been withdrawn. The algorithm is verified over supplied synthetic listings.
 
 ## Reproduction and limits
 
 ```bash
-pnpm exec vitest run packages/instrument-resolver/src/resolver.test.ts packages/instrument-resolver/src/dependency-boundary.test.ts apps/web/src/lib/published-instrument-resolution.test.ts
+pnpm exec vitest run packages/instrument-resolver/src/resolver.test.ts packages/instrument-resolver/src/dependency-boundary.test.ts
 ```
 
 Tests cover Korean/English names, abbreviations, short codes, ISINs, both sides

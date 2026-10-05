@@ -1,6 +1,4 @@
 import { FixtureSchemaMappingProvider } from "@weavetrail/ai-harness";
-import { publishedCoverageManifest } from "@weavetrail/published-data";
-import { coverageSummary } from "../../lib/coverage-copy";
 import {
   replaySourceCatalog,
   reviewerFacingReplaySources,
@@ -51,7 +49,6 @@ export async function prepareReplayScenarios() {
     ]),
   );
   return {
-    coverage: coverageSummary(publishedCoverageManifest),
     scenarios: prepared.map(({ scenario }) => scenario),
     proposals,
     providerMode: provider.mode,

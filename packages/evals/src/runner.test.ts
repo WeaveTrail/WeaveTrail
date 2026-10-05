@@ -42,7 +42,7 @@ describe("evaluation fails closed on changed oracles", () => {
   it("rejects a changed published trace reference", async () => {
     const changed = JSON.parse(
       readFileSync(
-        new URL("../results/financial-replay-v2.json", import.meta.url),
+        new URL("../results/financial-replay-v3.json", import.meta.url),
         "utf8",
       ),
     );

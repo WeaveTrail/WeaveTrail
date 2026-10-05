@@ -17,10 +17,10 @@ pnpm eval
 
 This fixture-only command writes `dist/evaluation/summary.json` and
 `dist/evaluation/run.json`. The summary must reproduce the committed
-[raw summary](../packages/evals/results/financial-replay-v2.json) byte for byte.
+[raw summary](../packages/evals/results/financial-replay-v3.json) byte for byte.
 The run receipt records the actual Node, pnpm, Vitest, OS and architecture,
 commit SHA, working-tree state, input-tree fingerprint and summary checksum.
-The [captured receipt](../packages/evals/results/financial-replay-v2.run.json)
+The [captured receipt](../packages/evals/results/financial-replay-v3.run.json)
 records the publication environment. Environment and checkout metadata stay
 outside the stable summary; both files form the machine-readable publication.
 No API credentials, network requests or configured AI providers are used.
@@ -39,17 +39,16 @@ update flag rewrites these targets. Tests exercise those failure paths.
 
 All counts below come from the linked raw summary and its cases, using `pnpm eval`
 on the environment in the captured receipt (Node 22.18.0, pnpm 10.33.2,
-Vitest 5.0.1, Linux x86_64). They count authored fixtures, not independent samples.
+Vitest 5.0.2, Linux x86_64). They count authored fixtures, not independent samples.
 
-| Check                    | Captured outcome                                                                                               | Denominator and limitation                                                                                             |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Mapping proposal fields  | 13 agreements                                                                                                  | 7 FIX 4.4 fields and 6 H0STCNT0 fields; registered fixture proposals against authored targets, not model accuracy      |
-| Mapping review           | FIX accepted; H0STCNT0 requires review without its absent-actor override; both accepted with fixture overrides | 2 schema-grounded synthetic dialects; no automatic human approval is claimed                                           |
-| Synthetic rule results   | 2 `SUPPORTED`, 2 `NOT_SUPPORTED`, 1 `INCONCLUSIVE`                                                             | 5 `RAPID_PRICE_LIFT/1.1` cases, counted once each; no real-market interpretation                                       |
-| Canonical mutations      | 45 preserved, 27 rejected with declared errors                                                                 | 8 mutations on each of 9 successful synthetic baselines; excludes published artifacts and the pre-replay conflict case |
-| Finding traces           | 100 of 100 references resolve; 20 findings                                                                     | Counts reference occurrences, including reuse across findings; zero-finding cases contribute no successful references  |
-| Published baselines      | 5 normalized                                                                                                   | Licensed committed artifacts only, with no rule verdict or mutation included                                           |
-| Total baseline inventory | 15 cases                                                                                                       | 10 synthetic sources, including one conflicting source that requires input review, plus 5 published sources            |
+| Check                    | Captured outcome                                                                                               | Denominator and limitation                                                                                            |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Mapping proposal fields  | 13 agreements                                                                                                  | 7 FIX 4.4 fields and 6 H0STCNT0 fields; registered fixture proposals against authored targets, not model accuracy     |
+| Mapping review           | FIX accepted; H0STCNT0 requires review without its absent-actor override; both accepted with fixture overrides | 2 schema-grounded synthetic dialects; no automatic human approval is claimed                                          |
+| Synthetic rule results   | 2 `SUPPORTED`, 2 `NOT_SUPPORTED`, 1 `INCONCLUSIVE`                                                             | 5 `RAPID_PRICE_LIFT/1.1` cases, counted once each; no real-market interpretation                                      |
+| Canonical mutations      | 45 preserved, 27 rejected with declared errors                                                                 | 8 mutations on each of 9 successful synthetic baselines; excludes the pre-replay conflict case                        |
+| Finding traces           | 100 of 100 references resolve; 20 findings                                                                     | Counts reference occurrences, including reuse across findings; zero-finding cases contribute no successful references |
+| Total baseline inventory | 10 cases                                                                                                       | 10 synthetic sources, including one conflicting source that requires input review, no published sources               |
 
 **Evidence completeness** is checked over baseline finding references.
 
@@ -71,31 +70,13 @@ findings: every reference must resolve through canonical `eventId` and
 `rawRowHash` to a parsed row of the hash-verified committed artifact. The summary
 retains each distinct event's hash and source coordinate for inspection.
 
-Published sources enter only through the admitted
-[published-data registry](../packages/published-data/src/real-market-data.ts)
-and its adjacent provenance and acquisition records. The runner reads committed
-bytes offline and performs baseline normalization only. It does not collect new
-sources, grant reuse permission, alter actual market values, synthesize actors,
-or evaluate a real-instrument hypothesis. Fixture approvals are generated test
-inputs and do not satisfy the human approval requirements for case evidence.
+Evaluation v3 withdraws the five real sources. The retained synthetic inputs, mapping and mutation oracles, result hashes and trace expectations are unchanged.
 
 For a reviewed change to a target, edit the case definition or shared scenario
 expectation deliberately and review a newly captured versioned summary alongside
-it; routine evaluation never updates targets. Evaluation v2 adds the FIX-shaped broad-participation baseline and its eight
-mutation probes. The JSON format and mapping/mutation oracles are unchanged.
-The previous [v1 summary](../packages/evals/results/financial-replay-v1.json) and
-[v1 receipt](../packages/evals/results/financial-replay-v1.run.json) remain
-unchanged historical captures; the current command verifies v2. See
-[ADR 0053](adr/0053-publish-fixture-evaluations-with-separate-run-receipts.md).
+it; routine evaluation never updates targets. Financial replay v1/v2 and claim coverage v1 remain unchanged historical captures with withdrawn sources. They are not current results and cannot be fully reproduced from this tree. See [historical captures](../packages/evals/results/README.md) and [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).
 
 ## Measurements still planned
-
-A separate [published-scope evaluation](PUBLISHED_DATA_ADMISSION.md#reproducible-scope-evaluation)
-is reproducible with `pnpm eval:coverage`. It pins authored structured requests,
-before/after coverage hashes and retained dataset payload sizes. It measures
-preflight reasons with the current empty numeric-definition registry, and assigns
-no sentence evidence grade. The source admission review states the permission
-blockers and why its captured before/after counts show no improvement.
 
 Model accuracy on independent mappings, configured-provider comparisons,
 real-market generalization, investigation effort, latency, memory use and
@@ -111,14 +92,6 @@ The current unit suite tests these engineering invariants only:
 pnpm test
 ```
 
-- **Published quote derivation and normalization** — reproduce the complete
-  response-derived JSONL and generated rows, pin daily foundation/dataset hashes,
-  preserve them on repeat/shuffle/derived duplicate, and reject an explicitly
-  untrusted actor request before case approval or evaluation. The committed
-  sample is the first 40 FSC KOSPI quotations of 943 for 2026-09-03. It has no
-  expected rule outcome and is not a detection benchmark. Exact source, licence,
-  hashes and limitations are recorded in the
-  [source README](../packages/published-data/src/sources/real/README.md).
 - **Row-order invariance** — all permutations of the committed four-event foundation
   fixture preserve canonical order and the result hash. Representative
   permutations of parsed source rows also pass the approved HTTP boundary for
@@ -191,18 +164,6 @@ not estimate performance on independent or real-market data.
 
 These checks do not measure schema-mapping accuracy, anomaly-detection quality,
 real-market generalization, user productivity, or large-scale performance.
-
-The published quote checks run offline with Node 22.18.0, pnpm 10.33.2,
-Vitest 4.1.11 and Linux WSL2 x86_64:
-
-```bash
-pnpm exec vitest run packages/replay-engine/src/real-market-data.test.ts apps/web/src/app/api/replay/real-market-data-route.test.ts
-```
-
-Malformed dates, parser edge cases and daily-kind rule eligibility use wholly
-synthetic specimens. Actual source values are never altered to construct those
-tests. The rejected actor case exists only as an untrusted negative request;
-it is not a source fact, registered scenario or published hypothesis.
 
 ## Publication gate
 

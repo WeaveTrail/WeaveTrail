@@ -1,10 +1,10 @@
 # Service snapshot operations
 
-`@weavetrail/service-store` is the second provenance tier, for collected public
-documents and data responses. The committed verification tier stays in
-`packages/published-data` and `packages/scenarios` with its existing admission
-checks, goldens and hashes
-([ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md)).
+`@weavetrail/service-store` retains a generic immutable-snapshot implementation,
+verified with synthetic inputs. It is not connected to the web app. The committed
+real-data tier and its acquisition scripts have been withdrawn; no replacement
+private store or host is planned for those sources. See
+[ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).
 
 ## Storage and collection
 
@@ -15,10 +15,7 @@ checks, goldens and hashes
   persistence call site.
 - Reviewed authenticated collectors may call
   `storeSnapshot(bytes, { source, retrievedAt })` after enforcing their own
-  credential-echo and source-admission guards. Existing verification collectors
-  keep saving their original response files and receipts; their outputs are not
-  imported automatically, and this tier retrieves and commits no additional real
-  source.
+  credential-echo and source-admission guards. No repository collector is currently connected to this API. No real source is retrieved or committed.
 - Every admitted source currently needs a storage, modification and
   redistribution right. A display-only grade, for data a rights holder permits
   to store, compute and show on screen but not to redistribute, is accepted and

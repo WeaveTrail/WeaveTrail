@@ -459,31 +459,7 @@ are validated. A consumer using `price` as a denominator must accept that field
 in the versioned analysis leg. There is no coercion from `1.0`. See
 [ADR 0035](adr/0035-bind-denominator-substitution-to-the-approved-rule.md).
 
-The committed published-data regression golden declares 2026-09-03 over the
-inclusive 2026-07-01–2026-09-03 KOSPI 200 baseline, with KOSPI 200 and September
-2026 front-future legs. It reports the baseline leg at `13.9147` and position
-`1` of `45`, the future leg at `25.4705`, and a `SUPPORTED` result hash of
-`ffd7110a1c1fb2b18e9200e3a103b03572cb5b97b5f5d6db81689821de63bb55`.
-Reproduce it with:
-
-```bash
-pnpm exec vitest run packages/replay-engine/src/cross-market-session-reversal-published-golden.test.ts
-```
-
-The captured environment is Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64.
-This is a deterministic engine regression check over fixed licensed artifacts.
-Its generated approval fixtures exercise the hash gates but do not evidence
-human review, so the golden is not an approved case or evidentiary result. The
-separate published web case requires an `APPROVED` record bound to the exact
-scope before it runs and links every gate back to the threshold provenance. That
-case declares rule `1.1`, with two denominators on each leg — the session's net
-change, which is the approved one, and the session's close — so it reports the
-same gate observations and the same position `1` of `45` under a result hash of
-its own,
-`159ffac0f1845b89239ab905b3f5ab1f81ad7212e1ccbbf8ea74b3474b696a89`. The
-server does not authenticate the reviewer's identity. Neither surface estimates
-detection quality, probability, causality, legal status or investment
-suitability, and neither searches the range for candidate dates.
+The real quotation case has been withdrawn. Current rule checks use synthetic inputs only.
 
 ## Sensitivity interpretation
 
@@ -501,30 +477,11 @@ must not fill a missing safety-critical value from a model guess.
 
 ## Synthetic data
 
-Synthetic fixtures reach all three result states and test contracts, failure
-handling, determinism and traceability without estimating performance in a real
-market. Separately, the committed published KOSPI 200 baseline and front-future
-rows pin one `SUPPORTED` engine output. That golden is deterministic regression
-evidence, not a human-approved case, performance estimate or general detection
-claim. The published web case applies the approval and disclosure safeguards
-described in
-[ADR 0034](adr/0034-evaluate-real-instruments-without-altering-source-facts.md).
+All current committed case values are synthetic. Rule thresholds are illustrative per-case configuration and do not estimate real-market performance.
 
 ## Daily quote contract support
 
-Trade Events `1.2`/`1.3` and Mapping Proposals `1.5`/`1.6`/`1.7` add daily-only
-branches and a reviewed trading-date anchor while retaining legacy `1.1`/`1.4`
-inputs and hashes. Event `1.3` and Proposal `1.7` additionally retain OHLC,
-absolute net change and the source trading date for deterministic evaluation.
-The published FSC KOSPI window for 2026-09-03 contains 40 quotations, with
-source/permission and derivation recorded beside it.
-[Daily quote normalization](DAILY_QUOTES.md) describes the exact command,
-environment, contracts, test evidence and published-field interpretation.
-Proposal `1.6` additionally permits only `sourceEventId` to be formed from an
-ordered, NUL-separated list of publisher columns when that list is the
-publisher's natural key.
-Proposal `1.7` permits either that composite identity or one directly mapped
-publisher identity, never both.
+Daily quote contracts and cross-market rules remain verified with synthetic inputs. Real quotation sources and their case page have been withdrawn. See [daily quote contracts](DAILY_QUOTES.md).
 
 ## Published-schema synthetic executions
 

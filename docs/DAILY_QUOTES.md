@@ -1,148 +1,23 @@
-# Daily quote normalization
+# Daily quote contracts
 
-_[한국어](DAILY_QUOTES.ko.md)_
+[한국어](DAILY_QUOTES.ko.md)
 
-Working mode includes the Financial Services Commission's published KOSPI daily
-quotes for `basDt=20260903`: 40 items from the first page of 943. Select
-`real/fsc-stock-quotes-20260903.jsonl`, inspect the original columns and source
-provenance, enter reasons for the date/close/volume interpretations, approve the
-exact mapping, and select **Normalize source**. Normalization succeeds without
-case approval or a pattern verdict. The guided case remains synthetic; a
-separate engine-level published-data golden now covers the cross-market rule.
+The committed quotation sources and their application composition have been withdrawn. No real quotation data is offered in the current tree. See [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).
 
-## Contract coexistence
+## Version coexistence
 
-| Input            | Existing branch                                            | Daily normalization branch                                                 | Evaluation-capable daily branch                                                   |
-| ---------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Trade Event      | `schemaVersion: 1.1`, `ORDER_NEW`, `ORDER_CANCEL`, `TRADE` | `schemaVersion: 1.2`, `DAILY_QUOTE` only                                   | `schemaVersion: 1.3`, `DAILY_QUOTE` plus trading date, OHLC and net change        |
-| Mapping Proposal | `mappingVersion: 1.4`, event schema `1.1` constants        | `mappingVersion: 1.5`/`1.6`, event schema `1.2` and required `DAILY_QUOTE` | `mappingVersion: 1.7`, event schema `1.3` and direct-or-composite source identity |
-| Transforms       | Existing transforms                                        | Adds `YYYYMMDD_TO_KST_DAY_START_ISO` for `eventTime` only                  | Adds reviewed `PUBLISHER_DECIMAL_STRING` for publisher leading-dot decimals       |
+Event `1.1` retains executions/orders. Event `1.2` adds daily close/volume; Event `1.3` retains trading date, OHLC and net change. Mapping `1.5`/`1.6` and `1.7` preserve direct/composite identities. `YYYYMMDD_TO_KST_DAY_START_ISO` anchors a valid Gregorian date at KST midnight; it is not an execution timestamp. `PUBLISHER_DECIMAL_STRING` canonicalizes reviewed leading-dot decimals. Prices and quantities stay decimal strings with scaled-integer arithmetic.
 
-Published index observations use Mapping Proposal `1.6` for
-normalization-only output. The evaluation-capable KOSPI 200 baseline
-registration uses Event `1.3` and Proposal `1.7`, retaining the same ordered
-`compositeSourceEventId`. The FSC natural key `(basDt, idxNm)` is
-joined with a reserved NUL separator only during approved normalization;
-neither source column nor any committed artifact is rewritten. Missing or
-NUL-containing components fail closed. Existing `1.4`, `1.5` and `1.6`
-proposals need no migration. The evaluation-capable futures registration maps
-its direct `srtnCd` identity through `1.7`; weekly options remain on `1.5`.
+## Schema references
 
-Case Replay accepts a complete committed source in a request up to the contract
-limit of 1,000 rows. This admits the 546-row weekly-options series without
-trimming while retaining a finite request bound.
+FSC field names such as `basDt`, `srtnCd`, `isinCd`, `idxNm`, `clpr` and `trqu` may serve as synthetic dialect references. No publisher values or registered quotation artifacts remain.
 
-Every object branch remains strict. Existing payloads require no migration;
-new kinds and transforms cannot enter a legacy proposal. The daily kind is an
-artifact constant included in the exact proposal approval hash. A field mapping
-to that same target is rejected as `DUPLICATE_TARGET_FIELD` before row application.
+## Approval and evidence
 
-The date transform accepts exactly eight ASCII digits denoting a valid Gregorian
-date in years 0001–9999. It returns `YYYY-MM-DDT00:00:00+09:00` without local-zone
-parsing or date rollover. This is a reviewer-approved trading-date anchor, not
-an observed execution timestamp, market opening time or publisher-returned
-offset. Existing canonicalization converts it to UTC nanosecond representation.
-Existing decimal-string normalization is unchanged. Proposal `1.7` adds a
-publisher-specific reviewed transform that only canonicalizes a missing zero
-before a decimal point; source strings are preserved.
+Daily schemas alone authorize no case. Mapping-only replay stops at `MAPPING_APPROVED`; case evaluation requires its separately approved, profile-bound manifest. Adding an actor cannot turn a daily observation into an execution. Evidence Bundle `1.3` still represents normalization without an evaluation. These branches are tested with synthetic specimens; the current picker offers synthetic execution cases.
 
-Event schemas `1.2` and `1.3` are daily-only. Event `1.3` requires source
-`tradingDate`, OHLC and absolute `netChange`, all protected by its canonical
-projection. Existing optional event fields retain their contract definitions,
-but an actorless published quotation must leave `side`,
-`actorId`, `counterpartyId`, `orderId`, `sequence` and `receivedAt` absent. The
-`EVENT_TYPE_CODE` transform still accepts only the original execution/order codes.
-
-The fixture provider registry now carries proposal versions and constants by
-artifact hash. Daily input constants must match the registered artifact.
-Unknown legacy artifacts still produce unresolved mapping proposals. An
-unregistered daily artifact is rejected. Provider mode remains `fixture`.
-
-## Published-field interpretation
-
-The registered mapping accounts for all 15 columns in the accepted response.
-The following five columns are mapped; the other ten remain explicitly unmapped
-with field-specific evidence and their complete original values.
-
-| Publisher field | Canonical target | Transform and interpretation                               |
-| --------------- | ---------------- | ---------------------------------------------------------- |
-| `srtnCd`        | `sourceEventId`  | `IDENTITY`; issue key within one accepted day              |
-| `isinCd`        | `instrumentId`   | `IDENTITY`; instrument identity                            |
-| `basDt`         | `eventTime`      | `YYYYMMDD_TO_KST_DAY_START_ISO`; declared day-start anchor |
-| `clpr`          | `price`          | `DECIMAL_STRING`; daily closing price                      |
-| `trqu`          | `quantity`       | `DECIMAL_STRING`; daily aggregate volume                   |
-
-Date, close and volume require `REVIEW_REQUIRED`, fixture confidence `0` and
-nonblank field-specific approval reasons at `fields.<index>`. The score is a
-review signal, not a measured model confidence. Other returned columns must
-remain intact and explicitly accounted for, including deliberately unmapped
-columns. Closing price multiplied by aggregate volume is not asserted to be
-the publisher's traded value.
-
-## Workflow boundary
-
-An exact mapping approval with justified overrides and no manifest normalizes
-the source. The existing HTTP response is `200 MAPPING_APPROVED`, with canonical
-counts, ordered event IDs and the foundation `canonicalResultHash`. It contains
-no evaluation, findings, profile, full events or source trace.
-
-An actorless dataset has `actorIds: []`. A schema-valid attempted case with a
-valid bound approval and a nonempty actor is rejected with HTTP 422,
-`CASE_REVIEW_REQUIRED` and `ACTOR_OUTSIDE_DATASET_PROFILE` at
-`["caseManifest", "hypothesis", "actorIds", i]`. The evaluator is never invoked;
-no replay or result hash is returned. Empty actors fail request validation, and
-invalid case approval retains precedence over profile errors. A normal request
-without a manifest does not claim to have reached `CASE_REVIEW_REQUIRED`.
-
-The UI action is “Normalize source” for a daily proposal. The limitation panel
-and working-mode instructions require mapping approval only when no manifest
-exists. The empty result prompts normalization, and case repeat controls appear
-only for sources with a case manifest. The limitation panel
-explains that genuine admissible executions with time, side, actor identity,
-price and quantity, followed by separate case approval, would be needed for a
-future case. Adding an actor alone cannot turn daily quotes into trades.
-
-## Evidence and reproduction
-
-Display provenance represents a single published trading day with `basDt`. A
-complete series spanning multiple trading days instead uses `basDtRange` with
-an inclusive `begin` and `endInclusive`; range records must not overload the
-single-date field. Existing single-day provenance requires no migration, while
-an existing range string must be split into those two explicit endpoints.
-
-This artifact uses the `bounded-window` acquisition scope. Its adjacent
-`.acquisition.json` classifies the already recorded first-page policy without
-changing historical provenance or source hashes. The separate
-[complete-series mechanism](PUBLISHED_ACQUISITION.md) does not expand this window
-or acquire another real artifact.
-
-The [adjacent provenance and reproduction instructions](../packages/published-data/src/sources/real/README.md)
-record the response, licence, exact request and all artifact hashes. Acquisition
-occurred at `2026-09-05T19:31:27.527Z` (2026-09-06 KST), with unrestricted usage
-permission verified on the same UTC date. One re-fetch at
-`2026-09-05T19:36:42.695Z` returned identical raw bytes and item values; future
-remote corrections may differ.
-
-Actual-artifact tests reproduce the JSONL and generated rows and pin the
-foundation, dataset and mapping approval hashes. Run:
+## Verification
 
 ```bash
-pnpm exec vitest run packages/replay-engine/src/real-market-data.test.ts apps/web/src/app/api/replay/real-market-data-route.test.ts
+pnpm exec vitest run packages/replay-engine/src/daily-quote.test.ts packages/replay-engine/src/evidence-hash-scopes.test.ts apps/web/src/app/replay/daily-quote-surface.test.ts
 ```
-
-Captured on Node 22.18.0, pnpm 10.33.2 and Linux WSL2 x86_64: normalization returns
-40 canonical events and foundation hash
-`f8bb2a21d695aab89e826039861204ecb741d5f56ecab69e354c9b5840ae25fc`.
-This establishes deterministic normalization of this fixed window; it is not a
-rule benchmark or a claim of real-market detection accuracy. Invalid dates,
-parser edge cases, identity conflicts and rule ineligibility use wholly synthetic
-specimens. The negative real-data route test supplies an explicitly untrusted
-actor claim only in a refused request; it never evaluates that case.
-
-The original stock-quote window stays on engine `0.7.0-canonical-decimal` and
-still has no case manifest, rule result or pattern verdict. The complete KOSPI
-200 baseline and front-future registrations use Event `1.3`; the separate
-`0.8.0-cross-market-session-reversal` engine entry point evaluates an approved
-actorless Case Manifest `1.4` across their combined canonical events. See
-[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
-[ADR 0032](adr/0032-evaluate-declared-cross-market-session-reversals.md).

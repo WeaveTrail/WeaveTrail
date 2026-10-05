@@ -90,14 +90,6 @@ const koreanScenarioLabels: Readonly<Record<string, string>> = {
   "published-execution-fix44-conflicting-evidence.csv":
     "합성 · 공개 FIX 4.4 체결 식별자 충돌",
   "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
-  "published-daily-quotes.csv": "공개 일별 시세 · 정규화",
-  "real/fsc-kospi-index-family-20260903/source.jsonl":
-    "FSC · 코스피 지수군 · 정규화",
-  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl":
-    "FSC · 코스피 200 기준선 · 정규화",
-  "real/fsc-kospi-200-futures-20260903/source.jsonl":
-    "FSC · 코스피 200 선물 · 정규화",
-  "real/fsc-weekly-options-20260903/source.jsonl": "FSC · 위클리 옵션 · 정규화",
 };
 
 const koreanScenarioConditions: Readonly<Record<string, string>> = {
@@ -159,10 +151,9 @@ export function ExpectationsContent({
                 <strong>조사 범위 승인</strong>을 누릅니다.
               </li>
               <li>
-                mapping 1.4와 1.8 체결 자료는 <strong>분석 실행</strong>을,
-                mapping 1.5, 1.6, 1.7 일별 시세 자료는{" "}
-                <strong>원본 자료 정리</strong>를 누릅니다. 아래의 워크플로
-                상태, 결과, 판단 항목 관측값, 분석 결과 해시와 비교합니다.
+                현재 목록의 합성 체결 자료는 <strong>분석 실행</strong>을
+                누릅니다. 아래의 워크플로 상태, 결과, 판단 항목 관측값, 분석
+                결과 해시와 비교합니다.
               </li>
             </>
           ) : (

@@ -1,3 +1,4 @@
+import { syntheticDailyQuoteSpecimen } from "../../../../../packages/replay-engine/src/testing/daily-quotes";
 import {
   isValidElement,
   type ComponentProps,
@@ -364,11 +365,15 @@ async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
 describe("replay result lifecycle", () => {
   it("clears a synthetic verdict, requires daily reasons, normalizes without a case and returns to the guide unapproved", async () => {
     const prepared = await prepareReplayScenarios();
-    const dailyKey = "real/fsc-stock-quotes-20260903.jsonl";
-    const daily = prepared.scenarios.find(({ value }) => value === dailyKey)!;
-    const specimen = {
-      rows: daily.rows,
-      proposal: prepared.proposals[daily.sourceArtifactHash]!,
+    const dailyKey = "concentrated-buy-dialect-a.csv";
+    const specimen = syntheticDailyQuoteSpecimen();
+    const daily = {
+      value: "concentrated-buy-dialect-a.csv" as const,
+      label: "Synthetic daily specimen",
+      purpose: "ENGINE_REGRESSION" as const,
+      sourceArtifactHash: specimen.proposal.sourceArtifactHash,
+      rows: specimen.rows,
+      availableMutations: ["baseline", "shuffle"] as const,
     };
     const scenarios = [
       prepared.scenarios.find(({ value }) => value === first)!,
@@ -420,7 +425,7 @@ describe("replay result lifecycle", () => {
     ).toHaveLength(0);
     expect(ui.buttonDisabled("Normalize source")).toBe(true);
     expect(ui.buttonDisabled("Approve executed mapping")).toBe(true);
-    for (const column of ["basDt", "clpr", "trqu"]) {
+    for (const column of ["date", "close", "volume"]) {
       ui
         .render()
         .find(
@@ -428,7 +433,7 @@ describe("replay result lifecycle", () => {
             element.props["aria-label"] === `Reviewer reason for ${column}`,
         )!.props.onChange!({
         target: {
-          value: `Accept the declared published daily ${column} interpretation.`,
+          value: `Accept the declared synthetic daily ${column} interpretation.`,
         },
       });
     }

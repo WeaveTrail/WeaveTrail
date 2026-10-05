@@ -15,10 +15,6 @@ describe("ReplayRequestSchema", () => {
     "published-execution-fix44-broad-participation.csv",
     "published-execution-fix44-conflicting-evidence.csv",
     "published-execution-h0stcnt0.jsonl",
-    "real/fsc-kospi-index-family-20260903/source.jsonl",
-    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
-    "real/fsc-kospi-200-futures-20260903/source.jsonl",
-    "real/fsc-weekly-options-20260903/source.jsonl",
   ] as const)("accepts the committed scenario %s", (scenario) => {
     expect(
       ReplayRequestSchema.parse({

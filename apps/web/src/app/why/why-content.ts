@@ -19,7 +19,7 @@ export type Localized = Readonly<Record<Language, string>>;
 export type SourceId =
   | "fss-surveillance-automation"
   | "fss-realtime-surveillance"
-  | "fsc-ai-guideline"
+  | "financial-ai-guideline"
   | "fss-ai-rmf";
 
 export interface Source {
@@ -45,6 +45,7 @@ const FSS: Localized = {
   ko: "금융감독원",
 };
 
+/** Historical policy/publication references; these links contain no quotation artifacts. */
 export const sources: readonly Source[] = [
   {
     id: "fss-surveillance-automation",
@@ -69,7 +70,7 @@ export const sources: readonly Source[] = [
     href: "https://www.fss.or.kr/fss/bbs/B0000188/view.do?nttId=217521&menuNo=200218",
   },
   {
-    id: "fsc-ai-guideline",
+    id: "financial-ai-guideline",
     marker: "3",
     publisher: {
       en: "Financial Services Commission (금융위원회)",
@@ -143,7 +144,7 @@ export const upstreamStatements: readonly Statement[] = [
       en: "The financial sector AI guideline reaches financial investment firms, and reaches any company whose AI output affects the provision of a financial service directly or indirectly.",
       ko: "금융분야 AI 가이드라인은 금융투자업자에게 적용됩니다. AI 산출물이 금융서비스 제공에 직접이든 간접이든 영향을 주는 회사라면 어디에나 적용됩니다.",
     },
-    source: "fsc-ai-guideline",
+    source: "financial-ai-guideline",
   },
   {
     text: {
@@ -161,7 +162,7 @@ export const handoverStatements: readonly Statement[] = [
       en: "In the same year, the financial authorities set the auxiliary-role principle among the guideline's seven principles: AI is a support tool, the final decision and the responsibility that follows it are carried out by the firm's own officers and employees, and human intervention is a stated principle.",
       ko: "같은 해, 금융당국은 가이드라인의 일곱 원칙 가운데 보조적 역할 원칙을 두었습니다. AI는 보조 도구이고, 최종 판단과 그에 따르는 책임은 회사의 임직원이 지며, 사람의 개입은 원칙으로 명시돼 있습니다.",
     },
-    source: "fsc-ai-guideline",
+    source: "financial-ai-guideline",
   },
   {
     text: {
@@ -326,16 +327,16 @@ export const notClaimed: readonly Localized[] = [
     ko: "여기 이름이 나오는 시스템이 이 프로젝트를 쓰거나 이를 기준으로 평가한 적은 없습니다. 공표 자료는 이 단계가 놓일 자리를 설명할 뿐, 관계를 뜻하지 않습니다.",
   },
   {
-    en: "The surveillance process cited here covers virtual assets. This repository's committed sources are synthetic equity executions and published KOSPI daily quotations, so what is described is the shape of a position, not a connection to that process or coverage of that market.",
-    ko: "여기 인용한 감시 프로세스는 가상자산을 다룹니다. 이 저장소가 커밋한 소스는 합성 주식 체결 내역과 공표된 KOSPI 일별 시세입니다. 그래서 여기 적은 것은 자리의 모양이지, 그 프로세스와의 연결이나 그 시장에 대한 커버리지가 아닙니다.",
+    en: "The surveillance process cited here covers virtual assets. This repository's committed sources are synthetic equity executions, so what is described is the shape of a position, not a connection to that process or coverage of that market.",
+    ko: "여기 인용한 감시 프로세스는 가상자산을 다룹니다. 이 저장소가 커밋한 소스는 합성 주식 체결 내역입니다. 그래서 여기 적은 것은 자리의 모양이지, 그 프로세스와의 연결이나 그 시장에 대한 커버리지가 아닙니다.",
   },
   {
     en: "A result is support for a versioned technical pattern. It is not a finding of guilt, a legal conclusion, a causal claim, investment advice, an automated trading decision, or real-time surveillance.",
     ko: "결과는 버전이 붙은 기술적 패턴을 데이터가 지지하는 정도입니다. 유죄 판단도, 법적 결론도, 인과 주장도, 투자 조언도, 자동 매매 결정도, 실시간 감시도 아닙니다.",
   },
   {
-    en: "The repository runs deterministic fixtures over committed synthetic cases and licensed published quotations. It is not a production market-surveillance system, and its rule thresholds are illustrative per-case configuration rather than calibrated market thresholds.",
-    ko: "이 저장소는 커밋된 합성 사례와 이용이 허락된 공표 시세 위에서 결정론적 fixture를 돌립니다. 운영용 시장감시 시스템이 아니고, 규칙 임계값은 사례마다 예시로 설정한 값이지 시장에 맞춰 보정한 값이 아닙니다.",
+    en: "The repository runs deterministic fixtures over committed synthetic cases. It is not a production market-surveillance system, and its rule thresholds are illustrative per-case configuration rather than calibrated market thresholds.",
+    ko: "이 저장소는 커밋된 합성 사례 위에서 결정론적 fixture를 돌립니다. 운영용 시장감시 시스템이 아니고, 규칙 임계값은 사례마다 예시로 설정한 값이지 시장에 맞춰 보정한 값이 아닙니다.",
   },
   {
     en: "Every statement here about anything outside this repository carries a source or the mark that says it is the project's own reading. A marked statement is a premise this project works from, not a published finding.",

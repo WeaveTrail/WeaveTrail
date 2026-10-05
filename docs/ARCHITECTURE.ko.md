@@ -9,12 +9,7 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
 
 ![진입 경로와 각 경로가 여는 것](assets/boundary/entry-routes.svg)
 
-- `packages/scenarios`는 합성 데이터셋과 통제된 변형을 소유하고,
-  `packages/published-data`는 라이선스가 확인된 아티팩트와 출처 기록, 오프라인에서
-  생성한 행, 선언된 항목 연결을 소유하며 계약에만 의존합니다. 시나리오 패키지는
-  공개 자료를 가져오지도 다시 내보내지도 않고, 픽스처 공급자는 두 소유자 모두에서
-  항목 연결을 명시적으로 가져옵니다
-  ([ADR 0023](adr/0023-separate-published-data-ownership.md)(영문)).
+- `packages/scenarios`는 현재 합성 자료와 출처, 통제된 변형을 소유합니다. 픽스처 제공자는 합성 연결만 등록합니다.
 - 카탈로그 메타데이터가 커밋된 원본마다 `REVIEWER_FACING`인지
   `ENGINE_REGRESSION`인지 표시합니다. 선택 목록에는 검토용 원본만 올립니다. 공개
   FIX 4.4 스키마 기반 합성 사례가 세 결과 의미를 모두 재현합니다. 완전한 증거는
@@ -25,8 +20,7 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   `/expectations`는 각 사례가 증명하는 정확한 조건, 두 용도, 사례 재현 제공 여부,
   결과 해시 생성 여부를 밝힙니다.
 - 메타데이터는 원본별로 제공하는 변형도 선언합니다. 공개 스키마 합성 원본은
-  `baseline`·`shuffle`·`duplicate`를, 라이선스가 확인된 아티팩트는
-  `baseline`·`shuffle`만 제공합니다. 어떤 조작도 커밋된 값을 고치거나 참여자나
+  `baseline`·`shuffle`·`duplicate`를 제공합니다. 어떤 조작도 커밋된 값을 고치거나 참여자나
   판정을 더하지 않습니다
   ([ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md)(영문),
   [ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)(영문)).
@@ -87,20 +81,6 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   ([ADR 0043](adr/0043-draw-the-layer-diagram-from-localized-copy.md)(영문)).
 - `/replay`는 예전 `/lab` 경로를 별칭 없이 대체했습니다.
 
-`/case-2026-09-03`은 커밋된 라이선스 아티팩트 위에 작성한 사례 하나입니다. 2026-09-03의
-KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선에 견줍니다.
-
-![공개 사례: 범위를 승인해야 서버에서 규칙이 돈다](assets/boundary/published-case-run.svg)
-
-- 규칙이 돌기 전에는 규칙이 만든 것을 보여 주지 않고, 규칙이 낸 값은 페이지 문구에
-  적지 않습니다. 결과를 요약하는 마지막 문장은 반환된 분석에서 읽습니다. 해시는
-  `apps/web/src/lib/published-case.test.ts`와 엔진 시험이 고정합니다.
-- 공개 항목 연결 두 개는 한 번 검토했고, 승인된 아티팩트 해시를 포함한 승인 기록이
-  `apps/web/src/lib/published-case-approvals.ts`에 커밋돼 있습니다. 페이지는 그
-  연결을 방문자의 승인처럼 제시하지 않고 검토를 마쳤다고 밝힙니다.
-- 차트 좌표는 모든 공개 가격을 고정소수 정수로 읽고, 좌표에 필요한 무단위 분수에서
-  한 번만 나눕니다. 어떤 가격도 이진 부동소수점에 닿지 않습니다.
-
 ## 구성요소 사슬
 
 ![두 줄에 걸친 열 개의 구성요소. 커밋된 원본 행은 신뢰하지 않는 입력이고, 제약된 매퍼가 필드 매핑을 제안하고, 검토자가 그 제안을 아티팩트 해시에 묶어 승인하고, 버전이 고정된 코드가 정본 이벤트를 다시 도출하고 결정론적 데이터셋 프로파일을 계산한다. 계획 단계인 한정된 사례 제안기는 프로파일 사실만으로 행위자 그룹과 구간을 고르게 되고, 검토자가 사례 범위를 승인하며, 결정론적 리플레이 엔진이 규칙을 평가하고, 원본 추적이 모든 발견을 커밋된 행까지 되짚으며, 증거 번들 조립과 독립 검증은 원본 바이트에서 선언을 다시 계산한다. 어느 gate든 거부할 수 있고, 거부된 요청에는 결과 해시가 없다](assets/component-chain.ko.svg)
@@ -109,18 +89,6 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 아닙니다.
 
 ## 신뢰 경계
-
-### 공개 자료 취득 범위
-
-![두 취득 범위와 그것이 닿지 않는 곳](assets/boundary/acquisition-scopes.svg)
-
-- 수동 수집기는 검토된 발행처 어댑터를 쓰고, 자동 전송 시험은 합성으로 유지합니다.
-  오프라인 승인 절차는 커밋된 행과 생성된 원본 좌표, 요청을 원래 페이지 바이트와
-  비교합니다.
-- [공개 자료 취득 범위](PUBLISHED_ACQUISITION.md)(영문),
-  [ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md)(영문),
-  [ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md)(영문)를
-  참고하세요.
 
 ### 층위 경계
 
@@ -306,7 +274,7 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 
 ![증거 번들 1.3이 선언·조립·검증하는 것](assets/boundary/bundle-13.svg)
 
-- 원래의 FSC 일별 시세 아티팩트는 결과 해시는 있고 평가나 사례 매니페스트는 없는
+- 합성 일별 입력의 항목 연결 정규화는 평가나 사례 매니페스트 없이
   `MAPPING_APPROVED`에서 끝납니다. 번들 `1.3`은 Event 1.1–1.3, Proposal 1.4–1.8,
   Manifest 1.3에 대해 정의되며, 해싱은 그중 무엇도 변환하지 않고 없는 항목을 만들지
   않습니다.
@@ -325,7 +293,6 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 | `canonical-kernel`    | 정본 JSON, 해시, 순서, 고정소수 연산                    | 규칙·임계값·가설·판정            |
 | `replay-engine`       | 사건 정규화, 규칙, 증거 해시 범위와 조립                | 자유로운 추론이나 법적 결론      |
 | `scenarios`           | 합성 데이터셋과 통제된 변형                             | 공개·운영·개인 자료              |
-| `published-data`      | 라이선스가 확인된 공개 아티팩트, 출처, 선언된 항목 연결 | 합성 변형이나 제한된 자료        |
 | `service-store`       | 수집한 불변 스냅숏과 파생 결과의 입력 결속              | 규칙·판정이나 수집되지 않은 입력 |
 | `instrument-resolver` | 날짜별 정확한 이름·코드 연결, 근거와 전달받은 시세 연결 | 수집, 추정 별칭이나 판정         |
 | `evals`               | 버전 있는 사례와 측정 집계                              | 문서화되지 않은 성능 주장        |
@@ -353,9 +320,8 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
    없습니다. `dependency-boundary.test.ts`는 워크스페이스 매니페스트의 전이 의존성과
    소스의 import, 재수출, 타입 import를 따라 검사하며 엔진이 저장소에 의존하지 않는지도
    확인합니다.
-4. **픽스처는 결정 층의 시험 입력이며 런타임 입력이 아닙니다.** `scenarios`와
-   `published-data`는 `replay-engine`의 개발 의존성입니다. `ai-harness`는 픽스처 모드가
-   시험 보조가 아니라 배포되는 공급자이므로 런타임에 둘에 의존합니다.
+4. **픽스처는 결정 층의 시험 입력이며 런타임 입력이 아닙니다.** `scenarios`는 `replay-engine`의 개발 의존성입니다. `ai-harness`는 픽스처 모드가
+   시험 보조가 아니라 배포되는 공급자이므로 런타임에 scenarios에 의존합니다.
 
 커널은 별도 워크스페이스 패키지이므로 매니페스트 그래프에서도 경계가 드러납니다.
 루트와 `canonical-hash` 진입점은 Node crypto를 사용하고, `canonical-json`,
@@ -370,7 +336,7 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 ### 계획된 서비스 구성요소의 배치
 
 다음 배치 결정은 채택했습니다. 종목 연결은 `contracts`와 `canonical-kernel`에
-직접 의존하는 2층 패키지로 구현했습니다. 3층 web이 이를 1층 공개 목록과 조합합니다.
+직접 의존하는 2층 패키지로 구현했습니다. 합성 입력으로 검증하며 실제 시세에서 만든 목록과 web 연결은 철회되었습니다.
 공개 API, 지원 범위와 검증 명령은 [종목 연결](INSTRUMENT_RESOLUTION.ko.md)과
 [ADR 0051](adr/0051-resolve-exact-dated-identifiers-over-admitted-listings.md)(영문)에
 있습니다. 아래 나머지 구성요소와 패키지는 아직 **계획**입니다. 배치 근거는
@@ -383,20 +349,20 @@ KOSPI 200 지수와 최근월 선물을, 지수 자신의 2026-07-01 기준선�
 쓸 때 3층에서 4층으로 옮깁니다. `evals`는 3층에 남으며 이번 결정으로 새 의존성을
 추가하지 않습니다. 위 그림은 지금 존재하는 간선만 기록합니다.
 
-| 계획된 구성요소                                                                                                                                                                                | 패키지 위치와 모듈 책임                                                                        | 층                         | 허용하는 직접 런타임 워크스페이스 의존성                                          |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
-| 수집기 ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | 새 `packages/collectors`: 공통 수집 수명 주기, 발행기관 어댑터, 재시도와 수집 상태             | 3                          | 수집·스냅숏 전용 진입점을 통한 `contracts`, `canonical-kernel`, `service-store`   |
-| 문서 파서 ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                        | 새 `packages/document-parser`: HTML/PDF/HWP의 텍스트, 표, 원본 좌표                            | 2                          | `contracts`, `canonical-kernel`                                                   |
-| 사건 구조화 ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                      | 기존 `packages/ai-harness`: 사건 제안 어댑터와 결정론적 인용 구간 검증                         | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`, `published-data` |
-| 종목 연결 ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                        | 구현된 `packages/instrument-resolver`: 전달받은 목록의 날짜별 정확한 이름·코드 연결과 후보     | 2                          | `contracts`, `canonical-kernel`                                                   |
-| 결론 정의 ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                                        | 기존 `packages/replay-engine`: 버전 있는 기술 통계 정의와 계산                                 | 2                          | `contracts`, `canonical-kernel`                                                   |
-| 피드 통계 ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                        | 기존 `packages/replay-engine`: 결론 정의를 재사용하는 통계 모듈; 예약 실행과 카드는 `apps/web` | 2 (계산), 4 (애플리케이션) | 엔진: `contracts`, `canonical-kernel`; 애플리케이션: 아래 4층 목록                |
-| 주장 추출 ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                        | 기존 `packages/ai-harness`: 주장 제안 어댑터와 결정론적 인용 구간 검증                         | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`, `published-data` |
-| 주장 확인 ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                        | 기존 `packages/replay-engine`: 전달받은 입력의 재계산, 선언된 반올림, 근거 등급 결정           | 2                          | `contracts`, `canonical-kernel`                                                   |
-| 브리프와 공유 링크 ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                               | 기존 `apps/web`: 채택, 한·영 브리프/PDF 렌더링, URL 프래그먼트 인코딩과 다시 열기              | 4                          | 아래 4층 목록                                                                     |
+| 계획된 구성요소                                                                                                                                                                                | 패키지 위치와 모듈 책임                                                                        | 층                         | 허용하는 직접 런타임 워크스페이스 의존성                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| 수집기 ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | 새 `packages/collectors`: 공통 수집 수명 주기, 발행기관 어댑터, 재시도와 수집 상태             | 3                          | 수집·스냅숏 전용 진입점을 통한 `contracts`, `canonical-kernel`, `service-store` |
+| 문서 파서 ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                        | 새 `packages/document-parser`: HTML/PDF/HWP의 텍스트, 표, 원본 좌표                            | 2                          | `contracts`, `canonical-kernel`                                                 |
+| 사건 구조화 ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                      | 기존 `packages/ai-harness`: 사건 제안 어댑터와 결정론적 인용 구간 검증                         | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`                 |
+| 종목 연결 ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                        | 구현된 `packages/instrument-resolver`: 전달받은 목록의 날짜별 정확한 이름·코드 연결과 후보     | 2                          | `contracts`, `canonical-kernel`                                                 |
+| 결론 정의 ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                                        | 기존 `packages/replay-engine`: 버전 있는 기술 통계 정의와 계산                                 | 2                          | `contracts`, `canonical-kernel`                                                 |
+| 피드 통계 ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                        | 기존 `packages/replay-engine`: 결론 정의를 재사용하는 통계 모듈; 예약 실행과 카드는 `apps/web` | 2 (계산), 4 (애플리케이션) | 엔진: `contracts`, `canonical-kernel`; 애플리케이션: 아래 4층 목록              |
+| 주장 추출 ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                        | 기존 `packages/ai-harness`: 주장 제안 어댑터와 결정론적 인용 구간 검증                         | 2                          | `contracts`, `canonical-kernel`; 기존 픽스처 의존성 `scenarios`                 |
+| 주장 확인 ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                        | 기존 `packages/replay-engine`: 전달받은 입력의 재계산, 선언된 반올림, 근거 등급 결정           | 2                          | `contracts`, `canonical-kernel`                                                 |
+| 브리프와 공유 링크 ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                               | 기존 `apps/web`: 채택, 한·영 브리프/PDF 렌더링, URL 프래그먼트 인코딩과 다시 열기              | 4                          | 아래 4층 목록                                                                   |
 
 4층 애플리케이션이 직접 가져다 쓸 수 있는 런타임 워크스페이스 패키지는
-`contracts`, `canonical-kernel`, `scenarios`, `published-data`, `service-store`,
+`contracts`, `canonical-kernel`, `scenarios`, `service-store`,
 `collectors`, `document-parser`, `ai-harness`, `instrument-resolver`,
 `replay-engine`입니다. 서버 조립, 예약 실행과 화면은 `apps/web`의 모듈로 둡니다.
 저장소, 수집기, 공급자 자격 증명과 원시 모델 추적은 서버에만 남습니다. 낮은 층이라는
@@ -518,9 +484,9 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ## 표현 경계
 
-![아홉 개의 공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay, /case-2026-09-03](assets/boundary/public-routes.svg)
+![공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay](assets/boundary/public-routes.svg)
 
-- 아홉 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
+- 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
   스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
   `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 디자인 저장소는
   빌드나 런타임 의존성이 아닙니다.
@@ -532,11 +498,7 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ![일별 시세 버전이 레지스트리에서 공존하는 방식](assets/boundary/daily-quote-versions.svg)
 
-공개된 FSC KOSPI 일별 아티팩트는 사례 매니페스트 없이 등록돼 있습니다.
-[일별 시세 정규화](DAILY_QUOTES.ko.md),
-[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md)(영문),
-[ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md)(영문)을
-참고하세요.
+철회된 실제 자료 연결 대신 합성 입력으로 계약과 규칙을 검증합니다.
 
 ![별도의 교차시장 진입점과 그것이 받아들이는 것](assets/boundary/cross-market-entry.svg)
 
@@ -563,8 +525,7 @@ CROSS_MARKET_SESSION_REVERSAL `1.1`은 또 하나의 선택 규칙 계약입니�
   원본 기록을 참고하세요.
 - 커밋된 모든 재현 원본에는 기계가 읽는 출처 기록이 하나씩 있습니다. 합성 기록은 정확한
   픽스처 바이트를 가리키며 저장소가 작성한 항목과 공개 스키마 투영을 구분하고,
-  라이선스가 확인된 실제 기록은 취득·허가·도출 내용을 유지합니다.
+  실제 시세 기록은 현재 트리에서 철회되었습니다.
 - 표시 전용 `SourceProvenance.recordUrl`은 원본 행 패널에서 그 기록에 닿고 승인과 정본
-  해시 입력 밖에 있습니다. 적용 범위와 해시 검사는 원본을 소유한 두 패키지를 모두
-  덮습니다
+  해시 입력 밖에 있습니다. 적용 범위와 해시 검사는 합성 원본을 소유한 scenarios 패키지를 덮습니다
   ([ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md)(영문)).

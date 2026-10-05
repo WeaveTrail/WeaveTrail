@@ -4,7 +4,6 @@ import Link from "next/link";
 import React from "react";
 
 import { useCopy, type Language } from "./i18n/language";
-import { HomeEvent, type HomeEventProps } from "./case-2026-09-03/home-event";
 
 interface Position {
   readonly name: string;
@@ -173,7 +172,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   },
 };
 
-export function HomeContent({ event }: { event: HomeEventProps }) {
+export function HomeContent() {
   const text = useCopy(homeCopy);
 
   return (
@@ -193,8 +192,6 @@ export function HomeContent({ event }: { event: HomeEventProps }) {
           </Link>
         </div>
       </section>
-
-      <HomeEvent {...event} />
 
       <section className="shell system-section">
         <div className="section-heading">

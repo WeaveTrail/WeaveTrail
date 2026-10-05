@@ -7,7 +7,6 @@ import {
   type CaseManifest,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   committedReplayScenarios,
@@ -119,15 +118,7 @@ const syntheticEntries: Entry[] = Object.entries(syntheticProposals).map(
   }),
 );
 
-const publishedEntries: Entry[] = Object.entries(publishedReplaySources).map(
-  ([name, source]) => ({
-    name,
-    artifact: artifact(`../../published-data/src/sources/${name}`),
-    proposal: source.mappingProposal,
-  }),
-);
-
-const entries = [...syntheticEntries, ...publishedEntries];
+const entries = [...syntheticEntries];
 
 function assemble(entry: Entry) {
   return assembleEvidenceBundle({
@@ -153,10 +144,7 @@ describe("Evidence Bundle 1.3 assembly and independent verification", () => {
     expect(Object.keys(syntheticProposals).sort()).toEqual(
       Object.keys(committedReplayScenarios).sort(),
     );
-    expect(entries).toHaveLength(
-      Object.keys(committedReplayScenarios).length +
-        Object.keys(publishedReplaySources).length,
-    );
+    expect(entries).toHaveLength(Object.keys(committedReplayScenarios).length);
   });
 
   it.each(entries)(
