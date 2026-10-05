@@ -209,7 +209,6 @@ describe("configured mapping and replay boundary", () => {
   );
 
   it.each([
-    "real/fsc-stock-quotes-20260903.jsonl",
     "rapid-price-lift-supported.csv",
     "actorless-multi-instrument-quotes.jsonl",
   ] as const)(

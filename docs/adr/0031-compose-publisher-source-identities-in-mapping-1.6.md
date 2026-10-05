@@ -4,6 +4,10 @@
 
 Accepted
 
+> Historical source note: the FSC artifacts described below were withdrawn by
+> [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The composite
+> identity contract remains applicable to synthetic dialects.
+
 ## Context
 
 The FSC index operation identifies an observation by the natural key

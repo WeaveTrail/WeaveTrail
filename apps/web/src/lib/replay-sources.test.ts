@@ -70,15 +70,8 @@ describe("replay source audiences", () => {
       expect(groundedResults.has(result)).toBe(false);
   });
 
-  it("offers only non-fabricating controls for licensed published sources", () => {
-    for (const [name, source] of Object.entries(reviewerFacingReplaySources)) {
-      if (source.provenance.kind !== "real") continue;
-      expect(
-        replaySourceCatalog[name as keyof typeof replaySourceCatalog]
-          .availableMutations,
-      ).toEqual(["baseline", "shuffle"]);
-      expect(source).not.toHaveProperty("manifest");
-      expect(source).not.toHaveProperty("expectedResult");
-    }
+  it("offers only synthetic sources", () => {
+    for (const source of Object.values(committedReplaySources))
+      expect(source.provenance.kind).toBe("synthetic");
   });
 });

@@ -1,6 +1,11 @@
 # ADR 0046: Retain public sources in two provenance tiers
 
-- Status: Accepted
+> Historical decision: source-dependent portions are superseded by
+> [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
+> account below describes the withdrawn tier. Generic contracts, synthetic
+> behavior and provenance safeguards remain applicable.
+
+- Status: Partially superseded by ADR 0056 (committed sources and composition)
 - Date: 2026-09-13
 - Partially supersedes [ADR 0014](0014-keep-replay-workflows-request-local.md)
   where collected source inputs and derived results require persistence.

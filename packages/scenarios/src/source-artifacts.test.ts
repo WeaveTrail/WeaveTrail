@@ -68,9 +68,6 @@ type ProvenanceRecord = {
 const scenarioSourceRoot = fileURLToPath(
   new URL("./sources/", import.meta.url),
 );
-const publishedSourceRoot = fileURLToPath(
-  new URL("../../published-data/src/sources/real/", import.meta.url),
-);
 
 function filesBelow(root: string): string[] {
   return readdirSync(root)
@@ -155,8 +152,8 @@ describe("synthetic source artifacts", () => {
     expect(sha256(bytes)).toBe(expectedHash);
   });
 
-  it("records every committed synthetic and published replay source exactly once", () => {
-    const roots = [scenarioSourceRoot, publishedSourceRoot];
+  it("records every committed synthetic replay source exactly once", () => {
+    const roots = [scenarioSourceRoot];
     const sourceFiles = roots.flatMap((root) =>
       filesBelow(root).filter((path) => /\.(?:csv|jsonl)$/.test(path)),
     );

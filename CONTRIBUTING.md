@@ -33,13 +33,8 @@ It never updates expectations. See [the evaluation protocol](docs/EVALUATION.md)
 for case definitions, captured results and limits. Its publication assertion also
 runs in `pnpm test`; CI runs the command to exercise receipt generation.
 
-`pnpm eval:coverage` reproduces the authored structured claim-scope evaluation
-and measures the retained payload of each admitted dataset. It writes a stable
-summary and an actual environment receipt to `dist/coverage-evaluation/` and
-never updates expectations. See [the admission review](docs/PUBLISHED_DATA_ADMISSION.md)
-for current exclusions, the byte budget and the distinction between coverage
-preflight and numeric claim grading. Its publication assertion runs in
-`pnpm test`, and CI also exercises receipt generation.
+Earlier evaluation captures with withdrawn sources remain historical records.
+The current `pnpm eval` verifies synthetic-only v3; see [the evaluation protocol](docs/EVALUATION.md).
 
 `pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as

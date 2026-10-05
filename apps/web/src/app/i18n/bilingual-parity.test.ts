@@ -79,7 +79,6 @@ const surfaces: readonly (readonly [
 ];
 
 const koreanEvaluationCheckNames = [
-  "공개 시세의 도출과 정규화",
   "행 순서 불변성",
   "리터럴 골든 해시",
   "완전히 같은 중복 행 허용",
@@ -227,7 +226,7 @@ describe("the two languages carry the same claims", () => {
       const footer = chromeCopy[language].footerStatus;
       expect(footer.toLowerCase(), language).toContain("fixture");
       expect(
-        /synthetic|합성/.test(footer) && /quote|시세/.test(footer),
+        /synthetic|합성/.test(footer) && !/quote|시세/.test(footer),
         language,
       ).toBe(true);
     }

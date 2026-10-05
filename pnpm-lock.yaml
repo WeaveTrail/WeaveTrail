@@ -47,9 +47,6 @@ importers:
       '@weavetrail/instrument-resolver':
         specifier: workspace:*
         version: link:../../packages/instrument-resolver
-      '@weavetrail/published-data':
-        specifier: workspace:*
-        version: link:../../packages/published-data
       '@weavetrail/replay-engine':
         specifier: workspace:*
         version: link:../../packages/replay-engine
@@ -78,9 +75,6 @@ importers:
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@weavetrail/published-data':
-        specifier: workspace:*
-        version: link:../published-data
       '@weavetrail/scenarios':
         specifier: workspace:*
         version: link:../scenarios
@@ -105,9 +99,6 @@ importers:
       '@weavetrail/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@weavetrail/published-data':
-        specifier: workspace:*
-        version: link:../published-data
       '@weavetrail/replay-engine':
         specifier: workspace:*
         version: link:../replay-engine
@@ -124,12 +115,6 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
-  packages/published-data:
-    dependencies:
-      '@weavetrail/contracts':
-        specifier: workspace:*
-        version: link:../contracts
-
   packages/replay-engine:
     dependencies:
       '@weavetrail/canonical-kernel':
@@ -139,9 +124,6 @@ importers:
         specifier: workspace:*
         version: link:../contracts
     devDependencies:
-      '@weavetrail/published-data':
-        specifier: workspace:*
-        version: link:../published-data
       '@weavetrail/scenarios':
         specifier: workspace:*
         version: link:../scenarios

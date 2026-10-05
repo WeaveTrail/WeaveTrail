@@ -7,14 +7,15 @@ verification. It is not a production market-surveillance system.
 
 ## Current limitations
 
+Current source inputs and evaluations are synthetic only. Real quotations and their pages/APIs have been withdrawn; earlier evaluation captures are labelled with withdrawn sources.
+
 - Deterministic fixtures remain the default. The configured mapping adapter is
   tested with mocked transport only; no live provider quality or compatibility
   is claimed. Only the two committed synthetic source dialects are eligible.
   Configured proposals expire after 30 minutes and need a new request and
   approval; durable provider audit storage and identity/spending controls do
   not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
-- The deployment configuration uses fixture proposals over committed synthetic
-  and licensed published source artifacts; it contains no model-provider credential.
+
 - Case Replay uses the complete published-schema FIX 4.4 projection as its
   supported synthetic case and the actorless H0STCNT0 projection as its
   separate mapping-review example. H0STCNT0 has no rule manifest;
@@ -23,11 +24,7 @@ verification. It is not a production market-surveillance system.
   `NOT_SUPPORTED`, a missing-side case that reaches `INCONCLUSIVE` and a
   conflicting-identity case that reaches `INPUT_REVIEW_REQUIRED`; the guided
   walkthrough itself still follows only the complete supported case.
-- The source picker contains published-schema projections and licensed published
-  sources. Engine-regression placeholders remain reachable to tests and the replay
-  API but are not offered to a reviewer. Licensed published sources offer only
-  baseline and row-order shuffle; no control invents a value, participant, or
-  pattern verdict.
+
 - Guided completion preserves approvals and results only in the mounted
   browser view. Refresh starts unapproved. Repeating a case compares two actual
   hashes for same-input repeatability; it establishes neither authenticity nor
@@ -42,26 +39,9 @@ verification. It is not a production market-surveillance system.
   `INPUT_REVIEW_REQUIRED` starts a new request at `UPLOADED`.
 - Mapping-only foundation validation ends at `MAPPING_APPROVED`; only an
   approved case rule replay reaches `REPLAYED`.
-- The published-case browser asks the visitor to approve before running. Its API
-  validates the exact approved scope hash from a caller-supplied `APPROVED`
-  record but does not authenticate the reviewer or prove that a person created
-  the record. It demonstrates approval binding, not audit-grade human identity.
-- Rule evaluations use synthetic cases and one fixed, licensed published
-  index-and-futures case. The published case is a deterministic worked example;
-  it does not establish real-market rule accuracy.
-- Rule thresholds are illustrative per-case configuration, not calibrated
-  market thresholds. In the published case they were selected with the
-  observations already known. Synthetic and published-case results are not a
-  detection-rate measurement.
+
 - No large-scale performance benchmark has been run.
-- Complete-series acquisition has a manual collector and offline admission
-  checks; transport tests use synthetic responses, and no production retrieval
-  service exists. Committed real complete-series artifacts retain every page
-  and a row count equal to the publisher total for their predeclared scopes.
-  That completeness is not a claim of stable remote snapshots, authenticity or
-  coverage outside those scopes. The earlier FSC stock-quote artifact remains
-  a bounded window. See
-  [Published acquisition scopes](PUBLISHED_ACQUISITION.md).
+
 - Upload persistence, authentication, multi-tenancy, and signed exports are out
   of the current scope.
 - Public-source persistence has a SQLite implementation with immutable bytes,
@@ -78,11 +58,8 @@ verification. It is not a production market-surveillance system.
   authenticate a publisher or reviewer, provide a signature, or define
   multi-source replay. The legacy 1.2 schema stays available but cannot represent
   normalization without a rule result or the complete engine evaluation.
-- `canonicalResultHash` alone does not bind case scope: approved mappings,
-  manifests and complete audit records belong to `bundleHash`. A changed
-  approval time can change the latter without changing the semantic result
-  hash. The published FSC artifact has a foundation result hash after mapping
-  approval, but no case or rule evaluation; it is not an INCONCLUSIVE rule run.
+
+- `canonicalResultHash` alone does not bind case scope: approved mappings, manifests and audit records belong to `bundleHash`. Approval time may change the bundle hash without changing the semantic result hash.
 
 ## Interpretation limits
 
@@ -103,15 +80,3 @@ verification. It is not a production market-surveillance system.
 Do not use this prototype to determine guilt, make legal findings, recommend or
 execute trades, process undisclosed personal data, or replace qualified human
 review.
-
-The published FSC KOSPI daily quotation window has no participant identities,
-execution side or individual execution time. It normalizes after explicit
-mapping approval, but an attempted case actor is refused before rule evaluation.
-Its first-page sample is not the entire market. No actor, side, order,
-hypothesis or verdict is added to the published source rows. A separate,
-pre-approved case may evaluate the index and contract with a versioned rule;
-each observed-value and threshold pair links to the thresholds' origin, and the
-result means support for that declared pattern only. See
-[ADR 0034](adr/0034-evaluate-real-instruments-without-altering-source-facts.md)
-for the boundary and [daily quote normalization](DAILY_QUOTES.md) for exact
-provenance and reproduction.

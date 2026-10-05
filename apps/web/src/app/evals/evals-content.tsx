@@ -12,10 +12,6 @@ type Check = {
 
 const koreanChecks = [
   [
-    "공개 시세의 도출과 정규화",
-    "커밋된 응답에서 나온 바이트를 재현하고, 불변 해시로 일별 아티팩트를 정규화합니다. 평가 전에 신뢰하지 않는 행위자 사례는 거부합니다. 규칙 벤치마크는 아닙니다.",
-  ],
-  [
     "행 순서 불변성",
     "같은 이벤트의 순서를 섞어도 정본 해시는 하나여야 합니다.",
   ],
@@ -86,13 +82,13 @@ export function EvalsContent({ checks }: { checks: readonly Check[] }) {
         "평가 목록",
         "검증한 것만 말합니다.",
         "실행할 수 있는 검증과 계획된 측정을 구분합니다.",
-        "규칙 결과는 시연용 가상 사례로 검증합니다. 공개 일별 시세의 출처는 직접 조작 화면에 표시합니다.",
+        "현재 평가는 합성 사례만 사용합니다. 이전 공개자료 평가는 출처가 철회된 과거 캡처입니다.",
       ]
     : [
         "Evaluation ledger",
         "Measured evidence only.",
         "This page distinguishes runnable invariants from future measurements. Targets do not become results until their cases, command, environment, and limitations are committed.",
-        "Rule outcome benchmarks use synthetic cases. The published daily quote artifact is separate normalization and refusal evidence, with provenance shown in working mode.",
+        "The current evaluation uses synthetic cases only. Earlier published-data evaluations are historical captures with withdrawn sources.",
       ];
   return (
     <main className="shell page-shell">

@@ -17,7 +17,6 @@ this file covers the judgment calls that process does not spell out.
 | `packages/replay-engine`       | Deterministic event normalization, rules, and evidence hash scopes      |
 | `packages/ai-harness`          | Constrained provider adapters and deterministic fixtures                |
 | `packages/scenarios`           | Synthetic datasets and controlled input mutations                       |
-| `packages/published-data`      | Licensed published artifacts, provenance, and declared source mappings  |
 | `packages/service-store`       | Immutable collected public-source snapshots and derived-result bindings |
 | `packages/evals`               | Versioned evaluation cases and aggregate runners                        |
 | `docs`                         | Public architecture, methodology, evaluation protocol, and limitations  |

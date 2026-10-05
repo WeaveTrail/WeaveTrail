@@ -24,7 +24,7 @@
 
 <p align="center">
   <a href="#a-summary-is-not-yet-evidence">Problem</a> &middot;
-  <a href="#a-worked-case">A worked case</a> &middot;
+  <a href="#a-synthetic-case">A synthetic case</a> &middot;
   <a href="#layer-separation">Layers</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
   <a href="#how-it-fits-together">How it fits together</a>
@@ -71,29 +71,15 @@ one page of evidence to pass on.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
-## A worked case
+## A synthetic case
 
-On 3 September 2026 the KOSPI 200 finished a hair above the previous day. Inside
-that day it had given back roughly fourteen times that gain from its own high,
-and the futures contract on it gave back roughly twenty-five times. Nothing in a
-closing price says so. Suppose someone hands you the date and asks whether it is
-worth a second look.
+The walkthrough uses synthetic executions with published FIX 4.4 field names.
+Approve the mapping and case scope, run the rule, and open each finding onto its
+source rows and hashes. Repeat the same inputs to compare result hashes.
+Real quotation sources and the pages built on them have been withdrawn.
 
-![One day re-derived from published records: the index drawn as the session minute by minute — the same line the site shows, illustrative and taking no part in the checks — marked at its high and its low with the published open and close beneath it, its futures contract as the day's published range, the day and period a person fixes before anything runs, and what the versioned rule returned — each observed value beside the threshold it was compared with, and a note that the thresholds were chosen by someone who had already seen the day](docs/assets/worked-case.svg)
-
-The published records are read exactly as published. A person fixes what will be
-examined — the date, the period it is compared against, how large a pull-back
-has to be — before anything runs. Fixed code then does the arithmetic and
-reports where the day stands within that period. Each observed value opens onto
-the published row it was read from, and running it again on the same inputs
-produces the same result.
-
-What it does not say: who traded, why, or whether anything was wrong. The
-comparison period and the thresholds were chosen by a person who had already
-seen the day, which is part of how the result should be read.
-
-[Walk the case](https://weave-trail-web-flax.vercel.app/case-2026-09-03)
-&middot; [Limitations](docs/LIMITATIONS.md)
+[Walk the case](https://weave-trail-web-flax.vercel.app/replay)
+&middot; [Withdrawal decision](docs/adr/0056-withdraw-the-committed-real-data-tier.md)
 
 ## Layer separation
 
@@ -143,7 +129,7 @@ guidance:
 A conclusion says what the public data supports, not why it happened, whether
 anyone did wrong, or where a price goes next.
 
-Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
+Historical policy reference: Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
 since 22 June 2026, holds that the final decision and the responsibility for it
 stay with a person, and the supervisory risk-management framework issued
 alongside it asks for verification before release and documentation across the
@@ -216,16 +202,14 @@ choice.
 ## See it running
 
 The [deployed site](https://weave-trail-web-flax.vercel.app) follows the `main`
-branch and may differ from this checkout. It serves the worked case above and
-case replay at `/replay`; the rest of the chain is tracked in the
+branch and may differ from this checkout. The current checkout serves the synthetic
+walkthrough at `/replay`; the rest of the chain is tracked in the
 [v0.1.0 milestone](https://github.com/WeaveTrail/WeaveTrail/milestone/1).
 
 Case replay carries one file along the whole chain: read the actual rows, review
 what a model proposed the columns mean, approve that reading and the scope, run
 it, and open a result back to the rows it rests on. Approvals and results live
-in the open page only, so a refresh starts unapproved. The cases are synthetic
-except for the published market records, which are committed under a licence
-that permits it, with their origin and retrieval recorded beside them. By
+in the open page only, so a refresh starts unapproved. All current cases are synthetic, with adjacent provenance. By
 default the reading step runs from stored fixtures rather than calling a model,
 and the deployed configuration carries no model credential.
 [Contributing](CONTRIBUTING.md) covers running it locally.
@@ -243,8 +227,7 @@ and the deployed configuration carries no model credential.
 - [Data handling](docs/DATA_HANDLING.md) — what a check sends, keeps and logs,
   with the tests that enforce it ([한국어](docs/DATA_HANDLING.ko.md))
 - [Instrument and index resolution](docs/INSTRUMENT_RESOLUTION.md) — dated name/code matching, ambiguity, quotation links and snapshot references ([한국어](docs/INSTRUMENT_RESOLUTION.ko.md))
-- [Daily quote normalization](docs/DAILY_QUOTES.md) — the published market
-  records, their permission and their exact reproduction
+- [Daily quote contracts](docs/DAILY_QUOTES.md) — retained versions, synthetic checks and the withdrawn source boundary
   ([한국어](docs/DAILY_QUOTES.ko.md))
 - [Expected scenario results](https://weave-trail-web-flax.vercel.app/expectations)
   — what every committed case returns, taken from the engine itself

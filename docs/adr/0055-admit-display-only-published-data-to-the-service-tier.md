@@ -1,6 +1,11 @@
 # ADR 0055: Admit display-only published data to the service tier
 
-- Status: Accepted
+> Historical decision: source-dependent portions are superseded by
+> [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
+> account below describes the withdrawn tier. Generic contracts, synthetic
+> behavior and provenance safeguards remain applicable.
+
+- Status: Partially superseded by ADR 0056 (committed sources and composition)
 - Date: 2026-09-30
 - Partially supersedes [ADR 0046](0046-retain-public-sources-in-two-provenance-tiers.md)
   and [ADR 0054](0054-record-blocked-data-admission-with-a-coverage-baseline.md)

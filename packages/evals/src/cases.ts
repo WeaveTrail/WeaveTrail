@@ -1,6 +1,6 @@
 /** Authored oracles: changing these requires review, never an update flag. */
 export const evaluationCases = {
-  version: "financial-replay-evaluation/2",
+  version: "financial-replay-evaluation/3",
   mutationVersion: "canonical-mutations/1",
   mappingCases: [
     {
@@ -59,7 +59,7 @@ export const limitations = [
   "Only the registered fixture provider runs; configured AI providers are excluded.",
   "Synthetic RAPID_PRICE_LIFT outcomes are rule regressions, not real-market performance.",
   "Canonical mutations are synthetic engine probes, not changed source facts or market observations.",
-  "Published artifacts enter baseline normalization only; no real-instrument rule verdict is aggregated.",
+  "All current inputs are synthetic; earlier captures include withdrawn sources and are historical only.",
   "Generated approvals are evaluation fixtures, not human-approved cases or publication permission.",
   "Zero findings have zero trace references and are not counted as successful trace coverage.",
   "No latency, memory, investigation-effort, generalization, or evidence-grade shares are measured.",

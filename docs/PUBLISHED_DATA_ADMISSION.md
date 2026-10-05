@@ -1,142 +1,15 @@
-# Published data admission review
+# Published data withdrawal
 
 [한국어](PUBLISHED_DATA_ADMISSION.ko.md)
 
-Review date: **2026-09-29 UTC**. This records source admission prerequisites for
-[the coverage expansion](https://github.com/WeaveTrail/WeaveTrail/issues/225).
-No new market data, listing, calendar or specification was collected or admitted.
-The [coverage manifest](COVERAGE.md) continues to derive only from the five
-existing acquisitions. Every listed stock and a longer major index window
-cannot enter the committed verification tier. A written answer from the rights
-holder, received on 2026-09-30, permits the stock and index distributions in
-the service tier as display-only data
-([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md));
-that path is accepted but not yet implemented.
+The committed quotation sources and their application composition have been withdrawn. No real quotation data is offered in the current tree. See [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).
 
-## Source review and out-of-coverage inventory
+## Historical evaluation
 
-These are authored review notes with links to the official pages, not copied
-publisher artifacts or permission approvals. Conditions can change; reopen the
-source and linked terms on the day of any proposed acquisition.
+The unchanged claim coverage v1 summary and receipt are historical captures with withdrawn sources, not current coverage. `pnpm eval:coverage` and its runner have been removed.
 
-| Proposed dataset                                                                                             | Official source reviewed                                                                                                                                                                                                                                        | Admission result and missing prerequisite                                                                                                                                                                                                                                                 |
-| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Full KOSPI/KOSDAQ daily stock window ([#226](https://github.com/WeaveTrail/WeaveTrail/issues/226))           | [FSC stock quotations](https://www.data.go.kr/data/15094808/openapi.do), license section and description                                                                                                                                                        | Not admitted to the repository. KOGL type 4 and the description prohibit third-party provision and redistribution. Admissible to the service tier as display-only data under the 2026-09-30 answer (planned).                                                                             |
-| Longer major KOSPI/KOSDAQ index window ([#227](https://github.com/WeaveTrail/WeaveTrail/issues/227))         | [FSC index quotations](https://www.data.go.kr/data/15094807/openapi.do), license section and description                                                                                                                                                        | Not admitted to the repository for the same reason. Admissible to the service tier as display-only data under the 2026-09-30 answer (planned).                                                                                                                                            |
-| Full dated stock listing to bind identities                                                                  | [FSC KRX listings](https://www.data.go.kr/data/15094775/openapi.do), license section and description                                                                                                                                                            | Not admitted. The same restrictions apply; existing quote-derived identifiers are still a bounded listing.                                                                                                                                                                                |
-| Derivatives expiry calendar and specifications ([#228](https://github.com/WeaveTrail/WeaveTrail/issues/228)) | KRX [KOSPI 200 futures](https://open.krx.co.kr/contents/OPN/01/01040201/OPN01040201.jsp), [options](https://open.krx.co.kr/contents/OPN/01/01040202/OPN01040202.jsp) and linked [legal notice](https://info.krx.co.kr/contents/KRX/06/06070200/KRX06070200.jsp) | Not admitted. The notice requires prior consent for copying, transmitting, publishing or distributing KRX services. No reviewed grant allowing retained source bytes, modification and redistribution was established. Product rules alone are not an admitted holiday-adjusted calendar. |
-| Published investor-type trading aggregates ([#229](https://github.com/WeaveTrail/WeaveTrail/issues/229))     | KRX [Data Marketplace](https://data.krx.co.kr/contents/MDC/MAIN/main.jspx), investor trading statistics, and the KRX legal notice linked above                                                                                                                  | Not admitted. Published aggregate statistics exist, but no dataset-specific permission satisfying all admission requirements was established. Website availability is not a reuse grant.                                                                                                  |
+[Historical captures](../packages/evals/results/README.md) record the limitation.
 
-### Boundary of this admission review
+## Current boundary
 
-The stock and index pages label their data KOGL type 4 and expressly prohibit
-unauthorized third-party provision and redistribution. Original data and files
-containing it are not published through GitHub, user downloads or other
-exports.
-
-On 2026-09-30 the Korea Exchange data division answered an inquiry naming both
-distributions. For a non-commercial service without advertising or paid
-features, it permits keeping API responses on a server without a retention
-limit, normalizing them and computing values such as change rates, and showing
-quote values and computed results on web screens credited to
-「한국거래소 통계정보」, with no separate permission or contract. It excludes
-publication on GitHub or elsewhere and user download or export.
-[ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md)
-adds a display-only service-tier grade and export boundary for that use. The
-contract, collector, host and screens are planned; no new dataset was admitted
-yet and the coverage baseline is unchanged. The answer does not cover the
-listing, derivative and investor datasets.
-
-The FSC stock and index pages show a 2026-09-07 modification date; the listing
-page shows 2026-09-23. Those are page metadata, not proof of when any particular
-condition changed. The current review does not rewrite the recorded permission
-or retrieval dates of existing acquisitions, and does not conclude whether a
-later condition applies retroactively. Existing records do not authorize new
-retrievals. See [licensing](LICENSING.md) and
-[instrument resolution](INSTRUMENT_RESOLUTION.md).
-
-Reopening repository admission requires a reviewed grant explicitly covering
-retained original bytes, repository commitment, deterministic modification and
-third-party redistribution, with its origin, check time and attribution
-requirements. Paid API access or automatic API approval does not itself
-establish those rights. The display-only service tier does not need them, but
-its data never enters the repository.
-
-Candidate sizes are **not measured**: acquisition stopped at the permission
-prerequisite. No absent dataset is classified as too large from an estimate.
-
-## Repository payload budget
-
-The initial review bound is **16 MiB (16,777,216 uncompressed bytes) per new
-dataset**. This maintenance budget includes original responses, runtime JSONL,
-generated rows, the provenance record, acquisition receipt and complete-series
-declaration. Count each retained path once within a dataset. Source code,
-documentation, Git history and compression are outside the measurement.
-
-`pnpm eval:coverage` measures those files for existing admitted datasets, records
-their byte counts and SHA-256 values, and reports whether each fits the bound.
-It performs offline acquisition verification first; it grants no permission and
-does not enforce a network or acquisition size limit. For a future permitted
-dataset, record the same inventory **before staging it**. A complete series must
-not be truncated to fit. Data exceeding the bound remains out of verification
-coverage pending [service-tier work](https://github.com/WeaveTrail/WeaveTrail/issues/206)
-and reviewed service-tier permission. See
-[ADR 0054](adr/0054-record-blocked-data-admission-with-a-coverage-baseline.md).
-
-The following existing payload sizes are captured by the evaluation below;
-all fit the review bound. They are measurements of committed files, not size
-estimates for the blocked candidates.
-
-| Existing dataset   | Retained bytes | Observations / publisher total |
-| ------------------ | -------------- | ------------------------------ |
-| KOSPI 200 baseline | 84,245         | 45 / 45                        |
-| KOSPI 200 futures  | 20,573         | 13 / 13                        |
-| KOSPI index family | 61,993         | 32 / 32                        |
-| First stock page   | 50,195         | 40 / 943                       |
-| Weekly options     | 687,071        | 546 / 546                      |
-
-## Reproducible scope evaluation
-
-```bash
-pnpm eval:coverage
-```
-
-The [case definition](../packages/evals/src/claim-coverage-cases.ts) fixes twelve
-authored structured requests: four observed daily scopes, three missing
-instrument probes (one explicitly synthetic), two dates outside recorded windows,
-one intraday request and two unadmitted field probes. These are illustrative
-checking scopes, not collected user messages or asserted market facts. Canonical
-IDs are supplied directly; neither name resolution nor pasted-text extraction
-is measured. `expiryDate` and `foreignNetVolume` are illustrative absent fields,
-not invented publisher columns or derived rows.
-
-The [runner](../packages/evals/src/claim-coverage-runner.ts) compares the five
-baseline dataset IDs against the current manifest, using no numeric definitions,
-as in the public coverage endpoint. The
-[captured summary](../packages/evals/results/published-claim-coverage-v1.json)
-pins both manifest hashes and every retained payload file hash. The command
-asserts agreement with that publication and never updates expectations. It also
-verifies every existing source offline from its recorded response; no network
-access or credential is required. Unit tests reject a missing dataset or a
-changed observed scope. CI runs both the assertion and receipt generation.
-
-| Preflight outcome       | Before | After |
-| ----------------------- | ------ | ----- |
-| `UNCONFIRMABLE` share   | 12/12  | 12/12 |
-| `OUTSIDE_COVERAGE`      | 7      | 7     |
-| `RESOLUTION_TOO_COARSE` | 1      | 1     |
-| `DEFINITION_NOT_BOUND`  | 4      | 4     |
-
-The command writes `dist/coverage-evaluation/summary.json` and `run.json`. The
-[captured run receipt](../packages/evals/results/published-claim-coverage-v1.run.json)
-records the exact command, checkout fingerprint and actual environment: Node
-22.18.0, pnpm 10.33.2, Vitest 5.0.1, Linux x86_64. Environment metadata stays
-outside the stable summary.
-
-There is **no measured coverage improvement** because no new dataset is admitted.
-These authored sample counts do not estimate a circulating-message failure rate
-or sentence evidence-grade share. Even observed daily scopes still lack a bound
-numeric definition; a coverage `READY` result alone would not establish
-`COMPUTED` or `DIFFERS`. Numeric recomputation and pasted-text checking remain
-planned. A future admission must publish a newly reviewed evaluation version
-against this fixed baseline instead of rewriting this historical result.
+No private store or host replaces these sources. Synthetic scenarios remain the default. The [data-provenance rules](../AGENTS.md#data-provenance) remain unchanged.

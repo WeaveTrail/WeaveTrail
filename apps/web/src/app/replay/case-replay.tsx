@@ -44,8 +44,6 @@ import {
   useReplayLanguage,
 } from "./replay-language";
 import { type Language } from "../i18n/language";
-import { CoverageLine } from "../coverage-line";
-import type { CoverageCopy } from "../../lib/coverage-copy";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -62,7 +60,6 @@ export type ReplayScenarioOption = {
 };
 
 export type CaseReplayProps = {
-  coverage?: CoverageCopy;
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: ReplayScenarioOption[];
@@ -164,7 +161,7 @@ export const guideSteps: readonly GuideStep[] = [
   {
     title: "Take the controls",
     purpose:
-      "From here you choose the source and the variations yourself, and load the published market data. A refresh starts unapproved.",
+      "From here you choose the source and the variations yourself, and replay the synthetic records. A refresh starts unapproved.",
     action:
       "Carry this case into working mode, where you choose the source and the variations yourself.",
     actor: "A person approved it",
@@ -242,7 +239,7 @@ const guideStepsKo: readonly GuideStep[] = [
   {
     title: "직접 조작으로 이동",
     purpose:
-      "여기서부터는 원본 자료를 직접 고르고 거래 순서를 바꾸는 등 입력을 바꿔 결과가 어떻게 달라지는지 볼 수 있습니다. 공개 시장데이터도 같은 화면에서 불러옵니다.",
+      "여기서부터는 원본 자료를 직접 고르고 거래 순서를 바꾸는 등 입력을 바꿔 결과가 어떻게 달라지는지 볼 수 있습니다. 합성 기록을 같은 화면에서 재현합니다.",
     action:
       "이 사례와 승인 내용을 그대로 가지고 직접 조작 화면으로 넘어가세요.",
     actor: "A person approved it",
@@ -1054,7 +1051,6 @@ const mutationOptions: Readonly<
 };
 
 export function CaseReplay({
-  coverage,
   proposals,
   providerMode,
   scenarios,
@@ -2325,7 +2321,6 @@ export function CaseReplay({
           <span className="panel-label">
             {panelLabel("04", t("Canonical result", "분석 결과"))}
           </span>
-          {coverage && <CoverageLine summary={coverage} language={language} />}
           {result ? (
             <>
               <WorkflowStateBadge state={result.workflowState} />
@@ -2495,8 +2490,8 @@ export function CaseReplay({
             <h3>{panelLabel("06", t("What runs today", "현재 실행 범위"))}</h3>
             <p>
               {t(
-                "Published-schema synthetic sources, result-coverage fallbacks, and licensed published sources run with explicit mapping approval; sources with a manifest also run one versioned rule.",
-                "공개 스키마 기반 합성 자료, 결과 범위를 지키는 대체 사례, 라이선스 공개 자료를 명시적인 항목 연결 승인과 함께 실행합니다. manifest가 있는 자료에는 버전이 고정된 규칙 하나도 실행합니다.",
+                "Published-schema synthetic sources and result-coverage fallbacks run with explicit mapping approval; sources with a manifest also run one versioned rule.",
+                "공개 스키마 기반 합성 자료와 결과 범위를 지키는 대체 사례를 명시적인 항목 연결 승인과 함께 실행합니다. manifest가 있는 자료에는 버전이 고정된 규칙 하나도 실행합니다.",
               )}
             </p>
             <p>

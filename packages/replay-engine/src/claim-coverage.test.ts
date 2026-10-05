@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publishedCoverageManifest } from "@weavetrail/published-data";
+import { syntheticCoverageManifest } from "./testing/coverage";
 import type {
   ClaimCoverageRequest,
   CoverageManifest,
@@ -10,13 +10,13 @@ import { resolveClaimCoverage } from "./claim-coverage";
 const definition = {
   definitionId: "synthetic-close",
   version: "1.0.0",
-  field: "clpr",
+  field: "close",
   resolution: "DAILY" as const,
 };
 const request: ClaimCoverageRequest = {
-  instrumentId: "코스피 200",
-  dateWindow: { start: "2026-09-03", endInclusive: "2026-09-03" },
-  field: "clpr",
+  instrumentId: "SYNTH-INDEX",
+  dateWindow: { start: "2024-02-29", endInclusive: "2024-02-29" },
+  field: "close",
   resolution: "DAILY",
   definition: {
     definitionId: definition.definitionId,
@@ -25,7 +25,7 @@ const request: ClaimCoverageRequest = {
 };
 
 function onlyBaseline(): CoverageManifest {
-  const manifest = structuredClone(publishedCoverageManifest);
+  const manifest = structuredClone(syntheticCoverageManifest);
   manifest.datasets = manifest.datasets.filter(
     (dataset) => dataset.instrumentFamily.kind === "index",
   );
@@ -36,16 +36,16 @@ function onlyBaseline(): CoverageManifest {
 describe("manifest-only claim resolution", () => {
   it.each([
     { instrumentId: "SYNTHETIC-OUTSIDE-INSTRUMENT" },
-    { dateWindow: { start: "2026-09-04", endInclusive: "2026-09-04" } },
+    { dateWindow: { start: "2024-03-01", endInclusive: "2024-03-01" } },
     { field: "actorId" },
-    { dateWindow: { start: "2026-07-04", endInclusive: "2026-07-04" } },
+    { dateWindow: { start: "2024-02-27", endInclusive: "2024-02-27" } },
   ])(
     "reports OUTSIDE_COVERAGE for missing instruments, dates, fields and unobserved days: %j",
     (change) => {
       expect(
         resolveClaimCoverage(
           { ...request, ...change },
-          publishedCoverageManifest,
+          syntheticCoverageManifest,
           [definition],
         ),
       ).toMatchObject({
@@ -59,14 +59,14 @@ describe("manifest-only claim resolution", () => {
     expect(
       resolveClaimCoverage(
         { ...request, resolution: "INTRADAY" },
-        publishedCoverageManifest,
+        syntheticCoverageManifest,
       ),
     ).toMatchObject({
       status: "UNCONFIRMABLE",
       reasonCode: "RESOLUTION_TOO_COARSE",
     });
     expect(
-      resolveClaimCoverage(request, publishedCoverageManifest),
+      resolveClaimCoverage(request, syntheticCoverageManifest),
     ).toMatchObject({
       status: "UNCONFIRMABLE",
       reasonCode: "DEFINITION_NOT_BOUND",
@@ -74,7 +74,7 @@ describe("manifest-only claim resolution", () => {
     expect(
       resolveClaimCoverage(
         { ...request, instrumentId: "OUTSIDE", resolution: "INTRADAY" },
-        publishedCoverageManifest,
+        syntheticCoverageManifest,
       ),
     ).toMatchObject({
       status: "UNCONFIRMABLE",
@@ -90,7 +90,7 @@ describe("manifest-only claim resolution", () => {
       [definition, definition],
     ])
       expect(
-        resolveClaimCoverage(request, publishedCoverageManifest, definitions),
+        resolveClaimCoverage(request, syntheticCoverageManifest, definitions),
       ).toMatchObject({
         status: "UNCONFIRMABLE",
         reasonCode: "DEFINITION_NOT_BOUND",
@@ -98,7 +98,7 @@ describe("manifest-only claim resolution", () => {
     const { definition: _, ...withoutDefinition } = request;
     void _;
     expect(
-      resolveClaimCoverage(withoutDefinition, publishedCoverageManifest, [
+      resolveClaimCoverage(withoutDefinition, syntheticCoverageManifest, [
         definition,
       ]),
     ).toMatchObject({
@@ -107,11 +107,11 @@ describe("manifest-only claim resolution", () => {
     });
   });
 
-  it("never falls back to the catalog when supplied coverage omits an otherwise admitted observation", () => {
+  it("never falls back to the catalog when supplied coverage omits an otherwise supplied observation", () => {
     const manifest = onlyBaseline();
     manifest.datasets[0]!.observations =
       manifest.datasets[0]!.observations.filter(
-        ({ date }) => date !== "2026-09-03",
+        ({ date }) => date !== "2024-02-29",
       );
     expect(resolveClaimCoverage(request, manifest, [definition])).toMatchObject(
       { status: "UNCONFIRMABLE", reasonCode: "OUTSIDE_COVERAGE" },
@@ -132,7 +132,7 @@ describe("manifest-only claim resolution", () => {
     expect(result.sources).toHaveLength(1);
     expect(result.sources[0]!.observations).toEqual([
       manifest.datasets[0]!.observations.find(
-        ({ date }) => date === "2026-09-03",
+        ({ date }) => date === "2024-02-29",
       ),
     ]);
     expect(result.sources[0]!.source.reference).toEqual(

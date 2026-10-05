@@ -26,16 +26,6 @@ const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
     "단기 급등 · 참여자가 분산된 사례 · CSV",
   "rapid-price-lift-insufficient-evidence.csv":
     "단기 급등 · 근거가 부족한 사례 · CSV",
-  "real/fsc-stock-quotes-20260903.jsonl":
-    "금융위원회 공개 · 코스피 일별 시세 · 2026-09-03",
-  "real/fsc-kospi-index-family-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피 지수군 · 2026-09-03",
-  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피200 기준선 · 2026-07-01~2026-09-03",
-  "real/fsc-kospi-200-futures-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피200 선물 · 2026-09-03",
-  "real/fsc-weekly-options-20260903/source.jsonl":
-    "금융위원회 공개 · 주간 옵션 · 2026-09-03",
 };
 
 const SOURCE_KIND_KO: Readonly<Record<string, string>> = {

@@ -1,6 +1,11 @@
 # ADR 0051: Resolve exact dated identifiers over admitted listings
 
-- Status: Accepted
+> Historical decision: source-dependent portions are superseded by
+> [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
+> account below describes the withdrawn tier. Generic contracts, synthetic
+> behavior and provenance safeguards remain applicable.
+
+- Status: Partially superseded by ADR 0056 (committed sources and composition)
 - Date: 2026-09-28
 
 ## Context

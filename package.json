@@ -26,11 +26,9 @@
     "format:check": "prettier --check .",
     "design:snapshot:verify": "node scripts/verify-design-snapshot.mjs",
     "diagram:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-how-it-works-diagram.mjs",
-    "diagram:case": "vitest run apps/web/src/app/case-2026-09-03/worked-case-diagram.test.ts -u",
     "diagram:fonts": "python3 scripts/embed-figure-fonts.py",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm adr:check && pnpm adr:test && pnpm figures:check && pnpm figures:test && pnpm format:check",
-    "eval": "node scripts/run-evaluation.mjs",
-    "eval:coverage": "node scripts/run-coverage-evaluation.mjs"
+    "eval": "node scripts/run-evaluation.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

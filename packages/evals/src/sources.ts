@@ -4,7 +4,6 @@ import type {
   CaseManifest,
   SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
@@ -37,13 +36,11 @@ export const sources: Record<string, EvaluationSource> = {
     ...committedReplayScenarios["concentrated-buy-dialect-b.jsonl"],
     mappingProposal: concentratedBuyDialectBProposal,
   },
-  ...publishedReplaySources,
 };
 
 export function committedRows(name: string, source: EvaluationSource) {
-  const root = name.startsWith("real/") ? "published-data" : "scenarios";
   const bytes = readFileSync(
-    new URL(`../../${root}/src/sources/${name}`, import.meta.url),
+    new URL(`../../scenarios/src/sources/${name}`, import.meta.url),
   );
   const parse = name.endsWith(".csv")
     ? parseCsvSourceArtifact

@@ -64,44 +64,14 @@
 재현 결과 해시나 발행기관 진위 또는 사람의 승인을 증명하지 않습니다. 연결기 버전
 `exact-dated-identifiers-v1`은 별도로 기록합니다.
 
-## 커밋된 공개 자료의 범위
+## 합성 입력 범위
 
-`@weavetrail/published-data`는 `publishedInstrumentListing`과
-`publishedDailyQuoteBindings`를 제공합니다. 투영 버전
-`fsc-admitted-quote-identifiers-v1`은 이미 반입된 FSC 주식, 코스피 지수군,
-코스피 200 기준기간, 선물과 위클리 옵션 자료만 사용합니다. 각 원본 행에 존재하는
-`itmsNm`/`idxNm`, `srtnCd`, `isinCd`를 그대로 복사하고 원본 좌표를 붙입니다.
-`basDt`가 유효기간의 시작과 끝입니다. 같은 정준 종목 ID의 행들을 합치며, 시세 연결
-정보에는 데이터셋별로 관측된 모든 날짜를 보존합니다. 관측 사이 또는 자료 범위
-밖에서 이름이 유효했을 것이라고 추정하지 않습니다.
-
-이는 시세에서 투영한 제한된 이름·코드 목록입니다. 거래소 전체 목록은 아닙니다.
-주식 자료는 2026-09-03의 943행 중 처음 40행에 한정됩니다. 지수에 ISIN이나 단축코드를
-만들어 붙이지 않습니다. 이 자료에는 영문명·약칭·회사 이름 변경 목록 필드가 없으며,
-해당 기능은 명시적인 합성 픽스처로 검증합니다. 목록에 없는 영문 별칭은 연결하지
-않습니다. 실제 이름 변경 이력을 지원하려면 날짜별 이름을 담은 별도의 자료를
-허가 검토 후 반입해야 합니다.
-
-`apps/web/src/lib/published-instrument-resolution.ts`의
-`resolvePublishedInstrument`는 두 패키지를 조합하여 연결 결과와 차트·숫자 표시에
-사용할 고정된 원본 행을 반환합니다. 시세 아티팩트 해시 참조를 확인하고 숫자는
-발행기관의 문자열 그대로 유지하며 사건 날짜 뒤의 행은 제외합니다. 모호하거나
-찾지 못한 요청에는 시세 행을 반환하지 않습니다. 이는 애플리케이션 라이브러리
-진입점이며 새 HTTP 엔드포인트나 입력 화면은 아닙니다. 원본 행, 이벤트, 참여자,
-승인, 패턴 규칙과 결과 해시는 바꾸지 않습니다.
-
-새 실제 목록은 취득하지 않았습니다.
-[공식 KRX 목록 배포 페이지](https://www.data.go.kr/data/15094775/openapi.do)는
-2026-09-28 확인 당시 출처 표시·비상업적 이용·변경 금지 조건과 무단 제3자 재배포
-금지를 표시했습니다. 이 출처는 반입하지 않습니다. 기존 커밋된 자료는 취득 당시의
-허가 기록을 유지하며, 그 기록이 현재 조건에서 새 취득을 허용하는 것은 아닙니다.
-새 목록이나 별칭 출처는 반입 전에
-[출처 규약](../AGENTS.md#data-provenance)(영문)을 충족해야 합니다.
+실제 시세에서 만든 종목 목록과 앱 연결은 철회되었습니다. 알고리즘은 호출자가 제공한 합성 목록으로 검증합니다.
 
 ## 재현과 한계
 
 ```bash
-pnpm exec vitest run packages/instrument-resolver/src/resolver.test.ts packages/instrument-resolver/src/dependency-boundary.test.ts apps/web/src/lib/published-instrument-resolution.test.ts
+pnpm exec vitest run packages/instrument-resolver/src/resolver.test.ts packages/instrument-resolver/src/dependency-boundary.test.ts
 ```
 
 테스트는 한국어·영문명, 약칭, 단축코드, ISIN, 합성 회사의 이름 변경 전후, 코드
