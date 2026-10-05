@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@weavetrail/contracts": "workspace:*",
+    "@weavetrail/replay-engine": "workspace:*",
     "@weavetrail/scenarios": "workspace:*"
   }
 }

@@ -105,6 +105,58 @@ pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
 방어 성능을 주장하지 않습니다.
 [ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md)(영문)을 참고하세요.
 
+## 적대적 매핑 검증기 프로브
+
+서버의 [`validateMappingOutput`](../packages/ai-harness/src/mapping-output-validator.ts),
+버전 `mapping-validator/1`은 설정된 모델의 모든 매핑 출력과 오프라인 적대적
+픽스처 평가가 공유하는 검증기입니다. 현재 모델 출력 계약은 매핑 `1.4`, 이벤트
+`1.1`의 닫힌 `{ fields: [...] }` 형식입니다. 일별·복합 체결 매핑은 등록된
+픽스처로 유지되며, 설정된 모델이 지원하는 계약 범위를 늘리지 않습니다.
+
+다음 고정 순서로 검사하며 첫 실패에서 멈춥니다. 사유에는 안정적인 코드와
+문자열·정수 경로만 담고 제공자 문구나 예외 메시지는 담지 않습니다.
+
+| 단계      | 검사와 사유 코드                                                                                                                                                                                                                                                                    |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 응답 봉투 | UTF-8 본문 최대 65,536바이트(`BODY_TOO_LARGE`), JSON(`ENVELOPE_INVALID_JSON`), `stop`으로 끝난 단일 assistant 응답(`ENVELOPE_INVALID`), 도구·함수 호출(`TOOL_CALL`), 거절(`REFUSAL`), 길이 중단(`LENGTH_STOP`), 메시지 내용의 JSON(`OUTPUT_INVALID_JSON`)                           |
+| 계약      | 기존 엄격한 Zod 제안·필드 계약과 길이가 제한된 비어 있지 않은 근거(`OUTPUT_CONTRACT`), 허용 대상·변환(`UNKNOWN_TARGET`, `UNKNOWN_TRANSFORM`), 지원 버전과 입력 자료 해시·상수의 일치(`INPUT_BINDING_MISMATCH`); 파싱된 제안도 UTF-8 JSON 최대 65,536바이트로 제한(`BODY_TOO_LARGE`) |
+| 열        | 제공된 모든 열을 입력 순서대로 정확히 한 번 포함(`INVENTED_COLUMN`, `DUPLICATE_COLUMN`, `MISSING_COLUMN`, `REORDERED_COLUMN`)                                                                                                                                                       |
+| 대상      | `sourceEventId`, `eventTime`, `instrumentId`, `eventType`을 각각 정확히 한 번 연결하고 다른 대상도 중복 금지(`DUPLICATE_TARGET`, `MISSING_REQUIRED_TARGET`)                                                                                                                         |
+| 변환      | 대상·변환의 구조적 호환성(`TARGET_TRANSFORM_MISMATCH`), 비어 있지 않은 샘플(`NO_SAMPLE_ROWS`), 모든 제공 샘플 행에 실제 결정론적 ingest 변환과 결과 이벤트 계약 적용(`TRANSFORM_FAILED`)                                                                                            |
+| 검토      | `PROPOSED`여도 신뢰도가 1 미만이거나 명시적으로 `REVIEW_REQUIRED`이면 검토 유지(`REVIEW_STATUS`)                                                                                                                                                                                    |
+
+봉투에서는 도구 호출, 거절, 길이·기타 종료 실패 순으로 검사합니다.
+[불변식 테스트](../packages/evals/src/adversarial-mapping.test.ts)가 단계 순서와
+사유 좌표를 고정합니다. 파싱된 필드나 봉인된 제안은 계약 단계부터 재검증합니다.
+설정된 어댑터는 스트리밍 중에도 응답 크기를 제한하고 같은 검증기를 호출하며,
+애플리케이션에는 정제된 `REVIEW_REQUIRED` 실패만 반환합니다. 원문 응답, 임시
+변환 이벤트와 제공자 문구를 저장하지 않습니다. 실행 기록 생성·저장과 모델
+채점은 추가하지 않습니다.
+
+모델 프롬프트에는 최대 8개 샘플 행을 전달하지만 검증기는 이후 행을 포함한
+모든 제공 샘플을 검사합니다. 입력 열만 투영하고 원본 행은 수정하지 않으며
+임시 이벤트를 폐기하고 매핑을 승인하지 않습니다. 추가한 내부 replay-engine
+의존성으로 실제 ingest 변환과 이벤트 검사를 재사용합니다.
+
+직접 작성한 합성 [적대적 픽스처 제공자와 프로브](../packages/evals/src/adversarial-mapping-fixtures.ts)는
+요구된 거부 유형과 유효한 대조군을 검사합니다. 테스트는 각 프로브의 기대 코드를
+확인하고 로컬 전송 함수를 주입한 설정 어댑터에도 같은 응답을 적용합니다.
+`pnpm test`가 CI에서 자격 증명이나 네트워크 없이 실행하며, 별도로 실행하려면:
+
+```bash
+pnpm exec vitest run packages/evals/src/adversarial-mapping.test.ts packages/ai-harness/src/configured-provider.test.ts
+```
+
+고정된 의존성, Node 22.13 이상과 pnpm 10.33.2를 사용합니다. 직접 작성한
+프로브에 대한 검증기 회귀 검사이며 모델 정확도나 공격 방어 성능 측정은 아닙니다.
+봉인된 DEV/HELD_OUT 자료와 `pnpm eval`의 공개 결과는 변경하지 않습니다.
+
+**잔여 위험:** 형식과 변환이 유효한 같은 형태의 두 열을 바꾸면 검증기를
+통과합니다. 테스트는 원래 열 순서를 유지한 채 십진 가격·수량의 대상을 교환하는
+경우를 보여 줍니다. 의미상의 정확성은 사람 검토와 기존 명시적 승인 절차에
+남으며 `VALID`가 이를 보장하지 않습니다.
+[ADR 0059](adr/0059-share-the-model-mapping-validator-with-hostile-probes.md)(영문)을 참고하세요.
+
 ## 모델 매핑 실행 기록 계약
 
 구현된 [실행 기록 계약](../packages/contracts/src/mapping-run-record.ts)은 계획된
