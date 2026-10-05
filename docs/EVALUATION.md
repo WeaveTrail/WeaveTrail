@@ -114,6 +114,63 @@ of prior exposure. No model execution, mapping accuracy, real-world
 representativeness or adversarial robustness is claimed. See
 [ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md).
 
+## Adversarial mapping validator probes
+
+The server-side [`validateMappingOutput`](../packages/ai-harness/src/mapping-output-validator.ts),
+version `mapping-validator/1`, is the common gate for every configured model
+mapping output and the offline hostile-fixture evaluation. The current model
+output contract is the closed `{ fields: [...] }` shape for mapping `1.4` and
+event `1.1`. Daily and composite execution mappings remain registered fixtures;
+this change does not extend the configured model's supported contracts.
+
+Validation stops at the first failure in this fixed order. Reasons contain only
+a stable code and string/index path, never provider prose or exception text.
+
+| Stage      | Checks and reason codes                                                                                                                                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Envelope   | UTF-8 body at most 65,536 bytes (`BODY_TOO_LARGE`), JSON (`ENVELOPE_INVALID_JSON`), one assistant choice ending in `stop` (`ENVELOPE_INVALID`), no tools/functions (`TOOL_CALL`), refusal (`REFUSAL`) or length stop (`LENGTH_STOP`), JSON message content (`OUTPUT_INVALID_JSON`)                                                           |
+| Contract   | Strict existing Zod proposal/field contract and bounded nonblank evidence (`OUTPUT_CONTRACT`), allowed target/transform (`UNKNOWN_TARGET`, `UNKNOWN_TRANSFORM`), supported version and exact supplied artifact/constants binding (`INPUT_BINDING_MISMATCH`); parsed proposals are also bounded to 65,536 UTF-8 JSON bytes (`BODY_TOO_LARGE`) |
+| Columns    | Every supplied column once, in supplied order (`INVENTED_COLUMN`, `DUPLICATE_COLUMN`, `MISSING_COLUMN`, `REORDERED_COLUMN`)                                                                                                                                                                                                                  |
+| Targets    | Each of `sourceEventId`, `eventTime`, `instrumentId`, `eventType` exactly once, and no other target twice (`DUPLICATE_TARGET`, `MISSING_REQUIRED_TARGET`)                                                                                                                                                                                    |
+| Transforms | Structural target/transform compatibility (`TARGET_TRANSFORM_MISMATCH`), nonempty samples (`NO_SAMPLE_ROWS`), exact deterministic ingest transforms and resulting event contract on every supplied sample row (`TRANSFORM_FAILED`)                                                                                                           |
+| Review     | Confidence below 1, even with `PROPOSED`, or explicit `REVIEW_REQUIRED` remains in review (`REVIEW_STATUS`)                                                                                                                                                                                                                                  |
+
+Envelope checks reject tools before refusal, then length/other stop failures;
+the [invariant tests](../packages/evals/src/adversarial-mapping.test.ts) pin stage
+precedence and reason coordinates. Parsed fields or sealed proposals enter at
+the contract stage to re-validate retained content. The configured adapter
+bounds the streamed response before parsing, invokes the same gate, and still
+returns only the sanitized `REVIEW_REQUIRED` failure to the application. No raw
+body, temporary mapped events or provider text is retained. This adds no run
+record producer, persistence or model scoring.
+
+The model prompt receives at most eight sample rows; validation dry-runs all
+supplied samples, including later rows. It projects supplied columns without
+changing source rows, discards temporary events and never approves a mapping.
+The new internal workspace dependency on replay-engine reuses its exact ingest
+transforms and event checks rather than implementing a second conversion path.
+
+The authored synthetic [hostile fixture provider and probes](../packages/evals/src/adversarial-mapping-fixtures.ts)
+exercise each requested rejection class, with a valid control. Tests assert the
+expected reason for every probe and run those envelopes through the configured
+adapter using an injected local transport. `pnpm test` runs them in CI without
+credentials or network; run them separately with:
+
+```bash
+pnpm exec vitest run packages/evals/src/adversarial-mapping.test.ts packages/ai-harness/src/configured-provider.test.ts
+```
+
+Use the locked dependencies, Node 22.13 or newer and pnpm 10.33.2. These are
+validator regression assertions over authored probes, not measurements of any
+model's accuracy or adversarial robustness. The sealed DEV/HELD_OUT corpus and
+the `pnpm eval` publication are unchanged.
+
+**Residual risk:** a well-formed, transform-valid swap of two same-shaped
+columns passes the validator. The tests demonstrate swapping decimal price
+and quantity targets while retaining the original source-column order. Semantic
+correctness remains for human review and the existing explicit approval gate;
+`VALID` does not establish it. See [ADR 0059](adr/0059-share-the-model-mapping-validator-with-hostile-probes.md).
+
 ## Mapping model run record contract
 
 The implemented [run-record contracts](../packages/contracts/src/mapping-run-record.ts)

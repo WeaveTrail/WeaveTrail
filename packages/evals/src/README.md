@@ -15,7 +15,8 @@ updates the expected publication.
   definitions, provenance admission and limitations.
 
 Only workspace dependencies were added, to exercise the existing implementation.
-There is no configured-provider path or third-party evaluation runtime.
+The fixture publication never calls configured providers. No third-party
+evaluation runtime is used.
 
 Evaluation v3 retains the synthetic inputs with unchanged oracles and removes
 all real-source baselines. Previous financial replay v1/v2 and claim coverage v1
@@ -27,3 +28,12 @@ prepare records and separate receipts for planned model evaluations. Offline
 synthetic tests verify their shape, trace rejection and hash boundary; no provider
 instrumentation, run persistence or scoring is implemented. See the
 [run-record protocol](../../../docs/EVALUATION.md#mapping-model-run-record-contract).
+
+The [hostile mapping fixture provider](adversarial-mapping-fixtures.ts) supplies
+authored synthetic envelopes to the shared server-side model-output validator.
+The [offline tests](adversarial-mapping.test.ts) assert each probe's reason code
+and exercise the configured adapter with an injected local transport. They run
+in `pnpm test`, separately from the unchanged fixture publication, with no
+credentials or network. A valid price/quantity swap control documents the
+semantic limitation left to human review. See the
+[probe protocol](../../../docs/EVALUATION.md#adversarial-mapping-validator-probes).
