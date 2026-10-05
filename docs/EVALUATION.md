@@ -114,6 +114,67 @@ of prior exposure. No model execution, mapping accuracy, real-world
 representativeness or adversarial robustness is claimed. See
 [ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md).
 
+## Mapping model run record contract
+
+The implemented [run-record contracts](../packages/contracts/src/mapping-run-record.ts)
+prepare auditable records for the planned model evaluation. They do not call
+providers, persist runs or score outputs, and `pnpm eval` still runs fixtures only.
+The new contract is additive; existing mapping responses need no migration.
+
+`MappingRunRecordSchema` version `mapping-run/1` requires:
+
+| Fields                                                                       | Meaning                                                                                                                          |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `evaluationSet.version`, `sha256`, `split`                                   | Corpus version, exact-file SHA-256 seal of DEV or HELD_OUT, and that split                                                       |
+| `dialectId`, `repeat`                                                        | Dialect within that corpus and one-based attempted-call repeat; failures count too                                               |
+| `provider`, `requestedModel`, `reportedModel`                                | Provider label and requested/reported identity; reported identity is null when absent                                            |
+| `adapterVersion`, `promptVersion`, `outputSchemaVersion`, `validatorVersion` | Versions needed to interpret and re-validate the output                                                                          |
+| `temperature`                                                                | Nonnegative decimal string, canonicalized without floating-point arithmetic                                                      |
+| `outcome`, `validatorReasons`, `failureClass`                                | `VALID`, `CONTRACT_REJECTED` or `PROVIDER_FAILED`, stable uppercase reason codes with string/index paths, and classified failure |
+| `parsedOutput`                                                               | Closed `{ fields: [...] }` structured output, at most 65,536 bytes of UTF-8 JSON, or null                                        |
+| `latencyMs`, `inputTokens`, `outputTokens`                                   | Nonnegative safe-integer milliseconds and positive safe-integer token counts; absent usage is null, never a zero placeholder     |
+
+`VALID` requires existing mapping-field contract values, non-null output, no
+validator reasons and null failure class. It is a validation observation, not
+human approval or proof of semantic correctness. `CONTRACT_REJECTED` requires
+at least one coded reason and an `OUTPUT_CONTRACT`, `UNPARSEABLE_OUTPUT` or
+`OUTPUT_NOT_RETAINABLE` failure class. It may retain incorrect scalar values
+and missing fields under the six existing mapping-field keys. Malformed shapes,
+unknown properties, nested objects, oversized output and unparseable JSON must
+be discarded as null; the latter two failure classes require null.
+`PROVIDER_FAILED` requires null output, no validator reasons and a failure class
+from `TIMEOUT`, `RATE_LIMITED`, `AUTHENTICATION`, `TRANSPORT`, `HTTP_ERROR`,
+`STRICT_MODE_UNSUPPORTED`, `INVALID_RESPONSE` or `UNKNOWN_PROVIDER_FAILURE`.
+The record schema checks structure and outcome consistency; the future producer
+must verify corpus membership, the seal and the declared validator's decision.
+
+Every object is strict. Request bodies, response envelopes, headers, provider
+request IDs, credentials and raw error messages are not record fields; attempts
+to attach them are rejected, including within output and validator reasons.
+Producers must also prevent secrets from appearing in permitted strings.
+If raw envelopes are needed locally, use only the ignored `.model-runs/raw/`
+directory. No raw storage or model capture is implemented here.
+
+`MappingRunReceiptSchema` version `mapping-run-receipt/1` carries `runId`,
+`startedAt` (UTC) and `recordHash` separately. Compute `recordHash` with the
+existing `sha256Canonical` over the validated record alone. Summaries must not
+include receipts in their hash scope. Changing receipt metadata leaves the
+record hash unchanged; latency, token usage and reported identity remain
+observations within the record. Re-scoring committed records is reproducible
+with the same sealed corpus and scoring/validator versions. Re-running a model
+creates a new record. A null-output failure can be re-counted, but its discarded
+output cannot be re-validated. See [ADR 0058](adr/0058-separate-mapping-run-records-from-raw-provider-traces.md).
+
+Run the offline synthetic contract and hash-boundary tests with:
+
+```bash
+pnpm exec vitest run packages/contracts/src/mapping-run-record.test.ts packages/evals/src/mapping-run-record.test.ts
+```
+
+These tests cover outcomes, transport-field rejection, missing usage, exact
+UTF-8 size boundaries and receipt separation. They are not captured model runs
+or measurements of provider performance.
+
 ## Measurements still planned
 
 Model accuracy on independent mappings, configured-provider comparisons,
