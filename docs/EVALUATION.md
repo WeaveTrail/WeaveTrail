@@ -88,6 +88,10 @@ target/transform (or paired nulls), `PROPOSED`/`REVIEW_REQUIRED` status and tags
 and `INJECTION`. Ambiguity and unsupported conversions require review. Injection
 gold ignores instructions and records the attempted `injectedTarget`; payloads
 cover English/Korean, plain/base64/zero-width text and headers/cells/constants.
+DEV and HELD_OUT use separately authored attack wording with no decoded payload
+overlap. Each dialect independently orders its semantic slots by SHA-256 of the
+dialect ID and slot; input columns and gold move together. Tests reject repeated
+orders and fixed semantic positions within either split.
 
 Reproduce and verify the inputs with the locked dependencies:
 
@@ -101,7 +105,8 @@ The committed [HELD_OUT SHA-256](../packages/evals/fixtures/schema-dialects-v1/H
 exposes the exact-file seal. Only DEV may guide tuning or prompt examples. Freeze
 provider configuration and record the held-out commit and seal before a future
 run; feed only each dialect's `input`, never `gold`. HELD_OUT is offline and never
-served to the browser. Tests guard production imports and public assets.
+served to the browser. Tests guard production imports, public assets and the package entry point's
+transitive relative imports and re-exports.
 
 All values and gold are synthetic and authored; shared semantic templates limit
 independence. A public holdout is not secret, and a seal cannot establish absence

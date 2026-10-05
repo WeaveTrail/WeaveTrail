@@ -16,7 +16,11 @@ inputs through the application or tuning on them.
 Keep versioned DEV and HELD_OUT corpora under the evaluation package's offline
 fixtures, outside scenario registration and package exports. Author disjoint
 header naming families while sharing semantic roles and synthetic value
-templates. Generate bytes deterministically, retain adjacent synthetic provenance
+templates. Order semantic slots independently per dialect using SHA-256 of its
+ID and slot, moving input and gold together so positions cannot encode a shared
+answer template. Author separate injection wording for DEV and HELD_OUT and
+check decoded payload disjointness to prevent exact-string transfer.
+Generate bytes deterministically, retain adjacent synthetic provenance
 and commit exact-file SHA-256 seals. Verify every column's gold through the
 existing mapping proposal contract without extending its enums.
 
@@ -27,7 +31,9 @@ because the current contract cannot execute the requested operation. Their
 rationales retain the intended conversion.
 
 Tests check regeneration, seals, split families, minimum inventory, tag coverage,
-contract validation and production references. The web application and production
+contract validation and production references. Trace transitive relative imports
+and re-exports from the evaluation entry point, including cycles, to guard
+against an innocuously named module exposing offline fixtures. The web application and production
 packages must not import the offline evaluation corpus. No model run, provider
 configuration, tuning or accuracy claim is introduced.
 

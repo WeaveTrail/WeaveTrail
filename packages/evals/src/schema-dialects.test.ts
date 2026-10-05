@@ -10,6 +10,37 @@ import {
 } from "@weavetrail/contracts";
 import { generateCorpus, tags, type Corpus } from "./schema-dialects-generator";
 
+function assertOfflineBoundary(
+  entry: string,
+  host: ts.ModuleResolutionHost = ts.sys,
+) {
+  const visited = new Set<string>();
+  function visit(path: string) {
+    if (visited.has(path)) return;
+    visited.add(path);
+    const content = host.readFile(path);
+    if (content === undefined) throw new Error(`Cannot read ${path}`);
+    expect(path).not.toContain("schema-dialects");
+    expect(content, path).not.toContain("schema-dialects");
+    for (const imported of ts.preProcessFile(content).importedFiles) {
+      if (!imported.fileName.startsWith(".")) continue;
+      const resolved = ts.resolveModuleName(
+        imported.fileName,
+        path,
+        {
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
+          resolveJsonModule: true,
+        },
+        host,
+      ).resolvedModule;
+      if (!resolved)
+        throw new Error(`Cannot resolve ${imported.fileName} from ${path}`);
+      visit(resolved.resolvedFileName);
+    }
+  }
+  visit(entry);
+}
+
 const directory = new URL("../fixtures/schema-dialects-v1/", import.meta.url);
 const read = (split: string): Corpus =>
   JSON.parse(readFileSync(new URL(`${split}.json`, directory), "utf8"));
@@ -115,6 +146,70 @@ function validate(dev: Corpus, held: Corpus) {
 describe("offline schema dialect evaluation input", () => {
   it("satisfies inventory, contract gold, disjoint families and injection coverage", () =>
     validate(read("DEV"), read("HELD_OUT")));
+  it("varies semantic positions across and within splits", () => {
+    const orders = new Set<string>();
+    for (const split of ["DEV", "HELD_OUT"]) {
+      const corpus = read(split);
+      for (const dialect of corpus.dialects) {
+        const order = JSON.stringify(dialect.gold.map((g) => g.rationale));
+        expect(orders.has(order)).toBe(false);
+        orders.add(order);
+      }
+      for (const field of corpus.dialects[0]!.gold) {
+        const positions = new Set(
+          corpus.dialects.map((d) =>
+            d.gold.findIndex((g) => g.rationale === field.rationale),
+          ),
+        );
+        expect(positions.size).toBeGreaterThan(1);
+      }
+    }
+  });
+  it("holds out decoded injection wording across splits", () => {
+    const payloads = (split: string) =>
+      read(split).dialects.flatMap((d) =>
+        d.gold.flatMap((g) =>
+          g.injection
+            ? [
+                g.injection.encoding === "BASE64"
+                  ? Buffer.from(
+                      g.injection.payload.slice(7),
+                      "base64",
+                    ).toString("utf8")
+                  : g.injection.payload.replaceAll("\u200b", ""),
+              ]
+            : [],
+        ),
+      );
+    const dev = new Set(payloads("DEV"));
+    for (const payload of payloads("HELD_OUT"))
+      expect(dev.has(payload)).toBe(false);
+  });
+  it.each([
+    'export * from "./offline-fixtures";',
+    'export { generateCorpus as fixtures } from "./offline-fixtures";',
+    'import { generateCorpus } from "./offline-fixtures"; export const fixtures = generateCorpus;',
+  ])("traces indirect exports and imports: %s", (entry) => {
+    const files: Record<string, string> = {
+      "/virtual/index.ts": entry,
+      "/virtual/offline-fixtures.ts": 'export * from "./bridge";',
+      "/virtual/bridge.ts":
+        'export { generateCorpus } from "./schema-dialects-generator";',
+    };
+    const host = {
+      fileExists: (path: string) => path in files,
+      readFile: (path: string) => files[path],
+    };
+    expect(entry).not.toContain("schema-dialects");
+    expect(() => assertOfflineBoundary("/virtual/index.ts", host)).toThrow(
+      /schema-dialects/,
+    );
+    files["/virtual/bridge.ts"] =
+      'export * from "./index"; export const generateCorpus = 1;';
+    expect(() =>
+      assertOfflineBoundary("/virtual/index.ts", host),
+    ).not.toThrow();
+  });
   it.each(["DEV", "HELD_OUT"] as const)(
     "regenerates %s bytes and verifies its seal",
     async (split) => {
@@ -152,7 +247,8 @@ describe("offline schema dialect evaluation input", () => {
     if (kind === "transform") gold.transform = "DIVIDE_100";
     if (kind === "status") Object.assign(gold, { status: "APPROVED" });
     if (kind === "injectedTarget")
-      held.dialects[0]!.gold[12]!.injectedTarget = "invented";
+      held.dialects[0]!.gold.find((g) => g.injection)!.injectedTarget =
+        "invented";
     expect(() => validate(dev, held)).toThrow();
   });
   it("keeps the offline corpus outside production imports and public assets", () => {
@@ -182,8 +278,6 @@ describe("offline schema dialect evaluation input", () => {
         }
       }
     }
-    expect(
-      readFileSync(new URL("./index.ts", import.meta.url), "utf8"),
-    ).not.toContain("schema-dialects");
+    assertOfflineBoundary(resolve(import.meta.dirname, "index.ts"));
   });
 });

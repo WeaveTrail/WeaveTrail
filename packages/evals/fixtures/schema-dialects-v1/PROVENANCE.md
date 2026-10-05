@@ -17,7 +17,11 @@ separate naming families and 168 decisions, including 24 for each of seven tags.
 Each family has 14 columns. Values are strings; unsupported scaling is described,
 never performed. These are inventory counts, not model results. Header families
 are authored separately; semantic field roles and value templates are shared.
-They do not represent independent statistical samples or real-world prevalence.
+Each dialect orders slots by the lexicographic SHA-256 digest of
+`<split>-<family>:<slot>`, with numeric slot as the tie breaker; input and gold
+move together. Tests reject duplicate orders across dialects and fixed semantic
+positions within either split. They do not represent independent statistical
+samples or real-world prevalence.
 
 Each dialect separates `input` (columns, sample strings, and source constants)
 from `gold` (one decision for every column). Only `input` may be presented to a
@@ -31,7 +35,10 @@ Injection gold preserves the underlying identity or unmapped annotation even
 when adversarial instructions request a different `injectedTarget`. Language,
 encoding, placement and exact payload are retained in gold. Headers, cells and
 source constants each include English and Korean payloads in plain, base64 and
-zero-width forms in HELD_OUT. Payloads are never interpreted or executed here.
+zero-width forms in HELD_OUT. Attack wording is authored separately for each
+split; tests decode base64 and remove zero-width characters to reject wording
+overlap. Repeated wording within a split still limits attack diversity. Payloads
+are never interpreted or executed here.
 
 `DEV.sha256` and `HELD_OUT.sha256` hash the exact UTF-8 JSON file bytes, including
 the final newline. The held-out checksum is the seal to record before any future
