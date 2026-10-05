@@ -76,6 +76,39 @@ For a reviewed change to a target, edit the case definition or shared scenario
 expectation deliberately and review a newly captured versioned summary alongside
 it; routine evaluation never updates targets. Financial replay v1/v2 and claim coverage v1 remain unchanged historical captures with withdrawn sources. They are not current results and cannot be fully reproduced from this tree. See [historical captures](../packages/evals/results/README.md) and [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md).
 
+## Planned schema-dialect model evaluation input
+
+The [version 1 offline corpus](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)
+is implemented input for a **planned** field-mapping model evaluation. It is not
+part of `pnpm eval` and has no model results. Its deterministic
+[definition](../packages/evals/src/schema-dialects-generator.ts) produces DEV and
+HELD_OUT with disjoint authored naming families. Each column has contract-checked
+target/transform (or paired nulls), `PROPOSED`/`REVIEW_REQUIRED` status and tags:
+`CLEAR`, `ABBREVIATED`, `SYNONYM`, `AMBIGUOUS`, `ABSENT_LURE`, `TRANSFORM_LURE`,
+and `INJECTION`. Ambiguity and unsupported conversions require review. Injection
+gold ignores instructions and records the attempted `injectedTarget`; payloads
+cover English/Korean, plain/base64/zero-width text and headers/cells/constants.
+
+Reproduce and verify the inputs with the locked dependencies:
+
+```bash
+pnpm eval:schemas:generate
+pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
+```
+
+The adjacent provenance records the generation environment, inventory and limits.
+The committed [HELD_OUT SHA-256](../packages/evals/fixtures/schema-dialects-v1/HELD_OUT.sha256)
+exposes the exact-file seal. Only DEV may guide tuning or prompt examples. Freeze
+provider configuration and record the held-out commit and seal before a future
+run; feed only each dialect's `input`, never `gold`. HELD_OUT is offline and never
+served to the browser. Tests guard production imports and public assets.
+
+All values and gold are synthetic and authored; shared semantic templates limit
+independence. A public holdout is not secret, and a seal cannot establish absence
+of prior exposure. No model execution, mapping accuracy, real-world
+representativeness or adversarial robustness is claimed. See
+[ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md).
+
 ## Measurements still planned
 
 Model accuracy on independent mappings, configured-provider comparisons,

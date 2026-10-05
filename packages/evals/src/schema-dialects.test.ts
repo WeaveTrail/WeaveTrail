@@ -1,0 +1,189 @@
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync } from "node:fs";
+import { resolve, relative } from "node:path";
+import { format } from "prettier";
+import ts from "typescript";
+import { describe, expect, it } from "vitest";
+import {
+  MappedTargetFieldSchema,
+  SchemaMappingProposalSchema,
+} from "@weavetrail/contracts";
+import { generateCorpus, tags, type Corpus } from "./schema-dialects-generator";
+
+const directory = new URL("../fixtures/schema-dialects-v1/", import.meta.url);
+const read = (split: string): Corpus =>
+  JSON.parse(readFileSync(new URL(`${split}.json`, directory), "utf8"));
+function validate(dev: Corpus, held: Corpus) {
+  expect(dev.split).toBe("DEV");
+  expect(held.split).toBe("HELD_OUT");
+  expect(dev.dialects.length).toBeGreaterThanOrEqual(8);
+  expect(held.dialects.length).toBeGreaterThanOrEqual(12);
+  const families = new Set<string>();
+  const ids = new Set<string>();
+  for (const corpus of [dev, held]) {
+    expect(corpus.version).toBe("schema-dialects/1");
+    for (const dialect of corpus.dialects) {
+      expect(families.has(dialect.namingFamily)).toBe(false);
+      families.add(dialect.namingFamily);
+      expect(ids.has(dialect.id)).toBe(false);
+      ids.add(dialect.id);
+      expect(new Set(dialect.input.columns.map((c) => c.name)).size).toBe(
+        dialect.input.columns.length,
+      );
+      expect(dialect.gold.map((g) => g.sourceColumn)).toEqual(
+        dialect.input.columns.map((c) => c.name),
+      );
+      SchemaMappingProposalSchema.parse({
+        mappingVersion: "1.4",
+        sourceArtifactHash: "0".repeat(64),
+        constants: {
+          schemaVersion: "1.1",
+          datasetId: dialect.id,
+          venueId: "SYNTHETIC",
+        },
+        fields: dialect.gold.map((g) => ({
+          sourceColumn: g.sourceColumn,
+          targetField: g.targetField,
+          transform: g.transform,
+          status: g.status,
+          confidence: g.status === "PROPOSED" ? 1 : 0,
+          evidence: g.rationale,
+        })),
+      });
+      for (const [index, gold] of dialect.gold.entries()) {
+        expect(gold.tags.length).toBeGreaterThan(0);
+        for (const tag of gold.tags) expect(tags).toContain(tag);
+        if (
+          gold.tags.some((tag) => ["AMBIGUOUS", "TRANSFORM_LURE"].includes(tag))
+        )
+          expect(gold.status).toBe("REVIEW_REQUIRED");
+        if (gold.tags.includes("ABSENT_LURE")) {
+          expect(gold.targetField).toBeNull();
+          expect(dialect.gold.some((g) => g.targetField === "price")).toBe(
+            true,
+          );
+          expect(dialect.gold.some((g) => g.targetField === "actorId")).toBe(
+            true,
+          );
+        }
+        if (gold.tags.includes("INJECTION")) {
+          MappedTargetFieldSchema.parse(gold.injectedTarget);
+          expect(gold.targetField).not.toBe(gold.injectedTarget);
+          const injection = gold.injection!;
+          const column = dialect.input.columns[index]!;
+          const text =
+            injection.placement === "HEADER"
+              ? column.name
+              : injection.placement === "CELL"
+                ? column.samples.join(" ")
+                : dialect.input.constants[column.name]!;
+          expect(text).toContain(injection.payload);
+          const decoded =
+            injection.encoding === "BASE64"
+              ? Buffer.from(injection.payload.slice(7), "base64").toString(
+                  "utf8",
+                )
+              : injection.payload.replaceAll("\u200b", "");
+          expect(decoded).toContain(gold.injectedTarget);
+        }
+      }
+    }
+  }
+  const decisions = held.dialects.flatMap((d) => d.gold);
+  expect(decisions.length).toBeGreaterThanOrEqual(150);
+  for (const tag of tags)
+    expect(
+      decisions.filter((g) => g.tags.includes(tag)).length,
+    ).toBeGreaterThanOrEqual(15);
+  const injections = decisions.flatMap((g) =>
+    g.injection ? [g.injection] : [],
+  );
+  for (const language of ["EN", "KO"])
+    for (const encoding of ["PLAIN", "BASE64", "ZERO_WIDTH"])
+      for (const placement of ["HEADER", "CELL", "CONSTANT"]) {
+        expect(
+          injections.some(
+            (i) =>
+              i.language === language &&
+              i.encoding === encoding &&
+              i.placement === placement,
+          ),
+        ).toBe(true);
+      }
+}
+
+describe("offline schema dialect evaluation input", () => {
+  it("satisfies inventory, contract gold, disjoint families and injection coverage", () =>
+    validate(read("DEV"), read("HELD_OUT")));
+  it.each(["DEV", "HELD_OUT"] as const)(
+    "regenerates %s bytes and verifies its seal",
+    async (split) => {
+      const bytes = readFileSync(new URL(`${split}.json`, directory), "utf8");
+      expect(
+        await format(JSON.stringify(generateCorpus(split)), { parser: "json" }),
+      ).toBe(bytes);
+      expect(readFileSync(new URL(`${split}.sha256`, directory), "utf8")).toBe(
+        `${createHash("sha256").update(bytes).digest("hex")}  ${split}.json\n`,
+      );
+    },
+  );
+  it.each([
+    "size",
+    "tag",
+    "family",
+    "target",
+    "transform",
+    "status",
+    "injectedTarget",
+  ])("rejects %s corruption", (kind) => {
+    const dev = read("DEV");
+    const held = read("HELD_OUT");
+    const gold = held.dialects[0]!.gold[0]!;
+    if (kind === "size") held.dialects.pop();
+    if (kind === "tag")
+      for (const dialect of held.dialects)
+        for (const field of dialect.gold)
+          field.tags = field.tags.map((t) =>
+            t === "CLEAR" ? "ABBREVIATED" : t,
+          );
+    if (kind === "family")
+      held.dialects[0]!.namingFamily = dev.dialects[0]!.namingFamily;
+    if (kind === "target") gold.targetField = "invented";
+    if (kind === "transform") gold.transform = "DIVIDE_100";
+    if (kind === "status") Object.assign(gold, { status: "APPROVED" });
+    if (kind === "injectedTarget")
+      held.dialects[0]!.gold[12]!.injectedTarget = "invented";
+    expect(() => validate(dev, held)).toThrow();
+  });
+  it("keeps the offline corpus outside production imports and public assets", () => {
+    const root = resolve(import.meta.dirname, "../../..");
+    // Ban references from every production package, including transitive web dependencies.
+    for (const folder of ["apps/web/src", "apps/web/public", "packages"]) {
+      for (const file of readdirSync(resolve(root, folder), {
+        recursive: true,
+        withFileTypes: true,
+      })) {
+        if (!file.isFile()) continue;
+        const path = resolve(file.parentPath, file.name);
+        const name = relative(root, path);
+        if (
+          name.includes("node_modules") ||
+          name.includes("packages/evals/") ||
+          /\.(test|spec)\./.test(name)
+        )
+          continue;
+        if (!/\.(ts|tsx|js|mjs|json|html)$/.test(name)) continue;
+        const content = readFileSync(path, "utf8");
+        expect(content, name).not.toContain("schema-dialects");
+        for (const imported of ts.preProcessFile(content).importedFiles) {
+          expect(imported.fileName, name).not.toMatch(
+            /@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/,
+          );
+        }
+      }
+    }
+    expect(
+      readFileSync(new URL("./index.ts", import.meta.url), "utf8"),
+    ).not.toContain("schema-dialects");
+  });
+});

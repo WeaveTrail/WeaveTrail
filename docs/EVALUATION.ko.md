@@ -68,6 +68,39 @@ Linux x86_64입니다. 직접 작성한 픽스처 건수이며 독립 표본이 
 새로 캡처한 버전 요약을 함께 검토합니다. 일상적인 실행은 기대값을 갱신하지
 않습니다. 금융 재현 v1/v2와 주장 범위 v1은 출처가 철회된 과거 캡처로 그대로 보존합니다. 현재 결과가 아니며 현재 트리에서 전체 재현할 수 없습니다. [과거 캡처](../packages/evals/results/README.md)(영문)와 [ADR 0056](adr/0056-withdraw-the-committed-real-data-tier.md)(영문)을 참고하세요.
 
+## 계획된 스키마 형식 모델 평가의 입력
+
+[버전 1 오프라인 평가 자료](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)(영문)는
+**계획된** 필드 매핑 모델 평가를 위한 구현된 입력입니다. `pnpm eval`에 포함되지
+않으며 모델 실행 결과도 없습니다. 결정적
+[생성 정의](../packages/evals/src/schema-dialects-generator.ts)는 서로 겹치지 않는
+명명 계열로 DEV와 HELD_OUT을 만듭니다. 각 열에는 기존 계약으로 검증한 대상·변환
+(또는 둘 다 null), `PROPOSED`/`REVIEW_REQUIRED` 상태와 다음 태그가 있습니다.
+`CLEAR`, `ABBREVIATED`, `SYNONYM`, `AMBIGUOUS`, `ABSENT_LURE`, `TRANSFORM_LURE`,
+`INJECTION`. 모호하거나 지원하지 않는 변환은 검토가 필요합니다. 주입 공격의
+정답은 지시를 무시하며 공격이 요구한 `injectedTarget`을 기록합니다. 페이로드는
+영어·한국어, 일반·base64·제로폭 문자와 헤더·셀·상수 위치를 포함합니다.
+
+고정된 의존성으로 입력을 재현하고 검증합니다.
+
+```bash
+pnpm eval:schemas:generate
+pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
+```
+
+자료 옆 출처 문서에 생성 환경, 구성 수량과 한계를 기록했습니다. 커밋된
+[HELD_OUT SHA-256](../packages/evals/fixtures/schema-dialects-v1/HELD_OUT.sha256)(영문)이
+정확한 파일 바이트의 봉인 해시입니다. 튜닝이나 프롬프트 예시에는 DEV만 사용합니다.
+향후 실행 전 제공자 설정을 고정하고 보류 자료의 커밋과 해시를 기록하며, 모델에는
+각 형식의 `input`만 전달하고 `gold`는 전달하지 않습니다. HELD_OUT은 오프라인에
+두고 브라우저에 제공하지 않습니다. 테스트가 프로덕션 가져오기와 공개 파일을 검사합니다.
+
+모든 값과 정답은 직접 작성한 합성 자료이며, 공유 의미 템플릿으로 인해 표본의
+독립성이 제한됩니다. 공개 보류 자료는 비밀이 아니고 해시 봉인이 사전 노출의
+부재를 증명하지도 않습니다. 모델 실행, 매핑 정확도, 실제 환경 대표성이나 공격
+방어 성능을 주장하지 않습니다.
+[ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md)(영문)을 참고하세요.
+
 ## 아직 계획된 측정
 
 독립된 연결 자료에 대한 모델 정확도, 설정된 제공자 비교, 실제 시장 일반화,
