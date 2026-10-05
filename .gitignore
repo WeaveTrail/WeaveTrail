@@ -8,6 +8,8 @@ dist/
 playwright-report/
 test-results/
 .service-store/
+# Local provider envelopes and traces; never evaluation publications.
+.model-runs/raw/
 *.tsbuildinfo
 .env
 .env.local

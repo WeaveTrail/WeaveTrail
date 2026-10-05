@@ -105,6 +105,58 @@ pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
 방어 성능을 주장하지 않습니다.
 [ADR 0057](adr/0057-seal-offline-schema-dialect-evaluation-inputs.md)(영문)을 참고하세요.
 
+## 모델 매핑 실행 기록 계약
+
+구현된 [실행 기록 계약](../packages/contracts/src/mapping-run-record.ts)은 계획된
+모델 평가를 위한 기록 형식입니다. 제공자 호출, 실행 저장과 채점은 아직 계획이며
+`pnpm eval`은 계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
+
+`MappingRunRecordSchema`의 `mapping-run/1`은 평가 자료 버전·정확한 파일의
+SHA-256·DEV/HELD_OUT 구분, 형식 ID, 1부터 시작하는 반복 번호, 제공자,
+요청·보고 모델과 어댑터·프롬프트·출력 스키마·검증기 버전을 기록합니다.
+온도는 음수가 아닌 십진 문자열이며, 지연 시간은 음수가 아닌 안전한 정수
+밀리초입니다. 제공자가 보고하지 않은 모델과 토큰 사용량은 null로 남깁니다.
+토큰 수는 양의 안전한 정수이며, 누락된 사용량을 0으로 대신하지 않습니다.
+
+결과는 `VALID`, `CONTRACT_REJECTED`, `PROVIDER_FAILED` 중 하나입니다.
+`VALID`는 기존 매핑 필드 계약을 통과한 출력, 빈 검증 사유와 null 실패 분류를
+요구하며 사람의 승인이나 의미상의 정확성을 뜻하지 않습니다. `CONTRACT_REJECTED`는
+안정적인 대문자 사유 코드와 문자열·정수 경로를 하나 이상 기록하고 실패를
+`OUTPUT_CONTRACT`, `UNPARSEABLE_OUTPUT`, `OUTPUT_NOT_RETAINABLE`로 분류합니다.
+`PROVIDER_FAILED`는 출력이 null이고 검증 사유가 비어 있어야 하며, 제공자 실패
+분류의 전체 목록은 [계약 설명](EVALUATION.md#mapping-model-run-record-contract)(영문)에 있습니다.
+
+보존할 구조화 출력은 `{ fields: [...] }`이며 `JSON.stringify` 결과의 UTF-8 크기가
+65,536바이트 이하여야 합니다. 거절된 출력도 기존 여섯 필드 키 안의 잘못된
+스칼라 값이나 빠진 필드를 보존해 재검증할 수 있습니다. 알 수 없는 키, 중첩 객체,
+허용하지 않는 형태, 크기 초과나 파싱 불가 출력은 null로 폐기하며 원문을 복구할 수 없습니다.
+`UNPARSEABLE_OUTPUT`, `OUTPUT_NOT_RETAINABLE`은 null을 요구합니다.
+계약은 구조와 상태의 일관성을 검사하며, 실제 평가 자료 소속·봉인 해시·검증 결과는
+향후 기록 생성자가 확인해야 합니다.
+
+모든 객체는 추가 속성을 거부합니다. 요청 본문, 응답 봉투, 헤더, 제공자 요청 ID,
+자격 증명과 원시 오류 메시지는 출력이나 검증 사유 안에도 붙일 수 없습니다.
+허용된 문자열에 비밀이 섞이지 않도록 하는 책임도 기록 생성자에게 있습니다.
+원시 봉투가 로컬에서 필요하면 Git이 무시하는 `.model-runs/raw/`만 사용합니다.
+이번 변경은 원문 저장이나 모델 실행을 구현하지 않습니다.
+
+`MappingRunReceiptSchema`의 `mapping-run-receipt/1`은 실행 ID, UTC 시작 시각과
+정본 기록 해시를 별도로 보관합니다. 기존 `sha256Canonical`로 검증된 기록만 해시하고,
+요약 해시에도 영수증을 포함하지 않습니다. 지연 시간과 사용량은 해당 호출의 관측값으로
+기록에 남습니다. 봉인된 자료와 채점·검증기 버전이 같으면 커밋된 기록의 재채점은
+재현 가능하지만, 모델을 다시 실행하면 새 기록이 생깁니다. null 출력 실패는 다시
+집계할 수 있으나 폐기된 출력은 재검증할 수 없습니다.
+[ADR 0058](adr/0058-separate-mapping-run-records-from-raw-provider-traces.md)(영문)을 참고하세요.
+
+오프라인 합성 테스트를 실행합니다.
+
+```bash
+pnpm exec vitest run packages/contracts/src/mapping-run-record.test.ts packages/evals/src/mapping-run-record.test.ts
+```
+
+시험은 세 결과 상태, 전송 정보 거부, 사용량 누락, 정확한 UTF-8 크기 경계와
+영수증 분리를 검사합니다. 실제 모델 실행 캡처나 제공자 성능 측정이 아닙니다.
+
 ## 아직 계획된 측정
 
 독립된 연결 자료에 대한 모델 정확도, 설정된 제공자 비교, 실제 시장 일반화,

@@ -21,3 +21,9 @@ Evaluation v3 retains the synthetic inputs with unchanged oracles and removes
 all real-source baselines. Previous financial replay v1/v2 and claim coverage v1
 outputs remain [historical captures with withdrawn sources](../results/README.md).
 The source-dependent coverage evaluation command and runner were removed.
+
+The shared [mapping run contracts](../../contracts/src/mapping-run-record.ts)
+prepare records and separate receipts for planned model evaluations. Offline
+synthetic tests verify their shape, trace rejection and hash boundary; no provider
+instrumentation, run persistence or scoring is implemented. See the
+[run-record protocol](../../../docs/EVALUATION.md#mapping-model-run-record-contract).
