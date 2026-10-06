@@ -385,17 +385,18 @@ The service components [ADR 0050](adr/0050-place-planned-service-components.md)
 placed (collectors, document parsing, event structuring, conclusion
 definitions, feed statistics, claim extraction and checking, and briefs with
 share links) are no longer planned. No package, tier or edge is reserved for
-them. ADR 0050 links to the placement it accepted as a historical record.
+them. [ADR 0061](adr/0061-retire-the-planned-service-components.md) records why;
+ADR 0050 links to the placement it accepted as a historical record.
 
 The planned components serve the two model roles and build on what exists:
 
-| Planned component                       | What exists today that it builds on                                                           | Version  |
-| --------------------------------------- | --------------------------------------------------------------------------------------------- | -------- |
-| Mapping runs on any compatible endpoint | The configured OpenAI-compatible adapter and the shared mapping validator                     | `v0.2.0` |
-| Scoring and a non-model baseline        | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                   | `v0.2.0` |
-| Model selection                         | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run | `v0.2.0` |
-| Proposal routing                        | The shared mapping validator; the escalation model is part of the plan                        | `v0.3.0` |
-| Bounded case-scope proposer             | `DatasetProfile` and the existing case-scope validation against it                            | `v0.4.0` |
+| Planned component                       | What exists today that it builds on                                                                                                                                    | Version  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Mapping runs on any compatible endpoint | The configured OpenAI-compatible adapter and the shared mapping validator                                                                                              | `v0.2.0` |
+| Scoring and a non-model baseline        | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                                                                                            | `v0.2.0` |
+| Model selection                         | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run                                                                          | `v0.2.0` |
+| Proposal routing                        | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
+| Bounded case-scope proposer             | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
 
 In the routing path a valid, clear proposal goes to review, an ambiguous or
 rejected one goes once to the escalation model and through the same validator,

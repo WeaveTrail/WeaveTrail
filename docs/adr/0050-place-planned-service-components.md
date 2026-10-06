@@ -5,11 +5,14 @@
 > account below describes the withdrawn tier. Generic contracts, synthetic
 > behavior and provenance safeguards remain applicable.
 >
-> The service components it places are no longer planned. The placement matrix
-> it adopted is no longer in the architecture document; the link below pins the
-> last revision that carried it.
+> The remaining placements are superseded by
+> [ADR 0061](0061-retire-the-planned-service-components.md): the service
+> components it places are no longer planned. The placement matrix it adopted
+> is no longer in the architecture document; the link below pins the last
+> revision that carried it.
 
-- Status: Partially superseded by ADR 0056 (committed sources and composition)
+- Status: Superseded by ADR 0056 (committed sources and composition) and
+  ADR 0061 (remaining placements)
 - Date: 2026-09-28
 
 ## Context
