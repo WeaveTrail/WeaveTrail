@@ -15,6 +15,16 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   Configured proposals expire after 30 minutes and need a new request and
   approval; durable provider audit storage and identity/spending controls do
   not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
+- Model evaluation is partly built and nothing in it is measured yet. The
+  sealed synthetic DEV and HELD_OUT schema-dialect set, the run-record
+  contract, the validator probes and the [AI failure log](AI_FAILURE_LOG.md)
+  exist. No model has been run against the held-out set, so no model accuracy,
+  comparison, cost or selection is published. Running the mapping task on any
+  OpenAI-compatible endpoint, scoring beside a non-model baseline, a selection
+  rule fixed before the held-out run, routing to one escalation model, bounded
+  case-scope proposals and a daily limit on live model calls are planned. A
+  future comparison will hold for its synthetic set, prompt version, date and
+  rule, not for exchange schemas in general.
 
 - Case Replay uses the complete published-schema FIX 4.4 projection as its
   supported synthetic case and the actorless H0STCNT0 projection as its
@@ -48,7 +58,8 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   provenance and derived-result input bindings. Its collection and resolution
   APIs are tested with synthetic responses on local disk; the web app does not
   yet use them. Scheduled collection, event/share routes, multi-host storage and
-  backup automation are not implemented. See
+  backup automation are not implemented, and the current plan does not include
+  them. See
   [service snapshot operations](SERVICE_SNAPSHOTS.md).
 - Finite-number spelling is specified, but the implementation does not claim
   full JSON Canonicalization Scheme compliance.

@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="layersTitle layersDesc">
-  <title id="layersTitle">Planned layer separation: a model proposes, a person approves, fixed code decides, and each sentence will carry the badge of the layer that vouches for it</title>
-  <desc id="layersDesc">The planned four layers run left to right, from an official release, published market data or a pasted analysis to a sentence on screen with its evidence. Layer one, interpret: a model proposes a release's facts with the passages they came from, and the claims worth checking in a pasted text; it computes nothing. Layer two, approve: a person fixes what will be examined before anything runs and adopts the conclusions that go into a brief; approval cannot edit a result. Layer three, decide: fixed code matches quotations, including numbers in them, against retained source bytes and recomputes calculated claims from verified source data; where data is absent it says so instead of guessing. Layer four, evidence: on the planned surface, each sentence opens onto its source passage, or onto its rows, formula and definition, and a shared link pins the snapshots it used. Beneath the layers are the five evidence badges: quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="layersTitle layersDesc">
+  <title id="layersTitle">Layer separation: a model proposes, a person approves, fixed code verifies, and every finding traces back to its source rows</title>
+  <desc id="layersDesc">Four layers run left to right, from an unfamiliar trade file and its stored source rows to a finding that opens onto them. Layer one, propose: a model proposes each column's canonical field and allowed transform, or returns REVIEW_REQUIRED; as planned, it will also propose a case scope from the dataset profile. It computes and approves nothing. Layer two, approve: a person approves the mapping, bound to its proposal hash, and the case scope before anything runs; approval cannot edit a result. Layer three, verify: fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; a rejected or ambiguous proposal fails closed. Layer four, evidence: every finding opens onto its eventId and rawRowHash, and a planned model run leaves a run record. Beneath the layers is the planned proposal path: a primary model, the validator, one escalation model, the validator again, and human review, with REVIEW_REQUIRED when nothing resolves. A valid, clear proposal goes straight to review, the escalation model never sees the primary output, there are at most two calls, and no path approves.</desc>
   <!--
     Hand-authored README figure. The English and Korean files share one geometry;
     each language brings its own line breaks and chip widths.
@@ -27,102 +27,112 @@
       .badge{font-size:12px;font-weight:600}
       .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
       .ctx{font-size:11px;fill:#7d8b88}
+      .note{font-size:11px;fill:#566461}
       .rule{stroke:#d0d7de;stroke-width:1}
     </style>
   </defs>
-
-  <rect width="1200" height="520" fill="#f7faf9"/>
+  <rect width="1200" height="540" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="519" fill="none" stroke="#d0d7de"/>
-
+  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
   <g class="s">
     <text class="eyebrow" x="40" y="48">LAYER SEPARATION</text>
-    <text class="title" x="40" y="84">AI proposes. A person approves. Code decides.</text>
+    <text class="title" x="40" y="84">AI proposes. Human approves. Code verifies. Evidence traces back.</text>
     <text class="sub" x="40" y="112">Dashed slate is model output and is never trusted. Teal is a person's decision. Ink is fixed code.</text>
-    <text class="sub" x="40" y="132">No layer holds two authorities. On the planned surface, each sentence carries the badge of the layer that vouches for it.</text>
+    <text class="sub" x="40" y="133">A model holds two roles: field mapping today, and a bounded case-scope proposal as planned. No layer holds two authorities.</text>
   </g>
-  <line class="rule" x1="40" y1="150" x2="1160" y2="150"/>
+  <line class="rule" x1="40" y1="154" x2="1160" y2="154"/>
 
   <g class="s">
-    <text class="ctx" x="40" y="176">FROM · an official release, published market data, or a pasted analysis</text>
-    <text class="ctx" x="1160" y="176" text-anchor="end">TO · a planned sentence on screen, with its evidence</text>
+    <text class="ctx" x="40" y="180">FROM · an unfamiliar trade file and its stored source rows</text>
+    <text class="ctx" x="1160" y="180" text-anchor="end">TO · a finding that opens onto its source rows</text>
   </g>
 
   <!-- stage 1 -->
-  <rect x="40" y="192" width="262" height="200" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
-  <rect x="56" y="208" width="94" height="18" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
-  <text class="s chip" x="64" y="221" fill="#4f6270">AI PROPOSES</text>
+  <rect x="40" y="196" width="262" height="204" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <rect x="56" y="212" width="91.4" height="20" fill="#ffffff" stroke="#4f6270" stroke-dasharray="4 3"/>
+  <text class="s chip" x="64" y="226" fill="#4f6270">AI PROPOSES</text>
   <g class="s">
-    <text class="stage" x="56" y="256">L1 · Interpret</text>
-    <text class="body" x="56" y="284">A model proposes a release's</text>
-    <text class="body" x="56" y="304">facts with the passages they</text>
-    <text class="body" x="56" y="324">came from, and the claims worth</text>
-    <text class="body" x="56" y="344">checking in a pasted text.</text>
-    <text class="foot" x="56" y="374">computes nothing</text>
+    <text class="stage" x="56" y="262">L1 · Propose</text>
+    <text class="body" x="56" y="290">A model proposes each column's</text>
+    <text class="body" x="56" y="310">canonical field and transform,</text>
+    <text class="body" x="56" y="330">or REVIEW_REQUIRED. Planned:</text>
+    <text class="body" x="56" y="350">a case scope from the profile.</text>
+    <text class="foot" x="56" y="382">computes nothing, approves nothing</text>
   </g>
 
   <!-- stage 2 -->
-  <rect x="326" y="192" width="262" height="200" fill="#e6f2f1" stroke="#0b6e6a"/>
-  <rect x="342" y="208" width="114" height="18" fill="#ffffff" stroke="#0b6e6a"/>
-  <text class="s chip" x="350" y="221" fill="#0b6e6a">HUMAN APPROVES</text>
+  <rect x="326" y="196" width="262" height="204" fill="#e6f2f1" stroke="#0b6e6a"/>
+  <rect x="342" y="212" width="113.0" height="20" fill="#ffffff" stroke="#0b6e6a"/>
+  <text class="s chip" x="350" y="226" fill="#0b6e6a">HUMAN APPROVES</text>
   <g class="s">
-    <text class="stage" x="342" y="256">L2 · Approve</text>
-    <text class="body" x="342" y="284">A person fixes what will be</text>
-    <text class="body" x="342" y="304">examined before anything runs,</text>
-    <text class="body" x="342" y="324">and adopts the conclusions</text>
-    <text class="body" x="342" y="344">that go into a brief.</text>
-    <text class="foot" x="342" y="374">cannot edit a result</text>
+    <text class="stage" x="342" y="262">L2 · Approve</text>
+    <text class="body" x="342" y="290">A person approves the mapping,</text>
+    <text class="body" x="342" y="310">bound to its proposal hash,</text>
+    <text class="body" x="342" y="330">and the case scope, before</text>
+    <text class="body" x="342" y="350">anything runs.</text>
+    <text class="foot" x="342" y="382">cannot edit a result</text>
   </g>
 
   <!-- stage 3 -->
-  <rect x="612" y="192" width="262" height="200" fill="#ffffff" stroke="#14211f"/>
-  <rect x="628" y="208" width="100" height="18" fill="#f0f5f4" stroke="#14211f"/>
-  <text class="s chip" x="636" y="221" fill="#14211f">CODE DECIDES</text>
+  <rect x="612" y="196" width="262" height="204" fill="#ffffff" stroke="#14211f"/>
+  <rect x="628" y="212" width="105.8" height="20" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="636" y="226" fill="#14211f">CODE VERIFIES</text>
   <g class="s">
-    <text class="stage" x="628" y="256">L3 · Decide</text>
-    <text class="body" x="628" y="284">Code checks quotations against</text>
-    <text class="body" x="628" y="304">source bytes, including numbers,</text>
-    <text class="body" x="628" y="324">and recomputes calculated values</text>
-    <text class="body" x="628" y="344">from verified source data.</text>
-    <text class="foot" x="628" y="374">no data, no guess</text>
+    <text class="stage" x="628" y="262">L3 · Verify</text>
+    <text class="body" x="628" y="290">Code validates the contract,</text>
+    <text class="body" x="628" y="310">dry-runs every transform, then</text>
+    <text class="body" x="628" y="330">re-derives events from stored</text>
+    <text class="body" x="628" y="350">rows and evaluates the rule.</text>
+    <text class="foot" x="628" y="382">rejected or ambiguous fails closed</text>
   </g>
 
   <!-- stage 4 -->
-  <rect x="898" y="192" width="262" height="200" fill="#ffffff" stroke="#14211f"/>
-  <rect x="914" y="208" width="102" height="18" fill="#f0f5f4" stroke="#14211f"/>
-  <text class="s chip" x="922" y="221" fill="#14211f">CODE RECORDS</text>
+  <rect x="898" y="196" width="262" height="204" fill="#ffffff" stroke="#14211f"/>
+  <rect x="914" y="212" width="98.6" height="20" fill="#f0f5f4" stroke="#14211f"/>
+  <text class="s chip" x="922" y="226" fill="#14211f">CODE RECORDS</text>
   <g class="s">
-    <text class="stage" x="914" y="256">L4 · Evidence</text>
-    <text class="body" x="914" y="284">On the planned surface, each</text>
-    <text class="body" x="914" y="304">sentence opens onto its source</text>
-    <text class="body" x="914" y="324">passage, rows, formula and</text>
-    <text class="body" x="914" y="344">definition; links pin inputs.</text>
-    <text class="foot" x="914" y="374">planned sentence → source</text>
+    <text class="stage" x="914" y="262">L4 · Evidence</text>
+    <text class="body" x="914" y="290">Every finding opens onto its</text>
+    <text class="body" x="914" y="310">eventId and rawRowHash. A</text>
+    <text class="body" x="914" y="330">planned model run leaves a</text>
+    <text class="body" x="914" y="350">run record behind.</text>
+    <text class="foot" x="914" y="382">finding &#8594; source row</text>
   </g>
 
   <g fill="#0b6e6a">
-    <path d="M306 286l10 6-10 6z"/>
-    <path d="M592 286l10 6-10 6z"/>
-    <path d="M878 286l10 6-10 6z"/>
+    <path d="M306 292l10 6-10 6z"/>
+    <path d="M592 292l10 6-10 6z"/>
+    <path d="M878 292l10 6-10 6z"/>
   </g>
 
-  <line class="rule" x1="40" y1="422" x2="1160" y2="422"/>
+  <line class="rule" x1="40" y1="428" x2="1160" y2="428"/>
 
-  <!-- evidence badges -->
+  <!-- proposal path -->
   <g class="s">
-    <text class="band" x="40" y="452">CHECKED BY CODE</text>
-    <text class="band" x="1160" y="452" text-anchor="end">PROPOSED BY A MODEL</text>
+    <text class="band" x="40" y="456">PLANNED PROPOSAL PATH · v0.3.0</text>
+    <text class="band" x="1160" y="456" text-anchor="end">UNRESOLVED</text>
   </g>
   <g>
-    <rect x="40" y="464" width="66" height="24" fill="#ffffff" stroke="#14211f"/>
-    <text class="s badge" x="52" y="480" fill="#14211f">Quoted</text>
-    <rect x="116" y="464" width="94" height="24" fill="#0b6e6a" stroke="#0b6e6a"/>
-    <text class="s badge" x="128" y="480" fill="#ffffff">Recomputed</text>
-    <rect x="220" y="464" width="68" height="24" fill="#14211f" stroke="#14211f"/>
-    <text class="s badge" x="232" y="480" fill="#ffffff">Differs</text>
-    <rect x="298" y="464" width="122" height="24" fill="#fbf4e4" stroke="#8a6a12"/>
-    <text class="s badge" x="310" y="480" fill="#8a6a12">Not confirmable</text>
-    <rect x="1026" y="464" width="134" height="24" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
-    <text class="s badge" x="1038" y="480" fill="#4f6270">AI interpretation</text>
+    <rect x="40.0" y="468" width="109.2" height="26" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="s badge" x="54.0" y="485.5" fill="#4f6270">Primary model</text>
+    <rect x="169.2" y="468" width="86.8" height="26" fill="#ffffff" stroke="#14211f"/>
+    <text class="s badge" x="183.2" y="485.5" fill="#14211f">Validator</text>
+    <rect x="276.0" y="468" width="167.1" height="26" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="s badge" x="290.0" y="485.5" fill="#4f6270">Escalation model · once</text>
+    <rect x="463.1" y="468" width="86.8" height="26" fill="#ffffff" stroke="#14211f"/>
+    <text class="s badge" x="477.1" y="485.5" fill="#14211f">Validator</text>
+    <rect x="569.9" y="468" width="102.9" height="26" fill="#e6f2f1" stroke="#0b6e6a"/>
+    <text class="s badge" x="583.9" y="485.5" fill="#0b6e6a">Human review</text>
+    <rect x="1014.5" y="468" width="145.5" height="26" fill="#fbf4e4" stroke="#8a6a12"/>
+    <text class="s badge" x="1028.5" y="485.5" fill="#8a6a12">REVIEW_REQUIRED</text>
+  </g>
+  <g fill="#0b6e6a">
+    <path d="M155.2 476l8 5-8 5z"/>
+    <path d="M262.0 476l8 5-8 5z"/>
+    <path d="M449.1 476l8 5-8 5z"/>
+    <path d="M555.9 476l8 5-8 5z"/>
+  </g>
+  <g class="s">
+    <text class="note" x="40" y="520">A valid, clear proposal goes straight to review. The escalation model never sees the primary output, there are at most two calls, and no path approves.</text>
   </g>
 </svg>

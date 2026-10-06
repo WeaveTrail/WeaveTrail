@@ -4,6 +4,10 @@
 > [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
 > account below describes the withdrawn tier. Generic contracts, synthetic
 > behavior and provenance safeguards remain applicable.
+>
+> The service components it places are no longer planned. The placement matrix
+> it adopted is no longer in the architecture document; the link below pins the
+> last revision that carried it.
 
 - Status: Partially superseded by ADR 0056 (committed sources and composition)
 - Date: 2026-09-28
@@ -23,7 +27,7 @@ preserve that direction, including type imports and transitive dependencies.
 ## Decision
 
 Adopt the component-to-package matrix and import allowlists in
-[planned service component placement](../ARCHITECTURE.md#planned-service-component-placement).
+[planned service component placement](https://github.com/WeaveTrail/WeaveTrail/blob/b943b91e9077b7b010ac85e81eff126aa5e754dd/docs/ARCHITECTURE.md#planned-service-component-placement).
 The Korean architecture document carries the same record. These are accepted
 placements for planned work, not newly implemented packages or APIs.
 
