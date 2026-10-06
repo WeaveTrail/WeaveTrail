@@ -232,6 +232,19 @@ These tests cover outcomes, transport-field rejection, missing usage, exact
 UTF-8 size boundaries and receipt separation. They are not captured model runs
 or measurements of provider performance.
 
+## AI failure log
+
+The [AI failure log](AI_FAILURE_LOG.md) records each observed model or validator
+failure as an `F-nnn` entry: role, model or validator version, run record,
+assumption, counterexample, fix with its pull request, regression test and
+status. It also lists every prompt version and whether a held-out set has been
+burned. A log check in `pnpm test` fails when an entry is incomplete or names a
+test file the suite does not collect; run it separately with:
+
+```bash
+pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
+```
+
 ## Measurements still planned
 
 Model accuracy on independent mappings, configured-provider comparisons,

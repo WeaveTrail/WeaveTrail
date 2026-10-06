@@ -58,6 +58,10 @@ result only within the safeguards in
 - Contract changes include migration notes and public documentation.
 - Replay-engine changes include a golden or invariant test.
 - New findings remain traceable to source events and `rawRowHash`.
+- A fix for a model or validator failure ships with its `F-nnn` entry in the
+  [AI failure log](docs/AI_FAILURE_LOG.md) and a regression test that fails
+  without the fix. A prompt version change is listed there with what changed,
+  why, and whether it burned a held-out set.
 - Measurements include their dataset version, command, environment, and known
   limits.
 - Pull requests report only checks actually run, using `PASS`, `FAIL`, or
