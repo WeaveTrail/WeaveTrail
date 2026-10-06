@@ -72,7 +72,7 @@ function section(markdown: string, heading: string) {
   const start = markdown.indexOf(`\n${heading}\n`);
   expect(start, heading).toBeGreaterThanOrEqual(0);
   const rest = markdown.slice(start + heading.length + 2);
-  const end = rest.search(/^## /m);
+  const end = rest.search(/^ {0,3}## /m);
   return end === -1 ? rest : rest.slice(0, end);
 }
 
@@ -84,15 +84,17 @@ const tracked = (pattern: string) =>
     .split("\0")
     .filter(Boolean);
 
-// The same collection rule `pnpm test` applies: root include globs minus
-// Vitest's default excludes, over files Git tracks.
+// The same collection rule `pnpm test` applies: root include globs minus the
+// effective excludes (a configured list replaces Vitest's defaults), over files
+// Git tracks.
 function collected(path: string) {
+  const exclude = vitestConfig.test?.exclude ?? configDefaults.exclude;
   return (
     tracked(path).includes(path) &&
     (vitestConfig.test?.include ?? []).some((glob) =>
       matchesGlob(path, glob),
     ) &&
-    !configDefaults.exclude.some((glob) => matchesGlob(path, glob))
+    !exclude.some((glob) => matchesGlob(path, glob))
   );
 }
 
@@ -123,6 +125,22 @@ function sourcePromptVersions() {
   const checker = program.getTypeChecker();
   const versions = new Set<string>();
   const unresolved: string[] = [];
+  // Semantic name, so `promptVersion`, `"promptVersion"` and computed literal
+  // keys are treated alike.
+  const nameOf = (name: ts.PropertyName | ts.BindingName) => {
+    if (
+      ts.isIdentifier(name) ||
+      ts.isPrivateIdentifier(name) ||
+      ts.isStringLiteralLike(name) ||
+      ts.isNumericLiteral(name)
+    )
+      return name.text;
+    if (ts.isComputedPropertyName(name)) {
+      const type = checker.getTypeAtLocation(name.expression);
+      if (type.isStringLiteral()) return type.value;
+    }
+    return undefined;
+  };
   const collect = (node: ts.Node, value: ts.Node) => {
     const type = checker.getTypeAtLocation(value);
     const parts = type.isUnion() ? type.types : [type];
@@ -142,7 +160,7 @@ function sourcePromptVersions() {
     const visit = (node: ts.Node): void => {
       if (
         ts.isPropertyAssignment(node) &&
-        node.name.getText() === "promptVersion"
+        nameOf(node.name) === "promptVersion"
       )
         collect(node, node.initializer);
       else if (
@@ -152,7 +170,7 @@ function sourcePromptVersions() {
         collect(node, node.name);
       else if (
         (ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node)) &&
-        /prompt_?version$/i.test(node.name.getText()) &&
+        /prompt_?version$/i.test(nameOf(node.name) ?? "") &&
         node.initializer
       )
         collect(node, node.initializer);
@@ -174,12 +192,16 @@ describe("AI failure log", () => {
   it.each(Object.entries(logs))(
     "rejects malformed entry headings in the %s log",
     (_, log) => {
-      const headings = section(read(log.path), log.entriesHeading)
-        .split("\n")
-        .filter((line) => line.startsWith("#"));
+      const lines = section(read(log.path), log.entriesHeading).split("\n");
+      // CommonMark ATX headings may be indented up to three spaces.
+      const headings = lines.filter((line) => /^ {0,3}#/.test(line));
       expect(headings.length).toBeGreaterThan(0);
       for (const heading of headings)
         expect(heading).toMatch(/^### F-\d{3}: \S.*$/);
+      // Setext underlines would turn the preceding line into a heading.
+      expect(lines.filter((line) => /^ {0,3}(=+|-+)\s*$/.test(line))).toEqual(
+        [],
+      );
       expect(entries(read(log.path))).toHaveLength(headings.length);
     },
   );

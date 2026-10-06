@@ -84,10 +84,12 @@ separately with:
 pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
 ```
 
-Use the locked dependencies, Node 22.13 or newer and pnpm 10.33.2. The count
-covers only the 26 authored synthetic probes of `hostile-mapping-fixtures/1`; it
-is a validator regression observation, not a measurement of any model or of
-coverage against arbitrary outputs. Both probes now fail closed with the reason
+The count was observed and reproduced with the locked dependencies on Node
+22.18.0, pnpm 10.33.2 and Vitest 5.0.2, Linux x86_64 (WSL2 kernel 6.18.33.2);
+the project supports Node 22.13 or newer. It covers only the 26 authored
+synthetic probes of `hostile-mapping-fixtures/1`; it is a validator regression
+observation, not a measurement of any model or of coverage against arbitrary
+outputs. Both probes now fail closed with the reason
 codes above in the regression test.
 
 ### F-002: A well-formed swap of same-shaped columns passes validation
