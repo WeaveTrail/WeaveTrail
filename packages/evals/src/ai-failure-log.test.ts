@@ -8,7 +8,9 @@ import { configDefaults } from "vitest/config";
 import vitestConfig from "../../../vitest.config";
 
 const root = new URL("../../../", import.meta.url);
-const read = (path: string) => readFileSync(new URL(path, root), "utf8");
+// LF-normalized so a CRLF checkout parses the same tables.
+const read = (path: string) =>
+  readFileSync(new URL(path, root), "utf8").replace(/\r\n/g, "\n");
 
 const logs = {
   en: {
@@ -24,6 +26,7 @@ const logs = {
       "Status",
     ],
     promptHeading: "## Prompt versions",
+    entriesHeading: "## Entries",
     burned: /^(No|Yes)\./,
   },
   ko: {
@@ -39,6 +42,7 @@ const logs = {
       "상태",
     ],
     promptHeading: "## 프롬프트 버전",
+    entriesHeading: "## 항목",
     burned: /^(아니요|예)\./,
   },
 } as const;
@@ -99,14 +103,19 @@ function collected(path: string) {
  * than silently skipped; schema validators (non-string types) are ignored.
  */
 function sourcePromptVersions() {
-  const files = [...tracked("packages"), ...tracked("apps")]
-    .filter((file) => /\.tsx?$/.test(file) && !/\.test\.tsx?$/.test(file))
+  const files = ["packages", "apps", "scripts"]
+    .flatMap(tracked)
+    .filter(
+      (file) =>
+        /\.[cm]?[jt]sx?$/.test(file) && !/\.test\.[cm]?[jt]sx?$/.test(file),
+    )
     .map((file) => fileURLToPath(new URL(file, root)));
   const program = ts.createProgram(files, {
     target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Bundler,
     jsx: ts.JsxEmit.Preserve,
+    allowJs: true,
     strict: true,
     skipLibCheck: true,
     noEmit: true,
@@ -161,6 +170,19 @@ describe("AI failure log", () => {
       entries(read(log.path)),
     ]),
   ) as Record<keyof typeof logs, ReturnType<typeof entries>>;
+
+  it.each(Object.entries(logs))(
+    "rejects malformed entry headings in the %s log",
+    (_, log) => {
+      const headings = section(read(log.path), log.entriesHeading)
+        .split("\n")
+        .filter((line) => line.startsWith("#"));
+      expect(headings.length).toBeGreaterThan(0);
+      for (const heading of headings)
+        expect(heading).toMatch(/^### F-\d{3}: \S.*$/);
+      expect(entries(read(log.path))).toHaveLength(headings.length);
+    },
+  );
 
   it.each(Object.entries(logs))(
     "keeps every %s entry complete and bound to a collected test",

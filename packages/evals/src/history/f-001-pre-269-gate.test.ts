@@ -26,7 +26,9 @@ describe("F-001 historical replay of the configured gate at 9b15a96", () => {
       new URL("./configured-provider-9b15a96.ts", import.meta.url),
       "utf8",
     );
+    // Git blobs are LF; a CRLF checkout must hash the same bytes.
     const original = copy
+      .replace(/\r\n/g, "\n")
       .split("\n")
       .slice(HEADER_LINES)
       .join("\n")
