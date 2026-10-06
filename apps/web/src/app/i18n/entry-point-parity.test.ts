@@ -160,11 +160,15 @@ describe.each(PAIRS.flat())("%s", (path) => {
 /** Whitespace-insensitive, because a reflow must not hide a sentence. */
 const flat = (path: string) => read(path).replace(/\s+/g, " ");
 
+/** A literal string as a pattern, so `v0.3.0` cannot match `v0x3y0`. */
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /** The plan section's bullet for one version, up to the next bullet. */
 const versionBullet = (path: string, version: string) =>
   flat(path).match(
     new RegExp(
-      `- \\*\\*\`${version}\` ·(.*?)(?= - \\*\\*| Case Replay is| 사례 재생은)`,
+      `- \\*\\*\`${escapeRegExp(version)}\` ·(.*?)(?= - \\*\\*| Case Replay is| 사례 재생은)`,
     ),
   )?.[1] ?? "";
 
