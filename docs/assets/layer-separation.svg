@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" role="img" aria-labelledby="layersTitle layersDesc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-labelledby="layersTitle layersDesc">
   <title id="layersTitle">Layer separation: a model proposes, a person approves, fixed code verifies, and every finding traces back to its source rows</title>
-  <desc id="layersDesc">Four layers run left to right, from an unfamiliar trade file and its stored source rows to a finding that opens onto them. Layer one, propose: a model proposes each column's canonical field and allowed transform, or returns REVIEW_REQUIRED; as planned, it will also propose a case scope from the dataset profile. It computes and approves nothing. Layer two, approve: a person approves the mapping, bound to its proposal hash, and the case scope before anything runs; approval cannot edit a result. Layer three, verify: fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; a rejected or ambiguous proposal fails closed. Layer four, evidence: every finding opens onto its eventId and rawRowHash, and a planned model run leaves a run record. Beneath the layers is the planned proposal path: a primary model, the validator, one escalation model, the validator again, and human review, with REVIEW_REQUIRED when nothing resolves. A valid, clear proposal goes straight to review, the escalation model never sees the primary output, there are at most two calls, and no path approves.</desc>
+  <desc id="layersDesc">Four layers run left to right, from an unfamiliar trade file and its stored source rows to a finding that opens onto them. Layer one, propose: a model proposes each column's canonical field and allowed transform, or returns REVIEW_REQUIRED; as planned, it will also propose a case scope from the dataset profile. It computes and approves nothing. Layer two, approve: a person approves the mapping, bound to its proposal hash, and the case scope before anything runs; approval cannot edit a result. Layer three, verify: fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; a rejected or ambiguous proposal fails closed. Layer four, evidence: every finding opens onto its eventId and rawRowHash, and a planned model run leaves a run record. Beneath the layers is the planned proposal path. A primary model proposes and the validator checks it; a valid, clear proposal goes straight to human review. An ambiguous or rejected one goes once to an escalation model that never sees the primary output, then through the validator again: to human review if valid, to REVIEW_REQUIRED if unresolved. There are at most two calls, and no path approves.</desc>
   <!--
     Hand-authored README figure. The English and Korean files share one geometry;
     each language brings its own line breaks and chip widths.
@@ -27,13 +27,14 @@
       .badge{font-size:12px;font-weight:600}
       .band{font-size:11px;font-weight:600;letter-spacing:.08em;fill:#566461}
       .ctx{font-size:11px;fill:#7d8b88}
+      .edge{font-size:11px;fill:#566461}
       .note{font-size:11px;fill:#566461}
       .rule{stroke:#d0d7de;stroke-width:1}
     </style>
   </defs>
-  <rect width="1200" height="540" fill="#f7faf9"/>
+  <rect width="1200" height="600" fill="#f7faf9"/>
   <rect width="1200" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="1199" height="539" fill="none" stroke="#d0d7de"/>
+  <rect x=".5" y=".5" width="1199" height="599" fill="none" stroke="#d0d7de"/>
   <g class="s">
     <text class="eyebrow" x="40" y="48">LAYER SEPARATION</text>
     <text class="title" x="40" y="84">AI proposes. Human approves. Code verifies. Evidence traces back.</text>
@@ -110,29 +111,40 @@
   <!-- proposal path -->
   <g class="s">
     <text class="band" x="40" y="456">PLANNED PROPOSAL PATH · v0.3.0</text>
-    <text class="band" x="1160" y="456" text-anchor="end">UNRESOLVED</text>
   </g>
   <g>
     <rect x="40.0" y="468" width="109.2" height="26" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
     <text class="s badge" x="54.0" y="485.5" fill="#4f6270">Primary model</text>
     <rect x="169.2" y="468" width="86.8" height="26" fill="#ffffff" stroke="#14211f"/>
     <text class="s badge" x="183.2" y="485.5" fill="#14211f">Validator</text>
-    <rect x="276.0" y="468" width="167.1" height="26" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
-    <text class="s badge" x="290.0" y="485.5" fill="#4f6270">Escalation model · once</text>
-    <rect x="463.1" y="468" width="86.8" height="26" fill="#ffffff" stroke="#14211f"/>
-    <text class="s badge" x="477.1" y="485.5" fill="#14211f">Validator</text>
-    <rect x="569.9" y="468" width="102.9" height="26" fill="#e6f2f1" stroke="#0b6e6a"/>
-    <text class="s badge" x="583.9" y="485.5" fill="#0b6e6a">Human review</text>
-    <rect x="1014.5" y="468" width="145.5" height="26" fill="#fbf4e4" stroke="#8a6a12"/>
-    <text class="s badge" x="1028.5" y="485.5" fill="#8a6a12">REVIEW_REQUIRED</text>
+    <rect x="708.5" y="468" width="102.9" height="26" fill="#e6f2f1" stroke="#0b6e6a"/>
+    <text class="s badge" x="722.5" y="485.5" fill="#0b6e6a">Human review</text>
+    <rect x="242.6" y="532" width="167.1" height="26" fill="#eef1f2" stroke="#4f6270" stroke-dasharray="4 3"/>
+    <text class="s badge" x="256.6" y="549.5" fill="#4f6270">Escalation model · once</text>
+    <rect x="429.7" y="532" width="86.8" height="26" fill="#ffffff" stroke="#14211f"/>
+    <text class="s badge" x="443.7" y="549.5" fill="#14211f">Validator</text>
+    <rect x="1014.5" y="532" width="145.5" height="26" fill="#fbf4e4" stroke="#8a6a12"/>
+    <text class="s badge" x="1028.5" y="549.5" fill="#8a6a12">REVIEW_REQUIRED</text>
+  </g>
+  <g fill="none" stroke="#0b6e6a" stroke-width="1.5">
+    <path d="M256.0 481H700.5"/>
+    <path d="M212.6 494V545H234.6"/>
+    <path d="M516.5 545H1006.5"/>
+    <path d="M760 545V502"/>
   </g>
   <g fill="#0b6e6a">
     <path d="M155.2 476l8 5-8 5z"/>
-    <path d="M262.0 476l8 5-8 5z"/>
-    <path d="M449.1 476l8 5-8 5z"/>
-    <path d="M555.9 476l8 5-8 5z"/>
+    <path d="M700.5 476l8 5-8 5z"/>
+    <path d="M234.6 540l8 5-8 5z"/>
+    <path d="M415.7 540l8 5-8 5z"/>
+    <path d="M1006.5 540l8 5-8 5z"/>
+    <path d="M755 502l5-8 5 8z"/>
   </g>
   <g class="s">
-    <text class="note" x="40" y="520">A valid, clear proposal goes straight to review. The escalation model never sees the primary output, there are at most two calls, and no path approves.</text>
+    <text class="edge" x="268.0" y="475">valid, clear</text>
+    <text class="edge" x="220.6" y="514">ambiguous or rejected</text>
+    <text class="edge" x="768" y="514">valid</text>
+    <text class="edge" x="784" y="539">unresolved</text>
+    <text class="note" x="40" y="584">The escalation model never sees the primary output. There are at most two calls, the two models' fields are never merged, and no path approves.</text>
   </g>
 </svg>

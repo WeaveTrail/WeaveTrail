@@ -33,8 +33,8 @@
 
 Before anything can be computed from an unfamiliar trade file, someone has to
 read it: which column is the event time, which the price, which the account. A
-language model reads those headers faster than anyone, and is sometimes
-confidently wrong.
+language model can propose that reading from the headers and a few sample
+rows, and can be confidently wrong.
 
 WeaveTrail is being built to answer one question with numbers and code:
 **which model was chosen for that reading and why, how far it is trusted, and
@@ -95,11 +95,11 @@ Real quotation sources and the pages built on them have been withdrawn.
 
 **AI proposes. Human approves. Code verifies. Evidence traces back.**
 
-A model reads faster than anyone, and a fluent answer can hide a gap. So the
+A model's answer can be fluent and still wrong, and fluency can hide a gap. So the
 work is separated by authority: each layer holds what it may do, what it may
 never do, and the record it leaves behind.
 
-![Four layers from an unfamiliar trade file to a finding: a model proposes a field mapping now, and a case scope from the dataset profile as planned; a person approves the proposal bound to its hash and the scope before anything runs; fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; every finding opens onto its eventId and rawRowHash. Beneath them, the planned proposal path: a primary model, the validator, one escalation model that never sees the primary output, and review, with REVIEW_REQUIRED when nothing resolves](docs/assets/layer-separation.svg)
+![Four layers from an unfamiliar trade file to a finding: a model proposes a field mapping now, and a case scope from the dataset profile as planned; a person approves the proposal bound to its hash and the scope before anything runs; fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; every finding opens onto its eventId and rawRowHash. Beneath them, the planned proposal path: the validator sends a primary model's valid, clear proposal straight to review; an ambiguous or rejected one goes once to an escalation model that never sees the primary output and through the validator again, to review if valid or to REVIEW_REQUIRED if unresolved](docs/assets/layer-separation.svg)
 
 - **Propose · a model ·** reads the column names and at most eight sample rows
   and proposes, for each column, a canonical field and an allowed transform
@@ -119,10 +119,10 @@ never do, and the record it leaves behind.
 
 A model holds two roles, and only two:
 
-| Role                        | What the model proposes                                                                    | What code fixes first                                                    | What it may never do                                                       | Status                                                                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Field mapping               | Each column's canonical field and allowed transform, with a reason, or `REVIEW_REQUIRED`   | The column list, the target and transform lists, the contract, a dry run | Invent a column, use an unlisted transform, change a source value, approve | Fixture and one configured adapter exist; evaluation (`v0.2.0`), routing (`v0.3.0`) planned |
-| Bounded case-scope proposal | The instrument, actor group, interval and rule version to examine, chosen from the profile | The `DatasetProfile`: instruments, actors, intervals and rule versions   | Invent an actor, widen an interval, predict a result, set a threshold      | Profile and its scope validation exist; proposals (`v0.4.0`) planned                        |
+| Role                        | What the model proposes                                                                       | What code fixes first                                                                                                                           | What it may never do                                                       | Status                                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Field mapping               | Each column's canonical field and allowed transform, with a reason, or `REVIEW_REQUIRED`      | The column list, the target and transform lists, the contract, a dry run                                                                        | Invent a column, use an unlisted transform, change a source value, approve | Fixture and one configured adapter exist; evaluation (`v0.2.0`), routing (`v0.3.0`) planned                                 |
+| Bounded case-scope proposal | The instrument, actor group, time window and rule version to examine, chosen from the profile | The `DatasetProfile`: instruments, actors and the earliest and latest event time; event counts, candidate windows and rule versions are planned | Invent an actor, widen the time bounds, predict a result, set a threshold  | Profile and its instrument, actor and time checks exist; rule-version and threshold guards and proposals (`v0.4.0`) planned |
 
 > Code defines the possible space. AI proposes within it. A person decides.
 
