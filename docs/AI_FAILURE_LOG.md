@@ -72,21 +72,27 @@ changed a prompt.
 | Status            | `FIXED`                                                                                                                                                                                                                                                                                                                                                                                                |
 
 Observed on 2026-10-06 and reproduced by a committed
-[historical replay](../packages/evals/src/history/f-001-pre-269-gate.test.ts). It
-passes the committed probes and valid control from
-[the fixture file](../packages/evals/src/adversarial-mapping-fixtures.ts) through
-`ConfiguredSchemaMappingProvider` in a
-[historical copy](../packages/evals/src/history/configured-provider-9b15a96.ts)
-of the gate at `9b15a96`, with the regression test's offline configuration and
-local transport. Its contract dependency is frozen too: the gate imports a
-[historical copy](../packages/evals/src/history/schema-mapping-9b15a96.ts) of
-`packages/contracts/src/schema-mapping.ts` at `9b15a96` instead of the live
-contracts package. Each copy differs from its `git show 9b15a96:<path>` blob only
-by a four-line header and, for the gate, two import specifiers (the frozen
-contract and type-only ai-harness declarations). The replay reverses those
-differences and checks each original's SHA-256, and also rejects any other
-import, so the only live runtime dependency is `zod` as resolved by the
-lockfile. `pnpm test` runs it in CI; run it separately with:
+[historical replay](../packages/evals/src/history/f-001-pre-269-gate.test.ts).
+Every input is frozen as observed, so later edits to live code or fixtures
+cannot change the replay:
+
+- the probes and valid control: a
+  [copy](../packages/evals/src/history/adversarial-mapping-fixtures-7d18a52.ts)
+  of [the fixture file](../packages/evals/src/adversarial-mapping-fixtures.ts)
+  at `7d18a52`;
+- the gate: a [copy](../packages/evals/src/history/configured-provider-9b15a96.ts)
+  of `packages/ai-harness/src/configured-provider.ts` at `9b15a96`, run with the
+  regression test's offline configuration and local transport;
+- its contract: a [copy](../packages/evals/src/history/schema-mapping-9b15a96.ts)
+  of `packages/contracts/src/schema-mapping.ts` at `9b15a96`, in place of the
+  live contracts package.
+
+Each copy differs from its `git show <commit>:<path>` blob only by a four-line
+header and, for the gate, two import specifiers (the frozen contract and
+type-only ai-harness declarations). The replay reverses those differences,
+checks each original's SHA-256 and rejects any other import, so the only live
+runtime dependency is `zod` as resolved by the lockfile. `pnpm test` runs it in
+CI; run it separately with:
 
 ```bash
 pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts

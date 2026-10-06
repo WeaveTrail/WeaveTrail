@@ -71,14 +71,20 @@ Git이 추적하는 테스트 외 소스의 모든 프롬프트 버전을 나열
 
 2026-10-06에 관찰했으며 커밋된
 [이력 재현 테스트](../packages/evals/src/history/f-001-pre-269-gate.test.ts)로
-재현합니다. 이 테스트는 [픽스처 파일](../packages/evals/src/adversarial-mapping-fixtures.ts)의
-커밋된 프로브와 유효한 대조군을 `9b15a96` 시점 검증의
-[이력 사본](../packages/evals/src/history/configured-provider-9b15a96.ts)에 있는
-`ConfiguredSchemaMappingProvider`에 회귀 테스트와 같은 오프라인 설정·로컬 전송
-함수로 적용합니다. 계약 의존성도 고정했습니다. 이 검증은 현재 contracts
-패키지 대신 `9b15a96` 시점 `packages/contracts/src/schema-mapping.ts`의
-[이력 사본](../packages/evals/src/history/schema-mapping-9b15a96.ts)을 가져옵니다.
-각 사본은 `git show 9b15a96:<경로>` 원본과 비교해 네 줄 머리말과, 검증 사본의
+재현합니다. 모든 입력을 관찰 당시 그대로 고정했으므로 이후 코드나 픽스처를
+바꿔도 재현 결과가 달라지지 않습니다.
+
+- 프로브와 유효한 대조군: `7d18a52` 시점
+  [픽스처 파일](../packages/evals/src/adversarial-mapping-fixtures.ts)의
+  [사본](../packages/evals/src/history/adversarial-mapping-fixtures-7d18a52.ts)
+- 검증: `9b15a96` 시점 `packages/ai-harness/src/configured-provider.ts`의
+  [사본](../packages/evals/src/history/configured-provider-9b15a96.ts). 회귀
+  테스트와 같은 오프라인 설정·로컬 전송 함수로 실행
+- 계약: 현재 contracts 패키지 대신 `9b15a96` 시점
+  `packages/contracts/src/schema-mapping.ts`의
+  [사본](../packages/evals/src/history/schema-mapping-9b15a96.ts)
+
+각 사본은 `git show <커밋>:<경로>` 원본과 비교해 네 줄 머리말과, 검증 사본의
 경우 두 import 지정자(고정된 계약, 타입 전용 ai-harness 선언)만 다릅니다. 재현
 테스트는 이 차이를 되돌린 뒤 각 원본의 SHA-256을 확인하고 그 밖의 import를
 거부하므로, 실행 시 살아 있는 의존성은 잠금 파일이 정한 `zod`뿐입니다.
