@@ -8,10 +8,26 @@ import {
 } from "../adversarial-mapping-fixtures";
 import { ConfiguredSchemaMappingProvider } from "./configured-provider-9b15a96";
 
-// SHA-256 of `git show 9b15a96:packages/ai-harness/src/configured-provider.ts`.
-const ORIGINAL_SHA256 =
-  "d205631378b7bf6fdf1f73227b3e05dfc89b63835fcedf7d5ac30f489bd711f4";
+// Each copy is its `git show 9b15a96:<origin>` blob plus a four-line header and
+// the listed import rewrites; reversing them must reproduce the blob's SHA-256.
 const HEADER_LINES = 4;
+const COPIES = [
+  {
+    copy: "./configured-provider-9b15a96.ts",
+    origin: "packages/ai-harness/src/configured-provider.ts",
+    sha256: "d205631378b7bf6fdf1f73227b3e05dfc89b63835fcedf7d5ac30f489bd711f4",
+    rewrites: [
+      ['from "./schema-mapping-9b15a96";', 'from "@weavetrail/contracts";'],
+      ['from "@weavetrail/ai-harness";', 'from "./provider";'],
+    ],
+  },
+  {
+    copy: "./schema-mapping-9b15a96.ts",
+    origin: "packages/contracts/src/schema-mapping.ts",
+    sha256: "d401796047ce29136ee05f39a76dc5a8eefa8617acd742ba3bddeea3543c9ba2",
+    rewrites: [],
+  },
+] as const;
 
 const configuration = {
   baseUrl: "https://hostile.invalid",
@@ -21,21 +37,32 @@ const configuration = {
 
 /** Replays AI failure log F-001: the pre-#269 gate over the committed probes. */
 describe("F-001 historical replay of the configured gate at 9b15a96", () => {
-  it("is the original source apart from its header and import specifiers", () => {
-    const copy = readFileSync(
-      new URL("./configured-provider-9b15a96.ts", import.meta.url),
-      "utf8",
-    );
-    // Git blobs are LF; a CRLF checkout must hash the same bytes.
-    const original = copy
-      .replace(/\r\n/g, "\n")
-      .split("\n")
-      .slice(HEADER_LINES)
-      .join("\n")
-      .replaceAll('from "@weavetrail/ai-harness";', 'from "./provider";');
-    expect(createHash("sha256").update(original).digest("hex")).toBe(
-      ORIGINAL_SHA256,
-    );
+  it.each(COPIES)(
+    "freezes $origin as it was at 9b15a96",
+    ({ copy, sha256, rewrites }) => {
+      // Git blobs are LF; a CRLF checkout must hash the same bytes.
+      let original = readFileSync(new URL(copy, import.meta.url), "utf8")
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .slice(HEADER_LINES)
+        .join("\n");
+      for (const [from, to] of rewrites)
+        original = original.replaceAll(from, to);
+      expect(createHash("sha256").update(original).digest("hex")).toBe(sha256);
+    },
+  );
+
+  it("imports no live workspace runtime code besides type declarations", () => {
+    for (const { copy } of COPIES) {
+      const text = readFileSync(new URL(copy, import.meta.url), "utf8");
+      const specifiers = [
+        ...text.matchAll(/^(import|export)( type)?[^;]*?from "([^"]+)";/gms),
+      ].map(([, , type, from]) => `${type ? "type " : ""}${from}`);
+      for (const specifier of specifiers)
+        expect(specifier, copy).toMatch(
+          /^(zod|\.\/schema-mapping-9b15a96|type @weavetrail\/ai-harness)$/,
+        );
+    }
   });
 
   it("accepted the two transform-invalid probes and rejected the other 24", async () => {

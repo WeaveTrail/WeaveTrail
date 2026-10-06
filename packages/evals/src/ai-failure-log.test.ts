@@ -103,8 +103,8 @@ function collected(path: string) {
  * shorthand or assignment) and every `*PROMPT_VERSION` declaration in tracked
  * non-test sources through the type checker, so constants and aliases count.
  * Test fixtures are out of scope: they never reach a model.
- * A value that is not a string literal type is reported as unresolved rather
- * than silently skipped; schema validators (non-string types) are ignored.
+ * A value that is not wholly a string literal type is reported as unresolved
+ * rather than silently skipped; only Zod schema definitions are excluded.
  */
 function sourcePromptVersions() {
   const files = ["packages", "apps", "scripts"]
@@ -171,7 +171,9 @@ function sourcePromptVersions() {
     if (parts.every((part) => part.isStringLiteral())) {
       for (const part of parts)
         versions.add((part as ts.StringLiteralType).value);
-    } else if (parts.some((part) => part.flags & ts.TypeFlags.StringLike)) {
+    } else if (!type.getProperty("safeParse")) {
+      // Fail closed on `string`, `any`, `unknown`, numbers and objects alike.
+      // The one explicit exclusion is a Zod schema that validates the field.
       unresolved.push(locate(node));
     }
   };
@@ -310,9 +312,14 @@ describe("AI failure log", () => {
   it.each(Object.entries(logs))(
     "lists every source prompt version in the %s log",
     (_, log) => {
-      const rows = tableRows(section(read(log.path), log.promptHeading)).slice(
-        1,
+      const [header, ...rows] = tableRows(
+        section(read(log.path), log.promptHeading),
       );
+      expect(header).toHaveLength(5);
+      for (const row of rows) {
+        expect(row, row[0]).toHaveLength(header!.length);
+        for (const cell of row) expect(cell, row[0]).not.toBe("");
+      }
       const listed = rows.map(([version]) => /^`([^`]+)`$/.exec(version!)?.[1]);
       expect([...listed].sort()).toEqual(prompts.versions);
       for (const row of rows) expect(row.at(-1)).toMatch(log.burned);

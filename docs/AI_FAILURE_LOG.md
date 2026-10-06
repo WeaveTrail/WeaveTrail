@@ -78,18 +78,23 @@ passes the committed probes and valid control from
 `ConfiguredSchemaMappingProvider` in a
 [historical copy](../packages/evals/src/history/configured-provider-9b15a96.ts)
 of the gate at `9b15a96`, with the regression test's offline configuration and
-local transport. The copy differs from
-`git show 9b15a96:packages/ai-harness/src/configured-provider.ts` only by a
-four-line header and its `./provider` import specifiers; the replay checks the
-original's SHA-256 after reversing both. `pnpm test` runs it in CI; run it
-separately with:
+local transport. Its contract dependency is frozen too: the gate imports a
+[historical copy](../packages/evals/src/history/schema-mapping-9b15a96.ts) of
+`packages/contracts/src/schema-mapping.ts` at `9b15a96` instead of the live
+contracts package. Each copy differs from its `git show 9b15a96:<path>` blob only
+by a four-line header and, for the gate, two import specifiers (the frozen
+contract and type-only ai-harness declarations). The replay reverses those
+differences and checks each original's SHA-256, and also rejects any other
+import, so the only live runtime dependency is `zod` as resolved by the
+lockfile. `pnpm test` runs it in CI; run it separately with:
 
 ```bash
 pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
 ```
 
-The count was observed and reproduced with the locked dependencies on Node
-22.18.0, pnpm 10.33.2 and Vitest 5.0.2, Linux x86_64 (WSL2 kernel 6.18.33.2);
+The count was observed and reproduced with the locked dependencies (zod 4.6.5)
+on Node 22.18.0, pnpm 10.33.2 and Vitest 5.0.2, Linux x86_64 (WSL2 kernel
+6.18.33.2);
 the project supports Node 22.13 or newer. It covers only the 26 authored
 synthetic probes of `hostile-mapping-fixtures/1`; it is a validator regression
 observation, not a measurement of any model or of coverage against arbitrary

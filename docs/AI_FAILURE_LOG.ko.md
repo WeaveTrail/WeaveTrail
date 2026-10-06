@@ -75,21 +75,25 @@ Git이 추적하는 테스트 외 소스의 모든 프롬프트 버전을 나열
 커밋된 프로브와 유효한 대조군을 `9b15a96` 시점 검증의
 [이력 사본](../packages/evals/src/history/configured-provider-9b15a96.ts)에 있는
 `ConfiguredSchemaMappingProvider`에 회귀 테스트와 같은 오프라인 설정·로컬 전송
-함수로 적용합니다. 사본은
-`git show 9b15a96:packages/ai-harness/src/configured-provider.ts`와 비교해 네 줄
-머리말과 `./provider` import 지정자만 다르며, 재현 테스트가 두 차이를 되돌린 뒤
-원본의 SHA-256을 확인합니다. `pnpm test`가 CI에서 실행하며, 별도로 실행하려면:
+함수로 적용합니다. 계약 의존성도 고정했습니다. 이 검증은 현재 contracts
+패키지 대신 `9b15a96` 시점 `packages/contracts/src/schema-mapping.ts`의
+[이력 사본](../packages/evals/src/history/schema-mapping-9b15a96.ts)을 가져옵니다.
+각 사본은 `git show 9b15a96:<경로>` 원본과 비교해 네 줄 머리말과, 검증 사본의
+경우 두 import 지정자(고정된 계약, 타입 전용 ai-harness 선언)만 다릅니다. 재현
+테스트는 이 차이를 되돌린 뒤 각 원본의 SHA-256을 확인하고 그 밖의 import를
+거부하므로, 실행 시 살아 있는 의존성은 잠금 파일이 정한 `zod`뿐입니다.
+`pnpm test`가 CI에서 실행하며, 별도로 실행하려면:
 
 ```bash
 pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
 ```
 
-건수는 고정된 의존성과 Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64(WSL2
+건수는 고정된 의존성(zod 4.6.5)과 Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64(WSL2
 커널 6.18.33.2) 환경에서 관찰·재현했습니다. 프로젝트는 Node 22.13 이상을
 지원합니다. 이 건수는 `hostile-mapping-fixtures/1`의 직접 작성한 합성 프로브
 26개에만 해당하며, 모델이나 임의 출력에 대한 검사 범위를 측정한 것이 아니라
-검증기 회귀 관찰입니다. 이제 두
-프로브는 회귀 테스트에서 위 사유 코드로 거부됩니다.
+검증기 회귀 관찰입니다. 이제 두 프로브는 회귀 테스트에서 위 사유 코드로
+거부됩니다.
 
 ### F-002: 같은 형태의 열을 바꾼 올바른 형식의 출력이 검증을 통과함
 

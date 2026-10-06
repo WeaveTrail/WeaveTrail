@@ -1,6 +1,6 @@
 // Historical copy of packages/ai-harness/src/configured-provider.ts at 9b15a96,
 // kept only to reproduce AI failure log entry F-001. Only this header and the
-// "./provider" import specifiers differ from the original; do not edit.
+// two import specifiers (frozen contracts, ai-harness types) differ; do not edit.
 
 import {
   AllowedTransformSchema,
@@ -8,7 +8,7 @@ import {
   SchemaMappingProposalSchema,
   requiresMappingOverride,
   type SchemaMappingProposal,
-} from "@weavetrail/contracts";
+} from "./schema-mapping-9b15a96";
 
 import type {
   MappingInput,

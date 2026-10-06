@@ -14,6 +14,7 @@
     "@weavetrail/ai-harness": "workspace:*",
     "@weavetrail/contracts": "workspace:*",
     "@weavetrail/replay-engine": "workspace:*",
-    "@weavetrail/scenarios": "workspace:*"
+    "@weavetrail/scenarios": "workspace:*",
+    "zod": "^4.6.5"
   }
 }
