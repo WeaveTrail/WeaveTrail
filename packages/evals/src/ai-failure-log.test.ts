@@ -143,6 +143,17 @@ function sourcePromptVersions() {
     }
     return undefined;
   };
+  const locate = (node: ts.Node) => {
+    const source = node.getSourceFile();
+    const { line } = source.getLineAndCharacterOfPosition(node.getStart());
+    return `${relative(fileURLToPath(root), source.fileName)}:${line + 1}`;
+  };
+  const valueAssignments = new Set<ts.SyntaxKind>([
+    ts.SyntaxKind.EqualsToken,
+    ts.SyntaxKind.QuestionQuestionEqualsToken,
+    ts.SyntaxKind.BarBarEqualsToken,
+    ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+  ]);
   // `x.promptVersion = ...` and `x["promptVersion"] = ...`.
   const assignedName = (target: ts.Expression) => {
     if (ts.isPropertyAccessExpression(target)) return target.name.text;
@@ -159,11 +170,7 @@ function sourcePromptVersions() {
       for (const part of parts)
         versions.add((part as ts.StringLiteralType).value);
     } else if (parts.some((part) => part.flags & ts.TypeFlags.StringLike)) {
-      const source = node.getSourceFile();
-      const { line } = source.getLineAndCharacterOfPosition(node.getStart());
-      unresolved.push(
-        `${relative(fileURLToPath(root), source.fileName)}:${line + 1}`,
-      );
+      unresolved.push(locate(node));
     }
   };
   for (const source of program.getSourceFiles()) {
@@ -187,10 +194,16 @@ function sourcePromptVersions() {
         collect(node, node.initializer);
       else if (
         ts.isBinaryExpression(node) &&
-        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+        node.operatorToken.kind <= ts.SyntaxKind.LastAssignment &&
         assignedName(node.left) === "promptVersion"
-      )
-        collect(node, node.right);
+      ) {
+        // `=`, `??=`, `||=` and `&&=` write the right-hand value; any other
+        // compound write (`+=`) has no static value and fails as unresolved.
+        if (valueAssignments.has(node.operatorToken.kind))
+          collect(node, node.right);
+        else unresolved.push(locate(node));
+      }
       ts.forEachChild(node, visit);
     };
     visit(source);
