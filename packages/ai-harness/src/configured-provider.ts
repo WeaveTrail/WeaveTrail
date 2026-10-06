@@ -2,6 +2,7 @@ import {
   AllowedTransformSchema,
   MappedTargetFieldSchema,
   MAPPING_RUN_OUTPUT_MAX_BYTES,
+  type PromptVersion,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
 
@@ -15,7 +16,8 @@ import type {
 } from "./provider";
 export type { ProviderTrace } from "./provider";
 
-export const MAPPING_PROMPT_VERSION = "schema-mapping/1";
+export const MAPPING_PROMPT_VERSION =
+  "schema-mapping/1" satisfies PromptVersion;
 export const MAPPING_SAMPLE_ROWS = 8;
 export const PROVIDER_REVIEW_MESSAGE =
   "Mapping proposal unavailable or rejected. Review is required; request a new proposal before approval.";

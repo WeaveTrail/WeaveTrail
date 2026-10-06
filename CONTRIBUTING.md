@@ -60,8 +60,9 @@ result only within the safeguards in
 - New findings remain traceable to source events and `rawRowHash`.
 - A fix for a model or validator failure ships with its `F-nnn` entry in the
   [AI failure log](docs/AI_FAILURE_LOG.md) and a regression test that fails
-  without the fix. A prompt version change is listed there with what changed,
-  why, and whether it burned a held-out set.
+  without the fix. A new or changed prompt version is added to the
+  `PROMPT_VERSIONS` registry in `packages/contracts` and listed there with what
+  changed, why, and whether it burned a held-out set.
 - Measurements include their dataset version, command, environment, and known
   limits.
 - Pull requests report only checks actually run, using `PASS`, `FAIL`, or

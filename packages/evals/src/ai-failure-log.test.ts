@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { configDefaults } from "vitest/config";
+import { PROMPT_VERSIONS } from "@weavetrail/contracts";
 import vitestConfig from "../../../vitest.config";
 
 const root = new URL("../../../", import.meta.url);
@@ -99,7 +100,8 @@ function collected(path: string) {
 }
 
 /**
- * Resolves every value written to a `promptVersion` property (object literal,
+ * Backstop for the `PROMPT_VERSIONS` registry, whose type `ProviderTrace`
+ * enforces at compile time. Resolves every value written to a `promptVersion` property (object literal,
  * shorthand or assignment) and every `*PROMPT_VERSION` declaration in tracked
  * non-test sources through the type checker, so constants and aliases count.
  * Test fixtures are out of scope: they never reach a model.
@@ -304,13 +306,16 @@ describe("AI failure log", () => {
 
   const prompts = sourcePromptVersions();
 
-  it("resolves every source prompt version to a string literal", () => {
+  const registry: string[] = [...PROMPT_VERSIONS].sort();
+
+  it("resolves every source prompt version to a registered string literal", () => {
     expect(prompts.unresolved).toEqual([]);
     expect(prompts.versions.length).toBeGreaterThan(0);
+    expect(prompts.versions.filter((v) => !registry.includes(v))).toEqual([]);
   });
 
   it.each(Object.entries(logs))(
-    "lists every source prompt version in the %s log",
+    "lists exactly the registered prompt versions in the %s log",
     (_, log) => {
       const [header, ...rows] = tableRows(
         section(read(log.path), log.promptHeading),
@@ -321,7 +326,7 @@ describe("AI failure log", () => {
         for (const cell of row) expect(cell, row[0]).not.toBe("");
       }
       const listed = rows.map(([version]) => /^`([^`]+)`$/.exec(version!)?.[1]);
-      expect([...listed].sort()).toEqual(prompts.versions);
+      expect([...listed].sort()).toEqual(registry);
       for (const row of rows) expect(row.at(-1)).toMatch(log.burned);
     },
   );

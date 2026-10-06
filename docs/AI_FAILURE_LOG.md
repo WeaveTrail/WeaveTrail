@@ -16,10 +16,9 @@ authored fixture and the observed validator result.
 model or validator failure to ship with its entry here and a regression test
 that fails without the fix. The [log check](../packages/evals/src/ai-failure-log.test.ts)
 runs in `pnpm test` and fails when an entry is incomplete or names a test file
-that Git does not track or the test suite does not collect. It also resolves
-every prompt version in the scope defined under [Prompt versions](#prompt-versions)
-through the TypeScript checker and fails when one is missing from that table or
-is not a string literal type.
+that Git does not track or the test suite does not collect. It also fails when
+the [Prompt versions](#prompt-versions) table differs from the prompt version
+registry.
 
 ## Entry fields
 
@@ -38,10 +37,16 @@ Each `F-nnn` entry, numbered consecutively from `F-001`, states:
 
 ## Prompt versions
 
-Every prompt version in tracked non-test sources is listed here: each value
-written to a `promptVersion` property (object literal, shorthand, assignment or
-default value) and each `*PROMPT_VERSION` declaration. Identifiers that appear
-only in test fixtures never reach a model and are not listed. A held-out set is
+This table lists exactly the versions in the
+[`PROMPT_VERSIONS` registry](../packages/contracts/src/prompt-versions.ts). The
+provider trace types its `promptVersion` with that registry, so a provider that
+reports an unregistered version fails `pnpm typecheck`; the case-manifest
+traces in scenarios are checked against it with `satisfies`. As a backstop, the
+log check resolves the values written to `promptVersion` properties and
+`*PROMPT_VERSION` declarations in tracked non-test sources and fails when one is
+unregistered or not a string literal type. Test-only identifiers never reach a
+model and are not registered. See
+[ADR 0060](adr/0060-register-prompt-versions-for-the-failure-log.md). A held-out set is
 burned once any output it produced guided a prompt, contract, validator or
 routing change; a burned set may no longer be reported as held out.
 
