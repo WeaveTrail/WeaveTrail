@@ -39,11 +39,11 @@ Each `F-nnn` entry, numbered consecutively from `F-001`, states:
 ## Prompt versions
 
 Every prompt version in tracked non-test sources is listed here: each value
-written to a `promptVersion` property (object literal, shorthand or assignment)
-and each `*PROMPT_VERSION` declaration. Identifiers that appear only in test
-fixtures never reach a model and are not listed. A held-out set is burned once
-any output it produced guided a prompt, contract, validator or routing change;
-a burned set may no longer be reported as held out.
+written to a `promptVersion` property (object literal, shorthand, assignment or
+default value) and each `*PROMPT_VERSION` declaration. Identifiers that appear
+only in test fixtures never reach a model and are not listed. A held-out set is
+burned once any output it produced guided a prompt, contract, validator or
+routing change; a burned set may no longer be reported as held out.
 
 | Prompt version                       | Role and source                                                                                                                                                        | Introduced      | What changed and why                                                                                                                 | Held-out burned                                                                                                             |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |

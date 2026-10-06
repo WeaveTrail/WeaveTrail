@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { matchesGlob, relative } from "node:path";
+import { matchesGlob, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
@@ -113,7 +113,9 @@ function sourcePromptVersions() {
       (file) =>
         /\.[cm]?[jt]sx?$/.test(file) && !/\.test\.[cm]?[jt]sx?$/.test(file),
     )
-    .map((file) => fileURLToPath(new URL(file, root)));
+    // TypeScript reports `/`-separated file names on every platform.
+    .map((file) => fileURLToPath(new URL(file, root)).split(sep).join("/"));
+  const sources = new Set(files);
   const program = ts.createProgram(files, {
     target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.ESNext,
@@ -174,7 +176,7 @@ function sourcePromptVersions() {
     }
   };
   for (const source of program.getSourceFiles()) {
-    if (!files.includes(source.fileName)) continue;
+    if (!sources.has(source.fileName)) continue;
     const visit = (node: ts.Node): void => {
       if (
         ts.isPropertyAssignment(node) &&
@@ -187,10 +189,22 @@ function sourcePromptVersions() {
       )
         collect(node, node.name);
       else if (
-        (ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node)) &&
+        (ts.isVariableDeclaration(node) ||
+          ts.isPropertyDeclaration(node) ||
+          ts.isParameter(node)) &&
         /prompt_?version$/i.test(nameOf(node.name) ?? "") &&
         node.initializer
       )
+        // Includes defaults such as `constructor(readonly promptVersion = ...)`.
+        collect(node, node.initializer);
+      else if (
+        ts.isBindingElement(node) &&
+        /prompt_?version$/i.test(
+          nameOf(node.propertyName ?? node.name) ?? "",
+        ) &&
+        node.initializer
+      )
+        // Destructuring defaults: `{ promptVersion = ... }`.
         collect(node, node.initializer);
       else if (
         ts.isBinaryExpression(node) &&
