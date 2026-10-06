@@ -1,5 +1,11 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import { matchesGlob, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
+import { configDefaults } from "vitest/config";
+import vitestConfig from "../../../vitest.config";
 
 const root = new URL("../../../", import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root), "utf8");
@@ -66,29 +72,86 @@ function section(markdown: string, heading: string) {
   return end === -1 ? rest : rest.slice(0, end);
 }
 
-// Prompt version identifiers declared in source, excluding tests.
-function sourcePromptVersions(): string[] {
-  const found = new Set<string>();
-  for (const dir of ["packages", "apps"]) {
-    for (const file of readdirSync(new URL(`${dir}/`, root), {
-      recursive: true,
-      encoding: "utf8",
-    })) {
-      if (
-        file.includes("node_modules") ||
-        file.includes(".next") ||
-        !/\.tsx?$/.test(file) ||
-        /\.test\.tsx?$/.test(file)
-      )
-        continue;
-      const text = read(`${dir}/${file}`);
-      for (const match of text.matchAll(
-        /(?:promptVersion:|PROMPT_VERSION =)\s*"([^"]+)"/g,
-      ))
-        found.add(match[1]!);
+const tracked = (pattern: string) =>
+  execFileSync("git", ["ls-files", "-z", "--", pattern], {
+    cwd: fileURLToPath(root),
+    encoding: "utf8",
+  })
+    .split("\0")
+    .filter(Boolean);
+
+// The same collection rule `pnpm test` applies: root include globs minus
+// Vitest's default excludes, over files Git tracks.
+function collected(path: string) {
+  return (
+    tracked(path).includes(path) &&
+    (vitestConfig.test?.include ?? []).some((glob) =>
+      matchesGlob(path, glob),
+    ) &&
+    !configDefaults.exclude.some((glob) => matchesGlob(path, glob))
+  );
+}
+
+/**
+ * Resolves every `promptVersion` value and `*PROMPT_VERSION` declaration in
+ * tracked source through the type checker, so constants and aliases count.
+ * A value that is not a string literal type is reported as unresolved rather
+ * than silently skipped; schema validators (non-string types) are ignored.
+ */
+function sourcePromptVersions() {
+  const files = [...tracked("packages"), ...tracked("apps")]
+    .filter((file) => /\.tsx?$/.test(file) && !/\.test\.tsx?$/.test(file))
+    .map((file) => fileURLToPath(new URL(file, root)));
+  const program = ts.createProgram(files, {
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    jsx: ts.JsxEmit.Preserve,
+    strict: true,
+    skipLibCheck: true,
+    noEmit: true,
+  });
+  const checker = program.getTypeChecker();
+  const versions = new Set<string>();
+  const unresolved: string[] = [];
+  const collect = (node: ts.Node, value: ts.Node) => {
+    const type = checker.getTypeAtLocation(value);
+    const parts = type.isUnion() ? type.types : [type];
+    if (parts.every((part) => part.isStringLiteral())) {
+      for (const part of parts)
+        versions.add((part as ts.StringLiteralType).value);
+    } else if (parts.some((part) => part.flags & ts.TypeFlags.StringLike)) {
+      const source = node.getSourceFile();
+      const { line } = source.getLineAndCharacterOfPosition(node.getStart());
+      unresolved.push(
+        `${relative(fileURLToPath(root), source.fileName)}:${line + 1}`,
+      );
     }
+  };
+  for (const source of program.getSourceFiles()) {
+    if (!files.includes(source.fileName)) continue;
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isPropertyAssignment(node) &&
+        node.name.getText() === "promptVersion"
+      )
+        collect(node, node.initializer);
+      else if (
+        ts.isShorthandPropertyAssignment(node) &&
+        node.name.text === "promptVersion"
+      )
+        collect(node, node.name);
+      else if (
+        (ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node)) &&
+        /prompt_?version$/i.test(node.name.getText()) &&
+        node.initializer
+      )
+        collect(node, node.initializer);
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
   }
-  return [...found].sort();
+  return { versions: [...versions].sort(), unresolved };
 }
 
 describe("AI failure log", () => {
@@ -122,6 +185,7 @@ describe("AI failure log", () => {
           /^(packages|apps)\/[\w./-]+\.test\.ts$/,
         );
         expect(existsSync(new URL(test!, root)), `${id} ${test}`).toBe(true);
+        expect(collected(test!), `${id} ${test} collected`).toBe(true);
         expect(values[log.labels[7]], `${id} status`).toMatch(
           /^`FIXED`$|^`ACCEPTED_RESIDUAL`: \S/,
         );
@@ -139,6 +203,13 @@ describe("AI failure log", () => {
     expect(pick(parsed.ko)).toEqual(pick(parsed.en));
   });
 
+  const prompts = sourcePromptVersions();
+
+  it("resolves every source prompt version to a string literal", () => {
+    expect(prompts.unresolved).toEqual([]);
+    expect(prompts.versions.length).toBeGreaterThan(0);
+  });
+
   it.each(Object.entries(logs))(
     "lists every source prompt version in the %s log",
     (_, log) => {
@@ -146,7 +217,7 @@ describe("AI failure log", () => {
         1,
       );
       const listed = rows.map(([version]) => /^`([^`]+)`$/.exec(version!)?.[1]);
-      expect([...listed].sort()).toEqual(sourcePromptVersions());
+      expect([...listed].sort()).toEqual(prompts.versions);
       for (const row of rows) expect(row.at(-1)).toMatch(log.burned);
     },
   );

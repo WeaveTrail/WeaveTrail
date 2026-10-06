@@ -16,7 +16,9 @@ authored fixture and the observed validator result.
 model or validator failure to ship with its entry here and a regression test
 that fails without the fix. The [log check](../packages/evals/src/ai-failure-log.test.ts)
 runs in `pnpm test` and fails when an entry is incomplete or names a test file
-that does not exist or is not collected by the test suite.
+that Git does not track or the test suite does not collect. It also resolves
+every source prompt version through the TypeScript checker and fails when one
+is missing from the table below or is not a string literal type.
 
 ## Entry fields
 
@@ -65,12 +67,28 @@ changed a prompt.
 | Regression test   | `packages/evals/src/adversarial-mapping.test.ts`                                                                                                                                                                                                                                                                                                                                                       |
 | Status            | `FIXED`                                                                                                                                                                                                                                                                                                                                                                                                |
 
-Observed on 2026-10-06 by passing the committed probes and valid control from
+Observed on 2026-10-06 and reproduced by a committed
+[historical replay](../packages/evals/src/history/f-001-pre-269-gate.test.ts). It
+passes the committed probes and valid control from
 [the fixture file](../packages/evals/src/adversarial-mapping-fixtures.ts) through
-`ConfiguredSchemaMappingProvider` from
-`git show 9b15a96:packages/ai-harness/src/configured-provider.ts`, using the same
-offline configuration and local transport as the regression test. Both probes now
-fail closed with the reason codes above in that test.
+`ConfiguredSchemaMappingProvider` in a
+[historical copy](../packages/evals/src/history/configured-provider-9b15a96.ts)
+of the gate at `9b15a96`, with the regression test's offline configuration and
+local transport. The copy differs from
+`git show 9b15a96:packages/ai-harness/src/configured-provider.ts` only by a
+four-line header and its `./provider` import specifiers; the replay checks the
+original's SHA-256 after reversing both. `pnpm test` runs it in CI; run it
+separately with:
+
+```bash
+pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
+```
+
+Use the locked dependencies, Node 22.13 or newer and pnpm 10.33.2. The count
+covers only the 26 authored synthetic probes of `hostile-mapping-fixtures/1`; it
+is a validator regression observation, not a measurement of any model or of
+coverage against arbitrary outputs. Both probes now fail closed with the reason
+codes above in the regression test.
 
 ### F-002: A well-formed swap of same-shaped columns passes validation
 

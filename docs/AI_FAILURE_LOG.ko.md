@@ -15,8 +15,10 @@ _[English](AI_FAILURE_LOG.md) · 영문 문서가 기준입니다._
 [`CONTRIBUTING.md`](../CONTRIBUTING.md#change-requirements)(영문)는 모델·검증기
 실패를 고치는 변경이 이 기록의 항목과, 수정 없이는 실패하는 회귀 테스트를 함께
 포함하도록 요구합니다. [기록 점검](../packages/evals/src/ai-failure-log.test.ts)은
-`pnpm test`에서 실행되며, 항목이 불완전하거나 존재하지 않거나 테스트 스위트가
-수집하지 않는 테스트 파일을 지목하면 실패합니다.
+`pnpm test`에서 실행되며, 항목이 불완전하거나 Git이 추적하지 않거나 테스트 스위트가
+수집하지 않는 테스트 파일을 지목하면 실패합니다. 또한 소스의 모든 프롬프트 버전을
+TypeScript 타입 검사기로 해석해, 아래 표에 없거나 문자열 리터럴 타입이 아니면
+실패합니다.
 
 ## 항목 필드
 
@@ -65,12 +67,25 @@ _[English](AI_FAILURE_LOG.md) · 영문 문서가 기준입니다._
 | 회귀 테스트 | `packages/evals/src/adversarial-mapping.test.ts`                                                                                                                                                                                                                                                                                                                          |
 | 상태        | `FIXED`                                                                                                                                                                                                                                                                                                                                                                   |
 
-2026-10-06에 [픽스처 파일](../packages/evals/src/adversarial-mapping-fixtures.ts)의
-커밋된 프로브와 유효한 대조군을
-`git show 9b15a96:packages/ai-harness/src/configured-provider.ts`의
+2026-10-06에 관찰했으며 커밋된
+[이력 재현 테스트](../packages/evals/src/history/f-001-pre-269-gate.test.ts)로
+재현합니다. 이 테스트는 [픽스처 파일](../packages/evals/src/adversarial-mapping-fixtures.ts)의
+커밋된 프로브와 유효한 대조군을 `9b15a96` 시점 검증의
+[이력 사본](../packages/evals/src/history/configured-provider-9b15a96.ts)에 있는
 `ConfiguredSchemaMappingProvider`에 회귀 테스트와 같은 오프라인 설정·로컬 전송
-함수로 적용해 관찰했습니다. 이제 두 프로브는 해당 테스트에서 위 사유 코드로
-거부됩니다.
+함수로 적용합니다. 사본은
+`git show 9b15a96:packages/ai-harness/src/configured-provider.ts`와 비교해 네 줄
+머리말과 `./provider` import 지정자만 다르며, 재현 테스트가 두 차이를 되돌린 뒤
+원본의 SHA-256을 확인합니다. `pnpm test`가 CI에서 실행하며, 별도로 실행하려면:
+
+```bash
+pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
+```
+
+고정된 의존성, Node 22.13 이상과 pnpm 10.33.2를 사용합니다. 건수는
+`hostile-mapping-fixtures/1`의 직접 작성한 합성 프로브 26개에만 해당하며, 모델이나
+임의 출력에 대한 검사 범위를 측정한 것이 아니라 검증기 회귀 관찰입니다. 이제 두
+프로브는 회귀 테스트에서 위 사유 코드로 거부됩니다.
 
 ### F-002: 같은 형태의 열을 바꾼 올바른 형식의 출력이 검증을 통과함
 
