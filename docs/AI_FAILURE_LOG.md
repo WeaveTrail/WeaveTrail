@@ -17,8 +17,9 @@ model or validator failure to ship with its entry here and a regression test
 that fails without the fix. The [log check](../packages/evals/src/ai-failure-log.test.ts)
 runs in `pnpm test` and fails when an entry is incomplete or names a test file
 that Git does not track or the test suite does not collect. It also resolves
-every source prompt version through the TypeScript checker and fails when one
-is missing from the table below or is not a string literal type.
+every prompt version in the scope defined under [Prompt versions](#prompt-versions)
+through the TypeScript checker and fails when one is missing from that table or
+is not a string literal type.
 
 ## Entry fields
 
@@ -37,9 +38,12 @@ Each `F-nnn` entry, numbered consecutively from `F-001`, states:
 
 ## Prompt versions
 
-Every prompt version identifier in the repository is listed here. A held-out set
-is burned once any output it produced guided a prompt, contract, validator or
-routing change; a burned set may no longer be reported as held out.
+Every prompt version in tracked non-test sources is listed here: each value
+written to a `promptVersion` property (object literal, shorthand or assignment)
+and each `*PROMPT_VERSION` declaration. Identifiers that appear only in test
+fixtures never reach a model and are not listed. A held-out set is burned once
+any output it produced guided a prompt, contract, validator or routing change;
+a burned set may no longer be reported as held out.
 
 | Prompt version                       | Role and source                                                                                                                                                        | Introduced      | What changed and why                                                                                                                 | Held-out burned                                                                                                             |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |

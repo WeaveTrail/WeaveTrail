@@ -99,8 +99,10 @@ function collected(path: string) {
 }
 
 /**
- * Resolves every `promptVersion` value and `*PROMPT_VERSION` declaration in
- * tracked source through the type checker, so constants and aliases count.
+ * Resolves every value written to a `promptVersion` property (object literal,
+ * shorthand or assignment) and every `*PROMPT_VERSION` declaration in tracked
+ * non-test sources through the type checker, so constants and aliases count.
+ * Test fixtures are out of scope: they never reach a model.
  * A value that is not a string literal type is reported as unresolved rather
  * than silently skipped; schema validators (non-string types) are ignored.
  */
@@ -141,6 +143,15 @@ function sourcePromptVersions() {
     }
     return undefined;
   };
+  // `x.promptVersion = ...` and `x["promptVersion"] = ...`.
+  const assignedName = (target: ts.Expression) => {
+    if (ts.isPropertyAccessExpression(target)) return target.name.text;
+    if (ts.isElementAccessExpression(target)) {
+      const type = checker.getTypeAtLocation(target.argumentExpression);
+      if (type.isStringLiteral()) return type.value;
+    }
+    return undefined;
+  };
   const collect = (node: ts.Node, value: ts.Node) => {
     const type = checker.getTypeAtLocation(value);
     const parts = type.isUnion() ? type.types : [type];
@@ -174,6 +185,12 @@ function sourcePromptVersions() {
         node.initializer
       )
         collect(node, node.initializer);
+      else if (
+        ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        assignedName(node.left) === "promptVersion"
+      )
+        collect(node, node.right);
       ts.forEachChild(node, visit);
     };
     visit(source);
@@ -192,7 +209,16 @@ describe("AI failure log", () => {
   it.each(Object.entries(logs))(
     "rejects malformed entry headings in the %s log",
     (_, log) => {
-      const lines = section(read(log.path), log.entriesHeading).split("\n");
+      const markdown = read(log.path);
+      // Any heading naming an F entry, at any level or position in the file,
+      // must be a complete H3 inside the entries section.
+      const fHeadings = markdown
+        .split("\n")
+        .filter((line) => /^ {0,3}#{1,6}\s*F-/.test(line));
+      const lines = section(markdown, log.entriesHeading).split("\n");
+      expect(lines.filter((line) => /^ {0,3}#{1,6}\s*F-/.test(line))).toEqual(
+        fHeadings,
+      );
       // CommonMark ATX headings may be indented up to three spaces.
       const headings = lines.filter((line) => /^ {0,3}#/.test(line));
       expect(headings.length).toBeGreaterThan(0);
