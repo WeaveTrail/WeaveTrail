@@ -14,7 +14,11 @@ import {
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
-import type { MappingInput, SchemaMappingProvider } from "./provider";
+import type {
+  MappingInput,
+  ProviderTrace,
+  SchemaMappingProvider,
+} from "./provider";
 
 type DeclaredField = {
   targetField: string | null;
@@ -106,7 +110,7 @@ export const fixtureMappingsByArtifact = new Map(
 
 export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
   readonly mode = "fixture" as const;
-  readonly trace = {
+  readonly trace: ProviderTrace = {
     mode: this.mode,
     model: "registered-mapping",
     promptVersion: "fixture-mapping/1",

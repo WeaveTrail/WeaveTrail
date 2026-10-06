@@ -207,6 +207,8 @@ WeaveTrail은 그 둘을 한자리에 모으는 방향으로 개발 중입니다
 - [방법론](docs/METHODOLOGY.ko.md) — 결과의 의미와 구현된 규칙
 - [평가 프로토콜](docs/EVALUATION.ko.md) — 공개하는 모든 측정값의 정의와 재현
   방법
+- [AI 실패 기록](docs/AI_FAILURE_LOG.ko.md) — 관찰된 모델·검증기 실패와 수정,
+  회귀 테스트, 모든 프롬프트 버전
 - [한계](docs/LIMITATIONS.ko.md) — 하지 않는 일과 해석의 경계
 - [데이터 처리](docs/DATA_HANDLING.ko.md) — 확인 요청이 보내고 남기고 기록하는
   내용과 이를 강제하는 테스트

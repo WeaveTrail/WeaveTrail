@@ -2,6 +2,7 @@ import {
   CaseManifestSchema,
   SchemaMappingProposalSchema,
   deriveApprovedSourceMapping,
+  type PromptVersion,
 } from "@weavetrail/contracts";
 
 import {
@@ -63,7 +64,7 @@ export const publishedExecutionBroadManifest = CaseManifestSchema.parse({
   },
   aiTrace: {
     ...publishedExecutionManifest.aiTrace,
-    promptVersion: "published-execution-broad-case-v1",
+    promptVersion: "published-execution-broad-case-v1" satisfies PromptVersion,
   },
   approval: {
     ...publishedExecutionManifest.approval,

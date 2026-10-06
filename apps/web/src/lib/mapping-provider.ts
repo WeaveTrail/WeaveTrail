@@ -21,6 +21,7 @@ import {
   SchemaMappingProposalSchema,
   type MappingResponse,
   type ReplayScenario,
+  isPromptVersion,
 } from "@weavetrail/contracts";
 import { committedReplaySources } from "./replay-sources";
 
@@ -106,7 +107,7 @@ function unseal(
       record.expiresAt <= Date.now() ||
       record.trace?.mode !== "ai" ||
       record.trace.model !== configuration.model ||
-      typeof record.trace.promptVersion !== "string"
+      !isPromptVersion(record.trace.promptVersion)
     )
       throw new ProviderReviewRequired();
     return {

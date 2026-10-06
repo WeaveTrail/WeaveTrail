@@ -23,6 +23,7 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["docs/ARCHITECTURE.md", "docs/ARCHITECTURE.ko.md"],
   ["docs/METHODOLOGY.md", "docs/METHODOLOGY.ko.md"],
   ["docs/EVALUATION.md", "docs/EVALUATION.ko.md"],
+  ["docs/AI_FAILURE_LOG.md", "docs/AI_FAILURE_LOG.ko.md"],
   ["docs/LIMITATIONS.md", "docs/LIMITATIONS.ko.md"],
   ["docs/DAILY_QUOTES.md", "docs/DAILY_QUOTES.ko.md"],
   ["docs/INSTRUMENT_RESOLUTION.md", "docs/INSTRUMENT_RESOLUTION.ko.md"],

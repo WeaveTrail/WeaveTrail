@@ -222,6 +222,9 @@ and the deployed configuration carries no model credential.
   rules ([한국어](docs/METHODOLOGY.ko.md))
 - [Evaluation](docs/EVALUATION.md) — how every published measurement is defined
   and reproduced ([한국어](docs/EVALUATION.ko.md))
+- [AI failure log](docs/AI_FAILURE_LOG.md) — observed model and validator
+  failures, their fixes and regression tests, and every prompt version
+  ([한국어](docs/AI_FAILURE_LOG.ko.md))
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
   ([한국어](docs/LIMITATIONS.ko.md))
 - [Data handling](docs/DATA_HANDLING.md) — what a check sends, keeps and logs,

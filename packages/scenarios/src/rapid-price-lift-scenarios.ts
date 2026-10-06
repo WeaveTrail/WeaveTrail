@@ -4,6 +4,7 @@ import {
   deriveApprovedSourceMapping,
   type CaseManifest,
   type SchemaMappingProposal,
+  type PromptVersion,
 } from "@weavetrail/contracts";
 
 type SourceRow = {
@@ -257,7 +258,7 @@ function buildScenario(
     aiTrace: {
       provider: "fixture",
       model: "deterministic",
-      promptVersion: "rapid-price-lift-case-v1",
+      promptVersion: "rapid-price-lift-case-v1" satisfies PromptVersion,
       confidence: 1,
       referencedEventIds: [],
     },
@@ -373,7 +374,7 @@ function buildMissingEvidenceScenario(): ScenarioDefinition {
     aiTrace: {
       provider: "fixture",
       model: "deterministic",
-      promptVersion: "rapid-price-lift-case-v1",
+      promptVersion: "rapid-price-lift-case-v1" satisfies PromptVersion,
       confidence: 1,
       referencedEventIds: [],
     },

@@ -209,6 +209,18 @@ pnpm exec vitest run packages/contracts/src/mapping-run-record.test.ts packages/
 시험은 세 결과 상태, 전송 정보 거부, 사용량 누락, 정확한 UTF-8 크기 경계와
 영수증 분리를 검사합니다. 실제 모델 실행 캡처나 제공자 성능 측정이 아닙니다.
 
+## AI 실패 기록
+
+[AI 실패 기록](AI_FAILURE_LOG.ko.md)은 관찰된 모델·검증기 실패를 `F-nnn` 항목으로
+남깁니다. 각 항목은 역할, 모델 또는 검증기 버전, 실행 기록, 가정, 반례, PR을
+포함한 수정, 회귀 테스트와 상태를 밝힙니다. 모든 프롬프트 버전과 보류 세트 소진
+여부도 함께 나열합니다. `pnpm test`의 기록 점검은 항목이 불완전하거나 테스트
+스위트가 수집하지 않는 테스트 파일을 지목하면 실패하며, 별도로 실행하려면:
+
+```bash
+pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
+```
+
 ## 아직 계획된 측정
 
 독립된 연결 자료에 대한 모델 정확도, 설정된 제공자 비교, 실제 시장 일반화,

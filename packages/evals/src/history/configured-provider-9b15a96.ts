@@ -1,23 +1,23 @@
+// Historical copy of packages/ai-harness/src/configured-provider.ts at 9b15a96,
+// kept only to reproduce AI failure log entry F-001. Only this header and the
+// two import specifiers (frozen contracts, ai-harness types) differ; do not edit.
+
 import {
   AllowedTransformSchema,
   MappedTargetFieldSchema,
-  MAPPING_RUN_OUTPUT_MAX_BYTES,
-  type PromptVersion,
+  SchemaMappingProposalSchema,
+  requiresMappingOverride,
   type SchemaMappingProposal,
-} from "@weavetrail/contracts";
-
-import { validateMappingOutput } from "./mapping-output-validator";
-export * from "./mapping-output-validator";
+} from "./schema-mapping-9b15a96";
 
 import type {
   MappingInput,
   SchemaMappingProvider,
   ProviderTrace,
-} from "./provider";
-export type { ProviderTrace } from "./provider";
+} from "@weavetrail/ai-harness";
+export type { ProviderTrace } from "@weavetrail/ai-harness";
 
-export const MAPPING_PROMPT_VERSION =
-  "schema-mapping/1" satisfies PromptVersion;
+export const MAPPING_PROMPT_VERSION = "schema-mapping/1";
 export const MAPPING_SAMPLE_ROWS = 8;
 export const PROVIDER_REVIEW_MESSAGE =
   "Mapping proposal unavailable or rejected. Review is required; request a new proposal before approval.";
@@ -68,7 +68,7 @@ export function readProviderConfiguration(
   }
 }
 
-// Mapping transport with a closed output schema and the shared validator;
+// Shared transport for constrained roles. Callers supply a closed output schema;
 // this layer never executes tools and never returns a raw response to the UI.
 export class StructuredOutputClient {
   constructor(
@@ -80,8 +80,7 @@ export class StructuredOutputClient {
     instruction: string,
     data: unknown,
     schema: unknown,
-    input: MappingInput,
-  ): Promise<SchemaMappingProposal> {
+  ): Promise<unknown> {
     try {
       const response = await this.transport(
         `${this.configuration.baseUrl}/v1/chat/completions`,
@@ -116,8 +115,7 @@ export class StructuredOutputClient {
           const { done, value } = await reader.read();
           if (done) break;
           size += value.byteLength;
-          if (size > MAPPING_RUN_OUTPUT_MAX_BYTES)
-            throw new ProviderReviewRequired();
+          if (size > 65_536) throw new ProviderReviewRequired();
           chunks.push(value);
         }
       } finally {
@@ -129,12 +127,21 @@ export class StructuredOutputClient {
         bytes.set(chunk, offset);
         offset += chunk.byteLength;
       }
-      const result = validateMappingOutput(
-        { kind: "envelope", body: bytes },
-        input,
-      );
-      if (result.status !== "VALID") throw new ProviderReviewRequired();
-      return result.proposal;
+      const raw = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      const envelope = JSON.parse(raw);
+      if (!Array.isArray(envelope.choices) || envelope.choices.length !== 1)
+        throw new ProviderReviewRequired();
+      const choice = envelope.choices[0];
+      if (
+        choice.finish_reason !== "stop" ||
+        choice.message?.role !== "assistant" ||
+        choice.message.refusal ||
+        choice.message.tool_calls ||
+        choice.message.function_call ||
+        typeof choice.message.content !== "string"
+      )
+        throw new ProviderReviewRequired();
+      return JSON.parse(choice.message.content) as unknown;
     } catch {
       // Never retain a cause: SDK/transport errors can contain headers or traces.
       throw new ProviderReviewRequired();
@@ -197,9 +204,39 @@ export function validateConfiguredProposal(
   value: unknown,
   input: MappingInput,
 ): SchemaMappingProposal {
-  const result = validateMappingOutput({ kind: "proposal", value }, input);
-  if (result.status !== "VALID") throw new ProviderReviewRequired();
-  return result.proposal;
+  try {
+    const proposal = SchemaMappingProposalSchema.parse(value);
+    if (
+      proposal.sourceArtifactHash !== input.sourceArtifactHash ||
+      proposal.constants.schemaVersion !== input.constants.schemaVersion ||
+      proposal.constants.datasetId !== input.constants.datasetId ||
+      proposal.constants.venueId !== input.constants.venueId ||
+      proposal.fields.length !== input.columns.length ||
+      new Set(input.columns).size !== input.columns.length ||
+      proposal.fields.some(
+        (field, index) =>
+          field.sourceColumn !== input.columns[index] ||
+          requiresMappingOverride(field) ||
+          !field.evidence.trim() ||
+          field.evidence.length > 1000,
+      )
+    )
+      throw new ProviderReviewRequired();
+    const targets = proposal.fields.flatMap((field) =>
+      field.targetField ? [field.targetField] : [],
+    );
+    if (new Set(targets).size !== targets.length)
+      throw new ProviderReviewRequired();
+    if (
+      ["sourceEventId", "eventTime", "instrumentId", "eventType"].some(
+        (field) => !targets.includes(field as (typeof targets)[number]),
+      )
+    )
+      throw new ProviderReviewRequired();
+    return proposal;
+  } catch {
+    throw new ProviderReviewRequired();
+  }
 }
 
 export class ConfiguredSchemaMappingProvider implements SchemaMappingProvider {
@@ -245,10 +282,26 @@ export class ConfiguredSchemaMappingProvider implements SchemaMappingProvider {
       };
       if (new TextEncoder().encode(JSON.stringify(data)).byteLength > 16_384)
         throw new ProviderReviewRequired();
-      const proposal = await this.client.generate(
+      const value = await this.client.generate(
         instruction,
         data,
         outputSchema(input.columns),
+      );
+      if (
+        !value ||
+        typeof value !== "object" ||
+        Array.isArray(value) ||
+        Object.keys(value).length !== 1 ||
+        !Object.hasOwn(value, "fields")
+      )
+        throw new ProviderReviewRequired();
+      const proposal = validateConfiguredProposal(
+        {
+          mappingVersion: "1.4",
+          sourceArtifactHash: input.sourceArtifactHash,
+          constants: input.constants,
+          fields: Reflect.get(value, "fields"),
+        },
         input,
       );
       const serialized = JSON.stringify(proposal);
