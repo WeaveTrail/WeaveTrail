@@ -48,6 +48,9 @@ export async function POST(request: Request) {
           {
             code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
             path: [],
+            ...(error instanceof PublicModelBudgetRequired
+              ? { budgetReason: error.budgetReason }
+              : {}),
             message:
               error instanceof PublicModelBudgetRequired
                 ? error.message

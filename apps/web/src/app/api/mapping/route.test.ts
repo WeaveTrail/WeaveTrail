@@ -121,12 +121,12 @@ describe("configured mapping and replay boundary", () => {
   });
 
   it.each([
-    [1, "Your daily live model request limit"],
-    [2, "daily shared live model call limit"],
-    [3, "budget checks are unavailable"],
+    [1, "Your daily live model request limit", "VISITOR_DAILY_LIMIT"],
+    [2, "daily shared live model call limit", "GLOBAL_DAILY_LIMIT"],
+    [3, "budget checks are unavailable", "BUDGET_UNAVAILABLE"],
   ])(
     "blocks budget decision %i before provider transport",
-    async (result, message) => {
+    async (result, message, budgetReason) => {
       storeTransport.mockImplementation(async () => Response.json({ result }));
       const response = await POST(request({ scenario }));
       expect(response.status).toBe(422);
@@ -134,6 +134,7 @@ describe("configured mapping and replay boundary", () => {
       expect(review.status).toBe("REVIEW_REQUIRED");
       expect(review.issues[0]!.message).toContain(message);
       expect(review.issues[0]!.message).toContain("No model was called");
+      expect(review.issues[0]).toHaveProperty("budgetReason", budgetReason);
       expect(review).not.toHaveProperty("proposal");
       expect(review).not.toHaveProperty("mappingReceipt");
       expect(transport).not.toHaveBeenCalled();

@@ -41,10 +41,16 @@ fails closed before the callback with HTTP 422 `REVIEW_REQUIRED` and a fixed
 reason. Before parsing or reserving, the mapping route requires JSON content
 type and rejects any supplied foreign/opaque Origin. No-Origin JSON clients
 remain supported; browser cross-origin requests require an ungranted CORS
-preflight. Case Replay validates a mapping review response before displaying
-its issue messages and ignores responses from an invalidated request.
-Existing mapping, approval and receipt contracts and canonical replay
-hashes do not change. Recorded runs remain usable without live calls.
+preflight. Case Replay validates a mapping review response and ignores responses
+from an invalidated request. Budget issues carry optional `budgetReason` with
+three closed values: `VISITOR_DAILY_LIMIT`, `GLOBAL_DAILY_LIMIT` and
+`BUDGET_UNAVAILABLE`, only on mapping application review issues. The browser
+retains that validated response and selects English/Korean guidance when it
+renders, including after a language change. Other issues retain their messages;
+unknown reason codes fail closed. Earlier responses without the field remain
+valid, but older strict consumers must upgrade with the server before the new
+field is emitted. Successful mapping, approval and receipt contracts and
+canonical replay hashes do not change. Recorded runs remain usable without live calls.
 
 ## Limits and operations
 

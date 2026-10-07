@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
+import type { MappingBudgetDenialReason } from "@weavetrail/contracts";
 
 export type BudgetDecision = "allowed" | "visitor-limit" | "global-limit";
 export type BudgetReservation = {
@@ -18,6 +19,7 @@ export interface DailyBudgetStore {
 }
 
 export class PublicModelBudgetRequired extends Error {
+  readonly budgetReason: MappingBudgetDenialReason;
   constructor(reason: BudgetDecision | "unavailable") {
     super(
       reason === "visitor-limit"
@@ -26,6 +28,12 @@ export class PublicModelBudgetRequired extends Error {
           ? "The daily shared live model call limit has been reached. No model was called. Try after 00:00 KST or use recorded runs."
           : "Live model budget checks are unavailable. No model was called. Use recorded runs or retry later.",
     );
+    this.budgetReason =
+      reason === "visitor-limit"
+        ? "VISITOR_DAILY_LIMIT"
+        : reason === "global-limit"
+          ? "GLOBAL_DAILY_LIMIT"
+          : "BUDGET_UNAVAILABLE";
   }
 }
 

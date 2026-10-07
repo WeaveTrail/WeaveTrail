@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { SchemaMappingProposalSchema } from "./schema-mapping";
 
+export const MappingBudgetDenialReasonSchema = z.enum([
+  "VISITOR_DAILY_LIMIT",
+  "GLOBAL_DAILY_LIMIT",
+  "BUDGET_UNAVAILABLE",
+]);
+export type MappingBudgetDenialReason = z.infer<
+  typeof MappingBudgetDenialReasonSchema
+>;
+
 export const MappingReceiptSchema = z
   .string()
   .min(1)

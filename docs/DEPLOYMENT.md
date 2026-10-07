@@ -254,6 +254,10 @@ provider retry is enabled. Invalid configuration, absent trusted IP, store
 failure or timeout (three seconds including the body), and either exceeded cap
 prevent model calls and return HTTP 422 `REVIEW_REQUIRED` with a fixed reason,
 which the browser displays only after validating the review-response contract.
+Budget issues additionally carry a closed `budgetReason` code for English/Korean
+client guidance. Update strict response consumers with the server; older parsers
+reject this optional field. Prior responses without it remain accepted by the
+new contract. See [the denial contract and migration notes](DATA_HANDLING.md#mapping-budget-denial-codes).
 The mapping route requires `application/json` (charset allowed) and rejects an
 Origin header that differs from the request URL's origin before parsing the
 body or reserving budget. No-Origin JSON clients remain supported; cross-origin

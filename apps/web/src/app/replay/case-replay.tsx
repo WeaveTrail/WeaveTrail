@@ -27,6 +27,10 @@ import {
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
 import { scenarioOptionLabel } from "./scenario-labels";
+import {
+  mappingReviewMessage,
+  type MappingReviewResponse,
+} from "./mapping-review-messages";
 import { shuffleSourceRows } from "./shuffle-source-rows";
 import {
   Bps,
@@ -1078,7 +1082,9 @@ export function CaseReplay({
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | MappingReviewResponse | null>(
+    null,
+  );
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(
     null,
   );
@@ -1464,9 +1470,7 @@ export function CaseReplay({
           throw new Error("Unexpected mapping review state");
         if (generation !== requestGeneration.current) return;
         setWorkflowState(review.workflowState);
-        setError(
-          `REVIEW_REQUIRED: ${review.issues.map((issue) => issue.message).join(" ")}`,
-        );
+        setError(review);
         return;
       }
       const mapping = MappingResponseSchema.parse(body);
@@ -2314,7 +2318,10 @@ export function CaseReplay({
           </div>
           {error ? (
             <p className="error-message" role="alert">
-              <strong>REPLAY_REFUSED</strong> {error}
+              <strong>REPLAY_REFUSED</strong>{" "}
+              {typeof error === "string"
+                ? error
+                : mappingReviewMessage(error, language)}
             </p>
           ) : null}
           {error && workflowState ? (

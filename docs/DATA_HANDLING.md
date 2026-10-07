@@ -29,9 +29,33 @@ charset is accepted). If a browser supplies an Origin header, it must match
 the request URL's origin; foreign or opaque origins and safelisted form/text
 content types fail before budget reservation. Requests without Origin still
 require JSON, so a cross-origin browser must preflight. The Case Replay screen
-validates `REVIEW_REQUIRED` responses and shows their issue messages, including
-quota exhaustion or an unavailable store; invalid responses use the generic
-failure message.
+validates `REVIEW_REQUIRED` responses and selects English/Korean budget guidance
+from a stable reason code. Other validated issues retain their message; invalid
+responses use the localized generic failure message.
+
+### Mapping budget denial codes
+
+A budget denial remains HTTP 422 with `status: REVIEW_REQUIRED`,
+`workflowState: MAPPING_REVIEW_REQUIRED`, and issue code
+`MAPPING_APPLICATION_REVIEW_REQUIRED`. Its issue now carries optional
+`budgetReason` alongside `path` and the English `message`:
+
+| `budgetReason`        | Meaning                                                         |
+| --------------------- | --------------------------------------------------------------- |
+| `VISITOR_DAILY_LIMIT` | The visitor's daily request cap is exhausted                    |
+| `GLOBAL_DAILY_LIMIT`  | The shared daily reserved-call cap is exhausted                 |
+| `BUDGET_UNAVAILABLE`  | Configuration, trusted identity or store checks are unavailable |
+
+Only these three codes on mapping application review issues are accepted.
+Unknown codes or metadata on another issue/state fail validation. The client
+keeps the validated response and selects translated guidance at render time,
+so changing language also updates an already displayed denial. Machine tokens
+such as `REVIEW_REQUIRED` retain one spelling.
+
+Migration: updated consumers accept prior responses without `budgetReason` and
+continue to use their `message`. Deploy the updated contract and client together
+with the server: older strict parsers reject the additional field. Successful
+mapping proposals, receipts, approvals and canonical replay hashes are unchanged.
 
 ## Daily live model counters
 
