@@ -12,6 +12,7 @@ const evidencePaths = {
   retention: "apps/web/src/app/api/check/pasted-text-retention.test.ts",
   browser: "apps/web/src/app/browser-data-boundary.test.ts",
   provider: "apps/web/src/app/provider-client-boundary.test.ts",
+  budget: "apps/web/src/lib/public-model-budget.test.ts",
   document: "docs/DATA_HANDLING.md",
   documentKo: "docs/DATA_HANDLING.ko.md",
 } as const;
@@ -68,9 +69,12 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "Storage",
         answer:
-          "Replay approval requests are not stored. The web app uses no database or snapshot store.",
+          "Replay approvals are not stored. Configured public model requests use shared daily counters: a daily HMAC visitor key, request count and global reserved-call count, expiring at 00:00 KST. Raw IPs are never stored or logged by the application.",
         planned: false,
-        links: [["Retention test", "retention"]],
+        links: [
+          ["Retention test", "retention"],
+          ["Daily budget test", "budget"],
+        ],
       },
       {
         question: "Logs",
@@ -127,9 +131,12 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
       {
         question: "저장",
         answer:
-          "재현 승인 요청은 저장하지 않습니다. 웹 앱은 데이터베이스나 스냅샷 저장소를 사용하지 않습니다.",
+          "재현 승인은 저장하지 않습니다. 공개 실제 모델 요청을 설정하면 일일 HMAC 방문자 키, 요청 횟수와 전체 예약 호출 횟수를 공유 저장소에 남기고 00:00 KST에 만료시킵니다. 앱은 원시 IP를 저장하거나 로그에 남기지 않습니다.",
         planned: false,
-        links: [["보관 금지 테스트", "retention"]],
+        links: [
+          ["보관 금지 테스트", "retention"],
+          ["일일 예산 테스트", "budget"],
+        ],
       },
       {
         question: "로그",

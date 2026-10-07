@@ -24,6 +24,7 @@ import {
   isPromptVersion,
 } from "@weavetrail/contracts";
 import { committedReplaySources } from "./replay-sources";
+import { runPublicModelRequest } from "./public-model-budget";
 
 // Closed artifact allowlist, independent of source values and provider output.
 const eligibleScenarios: ReadonlySet<ReplayScenario> = new Set([
@@ -121,6 +122,7 @@ function unseal(
 
 export async function proposeMapping(
   scenario: ReplayScenario,
+  request: Request,
 ): Promise<MappingResponse> {
   const input = mappingInput(scenario);
   if (!mappingRequestRequired(scenario)) {
@@ -129,7 +131,9 @@ export async function proposeMapping(
   }
   const configuration = readProviderConfiguration(process.env);
   const provider = new ConfiguredSchemaMappingProvider(configuration);
-  const proposal = await provider.propose(input);
+  const proposal = await runPublicModelRequest(request, 1, (call) =>
+    call(() => provider.propose(input)),
+  );
   return {
     mode: "ai",
     proposal,

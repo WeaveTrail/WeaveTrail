@@ -1,5 +1,7 @@
 # Deployment
 
+[한국어: 환경과 일일 예산](DEPLOYMENT.ko.md)
+
 The public WeaveTrail workbench is designed to run on Vercel in deterministic
 fixture mode. This checkout serves committed synthetic scenarios and a licensed
 published daily quotation artifact; it never retrieves source data at runtime.
@@ -167,9 +169,12 @@ Migration from the old reserved names requires no runtime compatibility:
 templates and use the `AI_PROVIDER_*` names above for local adapter configuration.
 Do not add either the old or new names to a deployed environment in this change.
 
-For a local configured request, set the selector and all three provider values
-in the server environment, run `pnpm dev`, open working mode, choose Dialect A
-or B, and select **Request mapping proposal**. The base URL must be an HTTPS
+Public configured requests now require Vercel's trusted client IP and the hosted
+budget configuration below. Plain `pnpm dev` requests cannot establish that
+platform identity and fail closed; use `pnpm eval:models --live` for local
+provider checks. On an explicitly configured Vercel deployment, the mapping
+request action remains available for eligible registered synthetic dialects.
+The base URL must be an HTTPS
 base URL with no credentials, query or fragment. Include the API path:
 `https://api.openai.com/v1` or, as in Google's
 [compatibility documentation](https://ai.google.dev/gemini-api/docs/openai),
@@ -192,9 +197,72 @@ actual **Configured provider** label and enables explicit mapping approval.
 Provider mode is recorded with the model identifier and prompt version on the
 server; the model identifier is encrypted in the opaque receipt and never
 exposed as public configuration. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md)
-for sample limits, eligibility and receipt expiry. The public endpoint has no
-identity or spending controls yet; implement those before exposing configured
-mode in a shared deployment.
+for sample limits, eligibility and receipt expiry. The public endpoint checks
+the shared daily request and call budgets below before any model call.
+
+### Daily public model budget
+
+Configured public model requests require an Upstash Redis database shared by
+all Vercel functions using the same model budget. The server uses its
+[REST command API](https://upstash.com/docs/redis/features/restapi) directly
+with built-in `fetch`; no dependency is added. A single `EVAL` checks and
+reserves both counters atomically on the primary, avoiding separate cached
+reads or per-instance memory. Use a dedicated database and non-evicting
+configuration; flushing or evicting counters resets protection. Share the same
+caps and secret across functions and deployments that spend the same budget.
+Isolate preview experiments into a separate database and provider budget.
+
+| Variable                    | Meaning                                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `UPSTASH_REDIS_REST_URL`    | HTTPS origin of the shared Redis REST endpoint, no path, credentials, query or fragment        |
+| `UPSTASH_REDIS_REST_TOKEN`  | Server-only write-capable secret for that database                                             |
+| `AI_LIMIT_VISITOR_SECRET`   | Random server-only HMAC secret of at least 32 bytes, shared across functions                   |
+| `AI_LIMIT_VISITOR_REQUESTS` | Positive integer visitor requests per KST day; unset defaults to 15                            |
+| `AI_LIMIT_GLOBAL_CALLS`     | Required positive integer global model-call cap per KST day; no implicit unlimited/default cap |
+
+Caps accept integers from 1 to 1,000,000,000. None of these variables may use a
+`NEXT_PUBLIC_` prefix, enter logs or reach the browser. Leave them unset for
+fixture-only deployments. Do not configure accounts or provision Redis as part
+of a code review; opting into a deployed live provider remains an explicit
+operator environment choice.
+
+The identity boundary requires platform `VERCEL=1` and one valid IP from
+[`x-vercel-forwarded-for`](https://vercel.com/docs/headers/request-headers#x-vercel-forwarded-for).
+No cookie, request-body identity, `x-forwarded-for` fallback or non-Vercel
+header is trusted. Do not manually set `VERCEL=1` to bypass this boundary.
+A proxy in front of Vercel may group visitors under its address; this is an IP
+budget, not person authentication. Other hosting requires a separately reviewed
+trusted identity adapter.
+
+Redis receives only a day-bound HMAC-SHA-256 visitor key, visitor request count
+and global reserved-call count. Both counters expire at the next 00:00 KST;
+no raw IP is stored or logged by the application. A new day produces a new
+HMAC. Rotate the HMAC secret at KST midnight: rotating mid-day resets visitor
+keys while the global cap still applies. Disable key/body logging and counter
+backups past the KST day; application expiry does not establish deletion from
+provider logs or backups. [Data handling](DATA_HANDLING.md#daily-live-model-counters)
+describes those limits.
+
+One direct mapping proposal reserves one visitor request and one global call.
+The shared `runPublicModelRequest` boundary also accepts a two-call reservation
+for future routed proposals: one visitor request, two global calls, and a
+callback that refuses a third or expired attempt. Routing and the mutation
+demo are still planned; their public live calls must use this boundary. Failed
+or unused reservations are not refunded, including ambiguous transport errors.
+This conservative cap bounds attempts rather than tokens or currency. No
+provider retry is enabled. Invalid configuration, absent trusted IP, store
+failure or timeout (three seconds including the body), and either exceeded cap
+prevent model calls and return HTTP 422 `REVIEW_REQUIRED` with a fixed reason.
+Redis validates the reservation day against its clock; grants arriving after
+midnight are rejected locally as well. A call started before midnight may
+finish after it, but further attempts need a new day's reservation.
+
+Fixture requests, page preparation, builds and replaying an existing encrypted
+receipt use neither model calls nor counters. `pnpm eval:models --live` calls
+the server adapter directly and intentionally bypasses public budgets. Tests
+use a shared in-memory fake and mocked Redis transport; no hosted Redis or live
+Vercel configuration has been validated. See
+[ADR 0063](adr/0063-reserve-public-model-budgets-in-shared-daily-counters.md).
 
 ### Manual model adapter runs
 
@@ -323,13 +391,13 @@ complete public build log. This is a disclosure check, not a check that provider
 configuration is absent from the server environment. Search all three surfaces
 for each exact term below and require zero matches:
 
-| Exact search term or regular expression                                                                         | Expected result                                                                                          |
-| --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `AI_MODE`, `AI_PROVIDER_BASE_URL`, `AI_PROVIDER_API_KEY`, `AI_PROVIDER_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL` | No current or retired provider variable name in a browser asset, browser source map, or public build log |
-| `DATA_GO_KR_SERVICE_KEY`                                                                                        | No retrieval-credential name in a deployed asset or public build log                                     |
-| `Authorization: Bearer` and `authorization\"\s*:\s*\"Bearer`                                                    | No provider authorization header in either text or serialized JSON form                                  |
-| `sk-[A-Za-z0-9_-]{20,}` and `Bearer [A-Za-z0-9._-]{20,}`                                                        | No recognizable API-key or bearer-token value                                                            |
-| `rawProviderTrace`, `raw_provider_trace`, `providerRequestBody`, `provider_request_body`                        | No raw-trace or request-body field in a public surface                                                   |
+| Exact search term or regular expression                                                                                                                                                                                                                | Expected result                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `AI_MODE`, `AI_PROVIDER_BASE_URL`, `AI_PROVIDER_API_KEY`, `AI_PROVIDER_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `AI_LIMIT_VISITOR_SECRET`, `AI_LIMIT_VISITOR_REQUESTS`, `AI_LIMIT_GLOBAL_CALLS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | No current or retired provider variable name in a browser asset, browser source map, or public build log |
+| `DATA_GO_KR_SERVICE_KEY`                                                                                                                                                                                                                               | No retrieval-credential name in a deployed asset or public build log                                     |
+| `Authorization: Bearer` and `authorization\"\s*:\s*\"Bearer`                                                                                                                                                                                           | No provider authorization header in either text or serialized JSON form                                  |
+| `sk-[A-Za-z0-9_-]{20,}` and `Bearer [A-Za-z0-9._-]{20,}`                                                                                                                                                                                               | No recognizable API-key or bearer-token value                                                            |
+| `rawProviderTrace`, `raw_provider_trace`, `providerRequestBody`, `provider_request_body`                                                                                                                                                               | No raw-trace or request-body field in a public surface                                                   |
 
 For a future configured-provider promotion, also record one
 distinctive, non-secret substring from the submitted provider request and one
