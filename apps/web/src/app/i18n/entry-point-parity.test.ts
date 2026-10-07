@@ -216,6 +216,27 @@ describe.each(PLAN)("$readme plan statement", (plan) => {
   });
 });
 
+/** A number followed by a percent sign or word, in either language. */
+const PERCENTAGE =
+  /\d\s*(?:[%％]|per\s?cent\b|percentage points?\b|퍼센트|프로(?![가-힣]))/i;
+
+describe("percentage guard", () => {
+  it("recognizes a percentage in symbol or word form", () => {
+    for (const claim of [
+      "90% accuracy",
+      "90 ％ accuracy",
+      "90 percent accuracy",
+      "90 per cent accuracy",
+      "3 percentage points",
+      "90퍼센트 정확도",
+      "90 퍼센트",
+      "90프로 정확도",
+    ])
+      expect(claim).toMatch(PERCENTAGE);
+    expect("3 프로파일").not.toMatch(PERCENTAGE);
+  });
+});
+
 // Until a model comparison is published with its definition, command and
 // environment, the entry points carry no model figure. Remove this check in
 // the change that publishes one, alongside its evaluation definition.
@@ -229,6 +250,6 @@ describe.each([
 ])("%s", (path) => {
   it("carries no model percentage before an evaluation is published", () => {
     const prose = read(path).replace(/\]\([^)]*\)|https?:\/\/\S+/g, "");
-    expect(prose).not.toMatch(/\d\s?%/);
+    expect(prose).not.toMatch(PERCENTAGE);
   });
 });
