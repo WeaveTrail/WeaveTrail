@@ -57,6 +57,27 @@ function completion(message: unknown, finish_reason = "stop") {
 }
 
 describe("OpenAI-compatible recorded mapping responses", () => {
+  it("bypasses public web budgets for explicit local evaluations", async () => {
+    vi.stubEnv("VERCEL", undefined);
+    vi.stubEnv("AI_LIMIT_GLOBAL_CALLS", "0");
+    vi.stubEnv("AI_LIMIT_VISITOR_SECRET", undefined);
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", undefined);
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(Response.json(envelope()));
+    try {
+      expect(
+        (await runConfiguredMapping(model, input, context, transport)).outcome,
+      ).toBe("VALID");
+      expect(transport).toHaveBeenCalledTimes(1);
+      expect(transport.mock.calls[0]![0]).toBe(
+        `${model.baseUrl}/chat/completions`,
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("preserves a path-bearing base URL and records usage, model and temperature", async () => {
     const transport = vi
       .fn<typeof fetch>()

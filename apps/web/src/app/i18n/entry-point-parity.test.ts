@@ -32,11 +32,17 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["docs/PUBLISHED_DATA_ADMISSION.md", "docs/PUBLISHED_DATA_ADMISSION.ko.md"],
 ];
 
-const KOREAN_FILES = new Set(PAIRS.map(([, korean]) => korean));
+// Deployment translates environment and budget configuration; its release and
+// rollback procedures explicitly remain in the English source of record.
+const SECTION_TRANSLATIONS: readonly (readonly [string, string])[] = [
+  ["docs/DEPLOYMENT.md", "docs/DEPLOYMENT.ko.md"],
+];
+const ALL_TRANSLATIONS = [...PAIRS, ...SECTION_TRANSLATIONS];
+const KOREAN_FILES = new Set(ALL_TRANSLATIONS.map(([, korean]) => korean));
 
 /** Each Korean document's own English original, which it always links to. */
 const ORIGINAL_OF = new Map(
-  PAIRS.map(([english, korean]) => [korean, english]),
+  ALL_TRANSLATIONS.map(([english, korean]) => [korean, english]),
 );
 
 type Link = {
@@ -119,7 +125,7 @@ describe.each([...KOREAN_FILES])("%s", (path) => {
   });
 });
 
-describe.each(PAIRS.flat())("%s", (path) => {
+describe.each(ALL_TRANSLATIONS.flat())("%s", (path) => {
   const markdown = read(path);
   const local = linksIn(markdown).filter((link) => isLocal(link.target));
 

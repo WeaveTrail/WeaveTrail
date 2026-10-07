@@ -18,6 +18,11 @@ const forbiddenProviderVariables = [
   ["OPENAI", "API", "KEY"].join("_"),
   ["OPENAI", "MODEL"].join("_"),
   ["DATA", "GO", "KR", "SERVICE", "KEY"].join("_"),
+  ["AI", "LIMIT", "VISITOR", "SECRET"].join("_"),
+  ["AI", "LIMIT", "VISITOR", "REQUESTS"].join("_"),
+  ["AI", "LIMIT", "GLOBAL", "CALLS"].join("_"),
+  ["UPSTASH", "REDIS", "REST", "URL"].join("_"),
+  ["UPSTASH", "REDIS", "REST", "TOKEN"].join("_"),
 ];
 
 const compilerOptions: ts.CompilerOptions = {
@@ -105,6 +110,7 @@ describe("provider client boundary", () => {
     for (const file of clientFiles) {
       expect(file).not.toContain("/ai-harness/src/configured-provider");
       expect(file).not.toContain("/lib/mapping-provider");
+      expect(file).not.toContain("/lib/public-model-budget");
       const source = readFileSync(file, "utf8");
       for (const variable of forbiddenProviderVariables) {
         expect(source, `${variable} reached ${file}`).not.toContain(variable);

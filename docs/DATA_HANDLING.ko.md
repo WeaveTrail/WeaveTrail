@@ -22,12 +22,71 @@
 
 ## 저장과 계획에 없는 기능
 
-웹 앱은 데이터베이스나 서비스 스냅샷 저장소를 사용하지 않습니다. 서버 진행 상태는 요청 하나 동안, 브라우저 승인과 결과는 화면이 유지되는 동안만 존재합니다. 새로고침하면 승인 전 상태로 시작합니다. 붙여넣은 글 추출·검사와 공유 링크는 현재 계획에 없고, 영속 감사 이력은 구현하지 않았으며, 철회된 자료를 위한 비공개 저장소나 호스트를 추가하지 않습니다.
+픽스처 모드는 데이터베이스나 서비스 스냅샷 저장소를 사용하지 않습니다. 공개 모델 요청을 설정하면 아래의 일일 예산 저장소만 사용합니다. 서버 진행 상태는 요청 하나 동안, 브라우저 승인과 결과는 화면이 유지되는 동안만 존재합니다. 새로고침하면 승인 전 상태로 시작합니다. 붙여넣은 글 추출·검사와 공유 링크는 현재 계획에 없고, 영속 감사 이력은 구현하지 않았으며, 철회된 자료를 위한 비공개 저장소나 호스트를 추가하지 않습니다.
+
+항목 연결 경로는 `Content-Type: application/json`을 요구하며 선택적인
+charset은 허용합니다. 브라우저가 Origin 헤더를 보내면 요청 URL과 출처가
+같아야 합니다. 타 출처·불투명 출처와 단순 폼·텍스트 콘텐츠 유형은 예산
+예약 전에 거부합니다. Origin이 없어도 JSON은 필수여서 타 출처 브라우저는
+사전 요청을 거쳐야 합니다. 사례 재현 화면은 `REVIEW_REQUIRED` 응답을
+검증하고 안정적인 사유 코드로 영어·한국어 예산 안내를 선택합니다. 다른
+검증된 항목은 원래 메시지를 표시하고 유효하지 않은 응답은 현재 언어의
+일반 실패 메시지를 표시합니다.
+
+### 항목 연결 예산 거부 코드
+
+예산 거부는 HTTP 422와 `status: REVIEW_REQUIRED`,
+`workflowState: MAPPING_REVIEW_REQUIRED`,
+`MAPPING_APPLICATION_REVIEW_REQUIRED` 항목 코드를 유지합니다.
+이 항목에는 `path`, 영어 `message`와 함께 선택적인 `budgetReason`이
+추가됩니다.
+
+| `budgetReason`        | 의미                              |
+| --------------------- | --------------------------------- |
+| `VISITOR_DAILY_LIMIT` | 방문자의 일일 요청 한도 소진      |
+| `GLOBAL_DAILY_LIMIT`  | 전체 일일 예약 호출 한도 소진     |
+| `BUDGET_UNAVAILABLE`  | 설정·신뢰할 신원·저장소 확인 불가 |
+
+항목 연결 적용 검토 항목의 세 코드만 허용합니다. 알 수 없는 코드나 다른
+항목·상태에 붙인 메타데이터는 검증을 거부합니다. 클라이언트는 검증된 응답을
+보관하고 렌더링할 때 번역된 안내를 선택하므로 언어를 바꾸면 이미 표시한
+거부 안내도 바뀝니다. `REVIEW_REQUIRED` 같은 기계 토큰의 표기는 유지합니다.
+
+마이그레이션: 갱신된 소비자는 `budgetReason` 없는 이전 응답도 허용하고 원래
+`message`를 사용합니다. 이전의 엄격한 파서는 추가 필드를 거부하므로 갱신한
+계약·클라이언트를 서버와 함께 배포하세요. 성공한 연결 제안, 영수증, 승인과
+재현 해시는 바뀌지 않습니다.
+
+## 일일 실제 모델 호출 카운터
+
+공개 실제 모델 요청 전에 Vercel 함수가 공유하는 호스팅 Redis에서 두 한도를
+확인합니다. 저장하는 항목은 서버 비밀키로 플랫폼 IP와 KST 날짜를
+HMAC-SHA-256 처리한 일일 방문자 키, 방문자 요청 횟수, 전체 예약 호출
+횟수입니다. 앱은 원시 IP를 저장하거나 로그에 남기지 않으며 Redis에 IP,
+검토자 글, 원본 행이나 모델 출력을 보내지 않습니다. 키와 횟수는 다음
+00:00 KST에 만료되어 생성 후 최대 24시간만 남고 HMAC도 매일 바뀝니다.
+이 가명 카운터는 계정이나 개인 신원 증명이 아니며 같은 IP를 쓰는 사람은
+방문자 한도를 공유합니다.
+
+방문자 기본 한도는 하루 15개 요청이고 운영자가 전체 호출 한도를 명시해야
+합니다. 직접 제안은 요청 한 번과 호출 한 번을 예약합니다. 향후 라우팅
+제안은 공통 두 번 호출 경계를 사용해 방문자 요청 한 번과 전체 호출 두 번을
+예약해야 합니다. 실패하거나 쓰지 않은 예약은 환불하지 않습니다. 라우팅과
+변형 데모는 아직 구현하지 않았습니다.
+
+한도 초과, 저장소 장애, 설정 누락이나 신뢰할 플랫폼 IP 부재 시 모델을
+호출하지 않고 고정된 설명과 `REVIEW_REQUIRED`를 반환합니다. 픽스처와
+기존 영수증 재현은 예산 저장소나 모델을 호출하지 않습니다. 수동 로컬
+평가는 웹 전용 제한기를 거치지 않습니다. 호스팅·Redis 계정 로그와 백업의
+보존 설정은 운영자가 관리하며 키 만료는 이들의 삭제를 검증하지 않습니다.
+키·요청 본문 로그를 켜거나 카운터 백업을 해당 KST 날짜 이후까지 보존하지
+마세요. [배포 설정](DEPLOYMENT.ko.md)과
+[ADR 0063](adr/0063-reserve-public-model-budgets-in-shared-daily-counters.md)(영문)을 참고하세요.
 
 ## 검증
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts
+pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
 ```
 
 ## 한계

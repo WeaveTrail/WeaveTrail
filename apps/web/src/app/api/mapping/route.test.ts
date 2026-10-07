@@ -14,11 +14,17 @@ import { POST as replay } from "../replay/route";
 const scenario = "concentrated-buy-dialect-a.csv";
 const source = committedReplaySources[scenario];
 const transport = vi.fn<typeof fetch>();
+const storeTransport = vi.fn<typeof fetch>();
 const secret = "synthetic-route-test-secret";
 const model = "synthetic-route-test-model";
-const request = (body: unknown) =>
+const request = (body: unknown, headers: Record<string, string> = {}) =>
   new Request("http://localhost/api/mapping", {
     method: "POST",
+    headers: {
+      "x-vercel-forwarded-for": "192.0.2.1",
+      "content-type": "application/json",
+      ...headers,
+    },
     body: JSON.stringify(body),
   });
 const completion = (fields: unknown = concentratedBuyDialectAProposal.fields) =>
@@ -41,7 +47,15 @@ const approval = (proposal: unknown) => ({
 });
 
 beforeEach(() => {
-  vi.stubGlobal("fetch", transport);
+  vi.stubGlobal(
+    "fetch",
+    (url: Parameters<typeof fetch>[0], init?: RequestInit) =>
+      String(url) === "https://budget.invalid"
+        ? storeTransport(url, init)
+        : transport(url, init),
+  );
+  storeTransport.mockReset();
+  storeTransport.mockImplementation(async () => Response.json({ result: 0 }));
   transport.mockReset();
   // A forgotten mock fails locally; no provider test can reach the network.
   transport.mockRejectedValue(new Error("Unexpected transport call"));
@@ -49,6 +63,15 @@ beforeEach(() => {
   vi.stubEnv("AI_PROVIDER_BASE_URL", "https://provider.invalid/v1");
   vi.stubEnv("AI_PROVIDER_API_KEY", secret);
   vi.stubEnv("AI_PROVIDER_MODEL", model);
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://budget.invalid");
+  vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "synthetic-budget-token");
+  vi.stubEnv(
+    "AI_LIMIT_VISITOR_SECRET",
+    "synthetic-budget-secret-at-least-32-bytes",
+  );
+  vi.stubEnv("AI_LIMIT_GLOBAL_CALLS", "100");
+  vi.stubEnv("AI_LIMIT_VISITOR_REQUESTS", undefined);
 });
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -58,6 +81,104 @@ afterEach(() => {
 });
 
 describe("configured mapping and replay boundary", () => {
+  it.each([
+    { "content-type": "text/plain", origin: "https://attacker.invalid" },
+    { "content-type": "text/plain" },
+    { "content-type": "application/x-www-form-urlencoded" },
+    { "content-type": "multipart/form-data" },
+    { "content-type": "" },
+    { origin: "https://attacker.invalid" },
+    { origin: "null" },
+    { origin: "http://localhost.attacker.invalid" },
+  ])(
+    "rejects browser-unsafe headers %j before reserving or calling a model",
+    async (headers) => {
+      transport.mockImplementation(async () => completion());
+      const response = await POST(request({ scenario }, headers));
+      expect(response.status).toBe(422);
+      expect(
+        ReplayReviewResponseSchema.parse(await response.json()).status,
+      ).toBe("REVIEW_REQUIRED");
+      expect(storeTransport).not.toHaveBeenCalled();
+      expect(transport).not.toHaveBeenCalled();
+    },
+  );
+
+  it("accepts same-origin JSON with a charset", async () => {
+    transport.mockImplementation(async () => completion());
+    const response = await POST(
+      request(
+        { scenario },
+        {
+          origin: "http://localhost",
+          "content-type": "application/json; charset=utf-8",
+        },
+      ),
+    );
+    expect(response.status).toBe(200);
+    expect(storeTransport).toHaveBeenCalledTimes(1);
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [1, "Your daily live model request limit", "VISITOR_DAILY_LIMIT"],
+    [2, "daily shared live model call limit", "GLOBAL_DAILY_LIMIT"],
+    [3, "budget checks are unavailable", "BUDGET_UNAVAILABLE"],
+  ])(
+    "blocks budget decision %i before provider transport",
+    async (result, message, budgetReason) => {
+      storeTransport.mockImplementation(async () => Response.json({ result }));
+      const response = await POST(request({ scenario }));
+      expect(response.status).toBe(422);
+      const review = ReplayReviewResponseSchema.parse(await response.json());
+      expect(review.status).toBe("REVIEW_REQUIRED");
+      expect(review.issues[0]!.message).toContain(message);
+      expect(review.issues[0]!.message).toContain("No model was called");
+      expect(review.issues[0]).toHaveProperty("budgetReason", budgetReason);
+      expect(review).not.toHaveProperty("proposal");
+      expect(review).not.toHaveProperty("mappingReceipt");
+      expect(transport).not.toHaveBeenCalled();
+    },
+  );
+
+  it("discards store failures and never trusts caller IP headers outside Vercel", async () => {
+    storeTransport.mockRejectedValueOnce(new Error("raw-budget-secret"));
+    const review = await (await POST(request({ scenario }))).json();
+    expect(review.issues[0].message).toContain("budget checks are unavailable");
+    expect(JSON.stringify(review)).not.toContain("raw-budget-secret");
+    vi.stubEnv("VERCEL", undefined);
+    await POST(request({ scenario }));
+    expect(storeTransport).toHaveBeenCalledTimes(1);
+    expect(transport).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when hosted store configuration is missing", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", undefined);
+    const response = await POST(request({ scenario }));
+    expect(response.status).toBe(422);
+    expect((await response.json()).issues[0].message).toContain(
+      "budget checks are unavailable",
+    );
+    expect(storeTransport).not.toHaveBeenCalled();
+    expect(transport).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "http://budget.invalid",
+    "https://user:secret@budget.invalid",
+    "https://budget.invalid/path",
+    "https://budget.invalid?token=secret",
+    "https://budget.invalid#fragment",
+  ])("rejects unsafe store URL %s before either transport", async (url) => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", url);
+    const response = await POST(request({ scenario }));
+    expect(response.status).toBe(422);
+    expect((await response.json()).issues[0].message).toContain(
+      "budget checks are unavailable",
+    );
+    expect(storeTransport).not.toHaveBeenCalled();
+    expect(transport).not.toHaveBeenCalled();
+  });
   it("replays the exact displayed proposal after approval without another call or changing the golden hash", async () => {
     transport.mockResolvedValue(
       completion(
@@ -112,6 +233,10 @@ describe("configured mapping and replay boundary", () => {
       "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
     );
     expect(transport).toHaveBeenCalledTimes(1);
+    expect(storeTransport).toHaveBeenCalledTimes(1);
+    expect(storeTransport.mock.invocationCallOrder[0]).toBeLessThan(
+      transport.mock.invocationCallOrder[0]!,
+    );
     expect(transport.mock.calls[0]![0]).toBe(
       "https://provider.invalid/v1/chat/completions",
     );
@@ -223,6 +348,7 @@ describe("configured mapping and replay boundary", () => {
       expect(result.status).toBe(200);
       expect((await result.json()).mode).toBe("fixture");
       expect(transport).not.toHaveBeenCalled();
+      expect(storeTransport).not.toHaveBeenCalled();
     },
   );
 

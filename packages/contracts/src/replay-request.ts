@@ -5,7 +5,10 @@ import { CaseManifestSchema } from "./case-manifest";
 import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 import { WorkflowStateSchema } from "./workflow";
 import { SourceTraceSchema } from "./source-trace";
-import { MappingReceiptSchema } from "./mapping-response";
+import {
+  MappingBudgetDenialReasonSchema,
+  MappingReceiptSchema,
+} from "./mapping-response";
 
 export const ReplayReviewWorkflowStateSchema = WorkflowStateSchema.extract([
   "MAPPING_REVIEW_REQUIRED",
@@ -161,6 +164,20 @@ const replayReviewResponseBranch = <
     })
     .strict();
 
+const mappingReviewIssueSchema = replayReviewIssueSchema(
+  MappingReplayReviewIssueCodeSchema,
+)
+  .extend({ budgetReason: MappingBudgetDenialReasonSchema.optional() })
+  .refine(
+    (issue) =>
+      issue.budgetReason === undefined ||
+      issue.code === "MAPPING_APPLICATION_REVIEW_REQUIRED",
+    {
+      message: "Budget reasons require a mapping application review issue",
+      path: ["budgetReason"],
+    },
+  );
+
 export const ReplayReviewResponseSchema = z.discriminatedUnion(
   "workflowState",
   [
@@ -170,7 +187,7 @@ export const ReplayReviewResponseSchema = z.discriminatedUnion(
     ),
     replayReviewResponseBranch(
       "MAPPING_REVIEW_REQUIRED",
-      replayReviewIssueSchema(MappingReplayReviewIssueCodeSchema),
+      mappingReviewIssueSchema,
     ),
     replayReviewResponseBranch(
       "CASE_REVIEW_REQUIRED",

@@ -229,7 +229,7 @@ WeaveTrail은 한 가지 질문에 숫자와 코드로 답하도록 개발 중�
 - [일별 시세 계약](docs/DAILY_QUOTES.ko.md) — 유지된 버전, 합성 검사와 철회된 자료 경계
 - [시나리오별 예상 결과](https://weave-trail-web-flax.vercel.app/expectations)
   — 커밋된 각 사례가 무엇을 돌려주는지, 엔진 출력 그대로
-- [배포](docs/DEPLOYMENT.md)(영문) — 공개 주소, 설정, 점검, 되돌리기
+- [배포 환경과 일일 예산](docs/DEPLOYMENT.ko.md) — 서버 설정과 호출 한도; [승격·검증·롤백](docs/DEPLOYMENT.md#promotion-gate)(영문)
 - [결정 기록](docs/adr)(영문) — 각 설계 선택의 이유
 - [Contributing](CONTRIBUTING.md)(영문) — 작업 절차와 검증 기준
 

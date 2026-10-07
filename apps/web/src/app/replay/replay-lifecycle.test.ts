@@ -20,6 +20,7 @@ import * as rowShuffle from "./shuffle-source-rows";
 import type { ReplayRequest } from "@weavetrail/contracts";
 import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { replayApproved } from "@weavetrail/replay-engine";
+import { PublicModelBudgetRequired } from "../../lib/public-model-budget";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
 // component-state regression harness, not a browser/hydration assertion.
@@ -188,6 +189,10 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     currentOverrides = { ...currentOverrides, guided };
     render();
   }
+  function setLanguage(language: "en" | "ko") {
+    currentOverrides = { ...currentOverrides, language };
+    render();
+  }
   function buttonDisabled(label: string) {
     return render().find(
       (element) =>
@@ -215,6 +220,7 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     approve,
     hasText,
     setGuided,
+    setLanguage,
   };
 }
 // A response marker suffices here: provenance correctness is covered by API and
@@ -240,7 +246,7 @@ function ok(hash = "a".repeat(64)) {
 }
 
 describe("configured mapping proposal lifecycle", () => {
-  async function configuredView() {
+  async function configuredView(language: "en" | "ko" = "en") {
     const prepared = await prepareReplayScenarios();
     const source = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
     const dialect: ReplayScenarioOption = {
@@ -254,6 +260,7 @@ describe("configured mapping proposal lifecycle", () => {
     };
     return setup({
       ...prepared,
+      language,
       scenarios: [
         dialect,
         ...prepared.scenarios.filter((option) => option.value === first),
@@ -270,6 +277,189 @@ describe("configured mapping proposal lifecycle", () => {
       proposal: concentratedBuyDialectAProposal,
       mappingReceipt: "synthetic_receipt",
     });
+
+  it.each([
+    ["visitor-limit", "오늘의 실제 모델 요청 한도에 도달했습니다."],
+    ["global-limit", "오늘의 전체 실제 모델 호출 한도에 도달했습니다."],
+    ["unavailable", "실제 모델 호출 예산을 확인할 수 없습니다."],
+  ] as const)(
+    "localizes %s on the Korean replay surface",
+    async (reason, expected) => {
+      const view = await configuredView("ko");
+      view.changeScenario("concentrated-buy-dialect-a.csv");
+      const denial = new PublicModelBudgetRequired(reason);
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(
+          Response.json(
+            {
+              status: "REVIEW_REQUIRED",
+              workflowState: "MAPPING_REVIEW_REQUIRED",
+              issues: [
+                {
+                  code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                  path: [],
+                  message: denial.message,
+                  budgetReason: denial.budgetReason,
+                },
+              ],
+            },
+            { status: 422 },
+          ),
+        ),
+      );
+      await view.button("연결 제안 요청");
+      expect(view.hasText(expected)).toBe(true);
+      expect(view.hasText(denial.message)).toBe(false);
+      expect(view.hasText("REVIEW_REQUIRED")).toBe(true);
+      expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+    },
+  );
+
+  it.each(["visitor-limit", "global-limit", "unavailable"] as const)(
+    "shows the validated %s reason and keeps approval blocked",
+    async (reason) => {
+      const view = await configuredView();
+      view.changeScenario("concentrated-buy-dialect-a.csv");
+      const message = new PublicModelBudgetRequired(reason).message;
+      const fetcher = vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message,
+                budgetReason: new PublicModelBudgetRequired(reason)
+                  .budgetReason,
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      );
+      vi.stubGlobal("fetch", fetcher);
+      await view.button("Request mapping proposal");
+      expect(view.hasText(message)).toBe(true);
+      expect(view.hasText("Request a new proposal before approval")).toBe(
+        false,
+      );
+      expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+      expect(view.hasText("Configured provider")).toBe(false);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("updates an existing denial when the replay language changes", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    const denial = new PublicModelBudgetRequired("visitor-limit");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message: denial.message,
+                budgetReason: denial.budgetReason,
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.hasText(denial.message)).toBe(true);
+    view.setLanguage("ko");
+    expect(view.hasText("오늘의 실제 모델 요청 한도에 도달했습니다.")).toBe(
+      true,
+    );
+    expect(view.hasText(denial.message)).toBe(false);
+    expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+    view.setLanguage("en");
+    expect(view.hasText(denial.message)).toBe(true);
+  });
+
+  it("rejects unknown budget codes before displaying any returned message", async () => {
+    const view = await configuredView("ko");
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message: "unrecognized budget message",
+                budgetReason: "UNKNOWN",
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("연결 제안 요청");
+    expect(view.hasText("unrecognized budget message")).toBe(false);
+    expect(view.hasText("연결 제안을 받지 못했거나 거부되었습니다.")).toBe(
+      true,
+    );
+    expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+  });
+
+  it("discards malformed failure messages and stale review responses", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            issues: [{ message: "unvalidated error text" }],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.hasText("unvalidated error text")).toBe(false);
+    expect(view.hasText("Mapping proposal unavailable")).toBe(true);
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const requested = view.button("Request mapping proposal");
+    view.changeScenario(first);
+    pending.resolve(
+      Response.json(
+        {
+          status: "REVIEW_REQUIRED",
+          workflowState: "MAPPING_REVIEW_REQUIRED",
+          issues: [
+            {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+              path: [],
+              message: "stale budget denial",
+            },
+          ],
+        },
+        { status: 422 },
+      ),
+    );
+    await requested;
+    expect(view.hasText("stale budget denial")).toBe(false);
+  });
 
   it("labels the actual provider, requires new approval and sends the receipt with replay", async () => {
     const view = await configuredView();

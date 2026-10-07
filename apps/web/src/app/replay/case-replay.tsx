@@ -18,6 +18,7 @@ import type {
 } from "@weavetrail/contracts";
 import {
   MappingResponseSchema,
+  ReplayReviewResponseSchema,
   requiresMappingOverride,
 } from "@weavetrail/contracts";
 import type { SourceProvenance } from "@weavetrail/contracts";
@@ -26,6 +27,10 @@ import {
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine/canonical-json";
 import { scenarioOptionLabel } from "./scenario-labels";
+import {
+  mappingReviewMessage,
+  type MappingReviewResponse,
+} from "./mapping-review-messages";
 import { shuffleSourceRows } from "./shuffle-source-rows";
 import {
   Bps,
@@ -1077,7 +1082,9 @@ export function CaseReplay({
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | MappingReviewResponse | null>(
+    null,
+  );
   const [workflowState, setWorkflowState] = useState<WorkflowState | null>(
     null,
   );
@@ -1456,8 +1463,17 @@ export function CaseReplay({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ scenario }),
       });
-      if (!response.ok) throw new Error("Mapping request rejected");
-      const mapping = MappingResponseSchema.parse(await response.json());
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const review = ReplayReviewResponseSchema.parse(body);
+        if (review.workflowState !== "MAPPING_REVIEW_REQUIRED")
+          throw new Error("Unexpected mapping review state");
+        if (generation !== requestGeneration.current) return;
+        setWorkflowState(review.workflowState);
+        setError(review);
+        return;
+      }
+      const mapping = MappingResponseSchema.parse(body);
       if (generation !== requestGeneration.current) return;
       if (
         mapping.proposal.sourceArtifactHash !==
@@ -2302,7 +2318,10 @@ export function CaseReplay({
           </div>
           {error ? (
             <p className="error-message" role="alert">
-              <strong>REPLAY_REFUSED</strong> {error}
+              <strong>REPLAY_REFUSED</strong>{" "}
+              {typeof error === "string"
+                ? error
+                : mappingReviewMessage(error, language)}
             </p>
           ) : null}
           {error && workflowState ? (
