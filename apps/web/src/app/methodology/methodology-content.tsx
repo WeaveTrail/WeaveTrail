@@ -49,7 +49,7 @@ export const methodologyCopy: Readonly<Record<Language, MethodologyCopy>> = {
     responsibilities: [
       [
         "AI may",
-        "Propose column meanings, bounded case scope, and human-readable explanations.",
+        "Propose a field mapping now and, as planned for v0.4.0, a bounded case scope. Nothing else.",
       ],
       [
         "Code must",
@@ -87,7 +87,7 @@ export const methodologyCopy: Readonly<Record<Language, MethodologyCopy>> = {
     responsibilities: [
       [
         "AI가 할 수 있는 일",
-        "열의 의미, 한정된 사례 범위, 사람이 읽을 설명을 제안합니다.",
+        "지금은 데이터 항목 연결을 제안하고, v0.4.0 계획대로 제한된 조사 범위를 제안합니다. 그 밖의 일은 하지 않습니다.",
       ],
       [
         "코드가 해야 하는 일",
