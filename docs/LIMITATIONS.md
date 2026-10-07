@@ -13,8 +13,20 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   tested with mocked transport only; no live provider quality or compatibility
   is claimed. Only the two committed synthetic source dialects are eligible.
   Configured proposals expire after 30 minutes and need a new request and
-  approval; durable provider audit storage and identity/spending controls do
-  not exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
+  approval; durable provider audit storage and person authentication do not
+  exist yet. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md).
+- Public live model requests enforce shared daily IP-based visitor and global
+  call caps, resetting at 00:00 KST. Visitors default to 15 requests; the global
+  cap requires configuration. Missing trusted Vercel IP/configuration or an
+  unavailable store stops calls as `REVIEW_REQUIRED`. JSON content type and
+  same-origin checks when an Origin header is present prevent third-party
+  browser requests from reserving budget. The screen displays validated denial
+  reasons. These pseudonymous IP counters do not authenticate people or limit
+  tokens/currency; shared IPs share a quota, changed IPs can change visitors,
+  and failed/unused reservations are retained. Hosted Redis/Vercel integration
+  remains unverified; tests use fake storage and mocked transport. Local model
+  evaluation bypasses public budgets. See [deployment settings](DEPLOYMENT.md#daily-public-model-budget)
+  and [ADR 0063](adr/0063-reserve-public-model-budgets-in-shared-daily-counters.md).
 - Model evaluation is partly built and nothing in it is measured yet. The
   sealed synthetic DEV and HELD_OUT schema-dialect set, the run-record
   contract, the validator probes and the [AI failure log](AI_FAILURE_LOG.md)
@@ -23,7 +35,7 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   Chat Completions adapter and explicit local smoke command with sanitized
   records exist, verified offline only. Scoring beside a non-model baseline, a selection
   rule fixed before the held-out run, routing to one escalation model, bounded
-  case-scope proposals and a daily limit on live model calls are planned. A
+  case-scope proposals are planned. A
   future comparison will hold for its synthetic set, prompt version, date and
   rule, not for exchange schemas in general.
 

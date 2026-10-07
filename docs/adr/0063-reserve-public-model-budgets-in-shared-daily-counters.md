@@ -38,7 +38,12 @@ provider fails or a second attempt is unused. Do not refund ambiguous failures.
 The visitor default is 15; the global cap is mandatory configuration. Missing
 configuration, unsupported identity, unavailable store or either exceeded cap
 fails closed before the callback with HTTP 422 `REVIEW_REQUIRED` and a fixed
-reason. Existing mapping, approval and receipt contracts and canonical replay
+reason. Before parsing or reserving, the mapping route requires JSON content
+type and rejects any supplied foreign/opaque Origin. No-Origin JSON clients
+remain supported; browser cross-origin requests require an ungranted CORS
+preflight. Case Replay validates a mapping review response before displaying
+its issue messages and ignores responses from an invalidated request.
+Existing mapping, approval and receipt contracts and canonical replay
 hashes do not change. Recorded runs remain usable without live calls.
 
 ## Limits and operations

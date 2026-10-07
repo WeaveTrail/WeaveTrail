@@ -252,7 +252,13 @@ or unused reservations are not refunded, including ambiguous transport errors.
 This conservative cap bounds attempts rather than tokens or currency. No
 provider retry is enabled. Invalid configuration, absent trusted IP, store
 failure or timeout (three seconds including the body), and either exceeded cap
-prevent model calls and return HTTP 422 `REVIEW_REQUIRED` with a fixed reason.
+prevent model calls and return HTTP 422 `REVIEW_REQUIRED` with a fixed reason,
+which the browser displays only after validating the review-response contract.
+The mapping route requires `application/json` (charset allowed) and rejects an
+Origin header that differs from the request URL's origin before parsing the
+body or reserving budget. No-Origin JSON clients remain supported; cross-origin
+browser JSON requests require a preflight, for which this route grants no CORS
+access. Safelisted text/form requests cannot spend a visitor's budget.
 Redis validates the reservation day against its clock; grants arriving after
 midnight are rejected locally as well. A call started before midnight may
 finish after it, but further attempts need a new day's reservation.

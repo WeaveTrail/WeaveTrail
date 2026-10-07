@@ -18,6 +18,7 @@ import type {
 } from "@weavetrail/contracts";
 import {
   MappingResponseSchema,
+  ReplayReviewResponseSchema,
   requiresMappingOverride,
 } from "@weavetrail/contracts";
 import type { SourceProvenance } from "@weavetrail/contracts";
@@ -1456,8 +1457,19 @@ export function CaseReplay({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ scenario }),
       });
-      if (!response.ok) throw new Error("Mapping request rejected");
-      const mapping = MappingResponseSchema.parse(await response.json());
+      const body: unknown = await response.json();
+      if (!response.ok) {
+        const review = ReplayReviewResponseSchema.parse(body);
+        if (review.workflowState !== "MAPPING_REVIEW_REQUIRED")
+          throw new Error("Unexpected mapping review state");
+        if (generation !== requestGeneration.current) return;
+        setWorkflowState(review.workflowState);
+        setError(
+          `REVIEW_REQUIRED: ${review.issues.map((issue) => issue.message).join(" ")}`,
+        );
+        return;
+      }
+      const mapping = MappingResponseSchema.parse(body);
       if (generation !== requestGeneration.current) return;
       if (
         mapping.proposal.sourceArtifactHash !==

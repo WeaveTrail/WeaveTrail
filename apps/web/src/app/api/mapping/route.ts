@@ -10,6 +10,19 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const mediaType = request.headers
+      .get("content-type")
+      ?.split(";")[0]
+      ?.trim()
+      .toLowerCase();
+    const origin = request.headers.get("origin");
+    // JSON forces cross-origin browsers through a preflight; also refuse any
+    // explicitly foreign/opaque origin before parsing or reserving paid calls.
+    if (
+      mediaType !== "application/json" ||
+      (origin !== null && origin !== new URL(request.url).origin)
+    )
+      throw new Error("Invalid mapping request origin or content type");
     const body: unknown = await request.json();
     if (
       !body ||

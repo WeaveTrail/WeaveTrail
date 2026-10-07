@@ -20,6 +20,7 @@ import * as rowShuffle from "./shuffle-source-rows";
 import type { ReplayRequest } from "@weavetrail/contracts";
 import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { replayApproved } from "@weavetrail/replay-engine";
+import { PublicModelBudgetRequired } from "../../lib/public-model-budget";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
 // component-state regression harness, not a browser/hydration assertion.
@@ -270,6 +271,82 @@ describe("configured mapping proposal lifecycle", () => {
       proposal: concentratedBuyDialectAProposal,
       mappingReceipt: "synthetic_receipt",
     });
+
+  it.each(["visitor-limit", "global-limit", "unavailable"] as const)(
+    "shows the validated %s reason and keeps approval blocked",
+    async (reason) => {
+      const view = await configuredView();
+      view.changeScenario("concentrated-buy-dialect-a.csv");
+      const message = new PublicModelBudgetRequired(reason).message;
+      const fetcher = vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message,
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      );
+      vi.stubGlobal("fetch", fetcher);
+      await view.button("Request mapping proposal");
+      expect(view.hasText(message)).toBe(true);
+      expect(view.hasText("Request a new proposal before approval")).toBe(
+        false,
+      );
+      expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+      expect(view.hasText("Configured provider")).toBe(false);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("discards malformed failure messages and stale review responses", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            issues: [{ message: "unvalidated error text" }],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.hasText("unvalidated error text")).toBe(false);
+    expect(view.hasText("Mapping proposal unavailable")).toBe(true);
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const requested = view.button("Request mapping proposal");
+    view.changeScenario(first);
+    pending.resolve(
+      Response.json(
+        {
+          status: "REVIEW_REQUIRED",
+          workflowState: "MAPPING_REVIEW_REQUIRED",
+          issues: [
+            {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+              path: [],
+              message: "stale budget denial",
+            },
+          ],
+        },
+        { status: 422 },
+      ),
+    );
+    await requested;
+    expect(view.hasText("stale budget denial")).toBe(false);
+  });
 
   it("labels the actual provider, requires new approval and sends the receipt with replay", async () => {
     const view = await configuredView();

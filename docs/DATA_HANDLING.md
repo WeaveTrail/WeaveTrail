@@ -24,6 +24,15 @@ Browser code sends request data only to the site API and retains only the langua
 
 Fixture mode uses no database or service snapshot store. Configured public model requests use only the daily budget store described below. Request workflow state lasts one request; browser approvals and results last only the mounted view. Refresh starts unapproved. Pasted-text extraction and checking and share links are not in the current plan, and durable audit history is not implemented. No private store or host is added for withdrawn data.
 
+The mapping route requires `Content-Type: application/json` (an optional
+charset is accepted). If a browser supplies an Origin header, it must match
+the request URL's origin; foreign or opaque origins and safelisted form/text
+content types fail before budget reservation. Requests without Origin still
+require JSON, so a cross-origin browser must preflight. The Case Replay screen
+validates `REVIEW_REQUIRED` responses and shows their issue messages, including
+quota exhaustion or an unavailable store; invalid responses use the generic
+failure message.
+
 ## Daily live model counters
 
 Before a public live model request, the server checks a hosted Redis store

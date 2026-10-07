@@ -17,10 +17,14 @@ const transport = vi.fn<typeof fetch>();
 const storeTransport = vi.fn<typeof fetch>();
 const secret = "synthetic-route-test-secret";
 const model = "synthetic-route-test-model";
-const request = (body: unknown) =>
+const request = (body: unknown, headers: Record<string, string> = {}) =>
   new Request("http://localhost/api/mapping", {
     method: "POST",
-    headers: { "x-vercel-forwarded-for": "192.0.2.1" },
+    headers: {
+      "x-vercel-forwarded-for": "192.0.2.1",
+      "content-type": "application/json",
+      ...headers,
+    },
     body: JSON.stringify(body),
   });
 const completion = (fields: unknown = concentratedBuyDialectAProposal.fields) =>
@@ -77,6 +81,45 @@ afterEach(() => {
 });
 
 describe("configured mapping and replay boundary", () => {
+  it.each([
+    { "content-type": "text/plain", origin: "https://attacker.invalid" },
+    { "content-type": "text/plain" },
+    { "content-type": "application/x-www-form-urlencoded" },
+    { "content-type": "multipart/form-data" },
+    { "content-type": "" },
+    { origin: "https://attacker.invalid" },
+    { origin: "null" },
+    { origin: "http://localhost.attacker.invalid" },
+  ])(
+    "rejects browser-unsafe headers %j before reserving or calling a model",
+    async (headers) => {
+      transport.mockImplementation(async () => completion());
+      const response = await POST(request({ scenario }, headers));
+      expect(response.status).toBe(422);
+      expect(
+        ReplayReviewResponseSchema.parse(await response.json()).status,
+      ).toBe("REVIEW_REQUIRED");
+      expect(storeTransport).not.toHaveBeenCalled();
+      expect(transport).not.toHaveBeenCalled();
+    },
+  );
+
+  it("accepts same-origin JSON with a charset", async () => {
+    transport.mockImplementation(async () => completion());
+    const response = await POST(
+      request(
+        { scenario },
+        {
+          origin: "http://localhost",
+          "content-type": "application/json; charset=utf-8",
+        },
+      ),
+    );
+    expect(response.status).toBe(200);
+    expect(storeTransport).toHaveBeenCalledTimes(1);
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     [1, "Your daily live model request limit"],
     [2, "daily shared live model call limit"],
