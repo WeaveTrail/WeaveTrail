@@ -1,6 +1,10 @@
 # ADR 0048: Bind evidence grades to code-verified declarations
 
-- Status: Accepted
+> The planned wiring of evidence grades into displayed sentences is superseded
+> by [ADR 0061](0061-retire-the-planned-service-components.md). The contract,
+> verifier and presentation primitives below remain implemented.
+
+- Status: Accepted; planned public wiring superseded by ADR 0061
 - Date: 2026-09-16
 
 ## Context

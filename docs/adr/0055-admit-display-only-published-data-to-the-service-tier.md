@@ -3,9 +3,12 @@
 > Historical decision: source-dependent portions are superseded by
 > [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
 > account below describes the withdrawn tier. Generic contracts, synthetic
-> behavior and provenance safeguards remain applicable.
+> behavior and provenance safeguards remain applicable. The display-only
+> service tier, its share surface and host are no longer planned; see
+> [ADR 0061](0061-retire-the-planned-service-components.md).
 
 - Status: Partially superseded by ADR 0056 (committed sources and composition)
+  and ADR 0061 (planned service tier)
 - Date: 2026-09-30
 - Partially supersedes [ADR 0046](0046-retain-public-sources-in-two-provenance-tiers.md)
   and [ADR 0054](0054-record-blocked-data-admission-with-a-coverage-baseline.md)

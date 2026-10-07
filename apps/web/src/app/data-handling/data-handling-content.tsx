@@ -16,10 +16,9 @@ const evidencePaths = {
   documentKo: "docs/DATA_HANDLING.ko.md",
 } as const;
 
-type Evidence = keyof typeof evidencePaths | "share";
+type Evidence = keyof typeof evidencePaths;
 
 export function evidenceUrl(evidence: Evidence, revision: string): string {
-  if (evidence === "share") return `${REPOSITORY}/issues/159`;
   return `${REPOSITORY}/blob/${revision}/${evidencePaths[evidence]}`;
 }
 
@@ -97,17 +96,10 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
         planned: false,
         links: [["Browser boundary test", "browser"]],
       },
-      {
-        question: "Share link",
-        answer:
-          "A share link will carry its values in the URL fragment, which the browser does not send to the server; pasted text will not be stored.",
-        planned: true,
-        links: [["#159", "share"]],
-      },
     ],
     outsideLabel: "Outside the code",
     outside:
-      "The tests check this repository's source, not a deployed build or the hosting account. Pasted-text extraction will send text to a model provider; that change must update the retention test and this page together.",
+      "The tests check this repository's source, not a deployed build or the hosting account. No route plans to take pasted text or share links. In configured mode, the mapping route already sends an eligible synthetic source's columns and sample rows to a model provider. Enabling that call in production is planned and must update the retention test and this page together.",
     fullDocument: ["Full statement with sources", "document"],
   },
   ko: {
@@ -163,17 +155,10 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
         planned: false,
         links: [["브라우저 경계 테스트", "browser"]],
       },
-      {
-        question: "공유 링크",
-        answer:
-          "공유 링크는 값을 URL 조각에 담을 계획입니다. 브라우저는 이 부분을 서버로 보내지 않으며, 붙여넣은 글은 저장하지 않습니다.",
-        planned: true,
-        links: [["#159", "share"]],
-      },
     ],
     outsideLabel: "코드 밖의 범위",
     outside:
-      "테스트는 이 저장소의 소스를 확인하며, 배포된 빌드나 호스팅 계정은 확인하지 않습니다. 붙여넣은 글 분석은 글을 모델 공급자에게 보낼 계획이고, 그 변경은 보관 금지 테스트와 이 페이지를 함께 고쳐야 합니다.",
+      "테스트는 이 저장소의 소스를 확인하며, 배포된 빌드나 호스팅 계정은 확인하지 않습니다. 붙여넣은 글이나 공유 링크를 받을 경로는 계획에 없습니다. 설정된 모드에서는 항목 연결 경로가 이미 허용된 합성 원본의 열과 표본 행을 모델 공급자에게 보냅니다. 운영 배포에서 이 호출을 켜는 일은 계획이며, 그 변경은 보관 금지 테스트와 이 페이지를 함께 고쳐야 합니다.",
     fullDocument: ["출처를 포함한 전체 문서", "documentKo"],
   },
 };

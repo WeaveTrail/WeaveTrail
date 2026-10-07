@@ -20,9 +20,9 @@ Only the mapping route can call a configured provider. It sends eligible synthet
 
 Browser code sends request data only to the site API and retains only the language choice in `localStorage`. It adds no third-party script. Following an external source link is navigation. Platform request logs remain controlled by the hosting account.
 
-## Storage and planned features
+## Storage and features not planned
 
-The web app uses no database or service snapshot store. Request workflow state lasts one request; browser approvals and results last only the mounted view. Refresh starts unapproved. Pasted-text extraction, checking, durable audit history and sharing remain planned. No private store or host is added for withdrawn data.
+The web app uses no database or service snapshot store. Request workflow state lasts one request; browser approvals and results last only the mounted view. Refresh starts unapproved. Pasted-text extraction and checking and share links are not in the current plan, and durable audit history is not implemented. No private store or host is added for withdrawn data.
 
 ## Verification
 

@@ -6,6 +6,17 @@ WeaveTrail separates probabilistic interpretation from authoritative
 calculation. A model can narrow ambiguity; only validated inputs and versioned
 code produce a replay result.
 
+The control line is **AI proposes. Human approves. Code verifies. Evidence
+traces back.** A model holds two roles and no other: field mapping, which runs
+today through the fixture provider and one configured adapter, and a bounded
+case-scope proposal chosen from the `DatasetProfile`, which is planned. The
+planned work measures and restricts those roles: model evaluation (`v0.2.0`),
+measured routing (`v0.3.0`) and bounded case proposals (`v0.4.0`). The
+[README](../README.md#how-it-fits-together) lists what exists in each and what
+is planned. This document describes what exists and marks every planned
+component as planned; it carries no model accuracy, comparison or selection,
+because none has been published.
+
 ## Entry and Case Replay
 
 ![Entry routes and where each one leads](assets/boundary/entry-routes.svg)
@@ -362,7 +373,7 @@ duplicate handling and hash preimages. Engine versions, contracts and committed
 golden expectations are unchanged. See
 [ADR 0049](adr/0049-place-the-canonical-kernel-below-storage.md).
 
-### Planned service component placement
+### Planned component placement
 
 Instrument resolution remains implemented over caller-supplied listings,
 verified with synthetic inputs. The quotation-derived listing, web adapter and
@@ -370,73 +381,38 @@ published coverage endpoints have been withdrawn. Generic claim scope checking
 still accepts a caller-supplied manifest. See [instrument resolution](INSTRUMENT_RESOLUTION.md)
 and [claim scope contracts](COVERAGE.md).
 
-Full claim extraction, computation and the remaining components and packages
-below remain **planned**.
-[ADR 0050](adr/0050-place-planned-service-components.md) records their placement
-rationale. Planned paths are package homes, not existing exports.
-Shared versioned input/output schemas belong to
-`packages/contracts` (tier 0), regardless of the component that uses them.
+The service components [ADR 0050](adr/0050-place-planned-service-components.md)
+placed (collectors, document parsing, event structuring, conclusion
+definitions, feed statistics, claim extraction and checking, and briefs with
+share links) are no longer planned. No package, tier or edge is reserved for
+them. [ADR 0061](adr/0061-retire-the-planned-service-components.md) records why;
+ADR 0050 links to the placement it accepted as a historical record.
 
-These are dependency tiers, not the L1–L4 authority layers. Keep tiers 0–2 in
-the current graph. Reserve tier 3 for collection and tier 4 for application
-composition: `apps/web` moves from 3 to 4 when it imports collectors. `evals`
-remains at 3 with no new dependency in this decision. The diagram above still
-records only existing edges.
+The planned components serve the two model roles and build on what exists:
 
-| Planned component                                                                                                                                                                                  | Package home and module responsibility                                                                                  | Tier                             | Allowed direct runtime workspace imports                                                  |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
-| Collectors ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179), [#180](https://github.com/WeaveTrail/WeaveTrail/issues/180), [#181](https://github.com/WeaveTrail/WeaveTrail/issues/181)) | New `packages/collectors`: shared collector lifecycle, publisher adapters, retries and collection health                | 3                                | `contracts` through collection/snapshot-only entries, `canonical-kernel`, `service-store` |
-| Document parser ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                      | New `packages/document-parser`: HTML/PDF/HWP text, tables and original coordinates                                      | 2                                | `contracts`, `canonical-kernel`                                                           |
-| Event structurer ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                     | Existing `packages/ai-harness`: event proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`                     |
-| Instrument resolver ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                  | Implemented `packages/instrument-resolver`: exact dated names/codes and candidates over a supplied listing              | 2                                | `contracts`, `canonical-kernel`                                                           |
-| Conclusion definitions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186))                                                                                                               | Existing `packages/replay-engine`: versioned descriptive definitions and calculations                                   | 2                                | `contracts`, `canonical-kernel`                                                           |
-| Feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187))                                                                                                                      | Existing `packages/replay-engine`: statistics module reusing conclusion definitions; scheduling and cards in `apps/web` | 2 (calculation), 4 (application) | Engine: `contracts`, `canonical-kernel`; application: the tier 4 list below               |
-| Claim extraction ([#155](https://github.com/WeaveTrail/WeaveTrail/issues/155))                                                                                                                     | Existing `packages/ai-harness`: claim proposal adapters and deterministic quoted-span validation                        | 2                                | `contracts`, `canonical-kernel`; existing fixture imports `scenarios`                     |
-| Claim check ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154))                                                                                                                          | Existing `packages/replay-engine`: recomputation, declared rounding and evidence grading over supplied inputs           | 2                                | `contracts`, `canonical-kernel`                                                           |
-| Brief and share link ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                 | Existing `apps/web`: adoption, bilingual brief/PDF rendering, fragment encoding and reopening                           | 4                                | The tier 4 list below                                                                     |
+| Planned component                       | What exists today that it builds on                                                                                                                                    | Version  |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Mapping runs on any compatible endpoint | The configured OpenAI-compatible adapter and the shared mapping validator                                                                                              | `v0.2.0` |
+| Scoring and a non-model baseline        | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                                                                                            | `v0.2.0` |
+| Model selection                         | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run                                                                          | `v0.2.0` |
+| Proposal routing                        | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
+| Bounded case-scope proposer             | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
 
-The tier 4 application's allowed direct runtime workspace imports are
-`contracts`, `canonical-kernel`, `scenarios`, `service-store`,
-`collectors`, `document-parser`, `ai-harness`, `instrument-resolver` and
-`replay-engine`. Server orchestration, scheduling and presentation are modules
-of `apps/web`; storage, collectors, provider credentials and raw model traces
-remain server-only. A lower tier is necessary but not sufficient permission:
-use only the imports allowed for that package above. Type imports and
-re-exports follow the same direction. In particular, collectors cannot reach
-rules or providers, and the tier 2 packages cannot import one another.
+In the routing path a valid, clear proposal goes to review, an ambiguous or
+rejected one goes once to the escalation model and through the same validator,
+and anything unresolved stops at `REVIEW_REQUIRED`. There are at most two
+calls, the two models' fields are never merged, and no path creates an
+approval. The case-scope proposer is the `PLANNED` component in the chain
+above.
 
-The planned hand-offs make this graph usable without sideways imports:
-
-- A collector takes a store handle from server composition and hands admitted
-  original bytes and reviewed provenance to the existing `service-store`
-  snapshot API. Storage owns immutable insertion, hashing, deduplication and
-  predecessor links. Its existing `collectPublicSource` helper remains the
-  generic admitted-public-source transport; publisher adapters and retry/health
-  policy belong to collectors. Collection health is operational state, not a
-  mutation of an immutable snapshot. No collector runs a rule or model.
-- The server resolves and re-hashes a stored snapshot before passing bytes and
-  its reference to the parser. It passes the parsed document to event
-  structuring, and a resolved, licensed listing plus its snapshot reference to
-  instrument resolution. Neither parser nor resolver opens a store or fetches
-  a URL. The structurer and claim extractor validate model proposals against
-  supplied source spans; they neither approve proposals nor assign final
-  numeric results or evidence grades.
-- The server supplies validated proposals, resolved source rows, coverage,
-  definitions and any required human-approved scope to the engine. The engine
-  reuses its own conclusion definitions for statistics and claim checks;
-  descriptive computation never authorizes a pattern hypothesis. It resolves
-  no store, provider or URL. The server validates domain output before binding
-  it to snapshots through `service-store`; storage does not import the engine.
-- Brief rendering consumes validated results and their evidence. Reopening a
-  fragment resolves pinned committed artifacts and reruns the engine, refusing
-  mismatches; it does not recalculate in a UI component. The planned #159
-  fragment flow stores no pasted text on the server. Links to collected service
-  snapshots remain separate planned work
-  ([#237](https://github.com/WeaveTrail/WeaveTrail/issues/237)).
+Each planned component records its package home and edges here when it lands,
+under the admission rules below. Shared versioned input/output schemas belong
+to `packages/contracts` (tier 0), regardless of the component that uses them.
+Provider credentials and raw model traces remain server-only.
 
 ### Admission of a new package
 
-Before adding one of these packages, its implementation must:
+Before adding a package, its implementation must:
 
 1. Declare a workspace manifest and a published entry point in `exports`
    (including any deliberately public subpaths). “Published” means an exported
@@ -446,8 +422,8 @@ Before adding one of these packages, its implementation must:
 2. Record its numeric tier and every direct dependency in this document and the
    dependency figure. Every workspace edge, including development dependencies,
    type imports and re-exports, must point strictly down; no sideways edge,
-   upward edge or cycle is allowed. A new dependency outside the lists above
-   requires updating the placement decision, not just picking a lower tier.
+   upward edge or cycle is allowed. A new dependency requires recording its
+   placement here first, not just picking a lower tier.
 3. Preserve the storage/decision boundary through the transitive source graph.
    Add narrow contract exports when needed so collection and storage cannot
    load decision vocabulary through a contracts barrel. Extend the relevant
@@ -530,7 +506,7 @@ rules.
 
 ## Deployment boundary
 
-![What the deployment runs and what the service tier still needs](assets/boundary/deployment-boundary.svg)
+![What the deployment runs, and what stays outside it](assets/boundary/deployment-boundary.svg)
 
 See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 [service snapshot operations](SERVICE_SNAPSHOTS.md).
