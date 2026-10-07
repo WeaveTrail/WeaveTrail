@@ -388,15 +388,24 @@ share links) are no longer planned. No package, tier or edge is reserved for
 them. [ADR 0061](adr/0061-retire-the-planned-service-components.md) records why;
 ADR 0050 links to the placement it accepted as a historical record.
 
+Mapping runs through one configurable Chat Completions transport in
+`packages/ai-harness` on its server-only export. `packages/evals` owns the
+configuration list, sanitized `mapping-run/1` binder and explicit local smoke
+command. It uses its existing downward dependencies on contracts, ai-harness,
+scenarios and replay-engine; no browser or new workspace edge is added.
+The command requires keys and `--live`, refuses CI, and writes records and
+separate receipts to ignored local `dist/`. Neither it nor default checks
+read HELD_OUT inputs or score models. See
+[ADR 0062](adr/0062-run-mapping-through-one-configurable-chat-completions-adapter.md).
+
 The planned components serve the two model roles and build on what exists:
 
-| Planned component                       | What exists today that it builds on                                                                                                                                    | Version  |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| Mapping runs on any compatible endpoint | The configured OpenAI-compatible adapter and the shared mapping validator                                                                                              | `v0.2.0` |
-| Scoring and a non-model baseline        | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                                                                                            | `v0.2.0` |
-| Model selection                         | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run                                                                          | `v0.2.0` |
-| Proposal routing                        | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
-| Bounded case-scope proposer             | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
+| Planned component                | What exists today that it builds on                                                                                                                                    | Version  |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Scoring and a non-model baseline | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                                                                                            | `v0.2.0` |
+| Model selection                  | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run                                                                          | `v0.2.0` |
+| Proposal routing                 | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
+| Bounded case-scope proposer      | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
 
 In the routing path a valid, clear proposal goes to review, an ambiguous or
 rejected one goes once to the escalation model and through the same validator,

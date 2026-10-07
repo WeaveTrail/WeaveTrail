@@ -29,6 +29,7 @@
     "diagram:fonts": "python3 scripts/embed-figure-fonts.py",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm adr:check && pnpm adr:test && pnpm figures:check && pnpm figures:test && pnpm format:check",
     "eval": "node scripts/run-evaluation.mjs",
+    "eval:models": "node --import tsx packages/evals/src/run-mapping-models.ts",
     "eval:schemas:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-schema-dialects.mjs"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "eslint": "^9.36.0",
     "eslint-config-next": "16.3.5",
     "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.70.1",
     "vitest": "^5.0.2"

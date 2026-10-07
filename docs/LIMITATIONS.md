@@ -19,8 +19,9 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   sealed synthetic DEV and HELD_OUT schema-dialect set, the run-record
   contract, the validator probes and the [AI failure log](AI_FAILURE_LOG.md)
   exist. No model has been run against the held-out set, so no model accuracy,
-  comparison, cost or selection is published. Running the mapping task on any
-  OpenAI-compatible endpoint, scoring beside a non-model baseline, a selection
+  comparison, cost or selection is published. A configuration-driven
+  Chat Completions adapter and explicit local smoke command with sanitized
+  records exist, verified offline only. Scoring beside a non-model baseline, a selection
   rule fixed before the held-out run, routing to one escalation model, bounded
   case-scope proposals and a daily limit on live model calls are planned. A
   future comparison will hold for its synthetic set, prompt version, date and
