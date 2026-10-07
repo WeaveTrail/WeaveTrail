@@ -85,6 +85,27 @@ describe("configured selection", () => {
     },
   );
 
+  it.each([
+    "https://provider.invalid",
+    "https://provider.invalid/",
+    "https://provider.invalid///",
+    "https://provider.invalid/./",
+    "https://provider.invalid/v1/..",
+  ])("rejects a missing API path before transport: %s", (baseUrl) => {
+    expect(() =>
+      readProviderConfiguration({ ...env, AI_PROVIDER_BASE_URL: baseUrl }),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+    const transport = vi.fn<typeof fetch>();
+    expect(
+      () =>
+        new ConfiguredSchemaMappingProvider(
+          { ...configuration, baseUrl },
+          transport,
+        ),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+    expect(transport).not.toHaveBeenCalled();
+  });
+
   it("accepts provider-owned model namespaces without a vendor registry", () => {
     expect(
       readProviderConfiguration({

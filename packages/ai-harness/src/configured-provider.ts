@@ -71,6 +71,7 @@ export function validateProviderConfiguration(
     const url = new URL(baseUrl);
     if (
       url.protocol !== "https:" ||
+      url.pathname.replace(/\/+$/, "") === "" ||
       url.username ||
       url.password ||
       url.search ||

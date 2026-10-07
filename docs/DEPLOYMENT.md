@@ -175,6 +175,8 @@ base URL with no credentials, query or fragment. Include the API path:
 [compatibility documentation](https://ai.google.dev/gemini-api/docs/openai),
 `https://generativelanguage.googleapis.com/v1beta/openai`. Trailing slashes
 are normalized; the adapter appends `/chat/completions` to that path.
+Origin-only URLs and paths that normalize to the root are rejected before a
+provider call; there is no automatic `/v1` fallback.
 Changing provider or model requires configuration alone. Use an immutable,
 pinned ID from the provider's catalogue: `latest` aliases, `auto` and `default`
 are rejected locally, but arbitrary vendor aliases cannot be proven immutable

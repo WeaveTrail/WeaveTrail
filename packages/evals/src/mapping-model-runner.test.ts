@@ -404,6 +404,27 @@ describe("explicit evaluation configuration", () => {
       expect(transport).not.toHaveBeenCalled();
     },
   );
+  it("rejects origin-only evaluation configuration before a call", async () => {
+    const baseUrl = "https://provider.invalid";
+    expect(() =>
+      readEvaluationModels({
+        ...env,
+        AI_EVALUATION_MODELS: JSON.stringify([
+          {
+            provider: model.provider,
+            baseUrl,
+            model: model.model,
+            apiKeyEnv: "TEST_KEY",
+          },
+        ]),
+      }),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+    const transport = vi.fn<typeof fetch>();
+    await expect(
+      runConfiguredMapping({ ...model, baseUrl }, input, context, transport),
+    ).rejects.toThrow(PROVIDER_REVIEW_MESSAGE);
+    expect(transport).not.toHaveBeenCalled();
+  });
   it("requires an explicit live command and rejects CI even with keys", () => {
     expect(() => requireLiveMappingCommand([], env)).toThrow("requires --live");
     expect(() =>

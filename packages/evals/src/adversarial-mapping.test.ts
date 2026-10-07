@@ -15,7 +15,7 @@ import {
 
 const provider = new HostileMappingFixtureProvider();
 const configuration = {
-  baseUrl: "https://hostile.invalid",
+  baseUrl: "https://hostile.invalid/v1",
   apiKey: "synthetic-offline-secret",
   model: "synthetic-offline-model",
 };

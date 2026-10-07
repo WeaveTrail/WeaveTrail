@@ -49,7 +49,9 @@ membership and seals; the smoke CLI binds its registered source artifact hash.
 ## Migration and limits
 
 Change origin-only local base URLs to include their API path (usually `/v1`).
-Trailing slashes are accepted. Existing HTTP proposal/approval contracts and
+Origin-only URLs and paths that normalize to the root are rejected before
+transport; `/v1` is never inferred. Trailing slashes on a non-root API path
+are accepted. Existing HTTP proposal/approval contracts and
 the `mapping-run/1` contract are unchanged. `StructuredOutputClient.generate`
 now returns the internal sanitized attempt; proposal callers use `propose`.
 No raw storage, vendor SDK, routing, live quality claim or deployment is added.
