@@ -36,7 +36,8 @@ null outputs cannot establish that these behaviors were absent.
 Use BigInt for metrics, token products, rational comparisons and cost. Serialize
 integer counts as decimal strings. Price entries bind exact provider/requested/
 reported identities, including explicit null if appropriate, in a dated,
-versioned table with provenance. Round the summed micro-USD amount upward once;
+versioned table with provenance. Round each reported-model identity's summed micro-USD amount upward once, then
+sum those amounts for the requested-model group;
 report known-cost coverage. No implicit free price or inferred missing usage.
 
 Rank only strict accuracy, for matching inventories and repeat IDs with at least

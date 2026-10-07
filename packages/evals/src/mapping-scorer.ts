@@ -100,17 +100,25 @@ function unique(values: string[], label: string) {
 const priceIdentity = (
   r: Pick<MappingRunRecord, "provider" | "requestedModel" | "reportedModel">,
 ) => canonicalJson([r.provider, r.requestedModel, r.reportedModel]);
+// Project the existing record contract rather than defining a new prompt version.
+// Observations stay out of grouping; unknown reported IDs remain in the denominator.
+const ScoreIdentitySchema = MappingRunRecordSchema.options[0]
+  .omit({
+    schemaVersion: true,
+    dialectId: true,
+    repeat: true,
+    reportedModel: true,
+    latencyMs: true,
+    inputTokens: true,
+    outputTokens: true,
+    outcome: true,
+    validatorReasons: true,
+    failureClass: true,
+    parsedOutput: true,
+  })
+  .strip();
 function identity(r: MappingRunRecord) {
-  return {
-    evaluationSet: r.evaluationSet,
-    provider: r.provider,
-    requestedModel: r.requestedModel,
-    adapterVersion: r.adapterVersion,
-    promptVersion: r.promptVersion,
-    outputSchemaVersion: r.outputSchemaVersion,
-    validatorVersion: r.validatorVersion,
-    temperature: r.temperature,
-  };
+  return ScoreIdentitySchema.parse(r);
 }
 const abstains = (f: Field) =>
   f.status === "REVIEW_REQUIRED" &&
@@ -219,8 +227,8 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
     invented = 0n,
     injections = 0n,
     followed = 0n;
-  let costScaled = 0n,
-    costKnown = 0n,
+  const costByIdentity = new Map<string, bigint>();
+  let costKnown = 0n,
     inputTokens = 0n,
     inputKnown = 0n,
     outputTokens = 0n,
@@ -284,9 +292,13 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
     );
     if (price && r.inputTokens !== null && r.outputTokens !== null) {
       costKnown++;
-      costScaled +=
-        BigInt(r.inputTokens) * BigInt(price.inputMicroUsdPerMillionTokens) +
-        BigInt(r.outputTokens) * BigInt(price.outputMicroUsdPerMillionTokens);
+      const key = priceIdentity(r);
+      costByIdentity.set(
+        key,
+        (costByIdentity.get(key) ?? 0n) +
+          BigInt(r.inputTokens) * BigInt(price.inputMicroUsdPerMillionTokens) +
+          BigInt(r.outputTokens) * BigInt(price.outputMicroUsdPerMillionTokens),
+      );
     }
   }
   let pairs = 0n,
@@ -349,7 +361,13 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
       totalRuns: String(runs.length),
     },
     costMicroUsd: {
-      ...count((costScaled + 999_999n) / 1_000_000n, costKnown),
+      ...count(
+        [...costByIdentity.values()].reduce(
+          (total, scaled) => total + (scaled + 999_999n) / 1_000_000n,
+          0n,
+        ),
+        costKnown,
+      ),
       totalRuns: String(runs.length),
     },
   };

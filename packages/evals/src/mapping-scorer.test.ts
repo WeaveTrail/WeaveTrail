@@ -218,6 +218,58 @@ describe("offline mapping score/1", () => {
       all(runs, { ...table, entries: [...table.entries, table.entries[0]] }),
     ).toThrow("Duplicate price");
   });
+  it("rounds each priced reported-model cohort before summing the requested-model cost", () => {
+    const runs = oracle().map((r, index) => ({
+      ...r,
+      reportedModel: index === 0 ? "reported-a" : "reported-b",
+      inputTokens: 1,
+      outputTokens: 1,
+    }));
+    const table = {
+      ...prices,
+      entries: runs.map((r) => ({
+        provider: r.provider,
+        requestedModel: r.requestedModel,
+        reportedModel: r.reportedModel,
+        inputMicroUsdPerMillionTokens: "200000",
+        outputMicroUsdPerMillionTokens: "200000",
+      })),
+    };
+    expect(score(runs, table).groups).toHaveLength(1);
+    expect(all(runs, table).costMicroUsd).toEqual({
+      ...c(2, 2),
+      totalRuns: "2",
+    });
+    expect(all([...runs].reverse(), table).costMicroUsd).toEqual(
+      all(runs, table).costMicroUsd,
+    );
+    // Repeats of one returned identity must still round only once.
+    expect(
+      all(
+        runs.map((r) => ({ ...r, reportedModel: "reported-a" })),
+        table,
+      ).costMicroUsd,
+    ).toEqual({ ...c(1, 2), totalRuns: "2" });
+    // Explicit null is a separate priced identity; missing prices stay unavailable.
+    expect(
+      all(
+        runs.map((r, i) => ({
+          ...r,
+          reportedModel: i === 0 ? null : r.reportedModel,
+        })),
+        {
+          ...table,
+          entries: table.entries.map((p, i) => ({
+            ...p,
+            reportedModel: i === 0 ? null : p.reportedModel,
+          })),
+        },
+      ).costMicroUsd,
+    ).toEqual({ ...c(2, 2), totalRuns: "2" });
+    expect(
+      all(runs, { ...table, entries: table.entries.slice(0, 1) }).costMicroUsd,
+    ).toEqual({ ...c(1, 1), totalRuns: "2" });
+  });
   it("shares the scorer with non-model record producers without an identity special case", () => {
     const runs = oracle().map((r) => ({
       ...r,

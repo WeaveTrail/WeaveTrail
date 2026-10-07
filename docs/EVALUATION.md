@@ -447,7 +447,7 @@ prose never earn correctness.
 | Consistency across repeats | Pairs of `VALID` runs for the same dialect with equal sorted source/target/transform/status multisets                                | All unordered repeat pairs for that dialect, including invalid pairs                                         |
 | Latency p50/p95            | Observed milliseconds at nearest rank `ceil(N * p / 100)` in sorted latency values                                                   | Number of latency observations, including failed attempts; this is a quantile with sample count, not a ratio |
 | Input/output tokens        | Sum of known counts, independently by token direction                                                                                | Runs with a known count in that direction; `totalRuns` exposes missing coverage                              |
-| Cost, integer micro-USD    | Ceiling of the sum of exact input/output token-price products divided by 1,000,000                                                   | Runs with both token counts and an exact price entry; `totalRuns` exposes missing coverage                   |
+| Cost, integer micro-USD    | Sum of per-reported-model ceilings of exact input/output token-price products divided by 1,000,000                                   | Runs with both token counts and an exact price entry; `totalRuns` exposes missing coverage                   |
 
 Strict accuracy deliberately excludes correct abstentions from its numerator
 and denominator. The two abstention metrics always appear together, beside
@@ -473,7 +473,10 @@ Prices are integer micro-USD per million tokens. The strict table records a
 version, ISO date, provenance and unique provider/requested/reported-model
 entries. Null reported identity needs an explicit matching entry; unknown
 usage or missing prices are not free runs. Cost rounds upward once per reported
-cohort after summing products, not once per token or request. Repricing changes
+model identity after summing its products, then sums those rounded amounts
+for the requested-model group; never round per token or request. Two returned
+identities costing 0.4 micro-USD each therefore total 2 micro-USD, while two
+requests for the same identity costing 0.4 each total 1 (illustrative). Repricing changes
 the price-table hash and summary; it never alters run records. The committed
 table has synthetic tariffs only. A non-model producer with no token
 observations has unavailable token cost, not inferred zero model usage.
