@@ -16,11 +16,14 @@ private store or host is planned for those sources. See
 - Reviewed authenticated collectors may call
   `storeSnapshot(bytes, { source, retrievedAt })` after enforcing their own
   credential-echo and source-admission guards. No repository collector is currently connected to this API. No real source is retrieved or committed.
-- Every admitted source currently needs a storage, modification and
-  redistribution right. A display-only grade, for data a rights holder permits
-  to store, compute and show on screen but not to redistribute, is accepted and
-  planned ([ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md));
-  the contract does not accept it yet.
+- Every admitted source needs a storage, modification and redistribution
+  right. The contract does not accept a display-only grade, for data a rights
+  holder permits to store, compute and show on screen but not to redistribute,
+  and no display-only service tier is planned
+  ([ADR 0061](adr/0061-retire-the-planned-service-components.md)). The
+  admission and display-only rules of
+  [ADR 0055](adr/0055-admit-display-only-published-data-to-the-service-tier.md)
+  still apply to any source the store might admit.
 
 ## Identities and immutable records
 
