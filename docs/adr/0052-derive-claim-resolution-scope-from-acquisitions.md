@@ -3,11 +3,14 @@
 > Historical decision: source-dependent portions are superseded by
 > [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
 > account below describes the withdrawn tier. Generic contracts, synthetic
-> behavior and provenance safeguards remain applicable.
+> behavior and provenance safeguards remain applicable. The claim checker,
+> sentence evidence and claim-check screen it calls planned are no longer
+> planned; see [ADR 0061](0061-retire-the-planned-service-components.md).
 
 ## Status
 
-Partially superseded by ADR 0056 for the committed real-data tier.
+Partially superseded by ADR 0056 for the committed real-data tier, and by
+ADR 0061 for the planned claim-check work.
 The following status is historical:
 
 Accepted.

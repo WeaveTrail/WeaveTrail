@@ -50,6 +50,23 @@ This supersedes the remaining placement decisions of ADR 0050. Its text is
 retained as a historical record; the placement matrix it adopted is pinned at
 the last architecture revision that carried it.
 
+It also supersedes the planned work other records still name for the retired
+service:
+
+- [ADR 0048](0048-bind-evidence-grades-to-code-verified-declarations.md):
+  wiring validated declarations, badges and a tally into every displayed
+  sentence is no longer planned. The implemented Evidence Grade contract,
+  verifier and presentation primitives remain as they are.
+- [ADR 0052](0052-derive-claim-resolution-scope-from-acquisitions.md): the
+  full claim checker, numeric definition binding, text extraction, sentence
+  evidence and the claim-check screen are no longer planned. Generic claim
+  scope checking over a caller-supplied manifest remains.
+- [ADR 0055](0055-admit-display-only-published-data-to-the-service-tier.md):
+  moving sources to a display-only service tier, its response and share
+  surface, and a persistent host for the store and collector are no longer
+  planned. Its admission and display-only rules stay in force for any source
+  the service store might admit.
+
 ## Consequences
 
 - The architecture document lists only existing edges and the planned
