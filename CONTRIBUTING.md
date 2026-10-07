@@ -33,6 +33,12 @@ It never updates expectations. See [the evaluation protocol](docs/EVALUATION.md)
 for case definitions, captured results and limits. Its publication assertion also
 runs in `pnpm test`; CI runs the command to exercise receipt generation.
 
+`pnpm eval:mappings:score` re-scores the committed synthetic mapping-run records
+against sealed gold and a dated synthetic price table, then verifies the committed
+summary byte for byte. Its regression tests also run in `pnpm test`. These are
+scorer fixtures, not model performance measurements; see the
+[mapping metric definitions](docs/EVALUATION.md#offline-mapping-run-scoring).
+
 Earlier evaluation captures with withdrawn sources remain historical records.
 The current `pnpm eval` verifies synthetic-only v3; see [the evaluation protocol](docs/EVALUATION.md).
 

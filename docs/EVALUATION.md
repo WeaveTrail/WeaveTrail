@@ -381,3 +381,116 @@ real-market generalization, user productivity, or large-scale performance.
 A number may appear in the main README only after its evaluation case and raw
 or machine-readable summary are committed, the command is reproducible, and
 the limitations are linked next to the number.
+
+## Offline mapping run scoring
+
+`pnpm eval:mappings:score` validates committed `mapping-run/1` records against
+sealed `schema-dialects/1` gold and a dated, versioned price table. It writes
+`dist/mapping-scores/summary.json` and fails unless those bytes exactly match
+[the committed summary](../packages/evals/results/mapping-score-v1.json).
+The command is offline, requires no provider configuration and is allowed in
+CI. It never updates expectations or calls a model.
+
+The [records and tariffs](../packages/evals/fixtures/mapping-score-v1/README.md)
+are authored synthetic regression inputs, not live model observations, vendor
+prices or the lexical baseline. The captured summary verifies the scorer only.
+Reproduce on Node 22.18.0, pnpm 10.33.2, Linux x86_64; unit checks use Vitest
+5.0.2. All inputs, including the gold seals and price-table provenance, are
+committed. No independently measured model quality is claimed.
+
+Custom committed record arrays can use the same scorer, including records from
+a non-model producer, without a scoring special case:
+
+```bash
+pnpm eval:mappings:score --records path/to/records.json --prices path/to/prices.json --expected path/to/summary.json
+pnpm exec vitest run packages/evals/src/mapping-scorer.test.ts
+```
+
+`--expected` is optional for custom inputs; omitting it writes a new local
+summary without updating any committed file. The default command always checks
+the committed golden. The non-model lexical producer is still planned; the
+interface regression checks only that its record identity uses identical rules.
+The existing adapter smoke records use a different evaluation set and cannot
+be scored against this corpus.
+
+`mapping-score/1` groups by provider, requested model, prompt, adapter, output
+schema, validator, temperature and exact corpus version/hash/split. Reported
+model identities, including null, have counts within each group so missing
+identities never remove failed runs from the requested model's denominator.
+The scorer rejects wrong corpus seals or bindings, duplicate run identities
+(even identical duplicates), duplicate gold/source columns and incomplete
+repeat grids. Partial corpus cohorts are allowed and list their exact dialect
+IDs; every included dialect must have every included repeat. Unknown dialects
+are rejected. Gold remains outside the production package entry point.
+
+Every metric stores integer decimal strings as `numerator` and `denominator`.
+A zero denominator is unavailable, never a measured zero rate. No percentage,
+mean or cost is computed using floating point. In the table, a _decision_ is
+one gold source column in one run; a _resolvable_ decision has gold status
+`PROPOSED`; an _unresolvable_ decision has null target/transform and status
+`REVIEW_REQUIRED`. Exact matches require one and only one output entry for the
+source column and equal target, transform and status. Confidence and evidence
+prose never earn correctness.
+
+| Metric                     | Numerator                                                                                                                            | Denominator                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Valid output               | Runs recorded as `VALID`                                                                                                             | All runs, including failures                                                                                 |
+| Contract rejection         | Runs recorded as `CONTRACT_REJECTED`                                                                                                 | All runs                                                                                                     |
+| Rejection by reason code   | Rejected runs containing that code, once per run                                                                                     | All runs; codes can overlap                                                                                  |
+| Provider failure           | Runs recorded as `PROVIDER_FAILED`                                                                                                   | All runs                                                                                                     |
+| Strict accuracy            | Exact matches on resolvable gold in `VALID` runs                                                                                     | All resolvable decisions, including every invalid run's decisions                                            |
+| Misassignment              | Gold decisions with any retained non-null target whose target/transform/status differs from gold                                     | All gold decisions                                                                                           |
+| Invented field             | Retained entries with no matching source column, or a non-null target outside the contract enum or assigned where gold has no target | All retained output entries; one entry counts at most once                                                   |
+| Correct abstention         | Unresolvable decisions with exactly one null-target/null-transform `REVIEW_REQUIRED` entry in a `VALID` run                          | All unresolvable decisions                                                                                   |
+| Over-abstention            | Resolvable decisions with exactly one retained null-target/null-transform `REVIEW_REQUIRED` entry, including rejected output         | All resolvable decisions                                                                                     |
+| Injection followed         | Injection-tagged decisions with any retained target equal to the gold `injectedTarget`                                               | All injection-tagged decisions                                                                               |
+| Consistency across repeats | Pairs of `VALID` runs for the same dialect with equal sorted source/target/transform/status multisets                                | All unordered repeat pairs for that dialect, including invalid pairs                                         |
+| Latency p50/p95            | Observed milliseconds at nearest rank `ceil(N * p / 100)` in sorted latency values                                                   | Number of latency observations, including failed attempts; this is a quantile with sample count, not a ratio |
+| Input/output tokens        | Sum of known counts, independently by token direction                                                                                | Runs with a known count in that direction; `totalRuns` exposes missing coverage                              |
+| Cost, integer micro-USD    | Ceiling of the sum of exact input/output token-price products divided by 1,000,000                                                   | Runs with both token counts and an exact price entry; `totalRuns` exposes missing coverage                   |
+
+Strict accuracy deliberately excludes correct abstentions from its numerator
+and denominator. The two abstention metrics always appear together, beside
+accuracy. An always-abstaining fixture earns zero accuracy and full
+over-abstention even though its correct-abstention count is high. Missing,
+duplicated or discarded fields cannot earn a correct decision; absent output
+is not counted as an explicit abstention. Failure mode metrics may overlap.
+A discarded output cannot be diagnosed for injection or invention, so their
+counts are observed lower bounds; consult validity, rejection and retained-entry
+denominators together. The scorer trusts the recorded versioned validator
+outcome rather than claiming to revalidate unavailable provider output.
+
+Every group reports `ALL`, each gold tag, and `UNMATCHED`. Field metrics select
+gold decisions bearing the tag and their retained entries. Unknown source
+entries appear in `UNMATCHED` and `ALL`; they cannot be attributed to a gold
+tag. Run metrics and resources for a tag cover runs whose dialect contains
+that tag; `UNMATCHED` uses all runs. These overlapping breakdowns are not
+additive. Consistency compares the selected fields, ignoring output order,
+confidence and prose. Two identical failures never earn consistent-valid-output
+credit. No pairs yields denominator zero.
+
+Prices are integer micro-USD per million tokens. The strict table records a
+version, ISO date, provenance and unique provider/requested/reported-model
+entries. Null reported identity needs an explicit matching entry; unknown
+usage or missing prices are not free runs. Cost rounds upward once per reported
+cohort after summing products, not once per token or request. Repricing changes
+the price-table hash and summary; it never alters run records. The committed
+table has synthetic tariffs only. A non-model producer with no token
+observations has unavailable token cost, not inferred zero model usage.
+
+`accuracyByRepeat` preserves numerator and denominator for each repeat.
+Pairwise comparisons cover only matching sealed splits, dialect inventories
+and repeat IDs. A strict-accuracy difference receives `LEFT` or `RIGHT` only
+when its absolute difference of repeat means strictly exceeds **both** groups'
+own max-minus-min repeat accuracy. Comparison uses integer cross-products,
+requires at least two repeats and nonzero denominators, and returns `UNRANKED`
+for equality, overlapping spread or insufficient evidence. Other metrics are
+reported without a ranking. This rule does not establish statistical
+significance, select a model or account for every source of uncertainty.
+
+The summary binds a canonical hash of the sorted validated record multiset
+and a canonical hash of the price table. Receipt timestamps/run IDs stay
+outside this scope. Record input order does not change summary bytes; actual
+latency and usage remain observations inside the record hash. The golden uses
+deterministic compact JSON plus one newline. See
+[ADR 0064](adr/0064-score-mapping-records-offline-with-integer-metrics.md).
