@@ -238,8 +238,11 @@ describe("percentage guard", () => {
 });
 
 // Until a model comparison is published with its definition, command and
-// environment, the entry points carry no model figure. Remove this check in
-// the change that publishes one, alongside its evaluation definition.
+// environment, the entry points carry no percentage at all. The check is
+// deliberately blanket: telling a model figure from any other percentage by
+// its wording would let a rephrased claim through. A change that needs a
+// supported percentage in an entry point replaces this check together with
+// the evaluation definition behind it.
 describe.each([
   "README.md",
   "README.ko.md",
@@ -248,7 +251,7 @@ describe.each([
   "docs/LIMITATIONS.md",
   "docs/LIMITATIONS.ko.md",
 ])("%s", (path) => {
-  it("carries no model percentage before an evaluation is published", () => {
+  it("carries no percentage before an evaluation is published", () => {
     const prose = read(path).replace(/\]\([^)]*\)|https?:\/\/\S+/g, "");
     expect(prose).not.toMatch(PERCENTAGE);
   });

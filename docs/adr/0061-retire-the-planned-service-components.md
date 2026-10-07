@@ -75,7 +75,8 @@ service:
   ADR 0050.
 - `entry-point-parity.test.ts` checks that both readme languages state the
   control line and the two roles, that later plan versions read as planned,
-  and that no entry point carries a model percentage.
+  and that no entry point carries any percentage until an evaluation is
+  published.
 
 ## Verification
 
