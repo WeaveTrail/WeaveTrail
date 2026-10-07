@@ -19,7 +19,7 @@ const input = {
   sampleRows: source.rows.map((row) => row.values),
 };
 const configuration = {
-  baseUrl: "https://provider.invalid",
+  baseUrl: "https://provider.invalid/v1",
   apiKey: "synthetic-test-secret",
   model: "test-mapping-model",
 };
@@ -62,13 +62,57 @@ describe("configured selection", () => {
     { AI_PROVIDER_BASE_URL: "" },
     { AI_PROVIDER_BASE_URL: "http://provider.invalid" },
     { AI_PROVIDER_BASE_URL: "https://user:secret@provider.invalid" },
-    { AI_PROVIDER_BASE_URL: "https://provider.invalid/v1" },
+    { AI_PROVIDER_BASE_URL: "https://provider.invalid/v1?" },
+    { AI_PROVIDER_BASE_URL: "https://provider.invalid/v1#" },
+    { AI_PROVIDER_MODEL: "model-latest" },
     { AI_PROVIDER_BASE_URL: "https://provider.invalid?secret=value" },
     { AI_PROVIDER_BASE_URL: "https://provider.invalid#fragment" },
   ])("hides invalid configuration %j", (change) => {
     expect(() => readProviderConfiguration({ ...env, ...change })).toThrow(
       PROVIDER_REVIEW_MESSAGE,
     );
+  });
+
+  it.each(["/v1", "/v1/", "/v1beta/openai/"])(
+    "accepts and normalizes configured API path %s",
+    (path) => {
+      expect(
+        readProviderConfiguration({
+          ...env,
+          AI_PROVIDER_BASE_URL: `https://provider.invalid${path}`,
+        }).baseUrl,
+      ).toBe(`https://provider.invalid${path.replace(/\/$/, "")}`);
+    },
+  );
+
+  it.each([
+    "https://provider.invalid",
+    "https://provider.invalid/",
+    "https://provider.invalid///",
+    "https://provider.invalid/./",
+    "https://provider.invalid/v1/..",
+  ])("rejects a missing API path before transport: %s", (baseUrl) => {
+    expect(() =>
+      readProviderConfiguration({ ...env, AI_PROVIDER_BASE_URL: baseUrl }),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+    const transport = vi.fn<typeof fetch>();
+    expect(
+      () =>
+        new ConfiguredSchemaMappingProvider(
+          { ...configuration, baseUrl },
+          transport,
+        ),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+    expect(transport).not.toHaveBeenCalled();
+  });
+
+  it("accepts provider-owned model namespaces without a vendor registry", () => {
+    expect(
+      readProviderConfiguration({
+        ...env,
+        AI_PROVIDER_MODEL: "@vendor/family/model-v1",
+      }).model,
+    ).toBe("@vendor/family/model-v1");
   });
 });
 
@@ -95,6 +139,7 @@ describe("configured mapping adapter with mocked transport", () => {
     expect(init?.signal).toBeInstanceOf(AbortSignal);
     const body = JSON.parse(init!.body as string);
     expect(body.response_format.json_schema.strict).toBe(true);
+    expect(body.temperature).toBe(0);
     expect(body).not.toHaveProperty("tools");
     expect(body.store).toBe(false);
     expect(JSON.parse(body.messages[1].content)).toEqual({

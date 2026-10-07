@@ -148,14 +148,15 @@ Page preparation and builds never call the provider. Its configuration is:
 
 The adapter reads these binding configuration names only on the server:
 
-| Variable               | Meaning                                                          | Boundary                                                                              |
-| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `AI_MODE`              | `fixture` (the default) or `ai`                                  | Server-only selection; the presence of the other variables does not select a provider |
-| `AI_PROVIDER_BASE_URL` | HTTPS origin for an OpenAI-compatible structured-output endpoint | Server-only; never public-prefixed or sent to the browser                             |
-| `AI_PROVIDER_API_KEY`  | Credential for that endpoint                                     | Secret, server-only; never public-prefixed, logged, or sent to the browser            |
-| `AI_PROVIDER_MODEL`    | Provider model identifier                                        | Server-only configuration; never public-prefixed or sent to the browser               |
+| Variable               | Meaning                                                                              | Boundary                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `AI_MODE`              | `fixture` (the default) or `ai`                                                      | Server-only selection; the presence of the other variables does not select a provider |
+| `AI_PROVIDER_BASE_URL` | HTTPS base URL including the API path for Chat Completions                           | Server-only; never public-prefixed or sent to the browser                             |
+| `AI_PROVIDER_API_KEY`  | Credential for that endpoint                                                         | Secret, server-only; never public-prefixed, logged, or sent to the browser            |
+| `AI_PROVIDER_MODEL`    | Pinned provider model identifier; `-latest` aliases rejected                         | Server-only configuration; never public-prefixed or sent to the browser               |
+| `AI_EVALUATION_MODELS` | JSON array of `{ provider, baseUrl, model, apiKeyEnv }` for the manual model command | Local/server only; `apiKeyEnv` names a separately supplied secret variable            |
 
-Do not create a `NEXT_PUBLIC_` variant of any of them. Leave all four unset in
+Do not create a `NEXT_PUBLIC_` variant of any of them. Leave all provider variables unset in
 CI, Preview, and Production. A future deployment may opt into `AI_MODE=ai` only as
 an explicit environment choice; merely making provider configuration available
 must leave the default fixture reviewer path and its published expected results
@@ -169,8 +170,23 @@ Do not add either the old or new names to a deployed environment in this change.
 For a local configured request, set the selector and all three provider values
 in the server environment, run `pnpm dev`, open working mode, choose Dialect A
 or B, and select **Request mapping proposal**. The base URL must be an HTTPS
-origin with no credentials, path, query or fragment. The adapter appends
-`/v1/chat/completions` and requires strict JSON-schema structured output.
+base URL with no credentials, query or fragment. Include the API path:
+`https://api.openai.com/v1` or, as in Google's
+[compatibility documentation](https://ai.google.dev/gemini-api/docs/openai),
+`https://generativelanguage.googleapis.com/v1beta/openai`. Trailing slashes
+are normalized; the adapter appends `/chat/completions` to that path.
+Origin-only URLs and paths that normalize to the root are rejected before a
+provider call; there is no automatic `/v1` fallback.
+Changing provider or model requires configuration alone. Use an immutable,
+pinned ID from the provider's catalogue: `latest` aliases, `auto` and `default`
+are rejected locally, but arbitrary vendor aliases cannot be proven immutable
+by their spelling. The operator must verify the chosen ID's pinning.
+The same instruction and strict `json_schema` request are sent for every model,
+with temperature 0, no tools, no redirects and no adapter retries. Both success
+and error bodies are limited to 64 KiB; the deadline for transport and body
+consumption together is 30 seconds. The shared validator, rather than the
+endpoint's strict-mode promise, is the acceptance gate. Unsupported strict
+mode fails closed; the adapter never downgrades to JSON mode.
 No call happens on page load. A successful, validated response reveals its
 actual **Configured provider** label and enables explicit mapping approval.
 Provider mode is recorded with the model identifier and prompt version on the
@@ -179,6 +195,40 @@ exposed as public configuration. See [ADR 0029](adr/0029-bind-configured-mapping
 for sample limits, eligibility and receipt expiry. The public endpoint has no
 identity or spending controls yet; implement those before exposing configured
 mode in a shared deployment.
+
+### Manual model adapter runs
+
+`pnpm eval` and all default checks remain offline fixture runs. The separate
+command below requires `--live` and explicit keys for every configured entry,
+and refuses to run when `CI` is set. No model list is compiled into the runner.
+The following configuration is illustrative; replace its URL, pinned model ID
+and secret variable with those for the endpoint being tested:
+
+```bash
+export AI_EVALUATION_MODELS='[{"provider":"example","baseUrl":"https://provider.invalid/v1","model":"example-model-2026-10-01","apiKeyEnv":"EXAMPLE_MAPPING_KEY"}]'
+# Supply EXAMPLE_MAPPING_KEY separately in the local environment.
+pnpm eval:models --live --scenario concentrated-buy-dialect-a.csv
+```
+
+Dialect B (`concentrated-buy-dialect-b.jsonl`) is also accepted. Each entry is
+called once over the same registered synthetic input. The command writes a
+validated `mapping-run/1` record and a separate hashed receipt to the ignored
+`dist/mapping-runs/` directory, using new IDs and exclusive file creation.
+Only the closed structured field output may be retained; raw envelopes, error
+messages and credentials are discarded. Missing or invalid usage and missing
+reported model are null. Temperature is recorded as the decimal string `"0"`.
+Provider/transport failures produce `PROVIDER_FAILED` with a stable failure
+class; parsed mapping failures produce `CONTRACT_REJECTED` and validator reasons.
+The web path continues to expose only `REVIEW_REQUIRED` on failure.
+
+These are adapter smoke runs, not the sealed schema-dialect evaluation. The
+record identifies `replay-synthetic-adapter-smoke/1`, the source artifact hash,
+`DEV`, the selected source filename and repeat 1. No HELD_OUT input, scoring,
+comparison or model selection is implemented by this command. Live compatibility
+has not been measured in this change. `tsx` is a development dependency needed
+to execute this explicit TypeScript CLI over the workspace source packages.
+See [the evaluation protocol](EVALUATION.md#configured-mapping-run-producer) and
+[ADR 0062](adr/0062-run-mapping-through-one-configurable-chat-completions-adapter.md).
 
 `DATA_GO_KR_SERVICE_KEY` is a separate retrieval credential. The manual local
 retrieval script reads it once before an admitted artifact is committed; the

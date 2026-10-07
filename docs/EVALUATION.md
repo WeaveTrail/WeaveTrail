@@ -141,8 +141,9 @@ precedence and reason coordinates. Parsed fields or sealed proposals enter at
 the contract stage to re-validate retained content. The configured adapter
 bounds the streamed response before parsing, invokes the same gate, and still
 returns only the sanitized `REVIEW_REQUIRED` failure to the application. No raw
-body, temporary mapped events or provider text is retained. This adds no run
-record producer, persistence or model scoring.
+body, temporary mapped events or provider text is retained. The separate
+[configured run producer](#configured-mapping-run-producer) records sanitized
+attempts; model scoring remains planned.
 
 The model prompt receives at most eight sample rows; validation dry-runs all
 supplied samples, including later rows. It projects supplied columns without
@@ -174,8 +175,10 @@ correctness remains for human review and the existing explicit approval gate;
 ## Mapping model run record contract
 
 The implemented [run-record contracts](../packages/contracts/src/mapping-run-record.ts)
-prepare auditable records for the planned model evaluation. They do not call
-providers, persist runs or score outputs, and `pnpm eval` still runs fixtures only.
+define auditable records for model attempts. The
+[configured run producer](#configured-mapping-run-producer) now binds adapter
+observations to these records; `pnpm eval` still runs fixtures only and model
+scoring remains planned.
 The new contract is additive; existing mapping responses need no migration.
 
 `MappingRunRecordSchema` version `mapping-run/1` requires:
@@ -210,7 +213,8 @@ request IDs, credentials and raw error messages are not record fields; attempts
 to attach them are rejected, including within output and validator reasons.
 Producers must also prevent secrets from appearing in permitted strings.
 If raw envelopes are needed locally, use only the ignored `.model-runs/raw/`
-directory. No raw storage or model capture is implemented here.
+directory. No raw storage is implemented; the configured command saves only
+sanitized records and separate receipts.
 
 `MappingRunReceiptSchema` version `mapping-run-receipt/1` carries `runId`,
 `startedAt` (UTC) and `recordHash` separately. Compute `recordHash` with the
@@ -231,6 +235,44 @@ pnpm exec vitest run packages/contracts/src/mapping-run-record.test.ts packages/
 These tests cover outcomes, transport-field rejection, missing usage, exact
 UTF-8 size boundaries and receipt separation. They are not captured model runs
 or measurements of provider performance.
+
+## Configured mapping run producer
+
+The [server adapter](../packages/ai-harness/src/configured-provider.ts) and
+[record binder](../packages/evals/src/mapping-model-runner.ts) produce
+`mapping-run/1` observations through the same validator as the web path.
+Every model receives the unchanged instruction, strict output schema,
+temperature 0 and the same 30-second/64-KiB limits. The base URL includes the
+API path and only `/chat/completions` is appended. There is no retry, tool call
+or relaxed-mode fallback. Usage and reported model are nullable observations.
+Refusal, truncation and invalid envelopes are `PROVIDER_FAILED` with
+`INVALID_RESPONSE`; parsed field-output violations are `CONTRACT_REJECTED`.
+
+`pnpm eval:models --live --scenario concentrated-buy-dialect-a.csv` explicitly
+runs each entry in `AI_EVALUATION_MODELS`. The list and each entry's key must be
+supplied; the command is disabled in CI. It writes closed structured outputs
+and versioned records with separate hash receipts to ignored
+`dist/mapping-runs/`, with no raw envelope storage. See
+[deployment configuration](DEPLOYMENT.md#manual-model-adapter-runs).
+
+This command is a registered synthetic adapter smoke run, labelled
+`replay-synthetic-adapter-smoke/1`, with the registered artifact hash, `DEV`,
+source filename and repeat 1. It does not read the sealed DEV/HELD_OUT corpus,
+score outputs, choose models or establish live compatibility. The reusable
+binder validates caller context before the call; a future corpus runner must
+verify membership and the exact-file seal before passing that context.
+
+Run the offline recorded-response regression tests with:
+
+```bash
+pnpm exec vitest run packages/evals/src/mapping-model-runner.test.ts packages/ai-harness/src/configured-provider.test.ts
+```
+
+The envelopes are authored synthetic recordings, not vendor captures. They
+verify success, missing usage/model, refused/truncated/tool responses, exact
+UTF-8 size boundaries, HTTP and strict-mode failures, transport/body timeouts,
+request parity across configurations and secret/trace rejection. No keys or
+network are used, and no model-quality or performance claim follows.
 
 ## AI failure log
 

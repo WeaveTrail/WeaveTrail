@@ -25,8 +25,12 @@ The source-dependent coverage evaluation command and runner were removed.
 
 The shared [mapping run contracts](../../contracts/src/mapping-run-record.ts)
 prepare records and separate receipts for planned model evaluations. Offline
-synthetic tests verify their shape, trace rejection and hash boundary; no provider
-instrumentation, run persistence or scoring is implemented. See the
+synthetic tests verify their shape, trace rejection and hash boundary. The
+[mapping model runner](mapping-model-runner.ts) now records sanitized adapter
+observations; the explicit `pnpm eval:models --live --scenario
+concentrated-buy-dialect-a.csv` command saves local records and separate receipts
+under ignored `dist/mapping-runs/`. It requires configured endpoints and keys,
+is disabled in CI and never reads the held-out set. Scoring remains planned. See the
 [run-record protocol](../../../docs/EVALUATION.md#mapping-model-run-record-contract).
 
 The [hostile mapping fixture provider](adversarial-mapping-fixtures.ts) supplies

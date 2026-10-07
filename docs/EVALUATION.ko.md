@@ -130,8 +130,9 @@ pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
 사유 좌표를 고정합니다. 파싱된 필드나 봉인된 제안은 계약 단계부터 재검증합니다.
 설정된 어댑터는 스트리밍 중에도 응답 크기를 제한하고 같은 검증기를 호출하며,
 애플리케이션에는 정제된 `REVIEW_REQUIRED` 실패만 반환합니다. 원문 응답, 임시
-변환 이벤트와 제공자 문구를 저장하지 않습니다. 실행 기록 생성·저장과 모델
-채점은 추가하지 않습니다.
+변환 이벤트와 제공자 문구를 저장하지 않습니다. 별도의
+[설정형 실행 기록 생성기](#설정형-매핑-실행-기록-생성기)는 정제된 관측값을 기록하며
+모델 채점은 계획입니다.
 
 모델 프롬프트에는 최대 8개 샘플 행을 전달하지만 검증기는 이후 행을 포함한
 모든 제공 샘플을 검사합니다. 입력 열만 투영하고 원본 행은 수정하지 않으며
@@ -160,8 +161,9 @@ pnpm exec vitest run packages/evals/src/adversarial-mapping.test.ts packages/ai-
 ## 모델 매핑 실행 기록 계약
 
 구현된 [실행 기록 계약](../packages/contracts/src/mapping-run-record.ts)은 계획된
-모델 평가를 위한 기록 형식입니다. 제공자 호출, 실행 저장과 채점은 아직 계획이며
-`pnpm eval`은 계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
+모델 평가를 위한 기록 형식입니다. 별도의 설정형 실행 기록 생성기가 제공자
+호출 관측값을 기록에 묶고 로컬에 저장합니다. 채점은 계획이며 `pnpm eval`은
+계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
 
 `MappingRunRecordSchema`의 `mapping-run/1`은 평가 자료 버전·정확한 파일의
 SHA-256·DEV/HELD_OUT 구분, 형식 ID, 1부터 시작하는 반복 번호, 제공자,
@@ -190,7 +192,7 @@ SHA-256·DEV/HELD_OUT 구분, 형식 ID, 1부터 시작하는 반복 번호, 제
 자격 증명과 원시 오류 메시지는 출력이나 검증 사유 안에도 붙일 수 없습니다.
 허용된 문자열에 비밀이 섞이지 않도록 하는 책임도 기록 생성자에게 있습니다.
 원시 봉투가 로컬에서 필요하면 Git이 무시하는 `.model-runs/raw/`만 사용합니다.
-이번 변경은 원문 저장이나 모델 실행을 구현하지 않습니다.
+원문 저장은 구현하지 않습니다. 명시적 모델 호출은 아래 생성기의 별도 명령으로만 실행합니다.
 
 `MappingRunReceiptSchema`의 `mapping-run-receipt/1`은 실행 ID, UTC 시작 시각과
 정본 기록 해시를 별도로 보관합니다. 기존 `sha256Canonical`로 검증된 기록만 해시하고,
@@ -208,6 +210,42 @@ pnpm exec vitest run packages/contracts/src/mapping-run-record.test.ts packages/
 
 시험은 세 결과 상태, 전송 정보 거부, 사용량 누락, 정확한 UTF-8 크기 경계와
 영수증 분리를 검사합니다. 실제 모델 실행 캡처나 제공자 성능 측정이 아닙니다.
+
+## 설정형 매핑 실행 기록 생성기
+
+[서버 어댑터](../packages/ai-harness/src/configured-provider.ts)와
+[기록 생성기](../packages/evals/src/mapping-model-runner.ts)는 웹 경로와 같은
+검증기로 `mapping-run/1` 관측값을 만듭니다. 모든 모델에 같은 지시문, strict
+출력 스키마, 온도 0, 30초·64 KiB 제한을 적용합니다. 기본 URL에는 API 경로를
+포함하고 `/chat/completions`만 덧붙입니다. 재시도, 도구 호출, strict 완화는 없습니다.
+제공자가 보고한 모델과 토큰 사용량은 누락되면 null입니다. 거절·잘림·잘못된
+응답 봉투는 `PROVIDER_FAILED`와 `INVALID_RESPONSE`로, 파싱된 필드 출력의
+검증 실패는 `CONTRACT_REJECTED`로 기록합니다.
+
+`pnpm eval:models --live --scenario concentrated-buy-dialect-a.csv`는
+`AI_EVALUATION_MODELS`에 명시한 각 엔드포인트를 한 번 호출합니다. 목록과
+각 항목의 키가 필요하고 CI에서는 실행할 수 없습니다. 닫힌 구조화 출력과
+버전별 기록, 해시로 연결한 별도 영수증은 Git이 무시하는 `dist/mapping-runs/`에
+저장하고 원시 봉투는 보존하지 않습니다.
+[배포 설정](DEPLOYMENT.md#manual-model-adapter-runs)(영문)을 참고하세요.
+
+이 명령은 등록된 합성 입력으로 어댑터를 확인하는 실행이며 기록에는
+`replay-synthetic-adapter-smoke/1`, 등록된 원본 해시, `DEV`, 원본 파일명과 반복
+번호 1을 남깁니다. 봉인된 DEV·HELD_OUT 자료를 읽지 않고, 채점·모델 선택이나
+실제 공급자 호환성 검증도 하지 않습니다. 재사용 가능한 기록 생성기는 호출 전
+문맥 계약을 검사합니다. 향후 평가 실행기는 자료 소속과 정확한 파일 봉인을
+확인한 뒤 문맥을 전달해야 합니다.
+
+오프라인 기록 응답 회귀 시험:
+
+```bash
+pnpm exec vitest run packages/evals/src/mapping-model-runner.test.ts packages/ai-harness/src/configured-provider.test.ts
+```
+
+응답은 직접 작성한 합성 기록이며 실제 공급자 캡처가 아닙니다. 성공, 사용량·모델
+누락, 거절·잘림·도구 응답, UTF-8 크기 경계, HTTP·strict 실패, 전송·본문 시간 제한,
+설정 사이 요청 동등성과 비밀·원문 유출 거부를 확인합니다. 키나 네트워크를
+사용하지 않으며 모델 품질이나 성능을 측정하지 않습니다.
 
 ## AI 실패 기록
 

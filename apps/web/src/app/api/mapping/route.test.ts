@@ -46,7 +46,7 @@ beforeEach(() => {
   // A forgotten mock fails locally; no provider test can reach the network.
   transport.mockRejectedValue(new Error("Unexpected transport call"));
   vi.stubEnv("AI_MODE", "ai");
-  vi.stubEnv("AI_PROVIDER_BASE_URL", "https://provider.invalid");
+  vi.stubEnv("AI_PROVIDER_BASE_URL", "https://provider.invalid/v1");
   vi.stubEnv("AI_PROVIDER_API_KEY", secret);
   vi.stubEnv("AI_PROVIDER_MODEL", model);
 });
@@ -112,7 +112,25 @@ describe("configured mapping and replay boundary", () => {
       "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
     );
     expect(transport).toHaveBeenCalledTimes(1);
+    expect(transport.mock.calls[0]![0]).toBe(
+      "https://provider.invalid/v1/chat/completions",
+    );
   });
+
+  it.each(["https://provider.invalid", "https://provider.invalid/"])(
+    "rejects origin-only configuration %s before transport",
+    async (baseUrl) => {
+      vi.stubEnv("AI_PROVIDER_BASE_URL", baseUrl);
+      const response = await POST(request({ scenario }));
+      expect(response.status).toBe(422);
+      const review = ReplayReviewResponseSchema.parse(await response.json());
+      expect(review.status).toBe("REVIEW_REQUIRED");
+      expect(review).not.toHaveProperty("proposal");
+      expect(review).not.toHaveProperty("mappingReceipt");
+      expect(JSON.stringify(review)).not.toContain(secret);
+      expect(transport).not.toHaveBeenCalled();
+    },
+  );
 
   it.each(["invalid", "missing-config", "transport", "low-confidence"])(
     "stops %s before normalization or replay, even with a fixture approval",

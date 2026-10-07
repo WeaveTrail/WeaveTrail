@@ -192,8 +192,9 @@ no result until its evaluation is published.
 - **`v0.2.0` · Evaluation harness ·** exists: the sealed synthetic DEV and
   HELD_OUT schema-dialect set, the run-record contract, the shared validator
   with its hostile probes, and the AI failure log with its prompt-version
-  registry. Planned: running the mapping task on any OpenAI-compatible endpoint
-  by configuration; scoring accuracy, invented fields, abstention, rejection,
+  registry; one configuration-driven Chat Completions adapter and an explicit
+  local smoke command with sanitized run records. Planned: scoring accuracy,
+  invented fields, abstention, rejection,
   latency and cost beside a non-model lexical baseline; a selection rule fixed
   before the held-out run; and the comparison on the evaluation and home pages.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
