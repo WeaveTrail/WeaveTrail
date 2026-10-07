@@ -168,8 +168,8 @@ fixed choices, written down and tested.
   exactly, never through a rounded quotient.
 - **A model run is a record, not a replay ·** the run-record contract keeps the
   parsed output, validator outcome, latency and tokens, never the raw provider
-  envelope. Re-scoring committed records gives the same summary; running a
-  model again makes a new record.
+  envelope. The planned scorer must give the same summary whenever committed
+  records are re-scored; running a model again makes a new record.
 - **The fingerprint covers the answer, not the run ·** shuffling the same rows
   leaves it unchanged; who approved and when is kept in the approval record
   instead, where it can still be read.
