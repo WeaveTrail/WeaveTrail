@@ -99,7 +99,7 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
     ],
     outsideLabel: "Outside the code",
     outside:
-      "The tests check this repository's source, not a deployed build or the hosting account. No route plans to take pasted text or share links. A planned live mapping call sends only a registered synthetic dialect to a model provider; that change must update the retention test and this page together.",
+      "The tests check this repository's source, not a deployed build or the hosting account. No route plans to take pasted text or share links. In configured mode, the mapping route already sends an eligible synthetic source's columns and sample rows to a model provider. Enabling that call in production is planned and must update the retention test and this page together.",
     fullDocument: ["Full statement with sources", "document"],
   },
   ko: {
@@ -158,7 +158,7 @@ export const dataHandlingCopy: Readonly<Record<Language, DataHandlingCopy>> = {
     ],
     outsideLabel: "코드 밖의 범위",
     outside:
-      "테스트는 이 저장소의 소스를 확인하며, 배포된 빌드나 호스팅 계정은 확인하지 않습니다. 붙여넣은 글이나 공유 링크를 받을 경로는 계획에 없습니다. 계획된 실시간 항목 연결 호출은 등록된 합성 방언만 모델 공급자에게 보내며, 그 변경은 보관 금지 테스트와 이 페이지를 함께 고쳐야 합니다.",
+      "테스트는 이 저장소의 소스를 확인하며, 배포된 빌드나 호스팅 계정은 확인하지 않습니다. 붙여넣은 글이나 공유 링크를 받을 경로는 계획에 없습니다. 설정된 모드에서는 항목 연결 경로가 이미 허용된 합성 원본의 열과 표본 행을 모델 공급자에게 보냅니다. 운영 배포에서 이 호출을 켜는 일은 계획이며, 그 변경은 보관 금지 테스트와 이 페이지를 함께 고쳐야 합니다.",
     fullDocument: ["출처를 포함한 전체 문서", "documentKo"],
   },
 };
