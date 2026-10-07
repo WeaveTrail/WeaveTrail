@@ -34,7 +34,11 @@ can still reveal misassignment, invented fields and followed injections;
 null outputs cannot establish that these behaviors were absent.
 
 Use BigInt for metrics, token products, rational comparisons and cost. Serialize
-integer counts as decimal strings. Price entries bind exact provider/requested/
+integer counts as decimal strings. Reserve `numerator`/`denominator` for ratios;
+latency quantiles use `valueMs`/`sampleCount`, and token/cost totals use
+`sum`/`coveredRuns` with `totalRuns` coverage. Distinct field names prevent
+consumers from dividing a quantile or silently turning a total into a mean.
+Price entries bind exact provider/requested/
 reported identities, including explicit null if appropriate, in a dated,
 versioned table with provenance. Round each reported-model identity's summed micro-USD amount upward once, then
 sum those amounts for the requested-model group;
@@ -50,6 +54,12 @@ this is a deterministic heuristic, not a significance test or model selection.
 
 The additive `mapping-score/1` summary and `eval:mappings:score` command do not
 change `mapping-run/1`, prompts, the live path or existing evaluation summaries.
+Before this summary's initial merge, its resource fields changed from
+`numerator`/`denominator`: consumers must read latency as `valueMs`/`sampleCount`
+and token/cost totals as `sum`/`coveredRuns`, preserving `totalRuns`. Regenerate
+any pre-merge summaries from their original records and price tables; ratio
+fields and arithmetic are unchanged. No mean or mean-rounding contract is added.
+
 The same function consumes a non-model producer's records without special
 scoring rules. Implementing the lexical baseline remains separate work.
 

@@ -151,31 +151,46 @@ describe("offline mapping score/1", () => {
       repeat: i + 1,
       latencyMs: i + 1,
     }));
-    expect(all(samples).latencyMs).toEqual({ p50: c(10, 20), p95: c(19, 20) });
-    expect(all([runs[0]]).latencyMs).toEqual({ p50: c(10, 1), p95: c(10, 1) });
+    expect(all(samples).latencyMs).toEqual({
+      p50: { valueMs: "10", sampleCount: "20" },
+      p95: { valueMs: "19", sampleCount: "20" },
+    });
+    expect(all(samples.slice(0, 19)).latencyMs.p95).toEqual({
+      valueMs: "19",
+      sampleCount: "19",
+    });
+    expect(all([runs[0]]).latencyMs).toEqual({
+      p50: { valueMs: "10", sampleCount: "1" },
+      p95: { valueMs: "10", sampleCount: "1" },
+    });
     expect(
       all(
         records.filter((r) => r.requestedModel === "synthetic-failure-probes"),
       ).latencyMs.p95,
-    ).toEqual(c(30000, 2));
+    ).toEqual({ valueMs: "30000", sampleCount: "2" });
   });
   it("keeps unknown usage and unpriced cost visible, with independent token coverage", () => {
     const runs = oracle();
     runs[1]!.inputTokens = null;
     const m = all(runs);
     expect(m.tokens).toEqual({
-      input: c(100, 1),
-      output: c(60, 2),
+      input: { sum: "100", coveredRuns: "1" },
+      output: { sum: "60", coveredRuns: "2" },
       totalRuns: "2",
     });
-    expect(m.costMicroUsd).toEqual({ ...c(200, 1), totalRuns: "2" });
+    expect(m.costMicroUsd).toEqual({
+      sum: "200",
+      coveredRuns: "1",
+      totalRuns: "2",
+    });
     expect(all(runs, { ...prices, entries: [] }).costMicroUsd).toEqual({
-      ...c(0, 0),
+      sum: "0",
+      coveredRuns: "0",
       totalRuns: "2",
     });
     expect(
       all(runs.map((r) => ({ ...r, reportedModel: null }))).costMicroUsd
-        .denominator,
+        .coveredRuns,
     ).toBe("0");
   });
   it("ceil-rounds cost once after summing exact integer products, even above safe number range", () => {
@@ -193,7 +208,8 @@ describe("offline mapping score/1", () => {
       })),
     };
     expect(all(runs, table).costMicroUsd).toEqual({
-      ...c(1, 2),
+      sum: "1",
+      coveredRuns: "2",
       totalRuns: "2",
     });
     const large = "9007199254740993";
@@ -213,7 +229,7 @@ describe("offline mapping score/1", () => {
     const expected =
       (4n * BigInt(Number.MAX_SAFE_INTEGER) * BigInt(large) + 999999n) /
       1000000n;
-    expect(all(huge, bigTable).costMicroUsd.numerator).toBe(String(expected));
+    expect(all(huge, bigTable).costMicroUsd.sum).toBe(String(expected));
     expect(() =>
       all(runs, { ...table, entries: [...table.entries, table.entries[0]] }),
     ).toThrow("Duplicate price");
@@ -237,7 +253,8 @@ describe("offline mapping score/1", () => {
     };
     expect(score(runs, table).groups).toHaveLength(1);
     expect(all(runs, table).costMicroUsd).toEqual({
-      ...c(2, 2),
+      sum: "2",
+      coveredRuns: "2",
       totalRuns: "2",
     });
     expect(all([...runs].reverse(), table).costMicroUsd).toEqual(
@@ -249,7 +266,7 @@ describe("offline mapping score/1", () => {
         runs.map((r) => ({ ...r, reportedModel: "reported-a" })),
         table,
       ).costMicroUsd,
-    ).toEqual({ ...c(1, 2), totalRuns: "2" });
+    ).toEqual({ sum: "1", coveredRuns: "2", totalRuns: "2" });
     // Explicit null is a separate priced identity; missing prices stay unavailable.
     expect(
       all(
@@ -265,10 +282,10 @@ describe("offline mapping score/1", () => {
           })),
         },
       ).costMicroUsd,
-    ).toEqual({ ...c(2, 2), totalRuns: "2" });
+    ).toEqual({ sum: "2", coveredRuns: "2", totalRuns: "2" });
     expect(
       all(runs, { ...table, entries: table.entries.slice(0, 1) }).costMicroUsd,
-    ).toEqual({ ...c(1, 1), totalRuns: "2" });
+    ).toEqual({ sum: "1", coveredRuns: "1", totalRuns: "2" });
   });
   it("shares the scorer with non-model record producers without an identity special case", () => {
     const runs = oracle().map((r) => ({
@@ -280,7 +297,7 @@ describe("offline mapping score/1", () => {
     expect(all(runs).strictAccuracy).toEqual(all(oracle()).strictAccuracy);
     expect(all(runs).abstention).toEqual(all(oracle()).abstention);
     // Authored interface fixture only: the actual lexical mapper is separate work.
-    expect(all(runs).costMicroUsd.denominator).toBe("0");
+    expect(all(runs).costMicroUsd.coveredRuns).toBe("0");
   });
   it.each([
     "promptVersion",
@@ -302,7 +319,7 @@ describe("offline mapping score/1", () => {
     expect(score(runs).groups).toHaveLength(1);
     expect(group.byTag.ALL!.strictAccuracy).toEqual(c(14, 14));
     expect(group.reportedModels).toHaveLength(2);
-    expect(group.byTag.ALL!.costMicroUsd.denominator).toBe("1");
+    expect(group.byTag.ALL!.costMicroUsd.coveredRuns).toBe("1");
   });
   it("rejects wrong seals, split/version/dialect binding, duplicate runs and incomplete repeat grids", () => {
     expect(() =>
@@ -375,6 +392,14 @@ describe("integer comparisons and repeat-spread ranking", () => {
     ).toBe(1);
     expect(compareCounts(c(1, 2), c(2, 4))).toBe(0);
     expect(compareCounts(c(0, 0), c(0, 1))).toBeNull();
+  });
+  it("ranks a one-decision difference when both two-repeat spreads are zero", () => {
+    expect(
+      rankBeyondRepeatSpread([c(9, 10), c(9, 10)], [c(10, 10), c(10, 10)]),
+    ).toBe("RIGHT");
+    expect(
+      rankBeyondRepeatSpread([c(10, 10), c(10, 10)], [c(9, 10), c(9, 10)]),
+    ).toBe("LEFT");
   });
   it("requires a strict difference beyond both models' own spreads", () => {
     expect(

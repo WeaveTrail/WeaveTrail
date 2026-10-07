@@ -323,10 +323,14 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
   const percentile = (p: bigint) =>
     latencies.length === 0
       ? null
-      : count(
-          latencies[Number((BigInt(latencies.length) * p + 99n) / 100n - 1n)]!,
-          latencies.length,
-        );
+      : {
+          valueMs: String(
+            latencies[
+              Number((BigInt(latencies.length) * p + 99n) / 100n - 1n)
+            ]!,
+          ),
+          sampleCount: String(latencies.length),
+        };
   return {
     validOutput: count(
       runs.filter((r) => r.record.outcome === "VALID").length,
@@ -356,18 +360,18 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
     repeatConsistency: count(consistent, pairs),
     latencyMs: { p50: percentile(50n), p95: percentile(95n) },
     tokens: {
-      input: count(inputTokens, inputKnown),
-      output: count(outputTokens, outputKnown),
+      input: { sum: String(inputTokens), coveredRuns: String(inputKnown) },
+      output: { sum: String(outputTokens), coveredRuns: String(outputKnown) },
       totalRuns: String(runs.length),
     },
     costMicroUsd: {
-      ...count(
+      sum: String(
         [...costByIdentity.values()].reduce(
           (total, scaled) => total + (scaled + 999_999n) / 1_000_000n,
           0n,
         ),
-        costKnown,
       ),
+      coveredRuns: String(costKnown),
       totalRuns: String(runs.length),
     },
   };
