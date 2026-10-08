@@ -47,7 +47,8 @@ counts do not establish safety without observed output. Cost coverage is 0/36
 for every candidate, so cost is unknown, not zero. Latencies measure failed
 HTTP attempts, not successful inference. The sanitized records contain no
 HTTP status or error body, so their root cause cannot be diagnosed from this
-capture. The catalogue check proves listing, not request compatibility.
+capture. The operator attests listing only; that attestation does not
+establish request compatibility.
 
 The JSON files preserve the runner and selector bytes. Reproduce all three
 outputs offline without a provider key:
