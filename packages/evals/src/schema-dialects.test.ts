@@ -28,8 +28,16 @@ const publishedOutputs = new Map([
 ]);
 
 function assertEvaluationImport(name: string, imported: string, root: string) {
-  if (!/@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/.test(imported)) return;
   const target = relative(root, resolve(root, name, "..", imported));
+  // A relative import is judged by where it resolves, so a web module under
+  // `app/evals/` is not mistaken for the evaluation package. Any other
+  // specifier that names evals is held to the binding.
+  if (
+    imported.startsWith(".")
+      ? !/(?:^|\/)packages\/evals(?:\/|$)/.test(target)
+      : !/@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/.test(imported)
+  )
+    return;
   expect(name).toBe("apps/web/src/app/evals/held-out-result.ts");
   expect(publishedOutputs.has(target), target).toBe(true);
   const bytes = readFileSync(resolve(root, target));
@@ -331,6 +339,21 @@ describe("offline schema dialect evaluation input", () => {
           root,
         ),
       ).toThrow();
+    // The home page reaches the binding through the web's own evals modules.
+    for (const imported of [
+      "./evals/held-out-result",
+      "./evals/model-comparison-data",
+    ])
+      expect(() =>
+        assertEvaluationImport("apps/web/src/app/page.tsx", imported, root),
+      ).not.toThrow();
+    expect(() =>
+      assertEvaluationImport(
+        "apps/web/src/app/page.tsx",
+        "../../../../packages/evals/results/mapping-held-out-v1/comparison.json",
+        root,
+      ),
+    ).toThrow();
     for (const target of publishedOutputs.keys())
       expect(() =>
         assertEvaluationImport(binding, `../../../../../${target}`, root),
