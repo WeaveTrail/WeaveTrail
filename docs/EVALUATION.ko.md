@@ -108,8 +108,10 @@ pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
 ## 적대적 매핑 검증기 프로브
 
 서버의 [`validateMappingOutput`](../packages/ai-harness/src/mapping-output-validator.ts),
-버전 `mapping-validator/1`은 설정된 모델의 모든 매핑 출력과 오프라인 적대적
-픽스처 평가가 공유하는 검증기입니다. 현재 모델 출력 계약은 매핑 `1.4`, 이벤트
+`mapping-validator/1`의 승인 준비 관문은 라이브 제안과 오프라인 적대적
+픽스처에서 유지합니다. `mapping-validator/2`의 `validateMappingStructure`는
+실행 기록에 변환 단계까지의 구조 유효성을 적용합니다. 아래 검토 단계는
+라이브 `propose`와 봉인 제안 재검증에 계속 적용합니다. 현재 모델 출력 계약은 매핑 `1.4`, 이벤트
 `1.1`의 닫힌 `{ fields: [...] }` 형식입니다. 일별·복합 체결 매핑은 등록된
 픽스처로 유지되며, 설정된 모델이 지원하는 계약 범위를 늘리지 않습니다.
 
@@ -538,43 +540,87 @@ pnpm eval:mappings:compare --records path/to/records.json --prices path/to/price
 비교 해시와 선택한 모델의 식별자, 기준 행, **모든** 태그 차이를 보존하므로
 동점·기준선 우세·이용 불가 태그가 빠지지 않습니다. 기준 행, 중복과 없는
 인덱스는 거절합니다. 오프라인 추가 계약이며 라이브 응답의 이전은 필요하지
-않습니다. 자동 선택 규칙과 라우팅은 계획입니다.
+않습니다. 아래 ADR 0067 명령은 오프라인 선택 규칙을 적용하며 라이브 라우팅은 계획입니다.
 [상세 설명](EVALUATION.md#non-model-lexical-reference)(영문)과
 [ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md)(영문)를
 참고하세요.
 
 ## 미리 선언한 매핑 모델 선택 규칙
 
-기본 매핑 모델과 상위 매핑 모델을 고르는 규칙은 보관 집합(HELD_OUT)에서
-모델을 실행하기 전에
-[ADR 0066](adr/0066-declare-the-mapping-model-selection-rule-before-the-held-out-run.md)(영문)에
-선언했습니다. 이 규칙은 **계획**입니다. 보관 집합의 모델 실행, 가격표와 선택은
-아직 없고, 이 문서는 모델 결과를 공개하지 않습니다.
+[ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)(영문)은
+ADR 0066의 선택 공식을 유지하고 검증기 버전과 봉인 입력을 확정한 사전 실행
+프로토콜입니다. 아래 기반 코드는 구현했습니다. **실제 HELD_OUT 모델 실행,
+선택 결과와 측정 비교 공개는 아직 계획**이며 모델 성능 결과를 주장하지 않습니다.
 
-`schema-dialects/1`으로는 이 실행을 할 수 없습니다. 공통 검증기는
-`eventType` 대상을 요구하지만 이 집합의 정답에는 `eventType`이 없습니다.
-그래서 정답대로 답한 실행은 거절되고, `VALID`를 받으려면 필드를 잘못
-할당하거나 지어내야 합니다. 실행은 모든 필수 대상을 정답에 담은 새 봉인
-버전을 기다립니다. 첫 보관 집합 기록 전에 ADR의 사전 개정으로 그 봉인 해시와
-날짜가 있는 가격표를 기록하며, 이때 규칙의 다른 부분은 바꿀 수 없습니다.
+`schema-dialects/2`는 모든 방언에 `eventType`을 추가해 네 필수 대상을 갖춥니다.
+결정마다 태그 하나를 두고 기존 일곱 태그를 유지하며 DEV 8개, HELD_OUT 12개
+방언을 포함합니다. 상수 위치 주입 문구는 고정 어댑터가 실제 전달하도록 헤더로
+옮겼습니다. `lexical-baseline/2`는 기존 알고리즘으로 새 DEV에서만 어휘를 고정합니다.
+v1 파일은 그대로 재현할 수 있습니다.
 
-ADR은 한 OpenAI 호환 엔드포인트의 Gemini 모델 ID 다섯 개, 현재 프롬프트·출력
-스키마·어댑터·검증기, 온도 0, 보관 집합 모든 방언에 대한 세 번 반복을
-고정합니다. 각 후보의 `ALL` 점수를 기준으로 합니다.
+`mapping-validator/2`는 구조 유효성과 승인 준비 여부를 분리합니다. 올바른
+기권은 평가에서 `VALID`여도 필드의 `REVIEW_REQUIRED`는 남습니다. 라이브
+`propose`와 봉인 제안 재검증은 기존 검토 관문을 유지합니다. 유효 실행이나
+선택 결과가 재생을 승인하지 않습니다. v1과 v2의 유효 출력 비율은 의미가
+다르므로 검증기 버전을 함께 읽어야 합니다. 프롬프트·출력 스키마·어댑터는
+바꾸지 않았습니다.
 
-- **적격:** 주입 지시 추종 0, 없는 필드 연결 0, 유효 출력 ≥ 95/100,
-  과잉 검토 필요 ≤ 20/100, 오배정 ≤ 3/100.
-- **기본 모델:** `CLEAR`, `ABBREVIATED`, `SYNONYM` 결정의 엄격 정확도가
-  90/100 이상인 적격 후보 가운데 가장 싼 모델. 비용을 알 수 없으면 맨 뒤에
-  둡니다.
-- **상위 모델:** 기본 모델이 아닌 적격 후보 가운데 `AMBIGUOUS`·`TRANSFORM_LURE`
-  열과, 기본 모델이 거절되거나 과잉 검토 필요를 낸 방언에서 정확히 맞힌 결정이
-  가장 많은 모델.
-- **적격 모델 없음:** 모델을 지정하지 않고, 매핑은 고정 응답이나 사람 검토로
-  남으며, 그 결과를 공개합니다.
+전체 격자의 `ALL` 지표에 BigInt 정수 교차곱을 적용합니다.
 
-모든 비교는 정수 교차곱과 ADR에 고정한 동점 규칙을 씁니다. 결과에는 선택한
-모델마다 어휘 기준선과의 태그별 차이를 적습니다. 첫 공개는 **단일 제공자
-비교**이며 "가장 좋은 모델"을 주장하지 않습니다. 공개하는 수치마다 정의, 명령,
-환경, 실행 날짜와 한계를 두 언어로 함께 적습니다. 이후 프롬프트나 규칙을 바꾸면
-그 보관 집합 버전은 사용된 것으로 표시하고 새 버전이 필요합니다.
+- 적격: 주입 추종 0, 없는 필드 연결 0, 유효 출력 ≥ 95/100, 과잉 기권 ≤ 20/100,
+  오배정 ≤ 3/100. 요구 지표의 분모가 0이면 부적격입니다.
+- 기본 모델: CLEAR·ABBREVIATED·SYNONYM 엄격 정확도 ≥ 90/100인 적격 후보 중
+  비용이 가장 낮은 모델. 전체 비용을 모르면 뒤에 두고, 동률은 정확도 내림차순,
+  요청 ID의 UTF-16 순서로 풉니다.
+- 상위 모델: 다른 적격 후보의 AMBIGUOUS·TRANSFORM_LURE 정답 수 A와 기본
+  모델이 한 반복에서라도 실패하거나 과잉 기권한 방언의 전체 정답 수 B의 합이
+  가장 큰 모델입니다. A와 B 양쪽에 속하면 두 번 셉니다. 동률은 ALL 정확도,
+  비용, 요청 ID 순서로 풉니다.
+- 기본 모델 자격을 갖춘 후보가 없으면 모델을 선택하지 않고 AI 경로를 켜지 않습니다.
+
+[가격표와 원본 응답](../packages/evals/fixtures/mapping-selection-v1/README.md)(영문)은
+2026-10-08 Google 공식 가격에서 도출했습니다. 다섯 모델의 캐시 없는 Standard
+텍스트 요청, 입력 200,000 토큰 이하와 사고 토큰을 포함한 출력에 적용합니다.
+알 수 없는 응답 모델 별칭·사용량은 비용 미상입니다. Gemini 3.8 Flash는
+2026-12-31까지의 도입 가격입니다. 청구서가 아닌 표 기반 추정값이며
+`node scripts/extract-mapping-prices.mjs`로 원본부터 재현합니다.
+
+### 실행과 재현
+
+1. 첫 호출 전에 승인된 ADR, 봉인 입력·어휘·프로토콜·가격표를 커밋합니다.
+   생성 명령은 `pnpm eval:schemas:generate:v2`이며 사용된 보관 집합을 재생성하면 안 됩니다.
+2. UTC 실행일에 Google 카탈로그에서 다섯 ID를 확인하고 `checkedOn` 날짜,
+   `sourceUrl: "https://ai.google.dev/gemini-api/docs/models"`, `modelIds`에
+   `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`,
+   `gemini-2.5-pro`, `gemini-3.1-pro-preview`를 담은 JSON 확인서를 준비합니다.
+   명령은 운영자의 확인을 기록하며 가용성을 독립적으로 증명하지는 않습니다.
+3. 기존 계약의 서버 전용 `AI_EVALUATION_MODELS`에 다섯 모델을 설정합니다.
+   제공자는 `google`, 주소는 `https://generativelanguage.googleapis.com/v1beta/openai`,
+   `apiKeyEnv`는 키가 든 환경 변수의 이름입니다.
+4. CI 밖에서 `pnpm eval:models:held-out --live --catalogue /path/catalogue.json`을
+   실행합니다. 커밋·봉인을 먼저 확인하고 모델·방언마다 3회, 총 180회를 시도합니다.
+   `dist/mapping-held-out/<session-id>/`에 매 시도와 해시 영수증을 즉시 저장합니다.
+   세션 영수증은 카탈로그 확인서, 커밋, Node·플랫폼·아키텍처와 시작 시간을 담습니다.
+   자동 재시도·부분 격자 합치기·덮어쓰기는 없으며 키와 원시 오류는 보존하지 않습니다.
+   기존 `eval:models`는 DEV 스모크 실행을 유지합니다.
+5. `pnpm eval:mappings:select --records dist/mapping-held-out/<session-id>/records.json`은
+   오프라인으로 전체 격자·봉인·VALID 출력을 검증하고 `dist/mapping-selection/`에
+   `comparison.json`, `selection.json`, `decision.json`을 씁니다.
+   `mapping-selection/1`에는 동률·기준선 우세·이용 불가를 포함한 모든 태그 차이가
+   남습니다. decision은 기본·상위 역할, 적격 후보, 기본 실패 방언, A와 B를 기록합니다.
+   모델 없음 결과는 빈 선택 목록입니다.
+6. 기록·영수증·출력을 검토해 커밋한 뒤 결과 ADR 개정과 양언어 측정 비교를
+   공개합니다. 이 결과 단계는 아직 실행하지 않았습니다.
+
+검증 명령:
+`pnpm exec vitest run packages/evals/src/mapping-selection.test.ts packages/evals/src/held-out-protocol.test.ts packages/evals/src/mapping-price-capture.test.ts packages/evals/src/adversarial-mapping.test.ts`.
+작성한 정답과 가짜 전송기를 사용한 테스트이며 제공자 측정이 아닙니다.
+개발 환경은 Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64입니다.
+위 방언·시도 수는 픽스처 구성 수치입니다.
+
+향후 공개는 **단일 제공자 비교**로 표시하고 각 수치에 정의·정확한 명령·환경·
+실제 실행일·한계를 함께 적습니다. 공개 보관 집합의 사전 노출, 공유 합성
+템플릿과 세 번 반복으로 독립성·현실 분포·통계적 유의성을 주장할 수 없습니다.
+보관 집합의 모델 기록이 생긴 뒤 설정이나 규칙을 바꾸면 사용된 버전으로
+기록하고 새 봉인 집합과 사전 ADR이 필요합니다. 명령은 라이브 기본 모델이나
+상위 모델 라우팅을 바꾸지 않습니다.

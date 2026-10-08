@@ -48,7 +48,7 @@ describe("offline adversarial mapping validator", () => {
   );
 
   it("accepts the valid control and re-validates sealed proposals with the same gate", async () => {
-    expect(MAPPING_VALIDATOR_VERSION).toBe("mapping-validator/1");
+    expect(MAPPING_VALIDATOR_VERSION).toBe("mapping-validator/2");
     const output = provider.provide();
     const result = validateMappingOutput(output, adversarialMappingInput);
     expect(result.status).toBe("VALID");
@@ -218,4 +218,37 @@ describe("offline adversarial mapping validator", () => {
       );
     },
   );
+});
+
+// F-003: record structurally sound abstention while retaining the live review gate.
+it("separates structural validity from approval readiness for abstention and low confidence", async () => {
+  const { validateMappingStructure } =
+    await import("@weavetrail/ai-harness/server");
+  for (const probe of adversarialMappingProbes.filter(
+    (p) => p.expected === "REVIEW_STATUS",
+  )) {
+    const output = provider.provide(probe);
+    expect(
+      validateMappingStructure(output, adversarialMappingInput).status,
+    ).toBe("VALID");
+    const transport = vi.fn<typeof fetch>(
+      async () => new Response(new Uint8Array(output.body)),
+    );
+    const configured = new ConfiguredSchemaMappingProvider(
+      configuration,
+      transport,
+    );
+    expect((await configured.attempt(adversarialMappingInput)).outcome).toBe(
+      "VALID",
+    );
+    await expect(configured.propose(adversarialMappingInput)).rejects.toThrow(
+      PROVIDER_REVIEW_MESSAGE,
+    );
+    const result = validateMappingStructure(output, adversarialMappingInput);
+    if (result.status !== "VALID")
+      throw new Error("Expected structurally valid probe");
+    expect(() =>
+      validateConfiguredProposal(result.proposal, adversarialMappingInput),
+    ).toThrow(PROVIDER_REVIEW_MESSAGE);
+  }
 });

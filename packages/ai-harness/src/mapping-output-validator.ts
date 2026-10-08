@@ -15,7 +15,7 @@ import {
 } from "@weavetrail/replay-engine";
 import type { MappingInput } from "./provider";
 
-export const MAPPING_VALIDATOR_VERSION = "mapping-validator/1";
+export const MAPPING_VALIDATOR_VERSION = "mapping-validator/2";
 
 export const MAPPING_VALIDATOR_REASON_CODES = [
   "BODY_TOO_LARGE",
@@ -98,12 +98,12 @@ function compatible(target: MappedTargetField, transform: AllowedTransform) {
 }
 
 /**
- * The single model-output gate, shared by live adapters and offline probes.
+ * Structural model-output gate, shared by adapter attempts and offline probes.
  * First failure wins: envelope -> contract -> columns -> targets -> transforms
- * (every supplied sample row) -> review status. No provider text is a reason.
+ * (every supplied sample row). VALID is not approval. No provider text is a reason.
  * Parsed fields/proposals enter after the envelope stage for re-validation.
  */
-export function validateMappingOutput(
+export function validateMappingStructure(
   output: MappingOutput,
   input: MappingInput,
 ): MappingValidationResult {
@@ -288,6 +288,17 @@ export function validateMappingOutput(
     const issue = dryRun.issues[0]!;
     return reject("TRANSFORM_FAILED", ["sampleRows", issue.rowIndex ?? 0]);
   }
+  return { status: "VALID", proposal, reasons: [] };
+}
+
+/** Approval-readiness gate: preserves the historical live fail-closed behavior. */
+export function validateMappingOutput(
+  output: MappingOutput,
+  input: MappingInput,
+): MappingValidationResult {
+  const result = validateMappingStructure(output, input);
+  if (result.status !== "VALID") return result;
+  const { proposal } = result;
   for (const [index, field] of proposal.fields.entries()) {
     if (requiresMappingOverride(field))
       return reject("REVIEW_STATUS", ["fields", index]);

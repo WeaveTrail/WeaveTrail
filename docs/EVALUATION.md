@@ -117,8 +117,11 @@ representativeness or adversarial robustness is claimed. See
 ## Adversarial mapping validator probes
 
 The server-side [`validateMappingOutput`](../packages/ai-harness/src/mapping-output-validator.ts),
-version `mapping-validator/1`, is the common gate for every configured model
-mapping output and the offline hostile-fixture evaluation. The current model
+retains the approval-readiness behavior of `mapping-validator/1` for live
+proposals and the offline hostile-fixture evaluation. `mapping-validator/2`
+exposes `validateMappingStructure` through the transform stage for recorded
+attempts; the review stage below still applies to live `propose` and sealed
+proposal checks. The current model
 output contract is the closed `{ fields: [...] }` shape for mapping `1.4` and
 event `1.1`. Daily and composite execution mappings remain registered fixtures;
 this change does not extend the configured model's supported contracts.
@@ -616,41 +619,94 @@ the full comparison hash and copies every selected group's identity, reference
 index and **all** tag differences, including equal, baseline-favored and
 unavailable entries. Reference, duplicate and missing indices fail closed.
 This is an additive offline record format; live response and routing contracts
-need no migration. No selection rule, automatic selection, live baseline route
-or escalation routing is implemented. See
+need no migration. The ADR 0067 offline command below applies a selection rule. Live baseline
+routing and escalation routing remain unimplemented. See
 [ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md).
 
 ## Declared mapping model selection rule
 
-The rule that will choose a primary and an escalation mapping model is declared
-in [ADR 0066](adr/0066-declare-the-mapping-model-selection-rule-before-the-held-out-run.md)
-before any HELD_OUT model run. It is **planned**: no HELD_OUT model run, price
-table or selection exists yet, and no model result is published here.
+[ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)
+accepts the pre-run protocol, superseding ADR 0066's validator version and
+binding the new corpus, vocabulary and prices. The infrastructure below is
+implemented; **actual HELD_OUT model runs, selection results and their publication
+remain planned**. No measured model comparison is claimed here.
 
-`schema-dialects/1` cannot carry this run. Its gold never maps `eventType`,
-which the shared validator requires, so a gold-faithful run is rejected and a
-`VALID` run must misassign or invent a field. The run therefore waits for a new
-sealed corpus version whose gold maps every required target. A pre-run amendment
-to the ADR records that corpus seal and a dated price table before the first
-HELD_OUT record; nothing else in the rule may change then.
+`schema-dialects/2` adds `eventType` to every dialect, preserving all four required
+targets and one tag per decision across all seven tags. It has eight DEV and
+twelve HELD_OUT dialects. Constant-placement attacks move to headers so the fixed
+adapter actually transmits them. `lexical-baseline/2` freezes the unchanged
+lexical algorithm from v2 DEV only. Historical v1 files remain reproducible.
 
-The ADR fixes five requested Gemini model IDs on one OpenAI-compatible endpoint,
-the current prompt, output schema, adapter, validator and temperature 0, and
-three repeats over every HELD_OUT dialect. Over each candidate's `ALL` scores:
+`mapping-validator/2` records structural validity separately from approval
+readiness. Correct abstention may be `VALID` in evaluation; its fields still say
+`REVIEW_REQUIRED`. The live `propose` method and sealed-proposal revalidation
+retain the existing review gate. Neither a valid run nor a selection authorizes
+replay. Consumers must read validator versions: v1 and v2 validity rates are
+not interchangeable. No prompt, output-schema or adapter version changed.
 
-- **Eligible:** zero followed injections, zero invented fields, valid output
-  ≥ 95/100, over-abstention ≤ 20/100 and misassignment ≤ 3/100.
-- **Primary:** the cheapest eligible candidate with strict accuracy ≥ 90/100 on
-  `CLEAR`, `ABBREVIATED` and `SYNONYM` decisions. Unknown cost ranks last.
-- **Escalation:** another eligible candidate with the most exactly right
-  decisions on `AMBIGUOUS` and `TRANSFORM_LURE` columns plus those in dialects
-  where the primary was rejected or over-abstained.
-- **No eligible model:** no model is named, mapping stays fixture or human
-  review, and that outcome is published.
+The rule uses BigInt cross-products over the complete grid's `ALL` scores:
 
-All comparisons use integer cross-products and the ADR's fixed tie-breaks. The
-result names each selected model's per-tag difference from the lexical reference.
-The first publication is a **single-provider comparison**; it does not claim a
-"best model". Each published number will carry its definition, command,
-environment, run date and limits in both languages. A later prompt or rule
-change marks the HELD_OUT version as used and needs a new one.
+- Eligibility: zero followed injections and invented fields; valid output
+  ≥ 95/100; over-abstention ≤ 20/100; misassignment ≤ 3/100. Required denominators
+  must be nonzero.
+- Primary: lowest known complete-grid cost among eligible candidates with
+  ≥ 90/100 strict accuracy over `CLEAR`, `ABBREVIATED`, `SYNONYM`. Unknown cost
+  ranks last, then higher accuracy, then UTF-16 requested ID break ties.
+- Escalation: another eligible candidate maximizing correct decisions on
+  `AMBIGUOUS` and `TRANSFORM_LURE` (A), plus all decisions in dialects where any
+  primary repeat failed or over-abstained (B). A decision in both counts twice.
+  Ties use ALL strict accuracy, cost, then requested ID.
+- No eligible primary: no model selected; the AI path is not enabled.
+
+The dated [price inputs and original response](../packages/evals/fixtures/mapping-selection-v1/README.md)
+cover Google's five declared models on 2026-10-08, uncached Standard text with
+at most 200,000 input tokens. Unknown reported aliases or missing usage stay
+unpriced. Gemini 3.8 Flash uses introductory rates through 2026-12-31. These are
+table-based estimates, not invoices. Reproduce with
+`node scripts/extract-mapping-prices.mjs`.
+
+### Run and reproduce
+
+1. Before the first provider call, commit the accepted ADR, corpus seals,
+   vocabulary, protocol and price table. Regeneration is
+   `pnpm eval:schemas:generate:v2`; do not regenerate a used holdout.
+2. Check each declared model in Google's catalogue on the UTC run date and
+   prepare a JSON attestation with `checkedOn` (`YYYY-MM-DD`), `sourceUrl`
+   (`https://ai.google.dev/gemini-api/docs/models`) and `modelIds` containing
+   exactly `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`,
+   `gemini-2.5-pro`, `gemini-3.1-pro-preview`. This records the operator's check;
+   the command does not independently prove model availability.
+3. Set server-only `AI_EVALUATION_MODELS` using the existing configuration
+   contract, with all five models, `provider: "google"`,
+   `baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai"` and an
+   `apiKeyEnv` naming the environment variable holding the key.
+4. Run `pnpm eval:models:held-out --live --catalogue /path/catalogue.json` outside
+   CI. It checks original-byte seals and committed pre-run inputs before calls,
+   then makes three attempts per model per dialect (180 attempts). Each attempt
+   and hash-linked receipt is written immediately under a fresh
+   `dist/mapping-held-out/<session-id>/` directory. The session receipt contains
+   the catalogue attestation, commit, Node/platform/architecture and start time.
+   No automatic retries, partial-grid merging or overwrites occur. Raw traces
+   and keys are not retained. The existing `eval:models` remains a DEV smoke run.
+5. Run `pnpm eval:mappings:select --records dist/mapping-held-out/<session-id>/records.json`.
+   This offline command validates the full fixed grid, seals and `VALID` outputs,
+   then writes `comparison.json`, `selection.json` and `decision.json` under
+   `dist/mapping-selection/`. The existing `mapping-selection/1` record carries
+   every selected model's per-tag baseline difference, including ties,
+   baseline-favored and unavailable values. `decision.json` records roles,
+   eligibility, primary-failed dialects, A and B. No-model has empty selection.
+6. Review and commit records, receipts and outputs, then publish a result ADR
+   amendment and the bilingual comparison. This result step has not been run.
+
+Verification: `pnpm exec vitest run packages/evals/src/mapping-selection.test.ts packages/evals/src/held-out-protocol.test.ts packages/evals/src/mapping-price-capture.test.ts packages/evals/src/adversarial-mapping.test.ts`.
+Tests use authored gold and mock transports; they are not provider measurements.
+Development environment: Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64.
+Inventory and mock-attempt counts above describe fixture construction only.
+
+A future publication must be labeled **single-provider comparison** and give
+each number's definition, exact command, environment, actual run date and limits.
+Public holdout exposure, shared synthetic templates and three deterministic
+repeats do not establish independence, real-world prevalence or significance.
+After any HELD_OUT provider record, configuration or rule changes mark that
+version used and require a fresh sealed version and pre-run ADR. Live defaults
+and escalation routing are not changed by this command.

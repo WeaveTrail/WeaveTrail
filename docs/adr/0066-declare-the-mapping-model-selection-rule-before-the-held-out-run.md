@@ -1,7 +1,8 @@
 # ADR 0066: Declare the mapping model selection rule before the held-out run
 
-- Status: Proposed. Accepted only by the pre-run amendment below, which must be
-  committed before any HELD_OUT model run record.
+- Status: Superseded before any model run by
+  [ADR 0067](0067-separate-mapping-validity-from-approval-before-selection.md).
+  The original proposal follows unchanged.
 - Date: 2026-10-08
 
 ## Context

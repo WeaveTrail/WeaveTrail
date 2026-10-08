@@ -34,9 +34,9 @@ const Gold = z
       .optional(),
   })
   .strict();
-const CorpusSchema = z
+export const CorpusSchema = z
   .object({
-    version: z.literal("schema-dialects/1"),
+    version: z.enum(["schema-dialects/1", "schema-dialects/2"]),
     split: z.enum(["DEV", "HELD_OUT"]),
     dialects: z
       .array(

@@ -11,6 +11,7 @@ import {
   MAPPING_OUTPUT_SCHEMA_VERSION,
   MAPPING_VALIDATOR_VERSION,
   validateMappingOutput,
+  validateMappingStructure,
 } from "@weavetrail/ai-harness/server";
 import vocabularyJson from "../fixtures/lexical-baseline-v1/vocabulary.json";
 import {
@@ -22,9 +23,9 @@ import type { MappingRunContext } from "./mapping-model-runner";
 import { sha256Canonical } from "@weavetrail/replay-engine";
 
 export const LEXICAL_BASELINE_PROVIDER = "deterministic-lexical-reference";
-const vocabulary = z
+export const VocabularySchema = z
   .object({
-    version: z.literal(LEXICAL_BASELINE_VERSION),
+    version: z.enum([LEXICAL_BASELINE_VERSION, "lexical-baseline/2"]),
     normalizationVersion: z.literal(LEXICAL_NORMALIZATION_VERSION),
     devSha256: z.string().regex(/^[a-f0-9]{64}$/),
     entries: z.array(
@@ -37,14 +38,15 @@ const vocabulary = z
         .strict(),
     ),
   })
-  .strict()
-  .parse(vocabularyJson);
+  .strict();
+export const vocabularyV1 = VocabularySchema.parse(vocabularyJson);
+export type LexicalVocabulary = typeof vocabularyV1;
 
 export const LEXICAL_BASELINE_DEFINITION = {
   version: LEXICAL_BASELINE_VERSION,
   normalizationVersion: LEXICAL_NORMALIZATION_VERSION,
-  devSha256: vocabulary.devSha256,
-  vocabularyHash: sha256Canonical(vocabulary),
+  devSha256: vocabularyV1.devSha256,
+  vocabularyHash: sha256Canonical(vocabularyV1),
   selectable: false as const,
 };
 
@@ -63,7 +65,10 @@ function sampleFits(transform: string, value: unknown) {
 }
 
 /** Only whole names and sample strings decide fields; binding is copied verbatim. */
-export function proposeLexicalMapping(input: MappingInput) {
+export function proposeLexicalMapping(
+  input: MappingInput,
+  vocabulary: LexicalVocabulary = vocabularyV1,
+) {
   const fields = input.columns.map((sourceColumn) => {
     const key = lexicalKey(sourceColumn);
     const candidates = vocabulary.entries.filter((entry) => entry.key === key);
@@ -114,22 +119,27 @@ export function proposeLexicalMapping(input: MappingInput) {
 export function runLexicalMapping(
   input: MappingInput,
   context: MappingRunContext,
+  vocabulary: LexicalVocabulary = vocabularyV1,
 ) {
-  const proposal = proposeLexicalMapping(input);
-  const validation = validateMappingOutput(
-    { kind: "proposal", value: proposal },
-    input,
-  );
+  const proposal = proposeLexicalMapping(input, vocabulary);
+  const validation = (
+    vocabulary.version === "lexical-baseline/2"
+      ? validateMappingStructure
+      : validateMappingOutput
+  )({ kind: "proposal", value: proposal }, input);
   return MappingRunRecordSchema.parse({
     ...context,
     schemaVersion: "mapping-run/1",
     provider: LEXICAL_BASELINE_PROVIDER,
-    requestedModel: LEXICAL_BASELINE_VERSION,
+    requestedModel: vocabulary.version,
     reportedModel: null,
-    adapterVersion: LEXICAL_BASELINE_VERSION,
+    adapterVersion: vocabulary.version,
     promptVersion: "non-model/no-prompt/1",
     outputSchemaVersion: MAPPING_OUTPUT_SCHEMA_VERSION,
-    validatorVersion: MAPPING_VALIDATOR_VERSION,
+    validatorVersion:
+      vocabulary.version === "lexical-baseline/2"
+        ? MAPPING_VALIDATOR_VERSION
+        : "mapping-validator/1",
     temperature: "0",
     latencyMs: 0,
     inputTokens: null,

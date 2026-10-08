@@ -123,3 +123,16 @@ pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
 | 수정        | 검증기 변경 없음. 의미상의 정확성은 사람 검토와 기존 명시적 승인 절차에 남음. #296, [ADR 0059](adr/0059-share-the-model-mapping-validator-with-hostile-probes.md)(영문)                         |
 | 회귀 테스트 | `packages/evals/src/adversarial-mapping.test.ts`                                                                                                                                                |
 | 상태        | `ACCEPTED_RESIDUAL`: 두 십진 열은 샘플만으로 구조상 구별할 수 없어 검증기가 어느 쪽이 가격인지 판단할 수 없음. 테스트가 잔여 위험을 고정하므로 이를 거부하도록 검증기가 바뀌면 이 항목도 갱신됨 |
+
+### F-003: 올바른 기권을 유효하지 않은 매핑 실행으로 거절함
+
+| 필드        | 값                                                                                                                                                                                                                            |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 역할        | 매핑 출력의 구조 검증과 승인 준비 상태                                                                                                                                                                                        |
+| 모델과 버전 | Validator: `mapping-validator/1`                                                                                                                                                                                              |
+| 실행 기록   | 없음. 오프라인 작성 정답이며 제공자 호출과 보관 집합 모델 실행 기록은 없음                                                                                                                                                    |
+| 가정        | 네 필수 대상을 추가하면 정답대로 답한 실행이 검증기를 통과함                                                                                                                                                                  |
+| 반례        | `schema-dialects/2` DEV와 HELD_OUT 정답에 `eventType`이 있어도 올바른 `REVIEW_REQUIRED` 기권에서 `REVIEW_STATUS`가 발생함                                                                                                     |
+| 수정        | `mapping-validator/2`는 구조 유효성과 승인 준비 상태를 분리함. 라이브 `propose`와 봉인 제안 재검증은 기존 검토 관문을 유지함. [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)(영문), PR #308 |
+| 회귀 테스트 | `packages/evals/src/mapping-selection.test.ts`                                                                                                                                                                                |
+| 상태        | `FIXED`                                                                                                                                                                                                                       |
