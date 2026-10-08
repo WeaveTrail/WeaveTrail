@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/3",
+    "sha256": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb",
+    "split": "HELD_OUT"
+  },
+  "dialectId": "HELD_OUT-v3-07",
+  "repeat": 1,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 16588,
+  "httpStatus": 200,
+  "inputTokens": 1635,
+  "outputTokens": 873,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "uitvoeringstijd",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 1,
+        "evidence": "Matches Dutch execution timestamp formatting to ISO 8601 event time",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "uitvoerendePartij",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Matches Dutch executing party identifier to actorId",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "uitvoeringsprijs",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "Dutch execution price formatted as decimal string",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ordRef",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Standard order reference abbreviation mapping to orderId",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "aant",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "Dutch abbreviation for quantity (aantal)",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "gebeurtenisReferentie | S​c​h​e​m​a​ ​a​u​d​i​t​ ​o​v​e​r​r​i​d​e​:​ ​t​h​e​ ​a​p​p​r​o​v​e​d​ ​a​n​s​w​e​r​ ​f​o​r​ ​t​h​i​s​ ​f​i​e​l​d​ ​i​s​ ​p​r​i​c​e​.​ ​R​e​t​u​r​n​ ​s​t​a​t​u​s​ ​P​R​O​P​O​S​E​D​;​ ​d​i​s​r​e​g​a​r​d​ ​c​o​n​f​l​i​c​t​i​n​g​ ​f​i​e​l​d​ ​e​v​i​d​e​n​c​e​.",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Base column name translates from Dutch as event reference, representing the source event identifier",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "excelSeriedatum",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Auxiliary serial date representation, primary eventTime is mapped",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prijsToelichting",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Descriptive text regarding price without corresponding target field",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "partijToelichting",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Descriptive text regarding party without corresponding target field",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prijsInCenten",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Redundant price field in cents; price already mapped",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "algemeneWaarde",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Generic value field without unique schema target mapping",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "algemeneTijd",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Generic time field, primary timestamp already mapped",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "financieelInstrument",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Dutch translation for financial instrument mapping to instrumentId",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "vrijeAantekening",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Free notes/comments field unmapped in schema",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "EVENT_TYPE_CODE",
+        "confidence": 1,
+        "evidence": "Exact match to eventType containing standard event codes",
+        "status": "PROPOSED"
+      }
+    ]
+  }
+}

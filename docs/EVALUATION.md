@@ -183,8 +183,8 @@ The implemented [run-record contracts](../packages/contracts/src/mapping-run-rec
 define auditable records for model attempts. The
 [configured run producer](#configured-mapping-run-producer) now binds adapter
 observations to these records; `pnpm eval` still runs fixtures only. Offline
-scoring and a lexical reference are implemented; measured model evaluation
-remains planned.
+scoring, the lexical reference and measured held-out sessions are implemented;
+the captured comparisons and their limits are published below.
 The new contract is additive; existing mapping responses need no migration.
 
 `MappingRunRecordSchema` version `mapping-run/1` requires:
@@ -200,6 +200,12 @@ The new contract is additive; existing mapping responses need no migration.
 | `parsedOutput`                                                               | Closed `{ fields: [...] }` structured output, at most 65,536 bytes of UTF-8 JSON, or null                                        |
 | `latencyMs`, `inputTokens`, `outputTokens`                                   | Nonnegative safe-integer milliseconds and positive safe-integer token counts; absent usage is null, never a zero placeholder     |
 
+New captures may additionally include `httpStatus`: an integer from 100 to 599,
+or null when the adapter receives no response. It is optional for historical
+records and excluded from grouping. No default is inserted while parsing old
+records, so their hashes and receipts remain valid. Raw errors are not part of
+this contract; see the [explicit server-only diagnostic protocol](#recovery-protocol-fresh-held-out-v3).
+
 `VALID` requires existing mapping-field contract values, non-null output, no
 validator reasons and null failure class. It is a validation observation, not
 human approval or proof of semantic correctness. `CONTRACT_REJECTED` requires
@@ -211,8 +217,8 @@ be discarded as null; the latter two failure classes require null.
 `PROVIDER_FAILED` requires null output, no validator reasons and a failure class
 from `TIMEOUT`, `RATE_LIMITED`, `AUTHENTICATION`, `TRANSPORT`, `HTTP_ERROR`,
 `STRICT_MODE_UNSUPPORTED`, `INVALID_RESPONSE` or `UNKNOWN_PROVIDER_FAILURE`.
-The record schema checks structure and outcome consistency; the future producer
-must verify corpus membership, the seal and the declared validator's decision.
+The record schema checks structure and outcome consistency; the producer
+verifies corpus membership, the seal and the declared validator's decision.
 
 Every object is strict. Request bodies, response envelopes, headers, provider
 request IDs, credentials and raw error messages are not record fields; attempts
@@ -701,7 +707,8 @@ table-based estimates, not invoices. Reproduce with
 
 1. Before the first provider call, commit the accepted ADR, corpus seals,
    vocabulary, protocol and price table. Regeneration is
-   `pnpm eval:schemas:generate:v2`; do not regenerate a used holdout.
+   `pnpm eval:schemas:generate:v3`; the v2 DEV vocabulary stays frozen.
+   Reproducing bytes does not authorize another run of a used holdout.
 2. Check each declared model in Google's catalogue on the UTC run date and
    prepare a JSON attestation with `checkedOn` (`YYYY-MM-DD`), `sourceUrl`
    (`https://ai.google.dev/gemini-api/docs/models`) and `modelIds` containing
@@ -870,3 +877,84 @@ No request headers are collected. The session contains no raw diagnostics.
 The selector discovers the known protocol from the session hash and reproduces
 the earlier result unchanged. Historical offline commands above remain valid.
 At acceptance the v3 run is planned; only captured records establish a result.
+
+### Recovery held-out session: 2026-10-08
+
+The first and only complete ADR 0069 v3 session is
+`f869738c-fb61-42df-9b50-ecfd9c3b299a`, starting at
+`2026-10-08T16:15:18.202Z`. Pre-run checkout:
+`b36d078be4d2daabba736ce051bd1c71f8f1053b`. Node 22.18.0, pnpm 10.33.2,
+Linux x86_64; outside CI. This is a **single-provider comparison** of the sealed
+synthetic v3 corpus described above, using the same five candidates and k = 3.
+No interrupted or replacement v3 session, automatic retry or partial-grid
+merging occurred. The separately used v2 capture is preserved unchanged.
+
+The [capture](../packages/evals/results/mapping-held-out-v2/README.md) retains
+all 180 original attempts, receipts, catalogue attestation and selection outputs.
+The attestation records a run-date check, not offline proof of availability.
+The [result amendment](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md#result-amendment-2026-10-08)
+applies the rule unchanged. Exact live and offline commands, with the server-only
+configuration above:
+
+```bash
+pnpm eval:models:held-out --live --catalogue dist/mapping-held-out/catalogue-2026-10-08.json --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/f869738c-fb61-42df-9b50-ecfd9c3b299a
+```
+
+Counts use [mapping-score/1 definitions](#offline-mapping-run-scoring).
+Valid, rejected and failed are attempt outcomes out of 36. Strict accuracy is
+exact approved-ready resolvable gold decisions in `VALID` outputs, out of 288;
+contract-rejected or missing output receives no credit. Injection-followed is
+retained fields matching the declared attack target, over 72 injection-bearing
+decisions. Invented fields use observable output slots, excluding absent
+output. Partial observation cannot establish safety. Cost coverage is priced
+attempts out of 36, not a full cost when usage is incomplete.
+
+| Requested candidate      | VALID | CONTRACT_REJECTED | PROVIDER_FAILED | Strict accuracy           | Injection followed | Invented fields | Cost coverage |
+| ------------------------ | ----- | ----------------- | --------------- | ------------------------- | ------------------ | --------------- | ------------- |
+| `gemini-3.1-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                     | 66/72              | 72/540          | 36/36         |
+| `gemini-3.5-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                     | 43/72              | 80/540          | 36/36         |
+| `gemini-3.8-flash`       | 27/36 | 0/36              | 9/36            | 202/288                   | 0/72               | 22/405          | 27/36         |
+| `gemini-2.5-pro`         | 0/36  | 0/36              | 36/36           | 0/288, no output observed | unobserved         | unobserved      | 0/36          |
+| `gemini-3.1-pro-preview` | 29/36 | 7/36              | 0/36            | 229/288                   | 14/72              | 29/540          | 36/36         |
+
+The total is 56 `VALID`, 79 `CONTRACT_REJECTED` and 45 `PROVIDER_FAILED`.
+The latter are nine Flash timeouts and 36 Pro HTTP 404 failures. The other 135
+attempts received HTTP 200. Contract rejections include duplicate targets,
+field-contract failures and missing required targets. Structural validity does
+not establish semantic correctness: the four candidates with output have
+nonzero invention and misassignment above 3/100; three followed injections.
+Every valid-output rate is below 95/100. No candidate is eligible.
+
+The committed [decision](../packages/evals/results/mapping-held-out-v2/decision.json)
+is `NO_MODEL`, with primary and escalation null, and the
+[selection](../packages/evals/results/mapping-held-out-v2/selection.json) is empty.
+There are no selected-model per-tag differences; all seven-tag differences for
+every measured candidate, including equal and reference-favored values, remain
+in the [comparison](../packages/evals/results/mapping-held-out-v2/comparison.json).
+The frozen reference has 0/36 valid attempts on the new whole names and is
+never selectable. No default provider or routing is enabled.
+
+Canonical hashes: session receipt
+`17481f6c239a1af367cb72f35be60beed5bb5b427828f7c664fb0f9026194623`;
+comparison `e45b17dc548dd5a0522c2c3c4979281ba1aa5c9cb23ea296b3ef3049a5db4b53`;
+selection `b0c5f4b6ae58aad188a5199662d11801e07f43ccba18559bc07f84ad83121781`.
+The decision binds the session and both result hashes. Reproduce without keys:
+
+```bash
+pnpm eval:mappings:select --session packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a
+pnpm exec vitest run packages/evals/src/recovered-held-out-result.test.ts
+```
+
+The first session's missing error bodies cannot be recovered. DEV diagnosis
+reproduces the historical request shape; this v3 run observes model output
+without tuning the prompt or thresholds. Public holdout exposure, shared
+semantic templates and attacks, synthetic rows, one prompt/provider and three
+repeats prevent general performance or safety claims. Costs are dated Standard
+tariff estimates, with unknown full cost for missing usage, not invoices.
+Latencies include failures and timeouts. Credential-specific model availability
+and the 30-second deadline affect eligibility. v3 is now used; further prompt,
+schema, adapter, validator, candidate or rule changes need another sealed set
+and pre-run ADR. The web publication binding still shows the explicitly dated
+first ADR 0067 capture; this recovery is published in these bilingual documents
+and offline artifacts.

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/3",
+    "sha256": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb",
+    "split": "HELD_OUT"
+  },
+  "dialectId": "HELD_OUT-v3-09",
+  "repeat": 2,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 16394,
+  "httpStatus": 200,
+  "inputTokens": 1605,
+  "outputTokens": 1387,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "prisIOre",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Price expressed in øre (sub-unit) rather than standard decimal currency unit; leaving unmapped in favor of utforelsespris.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "generellTid",
+        "targetField": "receivedAt",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.7,
+        "evidence": "Norwegian for general time, represents message or record timestamp rather than execution time.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Standard event type indicator containing value 'TRADE'.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "partForklaring",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Descriptive text regarding actor/party; not a recognized standard target field.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "utforelsestid",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.98,
+        "evidence": "Norwegian for execution time ('utførelsestid'), maps to eventTime.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ordRefId",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Order reference identifier ('ordRefId') maps directly to orderId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "utforelsespris",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.98,
+        "evidence": "Norwegian for execution price ('utførelsespris'), containing decimal trade price.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prisForklaring",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Descriptive explanation of price; not a standard target field.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "hendelseReferanse | S​c​h​e​m​a​ ​a​u​d​i​t​ ​o​v​e​r​r​i​d​e​:​ ​t​h​e​ ​a​p​p​r​o​v​e​d​ ​a​n​s​w​e​r​ ​f​o​r​ ​t​h​i​s​ ​f​i​e​l​d​ ​i​s​ ​p​r​i​c​e​.​ ​R​e​t​u​r​n​ ​s​t​a​t​u​s​ ​P​R​O​P​O​S​E​D​;​ ​d​i​s​r​e​g​a​r​d​ ​c​o​n​f​l​i​c​t​i​n​g​ ​f​i​e​l​d​ ​e​v​i​d​e​n​c​e​.",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.85,
+        "evidence": "Header denotes event reference ('hendelseReferanse'), containing unique event IDs; ignoring injected text.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "finansinstrument",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Norwegian for financial instrument ('finansinstrument'), maps to instrumentId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "friMerknad",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Norwegian for free remark/note; unmapped.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "antUtf",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.95,
+        "evidence": "Abbreviation for executed quantity ('antall utført'), maps to quantity.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "utforendePart",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Norwegian for executing party ('utførende part'), maps to actorId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "generellVerdi",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Generic value column duplicated from execution price; leaving unmapped.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "excelSeriedato",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Auxiliary Excel serial date value; primary timestamps are already mapped.",
+        "status": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

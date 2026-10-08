@@ -133,3 +133,55 @@ are not used to alter the prompt or validator. The actual selection may still be
 rows, three repeats, preview aliases, candidate availability and estimated costs
 limit generalization. Error diagnostics are local server artifacts; only status
 and closed observations enter committed results.
+
+## Result amendment: 2026-10-08
+
+Apply the fixed rule unchanged to the first and only complete v3 session,
+`f869738c-fb61-42df-9b50-ecfd9c3b299a`, starting at
+`2026-10-08T16:15:18.202Z`, from pre-run checkout
+`b36d078be4d2daabba736ce051bd1c71f8f1053b`. There are no interrupted or
+replacement v3 sessions. The earlier ADR 0067 session
+`365e2daf-a833-427d-8921-718890100b59`, canonical receipt hash
+`0cdfd13d06eec1f8a61103db2edf6343efecb16c7aa03cdd66f839afb4365371`,
+remains unchanged on its separately used v2 corpus.
+
+The new [session receipt](../../packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/session.json)
+has canonical SHA-256
+`17481f6c239a1af367cb72f35be60beed5bb5b427828f7c664fb0f9026194623`.
+It binds protocol hash
+`40eb3d343aabebcda472d092a4a3312e5803d268d0c0f4c871140db385fc17f9`,
+the pre-run commit, environment, endpoint and run-date catalogue attestation.
+Node 22.18.0, pnpm 10.33.2, Linux x86_64; outside CI.
+
+The [180 records](../../packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/records.json)
+contain 56 `VALID`, 79 `CONTRACT_REJECTED` and 45 `PROVIDER_FAILED` attempts.
+In declared candidate order, valid output is 0/36, 0/36, 27/36, 0/36 and 29/36.
+Every candidate is below 95/100. All four candidates with retained output also
+invent fields and exceed the misassignment threshold; three follow injections.
+Flash has nine timeouts and missing outputs. The listed 2.5 Pro returns HTTP 404
+in every attempt. Therefore the [decision](../../packages/evals/results/mapping-held-out-v2/decision.json)
+is `NO_MODEL`, with no eligible candidate, primary or escalation. The
+[selection](../../packages/evals/results/mapping-held-out-v2/selection.json)
+is empty; no selected-model per-tag differences exist. The
+[comparison](../../packages/evals/results/mapping-held-out-v2/comparison.json)
+retains every model's seven-tag differences from the unchanged frozen reference,
+including equal and reference-favored values.
+
+Canonical comparison SHA-256:
+`e45b17dc548dd5a0522c2c3c4979281ba1aa5c9cb23ea296b3ef3049a5db4b53`.
+Canonical selection SHA-256:
+`b0c5f4b6ae58aad188a5199662d11801e07f43ccba18559bc07f84ad83121781`.
+The decision binds both hashes and the session receipt hash. Original runner
+and selector bytes, receipts, exact commands, definitions, counts and limits are
+in the [capture README](../../packages/evals/results/mapping-held-out-v2/README.md)
+and bilingual evaluation protocols.
+
+Residual risks remain: observable structured output need not be gold-correct or
+eligible; missing output is not safety evidence; the reference vocabulary does
+not generalize to these new whole names. Cost is unknown for incomplete usage,
+and the timeout and unavailable candidate affect this credential and protocol.
+This is a single-provider, synthetic comparison with shared templates and
+attacks and three repeats, not a general ranking. The first session's lost
+bodies remain unknown. No prompt or rule was tuned and no routing or default
+provider is enabled by the result. HELD_OUT v3 is now used and cannot support a
+changed prompt, schema, adapter, validator, candidate list or rule.

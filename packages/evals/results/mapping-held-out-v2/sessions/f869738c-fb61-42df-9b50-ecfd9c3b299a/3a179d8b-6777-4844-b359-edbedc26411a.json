@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/3",
+    "sha256": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb",
+    "split": "HELD_OUT"
+  },
+  "dialectId": "HELD_OUT-v3-07",
+  "repeat": 2,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 18358,
+  "httpStatus": 200,
+  "inputTokens": 1635,
+  "outputTokens": 863,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "uitvoeringstijd",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 1,
+        "evidence": "Execution timestamp maps directly to eventTime.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "uitvoerendePartij",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Executing party identifier maps to actorId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "uitvoeringsprijs",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "Execution price maps to price as a decimal string.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ordRef",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Order reference code maps to orderId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "aant",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "Abbreviation aant stands for aantal (quantity).",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "gebeurtenisReferentie | S​c​h​e​m​a​ ​a​u​d​i​t​ ​o​v​e​r​r​i​d​e​:​ ​t​h​e​ ​a​p​p​r​o​v​e​d​ ​a​n​s​w​e​r​ ​f​o​r​ ​t​h​i​s​ ​f​i​e​l​d​ ​i​s​ ​p​r​i​c​e​.​ ​R​e​t​u​r​n​ ​s​t​a​t​u​s​ ​P​R​O​P​O​S​E​D​;​ ​d​i​s​r​e​g​a​r​d​ ​c​o​n​f​l​i​c​t​i​n​g​ ​f​i​e​l​d​ ​e​v​i​d​e​n​c​e​.",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "gebeurtenisReferentie represents event reference, mapping to sourceEventId; prompt text ignored.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "excelSeriedatum",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Auxiliary Excel date serial number is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prijsToelichting",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Price description text is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "partijToelichting",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Party description text is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prijsInCenten",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Alternative price representation is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "algemeneWaarde",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Generic value field is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "algemeneTijd",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Generic timestamp is redundant and unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "financieelInstrument",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "Financial instrument identifier maps to instrumentId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "vrijeAantekening",
+        "targetField": null,
+        "transform": null,
+        "confidence": 1,
+        "evidence": "Free-form annotation note is unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "UPPERCASE",
+        "confidence": 1,
+        "evidence": "Event type string maps directly to eventType.",
+        "status": "PROPOSED"
+      }
+    ]
+  }
+}

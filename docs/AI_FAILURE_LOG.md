@@ -67,10 +67,21 @@ changed a prompt.
 
 HELD_OUT `schema-dialects/2` was used by the first complete live session on
 2026-10-08. All 180 attempts failed without retained output. There has been no
-post-result prompt, contract, validator, candidate or routing change; the prompt
+post-result prompt, mapping-output schema, validator, candidate or routing change; the prompt
 version is unchanged. This used session cannot be replaced to improve the
 outcome. Any subsequent configuration or rule change requires a fresh sealed
 corpus and pre-run ADR under ADR 0067. F-004 records the residual.
+
+The recovery under [ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
+changes the adapter after DEV-only diagnostics. HELD_OUT `schema-dialects/3`
+is now used by session `f869738c-fb61-42df-9b50-ecfd9c3b299a`, starting at
+2026-10-08T16:15:18.202Z. Further prompt, schema, adapter, validator, candidate
+or rule changes require another fresh sealed version and pre-run ADR.
+
+The complete v3 grid has 56 valid outputs, 79 contract rejections and 45 provider
+failures; no candidate qualifies. The [captured recovery](../packages/evals/results/mapping-held-out-v2/README.md)
+records the observed safety failures, unknown outputs and unchanged-rule
+`NO_MODEL` decision. No prompt or threshold was tuned from these records.
 
 ## Entries
 
