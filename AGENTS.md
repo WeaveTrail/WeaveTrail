@@ -152,10 +152,13 @@ pnpm typecheck
 pnpm test
 pnpm format:check
 pnpm build
+pnpm test:browser
 ```
 
-Add the Playwright flow and property test commands here when those suites
-exist. Do not list a planned check as though it already runs.
+`pnpm test:browser` runs the Playwright flows against the production build, so
+run it after `pnpm build`; install Chromium once with
+`pnpm exec playwright install chromium`. Add the property test command here when
+that suite exists. Do not list a planned check as though it already runs.
 
 ## Out of bounds
 

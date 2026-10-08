@@ -1,0 +1,27 @@
+{
+  "version": "mapping-held-out-session/1",
+  "sessionId": "365e2daf-a833-427d-8921-718890100b59",
+  "startedAt": "2026-10-08T13:43:56.706Z",
+  "commit": "70f3b403331d543cab6f09a01a82c82a71bfcefe",
+  "environment": {
+    "node": "v22.18.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "endpoint": {
+    "provider": "google",
+    "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai"
+  },
+  "catalogue": {
+    "checkedOn": "2026-10-08",
+    "sourceUrl": "https://ai.google.dev/gemini-api/docs/models",
+    "modelIds": [
+      "gemini-3.1-flash-lite",
+      "gemini-3.5-flash-lite",
+      "gemini-3.8-flash",
+      "gemini-2.5-pro",
+      "gemini-3.1-pro-preview"
+    ]
+  },
+  "protocolHash": "0337c17452710a84e589f63457ba1e444cca176dd2006040274883c83b5ce890"
+}

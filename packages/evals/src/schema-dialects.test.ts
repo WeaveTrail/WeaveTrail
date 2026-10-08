@@ -10,6 +10,38 @@ import {
 } from "@weavetrail/contracts";
 import { generateCorpus, tags, type Corpus } from "./schema-dialects-generator";
 
+// ADR 0068 publishes only these audited outputs, through one binding. Corpus,
+// gold, run records and every other evaluation import remain offline.
+const publishedOutputs = new Map([
+  [
+    "packages/evals/results/mapping-held-out-v1/comparison.json",
+    "3850fefce368f8efd0941dc2e77e47652f50d5818eab7fa4d6876f11b9c378c0",
+  ],
+  [
+    "packages/evals/results/mapping-held-out-v1/decision.json",
+    "74015061dbcb68a4da319a8f84c939126e21ca05160b7cf1f2849775b8ea1316",
+  ],
+  [
+    "packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json",
+    "ae63e014d166b2722701237f48cd308b513ada10dba0f59f2ce2250e5e824a3f",
+  ],
+]);
+
+function assertEvaluationImport(name: string, imported: string, root: string) {
+  if (!/@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/.test(imported)) return;
+  const target = relative(root, resolve(root, name, "..", imported));
+  expect(name).toBe("apps/web/src/app/evals/held-out-result.ts");
+  expect(publishedOutputs.has(target), target).toBe(true);
+  const bytes = readFileSync(resolve(root, target));
+  expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+    publishedOutputs.get(target),
+  );
+  // Even the audited publication may contain only metrics and metadata.
+  expect(bytes.toString()).not.toMatch(
+    /"(?:gold|dialects|namingFamily|sampleRows|samples|columns|constants|parsedOutput|apiKey)"\s*:/,
+  );
+}
+
 function assertOfflineBoundary(
   entry: string,
   host: ts.ModuleResolutionHost = ts.sys,
@@ -271,13 +303,37 @@ describe("offline schema dialect evaluation input", () => {
         if (!/\.(ts|tsx|js|mjs|json|html)$/.test(name)) continue;
         const content = readFileSync(path, "utf8");
         expect(content, name).not.toContain("schema-dialects");
-        for (const imported of ts.preProcessFile(content).importedFiles) {
-          expect(imported.fileName, name).not.toMatch(
-            /@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/,
-          );
-        }
+        for (const imported of ts.preProcessFile(content).importedFiles)
+          assertEvaluationImport(name, imported.fileName, root);
       }
     }
     assertOfflineBoundary(resolve(import.meta.dirname, "index.ts"));
+  });
+  it("rejects corpus, gold, run-record and non-binding publication imports", () => {
+    const root = resolve(import.meta.dirname, "../../..");
+    const binding = "apps/web/src/app/evals/held-out-result.ts";
+    for (const imported of [
+      "../../../../../packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json",
+      "../../../../../packages/evals/fixtures/schema-dialects-v2/DEV.json",
+      "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/records.json",
+      "../../../../../packages/evals/src/mapping-selection",
+      "@weavetrail/evals",
+    ])
+      expect(() => assertEvaluationImport(binding, imported, root)).toThrow();
+    for (const name of [
+      "apps/web/src/app/evals/page.tsx",
+      "packages/contracts/src/index.ts",
+    ])
+      expect(() =>
+        assertEvaluationImport(
+          name,
+          "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json",
+          root,
+        ),
+      ).toThrow();
+    for (const target of publishedOutputs.keys())
+      expect(() =>
+        assertEvaluationImport(binding, `../../../../../${target}`, root),
+      ).not.toThrow();
   });
 });

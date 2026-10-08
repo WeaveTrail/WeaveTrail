@@ -15,3 +15,6 @@ apps/web/src/design-reference/tokens
 /packages/evals/fixtures/lexical-baseline-v1/records.json
 /packages/evals/fixtures/lexical-baseline-v1/baseline-records.json
 /packages/evals/results/mapping-comparison-v1.json
+
+# Captured held-out selector output; reproduced byte for byte by its regression.
+/packages/evals/results/mapping-held-out-v1/comparison.json
