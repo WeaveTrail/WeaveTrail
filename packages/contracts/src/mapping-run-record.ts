@@ -80,6 +80,8 @@ const Base = {
     message: "Temperature must be nonnegative",
   }),
   latencyMs: NonnegativeInteger,
+  // Additive observation; historical records keep their original bytes/hashes.
+  httpStatus: z.number().int().min(100).max(599).nullable().optional(),
   inputTokens: TokenCount,
   outputTokens: TokenCount,
 };

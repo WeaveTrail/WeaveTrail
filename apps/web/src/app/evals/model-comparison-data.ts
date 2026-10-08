@@ -309,6 +309,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Every held-out mapping request failed without observed output",
     ko: "보관 평가 집합의 모든 매핑 요청이 출력 관측 없이 실패함",
   },
+  {
+    id: "F-005",
+    status: "FIXED",
+    en: "The compatibility endpoint rejects the store request parameter",
+    ko: "호환 엔드포인트가 store 요청 매개변수를 거부함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

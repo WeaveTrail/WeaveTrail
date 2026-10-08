@@ -158,3 +158,14 @@ Unless you state otherwise when submitting a contribution, you agree that it
 is licensed under the repository's [Apache License 2.0](LICENSE). Do not submit
 code, data, documentation, or assets that you do not have the right to license
 on those terms.
+
+## Mapping transport recovery
+
+The live held-out command now follows
+[ADR 0069](docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
+and fresh v3 inputs; the used v2 session remains reproducible offline.
+`pnpm eval:schemas:generate:v3` reproduces the fresh seal.
+`pnpm eval:models:diagnose --live` checks v2 DEV transport before spending a new
+holdout. `--legacy-store` reproduces the removed request parameter on DEV only.
+Explicit diagnostics and held-out `--diagnostics` write private bounded error
+bodies under ignored `.model-runs/raw/`; never commit those files.

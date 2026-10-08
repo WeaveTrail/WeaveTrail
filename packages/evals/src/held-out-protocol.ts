@@ -16,7 +16,10 @@ import {
   runConfiguredMapping,
   type EvaluationModel,
 } from "./mapping-model-runner";
-import protocol from "../fixtures/mapping-selection-v1/protocol.json";
+import protocolV1 from "../fixtures/mapping-selection-v1/protocol.json";
+import protocolV2 from "../fixtures/mapping-selection-v2/protocol.json";
+export type SelectionProtocol = 1 | 2;
+const protocols = { 1: protocolV1, 2: protocolV2 };
 
 export const root = resolve(import.meta.dirname, "../../..");
 export const HELD_OUT_ENDPOINT = {
@@ -28,7 +31,11 @@ const HeldOutReceiptSchema = MappingRunReceiptSchema.extend({
   schemaVersion: z.literal("mapping-held-out-receipt/1"),
   sessionId: z.uuid(),
 }).strict();
-export function loadSelectionInputs(requireCommitted = false) {
+export function loadSelectionInputs(
+  requireCommitted = false,
+  version: SelectionProtocol = 1,
+) {
+  const protocol = protocols[version];
   for (const [path, expected] of Object.entries(protocol.files)) {
     const bytes = readFileSync(resolve(root, path));
     if (createHash("sha256").update(bytes).digest("hex") !== expected)
@@ -56,7 +63,7 @@ export function loadSelectionInputs(requireCommitted = false) {
       ],
       { cwd: root },
     );
-    const path = "packages/evals/fixtures/mapping-selection-v1/protocol.json";
+    const path = `packages/evals/fixtures/mapping-selection-v${version}/protocol.json`;
     if (
       !execFileSync("git", ["show", `HEAD:${path}`], { cwd: root }).equals(
         readFileSync(resolve(root, path)),
@@ -64,7 +71,9 @@ export function loadSelectionInputs(requireCommitted = false) {
     )
       throw new Error("Protocol must be committed");
     const adr =
-      "docs/adr/0067-separate-mapping-validity-from-approval-before-selection.md";
+      version === 1
+        ? "docs/adr/0067-separate-mapping-validity-from-approval-before-selection.md"
+        : "docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md";
     const bytes = readFileSync(resolve(root, adr));
     if (
       !execFileSync("git", ["show", `HEAD:${adr}`], { cwd: root }).equals(
@@ -74,14 +83,27 @@ export function loadSelectionInputs(requireCommitted = false) {
     )
       throw new Error("Accepted pre-run ADR must be committed");
   }
-  const corpusPath = "packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json";
+  const corpusPath =
+    version === 1
+      ? "packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json"
+      : "packages/evals/fixtures/schema-dialects-v3/HELD_OUT.json";
   const source = {
     bytes: readFileSync(resolve(root, corpusPath), "utf8"),
-    sha256: protocol.files[corpusPath],
+    sha256:
+      version === 1
+        ? protocolV1.files[
+            "packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json"
+          ]
+        : protocolV2.files[
+            "packages/evals/fixtures/schema-dialects-v3/HELD_OUT.json"
+          ],
   };
   const corpus = CorpusSchema.parse(JSON.parse(source.bytes));
   const seal = readFileSync(
-    resolve(root, "packages/evals/fixtures/schema-dialects-v2/HELD_OUT.sha256"),
+    resolve(
+      root,
+      `packages/evals/fixtures/schema-dialects-v${version === 1 ? 2 : 3}/HELD_OUT.sha256`,
+    ),
     "utf8",
   );
   if (seal !== `${source.sha256}  HELD_OUT.json\n`)
@@ -114,7 +136,9 @@ export async function runHeldOut(
   output: string,
   transport?: typeof fetch,
 ) {
-  const { source, corpus } = loadSelectionInputs(true);
+  const version = 2;
+  const protocol = protocols[version];
+  const { source, corpus } = loadSelectionInputs(true, version);
   const catalogue = CatalogueSchema.parse(catalogueInput);
   if (
     catalogue.checkedOn !== new Date().toISOString().slice(0, 10) ||
@@ -222,8 +246,10 @@ export function loadHeldOutSession(directory: string) {
   const read = (name: string): unknown =>
     JSON.parse(readFileSync(resolve(directory, name), "utf8"));
   const session = SessionSchema.parse(read("session.json"));
-  if (session.protocolHash !== sha256Canonical(protocol))
-    throw new Error("Session was run under another protocol");
+  const version = ([1, 2] as const).find(
+    (v) => session.protocolHash === sha256Canonical(protocols[v]),
+  );
+  if (!version) throw new Error("Session was run under another protocol");
   const names = readdirSync(directory);
   const receipts = names.filter((n) => n.endsWith(".receipt.json"));
   const expected = new Set([
@@ -255,6 +281,7 @@ export function loadHeldOutSession(directory: string) {
     throw new Error("records.json differs from the receipted attempts");
   return {
     records,
+    protocolVersion: version,
     session: {
       sessionId: session.sessionId,
       sessionHash: sha256Canonical(session),

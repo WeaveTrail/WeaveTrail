@@ -54,15 +54,22 @@ export function selectMappingModels(
   if (records.some((r) => r.inputTokens !== null && r.inputTokens > 200_000))
     throw new Error("Run exceeds dated price scope");
   const corpus = CorpusSchema.parse(JSON.parse(source.bytes));
-  if (corpus.version !== "schema-dialects/2" || corpus.split !== "HELD_OUT")
-    throw new Error("Selection requires sealed v2 HELD_OUT");
+  const recovery = corpus.version === "schema-dialects/3";
+  if (
+    (!recovery && corpus.version !== "schema-dialects/2") ||
+    corpus.split !== "HELD_OUT"
+  )
+    throw new Error("Selection requires sealed v2 or v3 HELD_OUT");
   if (corpus.dialects.some((d) => d.gold.some((g) => g.tags.length !== 1)))
     throw new Error("Selection requires one tag per decision");
   for (const r of records) {
     if (
       r.provider !== "google" ||
       !(SELECTION_MODELS as readonly string[]).includes(r.requestedModel) ||
-      r.adapterVersion !== "openai-compatible-mapping/1" ||
+      r.adapterVersion !==
+        (recovery
+          ? "openai-compatible-mapping/2"
+          : "openai-compatible-mapping/1") ||
       r.promptVersion !== "schema-mapping/1" ||
       r.outputSchemaVersion !== "mapping-fields/1" ||
       r.validatorVersion !== "mapping-validator/2" ||
@@ -220,7 +227,7 @@ export function selectMappingModels(
     selection,
     decision: {
       version: "mapping-selection-decision/1",
-      rule: "ADR-0067",
+      rule: recovery ? "ADR-0069" : "ADR-0067",
       session,
       comparisonHash: selection.comparisonHash,
       selectionHash: sha256Canonical(selection),

@@ -24,7 +24,7 @@ export type { ProviderTrace } from "./provider";
 export const MAPPING_PROMPT_VERSION =
   "schema-mapping/1" satisfies PromptVersion;
 export const MAPPING_SAMPLE_ROWS = 8;
-export const MAPPING_ADAPTER_VERSION = "openai-compatible-mapping/1";
+export const MAPPING_ADAPTER_VERSION = "openai-compatible-mapping/2";
 export const MAPPING_OUTPUT_SCHEMA_VERSION = "mapping-fields/1";
 export const MAPPING_TIMEOUT_MS = 30_000;
 export const PROVIDER_REVIEW_MESSAGE =
@@ -110,6 +110,7 @@ export type MappingAttempt = RunResult & {
   inputTokens: number | null;
   outputTokens: number | null;
   latencyMs: number;
+  httpStatus: number | null;
 };
 type FailureClass = Extract<
   MappingRunRecord,
@@ -219,6 +220,7 @@ export class StructuredOutputClient {
   ): Promise<MappingAttempt> {
     const started = performance.now();
     const signal = AbortSignal.timeout(MAPPING_TIMEOUT_MS);
+    let httpStatus: number | null = null;
     let reportedModel: string | null = null;
     let inputTokens: number | null = null;
     let outputTokens: number | null = null;
@@ -237,7 +239,6 @@ export class StructuredOutputClient {
           },
           body: JSON.stringify({
             model: this.configuration.model,
-            store: false,
             temperature: 0,
             messages: [
               { role: "system", content: instruction },
@@ -250,6 +251,7 @@ export class StructuredOutputClient {
           }),
         },
       );
+      httpStatus = response.status;
       // Even HTTP error bodies are bounded and never retained.
       let bytes: Uint8Array;
       try {
@@ -366,6 +368,7 @@ export class StructuredOutputClient {
       const result = await Promise.race([receive(), deadline]);
       return {
         ...result,
+        httpStatus,
         reportedModel,
         inputTokens,
         outputTokens,
@@ -381,6 +384,7 @@ export class StructuredOutputClient {
               ? error.failureClass
               : "TRANSPORT",
         ),
+        httpStatus,
         reportedModel,
         inputTokens,
         outputTokens,

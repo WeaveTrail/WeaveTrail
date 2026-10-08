@@ -825,3 +825,48 @@ behavior and cost are unobserved. Public holdout exposure, shared synthetic
 templates, a single provider and three repeats do not establish independence,
 real-world prevalence or statistical significance. The dated price table is
 an estimate, not an invoice, and missing usage is never priced as zero.
+
+### Recovery protocol: fresh HELD_OUT v3
+
+[ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
+fixes the next run before any v3 records. DEV diagnostics on 2026-10-08 reproduce
+HTTP 400 when all five requests include `store: false`; Google rejects that
+unknown parameter. This is consistent with the first session's failures, whose
+lost bodies cannot be recovered. Adapter `openai-compatible-mapping/2` omits
+that parameter. Four DEV requests then return HTTP 200; listed `gemini-2.5-pro`
+returns HTTP 404 for this credential. No prompt, validator or threshold changes.
+
+`schema-dialects/3` uses twelve new synthetic header families and two samples
+per column, with all seven existing tags. It shares semantic templates and
+attack payloads with earlier versions and is public; a fresh seal does not
+establish independence or secrecy. SHA-256:
+`bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb`.
+The frozen v2 DEV reference and 2026-10-08 price table are unchanged. Candidate
+IDs, k = 3 and the ADR 0067 eligibility, primary and escalation rule are
+unchanged; no eligible primary still yields `NO_MODEL`.
+
+The live command now uses the new protocol; v2 is offline-only. After committing
+ADR 0069 and its inputs, use the same server-only five-model configuration and
+run-date catalogue attestation described above:
+
+```bash
+pnpm eval:models:diagnose --live --legacy-store
+pnpm eval:models:diagnose --live
+pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
+```
+
+The diagnostic command uses v2 DEV only. `--legacy-store` deliberately
+reproduces the removed parameter and is unavailable on the held-out command.
+Diagnostics print only status and closed outcome codes. New `mapping-run/1`
+records have optional `httpStatus`: null means no response arrived; historical
+records omit it and keep their original hashes. Status does not affect score
+grouping. Raw error bodies remain local and server-only in `.model-runs/raw/`,
+with private file permissions and a 64 KiB bound. They may echo sensitive
+values and must never enter commits, CI artifacts or browser bundles. Bodies
+are retained only by explicit diagnostic commands or the `--diagnostics` flag.
+No request headers are collected. The session contains no raw diagnostics.
+
+The selector discovers the known protocol from the session hash and reproduces
+the earlier result unchanged. Historical offline commands above remain valid.
+At acceptance the v3 run is planned; only captured records establish a result.
