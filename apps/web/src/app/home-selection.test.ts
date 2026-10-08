@@ -2,6 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
+import firstComparison from "../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
+import firstDecision from "../../../../packages/evals/results/mapping-held-out-v1/decision.json";
 import { committedHeldOutResult } from "./evals/held-out-result";
 import type {
   ComparisonGroup,
@@ -68,9 +70,25 @@ function firstScreenText(markup: string): string {
 }
 
 describe("the home page answers the model-selection question", () => {
-  it("reads the committed NO_MODEL session as planned, with no model output", () => {
+  it("reads the committed recovery session as observed output with no qualifier", () => {
     expect(committedHeldOutResult.decision.outcome).toBe("NO_MODEL");
+    expect(committedHeldOutResult.decision.session?.sessionId).toBe(
+      "f869738c-fb61-42df-9b50-ecfd9c3b299a",
+    );
     expect(homeSelection(committedHeldOutResult)).toEqual({
+      state: "planned",
+      reason: "noneQualified",
+    });
+  });
+
+  it("reads a session with no model output, and no session, as planned", () => {
+    // The first capture: every request failed at the provider.
+    const firstSession: HeldOutResult = {
+      ...committedHeldOutResult,
+      comparison: firstComparison as HeldOutResult["comparison"],
+      decision: firstDecision as HeldOutResult["decision"],
+    };
+    expect(homeSelection(firstSession)).toEqual({
       state: "planned",
       reason: "noOutput",
     });
@@ -85,6 +103,9 @@ describe("the home page answers the model-selection question", () => {
     const page = renderToStaticMarkup(createElement(HomePage));
     expect(firstScreenText(page)).not.toMatch(/\d/);
     expect(page).toContain('data-state="planned"');
+    expect(page.replace(/<[^>]+>/g, "")).toContain(
+      plainText(homeCopy.en.answer.planned.noneQualified),
+    );
   });
 
   it("names the selected models and links every number to its definition and run", () => {

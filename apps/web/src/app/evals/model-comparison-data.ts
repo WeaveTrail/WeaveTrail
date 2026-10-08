@@ -110,9 +110,9 @@ export function definitionLinks(language: Language) {
     rule: doc + anchors.rule,
     reference: doc + anchors.reference,
     failureLog: `${REPO}/docs/AI_FAILURE_LOG${language === "ko" ? ".ko" : ""}.md`,
-    adr: `${REPO}/docs/adr/0067-separate-mapping-validity-from-approval-before-selection.md`,
+    adr: `${REPO}/docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md`,
     prices: `${REPO}/packages/evals/fixtures/mapping-selection-v1/README.md`,
-    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v1/protocol.json`,
+    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v2/protocol.json`,
   };
 }
 

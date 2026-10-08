@@ -56,13 +56,18 @@ for (const viewport of VIEWPORTS) {
       await page.setViewportSize(viewport);
       await open(page, language);
 
-      expect(selection.state).toBe("planned");
-      if (selection.state !== "planned") return;
+      // The committed recovery session observed output, but no candidate
+      // passed the rule: no selection is published.
+      expect(selection).toEqual({ state: "planned", reason: "noneQualified" });
       await expect(page.locator("#home-question")).toHaveText(
         plainText(answer.question),
       );
       await expect(page.locator("#home-answer")).toHaveText(
-        plainText(answer.planned[selection.reason]),
+        plainText(answer.planned.noneQualified),
+      );
+      await expect(page.locator("#home-answer")).toHaveAttribute(
+        "data-state",
+        "planned",
       );
       await expect(page.locator("#home-control")).toHaveText(
         plainText(answer.control),

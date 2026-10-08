@@ -8,9 +8,11 @@ import { describe, expect, it } from "vitest";
 
 import { MappingRunRecordSchema } from "../../../../../packages/contracts/src";
 import { loadSelectionInputs } from "../../../../../packages/evals/src/held-out-protocol";
-import comparison from "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
-import decision from "../../../../../packages/evals/results/mapping-held-out-v1/decision.json";
-import receipt from "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json";
+import comparison from "../../../../../packages/evals/results/mapping-held-out-v2/comparison.json";
+import decision from "../../../../../packages/evals/results/mapping-held-out-v2/decision.json";
+import receipt from "../../../../../packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/session.json";
+import firstComparison from "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
+import firstDecision from "../../../../../packages/evals/results/mapping-held-out-v1/decision.json";
 import {
   SELECTION_MODELS,
   selectMappingModels,
@@ -35,6 +37,13 @@ import {
   percent,
   type HeldOutResult,
 } from "./model-comparison-data";
+
+/** The first capture, where every request failed at the provider. */
+const firstSession: HeldOutResult = {
+  ...committedHeldOutResult,
+  comparison: firstComparison as HeldOutResult["comparison"],
+  decision: firstDecision as HeldOutResult["decision"],
+};
 
 const read = (path: string) =>
   readFileSync(resolve(process.cwd(), path), "utf8");
@@ -208,7 +217,7 @@ describe("model comparison on the evaluation page", () => {
       ["sessionReceipt", "session.json"],
     ] as const)
       expect(committedHeldOutResult.links[name]).toBe(
-        `https://github.com/WeaveTrail/WeaveTrail/blob/1f4694476620796189197e63771b08b4313ced6a/packages/evals/results/mapping-held-out-v1/sessions/${receipt.sessionId}/${file}`,
+        `https://github.com/WeaveTrail/WeaveTrail/blob/2ef2cc3577cc1370b9377b7d5ae2c4485a77d8fe/packages/evals/results/mapping-held-out-v2/sessions/${receipt.sessionId}/${file}`,
       );
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
@@ -284,7 +293,7 @@ describe("model comparison on the evaluation page", () => {
   });
 
   it("does not plot accuracy for a model whose every request failed", () => {
-    const points = chartPoints(committedHeldOutResult);
+    const points = chartPoints(firstSession);
     const models = points.filter((p) => p.kind !== "reference");
     expect(models).toHaveLength(DECLARED_MODELS.length);
     for (const p of models) expect([p.y, p.accuracy]).toEqual([null, null]);
@@ -292,7 +301,7 @@ describe("model comparison on the evaluation page", () => {
     expect(Number.isInteger(reference.y)).toBe(true);
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
-      const markup = render(committedHeldOutResult, korean);
+      const markup = render(firstSession, korean);
       expect(markup).toContain(copy.chart.unplotted(DECLARED_MODELS.length));
       expect(markup.match(/<g data-kind="[^"]+"/g)).toEqual([
         '<g data-kind="reference"',
@@ -300,8 +309,21 @@ describe("model comparison on the evaluation page", () => {
     }
   });
 
+  it("plots every model with observed output in the recovery session", () => {
+    // Only gemini-2.5-pro failed every request at the provider.
+    const points = chartPoints(committedHeldOutResult);
+    const unplotted = points.filter((p) => p.y === null).map((p) => p.name);
+    expect(unplotted).toEqual(["gemini-2.5-pro"]);
+    for (const korean of [false, true]) {
+      const copy = modelComparisonCopy[korean ? "ko" : "en"];
+      expect(render(committedHeldOutResult, korean)).toContain(
+        copy.chart.unplotted(1),
+      );
+    }
+  });
+
   it("shows output-dependent rates as unavailable when no output was observed", () => {
-    const models = committedHeldOutResult.comparison.groups.filter(
+    const models = firstSession.comparison.groups.filter(
       (g) => g.role === "MODEL",
     );
     for (const group of models) {
@@ -311,7 +333,7 @@ describe("model comparison on the evaluation page", () => {
     }
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
-      const markup = render(committedHeldOutResult, korean);
+      const markup = render(firstSession, korean);
       const rows = markup.match(/<tr data-eligible="false">.*?<\/tr>/g) ?? [];
       expect(rows).toHaveLength(DECLARED_MODELS.length);
       for (const row of rows) {
