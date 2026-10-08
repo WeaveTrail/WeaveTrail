@@ -27,22 +27,17 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   remains unverified; tests use fake storage and mocked transport. Local model
   evaluation bypasses public budgets. See [deployment settings](DEPLOYMENT.md#daily-public-model-budget)
   and [ADR 0063](adr/0063-reserve-public-model-budgets-in-shared-daily-counters.md).
-- Model evaluation is partly built and nothing in it is measured yet. The
-  sealed synthetic DEV and HELD_OUT schema-dialect set, the run-record
-  contract, the validator probes and the [AI failure log](AI_FAILURE_LOG.md)
-  exist. No model has been run against the held-out set, so no model accuracy,
-  comparison, cost or selection is published. A configuration-driven
-  Chat Completions adapter and explicit local smoke command with sanitized
-  records exist, verified offline only. Offline integer scoring and a DEV-only
-  lexical reference with explicit selection-record serialization are implemented.
-  Their captures use authored synthetic controls, not measured models. The
-  dialect corpus lacks a required eventType mapping, so the shared validator
-  rejects every baseline run; this does not measure accepted-proposal quality.
-  See [the baseline protocol](EVALUATION.md#non-model-lexical-reference).
-  A selection rule fixed before the held-out model run, routing to one escalation model, bounded
-  case-scope proposals are planned. A
-  future comparison will hold for its synthetic set, prompt version, date and
-  rule, not for exchange schemas in general.
+- The first [held-out session](EVALUATION.md#first-held-out-session-2026-10-08)
+  is committed: all 180 Google mapping requests failed with `HTTP_ERROR`, so
+  the declared rule selected no primary or escalation model. No successful
+  mapping quality, safety behavior or cost was observed. Catalogue listing
+  does not prove compatibility of the fixed request; sanitized records do not
+  retain HTTP status or error bodies. HELD_OUT v2 is used, and a configuration
+  or rule change requires a fresh sealed corpus. Historical baseline captures
+  use authored controls; the v1 corpus lacks `eventType`, while v2 includes it.
+  Escalation routing and bounded case-scope proposals remain planned. Any
+  comparison is confined to its synthetic corpus, prompt version, date and
+  rule, not exchange schemas in general.
 
 - Case Replay uses the complete published-schema FIX 4.4 projection as its
   supported synthetic case and the actorless H0STCNT0 projection as its

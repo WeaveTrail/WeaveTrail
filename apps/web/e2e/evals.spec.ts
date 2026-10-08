@@ -3,6 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { PANEL_KEYS } from "../src/app/evals/model-comparison-copy";
 import { modelComparisonCopy } from "../src/app/evals/model-comparison-copy";
 import { DECLARED_MODELS } from "../src/app/evals/model-comparison-data";
+import { percent } from "../src/app/evals/model-comparison-data";
+import { committedHeldOutResult } from "../src/app/evals/held-out-result";
 import type { Language } from "../src/app/i18n/language";
 
 const VIEWPORTS = [
@@ -45,18 +47,30 @@ for (const viewport of VIEWPORTS) {
       await open(page, language);
 
       await expect(page.locator("#model-comparison-answer")).toHaveText(
-        copy.answer.pending,
+        copy.answer.noModel,
       );
       await expect(page.locator('[data-role="primary"]')).toHaveText(
-        copy.roleValue.pending,
+        copy.roleValue.noModel,
       );
       await expect(page.locator('[data-role="escalation"]')).toHaveText(
-        copy.roleValue.pending,
+        copy.roleValue.noModel,
       );
       const rows = page.locator(".mc-eligibility tbody tr");
       await expect(rows).toHaveCount(DECLARED_MODELS.length + 1);
-      for (const [index, model] of DECLARED_MODELS.entries())
-        await expect(rows.nth(index).locator("th")).toContainText(model);
+      const models = committedHeldOutResult.comparison.groups.filter(
+        (g) => g.role === "MODEL",
+      );
+      for (const [index, group] of models.entries()) {
+        const row = rows.nth(index);
+        await expect(row.locator("th")).toContainText(
+          group.identity.requestedModel,
+        );
+        await expect(row).toHaveAttribute("data-eligible", "false");
+        await expect(row).toContainText(percent(group.byTag.ALL!.validOutput)!);
+      }
+      await expect(page.locator("#mc-eligibility-caption")).toHaveText(
+        copy.caption.run(committedHeldOutResult.runDate),
+      );
       await expect(page.locator(".mc-reference th")).toContainText(
         copy.referenceName,
       );

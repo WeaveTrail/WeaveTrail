@@ -269,9 +269,11 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 [AI 실패 기록](AI_FAILURE_LOG.ko.md)으로 연결되는 실패, 선택 규칙, 프롬프트 버전,
 쉬운 용어 설명, 한계와 실행일은 탭 하나로 엽니다. 모든 숫자는 위의 정의로
 연결됩니다. 페이지는 커밋된 비교와 `mapping-selection-decision/1` 기록만 읽고,
-네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 아직 커밋된 보관 평가
-집합 실행이 없으므로 지금은 선택한 모델이 없다고 밝히고 측정값을 보여 주지
-않습니다. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
+네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 첫 세션은
+2026-10-08 UTC에 실행했고 180회 요청 모두 `HTTP_ERROR`로 실패해 `NO_MODEL`을
+기록했습니다. 페이지는 실행 건수, 비용 미상과 적격 모델 없음을 보여 줍니다.
+실패한 시도로 모델 품질을 추정할 수는 없습니다.
+[첫 보관 평가 집합 세션](#첫-보관-평가-집합-세션-2026-10-08)을 참고하세요. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
 참고하십시오.
 
 브라우저 테스트는 두 언어에서 1280×720과 390×844 첫 화면, 키보드만으로 하는
@@ -285,7 +287,7 @@ pnpm test:browser
 
 ## 아직 계획된 측정
 
-독립된 연결 자료에 대한 모델 정확도, 설정된 제공자 비교, 실제 시장 일반화,
+독립된 연결 자료에 대한 모델 정확도, 성공한 설정 제공자 비교, 실제 시장 일반화,
 조사 소요, 지연 시간, 메모리 사용과 증거 등급 비율은 별도 측정으로 남습니다.
 현재 건수는 이를 뜻하지 않습니다. 향후 공개에도 규칙, 입력, 제공자 설정,
 표본 정의와 한계를 함께 기록해야 합니다.
@@ -571,8 +573,9 @@ pnpm eval:mappings:compare --records path/to/records.json --prices path/to/price
 
 [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)(영문)은
 ADR 0066의 선택 공식을 유지하고 검증기 버전과 봉인 입력을 확정한 사전 실행
-프로토콜입니다. 아래 기반 코드는 구현했습니다. **실제 HELD_OUT 모델 실행,
-선택 결과와 측정 비교 공개는 아직 계획**이며 모델 성능 결과를 주장하지 않습니다.
+프로토콜입니다. 아래 기반 코드와 첫 완전한 HELD_OUT 세션의 `NO_MODEL` 결과는
+커밋했습니다. 출력 보존 전에 모든 요청이 실패했으므로 모델 품질이나 성공한
+추론의 비용을 측정했다고 주장하지 않습니다.
 
 `schema-dialects/2`는 모든 방언에 `eventType`을 추가해 네 필수 대상을 갖춥니다.
 결정마다 태그 하나를 두고 기존 일곱 태그를 유지하며 DEV 8개, HELD_OUT 12개
@@ -640,7 +643,7 @@ v1 파일은 그대로 재현할 수 있습니다.
    기본 실패 방언, A와 B를 세션·비교·선택 해시에 묶어 기록합니다.
    모델 없음 결과는 빈 선택 목록입니다.
 6. 기록·영수증·출력을 검토해 커밋한 뒤 결과 ADR 개정과 양언어 측정 비교를
-   공개합니다. 이 결과 단계는 아직 실행하지 않았습니다.
+   공개합니다. 첫 세션과 결과는 아래에 커밋했습니다.
 
 검증 명령:
 `pnpm exec vitest run packages/evals/src/mapping-selection.test.ts packages/evals/src/held-out-protocol.test.ts packages/evals/src/mapping-price-capture.test.ts packages/evals/src/adversarial-mapping.test.ts`.
@@ -654,3 +657,71 @@ v1 파일은 그대로 재현할 수 있습니다.
 보관 집합의 모델 기록이 생긴 뒤 설정이나 규칙을 바꾸면 사용된 버전으로
 기록하고 새 봉인 집합과 사전 ADR이 필요합니다. 명령은 라이브 기본 모델이나
 상위 모델 라우팅을 바꾸지 않습니다.
+
+### 첫 보관 평가 집합 세션: 2026-10-08
+
+이 **단일 제공자 비교**는 ADR 0067의 첫 번째이자 유일한 세션
+`365e2daf-a833-427d-8921-718890100b59`를 `2026-10-08T13:43:56.706Z`에
+시작했습니다. 실행 체크아웃은 `70f3b403331d543cab6f09a01a82c82a71bfcefe`이며,
+환경은 Node 22.18.0, pnpm 10.33.2, Linux x86_64, CI 밖입니다. 실행 전에 Google
+공식 카탈로그와 키로 조회한 모델 목록에서 요청 ID 다섯 개를 모두 확인했습니다.
+[카탈로그 확인서](../packages/evals/results/mapping-held-out-v1/catalogue-2026-10-08.json)는
+[세션 영수증](../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json)에 들어 있습니다. 중단되거나 대체한 세션은 없습니다.
+원본 실행 기록과 해시로 연결된 영수증은
+[결과와 함께 커밋](../packages/evals/results/mapping-held-out-v1/README.md)(영문)했습니다.
+
+[실행과 재현](#실행과-재현)의 서버 전용 설정으로 실행한 정확한 명령:
+
+```bash
+pnpm eval:models:held-out --live --catalogue dist/mapping-held-out/catalogue-2026-10-08.json
+pnpm eval:mappings:select --session dist/mapping-held-out/365e2daf-a833-427d-8921-718890100b59
+```
+
+집합은 `schema-dialects/2`, HELD_OUT SHA-256은
+`6d8f1c2c4c6dacacd406cef351250869b01c58771e0ed0a4c07858cfe699e6e3`입니다.
+후보별 방언 12개 × 세 번 반복했습니다. 총 180회 모두
+`PROVIDER_FAILED` / `HTTP_ERROR`이며 파싱 출력·응답 모델 ID·사용량은 null입니다.
+아래 값의 정의와 분모는 [`mapping-score/1`](#매핑-실행-기록의-오프라인-채점)입니다.
+유효 출력과 실패 비율의 분모는 후보별 시도 36회입니다. 지연 분위수도 실패한
+HTTP 시도 36회의 값이며 성공한 추론의 지연이 아닙니다.
+
+| 요청 모델                | [유효 출력](#매핑-실행-기록의-오프라인-채점) | [제공자 실패](#매핑-실행-기록의-오프라인-채점) | [비용 포함 범위](#매핑-실행-기록의-오프라인-채점) | [실패 요청 p50 / p95, ms](#매핑-실행-기록의-오프라인-채점) |
+| ------------------------ | -------------------------------------------- | ---------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| `gemini-2.5-pro`         | 0/36                                         | 36/36                                          | 0/36                                              | 85 / 176                                                   |
+| `gemini-3.1-flash-lite`  | 0/36                                         | 36/36                                          | 0/36                                              | 103 / 267                                                  |
+| `gemini-3.1-pro-preview` | 0/36                                         | 36/36                                          | 0/36                                              | 91 / 169                                                   |
+| `gemini-3.5-flash-lite`  | 0/36                                         | 36/36                                          | 0/36                                              | 114 / 195                                                  |
+| `gemini-3.8-flash`       | 0/36                                         | 36/36                                          | 0/36                                              | 82 / 91                                                    |
+
+[비교 파일](../packages/evals/results/mapping-held-out-v1/comparison.json)에는 일곱 태그와 고정 비모델 기준선이 모두 있습니다.
+`lexical-baseline/2`는 유효 출력 0/36, `MISSING_REQUIRED_TARGET` 거절 36/36이며
+선정 후보가 아닙니다. 모델별 엄격 정확도는 정답 결정을 인정받지 못해 0/288입니다.
+이 값이나 기준선의 0은 모델 품질의 추정치가 아닙니다. 출력이 없으므로
+주입 추종 0/72와 없는 필드 연결 0/0도 안전성 근거가 될 수 없습니다.
+비용 포함 범위 0/36은 비용 미상이며 무료 요청이라는 뜻이 아닙니다.
+
+[결정](../packages/evals/results/mapping-held-out-v1/decision.json)은 `NO_MODEL`이며 적격 목록은 비어 있고 기본·상위 모델은
+null입니다. [선정 기록](../packages/evals/results/mapping-held-out-v1/selection.json)의 선택 모델 목록도 비어 있어 선택 모델의
+태그별 기준선 차이는 없습니다. 라이브 AI 경로와 라우팅은 그대로입니다.
+[F-004](AI_FAILURE_LOG.ko.md)에
+잔여 위험을 기록했습니다. HELD_OUT v2를 사용했으며 실행 뒤 프롬프트나 설정을
+튜닝하지 않았습니다. 설정·규칙 변경에는 새 봉인 집합과 사전 실행 ADR이 필요합니다.
+
+공개한 출력은 API 없이 재현합니다.
+
+```bash
+pnpm eval:mappings:select --session packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59
+pnpm exec vitest run packages/evals/src/held-out-result.test.ts
+```
+
+회귀 테스트는 영수증과 연결된 격자, 세션 정본 해시와 결과 파일 세 개를 바이트
+단위로 확인하며 제공자를 호출하지 않습니다.
+[ADR 0067 결과 개정](adr/0067-separate-mapping-validity-from-approval-before-selection.md#result-amendment-2026-10-08)(영문)은
+세션·비교·선정 해시를 연결합니다.
+
+한계: 카탈로그 등재로 이 요청 형식의 호환성을 증명할 수 없습니다. 정제된
+기록에는 HTTP 상태와 오류 본문이 없어 이 기록만으로 원인을 알 수 없습니다.
+성공한 매핑 품질·안전성·비용은 관측하지 못했습니다. 공개된 보관 집합, 공통
+합성 템플릿, 단일 제공자와 세 번 반복으로 독립성·현실 분포·통계적 유의성을
+주장할 수 없습니다. 날짜가 있는 가격표는 청구서가 아닌 추정이며, 사용량이
+없으면 비용 0으로 계산하지 않습니다.

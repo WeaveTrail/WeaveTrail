@@ -284,6 +284,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Correct abstention is rejected as an invalid mapping run",
     ko: "올바른 기권을 유효하지 않은 매핑 실행으로 거절함",
   },
+  {
+    id: "F-004",
+    status: "ACCEPTED_RESIDUAL",
+    en: "Every held-out mapping request failed without observed output",
+    ko: "보관 평가 집합의 모든 매핑 요청이 출력 관측 없이 실패함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

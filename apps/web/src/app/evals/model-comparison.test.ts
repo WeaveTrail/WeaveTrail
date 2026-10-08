@@ -8,6 +8,9 @@ import { describe, expect, it } from "vitest";
 
 import { MappingRunRecordSchema } from "../../../../../packages/contracts/src";
 import { loadSelectionInputs } from "../../../../../packages/evals/src/held-out-protocol";
+import comparison from "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
+import decision from "../../../../../packages/evals/results/mapping-held-out-v1/decision.json";
+import receipt from "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json";
 import {
   SELECTION_MODELS,
   selectMappingModels,
@@ -178,8 +181,7 @@ describe("model comparison data", () => {
 });
 
 describe("model comparison on the evaluation page", () => {
-  it("states that no held-out run is committed yet", () => {
-    expect(committedHeldOutResult).toBeNull();
+  it("keeps an absent session distinct from a committed no-model result", () => {
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
       const markup = render(null, korean);
@@ -189,6 +191,34 @@ describe("model comparison on the evaluation page", () => {
       expect(markup).toContain(copy.chart.pending);
       for (const entry of FAILURE_LOG_ENTRIES)
         expect(markup).toContain(entry.id);
+    }
+  });
+
+  it("reports the actual no-model session and links its immutable capture", () => {
+    expect(committedHeldOutResult.comparison).toEqual(comparison);
+    expect(committedHeldOutResult.decision).toEqual(decision);
+    expect(committedHeldOutResult.runDate).toBe(receipt.startedAt.slice(0, 10));
+    expect(committedHeldOutResult.decision.session?.sessionId).toBe(
+      receipt.sessionId,
+    );
+    for (const [name, file] of [
+      ["records", "records.json"],
+      ["sessionReceipt", "session.json"],
+    ] as const)
+      expect(committedHeldOutResult.links[name]).toBe(
+        `https://github.com/WeaveTrail/WeaveTrail/blob/1f4694476620796189197e63771b08b4313ced6a/packages/evals/results/mapping-held-out-v1/sessions/${receipt.sessionId}/${file}`,
+      );
+    for (const korean of [false, true]) {
+      const copy = modelComparisonCopy[korean ? "ko" : "en"];
+      const markup = render(committedHeldOutResult, korean);
+      expect(markup).toContain(copy.answer.noModel);
+      expect(markup).not.toContain(copy.answer.pending);
+      expect(markup).toContain(
+        copy.caption.run(committedHeldOutResult.runDate),
+      );
+      expect(markup).toContain(committedHeldOutResult.links.records);
+      expect(markup).toContain(committedHeldOutResult.links.sessionReceipt);
+      expect(markup.match(/data-eligible="false"/g)).toHaveLength(5);
     }
   });
 

@@ -7,10 +7,12 @@
 
 The evaluation page must answer which mapping models were compared and chosen,
 what the choice costs and how each one fails, before a reader opens the method.
-ADR 0067 fixes the selection rule and its offline outputs, but no HELD_OUT
-model run is committed yet. A page that computed its own ranking, fetched live
-results or filled the gap with fixture numbers would present something the rule
-never produced.
+At acceptance, ADR 0067 fixed the selection rule and its offline outputs, but
+no HELD_OUT model run was committed. The first session is now committed with
+a `NO_MODEL` decision: all 180 requests failed with `HTTP_ERROR`. The page
+reports that decision and its captured observations. A page that computed its
+own ranking, fetched live results or filled the gap with fixture numbers would
+present something the rule never produced.
 
 ## Decision
 
@@ -42,3 +44,21 @@ outputs it imports; the page needs no code change for `SELECTED` or `NO_MODEL`.
 Unit tests render both outcomes from authored gold records through the real
 selection code. The page cannot display a session that is not committed, and it
 reports the reference row and costs with the scorer's coverage rules unchanged.
+
+The binding now imports the first committed comparison and decision, takes its
+run date from the session receipt and links to the immutable capture commit.
+Browser tests assert the actual `NO_MODEL` answer, both empty roles, five
+ineligible model rows and the receipt's run date. The absent-session rendering
+remains covered separately by unit tests. See the
+[ADR 0067 result amendment](0067-separate-mapping-validity-from-approval-before-selection.md#result-amendment-2026-10-08).
+
+The production-import boundary permits only the three published JSON artifacts
+through this binding, with their exact byte hashes checked. Corpus inputs,
+gold, vocabulary, attempt records and evaluation implementation imports remain
+offline; negative regressions reject these imports and publication imports from
+any other production file.
+
+The first filled-state browser run exposed horizontal page overflow at 390px
+in English: the cost-accuracy panel's equivalent table had no scroll container.
+It now uses the same labeled, keyboard-focusable scroll region as the
+eligibility table. Selection and rendering logic are unchanged.

@@ -52,7 +52,9 @@ checks committed pre-run inputs and records three attempts per model and dialect
 `pnpm eval:mappings:select --session <session directory>` verifies one
 receipted session and applies ADR 0067 offline, writing the comparison,
 existing selection record and a hash-bound primary/escalation decision. See [the run protocol](docs/EVALUATION.md#run-and-reproduce) before a live
-run. CI only exercises mock transports; no actual selection is committed yet.
+run. CI exercises mock transports and offline replay of the committed first
+held-out session. That session selected no model: all 180 requests failed with
+`HTTP_ERROR`. See the [captured result](docs/EVALUATION.md#first-held-out-session-2026-10-08).
 
 Earlier evaluation captures with withdrawn sources remain historical records.
 The current `pnpm eval` verifies synthetic-only v3; see [the evaluation protocol](docs/EVALUATION.md).

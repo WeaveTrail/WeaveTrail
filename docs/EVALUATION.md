@@ -147,7 +147,8 @@ returns only the sanitized `REVIEW_REQUIRED` failure to the application. No raw
 body, temporary mapped events or provider text is retained. The separate
 [configured run producer](#configured-mapping-run-producer) records sanitized
 attempts; [offline scoring](#offline-mapping-run-scoring) is implemented,
-while measured model evaluations remain planned.
+and the first [held-out session](#first-held-out-session-2026-10-08) records failed
+requests only, with no observed mapping quality.
 
 The model prompt receives at most eight sample rows; validation dry-runs all
 supplied samples, including later rows. It projects supplied columns without
@@ -302,8 +303,10 @@ per-tag strict accuracy, failures linked to run records and the
 terms, limits and the run date are one tab away. Every number links to its
 definition above. The page reads only the committed comparison and
 `mapping-selection-decision/1` record; it makes no network request and applies
-no rule itself. No held-out run is committed yet, so it currently states that no
-model is selected and shows no measured value. See
+no rule itself. The first session ran on 2026-10-08 UTC and produced `NO_MODEL`:
+all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts,
+unknown cost and no eligible model. These failed attempts do not estimate model
+quality; see [the captured session](#first-held-out-session-2026-10-08). See
 [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md).
 
 Browser tests assert the first viewport at 1280×720 and 390×844 in both
@@ -318,7 +321,7 @@ pnpm test:browser
 
 ## Measurements still planned
 
-Model accuracy on independent mappings, configured-provider comparisons,
+Model accuracy on independent mappings, successful configured-provider comparisons,
 real-market generalization, investigation effort, latency, memory use and
 evidence-grade shares remain separate measurements. The current counts imply
 none of them. Rules, inputs, provider configuration, sample definitions and
@@ -652,8 +655,9 @@ routing and escalation routing remain unimplemented. See
 [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)
 accepts the pre-run protocol, superseding ADR 0066's validator version and
 binding the new corpus, vocabulary and prices. The infrastructure below is
-implemented; **actual HELD_OUT model runs, selection results and their publication
-remain planned**. No measured model comparison is claimed here.
+implemented. The first complete HELD_OUT session and its `NO_MODEL` result are
+committed below. All requests failed before any output was retained; no model
+quality or successful-inference cost measurement is claimed.
 
 `schema-dialects/2` adds `eventType` to every dialect, preserving all four required
 targets and one tag per decision across all seven tags. It has eight DEV and
@@ -732,17 +736,91 @@ table-based estimates, not invoices. Reproduce with
    dialects, A and B, bound to the session, comparison and selection hashes.
    No-model has empty selection.
 6. Review and commit records, receipts and outputs, then publish a result ADR
-   amendment and the bilingual comparison. This result step has not been run.
+   amendment and the bilingual comparison. The first session is committed below.
 
 Verification: `pnpm exec vitest run packages/evals/src/mapping-selection.test.ts packages/evals/src/held-out-protocol.test.ts packages/evals/src/mapping-price-capture.test.ts packages/evals/src/adversarial-mapping.test.ts`.
 Tests use authored gold and mock transports; they are not provider measurements.
 Development environment: Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64.
 Inventory and mock-attempt counts above describe fixture construction only.
 
-A future publication must be labeled **single-provider comparison** and give
+Every publication must be labeled **single-provider comparison** and give
 each number's definition, exact command, environment, actual run date and limits.
 Public holdout exposure, shared synthetic templates and three deterministic
 repeats do not establish independence, real-world prevalence or significance.
 After any HELD_OUT provider record, configuration or rule changes mark that
 version used and require a fresh sealed version and pre-run ADR. Live defaults
 and escalation routing are not changed by this command.
+
+### First held-out session: 2026-10-08
+
+This **single-provider comparison** captured the first and only ADR 0067
+session, `365e2daf-a833-427d-8921-718890100b59`, starting at
+`2026-10-08T13:43:56.706Z`. Checkout:
+`70f3b403331d543cab6f09a01a82c82a71bfcefe`. Environment: Node 22.18.0,
+pnpm 10.33.2, Linux x86_64; outside CI. Google's official catalogue and the
+credential's model listing included all five requested IDs before the run.
+The [attestation](../packages/evals/results/mapping-held-out-v1/catalogue-2026-10-08.json)
+is copied into the [session receipt](../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json). There are no interrupted or
+replacement sessions. All original records and hash-linked receipts are
+[committed beside the result](../packages/evals/results/mapping-held-out-v1/README.md).
+
+Exact run and rule-application commands, with server-only configuration from
+[Run and reproduce](#run-and-reproduce):
+
+```bash
+pnpm eval:models:held-out --live --catalogue dist/mapping-held-out/catalogue-2026-10-08.json
+pnpm eval:mappings:select --session dist/mapping-held-out/365e2daf-a833-427d-8921-718890100b59
+```
+
+Corpus `schema-dialects/2`, HELD_OUT SHA-256
+`6d8f1c2c4c6dacacd406cef351250869b01c58771e0ed0a4c07858cfe699e6e3`;
+12 dialects × three repeats per candidate. All 180 attempts returned
+`PROVIDER_FAILED` / `HTTP_ERROR`, with no parsed output, reported ID or usage.
+Definitions and denominators below are those of
+[`mapping-score/1`](#offline-mapping-run-scoring). Validity and failure shares
+use 36 attempts per candidate. Latency quantiles use the 36 failed HTTP
+attempts, not successful inference.
+
+| Requested model          | [Valid output](#offline-mapping-run-scoring) | [Provider failed](#offline-mapping-run-scoring) | [Cost coverage](#offline-mapping-run-scoring) | [Failed-request p50 / p95, ms](#offline-mapping-run-scoring) |
+| ------------------------ | -------------------------------------------- | ----------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `gemini-2.5-pro`         | 0/36                                         | 36/36                                           | 0/36                                          | 85 / 176                                                     |
+| `gemini-3.1-flash-lite`  | 0/36                                         | 36/36                                           | 0/36                                          | 103 / 267                                                    |
+| `gemini-3.1-pro-preview` | 0/36                                         | 36/36                                           | 0/36                                          | 91 / 169                                                     |
+| `gemini-3.5-flash-lite`  | 0/36                                         | 36/36                                           | 0/36                                          | 114 / 195                                                    |
+| `gemini-3.8-flash`       | 0/36                                         | 36/36                                           | 0/36                                          | 82 / 91                                                      |
+
+The [comparison](../packages/evals/results/mapping-held-out-v1/comparison.json) retains all seven tags and the frozen reference.
+The reference is `lexical-baseline/2`, with 0/36 valid outputs and 36/36
+`MISSING_REQUIRED_TARGET` rejections; it is never a candidate. Each candidate's
+strict accuracy is 0/288 because no exact decision was credited. Neither this
+zero nor the reference's zero estimates model quality. Injection counts of
+0/72 and invention counts of 0/0 do not establish safety without retained
+output. Cost coverage 0/36 means unknown cost, not free requests.
+
+The [decision](../packages/evals/results/mapping-held-out-v1/decision.json) is `NO_MODEL`, with an empty eligibility list and
+null primary and escalation; the [selection](../packages/evals/results/mapping-held-out-v1/selection.json) contains no selected
+model and therefore no selected-model per-tag reference differences. The live
+AI path and routing are unchanged. [F-004](AI_FAILURE_LOG.md#f-004-every-held-out-mapping-request-failed-without-observed-output)
+records this accepted residual. HELD_OUT v2 has been used; no prompt or
+configuration was tuned after the run. Changing the configuration or rule
+requires a fresh sealed corpus and a pre-run ADR.
+
+Reproduce the published outputs offline:
+
+```bash
+pnpm eval:mappings:select --session packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59
+pnpm exec vitest run packages/evals/src/held-out-result.test.ts
+```
+
+The regression checks the receipted grid, the session's canonical hash and all
+three output files byte for byte. It does not call a provider. The result
+amendment in [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md#result-amendment-2026-10-08)
+binds the session, comparison and selection hashes.
+
+Limits: catalogue listing does not prove compatibility of the exact request.
+Sanitized records retain neither HTTP status nor error body, so the cause
+cannot be identified from this capture. Successful mapping quality, safety
+behavior and cost are unobserved. Public holdout exposure, shared synthetic
+templates, a single provider and three repeats do not establish independence,
+real-world prevalence or statistical significance. The dated price table is
+an estimate, not an invoice, and missing usage is never priced as zero.

@@ -409,40 +409,49 @@ export function ModelComparison({
           <span>{t.chart.legend.ineligible}</span>
           <span>{t.chart.legend.reference}</span>
         </p>
-        <table className="mc-table">
-          <caption>{t.chart.tableCaption}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t.columns.model}</th>
-              <th scope="col">{t.columns.eligible}</th>
-              <th scope="col">{t.columns.strictAccuracy}</th>
-              <th scope="col">{t.columns.cost}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {points.map((point, index) => (
-              <tr data-kind={point.kind} key={point.name}>
-                <th scope="row">
-                  {index + 1}.{" "}
-                  {point.kind === "reference" ? t.referenceName : point.name}
-                </th>
-                <td>
-                  {point.kind === "reference"
-                    ? t.eligibility.reference
-                    : point.kind === "eligible"
-                      ? t.eligibility.eligible
-                      : t.eligibility.ineligible}
-                </td>
-                <td>{rate(point.accuracy)}</td>
-                <td>
-                  <a className="mc-number" href={links.metrics}>
-                    {point.cost === null ? t.unavailable : dollars(point.cost)}
-                  </a>
-                </td>
+        <div
+          aria-label={t.tableScroll}
+          className="mc-table-wrap"
+          role="region"
+          tabIndex={0}
+        >
+          <table className="mc-table">
+            <caption>{t.chart.tableCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.columns.model}</th>
+                <th scope="col">{t.columns.eligible}</th>
+                <th scope="col">{t.columns.strictAccuracy}</th>
+                <th scope="col">{t.columns.cost}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {points.map((point, index) => (
+                <tr data-kind={point.kind} key={point.name}>
+                  <th scope="row">
+                    {index + 1}.{" "}
+                    {point.kind === "reference" ? t.referenceName : point.name}
+                  </th>
+                  <td>
+                    {point.kind === "reference"
+                      ? t.eligibility.reference
+                      : point.kind === "eligible"
+                        ? t.eligibility.eligible
+                        : t.eligibility.ineligible}
+                  </td>
+                  <td>{rate(point.accuracy)}</td>
+                  <td>
+                    <a className="mc-number" href={links.metrics}>
+                      {point.cost === null
+                        ? t.unavailable
+                        : dollars(point.cost)}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </>
     );
   }

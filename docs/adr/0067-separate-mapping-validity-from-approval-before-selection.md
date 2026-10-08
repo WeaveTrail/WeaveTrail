@@ -127,10 +127,57 @@ are not interchangeable. Retained fields preserve abstention and uncertainty
 for scoring without authorizing any execution. Tests exercise gold through
 structure and prove the live review gate still rejects uncertain proposals.
 
-This commit prepares infrastructure and the pre-run protocol only. Actual
-provider runs, selected models, result amendment and bilingual measured
-comparison remain future work. The single-provider, synthetic corpus,
+At acceptance, this ADR prepared infrastructure and the pre-run protocol only.
+The result amendment below records the first completed provider session and its
+no-model outcome. The single-provider, synthetic corpus,
 public-holdout exposure, shared templates, three-repeat and cost-estimate
 limitations from ADR 0066 continue to apply. After any v2 HELD_OUT model record,
 a prompt, schema, adapter, validator, candidate or rule change must mark v2 used
 in the failure log and introduce a fresh sealed corpus and pre-run ADR.
+
+## Result amendment: 2026-10-08
+
+Apply the accepted rule unchanged to the first and only complete session,
+`365e2daf-a833-427d-8921-718890100b59`, started at
+`2026-10-08T13:43:56.706Z`. There are no interrupted or replacement sessions.
+Its [session receipt](../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json)
+has canonical SHA-256
+`0cdfd13d06eec1f8a61103db2edf6343efecb16c7aa03cdd66f839afb4365371`.
+The receipt binds checkout `70f3b403331d543cab6f09a01a82c82a71bfcefe`, the
+fixed endpoint, pre-run protocol, run-date catalogue and environment.
+The operator checked all five IDs in the public catalogue and the
+credential's model listing before the run.
+
+All 180 attempts (36 per candidate) returned `PROVIDER_FAILED` / `HTTP_ERROR`.
+No parsed output, reported model or token usage was retained. This is a
+**single-provider comparison** of failed request observations, not model quality.
+The [decision](../../packages/evals/results/mapping-held-out-v1/decision.json)
+is `NO_MODEL`: every candidate has 0/36 valid outputs and no observed safety
+behavior, so none is eligible. Primary and escalation are null. The
+[selection](../../packages/evals/results/mapping-held-out-v1/selection.json)
+has an empty selected list; consequently no selected-model per-tag differences
+exist, including ties or reference-favored tags. All seven tags and the frozen
+reference remain in the [comparison](../../packages/evals/results/mapping-held-out-v1/comparison.json).
+No live default or routing is enabled.
+
+Canonical comparison SHA-256:
+`86d198fe7272c42cd8e179352ca15b583b37c51437cdb56b7d2ab77206eadb5a`.
+Canonical selection SHA-256:
+`1b37e6c272ab322449819416ba451f80136f23d1a0f58a90e40e703b5d57cd8e`.
+The decision binds both hashes and the session hash. All original attempt
+records and hash-linked receipts are committed under that session ID.
+The [capture README](../../packages/evals/results/mapping-held-out-v1/README.md),
+[English evaluation protocol](../EVALUATION.md#first-held-out-session-2026-10-08)
+and [Korean protocol](../EVALUATION.ko.md#첫-보관-평가-집합-세션-2026-10-08)
+give exact commands, definitions, environment, date and limitations.
+
+Residual risk: the catalogue attests listing, not compatibility of this exact
+request. Sanitized records do not retain the HTTP status or error body, so the
+root cause is unknown. Strict-accuracy zeros reflect no credited decisions;
+zero observed injection counts are not safety evidence. Cost is unknown
+(coverage 0/36), and latency is failed-request latency. Public holdout exposure,
+shared synthetic templates and three repeats still preclude generalization or
+significance claims. [F-004](../AI_FAILURE_LOG.md#f-004-every-held-out-mapping-request-failed-without-observed-output)
+pins this residual and the fail-closed selection regression. HELD_OUT v2 has
+been used. No prompt or configuration was tuned; any subsequent configuration
+or rule change requires a fresh sealed corpus and a new pre-run ADR.
