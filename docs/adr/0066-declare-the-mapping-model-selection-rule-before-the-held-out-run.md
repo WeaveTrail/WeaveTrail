@@ -36,8 +36,9 @@ would spend provider budget and the held-out set without informing a choice.
   provider's catalogue on the run date and records it in the run receipts.
 - **Fixed configuration:** prompt `schema-mapping/1`, output schema
   `mapping-fields/1`, adapter `openai-compatible-mapping/1`, validator
-  `mapping-validator/1`, temperature 0, scorer `mapping-score/1` and reference
-  `lexical-baseline/1`.
+  `mapping-validator/1`, temperature 0 and scorer `mapping-score/1`. The
+  lexical reference is the one frozen from the new corpus's DEV split only,
+  under the rules of `lexical-baseline/1`.
 - **Repeats:** k = 3 over every HELD_OUT dialect, so each candidate has a
   complete dialect-by-repeat grid with repeat IDs 1, 2 and 3.
 - **Prices:** a dated, versioned price table for the five IDs with provenance,
@@ -46,7 +47,8 @@ would spend provider budget and the held-out set without informing a choice.
 ### Pre-run amendment
 
 Before the first HELD_OUT record, one amendment to this ADR fills in the new
-corpus version, its HELD_OUT SHA-256 and the price-table SHA-256, and changes
+corpus version, its HELD_OUT SHA-256, the lexical reference version and
+vocabulary hash, and the price-table SHA-256, and changes
 the status to Accepted. It may change nothing else. Any other change to this
 ADR before the run needs a superseding ADR.
 
