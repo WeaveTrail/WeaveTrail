@@ -24,12 +24,14 @@ import {
   FAILURE_LOG_ENTRIES,
   PROMPT_HISTORY,
   RULE,
+  TAGS,
   chartPoints,
   definitionLinks,
   dollars,
   failureLogAnchor,
   failureModes,
   fraction,
+  outputObserved,
   percent,
   type HeldOutResult,
 } from "./model-comparison-data";
@@ -295,6 +297,42 @@ describe("model comparison on the evaluation page", () => {
       expect(markup.match(/<g data-kind="[^"]+"/g)).toEqual([
         '<g data-kind="reference"',
       ]);
+    }
+  });
+
+  it("shows output-dependent rates as unavailable when no output was observed", () => {
+    const models = committedHeldOutResult.comparison.groups.filter(
+      (g) => g.role === "MODEL",
+    );
+    for (const group of models) {
+      expect(outputObserved(group, group.byTag.ALL!)).toBe(false);
+      for (const tag of TAGS)
+        expect(outputObserved(group, group.byTag[tag]!)).toBe(false);
+    }
+    for (const korean of [false, true]) {
+      const copy = modelComparisonCopy[korean ? "ko" : "en"];
+      const markup = render(committedHeldOutResult, korean);
+      const rows = markup.match(/<tr data-eligible="false">.*?<\/tr>/g) ?? [];
+      expect(rows).toHaveLength(DECLARED_MODELS.length);
+      for (const row of rows) {
+        const cells = [...row.matchAll(/<td>(.*?)<\/td>/g)].map(([, c]) => c);
+        // Eligibility, six rates, cost; only valid output stays measured.
+        const rates = cells.slice(1, 7);
+        expect(rates[1]).toContain("0/36 · 0.0%");
+        for (const [index, cell] of rates.entries())
+          if (index !== 1) expect(cell).toContain(`>${copy.unavailable}<`);
+      }
+      // Per-tag accuracy is unavailable for every model; the reference is last.
+      const tags = markup.match(
+        new RegExp(`<caption>${copy.tags.caption}</caption>.*?</table>`),
+      )![0];
+      for (const row of tags.match(/<tbody>.*<\/tbody>/)![0].split("</tr>"))
+        if (row.includes("<td>")) {
+          const cells = [...row.matchAll(/<td>(.*?)<\/td>/g)].map(([, c]) => c);
+          expect(cells).toHaveLength(DECLARED_MODELS.length + 1);
+          for (const cell of cells.slice(0, -1))
+            expect(cell).toContain(`>${copy.unavailable}<`);
+        }
     }
   });
 

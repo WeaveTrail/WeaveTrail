@@ -165,6 +165,23 @@ export function primaryAccuracy(group: ComparisonGroup): Count {
   };
 }
 
+/**
+ * False when every run behind these metrics failed at the provider: no output
+ * was retained, so the scorer's zero counts measure nothing. Only the
+ * valid-output and provider-failure rates remain observed.
+ */
+export function outputObserved(
+  group: ComparisonGroup,
+  metrics: TagMetrics,
+): boolean {
+  const runs = metrics.providerFailed.denominator;
+  return (
+    group.role === "REFERENCE" ||
+    runs === "0" ||
+    metrics.providerFailed.numerator !== runs
+  );
+}
+
 export type ChartPoint = {
   name: string;
   kind: "eligible" | "ineligible" | "reference";
@@ -203,12 +220,7 @@ export function chartPoints(result: HeldOutResult): ChartPoint[] {
   const width = BigInt(CHART.plotRight - CHART.plotLeft);
   const height = BigInt(CHART.plotBottom - CHART.plotTop);
   return rows.map(({ group, all, cost }) => {
-    const runs = all.providerFailed.denominator;
-    const observed =
-      group.role === "REFERENCE" ||
-      runs === "0" ||
-      all.providerFailed.numerator !== runs;
-    const accuracy = observed ? all.strictAccuracy : null;
+    const accuracy = outputObserved(group, all) ? all.strictAccuracy : null;
     const d = accuracy ? BigInt(accuracy.denominator) : 0n;
     const rise =
       !accuracy || d === 0n ? 0n : (BigInt(accuracy.numerator) * height) / d;

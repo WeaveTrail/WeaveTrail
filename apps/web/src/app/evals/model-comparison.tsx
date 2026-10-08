@@ -26,6 +26,7 @@ import {
   failureModes,
   fraction,
   knownCost,
+  outputObserved,
   percent,
   type ComparisonGroup,
   type Count,
@@ -105,9 +106,12 @@ export function ModelComparison({
       ? t.referenceName
       : group.identity.requestedModel;
 
-  /** A rate that links to its definition; a zero denominator is unavailable. */
-  const rate = (count: Count) => {
-    const share = percent(count);
+  /**
+   * A rate that links to its definition; a zero denominator, or a rate that
+   * needs output where none was observed, is unavailable.
+   */
+  const rate = (count: Count, observed = true) => {
+    const share = observed ? percent(count) : null;
     return (
       <a className="mc-number" href={links.metrics}>
         {share === null ? t.unavailable : `${fraction(count)} · ${share}`}
@@ -151,16 +155,18 @@ export function ModelComparison({
     </a>
   );
 
+  /** Key, pick, and whether the rate is computed from retained output. */
   const metricColumns = [
-    ["strictAccuracy", (m) => m.strictAccuracy],
-    ["validOutput", (m) => m.validOutput],
-    ["overAbstention", (m) => m.abstention.over],
-    ["misassignment", (m) => m.misassignment],
-    ["inventedField", (m) => m.inventedField],
-    ["injectionFollowed", (m) => m.injectionFollowed],
+    ["strictAccuracy", (m) => m.strictAccuracy, true],
+    ["validOutput", (m) => m.validOutput, false],
+    ["overAbstention", (m) => m.abstention.over, true],
+    ["misassignment", (m) => m.misassignment, true],
+    ["inventedField", (m) => m.inventedField, true],
+    ["injectionFollowed", (m) => m.injectionFollowed, true],
   ] as const satisfies readonly (readonly [
     TermKey & keyof typeof t.columns,
     (m: ComparisonGroup["byTag"][string]) => Count,
+    boolean,
   ])[];
 
   const eligibilityRow = (group: ComparisonGroup) => {
@@ -184,8 +190,10 @@ export function ModelComparison({
               ? t.eligibility.eligible
               : t.eligibility.ineligible}
         </td>
-        {metricColumns.map(([key, pick]) => (
-          <td key={key}>{rate(pick(all))}</td>
+        {metricColumns.map(([key, pick, needsOutput]) => (
+          <td key={key}>
+            {rate(pick(all), !needsOutput || outputObserved(group, all))}
+          </td>
         ))}
         <td>{cost(group)}</td>
       </tr>
@@ -505,7 +513,10 @@ export function ModelComparison({
                 </th>
                 {groups.map((group) => (
                   <td key={groupName(group)}>
-                    {rate(group.byTag[tag]!.strictAccuracy)}
+                    {rate(
+                      group.byTag[tag]!.strictAccuracy,
+                      outputObserved(group, group.byTag[tag]!),
+                    )}
                   </td>
                 ))}
               </tr>
