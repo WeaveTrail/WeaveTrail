@@ -1,10 +1,16 @@
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { sha256Canonical } from "@weavetrail/replay-engine";
 import { SELECTION_MODELS } from "./mapping-selection";
-import { runHeldOut } from "./held-out-protocol";
+import { loadHeldOutSession, runHeldOut } from "./held-out-protocol";
 import { requireLiveMappingCommand } from "./mapping-model-runner";
 
 // Test the write/network orchestration without a pre-run commit or real provider.
@@ -99,4 +105,46 @@ it("writes 180 attempts and hash-bound receipts, including provider failures, wi
     expect(bytes).not.toContain("synthetic-test-key");
     expect(bytes).not.toContain("unretained provider diagnostic");
   }
+});
+it("loads only a receipted session whose records match their receipts", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "held-out-test-"));
+  directories.push(directory);
+  const output = await runHeldOut(
+    models,
+    catalogue(),
+    directory,
+    vi.fn<typeof fetch>(async () => new Response("", { status: 503 })),
+  );
+  const session = JSON.parse(
+    readFileSync(join(output, "session.json"), "utf8"),
+  );
+  expect(session.endpoint).toEqual({
+    provider: "google",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+  });
+  const loaded = loadHeldOutSession(output);
+  expect(loaded.records).toHaveLength(180);
+  expect(loaded.session).toEqual({
+    sessionId: session.sessionId,
+    sessionHash: sha256Canonical(session),
+  });
+  const records = JSON.parse(
+    readFileSync(join(output, "records.json"), "utf8"),
+  );
+  writeFileSync(
+    join(output, "records.json"),
+    JSON.stringify([...records.slice(1), { ...records[0], repeat: 9 }]),
+  );
+  expect(() => loadHeldOutSession(output)).toThrow("receipted");
+  writeFileSync(join(output, "records.json"), JSON.stringify(records));
+  const record = readdirSync(output).find(
+    (f) => f.endsWith(".json") && !f.endsWith(".receipt.json") && f.length > 40,
+  )!;
+  writeFileSync(
+    join(output, record),
+    JSON.stringify({ ...records[0], latencyMs: 1 }),
+  );
+  expect(() => loadHeldOutSession(output)).toThrow("receipt");
+  writeFileSync(join(output, "extra.json"), "{}");
+  expect(() => loadHeldOutSession(output)).toThrow("Unreceipted");
 });

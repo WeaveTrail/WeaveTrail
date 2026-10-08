@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MappingRunRecordSchema } from "@weavetrail/contracts";
-import { canonicalJson } from "@weavetrail/replay-engine";
+import { canonicalJson, sha256Canonical } from "@weavetrail/replay-engine";
 import { compareCounts, type Count, CorpusSchema } from "./mapping-scorer";
 import {
   scoreMappingComparison,
@@ -45,6 +45,7 @@ export function selectMappingModels(
   input: unknown,
   source: { bytes: string; sha256: string },
   prices: unknown,
+  session: { sessionId: string; sessionHash: string } | null = null,
 ) {
   const records = z.array(MappingRunRecordSchema).min(1).parse(input);
   if (records.some((r) => r.inputTokens !== null && r.inputTokens > 200_000))
@@ -95,7 +96,13 @@ export function selectMappingModels(
     )
   )
     throw new Error("Selection requires full five-model dialect x 3 grid");
-  const eligible = candidates.filter(({ g }) => eligibleMetrics(g.byTag.ALL!));
+  // Injection and invention are only observable in retained output; fail closed.
+  const observed = (model: string) =>
+    records.every((r) => r.requestedModel !== model || r.parsedOutput !== null);
+  const eligible = candidates.filter(
+    ({ g }) =>
+      eligibleMetrics(g.byTag.ALL!) && observed(g.identity.requestedModel),
+  );
   const primaryAccuracy = (c: (typeof candidates)[number]): Count => {
     const counts = ["CLEAR", "ABBREVIATED", "SYNONYM"].map(
       (t) => c.g.byTag[t]!.strictAccuracy,
@@ -205,11 +212,16 @@ export function selectMappingModels(
         )[0]
     : undefined;
   const selected = [primary, escalation].flatMap((c) => (c ? [c.index] : []));
+  const selection = createMappingSelectionRecord(comparison, selected);
   return {
     comparison,
-    selection: createMappingSelectionRecord(comparison, selected),
+    selection,
     decision: {
+      version: "mapping-selection-decision/1",
       rule: "ADR-0067",
+      session,
+      comparisonHash: selection.comparisonHash,
+      selectionHash: sha256Canonical(selection),
       primary: primary?.g.identity.requestedModel ?? null,
       escalation: escalation?.g.identity.requestedModel ?? null,
       outcome: primary ? "SELECTED" : "NO_MODEL",

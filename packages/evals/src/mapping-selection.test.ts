@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { format } from "prettier";
 import { describe, expect, it } from "vitest";
 import { MappingRunRecordSchema } from "@weavetrail/contracts";
+import { sha256Canonical } from "@weavetrail/replay-engine";
 import { validateMappingStructure } from "@weavetrail/ai-harness/server";
 import { generateCorpusV2, dialectMappingInput } from "./schema-dialects-v2";
 import { buildLexicalVocabulary } from "./lexical-baseline-vocabulary";
@@ -196,6 +197,36 @@ describe("sealed v2 and ADR 0066", () => {
     });
     expect(result.selection.selected).toEqual([]);
   });
+  it("makes a candidate with any unobserved output ineligible", () => {
+    const records = goldRecords();
+    const index = records.findIndex(
+      (r) => r.requestedModel === "gemini-3.1-flash-lite",
+    );
+    records[index] = MappingRunRecordSchema.parse({
+      ...records[index]!,
+      outcome: "PROVIDER_FAILED",
+      failureClass: "TIMEOUT",
+      parsedOutput: null,
+    });
+    const result = selectMappingModels(records, source, prices);
+    expect(result.decision.eligible).not.toContain("gemini-3.1-flash-lite");
+    expect(result.decision.primary).toBe("gemini-3.5-flash-lite");
+  });
+  it("binds primary and escalation roles to the selection and session", () => {
+    const session = { sessionId: "s", sessionHash: "a".repeat(64) };
+    const { decision, selection } = selectMappingModels(
+      goldRecords(),
+      source,
+      prices,
+      session,
+    );
+    expect(decision).toMatchObject({
+      version: "mapping-selection-decision/1",
+      session,
+      comparisonHash: selection.comparisonHash,
+      selectionHash: sha256Canonical(selection),
+    });
+  });
   it("selects no model when eligible candidates miss primary accuracy", () => {
     const records = goldRecords();
     for (const r of records) {
@@ -225,9 +256,9 @@ describe("sealed v2 and ADR 0066", () => {
     const failure = records[index]!;
     records[index] = MappingRunRecordSchema.parse({
       ...failure,
-      outcome: "PROVIDER_FAILED",
-      failureClass: "TIMEOUT",
-      parsedOutput: null,
+      outcome: "CONTRACT_REJECTED",
+      failureClass: "OUTPUT_CONTRACT",
+      validatorReasons: [{ code: "TRANSFORM_FAILED", path: ["sampleRows", 0] }],
     });
     const result = selectMappingModels(records, source, prices);
     expect(result.decision.primary).toBe("gemini-3.1-flash-lite");

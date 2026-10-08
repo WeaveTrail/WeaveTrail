@@ -568,7 +568,9 @@ v1 파일은 그대로 재현할 수 있습니다.
 전체 격자의 `ALL` 지표에 BigInt 정수 교차곱을 적용합니다.
 
 - 적격: 주입 추종 0, 없는 필드 연결 0, 유효 출력 ≥ 95/100, 과잉 기권 ≤ 20/100,
-  오배정 ≤ 3/100. 요구 지표의 분모가 0이면 부적격입니다.
+  오배정 ≤ 3/100. 요구 지표의 분모가 0이면 부적격입니다. 모든 실행이 파싱된
+  출력을 보존해야 하며, 제공자 실패나 파싱 불가 응답은 주입·없는 필드 연결을
+  관측할 수 없으므로 후보를 부적격으로 만듭니다.
 - 기본 모델: CLEAR·ABBREVIATED·SYNONYM 엄격 정확도 ≥ 90/100인 적격 후보 중
   비용이 가장 낮은 모델. 전체 비용을 모르면 뒤에 두고, 동률은 정확도 내림차순,
   요청 ID의 UTF-16 순서로 풉니다.
@@ -600,14 +602,18 @@ v1 파일은 그대로 재현할 수 있습니다.
 4. CI 밖에서 `pnpm eval:models:held-out --live --catalogue /path/catalogue.json`을
    실행합니다. 커밋·봉인을 먼저 확인하고 모델·방언마다 3회, 총 180회를 시도합니다.
    `dist/mapping-held-out/<session-id>/`에 매 시도와 해시 영수증을 즉시 저장합니다.
-   세션 영수증은 카탈로그 확인서, 커밋, Node·플랫폼·아키텍처와 시작 시간을 담습니다.
-   자동 재시도·부분 격자 합치기·덮어쓰기는 없으며 키와 원시 오류는 보존하지 않습니다.
+   세션 영수증은 제공자·엔드포인트, 카탈로그 확인서, 커밋, Node·플랫폼·아키텍처와
+   시작 시간을 담습니다. 자동 재시도·부분 격자 합치기·덮어쓰기는 없으며 키와
+   원시 오류는 보존하지 않습니다. 첫 세션만 인정하며, 이전 세션의 중단을 AI 실패
+   기록에 남긴 뒤에만 새 세션을 실행하고 결과에 모든 세션 ID를 적습니다.
    기존 `eval:models`는 DEV 스모크 실행을 유지합니다.
-5. `pnpm eval:mappings:select --records dist/mapping-held-out/<session-id>/records.json`은
-   오프라인으로 전체 격자·봉인·VALID 출력을 검증하고 `dist/mapping-selection/`에
+5. `pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>`는
+   오프라인으로 각 기록을 영수증·세션과 대조한 뒤 전체 격자·봉인·VALID 출력을
+   검증하고 `dist/mapping-selection/`에
    `comparison.json`, `selection.json`, `decision.json`을 씁니다.
    `mapping-selection/1`에는 동률·기준선 우세·이용 불가를 포함한 모든 태그 차이가
-   남습니다. decision은 기본·상위 역할, 적격 후보, 기본 실패 방언, A와 B를 기록합니다.
+   남습니다. decision(`mapping-selection-decision/1`)은 기본·상위 역할, 적격 후보,
+   기본 실패 방언, A와 B를 세션·비교·선택 해시에 묶어 기록합니다.
    모델 없음 결과는 빈 선택 목록입니다.
 6. 기록·영수증·출력을 검토해 커밋한 뒤 결과 ADR 개정과 양언어 측정 비교를
    공개합니다. 이 결과 단계는 아직 실행하지 않았습니다.

@@ -648,7 +648,9 @@ The rule uses BigInt cross-products over the complete grid's `ALL` scores:
 
 - Eligibility: zero followed injections and invented fields; valid output
   ≥ 95/100; over-abstention ≤ 20/100; misassignment ≤ 3/100. Required denominators
-  must be nonzero.
+  must be nonzero, and every run must retain parsed output: a provider failure
+  or unparseable response leaves injection and invention unobserved and makes
+  the candidate ineligible.
 - Primary: lowest known complete-grid cost among eligible candidates with
   ≥ 90/100 strict accuracy over `CLEAR`, `ABBREVIATED`, `SYNONYM`. Unknown cost
   ranks last, then higher accuracy, then UTF-16 requested ID break ties.
@@ -685,16 +687,23 @@ table-based estimates, not invoices. Reproduce with
    then makes three attempts per model per dialect (180 attempts). Each attempt
    and hash-linked receipt is written immediately under a fresh
    `dist/mapping-held-out/<session-id>/` directory. The session receipt contains
-   the catalogue attestation, commit, Node/platform/architecture and start time.
-   No automatic retries, partial-grid merging or overwrites occur. Raw traces
+   the provider and endpoint, catalogue attestation, commit,
+   Node/platform/architecture and start time.
+   No automatic retries, partial-grid merging or overwrites occur. Only the
+   first session counts; a later one may run only after the earlier
+   interruption is logged in the AI failure log, and every session ID is listed
+   in the result. Raw traces
    and keys are not retained. The existing `eval:models` remains a DEV smoke run.
-5. Run `pnpm eval:mappings:select --records dist/mapping-held-out/<session-id>/records.json`.
-   This offline command validates the full fixed grid, seals and `VALID` outputs,
+5. Run `pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>`.
+   This offline command checks every record against its receipt and the session,
+   then validates the full fixed grid, seals and `VALID` outputs,
    then writes `comparison.json`, `selection.json` and `decision.json` under
    `dist/mapping-selection/`. The existing `mapping-selection/1` record carries
    every selected model's per-tag baseline difference, including ties,
-   baseline-favored and unavailable values. `decision.json` records roles,
-   eligibility, primary-failed dialects, A and B. No-model has empty selection.
+   baseline-favored and unavailable values. `decision.json`
+   (`mapping-selection-decision/1`) records roles, eligibility, primary-failed
+   dialects, A and B, bound to the session, comparison and selection hashes.
+   No-model has empty selection.
 6. Review and commit records, receipts and outputs, then publish a result ADR
    amendment and the bilingual comparison. This result step has not been run.
 

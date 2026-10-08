@@ -35,7 +35,12 @@ Historical v1 records and baseline captures keep their original semantics.
 
 Adopt **all** eligibility thresholds, primary and escalation formulas,
 tie-breaks, k = 3, five requested candidates, no-model outcome, and post-run
-publication and invalidation rules of ADR 0066 unchanged. The only configuration
+publication and invalidation rules of ADR 0066 unchanged, with one added
+eligibility condition: every run in the candidate's grid must retain parsed
+output. `mapping-score/1` can count followed injections and invented fields only
+in retained output, so a provider failure or an unparseable or non-retainable
+response would otherwise count as zero. Unobserved safety behavior makes the
+candidate ineligible instead. The only configuration
 version change is validator `mapping-validator/2`. Prompt `schema-mapping/1`,
 output schema `mapping-fields/1`, adapter `openai-compatible-mapping/1`,
 temperature 0 and scorer `mapping-score/1` remain fixed.
@@ -79,18 +84,33 @@ committed protocol and accepted ADR, clean tracked implementation, fixed
 provider and full candidate list before transport. CI cannot call providers.
 Every dialect is attempted three times per candidate. Each attempt and its
 hash-linked `mapping-run-receipt/1` are written immediately and exclusively;
-a session receipt binds the catalogue attestation, checkout and environment.
+a session receipt binds the catalogue attestation, the fixed provider and
+endpoint, checkout and environment.
 An interrupted session retains its attempts; its incomplete grid cannot be
 selected. Each invocation creates a new session, never overwrites a prior run,
 and does not resume or merge partial sessions automatically.
 
-`eval:mappings:select --records <records.json>` is offline. It checks sealed
+Each grid cell has exactly one attempt per session, and only the first session
+invoked against these sealed inputs is selected. A later session may run only
+after the earlier one's interruption is recorded in the AI failure log, and
+only the first complete session counts. The result amendment lists every
+session ID with its receipt hash, including interrupted ones. The command
+cannot see sessions on other machines, so this policy is procedural; retained
+receipts make a violation auditable.
+
+`eval:mappings:select --session <session directory>` is offline. It accepts only
+one session directory, checks each record against its receipt and the session's
+protocol hash, and rejects unreceipted files or a `records.json` that differs
+from the receipted attempts. It checks sealed
 inputs, versions, candidate identities and the full five-model dialect-by-repeat
 grid; it revalidates records marked `VALID`. It applies the unchanged rule with
 BigInt cross-products and costs, emits the comparison including the frozen
 reference, and emits the existing `mapping-selection/1` record with every tag
-difference. A companion decision file names primary and escalation roles,
-eligible candidates, primary-failed dialects and the separate A and B counts.
+difference. Because that record does not distinguish roles, a versioned
+`mapping-selection-decision/1` file names primary and escalation roles,
+eligible candidates, primary-failed dialects and the separate A and B counts,
+and binds the session ID and receipt hash, the comparison hash and the
+`mapping-selection/1` hash.
 A no-model result has an empty selected list. No result enables the live AI path.
 
 ## Consequences

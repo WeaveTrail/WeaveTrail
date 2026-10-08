@@ -49,9 +49,9 @@ selection candidate. See [the baseline protocol](docs/EVALUATION.md#non-model-le
 `pnpm eval:schemas:generate:v2` reproduces the new sealed corpus and DEV-only
 vocabulary. `pnpm eval:models:held-out --live --catalogue <attestation.json>`
 checks committed pre-run inputs and records three attempts per model and dialect.
-`pnpm eval:mappings:select --records <records.json>` applies ADR 0067 offline
-and writes the comparison, existing selection record and primary/escalation
-roles. See [the run protocol](docs/EVALUATION.md#run-and-reproduce) before a live
+`pnpm eval:mappings:select --session <session directory>` verifies one
+receipted session and applies ADR 0067 offline, writing the comparison,
+existing selection record and a hash-bound primary/escalation decision. See [the run protocol](docs/EVALUATION.md#run-and-reproduce) before a live
 run. CI only exercises mock transports; no actual selection is committed yet.
 
 Earlier evaluation captures with withdrawn sources remain historical records.

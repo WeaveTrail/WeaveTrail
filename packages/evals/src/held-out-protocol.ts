@@ -1,10 +1,11 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import { z } from "zod";
 import {
   MappingRunReceiptSchema,
+  MappingRunRecordSchema,
   type MappingRunRecord,
 } from "@weavetrail/contracts";
 import { sha256Canonical } from "@weavetrail/replay-engine";
@@ -18,6 +19,10 @@ import {
 import protocol from "../fixtures/mapping-selection-v1/protocol.json";
 
 export const root = resolve(import.meta.dirname, "../../..");
+export const HELD_OUT_ENDPOINT = {
+  provider: "google",
+  baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+} as const;
 export function loadSelectionInputs(requireCommitted = false) {
   for (const [path, expected] of Object.entries(protocol.files)) {
     const bytes = readFileSync(resolve(root, path));
@@ -116,9 +121,8 @@ export async function runHeldOut(
     new Set(models.map((m) => m.model)).size !== 5 ||
     models.some(
       (m) =>
-        m.provider !== "google" ||
-        m.baseUrl !==
-          "https://generativelanguage.googleapis.com/v1beta/openai" ||
+        m.provider !== HELD_OUT_ENDPOINT.provider ||
+        m.baseUrl !== HELD_OUT_ENDPOINT.baseUrl ||
         !(SELECTION_MODELS as readonly string[]).includes(m.model),
     )
   )
@@ -145,6 +149,7 @@ export async function runHeldOut(
       platform: process.platform,
       arch: process.arch,
     },
+    endpoint: HELD_OUT_ENDPOINT,
     catalogue,
     protocolHash: sha256Canonical(protocol),
   });
@@ -182,4 +187,69 @@ export async function runHeldOut(
       }
   write("records.json", records);
   return directory;
+}
+
+const SessionSchema = z
+  .object({
+    version: z.literal("mapping-held-out-session/1"),
+    sessionId: z.uuid(),
+    startedAt: z.iso.datetime(),
+    commit: z.string().min(1),
+    environment: z
+      .object({ node: z.string(), platform: z.string(), arch: z.string() })
+      .strict(),
+    endpoint: z
+      .object({
+        provider: z.literal(HELD_OUT_ENDPOINT.provider),
+        baseUrl: z.literal(HELD_OUT_ENDPOINT.baseUrl),
+      })
+      .strict(),
+    catalogue: CatalogueSchema,
+    protocolHash: z.string(),
+  })
+  .strict();
+/**
+ * Read one held-out session directory: every record must match its receipt,
+ * belong to this session and protocol, and equal the session's records.json.
+ */
+export function loadHeldOutSession(directory: string) {
+  const read = (name: string): unknown =>
+    JSON.parse(readFileSync(resolve(directory, name), "utf8"));
+  const session = SessionSchema.parse(read("session.json"));
+  if (session.protocolHash !== sha256Canonical(protocol))
+    throw new Error("Session was run under another protocol");
+  const names = readdirSync(directory);
+  const receipts = names.filter((n) => n.endsWith(".receipt.json"));
+  const expected = new Set([
+    "session.json",
+    "records.json",
+    ...receipts,
+    ...receipts.map((n) => n.replace(".receipt.json", ".json")),
+  ]);
+  if (names.some((n) => !expected.has(n)))
+    throw new Error("Unreceipted file in session");
+  const records = receipts.map((name) => {
+    const receipt = MappingRunReceiptSchema.parse(read(name));
+    if (name !== `${receipt.runId}.receipt.json`)
+      throw new Error("Receipt name mismatch");
+    const record = MappingRunRecordSchema.parse(read(`${receipt.runId}.json`));
+    if (sha256Canonical(record) !== receipt.recordHash)
+      throw new Error("Record does not match its receipt");
+    return record;
+  });
+  const sorted = (rs: MappingRunRecord[]) =>
+    rs.map((r) => sha256Canonical(r)).sort();
+  if (
+    sorted(
+      z.array(MappingRunRecordSchema).parse(read("records.json")),
+    ).join() !== sorted(records).join()
+  )
+    throw new Error("records.json differs from the receipted attempts");
+  return {
+    records,
+    session: {
+      sessionId: session.sessionId,
+      sessionHash: sha256Canonical(session),
+    },
+  };
 }
