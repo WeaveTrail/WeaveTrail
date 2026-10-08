@@ -193,10 +193,14 @@ no result until its evaluation is published.
   HELD_OUT schema-dialect set, the run-record contract, the shared validator
   with its hostile probes, and the AI failure log with its prompt-version
   registry; one configuration-driven Chat Completions adapter and an explicit
-  local smoke command with sanitized run records. Planned: scoring accuracy,
-  invented fields, abstention, rejection,
-  latency and cost beside a non-model lexical baseline; a selection rule fixed
-  before the held-out run; and the comparison on the evaluation and home pages.
+  local smoke command with sanitized run records; scoring of accuracy, invented
+  fields, abstention, rejection, latency and cost beside a non-model lexical
+  baseline; a selection rule fixed before the held-out run; and the comparison
+  on the evaluation page, with the home page answering which model was chosen.
+  The first held-out run selected no model: every request failed without
+  output, so both pages show no selection and the home page shows no numbers.
+  Planned: a held-out run that observes model output, from which the rule
+  selects the models.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
   validator checks it. A valid, clear proposal goes to review; an ambiguous or
   rejected one goes once to an escalation model that never sees the primary
