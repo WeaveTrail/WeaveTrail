@@ -348,6 +348,7 @@ export function ModelComparison({
   function chartPanel() {
     if (!result) return <p className="mc-empty">{t.chart.pending}</p>;
     const points = chartPoints(result);
+    const unplotted = points.filter((point) => point.y === null).length;
     return (
       <>
         <svg
@@ -387,32 +388,37 @@ export function ModelComparison({
           >
             {t.chart.unknownLane}
           </text>
-          {points.map((point, index) => (
-            <g data-kind={point.kind} key={point.name}>
-              {point.kind === "reference" ? (
-                <rect
-                  className="mc-mark mc-mark-reference"
-                  height={10}
-                  transform={`rotate(45 ${point.x} ${point.y})`}
-                  width={10}
-                  x={point.x - 5}
-                  y={point.y - 5}
-                />
-              ) : (
-                <circle
-                  className={`mc-mark mc-mark-${point.kind}`}
-                  cx={point.x}
-                  cy={point.y}
-                  r={6}
-                />
-              )}
-              {/* Clustered marks carry a number; the table below names it. */}
-              <text className="mc-mark-label" x={point.x + 8} y={point.y - 7}>
-                {index + 1}
-              </text>
-            </g>
-          ))}
+          {points.map((point, index) =>
+            point.y === null ? null : (
+              <g data-kind={point.kind} key={point.name}>
+                {point.kind === "reference" ? (
+                  <rect
+                    className="mc-mark mc-mark-reference"
+                    height={10}
+                    transform={`rotate(45 ${point.x} ${point.y})`}
+                    width={10}
+                    x={point.x - 5}
+                    y={point.y - 5}
+                  />
+                ) : (
+                  <circle
+                    className={`mc-mark mc-mark-${point.kind}`}
+                    cx={point.x}
+                    cy={point.y}
+                    r={6}
+                  />
+                )}
+                {/* Clustered marks carry a number; the table below names it. */}
+                <text className="mc-mark-label" x={point.x + 8} y={point.y - 7}>
+                  {index + 1}
+                </text>
+              </g>
+            ),
+          )}
         </svg>
+        {unplotted > 0 ? (
+          <p className="mc-legend">{t.chart.unplotted(unplotted)}</p>
+        ) : null}
         <p className="mc-legend">
           <span>{t.chart.legend.eligible}</span>
           <span>{t.chart.legend.ineligible}</span>
@@ -448,7 +454,15 @@ export function ModelComparison({
                         ? t.eligibility.eligible
                         : t.eligibility.ineligible}
                   </td>
-                  <td>{rate(point.accuracy)}</td>
+                  <td>
+                    {point.accuracy ? (
+                      rate(point.accuracy)
+                    ) : (
+                      <a className="mc-number" href={links.metrics}>
+                        {t.unavailable}
+                      </a>
+                    )}
+                  </td>
                   <td>
                     <a className="mc-number" href={links.metrics}>
                       {point.cost === null

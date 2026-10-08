@@ -281,6 +281,23 @@ describe("model comparison on the evaluation page", () => {
     expect(failureModes(model).map((m) => m.key)[0]).toBe("providerFailed");
   });
 
+  it("does not plot accuracy for a model whose every request failed", () => {
+    const points = chartPoints(committedHeldOutResult);
+    const models = points.filter((p) => p.kind !== "reference");
+    expect(models).toHaveLength(DECLARED_MODELS.length);
+    for (const p of models) expect([p.y, p.accuracy]).toEqual([null, null]);
+    const reference = points.find((p) => p.kind === "reference")!;
+    expect(Number.isInteger(reference.y)).toBe(true);
+    for (const korean of [false, true]) {
+      const copy = modelComparisonCopy[korean ? "ko" : "en"];
+      const markup = render(committedHeldOutResult, korean);
+      expect(markup).toContain(copy.chart.unplotted(DECLARED_MODELS.length));
+      expect(markup.match(/<g data-kind="[^"]+"/g)).toEqual([
+        '<g data-kind="reference"',
+      ]);
+    }
+  });
+
   it("keeps eligible candidates eligible when none reaches the primary threshold", () => {
     // Constructed decision: every candidate passes the gates, none is primary.
     const passing = heldOut(goldRecords());

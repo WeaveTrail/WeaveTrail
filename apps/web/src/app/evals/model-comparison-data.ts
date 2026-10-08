@@ -170,9 +170,10 @@ export type ChartPoint = {
   kind: "eligible" | "ineligible" | "reference";
   /** Integer SVG coordinates; `costKnown: false` points sit in the left lane. */
   x: number;
-  y: number;
+  /** Null when every run failed at the provider: no output, so no accuracy. */
+  y: number | null;
   costKnown: boolean;
-  accuracy: Count;
+  accuracy: Count | null;
   cost: string | null;
 };
 
@@ -202,9 +203,15 @@ export function chartPoints(result: HeldOutResult): ChartPoint[] {
   const width = BigInt(CHART.plotRight - CHART.plotLeft);
   const height = BigInt(CHART.plotBottom - CHART.plotTop);
   return rows.map(({ group, all, cost }) => {
-    const accuracy = all.strictAccuracy;
-    const d = BigInt(accuracy.denominator);
-    const rise = d === 0n ? 0n : (BigInt(accuracy.numerator) * height) / d;
+    const runs = all.providerFailed.denominator;
+    const observed =
+      group.role === "REFERENCE" ||
+      runs === "0" ||
+      all.providerFailed.numerator !== runs;
+    const accuracy = observed ? all.strictAccuracy : null;
+    const d = accuracy ? BigInt(accuracy.denominator) : 0n;
+    const rise =
+      !accuracy || d === 0n ? 0n : (BigInt(accuracy.numerator) * height) / d;
     return {
       name:
         group.role === "REFERENCE"
@@ -220,7 +227,7 @@ export function chartPoints(result: HeldOutResult): ChartPoint[] {
         cost === null
           ? CHART.unknownLane
           : CHART.plotLeft + Number((BigInt(cost) * width) / maxCost),
-      y: CHART.plotBottom - Number(rise),
+      y: accuracy ? CHART.plotBottom - Number(rise) : null,
       costKnown: cost !== null,
       accuracy,
       cost,

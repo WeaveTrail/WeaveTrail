@@ -69,6 +69,7 @@ type Copy = {
     xAxis: string;
     yAxis: string;
     unknownLane: string;
+    unplotted: (count: number) => string;
     legend: { eligible: string; ineligible: string; reference: string };
     pending: string;
     tableCaption: string;
@@ -200,6 +201,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       xAxis: "Cost of the full held-out grid",
       yAxis: "Strict accuracy",
       unknownLane: "Cost unknown",
+      unplotted: (count) =>
+        `${count} ${count === 1 ? "candidate is" : "candidates are"} not plotted: every request failed at the provider, so no output was observed and accuracy is unavailable.`,
       legend: {
         eligible: "● Eligible model",
         ineligible: "○ Not eligible",
@@ -424,6 +427,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       xAxis: "보관 평가 집합 전체 실행 비용",
       yAxis: "엄격 정확도",
       unknownLane: "비용 미상",
+      unplotted: (count) =>
+        `후보 ${count}개는 그리지 않았습니다. 모든 요청이 제공자 단계에서 실패해 관찰한 출력이 없으므로 정확도를 알 수 없습니다.`,
       legend: {
         eligible: "● 적격 모델",
         ineligible: "○ 부적격",
