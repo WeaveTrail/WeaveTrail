@@ -7,3 +7,6 @@ node_modules
 pnpm-lock.yaml
 _workbench
 apps/web/src/design-reference/tokens
+
+# Deterministic compact JSON golden verified by eval:mappings:score.
+/packages/evals/results/mapping-score-v1.json

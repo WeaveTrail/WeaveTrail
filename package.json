@@ -30,7 +30,8 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm adr:check && pnpm adr:test && pnpm figures:check && pnpm figures:test && pnpm format:check",
     "eval": "node scripts/run-evaluation.mjs",
     "eval:models": "node --import tsx packages/evals/src/run-mapping-models.ts",
-    "eval:schemas:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-schema-dialects.mjs"
+    "eval:schemas:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-schema-dialects.mjs",
+    "eval:mappings:score": "node --import tsx packages/evals/src/score-mapping-runs.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
