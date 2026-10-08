@@ -31,7 +31,8 @@
     "eval": "node scripts/run-evaluation.mjs",
     "eval:models": "node --import tsx packages/evals/src/run-mapping-models.ts",
     "eval:schemas:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-schema-dialects.mjs",
-    "eval:mappings:score": "node --import tsx packages/evals/src/score-mapping-runs.ts"
+    "eval:mappings:score": "node --import tsx packages/evals/src/score-mapping-runs.ts",
+    "eval:mappings:compare": "node --import tsx packages/evals/src/compare-mapping-runs.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

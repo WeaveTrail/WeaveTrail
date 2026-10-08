@@ -39,6 +39,13 @@ summary byte for byte. Its regression tests also run in `pnpm test`. These are
 scorer fixtures, not model performance measurements; see the
 [mapping metric definitions](docs/EVALUATION.md#offline-mapping-run-scoring).
 
+`pnpm eval:mappings:compare` reproduces the DEV-only lexical reference records,
+scores them beside authored synthetic controls with the same scorer, and checks
+the committed comparison and explicit selection-record fixture byte for byte.
+Publish mapping comparisons through this command or `eval:mappings:score
+--records`; both include the reference automatically. The reference is never a
+selection candidate. See [the baseline protocol](docs/EVALUATION.md#non-model-lexical-reference).
+
 Earlier evaluation captures with withdrawn sources remain historical records.
 The current `pnpm eval` verifies synthetic-only v3; see [the evaluation protocol](docs/EVALUATION.md).
 

@@ -132,7 +132,7 @@ pnpm exec vitest run packages/evals/src/schema-dialects.test.ts
 애플리케이션에는 정제된 `REVIEW_REQUIRED` 실패만 반환합니다. 원문 응답, 임시
 변환 이벤트와 제공자 문구를 저장하지 않습니다. 별도의
 [설정형 실행 기록 생성기](#설정형-매핑-실행-기록-생성기)는 정제된 관측값을 기록하며
-모델 채점은 계획입니다.
+오프라인 채점기는 구현되었으며 실제 모델 성능 측정은 계획입니다.
 
 모델 프롬프트에는 최대 8개 샘플 행을 전달하지만 검증기는 이후 행을 포함한
 모든 제공 샘플을 검사합니다. 입력 열만 투영하고 원본 행은 수정하지 않으며
@@ -162,7 +162,7 @@ pnpm exec vitest run packages/evals/src/adversarial-mapping.test.ts packages/ai-
 
 구현된 [실행 기록 계약](../packages/contracts/src/mapping-run-record.ts)은 계획된
 모델 평가를 위한 기록 형식입니다. 별도의 설정형 실행 기록 생성기가 제공자
-호출 관측값을 기록에 묶고 로컬에 저장합니다. 채점은 계획이며 `pnpm eval`은
+호출 관측값을 기록에 묶고 로컬에 저장합니다. 오프라인 채점은 구현되었으며 `pnpm eval`은
 계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
 
 `MappingRunRecordSchema`의 `mapping-run/1`은 평가 자료 버전·정확한 파일의
@@ -362,8 +362,8 @@ pnpm 10.33.2, Linux x86_64이며 단위 검사는 Vitest 5.0.2를 사용합니�
 봉인 해시와 가격표 출처를 포함한 입력을 모두 커밋했습니다. 독립적으로 측정한
 모델 품질을 주장하지 않습니다.
 
-다른 커밋된 기록 배열도 동일한 채점기에 전달할 수 있습니다. 비모델 생산자의
-기록에도 특별한 채점 규칙을 적용하지 않습니다.
+사용자 지정 모델 기록에는 같은 채점기를 사용하며, 각 후보 옆에 어휘 기준선
+기록을 자동으로 생성합니다.
 
 ```bash
 pnpm eval:mappings:score --records path/to/records.json --prices path/to/prices.json --expected path/to/summary.json
@@ -371,9 +371,10 @@ pnpm exec vitest run packages/evals/src/mapping-scorer.test.ts
 ```
 
 사용자 지정 입력에서는 `--expected`를 생략하면 커밋된 파일을 바꾸지 않고 로컬
-요약만 만듭니다. 기본 명령은 항상 커밋된 골든을 검사합니다. 비모델 어휘 기준선
-생산자는 아직 계획 단계이며, 인터페이스 회귀검사는 그 기록 식별자에도 동일한
-규칙이 적용되는지만 확인합니다. 기존 어댑터 스모크 기록은 평가 세트가 달라
+요약만 만듭니다. 기본 명령은 항상 기존 채점기 골든을 검사합니다. 사용자 지정
+결과에는 이제 `mapping-comparison/1` 기준선과 차이가 포함됩니다. 이전 사용자
+지정 채점 요약을 `--expected`로 쓰려면 검토한 비교 캡처로 교체해야 하며,
+기대값을 자동으로 갱신하지 않습니다. 기존 어댑터 스모크 기록은 평가 세트가 달라
 이 정답으로 채점할 수 없습니다.
 
 `mapping-score/1`은 공급자, 요청 모델, 프롬프트, 어댑터, 출력 스키마, 검증기,
@@ -464,4 +465,80 @@ null이면 명시적으로 일치하는 항목이 필요합니다. 알 수 없�
 지연과 사용량은 기록 해시에 포함됩니다. 골든 형식은 결정론적인 압축 JSON과
 마지막 줄바꿈 하나입니다.
 [ADR 0064](adr/0064-score-mapping-records-offline-with-integer-metrics.md)(영문)를
+참고하세요.
+
+## 비모델 어휘 기준선
+
+`lexical-baseline/1`은 오프라인에서 열 이름 전체를 고정된 사전에 대조하는
+결정론적 매퍼입니다. 사전은 봉인된 **DEV 열 이름과 DEV 정답만** 사용해
+만들고 HELD_OUT에 적용하기 전에 고정했습니다. 실행 중에는 열 이름, 샘플과
+제안의 입력 바인딩만 받으며 정답, 태그, 이름 계열과 주입 주석은 받지 않습니다.
+모델, 네트워크, 시계나 난수를 사용하지 않고 운영 경로에서도 쓰지 않습니다.
+
+`ascii-separators/1`은 영문자로 시작하는 ASCII 이름 전체에서 대소문자를
+통일하고 공백, `_`, `.`, `/`, `-`를 제거합니다. 부분 문자열을 추측하거나
+지시문 접미사를 떼고 인코딩된 지시를 해독하지 않습니다. DEV에서 정답이
+충돌하거나 검토 대상으로 표시된 키는 사전에서 제외합니다. 모든 샘플이
+비어 있지 않은 문자열이어야 하고 소수·ISO 시각 변환의 문자열 계약을 통과해야
+합니다. 모르는 이름, 부적합하거나 빠진 샘플, 지원하지 않는 변환과 같은 대상을
+놓고 경쟁하는 별칭은 null 대상·변환, 신뢰도 0, `REVIEW_REQUIRED`가 됩니다.
+모르는 열에 값의 모양만 보고 의미를 부여하지 않습니다.
+
+기존 제안 계약 1.4를 출력하고 모델 어댑터와 같은 `validateMappingOutput`을
+통과합니다. 실제 검증 결과와 거절 이유를 `mapping-run/1`에 보존하며 거절을
+`VALID`로 바꾸지 않습니다. 현재 방언 집합에는 `eventType` 열이 없어 기준선
+40건 모두 `MISSING_REQUIRED_TARGET`으로 거절됩니다. 따라서 기존 채점기의
+유효 실행 전용 정확도와 올바른 보류 점수는 0입니다. 보존한 과도한 보류,
+필드 발명과 주입 추종 진단은 볼 수 있습니다. 이 집합은 승인 가능한 전체
+매핑 품질을 입증하지 않으며 별도 버전의 평가 설계가 필요합니다.
+
+```bash
+pnpm eval:mappings:compare
+pnpm exec vitest run packages/evals/src/lexical-mapping-baseline.test.ts
+```
+
+캡처 환경은 Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64입니다.
+[커밋된 입력](../packages/evals/fixtures/lexical-baseline-v1/README.md)(영문)은
+DEV 8개와 HELD_OUT 12개 방언에 각각 두 반복을 적용한 합성 정답·항상 보류
+대조군 80건과 실제 기준선 기록 40건입니다. 대조군의 유효 상태는 채점기
+검증용으로 작성한 값이며 공통 검증기를 통과한 모델 관측이 아닙니다. 선택
+입력도 네 대조군 그룹을 명시해 직렬화만 검증합니다. 실제 모델 성능이나
+운영 모델 선택을 주장하지 않습니다. 고정한 기준선을 보관 집합에 적용한
+사실은 기록되었으며, 이 결과를 보고 어휘를 조정하지 않아야 합니다.
+
+명령은 기준선 기록과
+[비교·선택 요약](../packages/evals/results/mapping-comparison-v1.json)의
+바이트를 검증하고 `dist/mapping-comparisons/`에 같은 압축 JSON과 마지막
+줄바꿈 하나를 저장합니다. 커밋된 기대값은 바꾸지 않습니다. 기준선의 반복은
+같은 결정론적 출력이며 독립 측정이 아닙니다. `latencyMs: 0`은 측정하지
+않았다는 표식입니다. 기준 행의 `NON_MODEL_SENTINEL`에 따라 지연을 이용
+불가로 표시해야 합니다. 토큰과 토큰 비용도 적용 범위 0으로 이용 불가이며
+무료 실행으로 해석하지 않습니다.
+
+```bash
+pnpm eval:mappings:compare --records path/to/records.json --prices path/to/prices.json
+pnpm eval:mappings:compare --records path/to/records.json --prices path/to/prices.json --selected path/to/group-indices.json --expected path/to/capture.json
+```
+
+비교는 후보와 같은 봉인 분할·방언 목록·반복 ID의 기준 행을 생성하고 같은
+정수 채점기를 사용합니다. 같은 분할의 후보들은 같은 격자여야 하며,
+기준선 식별자를 후보로 제공할 수 없습니다. `mapping-comparison/1`은
+`REFERENCE`·`MODEL` 역할, 어휘 버전·해시와 DEV 봉인, 모든 후보의 기준선
+차이를 포함합니다. 모든 후보 표시에는 일치하는 기준 행이 함께 있어야 하고
+기준 행은 `selectable: false`입니다.
+
+`ALL`과 모든 태그에 정확도, 올바른 보류, 과도한 보류, 잘못된 할당, 필드
+발명과 주입 추종의 **모델 빼기 기준선** 차이를 정확한 정수 교차곱으로
+기록합니다. `EQUAL`, `MODEL_FAVORED`, `BASELINE_FAVORED`는 각 지표의
+바람직한 방향만 설명합니다. 분모 0이면 차이는 null, 관계는 `UNAVAILABLE`입니다.
+통계적 유의성이나 자동 선택을 뜻하지 않습니다.
+
+`--selected`는 비교에서 모델 그룹 인덱스를 명시한 JSON 배열입니다. 사용자
+지정 입력에서 생략하면 빈 선택을 기록합니다. `mapping-selection/1`은 전체
+비교 해시와 선택한 모델의 식별자, 기준 행, **모든** 태그 차이를 보존하므로
+동점·기준선 우세·이용 불가 태그가 빠지지 않습니다. 기준 행, 중복과 없는
+인덱스는 거절합니다. 오프라인 추가 계약이며 라이브 응답의 이전은 필요하지
+않습니다. 자동 선택 규칙과 라우팅은 계획입니다.
+[상세 설명](EVALUATION.md#non-model-lexical-reference)(영문)과
+[ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md)(영문)를
 참고하세요.

@@ -143,7 +143,8 @@ bounds the streamed response before parsing, invokes the same gate, and still
 returns only the sanitized `REVIEW_REQUIRED` failure to the application. No raw
 body, temporary mapped events or provider text is retained. The separate
 [configured run producer](#configured-mapping-run-producer) records sanitized
-attempts; model scoring remains planned.
+attempts; [offline scoring](#offline-mapping-run-scoring) is implemented,
+while measured model evaluations remain planned.
 
 The model prompt receives at most eight sample rows; validation dry-runs all
 supplied samples, including later rows. It projects supplied columns without
@@ -177,8 +178,9 @@ correctness remains for human review and the existing explicit approval gate;
 The implemented [run-record contracts](../packages/contracts/src/mapping-run-record.ts)
 define auditable records for model attempts. The
 [configured run producer](#configured-mapping-run-producer) now binds adapter
-observations to these records; `pnpm eval` still runs fixtures only and model
-scoring remains planned.
+observations to these records; `pnpm eval` still runs fixtures only. Offline
+scoring and a lexical reference are implemented; measured model evaluation
+remains planned.
 The new contract is additive; existing mapping responses need no migration.
 
 `MappingRunRecordSchema` version `mapping-run/1` requires:
@@ -398,8 +400,8 @@ Reproduce on Node 22.18.0, pnpm 10.33.2, Linux x86_64; unit checks use Vitest
 5.0.2. All inputs, including the gold seals and price-table provenance, are
 committed. No independently measured model quality is claimed.
 
-Custom committed record arrays can use the same scorer, including records from
-a non-model producer, without a scoring special case:
+Custom model record arrays use the same scorer with an automatically generated
+lexical reference beside every candidate:
 
 ```bash
 pnpm eval:mappings:score --records path/to/records.json --prices path/to/prices.json --expected path/to/summary.json
@@ -408,8 +410,12 @@ pnpm exec vitest run packages/evals/src/mapping-scorer.test.ts
 
 `--expected` is optional for custom inputs; omitting it writes a new local
 summary without updating any committed file. The default command always checks
-the committed golden. The non-model lexical producer is still planned; the
-interface regression checks only that its record identity uses identical rules.
+the committed scorer golden. Custom outputs now add the `mapping-comparison/1`
+reference metadata and differences described below. An older custom raw-score
+golden must be replaced with a reviewed comparison capture before it can serve
+as `--expected`; old expectations are never updated automatically. The direct
+`scoreMappingRuns` API remains the low-level metric implementation for regression
+fixtures; public model comparisons use `scoreMappingComparison`.
 The existing adapter smoke records use a different evaluation set and cannot
 be scored against this corpus.
 
@@ -514,3 +520,102 @@ outside this scope. Record input order does not change summary bytes; actual
 latency and usage remain observations inside the record hash. The golden uses
 deterministic compact JSON plus one newline. See
 [ADR 0064](adr/0064-score-mapping-records-offline-with-integer-metrics.md).
+
+## Non-model lexical reference
+
+`lexical-baseline/1` is an offline deterministic whole-header lookup, implemented
+in [the baseline](../packages/evals/src/lexical-mapping-baseline.ts). It never
+calls a model, network, clock or random source. Its committed
+[vocabulary](../packages/evals/fixtures/lexical-baseline-v1/vocabulary.json)
+is derived from the sealed **DEV input names and DEV gold labels only**; the
+runtime mapper receives names, sample rows and ordinary proposal binding, and
+never receives evaluation gold, tags, family names or injection annotations.
+The vocabulary and its DEV seal are frozen before applying it to HELD_OUT.
+Neither corpus is added to a production import or browser bundle.
+
+`ascii-separators/1` accepts a whole ASCII header beginning with a letter,
+lowercases it, and removes spaces, `_`, `.`, `/` and `-`. It does not remove
+arbitrary punctuation, split an instruction suffix, decode text or use substring
+matches. Development keys with conflicting labels or an abstention label are
+omitted. The remaining key has exactly one enum target and transform. Every
+sample must be a nonempty string; decimal and ISO datetime samples must pass
+the corresponding string contract. Unsupported transforms, missing samples,
+unknown names and competing aliases for one target produce null target and
+transform, confidence 0 and `REVIEW_REQUIRED`. Sample values never assign a
+meaning to an unknown name. Changing these rules or vocabulary requires a new
+baseline version and a reviewed capture; do not tune them on HELD_OUT names.
+
+The mapper emits the existing `SchemaMappingProposalSchema` 1.4 and invokes
+`validateMappingOutput`, exactly as the configured model adapter does. Its
+`mapping-run/1` records retain the returned fields and actual gate reasons.
+A field abstention can therefore cause a rejected run; it is never relabeled
+`VALID` to gain credit. In the committed schema-dialects/1 corpus, every baseline
+run lacks at least `eventType`, so the gate returns `MISSING_REQUIRED_TARGET`.
+All 40 baseline records are rejected and receive zero valid-only strict
+accuracy and correct-abstention credit under mapping-score/1. Retained
+over-abstention, invention and injection diagnostics remain available. This
+corpus does **not** demonstrate end-to-end accepted model or baseline quality;
+a future accepted-proposal comparison needs a separately versioned evaluation
+design. The shared validator and scorer are unchanged.
+
+Reproduce the captured records and summary with:
+
+```bash
+pnpm eval:mappings:compare
+pnpm exec vitest run packages/evals/src/lexical-mapping-baseline.test.ts
+```
+
+Capture environment: Node 22.18.0, pnpm 10.33.2, Vitest 5.0.2, Linux x86_64.
+The [capture inputs](../packages/evals/fixtures/lexical-baseline-v1/README.md)
+contain 80 authored oracle/always-abstaining control records and 40 actual
+baseline records: two repeats over all 8 DEV and 12 HELD_OUT dialects. These
+controls explicitly name synthetic authorship and synthetic validator outcomes;
+they are scorer tests, not models that passed the shared gate or measured
+provider performance. The authored selection fixture chooses the four control
+groups solely to pin the record format. It is not a production model selection.
+Running this command never calls providers or updates committed expectations.
+
+The command verifies both the baseline-record bytes and
+[comparison/selection summary](../packages/evals/results/mapping-comparison-v1.json)
+byte for byte, then writes identical compact JSON plus one newline under
+`dist/mapping-comparisons/`. Baseline repeats duplicate the deterministic
+output; they are not independent measurements. Its `latencyMs: 0` is a sentinel,
+not a timing observation. Reference groups carry `NON_MODEL_SENTINEL`; displays
+must show latency as unavailable. Token observations and token cost are also
+unavailable, with zero covered runs, rather than inferred free operation.
+
+For custom model records:
+
+```bash
+pnpm eval:mappings:compare --records path/to/records.json --prices path/to/prices.json
+pnpm eval:mappings:compare --records path/to/records.json --prices path/to/prices.json --selected path/to/group-indices.json --expected path/to/capture.json
+```
+
+The publication boundary verifies model bindings and generates the reference
+for exactly their sealed split, dialect inventory and repeat IDs. Candidates
+within a split must share that grid; unequal grids fail closed. Supplied
+reference identities cannot masquerade as candidates. The unchanged metric
+scorer processes both producer kinds. `mapping-comparison/1` adds `REFERENCE`
+and `MODEL` roles, the reference version, DEV seal and vocabulary hash, and
+`baselineComparisons` for every model group. A display of any candidate includes
+its matching reference row; the reference has `selectable: false`.
+
+Each `ALL` and named tag includes signed **model minus reference** differences
+for strict accuracy, correct abstention, over-abstention, misassignment,
+invented fields and followed injections. The differences use exact BigInt
+cross-products and decimal-string numerator/denominator. `EQUAL`,
+`MODEL_FAVORED` and `BASELINE_FAVORED` describe the metric direction (higher
+accuracy/correct abstention, lower error/over-abstention); a zero denominator
+gives null difference and `UNAVAILABLE`. These descriptive labels do not claim
+statistical significance or choose a model. Repeat-spread rankings remain
+separate in the scorer output.
+
+`--selected` is an explicit JSON array of model-group indices in the comparison;
+custom runs without it record an empty selection. `mapping-selection/1` binds
+the full comparison hash and copies every selected group's identity, reference
+index and **all** tag differences, including equal, baseline-favored and
+unavailable entries. Reference, duplicate and missing indices fail closed.
+This is an additive offline record format; live response and routing contracts
+need no migration. No selection rule, automatic selection, live baseline route
+or escalation routing is implemented. See
+[ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md).

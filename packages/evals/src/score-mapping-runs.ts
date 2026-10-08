@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { scoreMappingRuns } from "./mapping-scorer";
+import { scoreMappingComparison } from "./mapping-comparison";
 
 const { values } = parseArgs({
   options: {
@@ -18,7 +19,9 @@ const sources = ["DEV", "HELD_OUT"].map((split) => ({
     .trim()
     .split(/\s+/)[0]!,
 }));
-const result = scoreMappingRuns(
+// The default is the historical authored scorer regression. Supplied model
+// records always cross the publication boundary with a baseline reference.
+const result = (values.records ? scoreMappingComparison : scoreMappingRuns)(
   JSON.parse(read(values.records ?? new URL("records.json", fixture))),
   sources,
   JSON.parse(read(values.prices ?? new URL("prices.json", fixture))),

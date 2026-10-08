@@ -30,8 +30,19 @@ synthetic tests verify their shape, trace rejection and hash boundary. The
 observations; the explicit `pnpm eval:models --live --scenario
 concentrated-buy-dialect-a.csv` command saves local records and separate receipts
 under ignored `dist/mapping-runs/`. It requires configured endpoints and keys,
-is disabled in CI and never reads the held-out set. Scoring remains planned. See the
+is disabled in CI and never reads the held-out set. Offline scoring and a lexical
+reference are implemented; measured model evaluation remains planned. See the
 [run-record protocol](../../../docs/EVALUATION.md#mapping-model-run-record-contract).
+
+The offline [comparison publisher](mapping-comparison.ts) always generates the
+[DEV-only lexical reference](lexical-mapping-baseline.ts) over the same sealed
+dialect/repeat grid and uses [the common scorer](mapping-scorer.ts). Explicit
+selection records retain every tag's reference differences and reject reference
+indices. `pnpm eval:mappings:compare` checks the actual baseline record bytes and
+authored synthetic control summary; no provider call or automatic model choice
+is made. The corpus's missing required eventType causes all baseline attempts
+to be rejected by the unchanged shared validator. See
+[definitions and limits](../../../docs/EVALUATION.md#non-model-lexical-reference).
 
 The [hostile mapping fixture provider](adversarial-mapping-fixtures.ts) supplies
 authored synthetic envelopes to the shared server-side model-output validator.
