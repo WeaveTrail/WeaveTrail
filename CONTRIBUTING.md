@@ -57,6 +57,10 @@ run. CI only exercises mock transports; no actual selection is committed yet.
 Earlier evaluation captures with withdrawn sources remain historical records.
 The current `pnpm eval` verifies synthetic-only v3; see [the evaluation protocol](docs/EVALUATION.md).
 
+`pnpm test:browser` runs the Playwright browser flows in `apps/web/e2e`
+against the production build: run `pnpm build` first and install Chromium once
+with `pnpm exec playwright install chromium`. CI runs it after the build.
+
 `pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
 and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.

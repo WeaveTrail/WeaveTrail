@@ -261,6 +261,28 @@ pnpm exec vitest run packages/evals/src/mapping-model-runner.test.ts packages/ai
 pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 ```
 
+## 평가 페이지의 모델 비교
+
+`/evals`는 보관 평가 집합 모델 비교로 시작합니다. 한 문장 답, 기본 모델과 상위
+모델, 비모델 기준선을 비교 기준 행으로 둔 적격 여부 표를 먼저 보여 줍니다.
+비용과 정확도(같은 값의 표 포함), 태그별 엄격 정확도, 실행 기록과
+[AI 실패 기록](AI_FAILURE_LOG.ko.md)으로 연결되는 실패, 선택 규칙, 프롬프트 버전,
+쉬운 용어 설명, 한계와 실행일은 탭 하나로 엽니다. 모든 숫자는 위의 정의로
+연결됩니다. 페이지는 커밋된 비교와 `mapping-selection-decision/1` 기록만 읽고,
+네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 아직 커밋된 보관 평가
+집합 실행이 없으므로 지금은 선택한 모델이 없다고 밝히고 측정값을 보여 주지
+않습니다. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
+참고하십시오.
+
+브라우저 테스트는 두 언어에서 1280×720과 390×844 첫 화면, 키보드만으로 하는
+탭 이동, 새로고침과 외부 요청이 없음을 확인합니다.
+
+```bash
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:browser
+```
+
 ## 아직 계획된 측정
 
 독립된 연결 자료에 대한 모델 정확도, 설정된 제공자 비교, 실제 시장 일반화,

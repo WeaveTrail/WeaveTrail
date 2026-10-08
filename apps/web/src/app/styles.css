@@ -1890,3 +1890,197 @@ code {
   outline: 2px solid currentColor;
   outline-offset: -2px;
 }
+
+/* Model comparison on /evals: the answer, both roles and the eligibility
+   table share the first viewport; everything else sits one tab away. */
+.model-comparison {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+.mc-answer h1 {
+  max-width: 40em;
+  margin-top: 6px;
+  font: var(--type-section);
+  color: var(--text-strong);
+}
+.mc-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 12px 0 0;
+}
+.mc-roles > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.mc-roles dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mc-roles dd {
+  margin: 0;
+  color: var(--text-strong);
+}
+.mc-roles dd.mc-model {
+  font: var(--type-mono);
+}
+.mc-caption {
+  margin-bottom: -10px;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.mc-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-small);
+  font-variant-numeric: tabular-nums;
+}
+.mc-table caption {
+  padding-bottom: 6px;
+  text-align: left;
+  color: var(--text-muted);
+}
+.mc-table th,
+.mc-table td {
+  padding: 5px 10px 5px 0;
+  border-bottom: 1px solid var(--ledger-rule);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.mc-table thead th {
+  font-weight: var(--weight-semibold);
+  border-bottom-color: var(--ledger-rule-strong);
+}
+.mc-table th small,
+.mc-number small {
+  display: block;
+  font: var(--type-mono-sm);
+  color: var(--text-faint);
+}
+.mc-eligibility tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--surface-page);
+  font: var(--type-mono-sm);
+}
+.mc-eligibility tr[data-eligible="true"] th {
+  border-left: 3px solid var(--teal-700);
+  padding-left: 6px;
+}
+.mc-reference th,
+.mc-reference td {
+  background: var(--surface-sunken);
+  font-style: italic;
+}
+.mc-number {
+  font: var(--type-mono-sm);
+}
+.mc-term {
+  color: inherit;
+  text-decoration-style: dotted;
+}
+.mc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: var(--hairline-strong);
+}
+.mc-tabs button {
+  padding: 6px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.mc-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--teal-700);
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+}
+.mc-panel {
+  display: grid;
+  gap: 12px;
+  max-width: 100%;
+  min-width: 0;
+}
+.mc-panel[hidden] {
+  display: none;
+}
+.mc-panel h2 {
+  font: var(--type-subhead);
+}
+.mc-panel p,
+.mc-list {
+  max-width: var(--prose-max);
+  color: var(--text-body);
+}
+.mc-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 1.2em;
+}
+.mc-empty {
+  color: var(--text-muted);
+}
+.mc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.mc-chart {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+.mc-axis {
+  stroke: var(--ledger-rule-strong);
+}
+.mc-axis-label,
+.mc-mark-label {
+  fill: var(--text-muted);
+  font: 11px var(--font-sans);
+}
+.mc-mark-eligible {
+  fill: var(--teal-700);
+  stroke: var(--teal-700);
+}
+.mc-mark-ineligible {
+  fill: var(--surface-page);
+  stroke: var(--text-muted);
+  stroke-width: 2;
+}
+.mc-mark-reference {
+  fill: var(--ink-500);
+}
+.mc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font: var(--type-small);
+}
+.mc-terms {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.mc-terms dt {
+  font-weight: var(--weight-semibold);
+}
+.mc-terms dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+.ledger-heading h2 {
+  margin-top: 8px;
+}

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import React from "react";
 import { EvalsContent } from "./evals-content";
+import { committedHeldOutResult } from "./held-out-result";
 
 export const metadata: Metadata = {
   title: "Evaluation Coverage",
   description:
-    "Inspect the implemented and planned checks behind WeaveTrail's deterministic replay claims.",
+    "See which mapping models were compared and selected, what the choice costs and how each fails, beside the checks behind WeaveTrail's deterministic replay claims.",
   alternates: { canonical: "/evals" },
 };
 
@@ -330,5 +331,5 @@ export const checks = [
 ] as const satisfies readonly (ImplementedCheck | PlannedCheck)[];
 
 export default function EvalsPage() {
-  return <EvalsContent checks={checks} />;
+  return <EvalsContent checks={checks} heldOut={committedHeldOutResult} />;
 }

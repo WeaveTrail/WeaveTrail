@@ -53,3 +53,7 @@ jobs:
         run: pnpm format:check
       - name: Build production application
         run: pnpm build
+      - name: Install browser for flow tests
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run browser flow tests
+        run: pnpm test:browser

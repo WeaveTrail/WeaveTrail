@@ -292,6 +292,30 @@ test file the suite does not collect; run it separately with:
 pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 ```
 
+## Model comparison on the evaluation page
+
+`/evals` opens on the held-out model comparison: a one-sentence answer, the
+primary and escalation models and an eligibility table with the non-model
+baseline as a reference row. Cost and accuracy (with an equivalent table),
+per-tag strict accuracy, failures linked to run records and the
+[AI failure log](AI_FAILURE_LOG.md), the selection rule, prompt versions, plain
+terms, limits and the run date are one tab away. Every number links to its
+definition above. The page reads only the committed comparison and
+`mapping-selection-decision/1` record; it makes no network request and applies
+no rule itself. No held-out run is committed yet, so it currently states that no
+model is selected and shows no measured value. See
+[ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md).
+
+Browser tests assert the first viewport at 1280×720 and 390×844 in both
+languages, keyboard-only panel navigation and the absence of reloads and
+off-site requests:
+
+```bash
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:browser
+```
+
 ## Measurements still planned
 
 Model accuracy on independent mappings, configured-provider comparisons,

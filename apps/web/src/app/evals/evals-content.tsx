@@ -3,6 +3,8 @@
 import React from "react";
 
 import { useLanguage } from "../i18n/language";
+import type { HeldOutResult } from "./model-comparison-data";
+import { ModelComparison } from "./model-comparison";
 
 type Check = {
   name: string;
@@ -74,7 +76,13 @@ const koreanChecks = [
   ],
 ] as const;
 
-export function EvalsContent({ checks }: { checks: readonly Check[] }) {
+export function EvalsContent({
+  checks,
+  heldOut,
+}: {
+  checks: readonly Check[];
+  heldOut: HeldOutResult | null;
+}) {
   const { language } = useLanguage();
   const ko = language === "ko";
   const heading = ko
@@ -92,9 +100,10 @@ export function EvalsContent({ checks }: { checks: readonly Check[] }) {
       ];
   return (
     <main className="shell page-shell">
-      <div className="page-heading">
+      <ModelComparison result={heldOut} />
+      <div className="page-heading ledger-heading">
         <span className="eyebrow">{heading[0]}</span>
-        <h1>{heading[1]}</h1>
+        <h2>{heading[1]}</h2>
         <p>{heading[2]}</p>
         <p>{heading[3]}</p>
         <p>
