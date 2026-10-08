@@ -10,3 +10,8 @@ apps/web/src/design-reference/tokens
 
 # Deterministic compact JSON golden verified by eval:mappings:score.
 /packages/evals/results/mapping-score-v1.json
+
+# Compact offline baseline capture; verified by eval:mappings:compare.
+/packages/evals/fixtures/lexical-baseline-v1/records.json
+/packages/evals/fixtures/lexical-baseline-v1/baseline-records.json
+/packages/evals/results/mapping-comparison-v1.json

@@ -395,17 +395,25 @@ command. It uses its existing downward dependencies on contracts, ai-harness,
 scenarios and replay-engine; no browser or new workspace edge is added.
 The command requires keys and `--live`, refuses CI, and writes records and
 separate receipts to ignored local `dist/`. Neither it nor default checks
-read HELD_OUT inputs or score models. See
+run models on HELD_OUT. Default tests also verify offline synthetic scoring and
+baseline captures over the sealed splits, without provider calls. See
 [ADR 0062](adr/0062-run-mapping-through-one-configurable-chat-completions-adapter.md).
 
 The planned components serve the two model roles and build on what exists:
 
-| Planned component                | What exists today that it builds on                                                                                                                                    | Version  |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| Scoring and a non-model baseline | The sealed DEV/HELD_OUT dialect set and the `mapping-run/1` record contract                                                                                            | `v0.2.0` |
-| Model selection                  | Nothing yet: it reads the planned scores under a rule fixed in an ADR before the held-out run                                                                          | `v0.2.0` |
-| Proposal routing                 | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
-| Bounded case-scope proposer      | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
+Offline integer scoring, a frozen DEV-only lexical reference and explicit
+selection-record serialization are implemented in `packages/evals`, outside
+production exports. Comparison publication includes a nonselectable reference
+and every candidate's tag differences. Captures use authored scorer controls;
+no real model comparison or selection rule is measured. See
+[the baseline protocol](EVALUATION.md#non-model-lexical-reference).
+
+| Planned component           | What exists today that it builds on                                                                                                                                    | Version  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Measured model evaluation   | The sealed dialect set, offline integer scorer, DEV-only lexical reference and `mapping-run/1` records                                                                 | `v0.2.0` |
+| Model selection rule        | Explicit selection-record serialization binds all reference differences; a rule must be fixed in an ADR before the held-out model run                                  | `v0.2.0` |
+| Proposal routing            | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
+| Bounded case-scope proposer | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
 
 In the routing path a valid, clear proposal goes to review, an ambiguous or
 rejected one goes once to the escalation model and through the same validator,

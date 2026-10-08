@@ -33,8 +33,13 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   exist. No model has been run against the held-out set, so no model accuracy,
   comparison, cost or selection is published. A configuration-driven
   Chat Completions adapter and explicit local smoke command with sanitized
-  records exist, verified offline only. Scoring beside a non-model baseline, a selection
-  rule fixed before the held-out run, routing to one escalation model, bounded
+  records exist, verified offline only. Offline integer scoring and a DEV-only
+  lexical reference with explicit selection-record serialization are implemented.
+  Their captures use authored synthetic controls, not measured models. The
+  dialect corpus lacks a required eventType mapping, so the shared validator
+  rejects every baseline run; this does not measure accepted-proposal quality.
+  See [the baseline protocol](EVALUATION.md#non-model-lexical-reference).
+  A selection rule fixed before the held-out model run, routing to one escalation model, bounded
   case-scope proposals are planned. A
   future comparison will hold for its synthetic set, prompt version, date and
   rule, not for exchange schemas in general.
