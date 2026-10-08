@@ -280,4 +280,30 @@ describe("model comparison on the evaluation page", () => {
     const model = result.comparison.groups.find((g) => g.role === "MODEL")!;
     expect(failureModes(model).map((m) => m.key)[0]).toBe("providerFailed");
   });
+
+  it("keeps eligible candidates eligible when none reaches the primary threshold", () => {
+    // Constructed decision: every candidate passes the gates, none is primary.
+    const passing = heldOut(goldRecords());
+    const result: HeldOutResult = {
+      ...passing,
+      decision: {
+        ...passing.decision,
+        outcome: "NO_MODEL",
+        primary: null,
+        escalation: null,
+      },
+    };
+    expect(result.decision.eligible).toHaveLength(DECLARED_MODELS.length);
+    for (const korean of [false, true]) {
+      const copy = modelComparisonCopy[korean ? "ko" : "en"];
+      const markup = render(result, korean);
+      expect(markup).toContain(copy.answer.noModel);
+      expect(
+        markup.match(new RegExp(copy.roleValue.noModel, "g")),
+      ).toHaveLength(2);
+      expect(markup.match(/data-eligible="true"/g)).toHaveLength(
+        DECLARED_MODELS.length,
+      );
+    }
+  });
 });

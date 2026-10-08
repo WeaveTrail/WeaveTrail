@@ -152,7 +152,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
     roles: { primary: "Primary model", escalation: "Escalation model" },
     roleValue: {
       pending: "Not run yet",
-      noModel: "No eligible model",
+      noModel: "No model selected",
       noEscalation: "None qualifies",
     },
     caption: {
@@ -376,7 +376,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
     roles: { primary: "기본 모델", escalation: "상위 모델" },
     roleValue: {
       pending: "아직 실행 전",
-      noModel: "적격 모델 없음",
+      noModel: "선택한 모델 없음",
       noEscalation: "자격 후보 없음",
     },
     caption: {

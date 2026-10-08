@@ -271,7 +271,7 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 연결됩니다. 페이지는 커밋된 비교와 `mapping-selection-decision/1` 기록만 읽고,
 네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 첫 세션은
 2026-10-08 UTC에 실행했고 180회 요청 모두 `HTTP_ERROR`로 실패해 `NO_MODEL`을
-기록했습니다. 페이지는 실행 건수, 비용 미상과 적격 모델 없음을 보여 줍니다.
+기록했습니다. 페이지는 실행 건수, 비용 미상과 선택한 모델 없음을 보여 줍니다.
 실패한 시도로 모델 품질을 추정할 수는 없습니다.
 [첫 보관 평가 집합 세션](#첫-보관-평가-집합-세션-2026-10-08)을 참고하세요. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
 참고하십시오.

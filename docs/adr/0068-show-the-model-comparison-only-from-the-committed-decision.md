@@ -27,8 +27,11 @@ marks with BigInt arithmetic. It makes no network request.
 
 With `null`, the page says that no model is selected because the declared
 candidates have not run, lists them beside the non-model baseline and shows no
-measured value. "No eligible model" is reserved for a committed `NO_MODEL`
-decision, so an absent run is never reported as a result.
+measured value. "No model selected" is reserved for a committed `NO_MODEL`
+decision, so an absent run is never reported as a result. It names the
+selection, not eligibility: a `NO_MODEL` decision can still list eligible
+candidates that missed the primary threshold, and the table marks them
+eligible.
 
 The answer, both roles and the eligibility table sit in the first viewport at
 1280×720 and 390×844 in both languages. Cost and accuracy, per-tag accuracy,

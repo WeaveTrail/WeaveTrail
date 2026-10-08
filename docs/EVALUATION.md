@@ -305,7 +305,7 @@ definition above. The page reads only the committed comparison and
 `mapping-selection-decision/1` record; it makes no network request and applies
 no rule itself. The first session ran on 2026-10-08 UTC and produced `NO_MODEL`:
 all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts,
-unknown cost and no eligible model. These failed attempts do not estimate model
+unknown cost and no selected model. These failed attempts do not estimate model
 quality; see [the captured session](#first-held-out-session-2026-10-08). See
 [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md).
 
