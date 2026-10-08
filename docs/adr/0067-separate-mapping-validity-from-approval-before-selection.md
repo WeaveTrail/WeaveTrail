@@ -40,7 +40,12 @@ eligibility condition: every run in the candidate's grid must retain parsed
 output. `mapping-score/1` can count followed injections and invented fields only
 in retained output, so a provider failure or an unparseable or non-retainable
 response would otherwise count as zero. Unobserved safety behavior makes the
-candidate ineligible instead. The only configuration
+candidate ineligible instead. Because a v2 `VALID` run may now retain fields that
+need review, the primary-failed and correct-decision definitions keep their v1
+meaning through approval readiness: a resolvable gold decision whose retained
+field `requiresMappingOverride`, including a `PROPOSED` field below confidence 1,
+makes the dialect primary-failed and is not an exact match for A or B.
+The only configuration
 version change is validator `mapping-validator/2`. Prompt `schema-mapping/1`,
 output schema `mapping-fields/1`, adapter `openai-compatible-mapping/1`,
 temperature 0 and scorer `mapping-score/1` remain fixed.
@@ -83,7 +88,8 @@ it. Gemini 3.8 Flash introductory prices end on 2026-12-31.
 committed protocol and accepted ADR, clean tracked implementation, fixed
 provider and full candidate list before transport. CI cannot call providers.
 Every dialect is attempted three times per candidate. Each attempt and its
-hash-linked `mapping-run-receipt/1` are written immediately and exclusively;
+hash-linked `mapping-held-out-receipt/1`, which adds the session ID to the
+`mapping-run-receipt/1` fields, are written immediately and exclusively;
 a session receipt binds the catalogue attestation, the fixed provider and
 endpoint, checkout and environment.
 An interrupted session retains its attempts; its incomplete grid cannot be
@@ -100,7 +106,7 @@ receipts make a violation auditable.
 
 `eval:mappings:select --session <session directory>` is offline. It accepts only
 one session directory, checks each record against its receipt and the session's
-protocol hash, and rejects unreceipted files or a `records.json` that differs
+protocol hash, rejects a receipt naming another session, unreceipted files or a `records.json` that differs
 from the receipted attempts. It checks sealed
 inputs, versions, candidate identities and the full five-model dialect-by-repeat
 grid; it revalidates records marked `VALID`. It applies the unchanged rule with

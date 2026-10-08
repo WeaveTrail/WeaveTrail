@@ -23,6 +23,11 @@ export const HELD_OUT_ENDPOINT = {
   provider: "google",
   baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
 } as const;
+/** A run receipt that also names its enclosing held-out session. */
+const HeldOutReceiptSchema = MappingRunReceiptSchema.extend({
+  schemaVersion: z.literal("mapping-held-out-receipt/1"),
+  sessionId: z.uuid(),
+}).strict();
 export function loadSelectionInputs(requireCommitted = false) {
   for (const [path, expected] of Object.entries(protocol.files)) {
     const bytes = readFileSync(resolve(root, path));
@@ -176,8 +181,9 @@ export async function runHeldOut(
         write(`${runId}.json`, record);
         write(
           `${runId}.receipt.json`,
-          MappingRunReceiptSchema.parse({
-            schemaVersion: "mapping-run-receipt/1",
+          HeldOutReceiptSchema.parse({
+            schemaVersion: "mapping-held-out-receipt/1",
+            sessionId,
             runId,
             startedAt,
             recordHash: sha256Canonical(record),
@@ -209,8 +215,8 @@ const SessionSchema = z
   })
   .strict();
 /**
- * Read one held-out session directory: every record must match its receipt,
- * belong to this session and protocol, and equal the session's records.json.
+ * Read one held-out session directory: every record must match a receipt that
+ * names this session, belong to this session and protocol, and equal the session's records.json.
  */
 export function loadHeldOutSession(directory: string) {
   const read = (name: string): unknown =>
@@ -229,9 +235,11 @@ export function loadHeldOutSession(directory: string) {
   if (names.some((n) => !expected.has(n)))
     throw new Error("Unreceipted file in session");
   const records = receipts.map((name) => {
-    const receipt = MappingRunReceiptSchema.parse(read(name));
+    const receipt = HeldOutReceiptSchema.parse(read(name));
     if (name !== `${receipt.runId}.receipt.json`)
       throw new Error("Receipt name mismatch");
+    if (receipt.sessionId !== session.sessionId)
+      throw new Error("Receipt belongs to another session");
     const record = MappingRunRecordSchema.parse(read(`${receipt.runId}.json`));
     if (sha256Canonical(record) !== receipt.recordHash)
       throw new Error("Record does not match its receipt");

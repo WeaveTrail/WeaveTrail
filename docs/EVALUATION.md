@@ -656,7 +656,9 @@ The rule uses BigInt cross-products over the complete grid's `ALL` scores:
   ranks last, then higher accuracy, then UTF-16 requested ID break ties.
 - Escalation: another eligible candidate maximizing correct decisions on
   `AMBIGUOUS` and `TRANSFORM_LURE` (A), plus all decisions in dialects where any
-  primary repeat failed or over-abstained (B). A decision in both counts twice.
+  primary repeat failed or left a resolvable decision needing review (B),
+  including a `PROPOSED` field below confidence 1. Such a field is not an exact
+  match in A or B either. A decision in both counts twice.
   Ties use ALL strict accuracy, cost, then requested ID.
 - No eligible primary: no model selected; the AI path is not enabled.
 
@@ -685,7 +687,7 @@ table-based estimates, not invoices. Reproduce with
 4. Run `pnpm eval:models:held-out --live --catalogue /path/catalogue.json` outside
    CI. It checks original-byte seals and committed pre-run inputs before calls,
    then makes three attempts per model per dialect (180 attempts). Each attempt
-   and hash-linked receipt is written immediately under a fresh
+   and hash-linked receipt naming its session is written immediately under a fresh
    `dist/mapping-held-out/<session-id>/` directory. The session receipt contains
    the provider and endpoint, catalogue attestation, commit,
    Node/platform/architecture and start time.
@@ -695,7 +697,8 @@ table-based estimates, not invoices. Reproduce with
    in the result. Raw traces
    and keys are not retained. The existing `eval:models` remains a DEV smoke run.
 5. Run `pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>`.
-   This offline command checks every record against its receipt and the session,
+   This offline command checks every record against its receipt and rejects a
+   receipt naming another session,
    then validates the full fixed grid, seals and `VALID` outputs,
    then writes `comparison.json`, `selection.json` and `decision.json` under
    `dist/mapping-selection/`. The existing `mapping-selection/1` record carries

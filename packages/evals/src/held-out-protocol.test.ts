@@ -5,6 +5,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
@@ -98,6 +99,7 @@ it("writes 180 attempts and hash-bound receipts, including provider failures, wi
     const receipt = read(file),
       record = read(file.replace(".receipt.json", ".json"));
     expect(receipt.recordHash).toBe(sha256Canonical(record));
+    expect(receipt.sessionId).toBe(read("session.json").sessionId);
     expect(record.outcome).toBe("PROVIDER_FAILED");
   }
   for (const file of readdirSync(output)) {
@@ -147,4 +149,21 @@ it("loads only a receipted session whose records match their receipts", async ()
   expect(() => loadHeldOutSession(output)).toThrow("receipt");
   writeFileSync(join(output, "extra.json"), "{}");
   expect(() => loadHeldOutSession(output)).toThrow("Unreceipted");
+});
+it("rejects an attempt receipted under another session", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "held-out-test-"));
+  directories.push(directory);
+  const output = await runHeldOut(
+    models,
+    catalogue(),
+    directory,
+    vi.fn<typeof fetch>(async () => new Response("", { status: 503 })),
+  );
+  const name = readdirSync(output).find((f) => f.endsWith(".receipt.json"))!;
+  const receipt = JSON.parse(readFileSync(join(output, name), "utf8"));
+  writeFileSync(
+    join(output, name),
+    JSON.stringify({ ...receipt, sessionId: randomUUID() }),
+  );
+  expect(() => loadHeldOutSession(output)).toThrow("another session");
 });

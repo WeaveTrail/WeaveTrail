@@ -269,6 +269,35 @@ describe("sealed v2 and ADR 0066", () => {
       ),
     ).toMatchObject({ a: "144", b: "45", total: "189" });
   });
+  it("treats a low-confidence mapping as needing review, not as right", () => {
+    const records = goldRecords();
+    const lower = (model: string) => {
+      const index = records.findIndex((r) => r.requestedModel === model);
+      const record = records[index]!;
+      const field = record.parsedOutput!.fields.findIndex(
+        (f) => f.status === "PROPOSED",
+      );
+      records[index] = MappingRunRecordSchema.parse({
+        ...record,
+        parsedOutput: {
+          fields: record.parsedOutput!.fields.map((f, i) =>
+            i === field ? { ...f, confidence: 0.5 } : f,
+          ),
+        },
+      });
+      return record.dialectId;
+    };
+    const dialect = lower("gemini-3.1-flash-lite");
+    lower("gemini-3.5-flash-lite");
+    const result = selectMappingModels(records, source, prices);
+    expect(result.decision.primary).toBe("gemini-3.1-flash-lite");
+    expect(result.decision.primaryFailedDialects).toEqual([dialect]);
+    expect(
+      result.decision.escalationCounts.find(
+        (c) => c.model === "gemini-3.5-flash-lite",
+      ),
+    ).toMatchObject({ a: "144", b: "44", total: "188" });
+  });
   it("breaks equal accuracy and cost ties by UTF-16 requested ID", () => {
     const records = goldRecords();
     const equalPrices = {

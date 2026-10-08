@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { MappingRunRecordSchema } from "@weavetrail/contracts";
+import {
+  MappingRunRecordSchema,
+  requiresMappingOverride,
+} from "@weavetrail/contracts";
 import { canonicalJson, sha256Canonical } from "@weavetrail/replay-engine";
 import { compareCounts, type Count, CorpusSchema } from "./mapping-scorer";
 import {
@@ -165,8 +168,7 @@ export function selectMappingModels(
             g.status === "PROPOSED" &&
             r.parsedOutput?.fields.some(
               (f) =>
-                f.sourceColumn === g.sourceColumn &&
-                f.status === "REVIEW_REQUIRED",
+                f.sourceColumn === g.sourceColumn && requiresMappingOverride(f),
             ),
         )
       )
@@ -176,18 +178,18 @@ export function selectMappingModels(
     let a = 0n,
       b = 0n;
     for (const r of records.filter(
-      (r) =>
-        r.requestedModel === c.g.identity.requestedModel &&
-        r.outcome === "VALID",
+      (r) => r.requestedModel === c.g.identity.requestedModel,
     )) {
+      if (r.outcome !== "VALID") continue;
       for (const g of corpus.dialects.find((d) => d.id === r.dialectId)!.gold) {
-        const f = r.parsedOutput!.fields.find(
+        const f = r.parsedOutput.fields.find(
           (f) => f.sourceColumn === g.sourceColumn,
         );
         if (
           f?.status !== g.status ||
           f.targetField !== g.targetField ||
-          f.transform !== g.transform
+          f.transform !== g.transform ||
+          (g.status === "PROPOSED" && requiresMappingOverride(f))
         )
           continue;
         if (g.tags.some((t) => t === "AMBIGUOUS" || t === "TRANSFORM_LURE"))

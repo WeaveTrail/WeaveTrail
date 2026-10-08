@@ -9,7 +9,9 @@ capture and derived table retain that licence, rather than the repository's
 Apache licence. Google does not endorse this evaluation.
 
 `google-pricing-2026-10-08.html.txt` preserves the original response bytes
-from `curl -fsSL 'https://ai.google.dev/gemini-api/docs/pricing?hl=ja'`.
+from `curl -fsSL 'https://ai.google.dev/gemini-api/docs/pricing?hl=ja'`,
+retrieved at 2026-10-08T05:54:37Z (UTC). The request started at 05:54:33Z and
+completed by that time, according to the operator's command log.
 Its SHA-256 is in the table's provenance. Verify the deterministic derivation
 with `node scripts/extract-mapping-prices.mjs`; `--write` regenerates it.
 The extractor takes the first paid input/output rate from the first (Standard)
