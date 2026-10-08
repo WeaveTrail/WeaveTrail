@@ -145,8 +145,9 @@ has canonical SHA-256
 `0cdfd13d06eec1f8a61103db2edf6343efecb16c7aa03cdd66f839afb4365371`.
 The receipt binds checkout `70f3b403331d543cab6f09a01a82c82a71bfcefe`, the
 fixed endpoint, pre-run protocol, run-date catalogue and environment.
-The operator checked all five IDs in the public catalogue and the
-credential's model listing before the run.
+The operator attests checking all five IDs in the public catalogue and the
+credential's model listing before the run; neither response was retained, so
+the attestation cannot be verified offline.
 
 All 180 attempts (36 per candidate) returned `PROVIDER_FAILED` / `HTTP_ERROR`.
 No parsed output, reported model or token usage was retained. This is a

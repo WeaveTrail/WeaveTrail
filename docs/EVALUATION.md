@@ -757,9 +757,10 @@ This **single-provider comparison** captured the first and only ADR 0067
 session, `365e2daf-a833-427d-8921-718890100b59`, starting at
 `2026-10-08T13:43:56.706Z`. Checkout:
 `70f3b403331d543cab6f09a01a82c82a71bfcefe`. Environment: Node 22.18.0,
-pnpm 10.33.2, Linux x86_64; outside CI. Google's official catalogue and the
-credential's model listing included all five requested IDs before the run.
-The [attestation](../packages/evals/results/mapping-held-out-v1/catalogue-2026-10-08.json)
+pnpm 10.33.2, Linux x86_64; outside CI. The operator attests that Google's
+official catalogue and the credential's model listing included all five
+requested IDs before the run; neither response was retained, so this cannot
+be verified offline. The [attestation](../packages/evals/results/mapping-held-out-v1/catalogue-2026-10-08.json)
 is copied into the [session receipt](../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json). There are no interrupted or
 replacement sessions. All original records and hash-linked receipts are
 [committed beside the result](../packages/evals/results/mapping-held-out-v1/README.md).

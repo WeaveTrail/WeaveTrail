@@ -7,11 +7,14 @@ pnpm 10.33.2, Linux x86_64. The provider is Google at the fixed endpoint in
 This is a **single-provider comparison** of the sealed synthetic
 `schema-dialects/2` HELD_OUT grid, not evidence of model quality.
 
-The official [model catalogue](https://ai.google.dev/gemini-api/docs/models)
-and the authenticated `GET /v1beta/models?pageSize=1000` listing were checked
-on the run date before any mapping call. All five requested IDs were listed.
-[catalogue-2026-10-08.json](catalogue-2026-10-08.json) contains the attestation;
-the session receipt embeds it. No original catalogue response is retained.
+[catalogue-2026-10-08.json](catalogue-2026-10-08.json) is the operator's
+dated attestation that the five requested IDs appeared in the official
+[model catalogue](https://ai.google.dev/gemini-api/docs/models) and the
+authenticated `GET /v1beta/models?pageSize=1000` listing before any mapping
+call; the session receipt embeds it. It is an operator statement, not a
+retained source: neither response was kept (the authenticated listing is
+credential-scoped), so the listing cannot be verified offline. No result
+depends on it, since every attempt failed before any output was observed.
 
 The first and only session is
 `365e2daf-a833-427d-8921-718890100b59`.
