@@ -129,8 +129,17 @@ export function ModelComparison({
   const term = (key: TermKey, label: string) => (
     <a
       className="mc-term"
-      href={`#${termId(key)}`}
+      href={`?view=terms#${termId(key)}`}
       onClick={(event) => {
+        // A modified click keeps the browser's own handling of the real URL.
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
         event.preventDefault();
         choosePanel("terms", termId(key));
         requestAnimationFrame(() =>

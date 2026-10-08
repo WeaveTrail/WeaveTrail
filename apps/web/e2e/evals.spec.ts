@@ -154,6 +154,20 @@ test("restores the open panel from the URL", async ({ page }) => {
   await expect(page.locator("#mc-panel-chart")).toBeHidden();
 });
 
+test("a term link's own URL opens its explanation", async ({ page }) => {
+  await open(page, "en");
+  const href = await page
+    .getByRole("link", {
+      name: modelComparisonCopy.en.columns.overAbstention,
+      exact: true,
+    })
+    .getAttribute("href");
+  expect(href).toBe("?view=terms#term-overAbstention");
+  await page.goto(`/evals${href}`);
+  await expect(page.locator("#mc-panel-terms")).toBeVisible();
+  await expect(page.locator("#term-overAbstention")).toBeVisible();
+});
+
 test("loads nothing from outside the site", async ({ page, baseURL }) => {
   const foreign: string[] = [];
   page.on("request", (request) => {
