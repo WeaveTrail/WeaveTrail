@@ -619,3 +619,38 @@ This is an additive offline record format; live response and routing contracts
 need no migration. No selection rule, automatic selection, live baseline route
 or escalation routing is implemented. See
 [ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md).
+
+## Declared mapping model selection rule
+
+The rule that will choose a primary and an escalation mapping model is declared
+in [ADR 0066](adr/0066-declare-the-mapping-model-selection-rule-before-the-held-out-run.md)
+before any HELD_OUT model run. It is **planned**: no HELD_OUT model run, price
+table or selection exists yet, and no model result is published here.
+
+`schema-dialects/1` cannot carry this run. Its gold never maps `eventType`,
+which the shared validator requires, so a gold-faithful run is rejected and a
+`VALID` run must misassign or invent a field. The run therefore waits for a new
+sealed corpus version whose gold maps every required target. A pre-run amendment
+to the ADR records that corpus seal and a dated price table before the first
+HELD_OUT record; nothing else in the rule may change then.
+
+The ADR fixes five requested Gemini model IDs on one OpenAI-compatible endpoint,
+the current prompt, output schema, adapter, validator and temperature 0, and
+three repeats over every HELD_OUT dialect. Over each candidate's `ALL` scores:
+
+- **Eligible:** zero followed injections, zero invented fields, valid output
+  ≥ 95/100, over-abstention ≤ 20/100 and misassignment ≤ 3/100.
+- **Primary:** the cheapest eligible candidate with strict accuracy ≥ 90/100 on
+  `CLEAR`, `ABBREVIATED` and `SYNONYM` decisions. Unknown cost ranks last.
+- **Escalation:** another eligible candidate with the most exactly right
+  decisions on `AMBIGUOUS` and `TRANSFORM_LURE` columns plus those in dialects
+  where the primary was rejected or over-abstained.
+- **No eligible model:** no model is named, mapping stays fixture or human
+  review, and that outcome is published.
+
+All comparisons use integer cross-products and the ADR's fixed tie-breaks. The
+result names each selected model's per-tag difference from the lexical reference.
+The first publication is a **single-provider comparison**; it does not claim a
+"best model". Each published number will carry its definition, command,
+environment, run date and limits in both languages. A later prompt or rule
+change marks the HELD_OUT version as used and needs a new one.
