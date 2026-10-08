@@ -9,8 +9,11 @@ import {
   LEXICAL_BASELINE_PROVIDER,
   LEXICAL_BASELINE_DEFINITION,
   runLexicalMapping,
+  VocabularySchema,
+  vocabularyV1,
 } from "./lexical-mapping-baseline";
 import { LEXICAL_BASELINE_VERSION } from "./lexical-baseline-vocabulary";
+import vocabularyV2Json from "../fixtures/lexical-baseline-v2/vocabulary.json";
 import { tags, type Corpus } from "./schema-dialects-generator";
 
 type Sources = { bytes: string; sha256: string }[];
@@ -31,7 +34,8 @@ export function baselineRecordsForComparison(
     records.some(
       (r) =>
         r.provider === LEXICAL_BASELINE_PROVIDER ||
-        r.requestedModel === LEXICAL_BASELINE_VERSION,
+        r.requestedModel === LEXICAL_BASELINE_VERSION ||
+        r.requestedModel === "lexical-baseline/2",
     )
   )
     throw new Error(
@@ -75,11 +79,17 @@ export function baselineRecordsForComparison(
       };
       for (const repeat of group.repeats)
         output.push(
-          runLexicalMapping(mappingInput, {
-            evaluationSet: group.identity.evaluationSet,
-            dialectId,
-            repeat,
-          }),
+          runLexicalMapping(
+            mappingInput,
+            {
+              evaluationSet: group.identity.evaluationSet,
+              dialectId,
+              repeat,
+            },
+            corpus.version === "schema-dialects/2"
+              ? VocabularySchema.parse(vocabularyV2Json)
+              : vocabularyV1,
+          ),
         );
     }
   }
@@ -126,6 +136,8 @@ export function scoreMappingComparison(
   prices: unknown,
 ) {
   const candidates = z.array(MappingRunRecordSchema).min(1).parse(input);
+  if (new Set(candidates.map((r) => r.evaluationSet.version)).size !== 1)
+    throw new Error("Compare one corpus version at a time");
   const baselineRecords = baselineRecordsForComparison(
     candidates,
     sources,
@@ -198,7 +210,16 @@ export function scoreMappingComparison(
   return {
     ...scored,
     comparisonVersion: "mapping-comparison/1",
-    baseline: LEXICAL_BASELINE_DEFINITION,
+    baseline:
+      candidates[0]!.evaluationSet.version === "schema-dialects/2"
+        ? {
+            version: vocabularyV2Json.version,
+            normalizationVersion: vocabularyV2Json.normalizationVersion,
+            devSha256: vocabularyV2Json.devSha256,
+            vocabularyHash: sha256Canonical(vocabularyV2Json),
+            selectable: false as const,
+          }
+        : LEXICAL_BASELINE_DEFINITION,
     groups,
     baselineComparisons,
   };
@@ -215,7 +236,7 @@ export function createMappingSelectionRecord(
   return {
     selectionVersion: "mapping-selection/1",
     comparisonHash: sha256Canonical(comparison),
-    baselineVersion: LEXICAL_BASELINE_VERSION,
+    baselineVersion: comparison.baseline.version,
     selected: [...selected]
       .sort((a, b) => a - b)
       .map((modelGroup) => {

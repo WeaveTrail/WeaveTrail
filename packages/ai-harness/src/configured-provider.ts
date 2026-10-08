@@ -8,7 +8,10 @@ import {
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
 
-import { validateMappingOutput } from "./mapping-output-validator";
+import {
+  validateMappingOutput,
+  validateMappingStructure,
+} from "./mapping-output-validator";
 export * from "./mapping-output-validator";
 
 import type {
@@ -290,7 +293,7 @@ export class StructuredOutputClient {
         inputTokens = tokens(envelope.usage.prompt_tokens);
         outputTokens = tokens(envelope.usage.completion_tokens);
       }
-      const result = validateMappingOutput(
+      const result = validateMappingStructure(
         { kind: "envelope", body: bytes },
         input,
       );
@@ -502,7 +505,7 @@ export class ConfiguredSchemaMappingProvider implements SchemaMappingProvider {
       const result = await this.attempt(input);
       if (result.outcome !== "VALID" || !result.proposal)
         throw new ProviderReviewRequired();
-      return result.proposal;
+      return validateConfiguredProposal(result.proposal, input);
     } catch {
       throw new ProviderReviewRequired();
     }

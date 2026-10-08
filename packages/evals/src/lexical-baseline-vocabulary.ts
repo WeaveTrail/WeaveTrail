@@ -17,11 +17,18 @@ export function lexicalKey(name: string): string | null {
 }
 
 /** Offline authoring from sealed DEV labels; never called by the mapper. */
-export function buildLexicalVocabulary(bytes: string, sha256: string) {
+export function buildLexicalVocabulary(
+  bytes: string,
+  sha256: string,
+  version = LEXICAL_BASELINE_VERSION,
+) {
   if (createHash("sha256").update(bytes).digest("hex") !== sha256)
     throw new Error("DEV seal mismatch");
   const corpus = JSON.parse(bytes) as Corpus;
-  if (corpus.version !== "schema-dialects/1" || corpus.split !== "DEV")
+  if (
+    !["schema-dialects/1", "schema-dialects/2"].includes(corpus.version) ||
+    corpus.split !== "DEV"
+  )
     throw new Error("Vocabulary requires DEV only");
   const decisions = new Map<string, Set<string>>();
   for (const dialect of corpus.dialects) {
@@ -45,7 +52,7 @@ export function buildLexicalVocabulary(bytes: string, sha256: string) {
     }
   }
   return {
-    version: LEXICAL_BASELINE_VERSION,
+    version,
     normalizationVersion: LEXICAL_NORMALIZATION_VERSION,
     devSha256: sha256,
     entries: [...decisions]

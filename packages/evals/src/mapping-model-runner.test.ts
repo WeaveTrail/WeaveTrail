@@ -91,7 +91,7 @@ describe("OpenAI-compatible recorded mapping responses", () => {
       inputTokens: 120,
       outputTokens: 80,
       adapterVersion: "openai-compatible-mapping/1",
-      validatorVersion: "mapping-validator/1",
+      validatorVersion: "mapping-validator/2",
     });
     expect(record.parsedOutput).toEqual(validMappingFields());
     expect(MappingRunRecordSchema.safeParse(record).success).toBe(true);
