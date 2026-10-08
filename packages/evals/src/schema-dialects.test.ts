@@ -326,6 +326,9 @@ describe("offline schema dialect evaluation input", () => {
       "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/records.json",
       "../../../../../packages/evals/src/mapping-selection",
       "@weavetrail/evals",
+      "@weavetrail/evals/src/mapping-selection",
+      "../../../../../packages/ai-harness/../evals/src/mapping-selection",
+      "../../../../../packages/evals/src/../fixtures/schema-dialects-v3/HELD_OUT.json",
     ])
       expect(() => assertEvaluationImport(binding, imported, root)).toThrow();
     for (const name of [

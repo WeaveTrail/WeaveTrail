@@ -86,7 +86,7 @@ export function baselineRecordsForComparison(
               dialectId,
               repeat,
             },
-            corpus.version === "schema-dialects/2"
+            corpus.version !== "schema-dialects/1"
               ? VocabularySchema.parse(vocabularyV2Json)
               : vocabularyV1,
           ),
@@ -211,7 +211,7 @@ export function scoreMappingComparison(
     ...scored,
     comparisonVersion: "mapping-comparison/1",
     baseline:
-      candidates[0]!.evaluationSet.version === "schema-dialects/2"
+      candidates[0]!.evaluationSet.version !== "schema-dialects/1"
         ? {
             version: vocabularyV2Json.version,
             normalizationVersion: vocabularyV2Json.normalizationVersion,

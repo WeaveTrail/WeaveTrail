@@ -141,7 +141,7 @@ describe("configured mapping adapter with mocked transport", () => {
     expect(body.response_format.json_schema.strict).toBe(true);
     expect(body.temperature).toBe(0);
     expect(body).not.toHaveProperty("tools");
-    expect(body.store).toBe(false);
+    expect(body).not.toHaveProperty("store");
     expect(JSON.parse(body.messages[1].content)).toEqual({
       sourceArtifactHash: input.sourceArtifactHash,
       columns: input.columns,

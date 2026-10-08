@@ -113,5 +113,6 @@ export async function runConfiguredMapping(
     inputTokens: result.inputTokens,
     outputTokens: result.outputTokens,
     latencyMs: result.latencyMs,
+    httpStatus: result.httpStatus,
   });
 }

@@ -36,7 +36,11 @@ const Gold = z
   .strict();
 export const CorpusSchema = z
   .object({
-    version: z.enum(["schema-dialects/1", "schema-dialects/2"]),
+    version: z.enum([
+      "schema-dialects/1",
+      "schema-dialects/2",
+      "schema-dialects/3",
+    ]),
     split: z.enum(["DEV", "HELD_OUT"]),
     dialects: z
       .array(
@@ -109,6 +113,7 @@ const ScoreIdentitySchema = MappingRunRecordSchema.options[0]
     repeat: true,
     reportedModel: true,
     latencyMs: true,
+    httpStatus: true,
     inputTokens: true,
     outputTokens: true,
     outcome: true,

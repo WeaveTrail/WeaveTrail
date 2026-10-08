@@ -90,7 +90,7 @@ describe("OpenAI-compatible recorded mapping responses", () => {
       reportedModel: "synthetic-reported-2026-10-01",
       inputTokens: 120,
       outputTokens: 80,
-      adapterVersion: "openai-compatible-mapping/1",
+      adapterVersion: "openai-compatible-mapping/2",
       validatorVersion: "mapping-validator/2",
     });
     expect(record.parsedOutput).toEqual(validMappingFields());
@@ -121,7 +121,7 @@ describe("OpenAI-compatible recorded mapping responses", () => {
       const body = JSON.parse(init.body as string);
       expect(body.model).toBe(configuration.model);
       expect(body.temperature).toBe(0);
-      expect(body.store).toBe(false);
+      expect(body).not.toHaveProperty("store");
       expect(body.response_format).toMatchObject({
         type: "json_schema",
         json_schema: { strict: true },
