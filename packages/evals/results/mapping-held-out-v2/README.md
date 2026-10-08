@@ -98,6 +98,6 @@ not describe successful inference alone. The original v2 root cause remains
 unrecoverable from its capture; DEV reproduction diagnoses the historical
 request shape, not those missing bodies. v3 is now used. Any prompt, schema,
 adapter, validator, candidate or selection-rule change needs another fresh seal
-and pre-run ADR. The web's existing publication binding continues to show the
-explicitly dated first ADR 0067 session; this capture publishes the recovery
-comparison through the bilingual protocol and its offline artifacts.
+and pre-run ADR. The web publication binding now shows this
+recovery session; the first ADR 0067 session remains a reproducible offline
+record.

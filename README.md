@@ -198,13 +198,14 @@ no result until its evaluation is published.
   baseline; a selection rule fixed before the held-out run; and the comparison
   on the evaluation page, with the home page answering which model was chosen.
   The first held-out run selected no model: every request failed without
-  output, so both pages show no selection and the home page shows no numbers.
-  The fresh recovery run observed model output but no candidate passed the
-  pre-declared thresholds; its comparison and `NO_MODEL` decision are committed
-  and documented in the evaluation protocol. Both web pages remain bound to
-  the explicitly dated first session. Any changed configuration needs another
-  fresh held-out set and a decision record before the run. Planned: bind the
-  web pages to the recovery capture.
+  output. The fresh recovery run observed model output but no candidate passed
+  the pre-declared thresholds; its comparison and `NO_MODEL` decision are
+  committed and documented in the evaluation protocol. Both web pages are bound
+  to the recovery session, so they show no selection and the home page shows
+  no numbers. Any changed configuration needs another fresh held-out set and a
+  decision record before the run. Planned: the guided replay grouped under
+  propose, approve, verify and trace, with each finding traced back through the
+  approved mapping.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
   validator checks it. A valid, clear proposal goes to review; an ambiguous or
   rejected one goes once to an escalation model that never sees the primary

@@ -955,6 +955,5 @@ tariff estimates, with unknown full cost for missing usage, not invoices.
 Latencies include failures and timeouts. Credential-specific model availability
 and the 30-second deadline affect eligibility. v3 is now used; further prompt,
 schema, adapter, validator, candidate or rule changes need another sealed set
-and pre-run ADR. The web publication binding still shows the explicitly dated
-first ADR 0067 capture; this recovery is published in these bilingual documents
-and offline artifacts.
+and pre-run ADR. The web publication binding now shows this recovery session;
+the first ADR 0067 capture remains a reproducible offline record.
