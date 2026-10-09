@@ -117,6 +117,10 @@ as the base. Existing pull requests keep their current base unless their owner
 requests a retarget. An explicitly authorized emergency hotfix is the
 exception: create it from an up-to-date `origin/main`, target `main`, and carry
 the merged fix back into `develop` before ordinary development continues.
+After a production rollback, that `origin/main` still holds the failed release
+and its merge is not served; follow
+[hotfix after a rollback](docs/DEPLOYMENT.md#hotfix-after-a-rollback) to fix
+forward and promote the gated deployment, and never revert the promotion merge.
 
 Each GitHub milestone names one version, such as `v0.1.0`, and every promotion
 to `main`, a hotfix included, ships one milestone. Give an issue the milestone
