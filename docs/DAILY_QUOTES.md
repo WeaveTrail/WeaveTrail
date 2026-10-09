@@ -19,5 +19,5 @@ Daily schemas alone authorize no case. Mapping-only replay stops at `MAPPING_APP
 ## Verification
 
 ```bash
-pnpm exec vitest run packages/replay-engine/src/daily-quote.test.ts packages/replay-engine/src/evidence-hash-scopes.test.ts apps/web/src/app/replay/daily-quote-surface.test.ts
+pnpm exec vitest run packages/replay-engine/src/daily-quote.test.ts packages/replay-engine/src/evidence-hash-scopes.test.ts apps/web/src/app/api/replay/daily-quote-route.test.ts
 ```

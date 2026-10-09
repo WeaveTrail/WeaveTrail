@@ -12,7 +12,7 @@
 
 사례 재현은 검토자 참조와 빈칸이 아닌 확인 사유를 `/api/replay`로 보냅니다. 승인 기록은 정확한 제안에 묶기 위해 검증하고 응답에는 참조나 사유를 반환하지 않습니다. 픽스처 모드에서 승인 요청을 저장하거나 로그로 남기거나 모델에 보내지 않습니다. 개인정보나 기밀을 입력하지 마세요.
 
-보존 테스트는 유지된 합성 재현 경로에 승인·거부 표식 요청을 보내고 저장·로그 쓰기가 있는지 의존 코드도 검사합니다.
+보존 테스트는 분석 실행 경로에 승인·거부 표식 요청을 보내고 저장·로그 쓰기가 있는지 의존 코드도 검사합니다. 모든 API 경로는 이런 요청을 받거나, 사람이 입력한 글을 받지 않는 경로로 명시됩니다. 새 경로는 둘 중 하나가 될 때까지 테스트를 통과하지 못합니다.
 
 ## 제공자와 브라우저 경계
 
@@ -86,7 +86,7 @@ HMAC-SHA-256 처리한 일일 방문자 키, 방문자 요청 횟수, 전체 예
 ## 검증
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
+pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
 ```
 
 ## 한계

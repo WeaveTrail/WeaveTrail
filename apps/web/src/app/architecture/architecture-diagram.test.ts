@@ -72,9 +72,9 @@ describe("architecture layer diagram", () => {
   it("marks the trust boundary, the hash coverage and the end of a model's authority", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
     for (const mark of [
-      "Where a model&#x27;s authority ends.",
-      "The trust boundary.",
-      "What the canonical hash covers.",
+      "Where a model&#x27;s authority ends",
+      "The trust boundary",
+      "What the canonical hash covers",
     ])
       expect(markup).toContain(mark);
     expect(markup).toContain('href="#canonical-hash"');

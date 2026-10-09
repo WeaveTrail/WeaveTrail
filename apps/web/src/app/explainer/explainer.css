@@ -38,6 +38,11 @@
   border-bottom: var(--hairline);
   scroll-margin-top: 110px;
 }
+/* A wide figure scrolls inside its frame rather than widening the page. */
+.explainer-section > *,
+.explainer-head > * {
+  min-width: 0;
+}
 .explainer-section:last-of-type {
   border-bottom: 0;
 }
