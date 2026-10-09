@@ -2,7 +2,7 @@
   <title id="chainTitle">The component chain from source rows to evidence</title>
   <desc id="chainDesc">Ten components run in two rows. Row one: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile. Row two: a bounded case proposer, which is specified but not implemented, would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule across five gates; the source trace resolves every finding back to the committed rows behind it; Evidence Bundle assembly and independent verification recompute the declaration from source bytes. Any gate can refuse, and a refused request carries no result hash.</desc>
   <!--
-    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
     #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500

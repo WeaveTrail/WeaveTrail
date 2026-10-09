@@ -2,7 +2,7 @@
   <title id="designTitle">The trust boundary and what the canonical hash covers</title>
   <desc id="designDesc">Untrusted input on the left holds the model-authored mapping proposal, the submitted source rows, and the approval record; caller-authored canonical events are rejected outright. A gate in the middle validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the server's committed row. The deterministic core on the right fixes ordering, time precision, decimal arithmetic, and number spelling. The canonical result hash covers the engine version, the canonical event projection, and the rule outcome, and excludes collection metadata, workflow state, and reviewer identity.</desc>
   <!--
-    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 ledger-head
     #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500

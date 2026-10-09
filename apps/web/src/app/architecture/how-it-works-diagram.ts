@@ -299,7 +299,7 @@ export function howItWorksSvg(
     `    Generated from apps/web/src/app/architecture/how-it-works-diagram.ts by \`pnpm diagram:build\`. Do not hand-edit.`,
   );
   push(
-    `    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4`,
+    `    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8`,
   );
   push(
     `    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.`,

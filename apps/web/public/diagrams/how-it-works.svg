@@ -3,7 +3,7 @@
   <desc id="flowDesc">Four layers run left to right, between an alert that names an instrument, an actor group and a time window, and a result the next reviewer can re-derive. Layer one, interpret: a constrained mapper proposes a field mapping and never computes. Layer two, approve: a reviewer approves that exact proposal by hash and never edits a computed result. Layer three, decide: versioned code replays the approved manifest and reads nothing outside the approved scope. Layer four, evidence: the result carries a canonical hash and event identifiers that resolve back to source rows. No layer holds two authorities, and a verdict is true only for the engine version, rule version and thresholds it carries. Any gate that cannot be satisfied returns a review state instead of a result, and only three results exist.</desc>
   <!--
     Generated from apps/web/src/app/architecture/how-it-works-diagram.ts by `pnpm diagram:build`. Do not hand-edit.
-    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
     #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500

@@ -3,7 +3,7 @@
   <desc id="flowDesc">네 계층이 왼쪽에서 오른쪽으로 이어집니다. 시작은 종목과 행위자 그룹, 시간 구간을 지목한 알림이고, 끝은 다음 검토자가 다시 도출할 수 있는 결과입니다. 1계층 해석: 제약된 매퍼가 필드 매핑을 제안할 뿐 계산은 하지 않습니다. 2계층 승인: 검토자가 그 제안을 해시로 정확히 승인하고, 계산된 결과는 고치지 못합니다. 3계층 판정: 버전이 고정된 코드가 승인된 manifest를 리플레이하고, 승인된 범위 밖은 읽지 않습니다. 4계층 증거: 결과에 정본 해시와 원본 행까지 되짚는 이벤트 식별자가 담깁니다. 한 계층이 권한을 둘 갖는 일은 없고, 판정은 그 판정이 달고 있는 엔진 버전과 규칙 버전, 임계값에 한해서만 참입니다. 충족되지 못한 gate는 결과 대신 검토 상태를 돌려주고, 결과는 셋뿐입니다.</desc>
   <!--
     Generated from apps/web/src/app/architecture/how-it-works-diagram.ts by `pnpm diagram:build`. Do not hand-edit.
-    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
     #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
