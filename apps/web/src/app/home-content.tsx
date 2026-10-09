@@ -70,7 +70,7 @@ const ANSWER_EN: AnswerCopy = {
   validOutput: "Answers the validator could read",
   runDate: (date) => `Run on ${date}`,
   control:
-    "Wrong output stops at the [[validator|validator]] or at [[reviewRequired|REVIEW_REQUIRED]]. Only [[versionedCode|versioned code]] computes a result, after a person approves.",
+    "Rejected, malformed or ambiguous output stops at the [[validator|validator]] or at [[reviewRequired|REVIEW_REQUIRED]]. Only [[versionedCode|versioned code]] computes a result, after a person approves.",
   seeComparison: "See the model comparison",
   walkThrough: "Walk through a case",
   close: "Close",
@@ -131,7 +131,7 @@ const ANSWER_KO: AnswerCopy = {
   validOutput: "검증기가 읽을 수 있는 답의 비율",
   runDate: (date) => `${date} 실행`,
   control:
-    "잘못된 출력은 [[validator|검증기]]나 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다. 결과는 사람이 승인한 뒤 [[versionedCode|버전이 고정된 코드]]만 계산합니다.",
+    "거절되거나 형식이 깨졌거나 모호한 출력은 [[validator|검증기]]나 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다. 결과는 사람이 승인한 뒤 [[versionedCode|버전이 고정된 코드]]만 계산합니다.",
   seeComparison: "모델 비교 보기",
   walkThrough: "사례 따라가기",
   close: "닫기",
