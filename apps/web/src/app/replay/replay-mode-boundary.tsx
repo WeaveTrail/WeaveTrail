@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 
 import { useLanguage } from "../i18n/language";
 
-import { CaseReplay, type CaseReplayProps } from "./case-replay";
+import { CaseReplay } from "./case-replay";
+import type { CaseReplayProps } from "./types";
 
 export function ReplayModeBoundary(props: CaseReplayProps) {
   const router = useRouter();

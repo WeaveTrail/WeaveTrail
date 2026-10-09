@@ -1,12 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import type { Language } from "../src/app/i18n/language";
-import {
-  GUIDE_STAGES,
-  guideStageNames,
-  guideStepsByLanguage,
-  guideUi,
-} from "../src/app/replay/case-replay";
+import { GUIDE_STAGES, guideStageNames } from "../src/app/guide-stages";
+import { replayCopy } from "../src/app/replay/copy";
+import { guideStepsByLanguage } from "../src/app/replay/steps";
+import { evidenceStep } from "../src/app/replay/steps/evidence";
+import { exampleStep } from "../src/app/replay/steps/example";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
@@ -73,7 +72,7 @@ async function expectStageInView(page: Page, language: Language, step: number) {
   await expect(stage).toContainText(guideStageNames[language][expected.stage]);
   if (!expected.afterMainFlow)
     await expect(stage).toContainText(
-      guideUi[language].stageOf(
+      replayCopy[language].rail.stageOf(
         GUIDE_STAGES.indexOf(expected.stage) + 1,
         GUIDE_STAGES.length,
       ),
@@ -89,7 +88,7 @@ async function expectStageInView(page: Page, language: Language, step: number) {
 
 async function expectStep(page: Page, language: Language, step: number) {
   await expect(page.locator(".journey-header h2")).toHaveText(
-    guideUi[language].stepHeading(
+    replayCopy[language].rail.stepHeading(
       step + 1,
       guideStepsByLanguage[language][step]!.title,
     ),
@@ -103,7 +102,11 @@ for (const viewport of VIEWPORTS) {
       page,
     }) => {
       const text = labels[language];
-      const ui = guideUi[language];
+      const ui = {
+        ...replayCopy[language].rail,
+        goToEvidence: evidenceStep.panel[language].goToEvidence,
+        goToExample: exampleStep.panel[language].goToExample,
+      };
       await page.setViewportSize(viewport);
       await open(page, language);
       await expect(page.locator(".journey-step")).toHaveCount(8);
@@ -254,7 +257,7 @@ test("does not satisfy the evidence step by printing", async ({ page }) => {
   await expect(railContinue).toBeEnabled();
   await railContinue.click();
   await expect(page.locator(".journey-header h2")).toHaveText(
-    guideUi.en.stepHeading(6, guideStepsByLanguage.en[5]!.title),
+    replayCopy.en.rail.stepHeading(6, guideStepsByLanguage.en[5]!.title),
   );
   await expect(railContinue).toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));

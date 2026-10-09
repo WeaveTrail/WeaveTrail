@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { publishedExecutionFixProposal } from "../../../packages/scenarios/src/published-execution-schema";
 import type { Language } from "../src/app/i18n/language";
-import { mappingApprovalCoverage } from "../src/app/replay/case-replay";
+import { mappingStep } from "../src/app/replay/steps/mapping";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
@@ -38,7 +38,7 @@ async function runWorkedCase(page: Page, language: Language) {
     .getByRole("button", { name: text.approveMapping, exact: true })
     .click();
   await expect(page.locator(".approval-coverage")).toHaveText(
-    mappingApprovalCoverage[language],
+    mappingStep.panel[language].coverage,
   );
   await page
     .getByRole("button", { name: text.approveCase, exact: true })

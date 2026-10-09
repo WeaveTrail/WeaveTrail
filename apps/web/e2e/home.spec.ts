@@ -1,8 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { committedHeldOutResult } from "../src/app/evals/held-out-result";
-import { HOME_TERM_KEYS, homeCopy, plainText } from "../src/app/home-content";
-import { homeSelection } from "../src/app/home-selection";
+import { HOME_TERM_KEYS, homeCopy } from "../src/app/home/copy";
+import { plainText } from "../src/app/home/home-view";
+import { homeSelection } from "../src/app/home/selection";
 import type { Language } from "../src/app/i18n/language";
 
 const VIEWPORTS = [

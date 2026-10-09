@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { checks } from "./page";
+import { checks } from "./checks";
 
 describe("public evaluation ledger", () => {
   it("uses published-schema classification evidence instead of regression placeholders", () => {

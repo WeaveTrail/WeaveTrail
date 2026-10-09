@@ -1,6 +1,7 @@
 import type { ReplayScenario } from "@weavetrail/contracts";
 
-import { type Language } from "../i18n/language";
+import type { Language } from "../i18n/language";
+import { replayCopy } from "./copy";
 
 /**
  * Korean display names for the committed sources. The committed `label` in
@@ -9,7 +10,7 @@ import { type Language } from "../i18n/language";
  * Korean reader meets it on screen, so the source they are told to pick is the
  * source they can find in the list.
  */
-const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
+export const SCENARIO_LABELS_KO: Readonly<Record<ReplayScenario, string>> = {
   "actorless-multi-instrument-quotes.jsonl":
     "거래 주체 없는 다종목 시세 · JSON Lines",
   "concentrated-buy-dialect-a.csv": "매수 집중 · 형식 A · CSV",
@@ -28,29 +29,17 @@ const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
     "단기 급등 · 근거가 부족한 사례 · CSV",
 };
 
-const SOURCE_KIND_KO: Readonly<Record<string, string>> = {
-  synthetic: "시연용 가상자료",
-  real: "공개 실제 자료",
-};
-
-/** One list entry: what the source is, and whether it is real or synthetic. */
+/** One list entry: what the source is, that it is synthetic, and its role. */
 export function scenarioOptionLabel(
   scenario: ReplayScenario,
   committedLabel: string,
-  kind: string,
   purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION",
   language: Language,
 ): string {
+  const text = replayCopy[language].working;
+  const name =
+    language === "ko" ? SCENARIO_LABELS_KO[scenario] : committedLabel;
   const role =
-    purpose === "REVIEWER_FACING"
-      ? language === "ko"
-        ? "검토용"
-        : "reviewer-facing"
-      : language === "ko"
-        ? "엔진 회귀 대체 사례"
-        : "engine regression fallback";
-  if (language !== "ko") return `${committedLabel} · ${kind} · ${role}`;
-  return `${SCENARIO_LABELS_KO[scenario] ?? committedLabel} · ${
-    SOURCE_KIND_KO[kind] ?? kind
-  } · ${role}`;
+    purpose === "REVIEWER_FACING" ? text.reviewerFacing : text.engineRegression;
+  return `${name} · ${text.synthetic} · ${role}`;
 }

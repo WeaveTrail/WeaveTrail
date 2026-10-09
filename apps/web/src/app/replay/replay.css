@@ -1,0 +1,944 @@
+/* ───────────────────────── Case Replay ───────────────────────── */
+
+.metric-grid,
+.replay-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.metric-grid {
+  margin-top: var(--space-4);
+}
+.metric-grid div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+}
+.metric-grid strong {
+  font: var(--type-mono);
+  font-size: var(--font-size-18);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The heading is held to a few lines: whatever stands above the step rail is
+   what pushes the current step off the screen. */
+.guided-page {
+  padding-block: var(--space-6) var(--space-12);
+}
+/* One row: what this is and how long it takes, then the two modes as a
+   segmented control. */
+.replay-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.replay-heading h1 {
+  font: var(--type-heading);
+  letter-spacing: var(--tracking-tight);
+}
+.replay-heading p {
+  margin-top: var(--space-1);
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.mode-choice {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.mode-choice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.mode-choice a:hover {
+  color: var(--text-strong);
+}
+.mode-choice a[aria-current="page"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-1);
+}
+
+.replay-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+  align-items: start;
+}
+.replay-journey {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.journey-header,
+.journey-footer {
+  grid-column: 1 / -1;
+}
+.journey-header > h2 {
+  font: var(--type-section);
+}
+.journey-header > p {
+  margin-top: var(--space-2);
+  max-width: var(--prose-max);
+  color: var(--text-muted);
+}
+/* Guided mode: a step rail beside the case it drives. The rail's first
+   screenful is the step itself — where the visitor is, what to do, whether
+   they may continue, and the control that does it. Why the step exists and
+   the full step list scroll in their own region below. */
+.guided-split {
+  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.guided-split > * {
+  grid-column: 2;
+}
+.guided-split > .journey-header {
+  position: sticky;
+  top: calc(var(--appbar-height) + var(--space-4));
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--appbar-height) - var(--space-8));
+  overflow: hidden;
+  padding: var(--space-5);
+}
+.guided-split .rail-lead {
+  flex: 0 0 auto;
+}
+.guided-split .rail-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: var(--hairline);
+  overflow-y: auto;
+}
+.rail-progress {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.rail-meter {
+  display: block;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+.rail-meter::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--rail-meter-fill, 0%);
+  border-radius: inherit;
+  background: var(--brand-600);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+.guided-split .journey-header h2 {
+  margin-block: var(--space-3) var(--space-1);
+  font: var(--type-section);
+}
+.step-instruction {
+  max-width: var(--prose-max);
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.rail-actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.rail-actions .button {
+  width: 100%;
+}
+.rail-actions .journey-controls .button {
+  width: auto;
+}
+/* Whose turn the current step is, named by its stage on the control line. */
+.step-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--authorship-code);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--authorship-code-bg);
+  font: var(--type-small);
+}
+.step-stage[data-stage="propose"] {
+  border-left-style: dashed;
+  border-left-color: var(--authorship-ai);
+  background: var(--authorship-ai-bg);
+}
+.step-stage[data-stage="approve"] {
+  border-left-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
+.step-stage-label {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.step-stage strong {
+  color: var(--text-strong);
+}
+.step-refusal,
+.step-requirement {
+  display: block;
+  max-width: var(--prose-max);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--state-review);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--state-review-bg);
+  color: var(--text-body);
+  font: var(--type-small);
+}
+/* A met condition is a quiet confirmation, not another box to read. */
+.step-requirement[data-met="true"] {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--authorship-human);
+  font-weight: var(--weight-medium);
+}
+.step-requirement[data-met="true"]::before {
+  content: "\2713  ";
+}
+/* The control that advances the current step carries a ring, so it is found
+   at a glance among the reading around it. Nothing else is marked this way. */
+.step-action,
+.step-locate {
+  outline: 2px solid var(--brand-700);
+  outline-offset: 3px;
+}
+.step-locate::after {
+  content: " \2193";
+}
+details.step-action > summary {
+  font-weight: var(--weight-semibold);
+  color: var(--brand-800);
+}
+.step-intent {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  font: var(--type-small);
+}
+.step-intent dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.step-intent dd {
+  margin-top: 2px;
+  max-width: var(--prose-max);
+}
+.step-intent strong {
+  color: var(--authorship-code);
+}
+/* Who acted stays in view; why the step exists and the full step list each
+   wait one disclosure below it. */
+.step-actor {
+  margin: 0 0 var(--space-3);
+  font: var(--type-small);
+}
+.step-actor span {
+  color: var(--text-muted);
+}
+.step-actor strong {
+  color: var(--authorship-code);
+}
+.step-actor[data-actor="A model proposed it"] strong {
+  color: var(--authorship-ai);
+}
+.step-actor[data-actor="A person approved it"] strong {
+  color: var(--authorship-human);
+}
+.step-why,
+.rail-steps {
+  margin: 0 0 var(--space-3);
+}
+.step-why > summary,
+.rail-steps > summary {
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
+  display: list-item;
+  cursor: pointer;
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+  color: var(--text-body);
+}
+.step-why[open] > summary {
+  margin-bottom: var(--space-2);
+}
+.rail-list-heading {
+  margin: var(--space-4) 0 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.stage-group h4 {
+  margin: var(--space-3) 0 0;
+  font: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+}
+.stage-group[data-current="true"] h4 {
+  color: var(--text-strong);
+}
+.journey-progress {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.guided-split .journey-progress {
+  grid-template-columns: minmax(0, 1fr);
+}
+.journey-progress li {
+  border-radius: var(--radius-md);
+}
+.journey-progress [aria-current="step"] {
+  background: var(--selected-bg);
+  box-shadow: inset 3px 0 0 var(--brand-700);
+  font-weight: var(--weight-semibold);
+}
+.journey-step {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  padding: 6px var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: inherit;
+  font: var(--type-small);
+  text-align: left;
+  cursor: pointer;
+}
+.journey-step:hover {
+  background: var(--action-quiet-hover);
+}
+.journey-step small {
+  font: var(--type-caption);
+  font-size: var(--font-size-12);
+  color: var(--text-muted);
+}
+.journey-step[data-complete="true"] small {
+  color: var(--authorship-human);
+}
+.journey-step[data-complete="true"] span::after {
+  content: " \2713";
+  color: var(--authorship-human);
+}
+.journey-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.guided-split > .journey-header .journey-controls,
+.journey-footer .journey-controls {
+  margin-top: 0;
+}
+.journey-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* The case column. The AI's side of the case is drawn dashed until a person
+   approves it; versioned code's result is drawn in ink. */
+.replay-control {
+  border-style: dashed;
+  border-color: var(--slate-400);
+}
+.replay-control > div + div {
+  margin-top: var(--space-4);
+}
+.result-panel {
+  border-color: var(--gray-900);
+}
+.scenario-select,
+.mapping-row label {
+  display: grid;
+  gap: var(--space-1);
+  font: var(--type-small);
+}
+.scenario-select select,
+.mapping-row input {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-strong);
+}
+/* In the guided walkthrough the source is fixed: it reads as a name, not as a
+   control that refuses to open. */
+.scenario-select select:disabled {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  appearance: none;
+  opacity: 1;
+  cursor: default;
+  font-weight: var(--weight-semibold);
+  min-height: auto;
+}
+
+/* In the walkthrough the source is fixed, so its name is said once: the
+   panel and field labels stay for assistive technology only. */
+.guided-split .replay-control .panel-label,
+.guided-split .scenario-select > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.guided-split .scenario-select select:disabled {
+  width: 100%;
+  max-width: 100%;
+  font: var(--type-section);
+  text-overflow: ellipsis;
+}
+/* Step 1: the committed source, read at a glance as one table. */
+.source-preview {
+  display: grid;
+  gap: var(--space-4);
+}
+.source-summary {
+  display: grid;
+  gap: var(--space-2);
+}
+.source-preview .source-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.source-facts li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.source-facts strong {
+  color: var(--text-strong);
+}
+.source-summary > p {
+  max-width: var(--prose-max);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.source-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+}
+.source-table {
+  width: 100%;
+  font: var(--type-mono-sm);
+  font-variant-numeric: tabular-nums;
+}
+.source-table th,
+.source-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.source-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-subtle);
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+}
+.source-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.source-table tbody tr:hover > * {
+  background: var(--surface-subtle);
+}
+.source-table tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--surface-card);
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+.source-table code {
+  font: inherit;
+  white-space: pre;
+}
+.source-provenance {
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.source-provenance > summary {
+  padding: var(--space-3) var(--space-4);
+  font: var(--type-small);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.source-provenance > :not(summary) {
+  margin: 0 var(--space-4) var(--space-3);
+}
+.source-provenance h3 {
+  font-size: var(--font-size-14);
+}
+.source-provenance p {
+  font: var(--type-small);
+}
+
+.advanced-controls {
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+}
+.advanced-controls p {
+  margin-block: var(--space-2);
+}
+.option-list,
+.mapping-preview,
+.case-preview,
+.evaluation-block,
+.sensitivity-block,
+.gate-list,
+.trace-block,
+.hash-block {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.option {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+.option.selected {
+  border-color: var(--brand-700);
+  background: var(--selected-bg);
+}
+.option span {
+  display: grid;
+  gap: 2px;
+}
+.option small {
+  color: var(--text-muted);
+}
+.mapping-row,
+.gate-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+  border-bottom: var(--hairline);
+}
+.mapping-row > *,
+.gate-row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mapping-row > :nth-child(n + 4),
+.mapping-row label,
+.gate-row small,
+.gate-row .source-evidence {
+  grid-column: 1 / -1;
+}
+/* On a wide screen each proposed field reads as one line: source column,
+   target, transform and status; its confidence and evidence sit below. */
+@media (min-width: 52.0625rem) {
+  .mapping-row {
+    grid-template-columns:
+      minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1.4fr)
+      auto;
+    align-items: baseline;
+  }
+  .mapping-row > .mapping-transform {
+    grid-column: 4;
+  }
+  .mapping-row > b[data-status] {
+    grid-column: 5;
+    grid-row: 1;
+  }
+}
+.mapping-confidence,
+.mapping-evidence {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.mapping-row b[data-status="REVIEW_REQUIRED"] {
+  color: var(--state-review);
+  border-bottom: 1px dashed currentColor;
+}
+.gate-id {
+  font-size: var(--font-size-12);
+  color: var(--text-muted);
+}
+.gate-description {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+}
+.gate-row b[data-passed="true"] {
+  color: var(--result-supported);
+}
+.gate-row b[data-passed="false"] {
+  color: var(--result-not-supported);
+}
+.gate-row:focus,
+.approved-mapping-row:focus {
+  outline: var(--focus-outline);
+  outline-offset: 4px;
+}
+/* The fields blocking the step, named above the proposal rather than found by
+   scrolling it. */
+.review-summary {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--state-review);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--state-review-bg);
+}
+.review-summary p {
+  max-width: var(--prose-max);
+}
+.review-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-jump {
+  padding: var(--space-1) var(--space-3);
+  border: var(--hairline-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  font: var(--type-mono-sm);
+  cursor: pointer;
+}
+.review-jump:hover {
+  background: var(--action-quiet-hover);
+}
+.review-jump::after {
+  content: " \2193";
+}
+input[data-review-unresolved="true"] {
+  border-color: var(--state-review);
+  background: var(--state-review-bg);
+}
+.approval-binding {
+  max-width: var(--prose-max);
+  margin-block: var(--space-3) var(--space-2);
+  color: var(--text-muted);
+  font: var(--type-small);
+}
+.approval-coverage {
+  margin-block: var(--space-3) var(--space-1);
+  color: var(--text-strong);
+}
+.approval-receipt > div,
+.case-rules dl > div {
+  padding-block: var(--space-2);
+  border-bottom: var(--hairline);
+}
+.approval-receipt dd,
+.case-rules dd,
+.case-rules dt {
+  overflow-wrap: anywhere;
+}
+.approval-receipt code {
+  overflow-wrap: anywhere;
+}
+.workflow-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+}
+.workflow-state small {
+  display: block;
+  max-width: var(--prose-max);
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+}
+/* The verdict leads the result in words; the machine values that produced
+   it wait in one disclosure below the checks. */
+.result-headline {
+  font: var(--type-body);
+}
+.result-tally {
+  display: block;
+  margin-top: var(--space-1);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.result-technical {
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-subtle);
+}
+.result-technical > summary {
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
+  cursor: pointer;
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+}
+.result-technical[open] > summary {
+  margin-bottom: var(--space-3);
+}
+.guide-next {
+  margin-top: var(--space-4);
+  font: var(--type-small);
+}
+.guide-next span {
+  color: var(--text-muted);
+}
+.evaluation-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.run-button {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+.empty-result {
+  padding: var(--space-10) 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Anything a trace link jumps to clears the sticky bar. */
+.journey-header h2,
+.source-evidence,
+.gate-row,
+.result-panel {
+  scroll-margin-top: 110px;
+}
+
+/* Evidence under a finding, traced back through the approved mapping. */
+.source-evidence summary {
+  color: var(--text-strong);
+}
+.source-evidence summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+.source-evidence article {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.source-evidence h3 {
+  margin-block: var(--space-3) var(--space-2);
+}
+.source-evidence dl > div {
+  margin-block: var(--space-2);
+}
+.source-values code {
+  white-space: pre-wrap;
+}
+.trace-lines,
+.approved-mapping-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.trace-line,
+.approved-mapping-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  padding-block: var(--space-2);
+  border-bottom: var(--hairline);
+  overflow-wrap: anywhere;
+  scroll-margin-top: 110px;
+}
+.trace-line > *,
+.approved-mapping-row > * {
+  min-width: 0;
+}
+.trace-reason,
+.trace-used,
+.trace-evidence {
+  flex-basis: 100%;
+}
+.trace-reason q {
+  white-space: pre-wrap;
+}
+.trace-none,
+.trace-evidence {
+  color: var(--text-muted);
+}
+.trace-checks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+.approved-mapping,
+.trace-machine-values {
+  margin-top: var(--space-3);
+}
+.approved-mapping summary,
+.trace-machine-values summary {
+  color: var(--text-strong);
+}
+.approved-mapping summary small {
+  display: block;
+  color: var(--text-muted);
+}
+
+@media (max-width: 64rem) {
+  .guided-split,
+  .replay-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .guided-split > *,
+  .guided-split > .journey-header {
+    grid-column: 1;
+  }
+  .guided-split > .journey-header {
+    position: static;
+    display: block;
+    grid-row: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  /* Nothing sticks in one column, so the step's condition and its controls
+     become a bar pinned to the bottom of the screen: the visitor can read the
+     case and still act without travelling back up the page. Its space is
+     reserved below, so it covers nothing. */
+  .guided-split > .journey-header .rail-actions {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    margin: 0;
+    padding: var(--space-3) var(--space-4)
+      calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    max-height: 50vh;
+    overflow-y: auto;
+    border-top: var(--hairline);
+    background: var(--surface-card);
+    box-shadow: 0 -8px 24px rgb(14 23 22 / 10%);
+  }
+  .guided-split {
+    padding-bottom: 13rem;
+  }
+  .guided-split .rail-scroll {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  .replay-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mode-choice {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mode-choice a {
+    justify-content: center;
+  }
+}
+/* A viewport too short to hold the step block and anything below it would
+   clip the rail rather than scroll it, so the columns stack there too. */
+@media (min-width: 64.0625rem) and (max-height: 40rem) {
+  .guided-split > .journey-header {
+    position: static;
+    grid-row: 1;
+    max-height: none;
+    overflow: visible;
+  }
+  .guided-split > .journey-header .rail-scroll {
+    overflow-y: visible;
+  }
+}
+@media (max-width: 40rem) {
+  .metric-grid,
+  .mapping-row,
+  .gate-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mapping-row > *,
+  .gate-row > *,
+  .mapping-row > :nth-child(n + 4),
+  .gate-row small {
+    grid-column: 1;
+  }
+}
+/* Printing cannot advance a step; `PrintDisclosures` opens every closed
+   disclosure for the print, and the pinned action bar stays off the paper. */
+@media print {
+  .rail-actions {
+    display: none !important;
+  }
+}

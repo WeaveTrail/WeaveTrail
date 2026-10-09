@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import {
   createElement,
   isValidElement,
@@ -10,14 +8,11 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  CaseReplay,
-  GUIDE_STAGES,
-  guideStageNames,
-  guideSteps,
-  guideStepsByLanguage,
-  RapidPriceLiftEvaluation,
-} from "./case-replay";
+import { GUIDE_STAGES, guideStageNames } from "../guide-stages";
+import { shellCopy } from "../shell/copy";
+import { CaseReplay } from "./case-replay";
+import { RapidPriceLiftEvaluation } from "./findings";
+import { guideSteps, guideStepsByLanguage } from "./steps";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import ReplayPage from "./page";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
@@ -565,12 +560,11 @@ describe("guided step intent", () => {
   });
 
   it("names both modes as one choice above the single navigation entry's surface", async () => {
-    const navigation = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
-      "utf8",
+    const hrefs = shellCopy.en.navigation.flatMap(([, items]) =>
+      items.map(([, href]) => href),
     );
-    expect(navigation).toMatch(/\["Walk through a case",\s*"\/replay",/);
-    expect(navigation).not.toContain("mode=");
+    expect(hrefs).toContain("/replay");
+    expect(hrefs.some((href) => href.includes("mode="))).toBe(false);
 
     for (const [mode, current] of [
       [undefined, "/replay?mode=guided"],

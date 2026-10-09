@@ -20,8 +20,10 @@ import {
   lede,
   notClaimed,
   sources,
+  sectionLines,
   upstreamStatements,
-} from "./why-content";
+} from "./copy";
+import { shellCopy } from "../shell/copy";
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path));
 
@@ -42,6 +44,7 @@ const markup = () => renderToStaticMarkup(createElement(WhyPage));
 // Every outside-system claim the page renders, including the ones outside the
 // numbered sections: the lede and the caption under the diagram.
 const attributed = [
+  ...Object.values(sectionLines),
   lede,
   diagramAttribution,
   ...upstreamStatements,
@@ -50,13 +53,14 @@ const attributed = [
 ];
 
 describe("where the gate sits", () => {
-  it("states the five sections the page exists to carry", () => {
+  it("states the sections the page exists to carry", () => {
     const rendered = markup();
     for (const heading of [
-      "What upstream surveillance already does",
-      "What it still hands to a person",
-      "Where the gate sits",
-      "What each of the four layers may and may not do",
+      "What detection already does",
+      "What it leaves to a person",
+      "What this adds",
+      "What the check needs",
+      "Who may do what",
       "What this page does not claim",
     ])
       expect(rendered).toContain(heading);
@@ -134,16 +138,16 @@ describe("where the gate sits", () => {
     for (const before of [
       escaped(POSITION.en),
       escaped(lede.text.en),
-      "What upstream surveillance already does",
-      "What it still hands to a person",
-      "What this adds to it",
+      'id="upstream"',
+      'id="handover"',
+      'id="addition"',
     ]) {
       const index = rendered.indexOf(before);
       expect(index, before.slice(0, 40)).toBeGreaterThan(-1);
       expect(index, before.slice(0, 40)).toBeLessThan(diagram);
     }
     // The gate's mechanics follow the diagram.
-    expect(rendered.indexOf("Where the gate sits")).toBeGreaterThan(diagram);
+    expect(rendered.indexOf('id="inputs"')).toBeGreaterThan(diagram);
   });
 
   it("names the three inputs the gate asks of an upstream, and inspects a conclusion", () => {
@@ -161,7 +165,7 @@ describe("where the gate sits", () => {
     const rendered = markup();
     // A request without a case manifest reaches replayFoundation and returns a
     // canonical result hash, so only pattern evaluation refuses on all three.
-    expect(rendered).toContain("foundation replay returns ordering");
+    expect(rendered).toContain("only ordered and hashed");
     expect(rendered).toContain("no pattern verdict");
   });
 
@@ -201,7 +205,7 @@ describe("where the gate sits", () => {
   it("keeps unimplemented components labelled as planned", () => {
     const rendered = markup();
     expect(rendered).toContain(
-      "Explicitly configured mapping for two synthetic dialects has mocked transport checks",
+      "A configured model can propose mappings through one adapter",
     );
     for (const planned of [
       "a bounded case proposer",
@@ -271,7 +275,7 @@ describe("where the gate sits", () => {
 
   it("clears the sticky header when a citation jumps to its source", () => {
     const styles = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/styles.css"),
+      resolve(process.cwd(), "apps/web/src/app/explainer/explainer.css"),
       "utf8",
     );
     const rule = /([^}]*)\{\s*scroll-margin-top: 110px;/.exec(styles);
@@ -309,12 +313,8 @@ describe("where the gate sits", () => {
   });
 
   it("lists the page under the navigation group on how it works", () => {
-    const navigation = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
-    const reference = navigation.indexOf('"How it works"');
-    expect(reference).toBeGreaterThan(-1);
-    expect(navigation.indexOf('"/why"')).toBeGreaterThan(reference);
+    for (const { navigation } of Object.values(shellCopy))
+      expect(navigation[1][1].map(([, href]) => href)).toContain("/why");
+    expect(shellCopy.en.navigation[1][0]).toBe("How it works");
   });
 });

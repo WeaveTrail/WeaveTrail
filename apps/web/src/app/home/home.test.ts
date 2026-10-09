@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 import {
   DECLARED_MODELS,
   FAILURE_LOG_ENTRIES,
-} from "./evals/model-comparison-data";
-import { GUIDE_STAGES, guideStageNames } from "./guide-stages";
-import { homeCopy } from "./home-content";
-import HomePage from "./page";
-import { navigationCopy } from "./site-navigation";
+} from "../evals/model-comparison-data";
+import { GUIDE_STAGES, guideStageNames } from "../guide-stages";
+import { homeCopy } from "./copy";
+import HomePage from "../page";
+import { shellCopy } from "../shell/copy";
 
 describe("home page", () => {
   const markup = renderToStaticMarkup(createElement(HomePage));
@@ -52,7 +52,7 @@ describe("home page", () => {
   });
 
   it("puts the model comparison in the first navigation group in both languages", () => {
-    for (const groups of Object.values(navigationCopy)) {
+    for (const { navigation: groups } of Object.values(shellCopy)) {
       const [, first] = groups[0]!;
       expect(first.map(([, href]) => href)).toEqual(["/", "/evals", "/replay"]);
     }

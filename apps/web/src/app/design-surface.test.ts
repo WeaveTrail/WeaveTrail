@@ -12,10 +12,12 @@ import { validateLocalPayloadPaths } from "../../../../scripts/verify-design-sna
 import ArchitecturePage from "./architecture/page";
 import EvalsPage from "./evals/page";
 import ExpectationsPage from "./expectations/page";
-import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
+import { CaseReplay } from "./replay/case-replay";
+import type { ReplayScenarioOption } from "./replay/types";
 import MethodologyPage from "./methodology/page";
 import DataHandlingPage from "./data-handling/page";
 import HomePage from "./page";
+import { shellCopy } from "./shell/copy";
 import WhyPage from "./why/page";
 
 const forbidden = [
@@ -64,24 +66,25 @@ describe("canonical product presentation", () => {
       resolve(process.cwd(), "apps/web/src/app/layout.tsx"),
       "utf8",
     );
-    const navigation = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
-    for (const href of [
-      "/",
-      "/architecture",
-      "/replay",
-      "/evals",
-      "/expectations",
-      "/methodology",
-      "/data-handling",
-      "/why",
-    ])
-      expect(navigation).toContain(`"${href}"`);
-    expect(navigation).toContain("Primary navigation");
-    expect(navigation).toContain('aria-current={pathname === href ? "page"');
-    expect(layout).toContain("skip-link");
+    for (const { navigation, navigationLabel } of Object.values(shellCopy)) {
+      expect(
+        navigation.flatMap(([, items]) => items.map(([, href]) => href)).sort(),
+      ).toEqual(
+        [
+          "/",
+          "/architecture",
+          "/data-handling",
+          "/evals",
+          "/expectations",
+          "/methodology",
+          "/replay",
+          "/why",
+        ].sort(),
+      );
+      expect(navigationLabel.length).toBeGreaterThan(0);
+    }
+    expect(layout).toContain("<SkipLink />");
+    expect(layout).toContain("<SiteHeader />");
   });
 
   it("keeps forbidden design fixtures out of rendered public pages", () => {

@@ -2,19 +2,20 @@
 
 import React from "react";
 
-import { useLanguage, type Language } from "./language";
-
-const OPTIONS: readonly (readonly [Language, string, string, string])[] = [
-  ["en", "English", "EN", "Show this site in English"],
-  ["ko", "한국어", "한", "이 사이트를 한국어로 봅니다"],
-];
+import { useCopy, useLanguage } from "../i18n/language";
+import { languageOptions, shellCopy } from "./copy";
 
 export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
+  const text = useCopy(shellCopy);
 
   return (
-    <div aria-label="Language" className="language-selector" role="group">
-      {OPTIONS.map(([value, label, short, description]) => (
+    <div
+      aria-label={text.languageLabel}
+      className="language-selector"
+      role="group"
+    >
+      {languageOptions.map(({ value, label, short, description }) => (
         <button
           aria-current={language === value ? "true" : undefined}
           aria-label={label}

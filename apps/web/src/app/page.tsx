@@ -3,8 +3,8 @@ import React from "react";
 
 import { committedHeldOutResult } from "./evals/held-out-result";
 import { DECLARED_MODELS } from "./evals/model-comparison-data";
-import { HomeContent } from "./home-content";
-import { homeSelection } from "./home-selection";
+import { HomeContent } from "./home/home-view";
+import { homeSelection } from "./home/selection";
 
 export const metadata: Metadata = {
   title: "Home",

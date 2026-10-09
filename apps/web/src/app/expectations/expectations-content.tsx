@@ -1,10 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import React from "react";
-import { useLanguage } from "../i18n/language";
 
-type Scenario = {
+import { ExplainerPage, ExplainerSection } from "../explainer/explainer";
+import { useCopy, useLanguage } from "../i18n/language";
+import { replayCopy } from "../replay/copy";
+import { SCENARIO_LABELS_KO } from "../replay/scenario-labels";
+import { caseApprovalStep } from "../replay/steps/case-approval";
+import { mappingStep } from "../replay/steps/mapping";
+import { runStep } from "../replay/steps/run";
+import { conditionsKo, expectationsCopy } from "./copy";
+
+import type { ReplayScenario } from "@weavetrail/contracts";
+
+export type Scenario = {
   scenario: string;
   label: string;
   purpose: string;
@@ -34,395 +43,247 @@ type Scenario = {
     endTime: string;
   };
 };
-function Hash({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="machine-hash">
-      <span className="machine-label">{label}</span>
-      <code className="machine-full">{value}</code>
-    </div>
-  );
-}
-const ko = {
-  eyebrow: "커밋된 검증 기준",
-  heading: "사례별 기대 결과",
-  intro:
-    "검토용 원본과 엔진 동작 고정용 fixture의 기준 실행을 함께 기록합니다. 워크플로 상태, 결과, gate 관측값, 정본 해시는 법적·인과적·투자 결론이 아닙니다.",
-  guide: "새 세션에서 기준 실행 재현하기",
-  output: "기대 출력",
-  purpose: "용도",
-  reviewerFacing: "검토용",
-  engineRegression: "엔진 회귀 동작 고정용",
-  caseReplay: "사례 재현 목록",
-  available: "표시됨",
-  unavailable: "표시되지 않음",
-  mutations: "제공되는 입력 변경",
-  final: "최종 워크플로 상태",
-  result: "패턴 결과",
-  condition: "이 사례가 보여 주는 조건",
-  reason: "판단 보류 사유",
-  nonComparable: "비교할 수 없는 이벤트",
-  reviewIssues: "검토 사유",
-  noHash: "검토 전에 멈춰 생성되지 않음",
-  noManifest:
-    "이 소스에는 사례 manifest가 없습니다. 정규화만 하고 패턴은 평가하지 않습니다.",
-  hypothesis: "버전이 붙은 가설",
-  manifest: "Manifest 버전",
-  instrument: "종목",
-  actors: "승인된 행위자 그룹",
-  window: "구간",
-  dataset: "정본 데이터셋 해시",
-  hash: "정본 결과 해시",
-  gates: "Gate 관측값",
-  observed: "관측값",
-  threshold: "임계값",
-  noGates: "이 소스에는 규칙 gate나 임계값이 선언되지 않았습니다.",
+
+export type CaptureEnvironment = {
+  readonly node: string;
+  readonly pnpm: string;
+  readonly vitest: string;
 };
 
-const koreanScenarioLabels: Readonly<Record<string, string>> = {
-  "rapid-price-lift-supported.csv": "가격 급등 패턴 · 지지됨",
-  "rapid-price-lift-broad-participation.csv": "가격 급등 패턴 · 지지되지 않음",
-  "rapid-price-lift-insufficient-evidence.csv": "가격 급등 패턴 · 증거 부족",
-  "concentrated-buy-dialect-a.csv": "집중 매수 · 방언 A 정규화",
-  "concentrated-buy-dialect-b.jsonl": "집중 매수 · 방언 B 정규화",
-  "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목",
-  "published-execution-fix44-broad-participation.csv":
-    "합성 · 공개 FIX 4.4 참여자가 분산된 사례",
-  "published-execution-fix44-conflicting-evidence.csv":
-    "합성 · 공개 FIX 4.4 체결 식별자 충돌",
-  "published-execution-h0stcnt0.jsonl": "합성 · 공개 H0STCNT0 체결 항목",
-};
-
-const koreanScenarioConditions: Readonly<Record<string, string>> = {
-  "published-execution-fix44-broad-participation.csv":
-    "FIX 형태 체결 여섯 건 모두 비교할 입력을 갖춥니다. 매수 참여자가 분산되어 ACTOR_CONCENTRATION 기준(8000 bps)을 충족하지 못하고, 승인된 행위자를 제외해도 가격 상승폭이 같아 REMOVAL_SENSITIVITY 기준(100 bps)에 못 미치는 0 bps가 됩니다. 나머지 세 기준은 통과합니다.",
-  "rapid-price-lift-supported.csv":
-    "완전한 증거가 선언된 RAPID_PRICE_LIFT 판단 기준을 모두 충족합니다.",
-  "rapid-price-lift-broad-participation.csv":
-    "평가할 증거는 충분하지만 참여자가 분산되어 선언된 집중도 판단 기준을 충족하지 못합니다.",
-  "rapid-price-lift-insufficient-evidence.csv":
-    "구간 내 체결 네 건에 Side(54)가 모두 없어 규칙이 전부 비교 불가 증거로 제외하고 판단을 보류합니다.",
-  "published-execution-fix44-conflicting-evidence.csv":
-    "ExecID(17) 120001이 서로 다른 TransactTime(60)과 LastPx(31) 값으로 재사용되어, 재현 전에 입력 검토가 필요하고 결과 해시는 생성되지 않습니다.",
-};
-
+/**
+ * The expected outcome of every committed case at a glance, the full record
+ * of each one disclosure away, and how to reproduce one.
+ */
 export function ExpectationsContent({
   scenarios,
+  environment,
 }: {
   scenarios: readonly Scenario[];
+  environment: CaptureEnvironment;
 }) {
-  const korean = useLanguage().language === "ko";
-  const t = korean ? ko : null;
+  const { language } = useLanguage();
+  const text = useCopy(expectationsCopy);
+  const ordered = [
+    ...scenarios.filter((s) => s.availableInCaseReplay),
+    ...scenarios.filter((s) => !s.availableInCaseReplay),
+  ];
+  const name = (s: Scenario) =>
+    language === "ko"
+      ? (SCENARIO_LABELS_KO[s.scenario as ReplayScenario] ?? s.label)
+      : s.label;
+  const steps = text.steps({
+    workingMode: replayCopy[language].heading.workingMode,
+    baseline: replayCopy[language].working.mutations.baseline[0],
+    approveMapping: mappingStep.panel[language].approve,
+    approveCase: caseApprovalStep.panel[language].approve,
+    run: runStep.panel[language].run,
+    normalize: runStep.panel[language].normalize,
+  });
+
   return (
-    <main className="shell page-shell">
-      <div className="page-heading">
-        <span className="eyebrow">
-          {t?.eyebrow ?? "Committed verification oracle"}
-        </span>
-        <h1>{t?.heading ?? "Expected scenario results"}</h1>
-        <p>
-          {t?.intro ??
-            "This publication records baseline runs for both reviewer-facing sources and fixtures that pin engine behavior. The values describe one fixed source, approved mapping, approved case where present, and the versioned rule. They do not establish the truth of the source or a legal, causal, or investment conclusion."}
-        </p>
-      </div>
-      <section className="panel expectations-guide">
-        <h2>{t?.guide ?? "Reproduce a baseline from a clean session"}</h2>
-        <ol>
-          {korean ? (
-            <>
-              <li>
-                기본 fixture provider로{" "}
-                <Link href="/replay?mode=working">직접 조작 화면</Link>을 새
-                브라우저 세션에서 열고, 입력 자료 변경 실험은{" "}
-                <strong>원본 그대로</strong>에 둡니다.
-              </li>
-              <li>
-                사례 재현 목록에 <strong>표시됨</strong>인 레코드는 아래에 적힌
-                커밋된 원본을 고릅니다. 표시되지 않는 엔진 회귀 레코드는
-                <code>pnpm test</code>로 재현합니다. 공개 스키마 기반 합성
-                사례로 세 결과 의미를 모두 재현할 수 있습니다.
-              </li>
-              <li>
-                연결된 항목이 <code>REVIEW_REQUIRED</code>이면 표시된 해석을
-                받아들이는 확인 이유를 적고 <strong>연결 제안 승인</strong>을
-                누릅니다.
-              </li>
-              <li>
-                조사 범위가 보이면 종목과 기간, 판단 기준을 검토하고{" "}
-                <strong>조사 범위 승인</strong>을 누릅니다.
-              </li>
-              <li>
-                현재 목록의 합성 체결 자료는 <strong>분석 실행</strong>을
-                누릅니다. 아래의 워크플로 상태, 결과, 판단 항목 관측값, 분석
-                결과 해시와 비교합니다.
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                With the default fixture provider, open{" "}
-                <Link href="/replay?mode=working">
-                  Case Replay working mode
-                </Link>{" "}
-                in a fresh browser session and leave the advanced variation on{" "}
-                <strong>Baseline</strong>.
-              </li>
-              <li>
-                For a record marked <strong>Available</strong>, select the
-                committed source artifact named below. Reproduce engine
-                regression records marked <strong>Not available</strong> with
-                <code>pnpm test</code>.
-              </li>
-              <li>
-                For every mapping field marked <code>REVIEW_REQUIRED</code>,
-                enter a nonblank reason, then select{" "}
-                <strong>Approve executed mapping</strong>.
-              </li>
-              <li>
-                If a case manifest is shown, review its scope and thresholds and
-                select <strong>Approve case manifest</strong>.
-              </li>
-              <li>
-                Run a source offered in Case Replay. The records marked engine
-                regression remain published here to pin engine behavior but do
-                not appear in the source picker. Published-schema synthetic
-                cases reproduce all three result meanings. Compare the final
-                workflow state, result, gate readings, and canonical result hash
-                below.
-              </li>
-            </>
-          )}
-        </ol>
-        <p>
-          {korean ? (
-            <>
-              승인 해시는 보안 브라우저 환경의 Web Crypto가 필요합니다. HTTPS와{" "}
-              <code>http://localhost</code>에서는 쓸 수 있습니다. 그 밖의
-              환경에서는 승인과 분석 실행이 막히고 결과도 나오지 않습니다. 반복
-              실행은 같은 입력의 반복 가능성만 확인합니다. 해석 범위는{" "}
-              <Link href="/methodology">방법론</Link>과{" "}
-              <a href="https://github.com/WeaveTrail/WeaveTrail/blob/main/docs/LIMITATIONS.md">
-                저장소 한계
-              </a>
-              를 참고하세요.
-            </>
-          ) : (
-            <>
-              Approval hashing requires Web Crypto in a secure browser context.
-              HTTPS deployments and <code>http://localhost</code> meet that
-              requirement; elsewhere approvals remain unset, replay stays
-              blocked, and no result is produced. A repeated baseline checks
-              same-input repeatability only. See{" "}
-              <Link href="/methodology">Methodology</Link> and the{" "}
-              <a href="https://github.com/WeaveTrail/WeaveTrail/blob/main/docs/LIMITATIONS.md">
-                repository limitations
-              </a>{" "}
-              for interpretation boundaries.
-            </>
-          )}
-        </p>
-        <p>
-          {korean ? (
-            <>
-              커밋된 기대값은 <code>pnpm expectations:update</code>로
-              캡처했습니다. 실행 환경은{" "}
-            </>
-          ) : (
-            <>
-              The committed publication was captured with{" "}
-              <code>pnpm expectations:update</code> using{" "}
-            </>
-          )}
-          Node <code>22.18.0</code>, pnpm <code>10.33.2</code>, Vitest{" "}
-          <code>5.0.1</code>
-          {korean ? ", Linux WSL2 x86_64입니다." : ", and Linux WSL2 x86_64."}
-        </p>
-      </section>
-      <section
-        className="expectations-list"
-        aria-label={t?.output ?? "Expected outputs"}
-      >
-        {scenarios.map((s) => (
-          <article className="panel expectation-card" key={s.scenario}>
-            <span className="panel-label">
-              {korean ? (koreanScenarioLabels[s.scenario] ?? s.label) : s.label}
-            </span>
-            <h2>
+    <ExplainerPage
+      answer={<p>{text.answer}</p>}
+      eyebrow={text.eyebrow}
+      sections={[
+        ["outcomes", text.sections.outcomes],
+        ["reproduce", text.sections.reproduce],
+        ["capture", text.sections.capture],
+      ]}
+      title={text.title}
+    >
+      <ExplainerSection
+        id="outcomes"
+        line={text.outcomesLine}
+        more={ordered.map((s) => (
+          <article className="expectation-card" key={s.scenario}>
+            <h3>
               <code>{s.scenario}</code>
-            </h2>
+            </h3>
             <dl className="expectation-facts">
               {s.demonstrates && (
                 <div>
-                  <dt>{t?.condition ?? "Condition demonstrated"}</dt>
+                  <dt>{text.facts.condition}</dt>
                   <dd>
-                    {korean
-                      ? (koreanScenarioConditions[s.scenario] ?? s.demonstrates)
+                    {language === "ko"
+                      ? (conditionsKo[s.scenario] ?? s.demonstrates)
                       : s.demonstrates}
                   </dd>
                 </div>
               )}
               <div>
-                <dt>{t?.purpose ?? "Purpose"}</dt>
+                <dt>{text.purpose[s.purpose as keyof typeof text.purpose]}</dt>
                 <dd>
-                  {s.purpose === "REVIEWER_FACING"
-                    ? (t?.reviewerFacing ?? "Reviewer-facing")
-                    : (t?.engineRegression ?? "Pins engine behavior")}
+                  {text.facts.mutations}: {s.availableMutations.join(", ")}
                 </dd>
               </div>
+              {s.inconclusiveReason && (
+                <div>
+                  <dt>{text.facts.reason}</dt>
+                  <dd>
+                    <code>{s.inconclusiveReason}</code>
+                    {s.nonComparableEventCount !== null
+                      ? ` · ${text.facts.nonComparable}: ${s.nonComparableEventCount}`
+                      : null}
+                  </dd>
+                </div>
+              )}
+              {s.reviewIssues.length > 0 && (
+                <div>
+                  <dt>{text.facts.reviewIssues}</dt>
+                  <dd>
+                    <code>{s.reviewIssues.join(", ")}</code>
+                  </dd>
+                </div>
+              )}
+              {s.hypothesis ? (
+                <div>
+                  <dt>{text.facts.hypothesis}</dt>
+                  <dd>
+                    <code>{s.hypothesis.pattern}</code> ·{" "}
+                    {text.facts.evaluatedBy}{" "}
+                    {s.hypothesis.rules.map((rule, index) => (
+                      <React.Fragment key={rule.ruleId}>
+                        {index ? ", " : ""}
+                        <code>{`${rule.ruleId}@${rule.ruleVersion}`}</code>
+                      </React.Fragment>
+                    ))}
+                    <br />
+                    {text.facts.manifest}{" "}
+                    <code>{s.hypothesis.manifestVersion}</code> ·{" "}
+                    {text.facts.instrument}{" "}
+                    {s.hypothesis.instrumentIds.join(", ")} ·{" "}
+                    {text.facts.actors} {s.hypothesis.actorIds.join(", ")} ·{" "}
+                    {text.facts.window} <code>{s.hypothesis.startTime}</code> —{" "}
+                    <code>{s.hypothesis.endTime}</code>
+                  </dd>
+                </div>
+              ) : s.result === null && s.reviewIssues.length === 0 ? (
+                <div>
+                  <dt>{text.facts.hypothesis}</dt>
+                  <dd>{text.noManifest}</dd>
+                </div>
+              ) : null}
+              {s.canonicalDatasetHash ? (
+                <div>
+                  <dt>{text.facts.dataset}</dt>
+                  <dd>
+                    <code>{s.canonicalDatasetHash}</code>
+                  </dd>
+                </div>
+              ) : null}
               <div>
-                <dt>{t?.caseReplay ?? "Case Replay source list"}</dt>
+                <dt>{text.facts.hash}</dt>
                 <dd>
-                  {s.availableInCaseReplay
-                    ? (t?.available ?? "Available")
-                    : (t?.unavailable ?? "Not available")}
-                </dd>
-              </div>
-              <div>
-                <dt>{t?.mutations ?? "Available input mutations"}</dt>
-                <dd>{s.availableMutations.join(", ")}</dd>
-              </div>
-              <div>
-                <dt>{t?.final ?? "Final workflow state"}</dt>
-                <dd>
-                  <code>{s.workflowState}</code>
-                </dd>
-              </div>
-              <div>
-                <dt>{t?.result ?? "Pattern result"}</dt>
-                <dd>
-                  {s.result === null ? (
-                    korean ? (
-                      "평가하지 않음"
-                    ) : (
-                      "Not evaluated"
-                    )
+                  {s.canonicalResultHash ? (
+                    <code>{s.canonicalResultHash}</code>
                   ) : (
-                    <strong data-result={s.result}>{s.result}</strong>
+                    text.noHash
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>{text.facts.gates}</dt>
+                <dd>
+                  {s.gates.length ? (
+                    <ul>
+                      {s.gates.map((g) => (
+                        <li key={g.gate}>
+                          <code>{g.gate}</code> · {text.facts.observed}{" "}
+                          <code>{g.observedValue ?? text.notProduced}</code> ·{" "}
+                          {text.facts.threshold} <code>{g.threshold}</code> ·{" "}
+                          <b data-passed={g.passed ?? undefined}>
+                            {g.passed === null
+                              ? text.gate.notEvaluated
+                              : g.passed
+                                ? text.gate.passed
+                                : text.gate.failed}
+                          </b>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    text.noGates
                   )}
                 </dd>
               </div>
             </dl>
-            {s.inconclusiveReason && (
-              <p>
-                {t?.reason ?? "Abstention reason"}: {s.inconclusiveReason}
-                {s.nonComparableEventCount !== null && (
-                  <>
-                    {" · "}
-                    {t?.nonComparable ?? "Non-comparable events"}:{" "}
-                    {s.nonComparableEventCount}
-                  </>
-                )}
-              </p>
-            )}
-            {s.reviewIssues.length > 0 && (
-              <p>
-                {t?.reviewIssues ?? "Review issue"}: {s.reviewIssues.join(", ")}
-              </p>
-            )}
-            {s.result === null && s.reviewIssues.length === 0 && (
-              <p>
-                {t?.noManifest ??
-                  "This source has no committed case manifest. The workflow ends after approved mapping and deterministic normalization, before any pattern gate or verdict is evaluated."}
-              </p>
-            )}
-            {s.hypothesis && (
-              <section className="expectation-hypothesis">
-                <h3>{t?.hypothesis ?? "Versioned hypothesis"}</h3>
-                <p>
-                  <code>{s.hypothesis.pattern}</code>{" "}
-                  {korean ? "— 적용 규칙: " : "evaluated by "}
-                  {s.hypothesis.rules.map((r, i) => (
-                    <React.Fragment key={r.ruleId}>
-                      {i ? ", " : ""}
-                      <code>
-                        {r.ruleId}@{r.ruleVersion}
-                      </code>
-                    </React.Fragment>
-                  ))}
-                </p>
-                <dl className="expectation-facts">
-                  <div>
-                    <dt>{t?.manifest ?? "Manifest version"}</dt>
-                    <dd>
-                      <code>{s.hypothesis.manifestVersion}</code>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{t?.instrument ?? "Instrument"}</dt>
-                    <dd>{s.hypothesis.instrumentIds.join(", ")}</dd>
-                  </div>
-                  <div>
-                    <dt>{t?.actors ?? "Approved actor group"}</dt>
-                    <dd>{s.hypothesis.actorIds.join(", ")}</dd>
-                  </div>
-                  <div>
-                    <dt>{t?.window ?? "Window"}</dt>
-                    <dd>
-                      <code>{s.hypothesis.startTime}</code> —{" "}
-                      <code>{s.hypothesis.endTime}</code>
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-            )}
-            {s.canonicalDatasetHash ? (
-              <Hash
-                label={t?.dataset ?? "Canonical dataset hash"}
-                value={s.canonicalDatasetHash}
-              />
-            ) : null}
-            {s.canonicalResultHash ? (
-              <Hash
-                label={t?.hash ?? "Canonical result hash"}
-                value={s.canonicalResultHash}
-              />
-            ) : s.reviewIssues.length > 0 ? (
-              <p>
-                {t?.hash ?? "Canonical result hash"}:{" "}
-                {t?.noHash ?? "Not produced; stopped for pre-replay review"}
-              </p>
-            ) : null}
-            {s.gates.length ? (
-              <div
-                className="gate-list"
-                aria-label={t?.gates ?? "Expected gate readings"}
-              >
-                <h3>{t?.gates ?? "Gate readings"}</h3>
-                {s.gates.map((g) => (
-                  <div className="gate-row" key={g.gate}>
-                    <strong>{g.gate}</strong>
-                    <span>
-                      {t?.observed ?? "Observed"}{" "}
-                      <code>
-                        {g.observedValue ??
-                          (korean ? "생성되지 않음" : "not produced")}
-                      </code>{" "}
-                      · {t?.threshold ?? "threshold"} <code>{g.threshold}</code>
-                    </span>
-                    <b data-passed={g.passed ?? undefined}>
-                      {g.passed === null
-                        ? korean
-                          ? "평가하지 않음"
-                          : "NOT EVALUATED"
-                        : g.passed
-                          ? korean
-                            ? "통과"
-                            : "PASS"
-                          : korean
-                            ? "실패"
-                            : "FAIL"}
-                    </b>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>
-                {t?.noGates ??
-                  "No rule gates or thresholds are declared for this source."}
-              </p>
-            )}
           </article>
         ))}
-      </section>
-    </main>
+        title={text.sections.outcomes}
+      >
+        <div
+          aria-labelledby="outcomes-title"
+          className="expectation-wrap"
+          role="region"
+          tabIndex={0}
+        >
+          <table className="expectation-table">
+            <thead>
+              <tr>
+                <th scope="col">{text.columns.case}</th>
+                <th scope="col">{text.columns.listed}</th>
+                <th scope="col">{text.columns.state}</th>
+                <th scope="col">{text.columns.result}</th>
+                <th scope="col">{text.columns.checks}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordered.map((s) => (
+                <tr key={s.scenario}>
+                  <th scope="row">{name(s)}</th>
+                  <td>
+                    {s.availableInCaseReplay ? text.listed : text.notListed}
+                  </td>
+                  <td>
+                    <code>{s.workflowState}</code>
+                  </td>
+                  <td>
+                    {s.result === null ? (
+                      text.notEvaluated
+                    ) : (
+                      <strong data-result={s.result}>{s.result}</strong>
+                    )}
+                  </td>
+                  <td>
+                    {s.gates.some((g) => g.passed !== null)
+                      ? text.checksPassing(
+                          s.gates.filter((g) => g.passed).length,
+                          s.gates.length,
+                        )
+                      : text.noChecks}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </ExplainerSection>
+      <ExplainerSection
+        id="reproduce"
+        line={text.reproduceLine}
+        link={[text.openWorkingMode, "/replay?mode=working"]}
+        more={text.reproduceMore.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+        title={text.sections.reproduce}
+      >
+        <ol className="expectation-steps">
+          {steps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </ExplainerSection>
+      <ExplainerSection
+        id="capture"
+        line={text.captureLine}
+        title={text.sections.capture}
+      >
+        <p>
+          {text.environment}: {text.tools.node} <code>{environment.node}</code>,{" "}
+          {text.tools.pnpm} <code>{environment.pnpm}</code>, {text.tools.vitest}{" "}
+          <code>{environment.vitest}</code>, {text.platform}
+        </p>
+      </ExplainerSection>
+    </ExplainerPage>
   );
 }

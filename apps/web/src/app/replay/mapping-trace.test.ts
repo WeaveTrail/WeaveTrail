@@ -19,13 +19,11 @@ import {
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
-import {
-  ApprovalReceipt,
-  mappingApprovalCoverage,
-  RapidPriceLiftEvaluation,
-  type ReplayScenarioOption,
-} from "./case-replay";
-import { GATE_READINGS, GATE_READINGS_KO } from "./machine-values";
+import { ApprovalReceipt } from "./approval-receipt";
+import { RapidPriceLiftEvaluation } from "./findings";
+import { mappingStep } from "./steps/mapping";
+import type { ReplayScenarioOption } from "./types";
+import { replayCopy } from "./copy";
 import {
   ApprovedMappingTrace,
   checksForLine,
@@ -312,9 +310,9 @@ describe("finding evidence traced through the approved mapping", () => {
     }
     for (const text of korean) expect(ko).toContain(text);
     for (const finding of evaluation.findings) {
-      const gate = finding.gate as keyof typeof GATE_READINGS;
-      expect(en).toContain(`>${GATE_READINGS[gate].label}</a>`);
-      expect(ko).toContain(`>${GATE_READINGS_KO[gate].label}</a>`);
+      const gate = finding.gate as keyof typeof replayCopy.en.machine.gates;
+      expect(en).toContain(`>${replayCopy.en.machine.gates[gate].label}</a>`);
+      expect(ko).toContain(`>${replayCopy.ko.machine.gates[gate].label}</a>`);
     }
     // The same links in both languages: only the words differ.
     const hrefs = (markup: string) =>
@@ -329,20 +327,20 @@ describe("finding evidence traced through the approved mapping", () => {
         language,
         createElement(ApprovalReceipt, {
           approval,
-          coverage: mappingApprovalCoverage[language],
+          coverage: mappingStep.panel[language].coverage,
         }),
       );
-      const sentence = markup.indexOf(mappingApprovalCoverage[language]);
+      const sentence = markup.indexOf(mappingStep.panel[language].coverage);
       expect(sentence).toBeGreaterThan(-1);
       expect(markup.indexOf(approval.approvedArtifactHash)).toBeGreaterThan(
         sentence,
       );
     }
     expect(approval.approvedArtifactHash).toBe(sha256Canonical(proposal));
-    expect(mappingApprovalCoverage.en).toMatch(
+    expect(mappingStep.panel.en.coverage).toMatch(
       /new approval before anything runs/,
     );
-    expect(mappingApprovalCoverage.ko).toMatch(
+    expect(mappingStep.panel.ko.coverage).toMatch(
       /다시 승인해야 실행할 수 있습니다/,
     );
   });
