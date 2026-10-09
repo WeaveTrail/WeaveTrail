@@ -186,6 +186,11 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     await button("Approve executed mapping");
     await button("Approve case manifest");
   }
+  function openStep(step: number) {
+    render().filter((element) => element.props.className === "journey-step")[
+      step
+    ]!.props.onClick!();
+  }
   function setGuided(guided: boolean) {
     currentOverrides = { ...currentOverrides, guided };
     render();
@@ -220,6 +225,7 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     evidence,
     approve,
     hasText,
+    openStep,
     setGuided,
     setLanguage,
   };
@@ -526,30 +532,40 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+/** Walks the worked case to its repeat step on its own approvals alone. */
 async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
   await guide.button("Continue");
-  const exampleElement = guide
-    .render()
-    .find((element) => element.type === CaseReplay)!;
-  const example = setup(
-    exampleElement.props as ComponentProps<typeof CaseReplay>,
-  );
-  example.render().find((element) => element.type === "input")!.props.onChange!(
-    {
-      target: { value: "Reviewed as intentionally unmapped." },
-    },
-  );
-  await example.button("Approve executed mapping");
   await guide.button("Approve executed mapping");
   await guide.button("Continue");
   await guide.button("Approve case manifest");
   await guide.button("Continue");
   await guide.button("Run deterministic replay");
   await guide.button("Continue");
+}
+
+/** The separate review example, rendered as its own instance. */
+function exampleOf(guide: ReturnType<typeof setup>) {
+  const exampleElement = guide
+    .render()
+    .find((element) => element.type === CaseReplay)!;
+  return setup(exampleElement.props as ComponentProps<typeof CaseReplay>);
+}
+
+/** Opens the finding evidence, then reviews and approves the example. */
+async function finishGuidedAfterRepeat(guide: ReturnType<typeof setup>) {
+  await guide.button("Continue");
   const evaluation = guide.evidence()[0]!.props as ComponentProps<
     typeof RapidPriceLiftEvaluation
   >;
   evaluation.onEvidenceOpen!();
+  await guide.button("Continue");
+  expect(guide.buttonDisabled("Continue")).toBe(true);
+  const example = exampleOf(guide);
+  example.render().find((element) => element.type === "input")!.props.onChange!(
+    { target: { value: "Reviewed as intentionally unmapped." } },
+  );
+  await example.button("Approve executed mapping");
+  expect(guide.buttonDisabled("Continue")).toBe(false);
   await guide.button("Continue");
 }
 
@@ -786,15 +802,6 @@ describe("replay result lifecycle", () => {
     const prepared = await prepareReplayScenarios();
     const guide = setup({ ...prepared, guided: true });
     await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
-    );
-    example.render().find((element) => element.type === "input")!.props
-      .onChange!({ target: { value: "Reviewed as intentionally unmapped." } });
-    await example.button("Approve executed mapping");
     await guide.button("Approve executed mapping");
     await guide.button("Continue");
 
@@ -842,10 +849,13 @@ describe("replay result lifecycle", () => {
     expect(guide.buttonDisabled("Continue")).toBe(true);
     expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
 
-    // Returning to A recovers both completion gates.
+    // Returning to A recovers the repeat step; the hand-off still waits for
+    // the finding evidence and the separate example.
     await guide.button("Repeat the same approved case");
     expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
     expect(guide.buttonDisabled("Continue")).toBe(false);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
+    await finishGuidedAfterRepeat(guide);
     expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
     expect(
       request.mock.calls
@@ -870,6 +880,7 @@ describe("replay result lifecycle", () => {
     await guide.button("Repeat the same approved case");
     expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
     expect(guide.buttonDisabled("Continue")).toBe(false);
+    await finishGuidedAfterRepeat(guide);
     expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
   });
 
@@ -889,15 +900,6 @@ describe("replay result lifecycle", () => {
             element.type === "button" && element.props.children === "Continue",
         )!.props.disabled;
     await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
-    );
-    example.render().find((element) => element.type === "input")!.props
-      .onChange!({ target: { value: "Reviewed as intentionally unmapped." } });
-    await example.button("Approve executed mapping");
     await guide.button("Approve executed mapping");
     await guide.button("Continue");
     await guide.button("Approve case manifest");
@@ -923,13 +925,6 @@ describe("replay result lifecycle", () => {
     expect(progressBlocked()).toBe(false);
     await guide.button("Continue");
     expect(progressBlocked()).toBe(true);
-    const evaluation = guide.evidence()[0]!.props as ComponentProps<
-      typeof RapidPriceLiftEvaluation
-    >;
-    evaluation.onEvidenceOpen!();
-    expect(progressBlocked()).toBe(false);
-    await guide.button("Continue");
-    expect(progressBlocked()).toBe(true);
     await guide.button("Repeat the same approved case");
     expect(progressBlocked()).toBe(true);
     expect(
@@ -951,6 +946,21 @@ describe("replay result lifecycle", () => {
         (body) => JSON.stringify(body) === JSON.stringify(bodies[0]),
       ),
     ).toBe(true);
+    await guide.button("Continue");
+    expect(progressBlocked()).toBe(true);
+    const evaluation = guide.evidence()[0]!.props as ComponentProps<
+      typeof RapidPriceLiftEvaluation
+    >;
+    evaluation.onEvidenceOpen!();
+    expect(progressBlocked()).toBe(false);
+    await guide.button("Continue");
+    expect(progressBlocked()).toBe(true);
+    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
+    const example = exampleOf(guide);
+    example.render().find((element) => element.type === "input")!.props
+      .onChange!({ target: { value: "Reviewed as intentionally unmapped." } });
+    await example.button("Approve executed mapping");
+    expect(progressBlocked()).toBe(false);
     await guide.button("Continue");
     await guide.button("Continue in working mode");
     expect(completeGuide).toHaveBeenCalledOnce();
@@ -1008,12 +1018,7 @@ describe("replay result lifecycle", () => {
     const prepared = await prepareReplayScenarios();
     const guide = setup({ ...prepared, guided: true });
     await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
-    );
+    const example = exampleOf(guide);
     const continueDisabled = () =>
       guide
         .render()
@@ -1034,6 +1039,7 @@ describe("replay result lifecycle", () => {
     const exampleReceipt = example
       .render()
       .find((element) => element.type === ApprovalReceipt)!;
+    // The example's approval does not stand in for the worked case's mapping.
     expect(continueDisabled()).toBe(true);
     expect(
       guide.render().filter((element) => element.type === ApprovalReceipt),
@@ -1044,7 +1050,10 @@ describe("replay result lifecycle", () => {
       .find((element) => element.type === ApprovalReceipt)!;
     expect(exampleReceipt.props).not.toEqual(caseReceipt.props);
     expect(continueDisabled()).toBe(false);
+    // Nor does revoking it touch the case: only the example's own step blocks.
     reasonInput().props.onChange!({ target: { value: "" } });
+    expect(continueDisabled()).toBe(false);
+    guide.openStep(6);
     expect(continueDisabled()).toBe(true);
     expect(
       example.render().filter((element) => element.type === ApprovalReceipt),

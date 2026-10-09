@@ -89,11 +89,40 @@ const reviewExample = "published-execution-h0stcnt0.jsonl";
 export const GUIDE_TARGET_EXAMPLE = "guide-target-example";
 export const GUIDE_TARGET_EVIDENCE = "guide-target-evidence";
 
+/**
+ * The four top-level stages of the guided walkthrough, in the order of the
+ * control line: AI proposes, a person approves, code verifies, evidence traces
+ * back. Each step sits inside one of them, so the visitor always knows whose
+ * turn the current step is.
+ */
+export const GUIDE_STAGES = ["propose", "approve", "verify", "trace"] as const;
+export type GuideStage = (typeof GUIDE_STAGES)[number];
+
+export const guideStageNames: Readonly<
+  Record<Language, Record<GuideStage, string>>
+> = {
+  en: {
+    propose: "AI proposes",
+    approve: "A person approves",
+    verify: "Code verifies",
+    trace: "Evidence traces back",
+  },
+  ko: {
+    propose: "AI가 제안",
+    approve: "사람이 승인",
+    verify: "코드가 검증",
+    trace: "근거를 원본까지 추적",
+  },
+};
+
 // Each guided step opens with the one thing the visitor must do, then says why
 // the step exists and which authority acted in it: a model proposed, a person
 // approved, or versioned code decided. `Committed input` names the steps where
-// none of the three has acted yet.
+// none of the three has acted yet. `afterMainFlow` marks the steps that follow
+// the worked case rather than drive it.
 type GuideStep = {
+  stage: GuideStage;
+  afterMainFlow?: boolean;
   title: string;
   purpose: string;
   action: string;
@@ -108,6 +137,7 @@ type GuideStep = {
 
 export const guideSteps: readonly GuideStep[] = [
   {
+    stage: "propose",
     title: "Read the source",
     purpose:
       "The committed case, untouched. These column names are the source's own dialect and carry no agreed meaning yet; establishing what they denote is the next step.",
@@ -118,18 +148,18 @@ export const guideSteps: readonly GuideStep[] = [
       "Nothing has been proposed, approved or decided at this point.",
   },
   {
+    stage: "propose",
     title: "Review the mapping",
     purpose:
       "A model proposes which columns mean the same thing; it cannot approve them. The proposal below comes from a deterministic fixture, so no live model call occurred.",
     action:
-      "Give the example's flagged field a reviewer reason and approve it, then approve this case's own mapping proposal.",
+      "Review this case's proposed fields, transforms and evidence, then approve this case's own mapping.",
     actor: "A model proposed it",
     actorDetail:
       "The fixture mapping provider proposes targets, transforms and evidence. It cannot approve them.",
-    refusal:
-      "A refusal stays on this path: the review example holds at REVIEW_REQUIRED until every flagged field has a nonblank reviewer reason.",
   },
   {
+    stage: "approve",
     title: "Approve the case",
     purpose:
       "You decide how far this case is scoped. Versioned code defines the allowed parameter schema, formulas and comparisons; live case proposal is planned.",
@@ -140,6 +170,7 @@ export const guideSteps: readonly GuideStep[] = [
       "You approve the scope. An approval binds to one exact artifact hash.",
   },
   {
+    stage: "verify",
     title: "Run the replay",
     purpose:
       "The server revalidates the exact approvals and source rows, then versioned code recomputes the case. Each request has its own workflow state.",
@@ -150,16 +181,7 @@ export const guideSteps: readonly GuideStep[] = [
       "The server revalidates both approvals before the versioned rule runs.",
   },
   {
-    title: "Inspect the finding",
-    purpose:
-      "This result describes support for one versioned pattern hypothesis under the approved scope. Five checks are reported, each with the value observed and the threshold it is compared against.",
-    action:
-      "Open the source evidence under a gate to reach its canonical events and committed source rows.",
-    actor: "Versioned code decided it",
-    actorDetail:
-      "Gates, observed values and the source trace are server-derived, not model output.",
-  },
-  {
+    stage: "verify",
     title: "Repeat the case",
     purpose:
       "Execute the same approved input again. Comparing two returned hashes checks same-input repeatability only.",
@@ -170,6 +192,33 @@ export const guideSteps: readonly GuideStep[] = [
       "Both hashes are returned by the server. The browser compares them as strings.",
   },
   {
+    stage: "trace",
+    title: "Inspect the finding",
+    purpose:
+      "This result describes support for one versioned pattern hypothesis under the approved scope. Five checks are reported, each with the value observed and the threshold it is compared against.",
+    action:
+      "Open the source evidence under a gate to reach its canonical events and committed source rows.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "Gates, observed values and the source trace are server-derived, not model output.",
+  },
+  {
+    stage: "approve",
+    afterMainFlow: true,
+    title: "Review the separate example",
+    purpose:
+      "This approval does not authorize the worked case. The H0STCNT0 example is a different source with no participant field and no rule manifest, shown after the case so you can see a proposal that cannot be approved as it stands.",
+    action:
+      "Give each flagged field of the separate example a reviewer reason, then approve the example's mapping.",
+    actor: "A person approved it",
+    actorDetail:
+      "The fixture provider proposed the example's mapping. Only your reviewer reason and your approval move it past REVIEW_REQUIRED.",
+    refusal:
+      "A refusal stays on this path: the review example holds at REVIEW_REQUIRED until every flagged field has a nonblank reviewer reason.",
+  },
+  {
+    stage: "approve",
+    afterMainFlow: true,
     title: "Take the controls",
     purpose:
       "From here you choose the source and the variations yourself, and replay the synthetic records. A refresh starts unapproved.",
@@ -182,7 +231,7 @@ export const guideSteps: readonly GuideStep[] = [
 ];
 
 /**
- * Korean narration for the same seven steps, written in the vocabulary the
+ * Korean narration for the same eight steps, written in the vocabulary the
  * product uses for its own screens: 원본 거래자료, 데이터 항목 연결, 조사 범위,
  * 분석 실행, 판단 항목, 판단 근거. `actor` stays the English discriminant so
  * behaviour keyed on it, and the English suite that asserts on `guideSteps`,
@@ -190,6 +239,7 @@ export const guideSteps: readonly GuideStep[] = [
  */
 const guideStepsKo: readonly GuideStep[] = [
   {
+    stage: "propose",
     title: "원본 거래자료 확인",
     purpose:
       "조사 대상이 된 거래자료를 손대지 않은 그대로 봅니다. 열 이름은 자료를 만든 쪽이 쓰던 말이라, 어떤 항목이 무엇을 뜻하는지는 아직 정해지지 않았습니다.",
@@ -198,18 +248,18 @@ const guideStepsKo: readonly GuideStep[] = [
     actorDetail: "이 시점에는 제안된 것도, 승인된 것도, 판정된 것도 없습니다.",
   },
   {
+    stage: "propose",
     title: "데이터 항목 연결 검토",
     purpose:
       "어떤 항목끼리 같은 뜻인지는 AI가 초안만 제안합니다. 아래 제안은 미리 준비된 예시 제안이며, 실시간 모델 호출은 일어나지 않았습니다.",
     action:
-      "먼저 아래 예시에서 표시된 항목에 확인 이유를 적어 승인한 다음, 이 사례의 연결 제안을 승인하세요.",
+      "이 사례에 제안된 항목과 변환, 근거를 검토한 뒤 이 사례의 연결 제안을 승인하세요.",
     actor: "A model proposed it",
     actorDetail:
       "제안까지가 AI의 몫입니다. 대상 항목과 변환, 근거를 내놓을 뿐 승인은 하지 못합니다.",
-    refusal:
-      "확인이 필요한 항목에 이유를 적기 전까지, 예시는 REVIEW_REQUIRED에서 멈춘 채 진행되지 않습니다.",
   },
   {
+    stage: "approve",
     title: "조사 범위 승인",
     purpose:
       "이 사례를 어떤 범위로 조사할지는 사람이 정합니다. 계산에 쓰는 항목과 수식, 비교 방식은 버전이 고정된 코드가 미리 정해 둔 것입니다.",
@@ -220,6 +270,7 @@ const guideStepsKo: readonly GuideStep[] = [
       "범위를 승인하는 것은 사용자입니다. 승인은 지금 보고 있는 내용 하나에만 묶입니다.",
   },
   {
+    stage: "verify",
     title: "분석 실행",
     purpose:
       "서버가 승인한 내용과 원본 행을 하나씩 다시 확인한 뒤, 미리 정해진 기준으로 거래 움직임을 다시 계산합니다.",
@@ -229,6 +280,17 @@ const guideStepsKo: readonly GuideStep[] = [
       "판정하는 것은 AI의 답이 아니라 버전이 고정된 코드입니다. 서버는 실행 전에 두 승인을 다시 검증합니다.",
   },
   {
+    stage: "verify",
+    title: "동일 사례 반복 확인",
+    purpose:
+      "같은 자료를 같은 조건으로 한 번 더 실행합니다. 두 결과 해시를 비교하는 것은 같은 입력에 대한 재현성만 확인하는 일입니다.",
+    action: "같은 사례를 다시 실행하고 두 결과 해시가 같은지 비교하세요.",
+    actor: "Versioned code decided it",
+    actorDetail:
+      "두 해시 모두 서버가 반환한 값이고, 화면은 그 둘을 문자열로 비교합니다.",
+  },
+  {
+    stage: "trace",
     title: "판단 근거 확인",
     purpose:
       "결과는 하나의 패턴 가설을 승인된 범위 안에서 얼마나 뒷받침하는지만 말합니다. 다섯 개 판단 항목마다 관측값과 기준 충족 여부가 함께 나옵니다.",
@@ -239,15 +301,22 @@ const guideStepsKo: readonly GuideStep[] = [
       "판단 항목과 관측값, 근거 추적은 모두 서버가 계산한 값이며 모델이 지어낸 문장이 아닙니다.",
   },
   {
-    title: "동일 사례 반복 확인",
+    stage: "approve",
+    afterMainFlow: true,
+    title: "별도 검토 예시 확인",
     purpose:
-      "같은 자료를 같은 조건으로 한 번 더 실행합니다. 두 결과 해시를 비교하는 것은 같은 입력에 대한 재현성만 확인하는 일입니다.",
-    action: "같은 사례를 다시 실행하고 두 결과 해시가 같은지 비교하세요.",
-    actor: "Versioned code decided it",
+      "여기서 한 승인은 지금 따라온 사례에 적용되지 않습니다. H0STCNT0 예시는 참여자 항목도 판단 기준도 없는 다른 자료이며, 지금 상태로는 승인할 수 없는 제안이 어떻게 멈추는지 보여 주려고 사례 뒤에 둡니다.",
+    action:
+      "별도 예시에서 표시된 항목마다 확인 이유를 적은 뒤, 예시의 연결 제안을 승인하세요.",
+    actor: "A person approved it",
     actorDetail:
-      "두 해시 모두 서버가 반환한 값이고, 화면은 그 둘을 문자열로 비교합니다.",
+      "예시의 연결 제안은 미리 준비된 제안입니다. 확인 이유와 사용자의 승인이 있어야만 REVIEW_REQUIRED를 벗어납니다.",
+    refusal:
+      "확인이 필요한 항목에 이유를 적기 전까지, 예시는 REVIEW_REQUIRED에서 멈춘 채 진행되지 않습니다.",
   },
   {
+    stage: "approve",
+    afterMainFlow: true,
     title: "직접 조작으로 이동",
     purpose:
       "여기서부터는 원본 자료를 직접 고르고 거래 순서를 바꾸는 등 입력을 바꿔 결과가 어떻게 달라지는지 볼 수 있습니다. 합성 기록을 같은 화면에서 재현합니다.",
@@ -259,6 +328,19 @@ const guideStepsKo: readonly GuideStep[] = [
   },
 ];
 
+/** Each step's position in `guideSteps`, named so the gates below read as the
+ *  steps they belong to rather than as bare indices. */
+const STEP = {
+  source: 0,
+  mapping: 1,
+  caseApproval: 2,
+  run: 3,
+  repeat: 4,
+  evidence: 5,
+  example: 6,
+  controls: 7,
+} as const;
+
 interface GuideUi {
   readonly blockers: readonly string[];
   readonly hashesDiffer: string;
@@ -267,6 +349,9 @@ interface GuideUi {
   readonly readingAhead: (step: number, title: string) => string;
   readonly stepHeading: (step: number, title: string) => string;
   readonly stepOf: (step: number, total: number) => string;
+  readonly stageOf: (stage: number, total: number) => string;
+  readonly afterMainFlow: string;
+  readonly stageLabel: string;
   readonly whatThisShows: string;
   readonly whatYouDo: string;
   readonly whoActed: string;
@@ -287,11 +372,12 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
   en: {
     blockers: [
       "",
-      "Approve the separate mapping review example and this case's mapping to continue.",
+      "Approve this case's mapping to continue.",
       "Approve the mapping, then this exact case manifest.",
       "Run the approved case and wait for its evaluation and source trace.",
-      "Open a finding's source evidence to continue.",
       "Repeat the same approved case to compare returned hashes.",
+      "Open a finding's source evidence to continue.",
+      "Give every flagged field of the separate example a reviewer reason and approve its mapping to continue.",
       "",
     ],
     hashesDiffer:
@@ -302,6 +388,9 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
       ` You are reading ahead: step ${step}, ${title}, is not completed.`,
     stepHeading: (step, title) => `Step ${step} · ${title}`,
     stepOf: (step, total) => `Step ${step} of ${total}`,
+    stageOf: (stage, total) => `Stage ${stage} of ${total}`,
+    afterMainFlow: "After the worked case",
+    stageLabel: "Whose turn",
     whatThisShows: "What this shows",
     whatYouDo: "What you do",
     whoActed: "Who acted",
@@ -320,11 +409,12 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
   ko: {
     blockers: [
       "",
-      "별도 검토 예시와 이 사례의 연결 제안을 모두 승인해야 계속할 수 있습니다.",
+      "이 사례의 연결 제안을 승인해야 계속할 수 있습니다.",
       "연결 제안을 먼저 승인하고, 이어서 이 조사 범위를 승인하세요.",
       "승인한 사례를 실행하고 결과와 근거가 나올 때까지 기다리세요.",
-      "판단 근거를 하나 열어야 계속할 수 있습니다.",
       "같은 사례를 다시 실행해 두 결과 해시를 비교하세요.",
+      "판단 근거를 하나 열어야 계속할 수 있습니다.",
+      "별도 예시에서 표시된 항목마다 확인 이유를 적고 예시의 연결 제안을 승인해야 계속할 수 있습니다.",
       "",
     ],
     hashesDiffer:
@@ -335,6 +425,9 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
       ` 앞서 읽고 있습니다. ${step}단계 "${title}"를 아직 완료하지 않았습니다.`,
     stepHeading: (step, title) => `${step}단계 · ${title}`,
     stepOf: (step, total) => `${total}단계 중 ${step}단계`,
+    stageOf: (stage, total) => `${total}개 과정 중 ${stage}번째`,
+    afterMainFlow: "사례를 마친 뒤",
+    stageLabel: "누구의 차례인가",
     whatThisShows: "이 단계가 필요한 이유",
     whatYouDo: "이번에 할 일",
     whoActed: "누가 했는가",
@@ -376,20 +469,21 @@ const actorLabels: Readonly<
   },
 };
 
+/** The separate example's narration when its proposal has to be requested. */
 const configuredProposalOverride: Readonly<
   Record<Language, { purpose: string; action: string }>
 > = {
   en: {
     purpose:
-      "The worked case follows published FIX 4.4 execution fields. The separate H0STCNT0 example has no participant field and stops until a reviewer acknowledges that absence. Review each proposal's displayed provider and evidence before approval.",
+      "This approval does not authorize the worked case. The separate H0STCNT0 example has no participant field and stops until a reviewer acknowledges that absence. Review the proposal's displayed provider and evidence before approval.",
     action:
-      "Review and approve the separate example's mapping, then approve the worked case's own mapping.",
+      "Request the separate example's mapping proposal, give each flagged field a reviewer reason, then approve it.",
   },
   ko: {
     purpose:
-      "이 사례는 공개 FIX 4.4 체결 항목을 따릅니다. 별도의 H0STCNT0 예시에는 참여자 항목이 없으며, 검토자가 그 부재를 확인하기 전까지 멈춥니다. 승인하기 전에 제안마다 표시된 제공자와 근거를 확인하세요.",
+      "여기서 한 승인은 지금 따라온 사례에 적용되지 않습니다. 별도의 H0STCNT0 예시에는 참여자 항목이 없으며, 검토자가 그 부재를 확인하기 전까지 멈춥니다. 승인하기 전에 표시된 제공자와 근거를 확인하세요.",
     action:
-      "별도 예시의 연결 제안을 검토해 승인한 뒤, 이 사례의 연결 제안을 승인하세요.",
+      "별도 예시의 연결 제안을 요청하고, 표시된 항목마다 확인 이유를 적은 뒤 승인하세요.",
   },
 };
 
@@ -1187,19 +1281,26 @@ export function CaseReplay({
     completeResult &&
     previousHash !== null &&
     previousHash === result.replay.canonicalResultHash;
+  // The worked case's own steps gate only on the worked case's approvals: the
+  // separate example has its own step after the main flow and its approval
+  // never authorizes the case.
   const stepSatisfied = [
     true,
-    approval !== null && exampleApproved,
+    approval !== null,
     approval !== null && caseApproval !== null,
     completeResult,
-    completeResult && evidenceOpened,
     repeatMatches,
+    completeResult && evidenceOpened,
+    exampleApproved || !exampleScenario,
     true,
   ];
+  const guideSatisfied = stepSatisfied.every(Boolean);
   const ui = guideUi[language];
   const t = (en: string, ko: string) => replayText(language, en, ko);
   const stepBlockers = ui.blockers.map((blocker, index) =>
-    index === 5 && previousHash && completeResult ? ui.hashesDiffer : blocker,
+    index === STEP.repeat && previousHash && completeResult
+      ? ui.hashesDiffer
+      : blocker,
   );
   const canContinue = stepSatisfied[chapter];
   const blockedReason = stepBlockers[chapter];
@@ -1264,9 +1365,32 @@ export function CaseReplay({
 
   const activeSteps = guideStepsByLanguage[language];
   const guideStep =
-    chapter === 1 && exampleScenario?.mappingRequestRequired
-      ? { ...activeSteps[1]!, ...configuredProposalOverride[language] }
+    chapter === STEP.example && exampleScenario?.mappingRequestRequired
+      ? {
+          ...activeSteps[STEP.example]!,
+          ...configuredProposalOverride[language],
+        }
       : activeSteps[chapter]!;
+  const stageNames = guideStageNames[language];
+  const stageNumber = GUIDE_STAGES.indexOf(guideStep.stage) + 1;
+  // The rail's step list, grouped under the stage each step belongs to; the
+  // steps after the worked case form their own group at the end.
+  const stepGroups = [
+    ...GUIDE_STAGES.map((stage, index) => ({
+      key: stage,
+      heading: `${index + 1} · ${stageNames[stage]}`,
+      steps: activeSteps.flatMap((step, stepIndex) =>
+        step.stage === stage && !step.afterMainFlow ? [stepIndex] : [],
+      ),
+    })),
+    {
+      key: "after",
+      heading: ui.afterMainFlow,
+      steps: activeSteps.flatMap((step, stepIndex) =>
+        step.afterMainFlow ? [stepIndex] : [],
+      ),
+    },
+  ];
   const panelLabel = (order: string, label: string) =>
     guided ? label : `${order} · ${label}`;
 
@@ -1376,7 +1500,7 @@ export function CaseReplay({
   }
 
   function completeGuide() {
-    if (!repeatMatches) return;
+    if (!guideSatisfied) return;
     completeChapter(chapter);
     setFocusPending(true);
     onGuideComplete?.();
@@ -1413,20 +1537,13 @@ export function CaseReplay({
 
   const stepActions: readonly (StepAction | null)[] = [
     null,
-    exampleApproved || !exampleScenario
-      ? {
-          kind: "perform",
-          action: "approve-mapping",
-          label: approveMappingLabel,
-          disabled: approveMappingBlocked,
-          done: approval !== null,
-        }
-      : {
-          kind: "locate",
-          action: "reveal-example",
-          label: ui.goToExample,
-          disabled: false,
-        },
+    {
+      kind: "perform",
+      action: "approve-mapping",
+      label: approveMappingLabel,
+      disabled: approveMappingBlocked,
+      done: approval !== null,
+    },
     {
       kind: "perform",
       action: "approve-case",
@@ -1441,6 +1558,13 @@ export function CaseReplay({
       disabled: runBlocked,
       done: completeResult,
     },
+    {
+      kind: "perform",
+      action: "repeat-replay",
+      label: repeatLabel,
+      disabled: repeatBlocked,
+      done: repeatMatches,
+    },
     completeResult
       ? {
           kind: "locate",
@@ -1449,18 +1573,19 @@ export function CaseReplay({
           disabled: false,
         }
       : null,
-    {
-      kind: "perform",
-      action: "repeat-replay",
-      label: repeatLabel,
-      disabled: repeatBlocked,
-      done: repeatMatches,
-    },
+    exampleScenario
+      ? {
+          kind: "locate",
+          action: "reveal-example",
+          label: ui.goToExample,
+          disabled: false,
+        }
+      : null,
     {
       kind: "perform",
       action: "complete-guide",
       label: workingModeLabel,
-      disabled: !repeatMatches,
+      disabled: !guideSatisfied,
     },
   ];
   const stepAction = guided ? (stepActions[chapter] ?? null) : null;
@@ -1675,6 +1800,21 @@ export function CaseReplay({
                   </h2>
                   <p className="step-instruction">{guideStep.action}</p>
                   <div className="rail-actions">
+                    {/* Inside the action block so it stays on screen wherever
+                        that block does, including the bar pinned to the
+                        bottom of a narrow screen. */}
+                    <p
+                      className="step-stage"
+                      data-stage={guideStep.stage}
+                      id="guide-stage"
+                    >
+                      <span className="step-stage-label">
+                        {guideStep.afterMainFlow
+                          ? ui.afterMainFlow
+                          : ui.stageOf(stageNumber, GUIDE_STAGES.length)}
+                      </span>{" "}
+                      <strong>{stageNames[guideStep.stage]}</strong>
+                    </p>
                     <p
                       className="step-requirement"
                       data-met={canContinue && unmetEarlierStep === -1}
@@ -1739,35 +1879,46 @@ export function CaseReplay({
                     </p>
                   ) : null}
                   <h3 className="rail-list-heading">{ui.stepListLabel}</h3>
-                  <ol
-                    className="journey-progress"
-                    aria-label={ui.progressLabel}
-                  >
-                    {activeSteps.map((step, index) => (
-                      <li
-                        key={step.title}
-                        aria-current={chapter === index ? "step" : undefined}
+                  <nav aria-label={ui.progressLabel} className="stage-groups">
+                    {stepGroups.map((group) => (
+                      <section
+                        aria-labelledby={`guide-group-${group.key}`}
+                        className="stage-group"
+                        data-current={group.steps.includes(chapter)}
+                        key={group.key}
                       >
-                        <button
-                          className="journey-step"
-                          data-complete={stepCompleted(index)}
-                          onClick={() => goToChapter(index)}
-                          type="button"
-                        >
-                          <span>
-                            {index + 1}. {step.title}
-                          </span>
-                          {stepCompleted(index) || chapter === index ? (
-                            <small>
-                              {stepCompleted(index)
-                                ? ui.completed
-                                : ui.currentStep}
-                            </small>
-                          ) : null}
-                        </button>
-                      </li>
+                        <h4 id={`guide-group-${group.key}`}>{group.heading}</h4>
+                        <ol className="journey-progress">
+                          {group.steps.map((index) => (
+                            <li
+                              key={activeSteps[index]!.title}
+                              aria-current={
+                                chapter === index ? "step" : undefined
+                              }
+                            >
+                              <button
+                                className="journey-step"
+                                data-complete={stepCompleted(index)}
+                                onClick={() => goToChapter(index)}
+                                type="button"
+                              >
+                                <span>
+                                  {index + 1}. {activeSteps[index]!.title}
+                                </span>
+                                {stepCompleted(index) || chapter === index ? (
+                                  <small>
+                                    {stepCompleted(index)
+                                      ? ui.completed
+                                      : ui.currentStep}
+                                  </small>
+                                ) : null}
+                              </button>
+                            </li>
+                          ))}
+                        </ol>
+                      </section>
                     ))}
-                  </ol>
+                  </nav>
                 </div>
               </>
             ) : (
@@ -1796,9 +1947,9 @@ export function CaseReplay({
         )}
         <div
           className="replay-control panel"
-          hidden={guided && chapter >= 4 && !error}
+          hidden={guided && chapter > STEP.run && !error}
         >
-          <div hidden={!show(0) || mappingExample}>
+          <div hidden={!show(STEP.source) || mappingExample}>
             <span className="panel-label">
               {panelLabel("01", t("Committed source", "원본 거래자료"))}
             </span>
@@ -1841,7 +1992,7 @@ export function CaseReplay({
               </select>
             </label>
           </div>
-          <div hidden={!show(0) && !mappingExample}>
+          <div hidden={!show(STEP.source) && !mappingExample}>
             <SourceRows scenario={selectedScenario} />
           </div>
           {!guided && !mappingExample && (
@@ -1902,40 +2053,7 @@ export function CaseReplay({
               </p>
             </section>
           )}
-          <div hidden={!show(1)}>
-            {guided && exampleScenario && (
-              <details className="mapping-example" open>
-                <summary>
-                  {t(
-                    "Separate mapping review example · H0STCNT0",
-                    "별도 연결 검토 예시 · H0STCNT0",
-                  )}
-                </summary>
-                <p>
-                  {t(
-                    "This is a different source without a rule manifest. Its approval cannot authorize the worked case.",
-                    "이 자료에는 판단 기준이 없습니다. 여기서 한 승인은 지금 보고 있는 사례에 적용되지 않습니다.",
-                  )}{" "}
-                  {exampleScenario.mappingRequestRequired
-                    ? t(
-                        "Request a validated proposal before approval. A rejected response cannot be approved.",
-                        "승인 전에 검증된 제안을 요청하세요. 거부된 응답은 승인할 수 없습니다.",
-                      )
-                    : t(
-                        "A reason keeps the field unmapped. Removing it revokes this approval.",
-                        "이유를 적으면 해당 항목을 연결하지 않은 채 그대로 둡니다. 이유를 지우면 승인이 취소됩니다.",
-                      )}
-                </p>
-                <CaseReplay
-                  proposals={proposals}
-                  providerMode={providerMode}
-                  scenarios={[exampleScenario]}
-                  language={language}
-                  mappingExample
-                  onMappingApprovalChange={setExampleApproved}
-                />
-              </details>
-            )}
+          <div hidden={!show(STEP.mapping)}>
             {selectedScenario.mappingRequestRequired && (
               <div>
                 <p>
@@ -2218,7 +2336,9 @@ export function CaseReplay({
             )}
             <button
               className={`button approve-mapping${approval ? "" : " primary"}${
-                guided && chapter === 1 && !approval ? " step-action" : ""
+                guided && chapter === STEP.mapping && !approval
+                  ? " step-action"
+                  : ""
               }`}
               data-approved={approval !== null}
               disabled={approveMappingBlocked}
@@ -2235,7 +2355,7 @@ export function CaseReplay({
               />
             )}
           </div>
-          <div hidden={!show(2) || mappingExample}>
+          <div hidden={!show(STEP.caseApproval) || mappingExample}>
             {selectedScenario.manifest ? (
               <div className="case-preview">
                 <span className="panel-label">
@@ -2348,7 +2468,7 @@ export function CaseReplay({
                 </p>
                 <button
                   className={`button approve-case${caseApproval ? "" : " primary"}${
-                    guided && chapter === 2 && !caseApproval
+                    guided && chapter === STEP.caseApproval && !caseApproval
                       ? " step-action"
                       : ""
                   }`}
@@ -2368,10 +2488,10 @@ export function CaseReplay({
               />
             ) : null}
           </div>
-          <div hidden={!show(3) || mappingExample}>
+          <div hidden={!show(STEP.run) || mappingExample}>
             <button
               className={
-                guided && chapter === 3
+                guided && chapter === STEP.run
                   ? "button primary run-button step-action"
                   : "button primary run-button"
               }
@@ -2401,7 +2521,10 @@ export function CaseReplay({
         <div
           hidden={
             mappingExample ||
-            (guided && chapter !== 4 && chapter !== 5 && chapter !== 6)
+            (guided &&
+              chapter !== STEP.repeat &&
+              chapter !== STEP.evidence &&
+              chapter !== STEP.controls)
           }
           className="panel result-panel"
           aria-live="polite"
@@ -2468,7 +2591,9 @@ export function CaseReplay({
               </div>
               {"evaluation" in result ? (
                 <RapidPriceLiftEvaluation
-                  advancesStep={guided && chapter === 4 && !evidenceOpened}
+                  advancesStep={
+                    guided && chapter === STEP.evidence && !evidenceOpened
+                  }
                   evaluation={result.evaluation}
                   sourceTrace={result.sourceTrace}
                   scenario={result.scenario}
@@ -2522,7 +2647,7 @@ export function CaseReplay({
         </div>
         {!mappingExample &&
           selectedScenario.manifest &&
-          (!guided || chapter === 5) && (
+          (!guided || chapter === STEP.repeat) && (
             <section className="panel repeat-panel">
               <h3>
                 {panelLabel(
@@ -2538,7 +2663,9 @@ export function CaseReplay({
               </p>
               <button
                 className={
-                  guided && chapter === 5 ? "button step-action" : "button"
+                  guided && chapter === STEP.repeat
+                    ? "button step-action"
+                    : "button"
                 }
                 disabled={repeatBlocked}
                 onClick={() => runReplay(true)}
@@ -2577,8 +2704,50 @@ export function CaseReplay({
               )}
             </section>
           )}
+        {guided && exampleScenario && (
+          <section
+            aria-labelledby="mapping-example-heading"
+            className="panel mapping-example"
+            hidden={chapter !== STEP.example}
+          >
+            <h3 id="mapping-example-heading">
+              {t(
+                "Separate mapping review example · H0STCNT0",
+                "별도 연결 검토 예시 · H0STCNT0",
+              )}
+            </h3>
+            <p className="mapping-example-scope">
+              {t(
+                "This approval does not authorize the worked case. It is a different source without a rule manifest, and nothing approved here enters the case request.",
+                "여기서 한 승인은 지금 따라온 사례에 적용되지 않습니다. 판단 기준이 없는 다른 자료이며, 여기서 승인한 것은 사례 요청에 들어가지 않습니다.",
+              )}
+            </p>
+            <p>
+              {exampleScenario.mappingRequestRequired
+                ? t(
+                    "Request a validated proposal before approval. A rejected response cannot be approved.",
+                    "승인 전에 검증된 제안을 요청하세요. 거부된 응답은 승인할 수 없습니다.",
+                  )
+                : t(
+                    "A reason keeps the field unmapped. Removing it revokes this approval.",
+                    "이유를 적으면 해당 항목을 연결하지 않은 채 그대로 둡니다. 이유를 지우면 승인이 취소됩니다.",
+                  )}
+            </p>
+            <CaseReplay
+              proposals={proposals}
+              providerMode={providerMode}
+              scenarios={[exampleScenario]}
+              language={language}
+              mappingExample
+              onMappingApprovalChange={setExampleApproved}
+            />
+          </section>
+        )}
         {!mappingExample && (
-          <section className="panel" hidden={guided && chapter !== 6}>
+          <section
+            className="panel"
+            hidden={guided && chapter !== STEP.controls}
+          >
             <h3>{panelLabel("06", t("What runs today", "현재 실행 범위"))}</h3>
             <p>
               {t(
@@ -2595,12 +2764,12 @@ export function CaseReplay({
             {guided && (
               <button
                 className={
-                  chapter === 6
+                  chapter === STEP.controls
                     ? "button primary step-action"
                     : "button primary"
                 }
                 type="button"
-                disabled={!repeatMatches}
+                disabled={!guideSatisfied}
                 onClick={completeGuide}
               >
                 {workingModeLabel}

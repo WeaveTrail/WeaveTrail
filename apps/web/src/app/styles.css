@@ -678,6 +678,44 @@ button:disabled {
   width: var(--rail-meter-fill, 0%);
   background: var(--teal-700);
 }
+/* Whose turn the current step is, named by its stage on the control line. */
+.step-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--authorship-code);
+  background: var(--authorship-code-bg);
+  font-size: 0.875rem;
+}
+.step-stage[data-stage="propose"] {
+  border-left-color: var(--authorship-ai);
+  background: var(--authorship-ai-bg);
+}
+.step-stage[data-stage="approve"] {
+  border-left-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+}
+.step-stage-label {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.step-stage strong {
+  color: var(--text-strong);
+}
+.stage-group h4 {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+}
+.stage-group[data-current="true"] h4 {
+  color: var(--text-strong);
+}
 .rail-list-heading {
   margin: 16px 0 0;
   font: var(--type-label);
@@ -1026,14 +1064,12 @@ details.step-action > summary {
   overflow-wrap: anywhere;
 }
 .source-preview details,
-.mapping-example,
 .advanced-controls {
   margin-block: 16px;
   padding: 12px;
   border: var(--hairline);
 }
 .source-preview summary,
-.mapping-example summary,
 .advanced-controls summary {
   cursor: pointer;
 }

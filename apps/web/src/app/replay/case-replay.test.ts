@@ -63,7 +63,10 @@ describe("replay mapping status boundary", () => {
     expect(markup).toContain("조사 범위 승인");
     expect(markup).toContain("판단 근거 확인");
     // The rail leads with where the visitor is and what to do here.
-    expect(markup).toContain("7단계 중 1단계");
+    expect(markup).toContain("8단계 중 1단계");
+    expect(markup).toContain(
+      '<span class="step-stage-label">4개 과정 중 1번째</span> <strong>AI가 제안</strong>',
+    );
     expect(markup).toContain(
       '<p class="step-instruction">아래 원본 거래자료의 열 이름과 값을 훑어본 뒤 계속하세요.</p>',
     );

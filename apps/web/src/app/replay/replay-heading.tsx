@@ -29,7 +29,7 @@ const copy: Readonly<
     guidedLede:
       "Take the reviewer's seat on one case: read the committed source, approve how it is read and how far it is scoped, run it, then trace the result back to the rows it came from.",
     guidedMeta: [
-      "Seven steps",
+      "Four stages, eight steps",
       "about 5–10 minutes",
       "no sign-in",
       "a refresh starts over",
@@ -41,7 +41,7 @@ const copy: Readonly<
         href: "/replay?mode=guided",
         guided: true,
         detail:
-          "Seven steps through one worked case. Each step states what you do, why the step exists and who acted.",
+          "Eight steps through one worked case in four stages: AI proposes, a person approves, code verifies, evidence traces back. Each step states what you do, why the step exists and who acted.",
       },
       {
         label: "Working mode",
@@ -56,9 +56,9 @@ const copy: Readonly<
     heading: "의심 사례의 근거를 직접 확인합니다.",
     lede: "알림 뒤에 있는 거래를 검토하고 그 해석과 범위를 승인한 뒤, 버전이 고정된 코드가 반환한 결과를 확인하세요.",
     guidedLede:
-      "AI가 내놓은 결과를 그대로 받아들이지 않고, 원본 거래자료부터 판단 근거까지 조사자가 직접 확인하는 과정입니다. 일곱 단계를 순서대로 따라가면 됩니다.",
+      "AI가 내놓은 결과를 그대로 받아들이지 않고, 원본 거래자료부터 판단 근거까지 조사자가 직접 확인하는 과정입니다. 여덟 단계를 순서대로 따라가면 됩니다.",
     guidedMeta: [
-      "일곱 단계",
+      "네 과정, 여덟 단계",
       "약 5~10분",
       "회원가입 없음",
       "새로고침하면 처음부터",
@@ -70,7 +70,7 @@ const copy: Readonly<
         href: "/replay?mode=guided",
         guided: true,
         detail:
-          "하나의 사례를 일곱 단계로 따라갑니다. 단계마다 무엇을 할지, 왜 하는지, 누가 처리했는지를 알려 줍니다.",
+          "하나의 사례를 여덟 단계로 따라가며, 단계는 네 과정으로 묶입니다: AI가 제안, 사람이 승인, 코드가 검증, 근거를 원본까지 추적. 단계마다 무엇을 할지, 왜 하는지, 누가 처리했는지를 알려 줍니다.",
       },
       {
         label: "직접 조작",
