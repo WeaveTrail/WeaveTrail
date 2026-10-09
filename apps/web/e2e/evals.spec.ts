@@ -205,8 +205,11 @@ test("opens every closed disclosure for printing and closes it after", async ({
   const closed = page.locator("details:not([open])");
   const count = await closed.count();
   expect(count).toBeGreaterThan(0);
-  await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
-  await expect(closed).toHaveCount(0);
+  // The listener attaches on hydration, so the print is retried until it has.
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+    expect(await closed.count()).toBe(0);
+  }).toPass();
   await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
   await expect(closed).toHaveCount(count);
 });
