@@ -203,9 +203,9 @@ no result until its evaluation is published.
   committed and documented in the evaluation protocol. Both web pages are bound
   to the recovery session, so they show no selection and the home page shows
   no numbers. Any changed configuration needs another fresh held-out set and a
-  decision record before the run. Planned: the guided replay grouped under
-  propose, approve, verify and trace, with each finding traced back through the
-  approved mapping.
+  decision record before the run. Each finding's evidence traces back through
+  the approved mapping, line by line, to the committed source value. Planned:
+  the guided replay grouped under propose, approve, verify and trace.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
   validator checks it. A valid, clear proposal goes to review; an ambiguous or
   rejected one goes once to an escalation model that never sees the primary

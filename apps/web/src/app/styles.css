@@ -1056,6 +1056,7 @@ details.step-action > summary {
 }
 .journey-header h2,
 .source-evidence,
+.gate-row,
 .result-panel,
 .architecture-hash,
 .source-list li {
@@ -1313,6 +1314,66 @@ details.step-action > summary {
 }
 .source-values code {
   white-space: pre-wrap;
+}
+.approval-coverage {
+  margin-block: 12px 4px;
+  color: var(--text-strong);
+}
+.trace-lines,
+.approved-mapping-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.trace-line,
+.approved-mapping-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding-block: 8px;
+  border-bottom: var(--hairline);
+  overflow-wrap: anywhere;
+  scroll-margin-top: 110px;
+}
+.trace-line > *,
+.approved-mapping-row > * {
+  min-width: 0;
+}
+.trace-reason,
+.trace-used,
+.trace-evidence {
+  flex-basis: 100%;
+}
+.trace-reason q {
+  white-space: pre-wrap;
+}
+.trace-none,
+.trace-evidence {
+  color: var(--text-muted);
+}
+.trace-checks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.gate-row:focus,
+.approved-mapping-row:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.approved-mapping,
+.trace-machine-values {
+  margin-top: 12px;
+}
+.approved-mapping summary,
+.trace-machine-values summary {
+  cursor: pointer;
+  color: var(--text-strong);
+}
+.approved-mapping summary small {
+  display: block;
+  color: var(--text-muted);
 }
 .mapping-row b[data-status="REVIEW_REQUIRED"] {
   color: var(--state-review);
