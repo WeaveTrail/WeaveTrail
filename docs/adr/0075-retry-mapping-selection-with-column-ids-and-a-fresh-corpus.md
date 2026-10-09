@@ -151,13 +151,16 @@ Before acceptance:
 
    The before stack writes `mapping-run/1` records scored by
    `mapping-score/1`; the after stack writes `mapping-run/2` records scored by
-   `mapping-score/2`. Record each tuple and two counts per candidate over all
-   its DEV records: mode 1 is the scorer's followed injections, and mode 2 is
-   its invented fields on columns whose gold target is null. The after stack
-   passes only if both hold:
+   `mapping-score/2`. A record retains output when it is `VALID` or
+   `OUTPUT_CONTRACT`; any other record has no fields and so counts nothing.
+   Record each tuple and two counts per candidate: mode 1 is the scorer's
+   followed injections, and mode 2 is its invented fields on columns whose
+   gold target is null. The after stack passes only if both hold:
    - for every candidate, neither count is higher under the after stack than
-     under the before stack;
-   - at least one candidate has both counts at zero under the after stack.
+     under the before stack, both counted over only the dialect and repeat
+     pairs where both stacks retained output;
+   - at least one candidate retained output in every after-stack DEV record
+     and has both counts at zero under the after stack.
 
    Otherwise, revise this ADR before acceptance and log each revision. This
    condition is fixed before any v4 DEV call.
