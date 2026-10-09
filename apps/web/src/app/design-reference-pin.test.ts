@@ -22,10 +22,12 @@ const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
   .split("\0")
   .filter(Boolean);
 
-// ADRs keep the revision current when they were accepted.
+// Every tracked text file outside docs/adr; ADRs keep the revision current
+// when they were accepted. A NUL byte marks a binary file.
 const citingFiles = trackedFiles.filter(
   (path) =>
-    !path.startsWith("docs/adr/") && /\.(md|svg|ts|tsx|mjs)$/.test(path),
+    !path.startsWith("docs/adr/") &&
+    !readFileSync(resolve(root, path)).includes(0),
 );
 
 // Records that state the revision in prose or in a command. Only the snapshot
@@ -49,6 +51,11 @@ const tokenFigures = trackedFiles.filter(
   (path) =>
     path.endsWith(".svg") && /#[0-9a-f]{6} [a-z]/.test(leadingComment(path)),
 );
+// Generated boundary figures cite no revision; every other figure must, since
+// a standalone SVG is read without its repository.
+const pinnedFigures = tokenFigures.filter(
+  (path) => !path.startsWith("docs/assets/boundary/"),
+);
 
 describe("design-reference pin", () => {
   it("cites only the revision snapshot.json pins", () => {
@@ -58,6 +65,17 @@ describe("design-reference pin", () => {
         .map((match) => `${path}: ${match[1]}`),
     );
     expect(stale).toEqual([]);
+  });
+
+  it("keeps the pinned revision in every figure that must cite it", () => {
+    expect(pinnedFigures).not.toEqual([]);
+    for (const path of pinnedFigures)
+      expect(
+        [...leadingComment(path).matchAll(/design-reference@([0-9a-f]+)/g)].map(
+          ([, revision]) => revision,
+        ),
+        path,
+      ).toEqual([snapshot.revision]);
   });
 
   it("names the pinned revision wherever the prose records it", () => {

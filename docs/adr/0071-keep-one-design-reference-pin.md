@@ -30,10 +30,12 @@ of `mark.svg`, and the token values drawn into figures.
   it.
 - Records that must state a revision on their own keep it: the third-party
   notices for Apache-2.0 attribution, both architecture documents, the snapshot
-  readme, and each figure's comment, since a standalone SVG is read without its
-  repository. All now cite `3f078da`.
-- A test in `pnpm test` fails when any tracked file outside `docs/adr` cites
-  `design-reference@<revision>` other than the pin, when the notices,
+  readme, and the comment of each hand-authored and how-it-works figure, since
+  a standalone SVG is read without its repository. All now cite `3f078da`.
+  The generated boundary figures cite no revision.
+- A test in `pnpm test` fails when any tracked text file outside `docs/adr`
+  cites `design-reference@<revision>` other than the pin, when a figure that
+  must cite the pin drops it or cites anything else, when the notices,
   architecture documents or snapshot readme omit the pin or name any other
   full commit ID outside the readme's section on earlier citations, when either
   `mark.svg` copy differs from the hash `snapshot.json` records, or when a
