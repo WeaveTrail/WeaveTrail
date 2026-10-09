@@ -144,8 +144,8 @@
   --action-quiet-hover: var(--gray-100);
   --selected-bg: var(--brand-50);
   --focus-ring: var(--brand-600);
-  --focus-outline: 3px solid
-    color-mix(in srgb, var(--focus-ring) 45%, transparent);
+  /* Opaque, so the ring keeps at least 3:1 against every light surface. */
+  --focus-outline: 3px solid var(--focus-ring);
 
   /* authorship — the AI proposes (dashed slate), a person approves (teal),
      versioned code decides (ink). Every use also names the author in words. */
