@@ -58,12 +58,17 @@ function selectedResult(escalation: string | null): HeldOutResult {
 }
 
 const render = (selection: HomeSelection) =>
-  renderToStaticMarkup(createElement(HomeContent, { selection }));
+  renderToStaticMarkup(
+    createElement(HomeContent, {
+      selection,
+      evaluation: { candidates: 5, runDate: "2026-10-08" },
+    }),
+  );
 
 /** The visible text of the first-screen section, without the term popovers. */
 function firstScreenText(markup: string): string {
   const section = markup.slice(
-    markup.indexOf('<section class="hero home-answer'),
+    markup.indexOf('<div class="hero home-answer'),
     markup.indexOf('<div aria-labelledby="home-term-'),
   );
   return section.replace(/<[^>]+>/g, " ");

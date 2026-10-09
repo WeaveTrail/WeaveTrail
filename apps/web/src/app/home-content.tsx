@@ -4,24 +4,14 @@ import Link from "next/link";
 import React from "react";
 
 import {
+  FAILURE_LOG_ENTRIES,
   definitionLinks,
   fraction,
   percent,
 } from "./evals/model-comparison-data";
+import { GUIDE_STAGES, guideStageNames, type GuideStage } from "./guide-stages";
 import type { HomeSelection } from "./home-selection";
 import { useCopy, useLanguage, type Language } from "./i18n/language";
-
-interface Position {
-  readonly name: string;
-  readonly text: string;
-  readonly here?: true;
-}
-
-interface Role {
-  readonly step: string;
-  readonly title: string;
-  readonly text: string;
-}
 
 export const HOME_TERM_KEYS = [
   "mapping",
@@ -181,144 +171,230 @@ const ANSWER_KO: AnswerCopy = {
   },
 };
 
+interface Stage {
+  /** Who acts in this stage, said in words so it never rests on colour. */
+  readonly actor: string;
+  readonly text: string;
+}
+
+interface Reason {
+  readonly title: string;
+  readonly text: string;
+}
+
+interface BoardItem {
+  readonly title: string;
+  readonly text: string;
+}
+
+/** The evaluation facts the "runs today" board cites, read on the server. */
+export interface HomeEvaluation {
+  readonly candidates: number;
+  readonly runDate: string | null;
+}
+
 interface HomeCopy {
   readonly answer: AnswerCopy;
-  readonly positionKicker: string;
-  readonly positionHeading: string;
-  readonly positionLabel: string;
-  readonly positions: readonly Position[];
-  readonly positionNote: string;
-  readonly boundaryKicker: string;
-  readonly boundaryHeading: string;
-  readonly roles: readonly Role[];
-  readonly applicationKicker: string;
-  readonly question: string;
-  readonly resultLabel: string;
-  readonly reviewState: string;
-  readonly disclaimer: string;
+  readonly flowLabel: string;
+  readonly flowTitle: string;
+  readonly stages: Readonly<Record<GuideStage, Stage>>;
+  readonly flowStop: { readonly state: string; readonly text: string };
+  readonly whyKicker: string;
+  readonly whyHeading: string;
+  readonly reasons: readonly Reason[];
+  readonly boardKicker: string;
+  readonly boardHeading: string;
+  readonly runsToday: string;
+  readonly planned: string;
+  readonly comparison: (candidates: number, runDate: string | null) => string;
+  readonly comparisonTitle: string;
+  readonly comparisonLink: string;
+  readonly probes: BoardItem;
+  readonly probesLink: string;
+  readonly failureLog: (entries: number) => string;
+  readonly failureLogTitle: string;
+  readonly failureLogLink: string;
+  readonly guided: BoardItem;
+  readonly guidedLink: string;
+  readonly plannedItems: readonly BoardItem[];
+  readonly boundary: string;
   readonly gateLinkText: string;
-  readonly disclaimerTail: string;
+  readonly boundaryTail: string;
 }
 
 /**
  * Voice copy — the headline, the section headings and the calls to action —
  * is written in each language rather than translated from the other. The
  * explanatory prose beneath it says the same things in both, with the same
- * scope and the same hedging.
+ * scope and the same hedging. Stage names come from the guided walkthrough,
+ * so the home page and Case Replay never name a stage differently.
  */
 export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   en: {
     answer: ANSWER_EN,
-    positionKicker: "Where it fits",
-    positionHeading: "After the alert. Before the judgement.",
-    positionLabel: "Where WeaveTrail sits in an investigation",
-    positions: [
+    flowLabel: "How a proposal reaches a result",
+    flowTitle: "From proposal to evidence",
+    stages: {
+      propose: {
+        actor: "Model",
+        text: "Says which field each column of an unfamiliar file holds. The validator rejects anything outside the contract.",
+      },
+      approve: {
+        actor: "Person",
+        text: "Nothing goes further until a person approves that exact proposal.",
+      },
+      verify: {
+        actor: "Versioned code",
+        text: "Runs the approved input and returns SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, with the same hash every time.",
+      },
+      trace: {
+        actor: "Source rows",
+        text: "Every finding opens down to its source row and that row's hash.",
+      },
+    },
+    flowStop: {
+      state: "REVIEW_REQUIRED · pre-replay",
+      text: "A rejected or unclear proposal stops here, before anything runs, for a person to look at. It is a review need, never a result.",
+    },
+    whyKicker: "Why it is needed",
+    whyHeading: "A model reads the data. It never decides the result.",
+    reasons: [
       {
-        name: "Surveillance and AI analysis",
-        text: "A system already in place watches the market and raises a candidate.",
+        title: "Every file names its columns differently",
+        text: "Is amt a quantity or an amount? Link one column wrongly and the whole result changes.",
       },
       {
-        name: "WeaveTrail",
-        text: "Confirm the scope the alert assumed, re-verify it with versioned code, and read the evidence underneath.",
-        here: true,
+        title: "A model can be wrong quietly",
+        text: "It can link a column that is not there, or follow an instruction written inside a cell. Those failures are measured, not assumed away.",
       },
       {
-        name: "The investigator decides",
-        text: "A person reads the result and the rows under it, and answers for the judgement.",
-      },
-    ],
-    positionNote:
-      "It does not detect or replace surveillance. It verifies the alert before a person decides the case.",
-    boundaryKicker: "Trust boundary",
-    boundaryHeading: "AI proposes. Versioned code decides.",
-    roles: [
-      {
-        step: "01",
-        title: "Interpret",
-        text: "A constrained mapper proposes what each source column means. It computes nothing.",
-      },
-      {
-        step: "02",
-        title: "Approve",
-        text: "A person approves that exact proposal. Unapproved model output never enters replay.",
-      },
-      {
-        step: "03",
-        title: "Replay",
-        text: "Versioned code orders, deduplicates, calculates and hashes the same input the same way.",
-      },
-      {
-        step: "04",
-        title: "Trace",
-        text: "Open a finding to reach its canonical events, its original source rows and their row hashes.",
+        title: "So each model is measured and fenced in",
+        text: "Candidates are compared on a sealed set beside a non-model baseline, chosen only by a rule fixed before the run, and kept behind a validator and a person.",
       },
     ],
-    applicationKicker: "Bounded application",
-    question:
-      "Does a short-window price lift satisfy a declared concentrated-buy pattern?",
-    resultLabel: "Closed result vocabulary",
-    reviewState: "REVIEW_REQUIRED · pre-replay",
-    disclaimer:
-      "The displayed results are technical hypothesis states—not a finding of guilt, a causal claim, investment advice, an automated trading decision, or real-time surveillance.",
+    boardKicker: "What is built",
+    boardHeading: "What runs today, and what is planned",
+    runsToday: "Runs today",
+    planned: "Planned",
+    comparisonTitle: "Model comparison on the held-out set",
+    comparison: (candidates, runDate) =>
+      `${candidates} candidate models and a non-model baseline, scored by the same scorer${runDate ? `, run on ${runDate}` : ""}.`,
+    comparisonLink: "See the model comparison",
+    probes: {
+      title: "Validator tested with hostile output",
+      text: "Invented columns, broken JSON and unknown conversions are written on purpose; every pull request checks that the validator rejects each one.",
+    },
+    probesLink: "See how models fail",
+    failureLogTitle: "AI failure log",
+    failureLog: (entries) =>
+      `${entries} entries so far, each with the assumption, the counterexample and what was done about it.`,
+    failureLogLink: "Read the failure log",
+    guided: {
+      title: "One case, start to finish",
+      text: "A synthetic case walked through the four stages, from the AI proposal to the source row.",
+    },
+    guidedLink: "Walk through a case",
+    plannedItems: [
+      {
+        title: "One escalation, then a person",
+        text: "An unclear or rejected proposal goes once to a stronger model that never sees the first answer; if it is still unresolved, a person decides.",
+      },
+      {
+        title: "Try a change",
+        text: "Alter a development column layout from a fixed list and watch the proposal path react. No free text and no held-out data.",
+      },
+      {
+        title: "Case scope proposals",
+        text: "The AI picks what to examine only from values the dataset profile offers; anything outside it is rejected.",
+      },
+    ],
+    boundary:
+      "Results describe support for a versioned pattern hypothesis on synthetic data. They are not a finding of guilt, a causal claim or investment advice.",
     gateLinkText: "Where it fits",
-    disclaimerTail:
-      " sets out the reasoning behind the question and the boundaries of what it answers.",
+    boundaryTail: " explains the setting this question comes from.",
   },
   ko: {
     answer: ANSWER_KO,
-    positionKicker: "쓰이는 자리",
-    positionHeading: "알림이 나온 뒤, 판단이 내려지기 전.",
-    positionLabel: "조사 과정에서 WeaveTrail이 놓이는 자리",
-    positions: [
+    flowLabel: "제안이 결과에 이르는 길",
+    flowTitle: "제안에서 근거까지",
+    stages: {
+      propose: {
+        actor: "모델",
+        text: "처음 보는 파일의 각 열이 어느 항목인지 제안합니다. 계약에 맞지 않는 제안은 검증기가 거절합니다.",
+      },
+      approve: {
+        actor: "사람",
+        text: "사람이 그 제안을 그대로 승인하기 전에는 다음 단계로 가지 않습니다.",
+      },
+      verify: {
+        actor: "버전이 고정된 코드",
+        text: "승인된 입력을 실행해 SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE 가운데 하나를 내고, 언제나 같은 해시를 냅니다.",
+      },
+      trace: {
+        actor: "원본 행",
+        text: "모든 판단 근거는 원본 거래자료의 행과 그 행의 해시까지 열어 볼 수 있습니다.",
+      },
+    },
+    flowStop: {
+      state: "REVIEW_REQUIRED · 분석 실행 이전",
+      text: "거절되거나 모호한 제안은 아무것도 실행하기 전에 여기서 멈추고 사람이 확인합니다. 검토가 필요하다는 뜻이며, 결과가 아닙니다.",
+    },
+    whyKicker: "필요한 이유",
+    whyHeading: "모델은 데이터를 읽을 뿐, 결과를 정하지 않습니다.",
+    reasons: [
       {
-        name: "감시와 AI 분석",
-        text: "이미 돌아가고 있는 시스템이 시장을 지켜보다가 후보를 올립니다.",
+        title: "파일마다 열 이름이 다릅니다",
+        text: "amt는 수량일까요, 금액일까요? 열 하나를 잘못 연결하면 결과 전체가 달라집니다.",
       },
       {
-        name: "WeaveTrail",
-        text: "알림이 전제한 범위를 확인하고, 버전이 고정된 코드로 다시 검증하고, 그 아래 증거를 읽습니다.",
-        here: true,
+        title: "모델은 조용히 틀릴 수 있습니다",
+        text: "없는 열을 연결하거나 셀 안에 적힌 지시를 따를 수 있습니다. 이런 실패를 짐작하지 않고 측정합니다.",
       },
       {
-        name: "조사자의 판단",
-        text: "사람이 결과와 그 아래 행을 읽고, 판단에 자기 이름을 겁니다.",
-      },
-    ],
-    positionNote:
-      "탐지 기능을 대체하지 않습니다. 알림이 나온 뒤부터 사람이 판단하기 전까지의 검증 단계입니다.",
-    boundaryKicker: "신뢰 경계",
-    boundaryHeading: "AI는 제안하고, 판정은 코드가 합니다.",
-    roles: [
-      {
-        step: "01",
-        title: "해석",
-        text: "제약된 매퍼가 소스의 각 열이 무엇을 뜻하는지 제안합니다. 계산은 하지 않습니다.",
-      },
-      {
-        step: "02",
-        title: "승인",
-        text: "사람이 그 제안을 그대로 승인합니다. 승인받지 않은 모델 출력은 리플레이에 들어가지 못합니다.",
-      },
-      {
-        step: "03",
-        title: "리플레이",
-        text: "버전이 고정된 코드가 같은 입력을 같은 방식으로 정렬하고, 중복을 걸러내고, 계산하고, 해시합니다.",
-      },
-      {
-        step: "04",
-        title: "추적",
-        text: "발견을 열면 정본 이벤트와 원본 소스 행, 그 행의 해시까지 그대로 따라갑니다.",
+        title: "그래서 측정하고, 울타리 안에 둡니다",
+        text: "후보 모델을 봉인된 집합에서 비모델 기준선과 함께 비교하고, 실행 전에 정한 규칙으로만 고르며, 검증기와 사람 뒤에 둡니다.",
       },
     ],
-    applicationKicker: "적용 범위",
-    question: "짧은 구간의 가격 상승이 선언된 매수 집중 패턴을 충족하는가?",
-    resultLabel: "닫힌 결과 어휘",
-    reviewState: "REVIEW_REQUIRED · 리플레이 이전",
-    disclaimer:
-      "여기 표시되는 결과는 기술적인 가설 상태입니다. 유죄 판단도, 인과 주장도, 투자 조언도, 자동 매매 결정도, 실시간 감시도 아닙니다.",
+    boardKicker: "만든 것",
+    boardHeading: "지금 동작하는 것과 계획",
+    runsToday: "지금 동작",
+    planned: "계획",
+    comparisonTitle: "보관 평가 집합의 모델 비교",
+    comparison: (candidates, runDate) =>
+      `후보 모델 ${candidates}개와 비모델 기준선을 같은 채점기로 평가했습니다${runDate ? `(${runDate} 실행)` : ""}.`,
+    comparisonLink: "모델 비교 보기",
+    probes: {
+      title: "적대 출력으로 시험한 검증기",
+      text: "없는 열, 깨진 JSON, 모르는 변환을 일부러 만들어 넣고, 검증기가 모두 거절하는지 PR마다 확인합니다.",
+    },
+    probesLink: "모델이 틀리는 방식 보기",
+    failureLogTitle: "AI 실패 기록",
+    failureLog: (entries) =>
+      `지금까지 ${entries}건입니다. 항목마다 가정, 반례, 그에 대한 조치를 적습니다.`,
+    failureLogLink: "실패 기록 읽기",
+    guided: {
+      title: "사례 하나를 처음부터 끝까지",
+      text: "합성 사례 하나를 네 과정으로 따라가며, AI의 제안에서 원본 행까지 갑니다.",
+    },
+    guidedLink: "사례 따라가기",
+    plannedItems: [
+      {
+        title: "상위 모델 한 번, 그다음 사람",
+        text: "모호하거나 거절된 제안은 첫 답을 보지 않는 상위 모델에 한 번만 넘기고, 그래도 풀리지 않으면 사람이 정합니다.",
+      },
+      {
+        title: "바꿔 보기",
+        text: "개발용 열 구성을 정해진 목록 안에서 바꾸고 제안 경로가 어떻게 반응하는지 봅니다. 자유 입력과 보관 평가 집합은 쓰지 않습니다.",
+      },
+      {
+        title: "조사 범위 제안",
+        text: "AI는 데이터셋 프로필에 있는 값 안에서만 조사 범위를 고르고, 밖의 값은 거절됩니다.",
+      },
+    ],
+    boundary:
+      "결과는 합성 자료 위에서 버전이 고정된 패턴 가설을 얼마나 뒷받침하는지 나타냅니다. 유죄 판단도, 인과 주장도, 투자 조언도 아닙니다.",
     gateLinkText: "어디에 쓰이나",
-    disclaimerTail:
-      "에서 이 질문을 세운 근거와 답할 수 있는 범위를 설명합니다.",
+    boundaryTail: "에서 이 질문이 나온 맥락을 설명합니다.",
   },
 };
 
@@ -358,11 +434,19 @@ function withTerms(marked: string): React.ReactNode[] {
   return parts;
 }
 
-export function HomeContent({ selection }: { selection: HomeSelection }) {
+export function HomeContent({
+  selection,
+  evaluation,
+}: {
+  selection: HomeSelection;
+  evaluation: HomeEvaluation;
+}) {
   const text = useCopy(homeCopy);
+  const stageNames = useCopy(guideStageNames);
   const { language } = useLanguage();
   const answer = text.answer;
   const links = definitionLinks(language);
+  const failureLog = `https://github.com/WeaveTrail/WeaveTrail/blob/develop/docs/AI_FAILURE_LOG${language === "ko" ? ".ko" : ""}.md`;
   const sentence =
     selection.state === "planned"
       ? answer.planned[selection.reason]
@@ -371,132 +455,182 @@ export function HomeContent({ selection }: { selection: HomeSelection }) {
         : answer.selected(selection.primary, selection.escalation);
 
   return (
-    <main>
-      <section
-        className="hero home-answer shell"
-        aria-labelledby="home-question"
-      >
-        <span className="eyebrow">{answer.eyebrow}</span>
-        <h1 id="home-question">{withTerms(answer.question)}</h1>
-        <p
-          className="home-answer-sentence"
-          data-state={selection.state}
-          id="home-answer"
-        >
-          {withTerms(sentence)}
-        </p>
-        {selection.state === "selected" ? (
-          <dl className="home-facts" aria-label={answer.factsLabel}>
-            <div>
-              <dt>{answer.primaryAccuracy}</dt>
-              <dd>
-                <a href={links.rule}>
-                  {fraction(selection.primaryAccuracy)} ·{" "}
-                  {percent(selection.primaryAccuracy)}
-                </a>
-              </dd>
-            </div>
-            <div>
-              <dt>{answer.validOutput}</dt>
-              <dd>
-                <a href={links.metrics}>
-                  {fraction(selection.validOutput)} ·{" "}
-                  {percent(selection.validOutput)}
-                </a>
-              </dd>
-            </div>
-          </dl>
-        ) : null}
-        {selection.state === "selected" ? (
-          <p className="home-run">
-            <a href={selection.sessionReceipt}>
-              {answer.runDate(selection.runDate)}
-            </a>
-          </p>
-        ) : null}
-        <p className="home-control" id="home-control">
-          {withTerms(answer.control)}
-        </p>
-        <div className="hero-actions">
-          <Link className="button primary" href="/evals">
-            {answer.seeComparison}
-          </Link>
-          <Link className="button secondary" href="/replay?mode=guided">
-            {answer.walkThrough}
-          </Link>
-        </div>
-        {HOME_TERM_KEYS.map((key) => (
-          <div
-            aria-labelledby={`${termId(key)}-title`}
-            className="home-term-note"
-            id={termId(key)}
-            key={key}
-            popover="auto"
-            role="dialog"
+    <main className="home">
+      <section className="home-hero shell" aria-labelledby="home-question">
+        <div className="hero home-answer">
+          <span className="eyebrow">{answer.eyebrow}</span>
+          <h1 id="home-question">{withTerms(answer.question)}</h1>
+          <p
+            className="home-answer-sentence"
+            data-state={selection.state}
+            id="home-answer"
           >
-            <strong id={`${termId(key)}-title`}>{answer.terms[key][0]}</strong>
-            <p>{answer.terms[key][1]}</p>
-            <button
-              className="button secondary"
-              popoverTarget={termId(key)}
-              popoverTargetAction="hide"
-              type="button"
-            >
-              {answer.close}
-            </button>
+            {withTerms(sentence)}
+          </p>
+          {selection.state === "selected" ? (
+            <dl className="home-facts" aria-label={answer.factsLabel}>
+              <div>
+                <dt>{answer.primaryAccuracy}</dt>
+                <dd>
+                  <a href={links.rule}>
+                    {fraction(selection.primaryAccuracy)} ·{" "}
+                    {percent(selection.primaryAccuracy)}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>{answer.validOutput}</dt>
+                <dd>
+                  <a href={links.metrics}>
+                    {fraction(selection.validOutput)} ·{" "}
+                    {percent(selection.validOutput)}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          ) : null}
+          {selection.state === "selected" ? (
+            <p className="home-run">
+              <a href={selection.sessionReceipt}>
+                {answer.runDate(selection.runDate)}
+              </a>
+            </p>
+          ) : null}
+          <p className="home-control" id="home-control">
+            {withTerms(answer.control)}
+          </p>
+          <div className="hero-actions">
+            <Link className="button primary" href="/evals">
+              {answer.seeComparison}
+            </Link>
+            <Link className="button secondary" href="/replay?mode=guided">
+              {answer.walkThrough}
+            </Link>
           </div>
-        ))}
-      </section>
-
-      <section className="shell system-section">
-        <div className="section-heading">
-          <span>{text.positionKicker}</span>
-          <h2>{text.positionHeading}</h2>
-        </div>
-        <ol className="position-chain" aria-label={text.positionLabel}>
-          {text.positions.map((position) => (
-            <li
-              className={position.here ? "position-here" : undefined}
-              key={position.name}
+          {HOME_TERM_KEYS.map((key) => (
+            <div
+              aria-labelledby={`${termId(key)}-title`}
+              className="home-term-note"
+              id={termId(key)}
+              key={key}
+              popover="auto"
+              role="dialog"
             >
-              <strong>{position.name}</strong>
-              <p>{position.text}</p>
-            </li>
+              <strong id={`${termId(key)}-title`}>
+                {answer.terms[key][0]}
+              </strong>
+              <p>{answer.terms[key][1]}</p>
+              <button
+                className="button secondary"
+                popoverTarget={termId(key)}
+                popoverTargetAction="hide"
+                type="button"
+              >
+                {answer.close}
+              </button>
+            </div>
           ))}
-        </ol>
-        <p className="position-note">{text.positionNote}</p>
+        </div>
+
+        <figure className="home-flow" aria-labelledby="home-flow-title">
+          <figcaption id="home-flow-title">
+            <span className="eyebrow">{text.flowLabel}</span>
+            <strong>{text.flowTitle}</strong>
+          </figcaption>
+          <ol>
+            {GUIDE_STAGES.map((stage, index) => (
+              <li data-stage={stage} key={stage}>
+                <span className="home-flow-index" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <div>
+                  <h2>
+                    {stageNames[stage]}
+                    <span className="home-flow-actor">
+                      {text.stages[stage].actor}
+                    </span>
+                  </h2>
+                  <p>{text.stages[stage].text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="home-flow-stop">
+            <span className="home-flow-state">{text.flowStop.state}</span>
+            {text.flowStop.text}
+          </p>
+        </figure>
       </section>
 
-      <section className="shell system-section">
+      <section className="home-band" aria-labelledby="home-why">
+        <div className="shell">
+          <div className="section-heading">
+            <span>{text.whyKicker}</span>
+            <h2 id="home-why">{text.whyHeading}</h2>
+          </div>
+          <ol className="home-reasons">
+            {text.reasons.map((reason) => (
+              <li key={reason.title}>
+                <h3>{reason.title}</h3>
+                <p>{reason.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="shell home-board" aria-labelledby="home-built">
         <div className="section-heading">
-          <span>{text.boundaryKicker}</span>
-          <h2>{text.boundaryHeading}</h2>
+          <span>{text.boardKicker}</span>
+          <h2 id="home-built">{text.boardHeading}</h2>
         </div>
-        <div className="role-grid">
-          {text.roles.map((role) => (
-            <article className="role-card" key={role.step}>
-              <span className="role-step">{role.step}</span>
-              <h3>{role.title}</h3>
-              <p>{role.text}</p>
-            </article>
-          ))}
+        <div className="home-board-columns">
+          <div>
+            <h3 className="home-board-label" data-status="implemented">
+              {text.runsToday}
+            </h3>
+            <ul className="home-board-list">
+              <li data-status="implemented">
+                <h4>{text.comparisonTitle}</h4>
+                <p>
+                  {text.comparison(evaluation.candidates, evaluation.runDate)}
+                </p>
+                <Link href="/evals">{text.comparisonLink}</Link>
+              </li>
+              <li data-status="implemented">
+                <h4>{text.probes.title}</h4>
+                <p>{text.probes.text}</p>
+                <Link href="/evals?view=failures">{text.probesLink}</Link>
+              </li>
+              <li data-status="implemented">
+                <h4>{text.failureLogTitle}</h4>
+                <p>{text.failureLog(FAILURE_LOG_ENTRIES.length)}</p>
+                <a href={failureLog}>{text.failureLogLink}</a>
+              </li>
+              <li data-status="implemented">
+                <h4>{text.guided.title}</h4>
+                <p>{text.guided.text}</p>
+                <Link href="/replay?mode=guided">{text.guidedLink}</Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="home-board-label" data-status="planned">
+              {text.planned}
+            </h3>
+            <ul className="home-board-list">
+              {text.plannedItems.map((item) => (
+                <li data-status="planned" key={item.title}>
+                  <h4>{item.title}</h4>
+                  <p>{item.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </section>
-
-      <section className="shell question-panel">
-        <div>
-          <span className="kicker">{text.applicationKicker}</span>
-          <h2>{text.question}</h2>
-        </div>
-        <div className="result-stack" aria-label={text.resultLabel}>
-          <span>SUPPORTED</span>
-          <span>NOT_SUPPORTED</span>
-          <span>INCONCLUSIVE</span>
-          <span className="review-state">{text.reviewState}</span>
-        </div>
-        <p>
-          {text.disclaimer} <Link href="/why">{text.gateLinkText}</Link>
-          {text.disclaimerTail}
+        <p className="home-boundary">
+          {text.boundary} <Link href="/why">{text.gateLinkText}</Link>
+          {text.boundaryTail}
         </p>
       </section>
     </main>

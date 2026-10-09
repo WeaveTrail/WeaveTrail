@@ -184,3 +184,16 @@ test("loads nothing from outside the site", async ({ page, baseURL }) => {
   }
   expect(foreign).toEqual([]);
 });
+
+test("folds the engine checks under one summary that opens by keyboard", async ({
+  page,
+}) => {
+  await open(page, "en");
+  const rows = page.locator(".ledger .eval-row");
+  await expect(rows.first()).toBeHidden();
+  const summary = page.locator(".ledger > summary");
+  await expect(summary).toContainText(/\d+ implemented · \d+ planned/);
+  await summary.focus();
+  await page.keyboard.press("Enter");
+  await expect(rows.first()).toBeVisible();
+});

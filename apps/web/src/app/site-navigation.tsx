@@ -17,6 +17,7 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
       "Start here",
       [
         ["Home", "/"],
+        ["Model comparison", "/evals"],
         ["Walk through a case", "/replay"],
       ],
     ],
@@ -28,7 +29,6 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
         ["Methodology", "/methodology"],
         ["Data handling", "/data-handling"],
         ["Expected results", "/expectations"],
-        ["Evals", "/evals"],
       ],
     ],
   ],
@@ -37,6 +37,7 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
       "여기서 시작",
       [
         ["홈", "/"],
+        ["모델 비교", "/evals"],
         ["사례 따라가기", "/replay"],
       ],
     ],
@@ -48,7 +49,6 @@ export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
         ["방법론", "/methodology"],
         ["데이터 처리", "/data-handling"],
         ["기대 결과", "/expectations"],
-        ["평가", "/evals"],
       ],
     ],
   ],

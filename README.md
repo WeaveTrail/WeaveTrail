@@ -202,7 +202,8 @@ no result until its evaluation is published.
   the pre-declared thresholds; its comparison and `NO_MODEL` decision are
   committed and documented in the evaluation protocol. Both web pages are bound
   to the recovery session, so they show no selection and the home page shows
-  no numbers. Any changed configuration needs another fresh held-out set and a
+  no accuracy figures; beside the answer it draws the four control-line stages
+  and lists what runs today apart from what is planned. Any changed configuration needs another fresh held-out set and a
   decision record before the run. Each finding's evidence traces back through
   the approved mapping, line by line, to the committed source value. Planned:
   the guided replay grouped under propose, approve, verify and trace.
