@@ -73,6 +73,9 @@ An emergency production hotfix is an explicit exception to the normal release
 path. Create its branch from the current `origin/main` and open it into `main`
 so unreleased `develop` changes are not included. After the hotfix reaches
 production, carry the same change into `develop` before the next release.
+After a [rollback](#rollback), `main` still holds the failed release and
+production no longer follows `main`. The hotfix then reaches production only
+through the steps in [hotfix after a rollback](#hotfix-after-a-rollback).
 
 ### Versions and release tags
 
@@ -433,8 +436,10 @@ To roll back without rewriting Git history:
 
 1. Open the Vercel project and select the previous known-good production
    deployment whose Git SHA matches the recorded revision.
-2. Use the deployment's rollback action to restore it as production.
-3. Confirm the production alias points to that immutable deployment URL.
+2. Use its **Instant Rollback** action to restore it as production. On the
+   Hobby plan only the immediately previous production deployment is eligible.
+3. Confirm the production alias points to that immutable deployment URL and
+   that the production deployment tile shows the project as rolled back.
 4. Repeat the eight-route fresh-browser smoke check, both Case Replay checks,
    and the withdrawn endpoint HTTP `404` checks.
 5. Record the restored SHA, immutable deployment URL, time, check results, and
@@ -443,3 +448,46 @@ To roll back without rewriting Git history:
 If no prior known-good production deployment exists, do not claim rollback was
 tested. Disable external sharing of the failed first deployment, correct the
 problem on a new reviewed commit, and promote only after the full gate passes.
+
+### Hotfix after a rollback
+
+A rollback does not change `main`: it still points at the failed commit. It
+does stop production from following `main`. After an Instant Rollback, Vercel
+turns off automatic assignment of the production domains, so a later push to
+`main` builds a production deployment that is not served. The domains move
+again only when a deployment is promoted. The project fixes forward on `main`
+while the restored deployment keeps serving production, and promotes the fix
+only after it passes the gate
+([ADR 0072](adr/0072-fix-forward-on-main-while-the-rollback-holds-production.md)).
+From the rollback until step 5 completes, `main` is frozen to the recovery
+hotfix: no `develop`-to-`main` promotion or other pull request merges into
+`main`, so the hotfix release contains only the failed release and its fix.
+
+1. Branch the hotfix from the current `origin/main`, which still holds the
+   failed release, and open it into `main`. The change is a forward fix or a
+   revert of the failing pull request's own commits. Never revert the
+   promotion merge itself: the next `develop` promotion would then silently
+   omit the reverted changes.
+2. Merge the hotfix. Production still serves the restored deployment. The
+   merge commit's new deployment exists only at its immutable URL.
+3. Run the whole [promotion gate](#promotion-gate) on that merge commit and
+   its immutable deployment URL. The gate's check that the stable production
+   origin points at the same deployment waits until step 4.
+4. Promote exactly that gated deployment with **Undo Rollback** on the
+   production deployment tile, or with `vercel promote <immutable URL>`. Do not
+   pick the newest deployment by default; the failed deployment is also
+   eligible. Promotion moves the production domains to it and turns automatic
+   assignment back on, so production follows `main` again from here.
+5. Confirm the stable production origin points at the promoted immutable URL
+   and the tile no longer shows a rollback. Then complete every release step in
+   [versions and release tags](#versions-and-release-tags) on that commit: tag
+   it, publish its GitHub release and close its milestone. If the failed
+   release was already tagged, the commit takes the next patch version in a
+   milestone of its own; if the gate failed before any tag existed, it keeps
+   the planned version and milestone. Carry the change into `develop`, as for
+   any hotfix.
+
+After step 4, production serves the hotfix commit: the failed release plus the
+hotfix change. The next ordinary `develop` promotion may merge only after
+step 5, and it ships its own milestone through the usual gate. Neither rollback
+nor this hotfix path has been exercised.
