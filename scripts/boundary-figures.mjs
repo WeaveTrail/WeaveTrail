@@ -38,12 +38,14 @@ export const BOUNDARY_FIGURES = [
       ko: "안내 단계가 보여 주는 것과 완료 조건",
     },
     lines: [
-      "guided step rail    position · title · imperative · unmet condition · the one advancing control",
-      "                    then, in its own scroll region: why · authority · step list",
+      "stages              AI proposes → a person approves → code verifies → evidence traces back",
+      "guided step rail    position · title · imperative · stage · unmet condition · the one advancing control",
+      "                    then, in its own scroll region: why · authority · step list grouped by stage",
       "                    below the rail breakpoint: action block fixed to the viewport bottom",
       "completion          explicit mapping and case approvals → REPLAYED with evaluation and",
-      "                    sourceTrace → open a finding's disclosure → repeat the same approved case",
-      "                    → string equality between the baseline hash and the later hash",
+      "                    sourceTrace → repeat the same approved case → string equality between",
+      "                    the baseline hash and the later hash → open a finding's disclosure",
+      "                    → separate example approved with every reviewer reason → hand-off",
     ],
   },
   {
