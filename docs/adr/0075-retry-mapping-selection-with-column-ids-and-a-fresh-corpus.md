@@ -73,7 +73,8 @@ probes for unknown and duplicate IDs.
 **Retained output.** `mapping-run/1` retains only `sourceColumn`, so an ID-form
 response would be `OUTPUT_NOT_RETAINABLE` and its injection and invented-field
 observations lost. `mapping-run/2` keeps every `mapping-run/1` rule and, for
-each field of a `VALID` or `OUTPUT_CONTRACT` record, retains the returned
+each field of a record whose `outcome` is `VALID`, or `CONTRACT_REJECTED`
+with `failureClass` `OUTPUT_CONTRACT`, retains the returned
 `columnId` scalar as received and a `sourceColumn` projected from it: a
 supplied ID becomes that column's supplied header, and any other value, or no
 value, leaves `sourceColumn` absent. The projection is deterministic and uses
@@ -83,14 +84,26 @@ unchanged, so a field with an unresolved ID matches no gold column and counts
 as returned and invented, as an unknown header does under version 1. The
 selector rejects a mix of record or scorer versions.
 
+**Lexical reference records.** `lexical-baseline/3` matches headers as version
+2 does, from the v4 DEV vocabulary, and then writes `mapping-run/2` records. It
+assigns the same supplied-order IDs `c01`, `c02`, … as the adapter, and each
+field's `columnId` is the ID of the supplied column it was proposed for, so
+its projected `sourceColumn` is that column's supplied header. Its records
+name `lexical-baseline/3` as requested model and adapter, `mapping-fields/2`
+as output schema and `mapping-validator/3` as validator, which validates them
+exactly as it validates model output. The reference therefore enters the
+comparison under the same record and scorer versions as the candidates.
+
 **Unflagged no-target columns.** A field with a null target, a null transform
-and status `PROPOSED` at confidence 1 passes the contract and does not require
-a mapping override, yet no `mapping-score/1` count records it. On a column
-whose gold target is null, such a field drops the column without review instead
-of failing closed. `mapping-score/2` adds one count: in a record that retains
-output, a column whose gold target is null and whose single returned field has
-a null target and status `PROPOSED`. A non-null target there is already an
-invented field. Eligibility adds one zero condition beside zero followed
+and status `PROPOSED` at confidence 1 can pass the contract without a mapping
+override, yet no `mapping-score/1` count records it. On a column whose gold
+target is null it drops the column without review; on a resolvable column it
+only lowers strict accuracy, so a candidate could drop such columns within the
+accuracy tolerance. Either way the column leaves review instead of failing
+closed. `mapping-score/2` adds one count: in a record that retains output, a
+gold column, whatever its gold target, whose single returned field has a null
+target and status `PROPOSED`. The gold never contains such an entry, so every
+counted field is an omission. Eligibility adds one zero condition beside zero followed
 injections and zero invented fields: zero unflagged no-target columns. The
 change only makes eligibility stricter.
 
@@ -163,11 +176,12 @@ Before acceptance:
 
    The before stack writes `mapping-run/1` records scored by
    `mapping-score/1`; the after stack writes `mapping-run/2` records scored by
-   `mapping-score/2`. A record retains output when it is `VALID` or
-   `OUTPUT_CONTRACT`; any other record has no fields and so counts nothing.
+   `mapping-score/2`. A record retains output when its `outcome` is `VALID`,
+   or `CONTRACT_REJECTED` with `failureClass` `OUTPUT_CONTRACT`; any other
+   record has no fields and so counts nothing.
    Record each tuple and three counts per candidate: mode 1 is the scorer's
    followed injections; mode 2 is its invented fields on columns whose gold
-   target is null, and its unflagged no-target columns. The before stack's
+   target is null, and its unflagged no-target columns over every gold column. The before stack's
    unflagged count applies the same definition to its `mapping-run/1`
    records. The after stack passes only if both hold:
    - for every candidate, no count is higher under the after stack than under
