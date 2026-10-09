@@ -284,6 +284,17 @@
   font: var(--type-small);
   color: var(--text-muted);
 }
+.eval-tests {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font: var(--type-small);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+.eval-tests ul {
+  padding-inline-start: var(--space-4);
+}
 
 @media (max-width: 40rem) {
   .eval-row {

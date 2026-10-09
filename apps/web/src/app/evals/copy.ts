@@ -10,6 +10,8 @@ interface LedgerCopy {
   readonly lede: string;
   readonly history: string;
   readonly protocolLink: string;
+  /** Names the list of committed tests under an implemented check. */
+  readonly testsLabel: string;
   readonly status: Readonly<Record<"Implemented" | "Planned", string>>;
   /** Each check's name and what it holds, as a reader meets them. */
   readonly checks: Readonly<
@@ -32,6 +34,7 @@ export const ledgerCopy: Bilingual<LedgerCopy> = {
       "The current evaluation uses synthetic cases only. Earlier published-data evaluations are historical captures with withdrawn sources.",
     protocolLink:
       "Evaluation cases, reproduction command, environment and raw results",
+    testsLabel: "Committed tests",
     status: { Implemented: "Implemented", Planned: "Planned" },
     checks: {
       "Row-order invariance": [
@@ -120,6 +123,7 @@ export const ledgerCopy: Bilingual<LedgerCopy> = {
     history:
       "현재 평가는 합성 사례만 사용합니다. 이전 공개자료 평가는 출처가 철회된 과거 캡처입니다.",
     protocolLink: "평가 정의, 재현 명령, 실행 환경과 원시 결과",
+    testsLabel: "커밋된 테스트",
     status: { Implemented: "구현됨", Planned: "계획" },
     checks: {
       "Row-order invariance": [

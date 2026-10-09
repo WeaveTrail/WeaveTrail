@@ -61,7 +61,27 @@ export function EvalsContent({
                   {text.status[check.status]}
                 </span>
                 <h2>{name}</h2>
-                <p>{detail}</p>
+                <div>
+                  <p>{detail}</p>
+                  {check.status === "Implemented" ? (
+                    <ul className="eval-tests" aria-label={text.testsLabel}>
+                      {check.evidence.map(({ file, titles }) => (
+                        <li key={file}>
+                          <a
+                            href={`https://github.com/WeaveTrail/WeaveTrail/blob/develop/${file}`}
+                          >
+                            <code>{file}</code>
+                          </a>
+                          <ul>
+                            {titles.map((title) => (
+                              <li key={title}>{title}</li>
+                            ))}
+                          </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
               </article>
             );
           })}

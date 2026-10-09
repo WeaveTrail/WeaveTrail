@@ -1,9 +1,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { checks } from "./checks";
+import { EvalsContent } from "./evals-content";
 
 describe("public evaluation ledger", () => {
   it("uses published-schema classification evidence instead of regression placeholders", () => {
@@ -48,6 +51,24 @@ describe("public evaluation ledger", () => {
         for (const title of evidence.titles) {
           expect(source, `${check.name}: ${title}`).toContain(title);
         }
+      }
+    }
+  });
+
+  it("shows every implemented row's committed tests on the page", () => {
+    const markup = renderToStaticMarkup(
+      createElement(EvalsContent, { checks, heldOut: null }),
+    );
+    for (const check of checks) {
+      if (check.status !== "Implemented") continue;
+      for (const { file, titles } of check.evidence) {
+        expect(markup, check.name).toContain(
+          `href="https://github.com/WeaveTrail/WeaveTrail/blob/develop/${file}"`,
+        );
+        for (const title of titles)
+          expect(markup, `${check.name}: ${title}`).toContain(
+            renderToStaticMarkup(createElement("li", null, title)),
+          );
       }
     }
   });
