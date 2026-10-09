@@ -118,7 +118,8 @@ requests a retarget. An explicitly authorized emergency hotfix is the
 exception: create it from an up-to-date `origin/main`, target `main`, and carry
 the merged fix back into `develop` before ordinary development continues.
 After a production rollback, that `origin/main` still holds the failed release
-and its merge is not served; follow
+and its merge is not served, and `main` takes no other merge, an ordinary
+promotion included, until that hotfix is promoted; follow
 [hotfix after a rollback](docs/DEPLOYMENT.md#hotfix-after-a-rollback) to fix
 forward and promote the gated deployment, and never revert the promotion merge.
 

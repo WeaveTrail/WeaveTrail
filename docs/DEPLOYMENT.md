@@ -458,7 +458,10 @@ turns off automatic assignment of the production domains, so a later push to
 again only when a deployment is promoted. The project fixes forward on `main`
 while the restored deployment keeps serving production, and promotes the fix
 only after it passes the gate
-([ADR 0072](adr/0072-fix-forward-on-main-while-the-rollback-holds-production.md)):
+([ADR 0072](adr/0072-fix-forward-on-main-while-the-rollback-holds-production.md)).
+From the rollback until step 5 completes, `main` is frozen to the recovery
+hotfix: no `develop`-to-`main` promotion or other pull request merges into
+`main`, so the hotfix release contains only the failed release and its fix.
 
 1. Branch the hotfix from the current `origin/main`, which still holds the
    failed release, and open it into `main`. The change is a forward fix or a
@@ -480,6 +483,6 @@ only after it passes the gate
    patch version and carry the change into `develop`, as for any hotfix.
 
 After step 4, production serves the hotfix commit: the failed release plus the
-hotfix change. Before step 4, nothing merged into `main` reaches production,
-including an ordinary `develop` promotion. Neither rollback nor this hotfix
-path has been exercised.
+hotfix change. The next ordinary `develop` promotion may merge only after
+step 5, and it ships its own milestone through the usual gate. Neither rollback
+nor this hotfix path has been exercised.

@@ -51,9 +51,12 @@ Use the second sequence.
   change. It takes the next patch version, under the existing
   [version rules](../DEPLOYMENT.md#versions-and-release-tags), and the change
   is carried into `develop` as for any hotfix.
-- Until that promotion, nothing merged into `main` reaches production, an
-  ordinary `develop` promotion included. Only a deployment that has passed the
-  gate is promoted.
+- From the rollback until the hotfix is promoted, tagged and carried into
+  `develop`, `main` is frozen to the recovery hotfix. No `develop`-to-`main`
+  promotion merges in that window; otherwise the hotfix would ship that
+  release's changes under a patch version and milestone, while the release
+  range would treat the `develop` promotion as already shipped. Only a
+  deployment that has passed the gate is promoted.
 
 ## Consequences
 
@@ -63,6 +66,7 @@ deployment. In exchange, the gate becomes a manual promotion step: whoever
 promotes must pick the gated deployment by its immutable URL rather than the
 latest one, because Vercel offers every eligible deployment, including the
 failed one. If the failed release can't be repaired quickly, production keeps
-serving the restored deployment until a gated fix exists. Rollback has still
+serving the restored deployment until a gated fix exists, and ordinary
+promotions wait for the same period. Rollback has still
 not been exercised, so this records the documented path and Vercel's stated
 behavior, not an observed recovery.
