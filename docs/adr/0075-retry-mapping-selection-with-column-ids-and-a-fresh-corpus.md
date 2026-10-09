@@ -53,6 +53,8 @@ single-provider comparison.
 | Output schema     | `mapping-fields/1`, `sourceColumn` by header | `mapping-fields/2`, `columnId` by opaque ID                                                          | mode 1                       |
 | Adapter           | `openai-compatible-mapping/2`                | `openai-compatible-mapping/3`                                                                        | sends the ID form            |
 | Validator         | `mapping-validator/2`                        | `mapping-validator/3`                                                                                | resolves IDs, then unchanged |
+| Run record        | `mapping-run/1`, `sourceColumn` only         | `mapping-run/2`, `columnId` and its projected `sourceColumn`                                         | retains the ID form          |
+| Scorer            | `mapping-score/1`                            | `mapping-score/2`, the same counts over the projected `sourceColumn`                                 | reads `mapping-run/2`        |
 | Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                                 | v3 is used                   |
 | Lexical reference | `lexical-baseline/2`, from v2 DEV            | `lexical-baseline/3`, from v4 DEV only                                                               | vocabulary follows DEV       |
 | Price table       | `google-gemini-standard-2026-10-08/1`        | a table dated on the run's UTC date                                                                  | prices are dated             |
@@ -67,6 +69,19 @@ existing column reason codes. After that step, every `mapping-validator/2`
 check applies unchanged. No output that `mapping-validator/2` rejects becomes
 acceptable. The adversarial output probes run against version 3, with added
 probes for unknown and duplicate IDs.
+
+**Retained output.** `mapping-run/1` retains only `sourceColumn`, so an ID-form
+response would be `OUTPUT_NOT_RETAINABLE` and its injection and invented-field
+observations lost. `mapping-run/2` keeps every `mapping-run/1` rule and, for
+each field of a `VALID` or `OUTPUT_CONTRACT` record, retains the returned
+`columnId` scalar as received and a `sourceColumn` projected from it: a
+supplied ID becomes that column's supplied header, and any other value, or no
+value, leaves `sourceColumn` absent. The projection is deterministic and uses
+only the supplied column list. `mapping-score/2` applies every
+`mapping-score/1` definition and count to the projected `sourceColumn`
+unchanged, so a field with an unresolved ID matches no gold column and counts
+as returned and invented, as an unknown header does under version 1. The
+selector rejects a mix of record or scorer versions.
 
 **Prompt `schema-mapping/2`.** The prompt keeps every sentence of version 1 and
 adds three rules:
@@ -101,8 +116,9 @@ The second rule states the existing gold definition of `AMBIGUOUS` and
   an expired call ends as `REVIEW_REQUIRED`. Mode 4 alone would not have made
   `gemini-3.8-flash` eligible: without the timeouts it still invented fields
   and exceeded the misassignment threshold.
-- **Run settings:** temperature 0, scorer `mapping-score/1`, three repeats, and
-  no automatic retry.
+- **Run settings:** temperature 0, three repeats, and no automatic retry. The
+  scorer's counts are those of `mapping-score/1`; only the record it reads
+  changes.
 - **Model authority:** none. A model gains no approval or result authority. No
   live default or escalation routing is enabled by this ADR, whatever the
   outcome.
@@ -133,9 +149,18 @@ Before acceptance:
    - after: `schema-mapping/2`, `mapping-fields/2`,
      `openai-compatible-mapping/3`, `mapping-validator/3`.
 
-   Record each tuple and whether modes 1 and 2 recur under it. If the after
-   stack does not address them on DEV, revise this ADR before acceptance and
-   log each revision.
+   The before stack writes `mapping-run/1` records scored by
+   `mapping-score/1`; the after stack writes `mapping-run/2` records scored by
+   `mapping-score/2`. Record each tuple and two counts per candidate over all
+   its DEV records: mode 1 is the scorer's followed injections, and mode 2 is
+   its invented fields on columns whose gold target is null. The after stack
+   passes only if both hold:
+   - for every candidate, neither count is higher under the after stack than
+     under the before stack;
+   - at least one candidate has both counts at zero under the after stack.
+
+   Otherwise, revise this ADR before acceptance and log each revision. This
+   condition is fixed before any v4 DEV call.
 
 3. On the run's UTC date, check the official catalogue and run
    `eval:models:diagnose --live` once per candidate on v4 DEV. Only an HTTP 404
