@@ -1774,7 +1774,8 @@ details.step-action > summary {
 }
 .step-why > summary,
 .rail-steps > summary {
-  min-height: var(--control-height-sm);
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
   display: list-item;
   cursor: pointer;
   font: var(--type-small);

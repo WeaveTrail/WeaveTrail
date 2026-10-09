@@ -221,6 +221,16 @@ test("keeps the mode links at the 40px control height", async ({ page }) => {
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(40);
 });
 
+test("keeps the step disclosures at the 40px control height", async ({
+  page,
+}) => {
+  await open(page, "en");
+  const summaries = page.locator(".step-why > summary, .rail-steps > summary");
+  await expect(summaries).toHaveCount(2);
+  for (const summary of await summaries.all())
+    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});
+
 test("does not satisfy the evidence step by printing", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await open(page, "en");
