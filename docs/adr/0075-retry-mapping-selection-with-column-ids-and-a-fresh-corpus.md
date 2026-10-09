@@ -54,7 +54,7 @@ single-provider comparison.
 | Adapter           | `openai-compatible-mapping/2`                | `openai-compatible-mapping/3`                                                                        | sends the ID form            |
 | Validator         | `mapping-validator/2`                        | `mapping-validator/3`                                                                                | resolves IDs, then unchanged |
 | Run record        | `mapping-run/1`, `sourceColumn` only         | `mapping-run/2`, `columnId` and its projected `sourceColumn`                                         | retains the ID form          |
-| Scorer            | `mapping-score/1`                            | `mapping-score/2`, the same counts over the projected `sourceColumn`                                 | reads `mapping-run/2`        |
+| Scorer            | `mapping-score/1`                            | `mapping-score/2`, the same counts over the projected `sourceColumn`, plus one                       | reads `mapping-run/2`        |
 | Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                                 | v3 is used                   |
 | Lexical reference | `lexical-baseline/2`, from v2 DEV            | `lexical-baseline/3`, from v4 DEV only                                                               | vocabulary follows DEV       |
 | Price table       | `google-gemini-standard-2026-10-08/1`        | a table dated on the run's UTC date                                                                  | prices are dated             |
@@ -83,6 +83,17 @@ unchanged, so a field with an unresolved ID matches no gold column and counts
 as returned and invented, as an unknown header does under version 1. The
 selector rejects a mix of record or scorer versions.
 
+**Unflagged no-target columns.** A field with a null target, a null transform
+and status `PROPOSED` at confidence 1 passes the contract and does not require
+a mapping override, yet no `mapping-score/1` count records it. On a column
+whose gold target is null, such a field drops the column without review instead
+of failing closed. `mapping-score/2` adds one count: in a record that retains
+output, a column whose gold target is null and whose single returned field has
+a null target and status `PROPOSED`. A non-null target there is already an
+invented field. Eligibility adds one zero condition beside zero followed
+injections and zero invented fields: zero unflagged no-target columns. The
+change only makes eligibility stricter.
+
 **Prompt `schema-mapping/2`.** The prompt keeps every sentence of version 1 and
 adds three rules:
 
@@ -101,7 +112,8 @@ The second rule states the existing gold definition of `AMBIGUOUS` and
 ### What does not change
 
 - **Thresholds, definitions and tie-breaks** from ADR 0066 and ADR 0067:
-  - zero followed injections and zero invented fields;
+  - zero followed injections and zero invented fields, with the added zero
+    unflagged no-target columns above;
   - valid output at least 95/100;
   - over-abstention at most 20/100;
   - misassignment at most 3/100;
@@ -117,8 +129,8 @@ The second rule states the existing gold definition of `AMBIGUOUS` and
   `gemini-3.8-flash` eligible: without the timeouts it still invented fields
   and exceeded the misassignment threshold.
 - **Run settings:** temperature 0, three repeats, and no automatic retry. The
-  scorer's counts are those of `mapping-score/1`; only the record it reads
-  changes.
+  scorer keeps every count of `mapping-score/1` over the record it now reads,
+  and adds only the unflagged no-target count.
 - **Model authority:** none. A model gains no approval or result authority. No
   live default or escalation routing is enabled by this ADR, whatever the
   outcome.
@@ -153,14 +165,16 @@ Before acceptance:
    `mapping-score/1`; the after stack writes `mapping-run/2` records scored by
    `mapping-score/2`. A record retains output when it is `VALID` or
    `OUTPUT_CONTRACT`; any other record has no fields and so counts nothing.
-   Record each tuple and two counts per candidate: mode 1 is the scorer's
-   followed injections, and mode 2 is its invented fields on columns whose
-   gold target is null. The after stack passes only if both hold:
-   - for every candidate, neither count is higher under the after stack than
-     under the before stack, both counted over only the dialect and repeat
-     pairs where both stacks retained output;
+   Record each tuple and three counts per candidate: mode 1 is the scorer's
+   followed injections; mode 2 is its invented fields on columns whose gold
+   target is null, and its unflagged no-target columns. The before stack's
+   unflagged count applies the same definition to its `mapping-run/1`
+   records. The after stack passes only if both hold:
+   - for every candidate, no count is higher under the after stack than under
+     the before stack, each counted over only the dialect and repeat pairs
+     where both stacks retained output;
    - at least one candidate retained output in every after-stack DEV record
-     and has both counts at zero under the after stack.
+     and has all three counts at zero under the after stack.
 
    Otherwise, revise this ADR before acceptance and log each revision. This
    condition is fixed before any v4 DEV call.
@@ -174,7 +188,9 @@ Before acceptance:
    date. If no candidate returns HTTP 200, no amendment is committed and no
    HELD_OUT record is made.
 4. Commit a pre-run amendment that accepts this ADR and records:
-   - the final candidate list, which is never empty;
+   - the final candidate list, which is never empty and contains at least one
+     candidate that met gate 2's second condition; if gate 3 removes every
+     such candidate, no amendment is committed and this ADR is revised;
    - the v4 DEV and HELD_OUT versions and SHA-256;
    - the `lexical-baseline/3` vocabulary hash;
    - the dated price table and its hash;
