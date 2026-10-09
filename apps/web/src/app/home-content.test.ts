@@ -37,7 +37,7 @@ describe("home page", () => {
     const planned = markup.indexOf('data-status="planned"');
     expect(planned).toBeGreaterThan(-1);
     for (const item of homeCopy.en.plannedItems)
-      expect(markup.indexOf(item.title)).toBeGreaterThan(planned);
+      expect(markup.indexOf(item)).toBeGreaterThan(planned);
   });
 
   it("keeps the retired framing and replay wording off the home page", () => {

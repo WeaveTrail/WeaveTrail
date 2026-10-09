@@ -563,8 +563,8 @@ export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
         </ul>
         <p>
           {t(
-            `These ${kind} source records are fixed. Values below are the original strings, before mapping, shown in committed order.`,
-            "이 원본 기록은 고정되어 있습니다. 아래 값은 항목을 연결하기 전의 원본 그대로이며, 커밋된 순서대로 보입니다.",
+            `The ${kind} source as committed: original strings, before any mapping.`,
+            "커밋된 원본 그대로입니다. 항목을 연결하기 전의 값입니다.",
           )}
         </p>
       </div>

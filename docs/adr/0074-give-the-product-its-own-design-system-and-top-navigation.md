@@ -44,6 +44,12 @@ visitor comes to do from how the system works.
   `Expected results`, `Data handling`, each with a one-line description) and the
   language switch. Below the tablet width, one `Menu` button opens every
   destination. Escape closes the menu and returns focus to the button.
+- Each block on an entry screen is a title and at most one short line, and
+  every detail is one link or disclosure away. On the home page the four stages
+  carry one line each, the reasons one sentence each, and the build board one
+  linked row per capability with its single fact (count, date or duration).
+  Planned capabilities are titles only. The walkthrough heading is one sentence
+  with two facts, and the mode switch gives each mode one line.
 - The first walkthrough step shows the committed source as one table: a summary
   line (artifact, rows, columns, kind), then every row with its original
   strings. Provenance and the artifact hash sit in one disclosure below the

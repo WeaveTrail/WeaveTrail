@@ -70,7 +70,7 @@ const ANSWER_EN: AnswerCopy = {
   validOutput: "Answers the validator could read",
   runDate: (date) => `Run on ${date}`,
   control:
-    "What stops wrong output: a [[validator|validator]] checks every proposal against a fixed contract, a person approves it before [[versionedCode|versioned code]] computes anything, and a rejected or unclear proposal stops at [[reviewRequired|REVIEW_REQUIRED]].",
+    "Wrong output stops at the [[validator|validator]] or at [[reviewRequired|REVIEW_REQUIRED]]. Only [[versionedCode|versioned code]] computes a result, after a person approves.",
   seeComparison: "See the model comparison",
   walkThrough: "Walk through a case",
   close: "Close",
@@ -131,7 +131,7 @@ const ANSWER_KO: AnswerCopy = {
   validOutput: "검증기가 읽을 수 있는 답의 비율",
   runDate: (date) => `${date} 실행`,
   control:
-    "잘못된 출력을 막는 장치: [[validator|검증기]]가 모든 제안을 정해진 계약으로 검사하고, 사람이 승인한 뒤에야 [[versionedCode|버전이 고정된 코드]]가 계산하며, 거절되거나 모호한 제안은 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다.",
+    "잘못된 출력은 [[validator|검증기]]나 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다. 결과는 사람이 승인한 뒤 [[versionedCode|버전이 고정된 코드]]만 계산합니다.",
   seeComparison: "모델 비교 보기",
   walkThrough: "사례 따라가기",
   close: "닫기",
@@ -171,22 +171,6 @@ const ANSWER_KO: AnswerCopy = {
   },
 };
 
-interface Stage {
-  /** Who acts in this stage, said in words so it never rests on colour. */
-  readonly actor: string;
-  readonly text: string;
-}
-
-interface Reason {
-  readonly title: string;
-  readonly text: string;
-}
-
-interface BoardItem {
-  readonly title: string;
-  readonly text: string;
-}
-
 /** The evaluation facts the "runs today" board cites, read on the server. */
 export interface HomeEvaluation {
   readonly candidates: number;
@@ -196,205 +180,134 @@ export interface HomeEvaluation {
 interface HomeCopy {
   readonly answer: AnswerCopy;
   readonly flowLabel: string;
-  readonly flowTitle: string;
-  readonly stages: Readonly<Record<GuideStage, Stage>>;
+  /** One short line per stage; the stage name already says who acts. */
+  readonly stages: Readonly<Record<GuideStage, string>>;
   readonly flowStop: { readonly state: string; readonly text: string };
   readonly whyKicker: string;
   readonly whyHeading: string;
-  readonly reasons: readonly Reason[];
+  readonly reasons: readonly (readonly [title: string, text: string])[];
   readonly boardKicker: string;
-  readonly boardHeading: string;
   readonly runsToday: string;
   readonly planned: string;
-  readonly comparison: (candidates: number, runDate: string | null) => string;
   readonly comparisonTitle: string;
-  readonly comparisonLink: string;
-  readonly probes: BoardItem;
-  readonly probesLink: string;
-  readonly failureLog: (entries: number) => string;
+  readonly comparison: (candidates: number, runDate: string | null) => string;
+  readonly probesTitle: string;
+  readonly probes: string;
   readonly failureLogTitle: string;
-  readonly failureLogLink: string;
-  readonly guided: BoardItem;
-  readonly guidedLink: string;
-  readonly plannedItems: readonly BoardItem[];
+  readonly failureLog: (entries: number) => string;
+  readonly guidedTitle: string;
+  readonly guided: string;
+  readonly plannedItems: readonly string[];
   readonly boundary: string;
   readonly gateLinkText: string;
-  readonly boundaryTail: string;
 }
 
 /**
- * Voice copy — the headline, the section headings and the calls to action —
- * is written in each language rather than translated from the other. The
- * explanatory prose beneath it says the same things in both, with the same
- * scope and the same hedging. Stage names come from the guided walkthrough,
- * so the home page and Case Replay never name a stage differently.
+ * Voice copy is written in each language rather than translated. Each block
+ * is a title and at most one short line: the first screen answers, the rest
+ * says why and what exists, and every detail is one link away. Stage names
+ * come from the guided walkthrough, so the two never name a stage differently.
  */
 export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   en: {
     answer: ANSWER_EN,
-    flowLabel: "How a proposal reaches a result",
-    flowTitle: "From proposal to evidence",
+    flowLabel: "From proposal to evidence",
     stages: {
-      propose: {
-        actor: "Model",
-        text: "Says which field each column of an unfamiliar file holds. The validator rejects anything outside the contract.",
-      },
-      approve: {
-        actor: "Person",
-        text: "Nothing goes further until a person approves that exact proposal.",
-      },
-      verify: {
-        actor: "Versioned code",
-        text: "Runs the approved input and returns SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, with the same hash every time.",
-      },
-      trace: {
-        actor: "Source rows",
-        text: "Every finding opens down to its source row and that row's hash.",
-      },
+      propose: "Suggests what each column holds",
+      approve: "Nothing runs until approved",
+      verify: "SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, the same every time",
+      trace: "Every finding opens to its source row",
     },
     flowStop: {
       state: "REVIEW_REQUIRED · pre-replay",
-      text: "A rejected or unclear proposal stops here, before anything runs, for a person to look at. It is a review need, never a result.",
+      text: "Rejected or unclear: a person checks it before anything runs. Never a result.",
     },
     whyKicker: "Why it is needed",
     whyHeading: "A model reads the data. It never decides the result.",
     reasons: [
-      {
-        title: "Every file names its columns differently",
-        text: "Is amt a quantity or an amount? Link one column wrongly and the whole result changes.",
-      },
-      {
-        title: "A model can be wrong quietly",
-        text: "It can link a column that is not there, or follow an instruction written inside a cell. Those failures are measured, not assumed away.",
-      },
-      {
-        title: "So each model is measured and fenced in",
-        text: "Candidates are compared on a sealed set beside a non-model baseline, chosen only by a rule fixed before the run, and kept behind a validator and a person.",
-      },
+      [
+        "Every file names columns differently",
+        "Is amt a quantity or an amount? One wrong link changes the result.",
+      ],
+      [
+        "A model can be quietly wrong",
+        "It can invent a column or obey text hidden in a cell.",
+      ],
+      [
+        "So models are measured and fenced in",
+        "Chosen by a rule fixed before the run, kept behind a validator and a person.",
+      ],
     ],
     boardKicker: "What is built",
-    boardHeading: "What runs today, and what is planned",
     runsToday: "Runs today",
     planned: "Planned",
-    comparisonTitle: "Model comparison on the held-out set",
+    comparisonTitle: "Model comparison",
     comparison: (candidates, runDate) =>
-      `${candidates} candidate models and a non-model baseline, scored by the same scorer${runDate ? `, run on ${runDate}` : ""}.`,
-    comparisonLink: "See the model comparison",
-    probes: {
-      title: "Validator tested with hostile output",
-      text: "Invented columns, broken JSON and unknown conversions are written on purpose; every pull request checks that the validator rejects each one.",
-    },
-    probesLink: "See how models fail",
+      `${candidates} models + a non-model baseline${runDate ? ` · ${runDate}` : ""}`,
+    probesTitle: "Validator under hostile output",
+    probes: "Checked on every pull request",
     failureLogTitle: "AI failure log",
-    failureLog: (entries) =>
-      `${entries} entries so far, each with the assumption, the counterexample and what was done about it.`,
-    failureLogLink: "Read the failure log",
-    guided: {
-      title: "One case, start to finish",
-      text: "A synthetic case walked through the four stages, from the AI proposal to the source row.",
-    },
-    guidedLink: "Walk through a case",
+    failureLog: (entries) => `${entries} entries`,
+    guidedTitle: "Walk through a case",
+    guided: "8 steps · about 5–10 minutes",
     plannedItems: [
-      {
-        title: "One escalation, then a person",
-        text: "An unclear or rejected proposal goes once to a stronger model that never sees the first answer; if it is still unresolved, a person decides.",
-      },
-      {
-        title: "Try a change",
-        text: "Alter a development column layout from a fixed list and watch the proposal path react. No free text and no held-out data.",
-      },
-      {
-        title: "Case scope proposals",
-        text: "The AI picks what to examine only from values the dataset profile offers; anything outside it is rejected.",
-      },
+      "Escalate once to a stronger model, then a person",
+      "Try a change: alter a column layout and watch",
+      "AI-proposed case scope within the dataset profile",
     ],
     boundary:
-      "Results describe support for a versioned pattern hypothesis on synthetic data. They are not a finding of guilt, a causal claim or investment advice.",
+      "Results describe support for a versioned pattern hypothesis on synthetic data, not guilt, causation or investment advice.",
     gateLinkText: "Where it fits",
-    boundaryTail: " explains the setting this question comes from.",
   },
   ko: {
     answer: ANSWER_KO,
-    flowLabel: "제안이 결과에 이르는 길",
-    flowTitle: "제안에서 근거까지",
+    flowLabel: "제안에서 근거까지",
     stages: {
-      propose: {
-        actor: "모델",
-        text: "처음 보는 파일의 각 열이 어느 항목인지 제안합니다. 계약에 맞지 않는 제안은 검증기가 거절합니다.",
-      },
-      approve: {
-        actor: "사람",
-        text: "사람이 그 제안을 그대로 승인하기 전에는 다음 단계로 가지 않습니다.",
-      },
-      verify: {
-        actor: "버전이 고정된 코드",
-        text: "승인된 입력을 실행해 SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE 가운데 하나를 내고, 언제나 같은 해시를 냅니다.",
-      },
-      trace: {
-        actor: "원본 행",
-        text: "모든 판단 근거는 원본 거래자료의 행과 그 행의 해시까지 열어 볼 수 있습니다.",
-      },
+      propose: "열마다 어느 항목인지 제안",
+      approve: "승인 전에는 아무것도 실행하지 않음",
+      verify: "SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE 가운데 하나, 매번 같게",
+      trace: "판단 근거마다 원본 행까지 열림",
     },
     flowStop: {
       state: "REVIEW_REQUIRED · 분석 실행 이전",
-      text: "거절되거나 모호한 제안은 아무것도 실행하기 전에 여기서 멈추고 사람이 확인합니다. 검토가 필요하다는 뜻이며, 결과가 아닙니다.",
+      text: "거절되거나 모호하면 실행 전에 사람이 확인합니다. 결과가 아닙니다.",
     },
     whyKicker: "필요한 이유",
     whyHeading: "모델은 데이터를 읽을 뿐, 결과를 정하지 않습니다.",
     reasons: [
-      {
-        title: "파일마다 열 이름이 다릅니다",
-        text: "amt는 수량일까요, 금액일까요? 열 하나를 잘못 연결하면 결과 전체가 달라집니다.",
-      },
-      {
-        title: "모델은 조용히 틀릴 수 있습니다",
-        text: "없는 열을 연결하거나 셀 안에 적힌 지시를 따를 수 있습니다. 이런 실패를 짐작하지 않고 측정합니다.",
-      },
-      {
-        title: "그래서 측정하고, 울타리 안에 둡니다",
-        text: "후보 모델을 봉인된 집합에서 비모델 기준선과 함께 비교하고, 실행 전에 정한 규칙으로만 고르며, 검증기와 사람 뒤에 둡니다.",
-      },
+      [
+        "파일마다 열 이름이 다릅니다",
+        "amt는 수량일까요, 금액일까요? 하나만 잘못 연결해도 결과가 바뀝니다.",
+      ],
+      [
+        "모델은 조용히 틀릴 수 있습니다",
+        "없는 열을 만들거나 셀 안에 숨은 지시를 따를 수 있습니다.",
+      ],
+      [
+        "그래서 측정하고, 울타리 안에 둡니다",
+        "실행 전에 정한 규칙으로 고르고, 검증기와 사람 뒤에 둡니다.",
+      ],
     ],
     boardKicker: "만든 것",
-    boardHeading: "지금 동작하는 것과 계획",
     runsToday: "지금 동작",
     planned: "계획",
-    comparisonTitle: "보관 평가 집합의 모델 비교",
+    comparisonTitle: "모델 비교",
     comparison: (candidates, runDate) =>
-      `후보 모델 ${candidates}개와 비모델 기준선을 같은 채점기로 평가했습니다${runDate ? `(${runDate} 실행)` : ""}.`,
-    comparisonLink: "모델 비교 보기",
-    probes: {
-      title: "적대 출력으로 시험한 검증기",
-      text: "없는 열, 깨진 JSON, 모르는 변환을 일부러 만들어 넣고, 검증기가 모두 거절하는지 PR마다 확인합니다.",
-    },
-    probesLink: "모델이 틀리는 방식 보기",
+      `후보 ${candidates}개 + 비모델 기준선${runDate ? ` · ${runDate}` : ""}`,
+    probesTitle: "적대 출력으로 시험한 검증기",
+    probes: "PR마다 확인",
     failureLogTitle: "AI 실패 기록",
-    failureLog: (entries) =>
-      `지금까지 ${entries}건입니다. 항목마다 가정, 반례, 그에 대한 조치를 적습니다.`,
-    failureLogLink: "실패 기록 읽기",
-    guided: {
-      title: "사례 하나를 처음부터 끝까지",
-      text: "합성 사례 하나를 네 과정으로 따라가며, AI의 제안에서 원본 행까지 갑니다.",
-    },
-    guidedLink: "사례 따라가기",
+    failureLog: (entries) => `${entries}건`,
+    guidedTitle: "사례 따라가기",
+    guided: "8단계 · 약 5~10분",
     plannedItems: [
-      {
-        title: "상위 모델 한 번, 그다음 사람",
-        text: "모호하거나 거절된 제안은 첫 답을 보지 않는 상위 모델에 한 번만 넘기고, 그래도 풀리지 않으면 사람이 정합니다.",
-      },
-      {
-        title: "바꿔 보기",
-        text: "개발용 열 구성을 정해진 목록 안에서 바꾸고 제안 경로가 어떻게 반응하는지 봅니다. 자유 입력과 보관 평가 집합은 쓰지 않습니다.",
-      },
-      {
-        title: "조사 범위 제안",
-        text: "AI는 데이터셋 프로필에 있는 값 안에서만 조사 범위를 고르고, 밖의 값은 거절됩니다.",
-      },
+      "상위 모델에 한 번, 그다음 사람에게",
+      "바꿔 보기: 열 구성을 바꾸고 반응 보기",
+      "데이터 프로필 안에서 AI가 조사 범위 제안",
     ],
     boundary:
-      "결과는 합성 자료 위에서 버전이 고정된 패턴 가설을 얼마나 뒷받침하는지 나타냅니다. 유죄 판단도, 인과 주장도, 투자 조언도 아닙니다.",
+      "결과는 합성 자료 위에서 버전이 고정된 패턴 가설을 얼마나 뒷받침하는지 나타냅니다. 유죄, 인과, 투자 조언이 아닙니다.",
     gateLinkText: "어디에 쓰이나",
-    boundaryTail: "에서 이 질문이 나온 맥락을 설명합니다.",
   },
 };
 
@@ -533,9 +446,8 @@ export function HomeContent({
         </div>
 
         <figure className="home-flow" aria-labelledby="home-flow-title">
-          <figcaption id="home-flow-title">
-            <span className="eyebrow">{text.flowLabel}</span>
-            <strong>{text.flowTitle}</strong>
+          <figcaption className="eyebrow" id="home-flow-title">
+            {text.flowLabel}
           </figcaption>
           <ol>
             {GUIDE_STAGES.map((stage, index) => (
@@ -544,13 +456,8 @@ export function HomeContent({
                   {index + 1}
                 </span>
                 <div>
-                  <h2>
-                    {stageNames[stage]}
-                    <span className="home-flow-actor">
-                      {text.stages[stage].actor}
-                    </span>
-                  </h2>
-                  <p>{text.stages[stage].text}</p>
+                  <h2>{stageNames[stage]}</h2>
+                  <p>{text.stages[stage]}</p>
                 </div>
               </li>
             ))}
@@ -569,10 +476,10 @@ export function HomeContent({
             <h2 id="home-why">{text.whyHeading}</h2>
           </div>
           <ol className="home-reasons">
-            {text.reasons.map((reason) => (
-              <li key={reason.title}>
-                <h3>{reason.title}</h3>
-                <p>{reason.text}</p>
+            {text.reasons.map(([title, body]) => (
+              <li key={title}>
+                <h3>{title}</h3>
+                <p>{body}</p>
               </li>
             ))}
           </ol>
@@ -580,38 +487,45 @@ export function HomeContent({
       </section>
 
       <section className="shell home-board" aria-labelledby="home-built">
-        <div className="section-heading">
-          <span>{text.boardKicker}</span>
-          <h2 id="home-built">{text.boardHeading}</h2>
-        </div>
+        <h2 className="eyebrow" id="home-built">
+          {text.boardKicker}
+        </h2>
         <div className="home-board-columns">
           <div>
             <h3 className="home-board-label" data-status="implemented">
               {text.runsToday}
             </h3>
             <ul className="home-board-list">
-              <li data-status="implemented">
-                <h4>{text.comparisonTitle}</h4>
-                <p>
-                  {text.comparison(evaluation.candidates, evaluation.runDate)}
-                </p>
-                <Link href="/evals">{text.comparisonLink}</Link>
-              </li>
-              <li data-status="implemented">
-                <h4>{text.probes.title}</h4>
-                <p>{text.probes.text}</p>
-                <Link href="/evals?view=failures">{text.probesLink}</Link>
-              </li>
-              <li data-status="implemented">
-                <h4>{text.failureLogTitle}</h4>
-                <p>{text.failureLog(FAILURE_LOG_ENTRIES.length)}</p>
-                <a href={failureLog}>{text.failureLogLink}</a>
-              </li>
-              <li data-status="implemented">
-                <h4>{text.guided.title}</h4>
-                <p>{text.guided.text}</p>
-                <Link href="/replay?mode=guided">{text.guidedLink}</Link>
-              </li>
+              {(
+                [
+                  [
+                    "/evals",
+                    text.comparisonTitle,
+                    text.comparison(evaluation.candidates, evaluation.runDate),
+                  ],
+                  ["/evals?view=failures", text.probesTitle, text.probes],
+                  [
+                    failureLog,
+                    text.failureLogTitle,
+                    text.failureLog(FAILURE_LOG_ENTRIES.length),
+                  ],
+                  ["/replay?mode=guided", text.guidedTitle, text.guided],
+                ] as const
+              ).map(([href, title, meta]) => (
+                <li data-status="implemented" key={href}>
+                  {href.startsWith("http") ? (
+                    <a href={href}>
+                      <strong>{title}</strong>
+                      <span>{meta}</span>
+                    </a>
+                  ) : (
+                    <Link href={href}>
+                      <strong>{title}</strong>
+                      <span>{meta}</span>
+                    </Link>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
           <div>
@@ -620,9 +534,8 @@ export function HomeContent({
             </h3>
             <ul className="home-board-list">
               {text.plannedItems.map((item) => (
-                <li data-status="planned" key={item.title}>
-                  <h4>{item.title}</h4>
-                  <p>{item.text}</p>
+                <li data-status="planned" key={item}>
+                  <strong>{item}</strong>
                 </li>
               ))}
             </ul>
@@ -630,7 +543,6 @@ export function HomeContent({
         </div>
         <p className="home-boundary">
           {text.boundary} <Link href="/why">{text.gateLinkText}</Link>
-          {text.boundaryTail}
         </p>
       </section>
     </main>

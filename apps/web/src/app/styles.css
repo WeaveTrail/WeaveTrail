@@ -789,13 +789,7 @@ details > summary:focus-visible {
   box-shadow: var(--shadow-2);
 }
 .home-flow figcaption {
-  display: grid;
-  gap: var(--space-1);
-  margin-bottom: var(--space-5);
-}
-.home-flow figcaption strong {
-  font: var(--type-section);
-  color: var(--text-strong);
+  margin-bottom: var(--space-4);
 }
 .home-flow ol {
   margin: 0;
@@ -845,12 +839,6 @@ details > summary:focus-visible {
   gap: 2px var(--space-2);
   margin-top: 6px;
   font: var(--type-subhead);
-}
-.home-flow-actor {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-faint);
 }
 .home-flow li p {
   margin-top: var(--space-1);
@@ -914,7 +902,10 @@ details > summary:focus-visible {
   color: var(--text-muted);
 }
 .home-board {
-  padding-block: var(--space-16);
+  padding-block: var(--space-12) var(--space-16);
+}
+.home-board > .eyebrow {
+  margin-bottom: var(--space-5);
 }
 .home-board-columns {
   display: grid;
@@ -950,35 +941,43 @@ details > summary:focus-visible {
   list-style: none;
 }
 .home-board-list li {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-4) var(--space-5);
   border: var(--hairline);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--surface-card);
-  box-shadow: var(--shadow-1);
 }
-.home-board-list li[data-status="planned"] {
-  border-style: dashed;
-  background: var(--surface-subtle);
-  box-shadow: none;
-}
-.home-board-list p {
-  font: var(--type-small);
-  color: var(--text-muted);
-}
+/* Each running capability is one row that is itself the link: what it is on
+   the left, the one fact that matters on the right, an arrow to go. */
 .home-board-list a {
-  justify-self: start;
-  margin-top: var(--space-1);
-  font: var(--type-small);
-  font-weight: var(--weight-semibold);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: inherit;
+  color: var(--text-strong);
   text-decoration: none;
 }
-.home-board-list a::after {
-  content: " →";
-}
 .home-board-list a:hover {
-  text-decoration: underline;
+  background: var(--surface-subtle);
+}
+.home-board-list a strong::after {
+  content: " →";
+  color: var(--brand-700);
+}
+.home-board-list a span {
+  font: var(--type-caption);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.home-board-list li[data-status="planned"] {
+  padding: var(--space-3) var(--space-4);
+  border-style: dashed;
+  background: var(--surface-subtle);
+}
+.home-board-list li[data-status="planned"] strong {
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
 }
 .home-boundary {
   max-width: var(--prose-max);
@@ -1728,9 +1727,16 @@ details > summary:focus-visible {
   color: var(--text-body);
   font: var(--type-small);
 }
+/* A met condition is a quiet confirmation, not another box to read. */
 .step-requirement[data-met="true"] {
-  border-left-color: var(--authorship-human);
-  background: var(--authorship-human-bg);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--authorship-human);
+  font-weight: var(--weight-medium);
+}
+.step-requirement[data-met="true"]::before {
+  content: "\2713  ";
 }
 /* The control that advances the current step carries a ring, so it is found
    at a glance among the reading around it. Nothing else is marked this way. */
@@ -1887,6 +1893,20 @@ details.step-action > summary {
   min-height: auto;
 }
 
+/* In the walkthrough the source is fixed, so its name is said once: the
+   panel and field labels stay for assistive technology only. */
+.guided-split .replay-control .panel-label,
+.guided-split .scenario-select > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.guided-split .scenario-select select:disabled {
+  font: var(--type-section);
+}
 /* Step 1: the committed source, read at a glance as one table. */
 .source-preview {
   display: grid;
@@ -1896,7 +1916,7 @@ details.step-action > summary {
   display: grid;
   gap: var(--space-2);
 }
-.source-facts {
+.source-preview .source-facts {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
