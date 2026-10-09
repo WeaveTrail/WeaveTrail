@@ -1,10 +1,11 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { ReplayScenarioSchema } from "@weavetrail/contracts";
 import { describe, expect, it } from "vitest";
 
+import historical from "../../../../packages/evals/results/financial-replay-v2.json";
 import { committedReplaySources } from "../lib/replay-sources";
 import { prepareReplayScenarios } from "./replay/prepare-scenarios";
 import { shellCopy } from "./shell/copy";
@@ -65,5 +66,28 @@ describe("served routes", () => {
     const prepared = await prepareReplayScenarios();
     for (const source of prepared.scenarios)
       expect(source.provenance?.kind).toBe("synthetic");
+    expect(prepared).not.toHaveProperty("coverage");
+  });
+
+  /**
+   * The real-data tier was withdrawn (ADR 0056) because its publication was
+   * not permitted. These artifacts and scenario names stay absent even
+   * outside the source registry.
+   */
+  it("keeps withdrawn artifacts and scenario names out", () => {
+    for (const path of [
+      "packages/published-data",
+      "docs/assets/worked-case.svg",
+      "docs/assets/worked-case.ko.svg",
+    ])
+      expect(existsSync(path), path).toBe(false);
+    const withdrawn = historical.scenarios.filter(
+      (item) => item.dataKind === "published",
+    );
+    expect(withdrawn).not.toHaveLength(0);
+    for (const source of withdrawn)
+      expect(ReplayScenarioSchema.safeParse(source.scenario).success).toBe(
+        false,
+      );
   });
 });
