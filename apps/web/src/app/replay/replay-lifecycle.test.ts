@@ -11,13 +11,14 @@ import {
   CaseReplay,
   ApprovalReceipt,
   guideSteps,
+  mappingApprovalCoverage,
   RapidPriceLiftEvaluation,
   DailyQuoteCaseLimitation,
   type ReplayScenarioOption,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import * as rowShuffle from "./shuffle-source-rows";
-import type { ReplayRequest } from "@weavetrail/contracts";
+import type { ApprovalRecord, ReplayRequest } from "@weavetrail/contracts";
 import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { replayApproved } from "@weavetrail/replay-engine";
 import { PublicModelBudgetRequired } from "../../lib/public-model-budget";
@@ -648,6 +649,43 @@ describe("replay result lifecycle", () => {
       ui.render().filter((element) => element.type === ApprovalReceipt),
     ).toHaveLength(0);
     expect(ui.buttonDisabled("Run deterministic replay")).toBe(true);
+  });
+
+  it("traces the evidence through the approved proposal and its own approval", async () => {
+    const ui = setup();
+    const request = vi.fn().mockImplementation(() => Promise.resolve(ok()));
+    vi.stubGlobal("fetch", request);
+    await ui.approve();
+    const receipts = ui
+      .render()
+      .filter((element) => element.type === ApprovalReceipt)
+      .map(
+        (element) =>
+          element.props as unknown as {
+            approval: ApprovalRecord;
+            coverage?: string;
+          },
+      );
+    // The mapping receipt leads with what it covers; the case receipt does not.
+    expect(receipts.map(({ coverage }) => coverage)).toEqual([
+      mappingApprovalCoverage.en,
+      undefined,
+    ]);
+    await ui.button("Run deterministic replay");
+    const [evidence] = ui.evidence();
+    const mapping = (
+      evidence!.props as unknown as {
+        mapping: { proposal: unknown; approval: ApprovalRecord };
+      }
+    ).mapping;
+    expect(mapping.proposal).toBe(
+      committedReplayScenarios[first].mappingProposal,
+    );
+    expect(mapping.approval).toEqual(receipts[0]!.approval);
+    const submitted = JSON.parse(
+      request.mock.calls[0]![1].body,
+    ) as ReplayRequest;
+    expect(submitted.mappingApproval).toEqual(mapping.approval);
   });
 
   it("submits varying source orders, displays the exact request and retains explicit approvals", async () => {

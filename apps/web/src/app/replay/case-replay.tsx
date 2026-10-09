@@ -33,6 +33,12 @@ import {
 } from "./mapping-review-messages";
 import { shuffleSourceRows } from "./shuffle-source-rows";
 import {
+  ApprovedMappingTrace,
+  EvidenceLines,
+  findingId,
+  mappingTraceRows,
+} from "./mapping-trace";
+import {
   Bps,
   eventFieldNote,
   gateReading,
@@ -387,41 +393,60 @@ const configuredProposalOverride: Readonly<
   },
 };
 
-export function ApprovalReceipt({ approval }: { approval: ApprovalRecord }) {
+/**
+ * What a mapping approval covers, in one sentence a reviewer reads before the
+ * hash that proves it. Editing a reason or requesting a new proposal revokes
+ * the approval in this surface, so the sentence promises no more than that.
+ */
+export const mappingApprovalCoverage: Readonly<Record<Language, string>> = {
+  en: "This approval covers exactly the mapping shown above — every source column, target field and transform, with the reviewer reasons recorded beside it — and any change to it needs a new approval before anything runs.",
+  ko: "이 승인은 위 연결 제안의 원본 열과 대상 항목, 변환 하나하나와 함께 적은 확인 이유에 그대로 적용되며, 무엇이든 바뀌면 다시 승인해야 실행할 수 있습니다.",
+};
+
+export function ApprovalReceipt({
+  approval,
+  coverage,
+}: {
+  approval: ApprovalRecord;
+  coverage?: string;
+}) {
   const language = useReplayLanguage();
   const t = (en: string, ko: string) => replayText(language, en, ko);
   return (
-    <dl className="approval-receipt">
-      <div>
-        <dt>{t("Approved artifact hash", "승인된 아티팩트 해시")}</dt>
-        <dd>
-          <HashValue
-            scope="approvedArtifact"
-            value={approval.approvedArtifactHash}
-          />
-        </dd>
-      </div>
-      <div>
-        <dt>{t("Reviewer", "검토자")}</dt>
-        <dd>{approval.reviewerRef}</dd>
-      </div>
-      <div>
-        <dt>{t("Decision", "결정")}</dt>
-        <dd>{approval.decision}</dd>
-      </div>
-      <div>
-        <dt>{t("Approved at", "승인 시각")}</dt>
-        <dd>
-          <Instant value={approval.approvedAt} />
-        </dd>
-      </div>
-      {approval.overrides.map(({ fieldPath, reason }) => (
-        <div key={fieldPath}>
-          <dt>{fieldPath}</dt>
-          <dd>{reason}</dd>
+    <>
+      {coverage ? <p className="approval-coverage">{coverage}</p> : null}
+      <dl className="approval-receipt">
+        <div>
+          <dt>{t("Approved artifact hash", "승인된 아티팩트 해시")}</dt>
+          <dd>
+            <HashValue
+              scope="approvedArtifact"
+              value={approval.approvedArtifactHash}
+            />
+          </dd>
         </div>
-      ))}
-    </dl>
+        <div>
+          <dt>{t("Reviewer", "검토자")}</dt>
+          <dd>{approval.reviewerRef}</dd>
+        </div>
+        <div>
+          <dt>{t("Decision", "결정")}</dt>
+          <dd>{approval.decision}</dd>
+        </div>
+        <div>
+          <dt>{t("Approved at", "승인 시각")}</dt>
+          <dd>
+            <Instant value={approval.approvedAt} />
+          </dd>
+        </div>
+        {approval.overrides.map(({ fieldPath, reason }) => (
+          <div key={fieldPath}>
+            <dt>{fieldPath}</dt>
+            <dd>{reason}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
   );
 }
 
@@ -756,15 +781,22 @@ export function RapidPriceLiftEvaluation({
   scenario,
   onEvidenceOpen,
   advancesStep = false,
+  mapping,
 }: {
   evaluation: RapidPriceLiftResult;
   sourceTrace: SourceTrace;
   scenario: ReplayScenario;
   onEvidenceOpen?: () => void;
   advancesStep?: boolean;
+  /** The proposal and the approval bound to it that this result ran under. */
+  mapping?:
+    { proposal: SchemaMappingProposal; approval: ApprovalRecord } | undefined;
 }) {
   const language = useReplayLanguage();
   const t = (en: string, ko: string) => replayText(language, en, ko);
+  const mappingRows = mapping
+    ? mappingTraceRows(mapping.proposal, mapping.approval)
+    : null;
   return (
     <section className="result-summary" aria-label="Pattern hypothesis result">
       <div className="evaluation-heading">
@@ -793,7 +825,8 @@ export function RapidPriceLiftEvaluation({
               <div
                 className="gate-row"
                 key={finding.gate}
-                id={`gate-${finding.gate}`}
+                id={findingId(finding.gate)}
+                tabIndex={-1}
               >
                 <strong>
                   {gateReading(finding.gate as GateName, language).label}
@@ -842,69 +875,100 @@ export function RapidPriceLiftEvaluation({
                         key={event.eventId}
                         aria-label={`Source evidence for ${event.eventId}`}
                       >
-                        <h3>{t("Canonical event", "정리된 거래 기록")}</h3>
-                        <dl>
-                          {Object.entries(event).map(([field, value]) => (
-                            <div key={field}>
-                              <dt>{field}</dt>
-                              <dd>
-                                {value !== undefined &&
-                                field === "rawRowHash" ? (
-                                  <HashValue scope="rawRow" value={value} />
-                                ) : value !== undefined &&
-                                  (field === "eventTime" ||
-                                    field === "receivedAt") ? (
-                                  <Instant value={value} />
-                                ) : (
-                                  <code>{value}</code>
-                                )}
-                                {eventFieldNote(field, language) ? (
-                                  <small className="machine-note">
-                                    {eventFieldNote(field, language)}
-                                  </small>
-                                ) : null}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                        <h3>{t("Committed source row", "커밋된 원본 행")}</h3>
-                        <dl>
-                          <div>
-                            <dt>{t("Artifact", "아티팩트")}</dt>
-                            <dd>{scenario}</dd>
-                          </div>
-                          <div>
-                            <dt>sourceArtifactHash</dt>
-                            <dd>
-                              <HashValue
-                                scope="sourceArtifact"
-                                value={sourceRow.coordinate.sourceArtifactHash}
-                              />
-                            </dd>
-                          </div>
-                          <div>
-                            <dt>{t("Source row number", "원본 행 번호")}</dt>
-                            <dd>{sourceRow.coordinate.rowNumber}</dd>
-                          </div>
-                        </dl>
-                        <h3>{t("Raw column values", "원본 열 값")}</h3>
-                        <dl className="source-values">
-                          {Object.entries(sourceRow.values).map(
-                            ([column, value]) => (
-                              <div key={column}>
-                                <dt>{column}</dt>
+                        {mappingRows ? (
+                          <>
+                            <h3>
+                              {t("Source row", "원본 행")}{" "}
+                              {sourceRow.coordinate.rowNumber} →{" "}
+                              <code>{event.eventId}</code>
+                            </h3>
+                            <EvidenceLines
+                              rows={mappingRows}
+                              entry={{ event, sourceRow }}
+                              findings={evaluation.findings}
+                            />
+                          </>
+                        ) : null}
+                        <details className="trace-machine-values">
+                          <summary>
+                            {t(
+                              "Machine values: the canonical event and its committed source row",
+                              "기계 값: 정리된 거래 기록과 커밋된 원본 행",
+                            )}
+                          </summary>
+                          <h3>{t("Canonical event", "정리된 거래 기록")}</h3>
+                          <dl>
+                            {Object.entries(event).map(([field, value]) => (
+                              <div key={field}>
+                                <dt>{field}</dt>
                                 <dd>
-                                  <code>{value}</code>
+                                  {value !== undefined &&
+                                  field === "rawRowHash" ? (
+                                    <HashValue scope="rawRow" value={value} />
+                                  ) : value !== undefined &&
+                                    (field === "eventTime" ||
+                                      field === "receivedAt") ? (
+                                    <Instant value={value} />
+                                  ) : (
+                                    <code>{value}</code>
+                                  )}
+                                  {eventFieldNote(field, language) ? (
+                                    <small className="machine-note">
+                                      {eventFieldNote(field, language)}
+                                    </small>
+                                  ) : null}
                                 </dd>
                               </div>
-                            ),
-                          )}
-                        </dl>
+                            ))}
+                          </dl>
+                          <h3>{t("Committed source row", "커밋된 원본 행")}</h3>
+                          <dl>
+                            <div>
+                              <dt>{t("Artifact", "아티팩트")}</dt>
+                              <dd>{scenario}</dd>
+                            </div>
+                            <div>
+                              <dt>sourceArtifactHash</dt>
+                              <dd>
+                                <HashValue
+                                  scope="sourceArtifact"
+                                  value={
+                                    sourceRow.coordinate.sourceArtifactHash
+                                  }
+                                />
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>{t("Source row number", "원본 행 번호")}</dt>
+                              <dd>{sourceRow.coordinate.rowNumber}</dd>
+                            </div>
+                          </dl>
+                          <h3>{t("Raw column values", "원본 열 값")}</h3>
+                          <dl className="source-values">
+                            {Object.entries(sourceRow.values).map(
+                              ([column, value]) => (
+                                <div key={column}>
+                                  <dt>{column}</dt>
+                                  <dd>
+                                    <code>{value}</code>
+                                  </dd>
+                                </div>
+                              ),
+                            )}
+                          </dl>
+                        </details>
                       </article>
                     ))}
                 </details>
               </div>
             ))}
+            {mappingRows ? (
+              <ApprovedMappingTrace
+                rows={mappingRows}
+                sourceTrace={sourceTrace}
+                findings={evaluation.findings}
+              />
+            ) : null}
           </div>
         )}
         {evaluation.sensitivity ? (
@@ -2164,7 +2228,12 @@ export function CaseReplay({
             >
               {approveMappingLabel}
             </button>
-            {approval && <ApprovalReceipt approval={approval} />}
+            {approval && (
+              <ApprovalReceipt
+                approval={approval}
+                coverage={mappingApprovalCoverage[language]}
+              />
+            )}
           </div>
           <div hidden={!show(2) || mappingExample}>
             {selectedScenario.manifest ? (
@@ -2403,6 +2472,10 @@ export function CaseReplay({
                   evaluation={result.evaluation}
                   sourceTrace={result.sourceTrace}
                   scenario={result.scenario}
+                  // Every change to the proposal or a reviewer reason revokes
+                  // the approval and clears the result, so while both exist
+                  // the proposal on screen is the one the approval binds.
+                  mapping={approval ? { proposal, approval } : undefined}
                   onEvidenceOpen={() => setEvidenceOpened(true)}
                 />
               ) : null}
