@@ -45,11 +45,14 @@ const leadingComment = (path: string) =>
   read(path).match(/<!--[\s\S]*?-->/)?.[0] ?? "";
 const hexTokenPattern = /(#[0-9a-f]{6}) ([a-z][a-z0-9-]*)/g;
 
-// Hand-authored and generated figures that map literal hex values to tokens,
-// whether or not their comment also cites the revision.
+// Every tracked SVG except the mark copies, which ship the pinned bytes, is a
+// hand-authored or generated figure that must map its hex values to tokens.
+const markCopies = [
+  "apps/web/public/brand/mark.svg",
+  "docs/assets/brand/mark.svg",
+];
 const tokenFigures = trackedFiles.filter(
-  (path) =>
-    path.endsWith(".svg") && /#[0-9a-f]{6} [a-z]/.test(leadingComment(path)),
+  (path) => path.endsWith(".svg") && !markCopies.includes(path),
 );
 // Generated boundary figures cite no revision; every other figure must, since
 // a standalone SVG is read without its repository.
@@ -93,16 +96,37 @@ describe("design-reference pin", () => {
   });
 
   it("ships both copies of the mark as the pinned bytes", () => {
-    for (const path of [
-      "apps/web/public/brand/mark.svg",
-      "docs/assets/brand/mark.svg",
-    ])
+    for (const path of markCopies)
       expect(
         createHash("sha256")
           .update(readFileSync(resolve(root, path)))
           .digest("hex"),
         path,
       ).toBe(snapshot.files["assets/mark.svg"]);
+  });
+
+  it("ships every other vendored file as the pinned bytes", () => {
+    const vendored = Object.keys(snapshot.files).filter(
+      (path) => path !== "assets/mark.svg",
+    );
+    expect(vendored).toContain("tokens/colors.css");
+    for (const path of vendored)
+      expect(
+        createHash("sha256")
+          .update(
+            readFileSync(resolve(root, "apps/web/src/design-reference", path)),
+          )
+          .digest("hex"),
+        path,
+      ).toBe(snapshot.files[path]);
+  });
+
+  it("maps every figure's hex values to tokens in its leading comment", () => {
+    expect(
+      tokenFigures.filter(
+        (path) => !leadingComment(path).match(hexTokenPattern),
+      ),
+    ).toEqual([]);
   });
 
   it("maps each figure's literal hex to the pinned token it names", () => {

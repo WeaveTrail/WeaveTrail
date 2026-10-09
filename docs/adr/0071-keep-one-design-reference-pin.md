@@ -38,11 +38,13 @@ of `mark.svg`, and the token values drawn into figures.
   must cite the pin drops it or cites anything else, when the notices,
   architecture documents or snapshot readme omit the pin or name any other
   full commit ID outside the readme's section on earlier citations, when either
-  `mark.svg` copy differs from the hash `snapshot.json` records, or when a
-  figure's hex value differs from the token it names in the vendored
-  `tokens/colors.css`, or when a figure draws a hex literal its comment does
-  not map to a token. Every tracked SVG whose leading comment maps hex values
-  to tokens is checked, the generated boundary figures included.
+  `mark.svg` copy or any other vendored file, `tokens/colors.css` included,
+  differs from the hash `snapshot.json` records, when a figure's leading
+  comment maps no hex value to a token, when a figure's hex value differs from
+  the token it names in the vendored `tokens/colors.css`, or when a figure
+  draws a hex literal its comment does not map to a token. Every tracked SVG
+  other than the two `mark.svg` copies is a figure, the generated boundary
+  figures included, so a figure that loses its whole mapping is still checked.
 - ADRs keep the revision current when they were accepted.
 
 The snapshot readme records the re-pin procedure: pin the follow-up status
@@ -57,4 +59,6 @@ check holds every drawn hex literal to a token named in the comment; it does
 not prove that each shape uses the token its role calls for. `design:snapshot:verify` still needs a
 checkout of the private upstream repository, so offline checks hold the
 repository's records consistent with each other and with the recorded hashes,
-not with upstream itself.
+not with upstream itself: a vendored file edited without updating its
+recorded hash fails offline, but a hash and its file changed together are
+caught only by the verifier.
