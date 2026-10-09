@@ -569,7 +569,7 @@ describe("guided step intent", () => {
       resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
       "utf8",
     );
-    expect(navigation).toContain('["Walk through a case", "/replay"]');
+    expect(navigation).toMatch(/\["Walk through a case",\s*"\/replay",/);
     expect(navigation).not.toContain("mode=");
 
     for (const [mode, current] of [

@@ -9,6 +9,7 @@ import { SiteNavigation } from "./site-navigation";
 import { LanguageProvider } from "./i18n/language";
 import { LanguageSelector } from "./i18n/language-selector";
 import { ChromeText } from "./i18n/chrome-text";
+import { PrintDisclosures } from "./print-disclosures";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -59,34 +60,33 @@ export default function RootLayout({
     <html className={`${plex.variable} ${mono.variable}`} lang="en">
       <body>
         <LanguageProvider>
+          <PrintDisclosures />
           <a className="skip-link" href="#main-content">
             <ChromeText id="skipToContent" />
           </a>
           <header className="site-header">
-            <Link className="wordmark" href="/">
-              {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
-              {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
-              <img alt="" height="36" src="/brand/mark.svg" width="36" />
-              <span>WeaveTrail</span>
-            </Link>
-            <LanguageSelector />
-          </header>
-          <div className="app-shell">
-            <aside className="side-nav">
+            <div className="site-header-inner">
+              <Link className="wordmark" href="/">
+                {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
+                <img alt="" height="32" src="/brand/mark.svg" width="32" />
+                <span>WeaveTrail</span>
+              </Link>
               <SiteNavigation />
-            </aside>
-            <div className="content-shell">
-              <div id="main-content">{children}</div>
-              <footer className="site-footer">
-                <span>
-                  <ChromeText id="footerStatus" />
-                </span>
-                <span>
-                  <ChromeText id="footerPlanned" />
-                </span>
-              </footer>
+              <LanguageSelector />
             </div>
-          </div>
+          </header>
+          <div id="main-content">{children}</div>
+          <footer className="site-footer">
+            <div className="site-footer-inner">
+              <span>
+                <ChromeText id="footerStatus" />
+              </span>
+              <span>
+                <ChromeText id="footerPlanned" />
+              </span>
+            </div>
+          </footer>
         </LanguageProvider>
       </body>
     </html>

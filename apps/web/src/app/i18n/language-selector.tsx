@@ -4,9 +4,9 @@ import React from "react";
 
 import { useLanguage, type Language } from "./language";
 
-const OPTIONS: readonly (readonly [Language, string, string])[] = [
-  ["en", "English", "Show this site in English"],
-  ["ko", "한국어", "이 사이트를 한국어로 봅니다"],
+const OPTIONS: readonly (readonly [Language, string, string, string])[] = [
+  ["en", "English", "EN", "Show this site in English"],
+  ["ko", "한국어", "한", "이 사이트를 한국어로 봅니다"],
 ];
 
 export function LanguageSelector() {
@@ -14,16 +14,20 @@ export function LanguageSelector() {
 
   return (
     <div aria-label="Language" className="language-selector" role="group">
-      {OPTIONS.map(([value, label, description]) => (
+      {OPTIONS.map(([value, label, short, description]) => (
         <button
           aria-current={language === value ? "true" : undefined}
+          aria-label={label}
           key={value}
           lang={value}
           onClick={() => setLanguage(value)}
           title={description}
           type="button"
         >
-          {label}
+          <span className="language-full">{label}</span>
+          <span aria-hidden="true" className="language-short">
+            {short}
+          </span>
         </button>
       ))}
     </div>

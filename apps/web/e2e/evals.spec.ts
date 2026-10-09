@@ -197,3 +197,29 @@ test("folds the engine checks under one summary that opens by keyboard", async (
   await page.keyboard.press("Enter");
   await expect(rows.first()).toBeVisible();
 });
+
+test("opens every closed disclosure for printing and closes it after", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const closed = page.locator("details:not([open])");
+  const count = await closed.count();
+  expect(count).toBeGreaterThan(0);
+  // The listener attaches on hydration, so the print is retried until it has.
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+    expect(await closed.count()).toBe(0);
+  }).toPass();
+  await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  await expect(closed).toHaveCount(count);
+});
+
+test("gives every model-comparison tab the 40px control height", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const tabs = page.locator(".mc-tabs button");
+  expect(await tabs.count()).toBeGreaterThan(0);
+  for (const tab of await tabs.all())
+    expect((await tab.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});

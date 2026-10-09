@@ -149,8 +149,19 @@ for (const viewport of VIEWPORTS) {
       ).toBeVisible();
       await pressButton(page, ui.continueLabel);
 
-      // Evidence traces back: the rail goes to the disclosure; Enter opens it.
+      // Evidence traces back: the verdict and its tally lead the result, and
+      // the machine values wait in one closed disclosure.
       await expectStep(page, language, 5);
+      await expect(page.locator(".result-tally")).toBeVisible();
+      await expect(page.locator(".result-technical")).not.toHaveAttribute(
+        "open",
+        "",
+      );
+      expect(
+        (await page.locator(".result-technical > summary").boundingBox())!
+          .height,
+      ).toBeGreaterThanOrEqual(40);
+      // The rail goes to the disclosure; Enter opens it.
       await pressButton(page, ui.goToEvidence);
       await expect.poll(async () => (await focused(page)).tag).toBe("summary");
       await page.keyboard.press("Enter");
@@ -207,3 +218,54 @@ for (const viewport of VIEWPORTS) {
     });
   }
 }
+
+test("keeps the mode links at the 40px control height", async ({ page }) => {
+  await open(page, "en");
+  for (const link of await page.locator(".mode-choice a").all())
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});
+
+test("keeps the step disclosures at the 40px control height", async ({
+  page,
+}) => {
+  await open(page, "en");
+  const summaries = page.locator(".step-why > summary, .rail-steps > summary");
+  await expect(summaries).toHaveCount(2);
+  for (const summary of await summaries.all())
+    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});
+
+test("does not satisfy the evidence step by printing", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  const rail = page.locator(".journey-header .rail-actions");
+  const railContinue = rail.getByRole("button", { name: "Continue" });
+  const press = async (name: string) =>
+    rail.getByRole("button", { name, exact: true }).click();
+  await railContinue.click();
+  await press(labels.en.approveMapping);
+  await railContinue.click();
+  await press(labels.en.approveCase);
+  await railContinue.click();
+  await press(labels.en.run);
+  await expect(railContinue).toBeEnabled();
+  await railContinue.click();
+  await press(labels.en.repeat);
+  await expect(railContinue).toBeEnabled();
+  await railContinue.click();
+  await expect(page.locator(".journey-header h2")).toHaveText(
+    guideUi.en.stepHeading(6, guideStepsByLanguage.en[5]!.title),
+  );
+  await expect(railContinue).toBeDisabled();
+  await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+  await expect(page.locator(".source-evidence").first()).toHaveAttribute(
+    "open",
+    "",
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  await expect(page.locator(".source-evidence").first()).not.toHaveAttribute(
+    "open",
+    "",
+  );
+  await expect(railContinue).toBeDisabled();
+});

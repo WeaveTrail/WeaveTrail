@@ -1,10 +1,4 @@
-@import url("../design-reference/tokens/colors.css");
-@import url("../design-reference/tokens/typography.css");
-@import url("../design-reference/tokens/spacing.css");
-@import url("../design-reference/tokens/borders.css");
-@import url("../design-reference/tokens/motion.css");
-@import url("../design-reference/tokens/layout.css");
-@import url("../design-reference/tokens/base.css");
+@import url("./design/tokens.css");
 /* IBM Plex Sans carries no Hangul, so its Korean sibling is committed beside
    it and declared here rather than through `next/font/local`. That loader
    emits a preload link for every face it declares — `preload: false` included
@@ -41,6 +35,9 @@
   unicode-range:
     U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
 }
+
+/* ───────────────────────── Foundations ───────────────────────── */
+
 :root {
   color-scheme: light;
   /* The Latin face first, the Korean one behind it: Latin text keeps the
@@ -49,10 +46,8 @@
   --font-sans:
     var(--font-sans-local), "IBM Plex Sans KR", "Helvetica Neue", Helvetica,
     "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  /* JetBrains Mono carries no Hangul, and Korean words appear beside machine
-     values — the review state under the result vocabulary is one. The same
-     Hangul-ranged face catches them, so a mono value stays monospaced in Latin
-     and legible in Korean instead of rendering as blank boxes. */
+  /* Korean words appear beside machine values, so the mono stack falls back
+     to the same Hangul-ranged face instead of rendering blank boxes. */
   --font-mono:
     var(--font-mono-local), "IBM Plex Sans KR", ui-monospace, monospace;
   /* Korean breaks on syllables by default, which splits words mid-token. Both
@@ -61,14 +56,94 @@
   overflow-wrap: break-word;
   line-break: strict;
 }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-padding-top: calc(var(--appbar-height) + var(--space-4));
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-page);
+  color: var(--text-body);
+  font: var(--type-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+h1 {
+  font: var(--type-title);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-strong);
+}
+h2 {
+  font: var(--type-section);
+  color: var(--text-strong);
+}
+h3,
+h4 {
+  font: var(--type-subhead);
+  color: var(--text-strong);
+}
+a {
+  color: var(--text-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+a:hover {
+  color: var(--text-link-hover);
+}
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+}
+code {
+  overflow-wrap: anywhere;
+  font: var(--type-mono-sm);
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--brand-100);
+}
+table {
+  border-collapse: collapse;
+}
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+  color: inherit;
 }
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.52;
+  opacity: 0.5;
+}
+[hidden] {
+  display: none !important;
 }
 .visually-hidden {
   position: absolute;
@@ -81,6 +156,421 @@ button:disabled {
   white-space: nowrap;
   border: 0;
 }
+.skip-link {
+  position: fixed;
+  left: var(--space-3);
+  top: -5rem;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-overlay);
+}
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+/* Small labels above headings and values. */
+.eyebrow,
+.kicker,
+.panel-label,
+.machine-label,
+.section-heading > span {
+  display: block;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--brand-700);
+}
+.panel-label,
+.machine-label {
+  color: var(--text-muted);
+}
+
+/* ───────────────────────── App shell ───────────────────────── */
+
+/* One bar across the top: the mark, the places to go, the language. No side
+   rail, so every page gets the full width for its answer. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-appbar);
+  border-bottom: var(--hairline);
+  background: color-mix(in srgb, var(--surface-header) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+.site-header-inner {
+  width: min(var(--content-max), calc(100% - 2 * var(--gutter)));
+  height: var(--appbar-height);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+  font-size: var(--font-size-18);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+}
+.wordmark:hover {
+  color: var(--text-strong);
+}
+.wordmark img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+#main-content {
+  flex: 1;
+  min-width: 0;
+}
+.shell {
+  width: min(var(--content-max), calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+}
+.site-footer {
+  border-top: var(--hairline);
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+  font: var(--type-caption);
+}
+.site-footer-inner {
+  width: min(var(--content-max), calc(100% - 2 * var(--gutter)));
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  padding-block: var(--space-6);
+}
+
+/* Navigation. The first group sits in the bar; the second opens from one
+   button. Below the tablet width both open from a single menu button. */
+.site-nav {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.site-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-nav-bar a,
+.site-nav-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-body);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.site-nav-bar a:hover,
+.site-nav-trigger:hover {
+  background: var(--action-quiet-hover);
+  color: var(--text-strong);
+}
+.site-nav-bar a[aria-current="page"],
+.site-nav-trigger[data-current="true"] {
+  background: var(--selected-bg);
+  color: var(--brand-800);
+}
+.site-nav-trigger::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+.site-nav-trigger[aria-expanded="true"]::after {
+  transform: translateY(1px) rotate(-135deg);
+}
+.site-nav-more {
+  position: relative;
+}
+.site-nav-menu-button {
+  display: none;
+}
+.site-nav-panel {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--z-menu);
+  min-width: 18rem;
+  padding: var(--space-2);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-overlay);
+}
+.site-nav-panel ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-nav-panel a {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--text-strong);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+.site-nav-panel a small {
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.site-nav-panel a:hover {
+  background: var(--action-quiet-hover);
+}
+.site-nav-panel a[aria-current="page"] {
+  background: var(--selected-bg);
+  color: var(--brand-800);
+}
+.site-nav-group-label {
+  display: block;
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+/* A divider only where both groups show, in the full menu. */
+.site-nav-panel .site-nav-group + .site-nav-group {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+}
+/* The full menu repeats the first group only where the bar cannot hold it. */
+.site-nav-panel .site-nav-group[data-group="primary"] {
+  display: none;
+}
+
+.language-selector {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-left: auto;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+}
+.language-selector button {
+  appearance: none;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-13);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  cursor: pointer;
+}
+.language-selector button[aria-current="true"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-1);
+}
+
+/* ───────────────────────── Components ───────────────────────── */
+
+.button {
+  min-height: var(--control-height);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+.button:hover:not(:disabled) {
+  background: var(--action-quiet-hover);
+  color: var(--text-strong);
+}
+.button.primary {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: #fff;
+  box-shadow: var(--shadow-1);
+}
+.button.primary:hover:not(:disabled) {
+  border-color: var(--action-primary-hover);
+  background: var(--action-primary-hover);
+  color: #fff;
+}
+/* An approval that has happened must not look like one still being asked for:
+   it steps back to a quiet control and says so. */
+.button[data-approved="true"] {
+  border-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+  color: var(--authorship-human);
+}
+.button[data-approved="true"]::after {
+  content: " \2713";
+}
+.hero-actions,
+.event-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.panel {
+  min-width: 0;
+  padding: var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+}
+.panel > .panel-label + * {
+  margin-top: var(--space-2);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  justify-self: start;
+  gap: var(--space-1);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--state-planned-bg);
+  color: var(--state-planned);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border: 1.5px dashed currentColor;
+  border-radius: 50%;
+}
+.pill.implemented {
+  background: var(--brand-50);
+  color: var(--brand-700);
+}
+.pill.implemented::before {
+  border-style: solid;
+  background: currentColor;
+}
+
+details > summary {
+  cursor: pointer;
+}
+details > summary:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+/* Notes that stop or qualify a step. */
+.review-message,
+.error-message,
+.boundary-note {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--state-review);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--state-review-bg);
+}
+.error-message {
+  border-left-color: var(--state-refused);
+  background: var(--state-refused-bg);
+  color: var(--state-refused);
+}
+
+/* Machine values: hashes, instants and their plain-language notes. */
+.machine-hash {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-2);
+}
+.machine-abbrev,
+.machine-full {
+  overflow-wrap: anywhere;
+}
+.machine-note {
+  display: block;
+  margin: 0;
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.machine-hash details {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.machine-instant {
+  display: grid;
+  gap: 2px;
+}
+.machine-instant code {
+  color: var(--text-muted);
+}
+.hash-block code {
+  display: block;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-code);
+}
+.artifact-json {
+  max-height: 28rem;
+  overflow: auto;
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Evidence grades. Each grade is a colour and a shape, never a colour only. */
 .evidence-mark {
   display: inline-flex;
   flex-wrap: wrap;
@@ -124,7 +614,7 @@ button:disabled {
 }
 .evidence-companion {
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--font-size-13);
 }
 .evidence-computed-value {
   color: var(--authorship-code);
@@ -136,532 +626,20 @@ button:disabled {
   margin: 0;
   color: var(--text-muted);
   font: 600 12px/1.45 var(--font-mono);
-  letter-spacing: 0.01em;
   text-wrap: balance;
 }
 .evidence-sentence-text {
   white-space: pre-wrap;
 }
-.evidence-graded-row {
-  display: grid;
-  grid-template-columns: 9.5rem minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
-}
-.evidence-inline {
-  white-space: nowrap;
-}
-.skip-link {
-  position: fixed;
-  left: 12px;
-  top: -5rem;
-  z-index: 100;
-  padding: 8px 16px;
-  background: var(--paper-0);
-  border: var(--hairline-ink);
-}
-.skip-link:focus {
-  top: 12px;
-}
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-appbar);
-  min-height: var(--appbar-height);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 8px 24px;
-  color: var(--text-inverse);
-  background: var(--surface-header);
-  border-bottom: 1px solid var(--ink-900);
-}
-.wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: inherit;
-  font-weight: 600;
-  font-size: 18px;
-  text-decoration: none;
-}
-.wordmark:hover {
-  color: #fff;
-}
-.wordmark img {
-  display: block;
-  border-radius: 2px;
-}
-.app-shell {
-  min-height: calc(100vh - var(--appbar-height));
-  display: grid;
-  grid-template-columns: var(--rail-width) minmax(0, 1fr);
-}
-.side-nav {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  padding: 24px 16px;
-  background: var(--surface-rail);
-  border-right: var(--hairline);
-}
-.side-nav nav {
-  display: grid;
-  gap: 6px;
-}
-.side-nav nav {
-  gap: 20px;
-}
-.nav-group {
-  display: grid;
-  gap: 6px;
-}
-.nav-group-label {
-  padding-inline: 8px;
-  font-size: 0.6875rem;
-}
-.side-nav nav a {
-  padding: 8px;
-  border-left: 2px solid transparent;
-  color: var(--text-body);
-  text-decoration: none;
-}
-.side-nav nav a:hover,
-.side-nav nav a:focus-visible,
-.side-nav nav a[aria-current="page"] {
-  color: var(--teal-800);
-  background: var(--action-quiet-hover);
-  border-left-color: var(--teal-700);
-}
-.side-nav nav a[aria-current="page"] {
-  font-weight: var(--weight-semibold);
-}
-.nav-group-label,
-.panel-label,
-.kicker,
-.eyebrow,
-.section-heading > span {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.content-shell {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-#main-content {
-  flex: 1;
-}
-.shell {
-  width: min(var(--content-max), calc(100% - 48px));
-  margin-inline: auto;
-}
-.hero,
-.page-shell,
-.system-section {
-  padding-block: 40px;
-}
-.hero {
-  padding-top: 72px;
-}
-.hero h1 {
-  /* Measured in em, not ch: a ch is the width of a Latin zero and says nothing
-     about a Hangul syllable, and Korean sets shorter than English at the same
-     size. Wide enough that neither language wraps a clause. */
-  max-width: 24em;
-  font: var(--type-display);
-}
-.hero h1 em {
-  /* Each language writes a headline of two clauses. Setting the second on its
-     own line breaks it where the sentence already breaks, in both. */
-  display: block;
-  color: var(--teal-700);
-  font-style: normal;
-}
-.hero-copy,
-.page-heading > p {
-  max-width: var(--prose-max);
-  margin-top: 16px;
-  font: var(--type-body-lg);
-  line-height: 1.7;
-  color: var(--text-muted);
-}
-.page-heading {
-  padding-bottom: 32px;
-  border-bottom: var(--hairline-strong);
-}
-.page-heading h1 {
-  margin-top: 8px;
-}
-.hero-actions,
-.event-chain {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
-.hero-actions {
-  margin-top: 24px;
-}
-.home-answer h1 {
-  max-width: 30em;
-  margin-top: 8px;
-  font: var(--type-display);
-}
-.home-answer-sentence {
-  max-width: var(--prose-max);
-  margin-top: 16px;
-  font: var(--type-body-lg);
-  line-height: 1.6;
-  color: var(--text-strong);
-}
-.home-control {
-  max-width: var(--prose-max);
-  margin-top: 16px;
-  padding-left: 12px;
-  border-left: 3px solid var(--teal-700);
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-.home-facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-top: 12px;
-}
-.home-facts dt {
-  font: var(--type-label);
-  color: var(--text-muted);
-}
-.home-run {
-  margin-top: 4px;
-  font: var(--type-label);
-}
-/* A term reads as part of its sentence and opens its explanation. */
-.home-term {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 0.2em;
-  cursor: help;
-}
-.home-term:hover {
-  color: var(--teal-700);
-}
-.home-term-note {
-  width: min(28rem, calc(100% - 32px));
-  padding: 16px;
-  border: var(--hairline-strong);
-  border-radius: var(--radius-md);
-  background: var(--paper-0);
-  color: var(--text-strong);
-  box-shadow: var(--shadow-overlay);
-}
-.home-term-note p {
-  margin-block: 8px 12px;
-  line-height: 1.6;
-}
-/* Home: the answer and the four-stage flow share the first screen on a wide
-   viewport; the reasons and the build board follow. */
-.home-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 1fr);
-  gap: 40px;
-  align-items: start;
-  padding-block: 40px 48px;
-}
-.home-hero > .hero {
-  padding: 0;
-}
-.home-hero .home-answer h1 {
-  font-size: var(--text-28);
-  line-height: 1.25;
-}
-.home-flow {
-  margin: 0;
-  padding: 20px;
-  border: var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--surface-card);
-}
-.home-flow figcaption {
-  display: grid;
-  gap: 4px;
-  margin-bottom: 16px;
-}
-.home-flow figcaption strong {
-  font: var(--type-subhead);
-  color: var(--text-strong);
-}
-.home-flow ol {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.home-flow li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  gap: 12px;
-  padding-bottom: 16px;
-}
-/* The connector between stage markers; the last stage has none. */
-.home-flow li:not(:last-child)::before {
-  content: "";
-  position: absolute;
-  top: 32px;
-  bottom: 0;
-  left: 15px;
-  border-left: 2px solid var(--ledger-rule);
-}
-.home-flow-index {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font: 600 14px/1 var(--font-mono);
-  color: var(--authorship-code);
-  background: var(--authorship-code-bg);
-  border: 2px solid var(--authorship-code);
-}
-/* Authorship colours from the design reference: the AI's proposal is dashed
-   slate, the person's approval teal, code ink. The actor is also written out. */
-.home-flow li[data-stage="propose"] .home-flow-index {
-  color: var(--authorship-ai);
-  background: var(--authorship-ai-bg);
-  border: 2px dashed var(--authorship-ai);
-}
-.home-flow li[data-stage="approve"] .home-flow-index {
-  color: var(--authorship-human);
-  background: var(--authorship-human-bg);
-  border-color: var(--authorship-human);
-}
-.home-flow h2 {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 8px;
-  margin-top: 5px;
-  font: var(--type-subhead);
-  color: var(--text-strong);
-}
-.home-flow-actor {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.home-flow li p {
-  margin-top: 4px;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-.home-flow-stop {
-  margin-top: 4px;
-  padding: 10px 12px;
-  border: var(--border-proposal);
-  border-radius: var(--radius-md);
-  background: var(--state-review-bg);
-  color: var(--state-review);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-.home-flow-state {
-  display: block;
-  margin-bottom: 4px;
-  font: 600 12px/1.3 var(--font-mono);
-  letter-spacing: 0.04em;
-}
-.home-band {
-  padding-block: 48px;
-  background: var(--surface-sunken);
-  border-block: var(--hairline);
-}
-.home-reasons {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: reason;
-}
-.home-reasons li {
-  min-width: 0;
-  padding: 20px;
-  border: var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--surface-card);
-  counter-increment: reason;
-}
-.home-reasons li::before {
-  content: counter(reason, decimal-leading-zero);
-  font: var(--type-mono-sm);
-  color: var(--teal-700);
-}
-.home-reasons h3 {
-  margin-top: 8px;
-  font: var(--type-subhead);
-}
-.home-reasons p {
-  margin-top: 6px;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-.home-board {
-  padding-block: 48px 56px;
-}
-.home-board-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 24px;
-}
-.home-board-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-/* A filled mark for what runs, a hollow dashed one for what is planned: the
-   label says it in words too. */
-.home-board-label::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--teal-700);
-}
-.home-board-label[data-status="planned"]::before {
-  background: transparent;
-  border: 2px dashed var(--state-planned);
-}
-.home-board-list {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.home-board-list li {
-  display: grid;
-  gap: 4px;
-  padding: 14px 16px;
-  border: var(--hairline);
-  border-left: 3px solid var(--teal-700);
-  border-radius: var(--radius-md);
-  background: var(--surface-card);
-}
-.home-board-list li[data-status="planned"] {
-  border-left: 3px dashed var(--state-planned);
-  background: var(--state-planned-bg);
-}
-.home-board-list h4 {
-  font: var(--type-subhead);
-  color: var(--text-strong);
-}
-.home-board-list p {
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-.home-board-list a {
-  justify-self: start;
-  font-weight: 600;
-}
-.home-board-list a::after {
-  content: " →";
-}
-.home-boundary {
-  max-width: var(--prose-max);
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: var(--hairline);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-@media (max-width: 64rem) {
-  .home-hero,
-  .home-board-columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home-reasons {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.button {
-  min-height: var(--control-height-lg);
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 16px;
-  border: var(--hairline-strong);
-  border-radius: var(--radius-md);
-  background: var(--paper-0);
-  color: var(--text-strong);
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: var(--motion-color);
-}
-.button:hover:not(:disabled) {
-  background: var(--action-quiet-hover);
-  color: var(--text-strong);
-}
-.button.primary {
-  background: var(--action-primary);
-  border-color: var(--action-primary);
-  color: #fff;
-}
-.button.primary:hover:not(:disabled) {
-  background: var(--action-primary-hover);
-  color: #fff;
-}
-.section-heading {
-  margin-bottom: 20px;
-}
-.section-heading h2 {
-  margin-top: 6px;
-}
-.replay-grid,
-.method-grid,
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.panel,
-.eval-row {
-  min-width: 0;
-  padding: 20px;
-  background: var(--surface-card);
-  border: var(--hairline);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-none);
-}
-.responsibility,
-.state-row {
-  display: grid;
-  gap: 6px;
-}
-.state-row strong,
+
+/* Result vocabulary on a replay result. */
 [data-result] {
-  padding: 6px 8px;
+  display: inline-block;
+  padding: 4px var(--space-2);
   border-left: 3px solid var(--result-not-supported);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   background: var(--result-not-supported-bg);
-  font: 600 12px/1 var(--font-mono);
+  font: 600 12px/1.2 var(--font-mono);
   letter-spacing: 0.04em;
 }
 [data-result="SUPPORTED"] {
@@ -672,19 +650,579 @@ button:disabled {
   border-left-color: var(--result-inconclusive);
   background: var(--result-inconclusive-bg);
 }
-/* The engine checks fold under one summary line, so the model comparison
-   stays the page's answer and the ledger is one click away. */
+
+/* Anything a citation or a trace link jumps to clears the sticky bar. */
+.journey-header h2,
+.source-evidence,
+.gate-row,
+.result-panel,
+.architecture-hash,
+.source-list li {
+  scroll-margin-top: 110px;
+}
+
+/* ───────────────────────── Page frame ───────────────────────── */
+
+.page-shell {
+  padding-block: var(--space-10) var(--space-16);
+}
+.page-heading {
+  display: grid;
+  gap: var(--space-3);
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-8);
+  border-bottom: var(--hairline);
+}
+.page-heading > p {
+  max-width: var(--prose-max);
+  font: var(--type-body-lg);
+  color: var(--text-muted);
+}
+.page-heading > .lede-position {
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--brand-700);
+  font: var(--type-body);
+  font-weight: var(--weight-medium);
+  color: var(--text-strong);
+}
+.section-heading {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.section-heading h2 {
+  font: var(--type-heading);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* ───────────────────────── Home ───────────────────────── */
+
+/* The first screen: what the site is and the walkthrough on the left, the AI
+   question and its answer on the right, the four stages in one row below. */
+.home-hero {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-8) var(--space-12);
+}
+.home-answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 1fr);
+  gap: var(--space-10);
+  align-items: start;
+}
+.home-intro {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding-top: var(--space-2);
+}
+.home-intro h1 {
+  font: var(--type-display);
+  font-size: clamp(var(--font-size-30), 3.4vw, var(--font-size-38));
+  letter-spacing: var(--tracking-tight);
+}
+.home-lede {
+  max-width: 36rem;
+  font: var(--type-body-lg);
+  color: var(--text-body);
+}
+.home-intro .hero-actions {
+  margin-top: var(--space-2);
+}
+.home-intro .hero-actions .button {
+  min-height: 44px;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-16);
+}
+.home-walk-meta {
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.home-ai {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--surface-brand), var(--white) 70%);
+  box-shadow: var(--shadow-2);
+}
+.home-ai h2 {
+  font: var(--type-section);
+  letter-spacing: var(--tracking-tight);
+}
+.home-answer-sentence {
+  font: var(--type-body);
+  color: var(--text-strong);
+}
+.home-control {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  font: var(--type-small);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+.home-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+}
+.home-facts dt {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.home-run {
+  font: var(--type-label);
+}
+/* A term reads as part of its sentence and opens its explanation. */
+.home-term {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--brand-500);
+  text-underline-offset: 0.22em;
+  cursor: help;
+}
+.home-term:hover {
+  color: var(--brand-700);
+}
+.home-term-note {
+  width: min(28rem, calc(100% - 32px));
+  padding: var(--space-5);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-overlay);
+}
+.home-term-note::backdrop {
+  background: rgb(14 23 22 / 12%);
+}
+.home-term-note p {
+  margin-block: var(--space-2) var(--space-4);
+  color: var(--text-body);
+}
+
+.home-flow {
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+}
+.home-flow figcaption {
+  margin-bottom: var(--space-3);
+}
+.home-flow ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-flow li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+.home-flow-index {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--authorship-code);
+  border-radius: 50%;
+  background: var(--authorship-code-bg);
+  color: var(--authorship-code);
+  font: 600 13px/1 var(--font-mono);
+}
+.home-flow li[data-stage="propose"] .home-flow-index {
+  border: 2px dashed var(--authorship-ai);
+  background: var(--authorship-ai-bg);
+  color: var(--authorship-ai);
+}
+.home-flow li[data-stage="approve"] .home-flow-index {
+  border-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+  color: var(--authorship-human);
+}
+.home-flow h3 {
+  margin-top: 4px;
+  font: var(--type-subhead);
+}
+.home-flow li p {
+  margin-top: 2px;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.home-flow-stop {
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-proposal);
+  border-radius: var(--radius-md);
+  background: var(--state-review-bg);
+  color: var(--state-review);
+  font: var(--type-small);
+}
+.home-flow-state {
+  margin-right: var(--space-2);
+  font: 600 12px/1.3 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.home-band {
+  padding-block: var(--space-16);
+  background: var(--surface-subtle);
+  border-block: var(--hairline);
+}
+.home-reasons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: reason;
+}
+.home-reasons li {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+  counter-increment: reason;
+}
+.home-reasons li::before {
+  content: counter(reason);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font: 600 13px/1 var(--font-mono);
+}
+.home-reasons h3 {
+  font: var(--type-subhead);
+}
+.home-reasons p {
+  color: var(--text-muted);
+}
+.home-board {
+  padding-block: var(--space-12) var(--space-16);
+}
+.home-board > .eyebrow {
+  margin-bottom: var(--space-5);
+}
+.home-board-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-8);
+}
+.home-board-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.home-board-label::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand-600);
+}
+.home-board-label[data-status="planned"]::before {
+  background: transparent;
+  border: 2px dashed var(--state-planned);
+}
+.home-board-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-board-list li {
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+/* Each running capability is one row that is itself the link: what it is on
+   the left, the one fact that matters on the right, an arrow to go. */
+.home-board-list a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: inherit;
+  color: var(--text-strong);
+  text-decoration: none;
+}
+.home-board-list a:hover {
+  background: var(--surface-subtle);
+}
+.home-board-list a strong::after {
+  content: " →";
+  color: var(--brand-700);
+}
+.home-board-list a span {
+  font: var(--type-caption);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.home-board-list li[data-status="planned"] {
+  padding: var(--space-3) var(--space-4);
+  border-style: dashed;
+  background: var(--surface-subtle);
+}
+.home-board-list li[data-status="planned"] strong {
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+.home-boundary {
+  max-width: var(--prose-max);
+  margin-top: var(--space-10);
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* ───────────────────────── Model comparison (/evals) ───────────────────────── */
+
+.model-comparison {
+  display: grid;
+  gap: var(--space-4);
+  padding-bottom: var(--space-10);
+}
+.mc-answer h1 {
+  max-width: 40em;
+  margin-top: var(--space-2);
+  font: var(--type-heading);
+  letter-spacing: var(--tracking-tight);
+}
+.mc-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+.mc-roles > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+}
+.mc-roles dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mc-roles dd {
+  color: var(--text-strong);
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+}
+.mc-roles dd.mc-model {
+  font: var(--type-mono-sm);
+}
+.mc-caption {
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.mc-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+}
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-caption);
+  font-variant-numeric: tabular-nums;
+}
+.mc-table caption {
+  padding: 0 0 var(--space-2);
+  text-align: left;
+  color: var(--text-muted);
+}
+.mc-table th,
+.mc-table td {
+  padding: 6px var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.mc-table thead th {
+  background: var(--surface-subtle);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.mc-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.mc-table th small,
+.mc-number small {
+  display: block;
+  font: var(--type-mono-sm);
+  font-size: var(--font-size-12);
+  color: var(--text-faint);
+}
+.mc-eligibility tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--surface-card);
+  font: var(--type-mono-sm);
+}
+.mc-eligibility tr[data-eligible="true"] th {
+  box-shadow: inset 3px 0 0 var(--brand-700);
+}
+.mc-reference th,
+.mc-reference td {
+  background: var(--surface-subtle);
+  font-style: italic;
+}
+.mc-eligibility .mc-reference th {
+  background: var(--surface-subtle);
+}
+.mc-number {
+  font: var(--type-mono-sm);
+}
+.mc-term {
+  color: inherit;
+  text-decoration-style: dotted;
+}
+.mc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  width: fit-content;
+  max-width: 100%;
+}
+.mc-tabs button {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.mc-tabs button:hover {
+  color: var(--text-strong);
+}
+.mc-tabs button[aria-selected="true"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-1);
+}
+.mc-panel {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 100%;
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+.mc-panel h2 {
+  font: var(--type-subhead);
+}
+.mc-panel p,
+.mc-list {
+  max-width: var(--prose-max);
+  color: var(--text-body);
+}
+.mc-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: 1.2em;
+}
+.mc-empty {
+  color: var(--text-muted);
+}
+.mc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+.mc-chart {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+.mc-axis {
+  stroke: var(--line-strong);
+}
+.mc-axis-label,
+.mc-mark-label {
+  fill: var(--text-muted);
+  font: 11px var(--font-sans);
+}
+.mc-mark-eligible {
+  fill: var(--brand-700);
+  stroke: var(--brand-700);
+}
+.mc-mark-ineligible {
+  fill: var(--surface-page);
+  stroke: var(--text-muted);
+  stroke-width: 2;
+}
+.mc-mark-reference {
+  fill: var(--gray-500);
+}
+.mc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font: var(--type-caption);
+}
+.mc-terms {
+  display: grid;
+  gap: var(--space-3);
+}
+.mc-terms dt {
+  font-weight: var(--weight-semibold);
+}
+.mc-terms dd {
+  color: var(--text-muted);
+}
+
+/* The engine checks fold under one summary line, so the comparison stays the
+   page's answer and the ledger is one click away. */
 .ledger {
-  margin-bottom: 48px;
+  margin-top: var(--space-8);
   border: var(--hairline);
   border-radius: var(--radius-lg);
   background: var(--surface-card);
 }
 .ledger > summary {
   display: grid;
-  gap: 4px;
-  padding: 16px 20px;
-  cursor: pointer;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
   list-style: none;
 }
 .ledger > summary::-webkit-details-marker {
@@ -694,11 +1232,14 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 4px 16px;
+  gap: var(--space-1) var(--space-4);
+}
+.ledger-summary strong {
+  color: var(--text-strong);
 }
 .ledger-summary strong::before {
   content: "▸ ";
-  color: var(--teal-700);
+  color: var(--brand-700);
 }
 .ledger[open] .ledger-summary strong::before {
   content: "▾ ";
@@ -707,144 +1248,364 @@ button:disabled {
   font: var(--type-mono-sm);
   color: var(--text-muted);
 }
-.ledger > summary:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
 .ledger > .page-heading,
 .ledger > .eval-list {
-  margin-inline: 20px;
+  margin-inline: var(--space-5);
+}
+.ledger > .page-heading {
+  margin-bottom: 0;
+  padding-bottom: var(--space-4);
+}
+.ledger > .page-heading > p {
+  font: var(--type-small);
 }
 .ledger > .eval-list {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
+
+/* A list of checks or claims, each with its status. */
 .eval-list {
   display: grid;
-  gap: 8px;
-  margin-top: 24px;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 .eval-row {
   display: grid;
-  grid-template-columns: minmax(7rem, auto) 1fr 2fr;
-  gap: 20px;
+  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr) minmax(0, 2fr);
+  align-items: start;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
 }
 .eval-row h2 {
   font: var(--type-subhead);
+  font-size: var(--font-size-14);
 }
-.eval-row p,
+.eval-row p {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* ───────────────────────── Explanatory pages ───────────────────────── */
+
+.method-grid,
+.metric-grid,
+.replay-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.method-grid {
+  margin-top: var(--space-6);
+}
+.metric-grid {
+  margin-top: var(--space-4);
+}
+.metric-grid div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+}
+.metric-grid strong {
+  font: var(--type-mono);
+  font-size: var(--font-size-18);
+  font-variant-numeric: tabular-nums;
+}
+.methodology .panel + .panel,
+.data-handling .panel + .panel {
+  margin-top: var(--space-4);
+}
+.panel > h2 + p,
+.panel > h2 + ul,
+.panel > p + p {
+  margin-top: var(--space-3);
+}
+.panel ul {
+  padding-left: 1.2em;
+}
+.panel li + li {
+  margin-top: var(--space-1);
+}
+.state-row,
+.responsibility {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-bottom: var(--hairline);
+}
+.state-row:last-child,
+.responsibility:last-child {
+  border-bottom: 0;
+}
 .state-row p,
 .responsibility p {
   color: var(--text-muted);
 }
-.pill {
-  padding: 4px 8px;
-  border: var(--hairline);
-  border-radius: var(--radius-sm);
+.state-row strong {
+  font: 600 12px/1.3 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.attributed {
+  max-width: var(--prose-max);
+  margin-block: var(--space-3);
+  line-height: 1.75;
+}
+.cite {
+  font: var(--type-label);
+  vertical-align: super;
+  color: var(--text-link);
+  text-decoration: none;
+}
+.cite:hover,
+.cite:focus-visible {
+  text-decoration: underline;
+}
+.reasoning-mark {
+  display: inline-block;
+  margin-right: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--state-review-bg);
+  color: var(--state-review);
   font: var(--type-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--state-planned);
-  background: var(--state-planned-bg);
 }
-.pill.implemented {
-  border-color: var(--teal-700);
-  color: var(--teal-700);
-  background: var(--teal-tint);
+.layer-authorities > .panel-label {
+  display: block;
 }
-.method-grid {
-  margin-top: 24px;
+.layer-authorities .eval-list {
+  margin-top: var(--space-2);
 }
-.state-row,
-.responsibility {
-  padding-block: 12px;
-  border-bottom: var(--hairline);
+.layer-authority {
+  grid-template-columns: minmax(8rem, auto) minmax(0, 2fr) minmax(0, 1fr);
 }
-.option-list,
-.mapping-preview,
-.case-preview,
-.evaluation-block,
-.sensitivity-block,
-.gate-list,
-.trace-block,
-.hash-block {
+.layer-authority p {
+  margin-block: var(--space-2);
+}
+.claim-boundary {
   display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-.machine-hash {
-  display: grid;
-  gap: 4px;
-  padding: 10px 0;
-}
-.machine-label {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+  line-height: 1.7;
   color: var(--text-muted);
 }
-.machine-abbrev,
-.machine-full {
+.source-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font: var(--type-small);
+}
+.source-marker {
+  font: var(--type-label);
+  color: var(--text-faint);
+}
+.source-list + .button {
+  margin-top: var(--space-4);
+}
+.layer-diagram {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-5);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+}
+.diagram-frame {
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--white);
+}
+.layer-diagram img,
+.layer-diagram .inline-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 900px;
+  height: auto;
+}
+.gate-diagram img {
+  min-width: 620px;
+}
+.layer-diagram figcaption {
+  margin-top: var(--space-4);
+}
+.layer-diagram figcaption p {
+  margin-block: var(--space-2);
+  color: var(--text-muted);
+}
+.layer-diagram ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.component-chain {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-2);
+  margin-block: var(--space-5);
+  padding: 0;
+  list-style: none;
+}
+.component-chain li {
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  font: var(--type-small);
+}
+.component-chain span {
+  display: block;
+  margin-top: var(--space-2);
+}
+.architecture-hash {
+  margin-top: var(--space-6);
+}
+.expectations-guide,
+.expectations-list {
+  margin-top: var(--space-6);
+}
+.expectations-guide li,
+.expectations-guide p,
+.expectation-card > p {
+  margin-top: var(--space-3);
+}
+.expectations-list {
+  display: grid;
+  gap: var(--space-4);
+}
+.expectation-card h2 {
+  margin-top: var(--space-2);
+}
+.expectation-hypothesis {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--hairline);
+}
+.expectation-hypothesis > p {
+  margin-top: var(--space-2);
+}
+.expectation-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.expectation-facts > div {
+  min-width: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.expectation-facts dd {
+  margin-top: var(--space-1);
   overflow-wrap: anywhere;
 }
-.machine-note {
-  display: block;
-  margin: 0;
-  font-size: 0.8125rem;
+
+/* ───────────────────────── Case Replay ───────────────────────── */
+
+/* The heading is held to a few lines: whatever stands above the step rail is
+   what pushes the current step off the screen. */
+.guided-page {
+  padding-block: var(--space-6) var(--space-12);
+}
+/* One row: what this is and how long it takes, then the two modes as a
+   segmented control. */
+.replay-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.replay-heading h1 {
+  font: var(--type-heading);
+  letter-spacing: var(--tracking-tight);
+}
+.replay-heading p {
+  margin-top: var(--space-1);
+  font: var(--type-caption);
   color: var(--text-muted);
 }
-.machine-hash details {
-  display: grid;
-  gap: 8px;
-  justify-items: start;
-  padding: 10px;
-  background: var(--paper-0);
-  border: var(--hairline);
+.mode-choice {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
 }
-.machine-instant {
-  display: grid;
-  gap: 2px;
-}
-.machine-instant code {
-  font-size: 0.8125rem;
+.mode-choice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border-radius: 6px;
   color: var(--text-muted);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
 }
+.mode-choice a:hover {
+  color: var(--text-strong);
+}
+.mode-choice a[aria-current="page"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-1);
+}
+
 .replay-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
   align-items: start;
 }
 .replay-journey {
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
   min-width: 0;
 }
 .journey-header,
 .journey-footer {
   grid-column: 1 / -1;
 }
-/* Guided mode reads as a fixed step rail beside the case it drives, so the
-   steps, their intent and their controls stay in view without scrolling. */
+.journey-header > h2 {
+  font: var(--type-section);
+}
+.journey-header > p {
+  margin-top: var(--space-2);
+  max-width: var(--prose-max);
+  color: var(--text-muted);
+}
+/* Guided mode: a step rail beside the case it drives. The rail's first
+   screenful is the step itself — where the visitor is, what to do, whether
+   they may continue, and the control that does it. Why the step exists and
+   the full step list scroll in their own region below. */
 .guided-split {
-  grid-template-columns: minmax(17rem, 1fr) minmax(0, 2fr);
+  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+  gap: var(--space-6);
   align-items: start;
 }
 .guided-split > * {
   grid-column: 2;
 }
-/* The rail is a column whose first screenful is the step itself: where the
-   visitor is, what to do, whether they may continue, and the control that does
-   it. Everything that supports the step — why it exists, who acted, the whole
-   step list — scrolls in its own region below that, so the four things needed
-   to act are in view the moment the rail is, not after a scroll. */
 .guided-split > .journey-header {
   position: sticky;
-  top: calc(var(--appbar-height) + 16px);
+  top: calc(var(--appbar-height) + var(--space-4));
   grid-column: 1;
   grid-row: 1 / -1;
   align-self: start;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - var(--appbar-height) - 32px);
+  max-height: calc(100vh - var(--appbar-height) - var(--space-8));
   overflow: hidden;
+  padding: var(--space-5);
 }
 .guided-split .rail-lead {
   flex: 0 0 auto;
@@ -852,19 +1613,14 @@ button:disabled {
 .guided-split .rail-scroll {
   flex: 1 1 auto;
   min-height: 0;
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
   border-top: var(--hairline);
   overflow-y: auto;
 }
-.guided-split .journey-progress {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
-  margin-block: 8px 0;
-}
 .rail-progress {
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
   margin: 0;
   font: var(--type-label);
   letter-spacing: var(--tracking-label);
@@ -873,29 +1629,56 @@ button:disabled {
 }
 .rail-meter {
   display: block;
-  height: 3px;
-  background: var(--ledger-rule);
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  overflow: hidden;
 }
 .rail-meter::before {
   content: "";
   display: block;
   height: 100%;
   width: var(--rail-meter-fill, 0%);
-  background: var(--teal-700);
+  border-radius: inherit;
+  background: var(--brand-600);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+.guided-split .journey-header h2 {
+  margin-block: var(--space-3) var(--space-1);
+  font: var(--type-section);
+}
+.step-instruction {
+  max-width: var(--prose-max);
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.rail-actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.rail-actions .button {
+  width: 100%;
+}
+.rail-actions .journey-controls .button {
+  width: auto;
 }
 /* Whose turn the current step is, named by its stage on the control line. */
 .step-stage {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 8px;
+  gap: 2px var(--space-2);
   margin: 0;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   border-left: 3px solid var(--authorship-code);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   background: var(--authorship-code-bg);
-  font-size: 0.875rem;
+  font: var(--type-small);
 }
 .step-stage[data-stage="propose"] {
+  border-left-style: dashed;
   border-left-color: var(--authorship-ai);
   background: var(--authorship-ai-bg);
 }
@@ -912,118 +1695,150 @@ button:disabled {
 .step-stage strong {
   color: var(--text-strong);
 }
+.step-refusal,
+.step-requirement {
+  display: block;
+  max-width: var(--prose-max);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--state-review);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--state-review-bg);
+  color: var(--text-body);
+  font: var(--type-small);
+}
+/* A met condition is a quiet confirmation, not another box to read. */
+.step-requirement[data-met="true"] {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--authorship-human);
+  font-weight: var(--weight-medium);
+}
+.step-requirement[data-met="true"]::before {
+  content: "\2713  ";
+}
+/* The control that advances the current step carries a ring, so it is found
+   at a glance among the reading around it. Nothing else is marked this way. */
+.step-action,
+.step-locate {
+  outline: 2px solid var(--brand-700);
+  outline-offset: 3px;
+}
+.step-locate::after {
+  content: " \2193";
+}
+details.step-action > summary {
+  font-weight: var(--weight-semibold);
+  color: var(--brand-800);
+}
+.step-intent {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+  font: var(--type-small);
+}
+.step-intent dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.step-intent dd {
+  margin-top: 2px;
+  max-width: var(--prose-max);
+}
+.step-intent strong {
+  color: var(--authorship-code);
+}
+/* Who acted stays in view; why the step exists and the full step list each
+   wait one disclosure below it. */
+.step-actor {
+  margin: 0 0 var(--space-3);
+  font: var(--type-small);
+}
+.step-actor span {
+  color: var(--text-muted);
+}
+.step-actor strong {
+  color: var(--authorship-code);
+}
+.step-actor[data-actor="A model proposed it"] strong {
+  color: var(--authorship-ai);
+}
+.step-actor[data-actor="A person approved it"] strong {
+  color: var(--authorship-human);
+}
+.step-why,
+.rail-steps {
+  margin: 0 0 var(--space-3);
+}
+.step-why > summary,
+.rail-steps > summary {
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
+  display: list-item;
+  cursor: pointer;
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+  color: var(--text-body);
+}
+.step-why[open] > summary {
+  margin-bottom: var(--space-2);
+}
+.rail-list-heading {
+  margin: var(--space-4) 0 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 .stage-group h4 {
-  margin: 12px 0 0;
-  font-size: 0.8125rem;
+  margin: var(--space-3) 0 0;
+  font: var(--type-caption);
   font-weight: var(--weight-semibold);
   color: var(--text-muted);
 }
 .stage-group[data-current="true"] h4 {
   color: var(--text-strong);
 }
-.rail-list-heading {
-  margin: 16px 0 0;
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-/* The instruction is the sentence the visitor acts on, so it is set apart from
-   the prose that explains the step rather than stacked inside it. */
-.step-instruction {
-  max-width: var(--prose-max);
-  margin: 8px 0 0;
-  font-weight: var(--weight-semibold);
-  color: var(--text-strong);
-}
-.guided-split .journey-step {
-  gap: 1px;
-  padding: 6px 10px;
-}
-.guided-split .journey-step span {
-  font-size: 0.875rem;
-}
-.guided-split .journey-step small {
-  font-size: 0.6875rem;
-}
-.guided-split .journey-header h2 {
-  font: var(--type-section);
-  margin-block: 8px;
-}
-.guided-split .step-intent {
-  gap: 8px;
-  margin-block: 0 12px;
-  font-size: 0.875rem;
-}
-.guided-split .step-instruction {
-  font-size: 0.9375rem;
-}
-.guided-split .step-refusal,
-.guided-split .step-requirement {
-  padding: 8px 10px;
-  font-size: 0.8125rem;
-}
-/* The condition and the controls sit directly under the instruction, above
-   everything that scrolls, so advancing never depends on any scroll. */
-.rail-actions {
-  display: grid;
-  gap: 8px;
-  margin-top: 12px;
-}
-.rail-actions .button {
-  width: 100%;
-  justify-content: center;
-}
-.rail-actions .journey-controls .button {
-  width: auto;
-}
-.guided-split > .journey-header .journey-controls {
-  margin-top: 0;
-}
-.journey-footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-}
-.journey-progress,
-.component-chain {
+.journey-progress {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 8px;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
   padding: 0;
-  margin-block: 20px;
   list-style: none;
 }
-.journey-progress li,
-.component-chain li {
-  padding: 10px;
-  border: var(--hairline);
-  font-size: 0.875rem;
+.guided-split .journey-progress {
+  grid-template-columns: minmax(0, 1fr);
+}
+.journey-progress li {
+  border-radius: var(--radius-md);
 }
 .journey-progress [aria-current="step"] {
   background: var(--selected-bg);
-  border-color: var(--teal-700);
-  font-weight: 600;
-}
-.journey-progress li {
-  padding: 0;
+  box-shadow: inset 3px 0 0 var(--brand-700);
+  font-weight: var(--weight-semibold);
 }
 .journey-step {
   display: grid;
-  gap: 4px;
+  gap: 1px;
   width: 100%;
-  padding: 10px;
+  padding: 6px var(--space-3);
   border: 0;
+  border-radius: var(--radius-md);
   background: none;
   color: inherit;
-  font: inherit;
+  font: var(--type-small);
   text-align: left;
   cursor: pointer;
 }
+.journey-step:hover {
+  background: var(--action-quiet-hover);
+}
 .journey-step small {
-  font: var(--type-small);
+  font: var(--type-caption);
+  font-size: var(--font-size-12);
   color: var(--text-muted);
 }
 .journey-step[data-complete="true"] small {
@@ -1033,459 +1848,213 @@ button:disabled {
   content: " \2713";
   color: var(--authorship-human);
 }
-.step-intent {
-  display: grid;
-  gap: 10px;
-  margin-block: 16px;
-  padding-left: 12px;
-  border-left: var(--rule-accent);
-}
-.step-intent dt {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.step-intent dd {
-  margin: 0;
-  max-width: var(--prose-max);
-}
-.step-intent strong {
-  color: var(--authorship-code);
-}
-.step-refusal,
-.step-requirement {
-  display: block;
-  max-width: var(--prose-max);
-  padding: 12px;
-  border-left: 3px solid var(--state-review);
-  background: var(--state-review-bg);
-  color: var(--text-body);
-}
-.step-requirement[data-met="true"] {
-  border-left-color: var(--authorship-human);
-  background: var(--authorship-human-bg);
-}
 .journey-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
   align-items: center;
-  margin-top: 16px;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
 }
+.guided-split > .journey-header .journey-controls,
 .journey-footer .journey-controls {
   margin-top: 0;
 }
-/* The control that advances the current step, wherever it is rendered. It has
-   to be findable at a glance among the reading around it, so it carries a ring
-   rather than only an outline. Nothing else on the step is emphasised this way:
-   if everything were, the mark would say nothing. */
-.step-action {
-  outline: var(--rule-accent);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px var(--state-review-bg);
-}
-/* An approval that has happened must not look like one still being asked for.
-   The unapproved control is the filled primary; the approved one steps back to
-   a quiet control and says so. */
-.button[data-approved="true"] {
-  border-color: var(--authorship-human);
-  color: var(--authorship-human);
-}
-.button[data-approved="true"]::after {
-  content: " \2713";
-}
-/* The fields blocking the step, named above the proposal rather than found by
-   scrolling it. Every proposed field stays visible below; this only says which
-   of them is waiting. */
-.review-summary {
-  display: grid;
-  gap: 8px;
-  margin-block: 16px;
-  padding: 12px;
-  border-left: 3px solid var(--state-review);
-  background: var(--state-review-bg);
-}
-.review-summary p {
-  max-width: var(--prose-max);
-  margin: 0;
-}
-.review-summary ul {
+.journey-footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.review-jump {
-  padding: 4px 10px;
-  border: var(--hairline-strong);
-  border-radius: var(--radius-md);
-  background: var(--paper-0);
-  color: var(--text-strong);
-  font: var(--type-mono-sm);
-  cursor: pointer;
-}
-.review-jump:hover {
-  background: var(--action-quiet-hover);
-}
-.review-jump::after {
-  content: " \2193";
-}
-/* An input that still blocks the step is marked where it is, so arriving at it
-   from the summary lands somewhere that looks like the thing being asked for. */
-input[data-review-unresolved="true"] {
-  border-color: var(--state-review);
-  background: var(--state-review-bg);
-}
-.approval-binding {
-  max-width: var(--prose-max);
-  margin-block: 12px 8px;
-  color: var(--text-muted);
-}
-.workflow-state small {
-  display: block;
-  max-width: var(--prose-max);
-  margin-top: 4px;
-  color: var(--text-muted);
-}
-.source-evidence summary small {
-  display: block;
-  margin-top: 2px;
-  font-weight: var(--weight-regular);
-  color: var(--text-muted);
-}
-/* Not the work itself: a way to the part of the case where the work happens.
-   It is still the control the rail offers for this step, so it is as findable
-   as one that commits something; the arrow is what says the two differ. */
-.step-locate {
-  outline: var(--rule-accent);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px var(--state-review-bg);
-}
-.step-locate::after {
-  content: " \2193";
-}
-.gate-id {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-details.step-action > summary {
-  font-weight: var(--weight-semibold);
-  color: var(--teal-800);
-}
-/* One surface, two named ways to use it. The choice states what each does and
-   which one is running, so the modes are never two unexplained destinations. */
-/* One control, used the same way on both modes. Each option keeps its own
-   one-line meaning so the pair is legible without being opened, and both cells
-   are the same size so the control does not resize as the choice moves. */
-.mode-choice {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
-  gap: 0;
-  margin-top: 16px;
-  border: var(--hairline);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.mode-choice a {
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  padding: 12px 14px;
-  color: var(--text-body);
-  text-decoration: none;
-}
-.mode-choice a + a {
-  box-shadow: inset 1px 0 0 var(--ledger-rule);
-}
-.mode-choice a:hover {
-  background: var(--surface-sunken);
-}
-.mode-choice a[aria-current="page"] {
-  background: var(--selected-bg);
-  box-shadow: inset 0 2px 0 var(--teal-700);
-}
-.mode-choice a + a[aria-current="page"] {
-  box-shadow:
-    inset 0 2px 0 var(--teal-700),
-    inset 1px 0 0 var(--ledger-rule);
-}
-.mode-choice strong {
-  color: var(--text-strong);
-}
-.mode-choice small {
-  font: var(--type-small);
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-/* What the walkthrough is, before it starts: the shape of the thing, how long
-   it takes, and that it keeps nothing. Held to a few lines, because whatever
-   stands above the step rail is what pushes the current step off the screen. */
-.guided-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  margin-top: 10px;
-  padding: 0;
-  list-style: none;
-  font: var(--type-small);
-  color: var(--text-muted);
-}
-.guided-meta li + li::before {
-  content: "· ";
-}
-.guided-page {
-  padding-block: 20px 0;
-}
-.guided-page > .page-heading {
-  padding-bottom: 16px;
-}
-.guided-page > .page-heading h1 {
-  margin-top: 0;
-  font: var(--type-title);
-}
-.guided-page > .page-heading > p {
-  margin-top: 6px;
-  font: var(--type-body);
-}
-.guided-page .mode-choice {
-  margin-top: 12px;
-}
-.component-chain span {
-  display: block;
-  margin-top: 8px;
-}
-.journey-header h2,
-.journey-header p,
-.source-preview p,
-.architecture-hash p,
-.repeat-panel p {
-  margin-block: 12px;
-}
-.source-preview code,
-.approval-receipt code {
-  overflow-wrap: anywhere;
-}
-.source-preview details,
-.advanced-controls {
-  margin-block: 16px;
-  padding: 12px;
-  border: var(--hairline);
-}
-.source-preview summary,
-.advanced-controls summary {
-  cursor: pointer;
-}
-.source-preview dl > div,
-.approval-receipt > div {
-  padding-block: 6px;
-  border-bottom: var(--hairline);
-}
-.source-preview dd,
-.approval-receipt dd,
-.case-rules dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.case-rules dt {
-  overflow-wrap: anywhere;
-}
-.case-rules dl > div {
-  margin-block: 8px;
-}
-.journey-header h2,
-.source-evidence,
-.gate-row,
-.result-panel,
-.architecture-hash,
-.source-list li {
-  scroll-margin-top: 110px;
-}
-.gate-description {
-  grid-column: 1 / -1;
-  color: var(--text-muted);
-}
-.artifact-json {
-  max-height: 28rem;
-  overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  padding: 12px;
-  background: var(--paper-0);
-  border: var(--hairline);
-}
-.architecture-hash {
-  margin-top: 24px;
-}
-.expectations-guide,
-.expectations-list {
-  margin-top: 24px;
-}
-.expectations-guide li,
-.expectations-guide p,
-.expectation-card > p {
-  margin-top: 12px;
-}
-.expectations-list {
-  display: grid;
-  gap: 16px;
-}
-.expectation-card h2 {
-  margin-top: 8px;
-}
-.expectation-hypothesis {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: var(--hairline);
-}
-.expectation-hypothesis > p {
-  margin-top: 8px;
-}
-.expectation-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-.expectation-facts > div {
-  min-width: 0;
-  padding: 12px;
-  border: var(--hairline);
-}
-.expectation-facts dd {
-  margin: 6px 0 0;
-  overflow-wrap: anywhere;
-}
-.layer-diagram {
-  margin: 0 0 24px;
-  padding: 20px;
-  background: var(--surface-card);
-  border: var(--hairline);
-  border-radius: var(--radius-lg);
-}
-.diagram-frame {
-  overflow-x: auto;
-  background: var(--paper-0);
-  border: var(--hairline);
-}
-.layer-diagram img,
-.layer-diagram .inline-diagram svg {
-  display: block;
-  width: 100%;
-  min-width: 900px;
-  height: auto;
-}
-.layer-diagram figcaption {
-  margin-top: 16px;
-}
-.layer-diagram figcaption p {
-  margin-block: 8px;
-  color: var(--text-muted);
-}
-.layer-diagram ul {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding-left: 20px;
-}
-.gate-diagram img {
-  min-width: 620px;
-}
-.attributed {
-  max-width: var(--prose-max);
-  margin-block: 12px;
-  line-height: 1.72;
-  color: var(--text-body);
-}
-.page-heading > .lede-position {
-  margin-top: 12px;
-  padding-left: 12px;
-  border-left: 2px solid var(--teal-700);
-  color: var(--text-strong);
-  font-weight: 500;
-}
-.cite {
-  font: var(--type-label);
-  vertical-align: super;
-  color: var(--text-link);
-  text-decoration: none;
-}
-.cite:hover,
-.cite:focus-visible {
-  text-decoration: underline;
-}
-.reasoning-mark {
-  display: inline-block;
-  margin-right: 6px;
-  padding: 2px 6px;
-  border: var(--hairline);
-  border-radius: var(--radius-sm);
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--state-review);
-  background: var(--state-review-bg);
-}
-.layer-authority p {
-  margin-block: 8px;
-}
-.layer-authorities > .panel-label {
-  display: block;
-}
-.layer-authorities .eval-list {
-  margin-top: 8px;
-}
-.layer-authority {
-  grid-template-columns: minmax(7rem, auto) 2fr 1fr;
-}
-.claim-boundary {
-  display: grid;
-  gap: 12px;
-  margin: 8px 0 0;
-  padding-left: 20px;
-  color: var(--text-muted);
-  line-height: 1.68;
-}
-.source-list {
-  display: grid;
-  gap: 8px;
-  margin: 8px 0 0;
-  padding-left: 0;
-  list-style: none;
-  color: var(--text-muted);
-}
-.source-marker {
-  font: var(--type-label);
-  color: var(--text-faint);
-}
-.source-list a {
-  color: var(--text-link);
-}
-.source-list + .button {
-  margin-top: 16px;
-}
-[hidden] {
-  display: none !important;
-}
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* The case column. The AI's side of the case is drawn dashed until a person
+   approves it; versioned code's result is drawn in ink. */
 .replay-control {
   border-style: dashed;
-  border-color: var(--slate-500);
+  border-color: var(--slate-400);
+}
+.replay-control > div + div {
+  margin-top: var(--space-4);
 }
 .result-panel {
-  border-color: var(--ink-800);
+  border-color: var(--gray-900);
+}
+.scenario-select,
+.mapping-row label {
+  display: grid;
+  gap: var(--space-1);
+  font: var(--type-small);
+}
+.scenario-select select,
+.mapping-row input {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-strong);
+}
+/* In the guided walkthrough the source is fixed: it reads as a name, not as a
+   control that refuses to open. */
+.scenario-select select:disabled {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  appearance: none;
+  opacity: 1;
+  cursor: default;
+  font-weight: var(--weight-semibold);
+  min-height: auto;
+}
+
+/* In the walkthrough the source is fixed, so its name is said once: the
+   panel and field labels stay for assistive technology only. */
+.guided-split .replay-control .panel-label,
+.guided-split .scenario-select > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.guided-split .scenario-select select:disabled {
+  width: 100%;
+  max-width: 100%;
+  font: var(--type-section);
+  text-overflow: ellipsis;
+}
+/* Step 1: the committed source, read at a glance as one table. */
+.source-preview {
+  display: grid;
+  gap: var(--space-4);
+}
+.source-summary {
+  display: grid;
+  gap: var(--space-2);
+}
+.source-preview .source-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.source-facts li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.source-facts strong {
+  color: var(--text-strong);
+}
+.source-summary > p {
+  max-width: var(--prose-max);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.source-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+}
+.source-table {
+  width: 100%;
+  font: var(--type-mono-sm);
+  font-variant-numeric: tabular-nums;
+}
+.source-table th,
+.source-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.source-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-subtle);
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+}
+.source-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.source-table tbody tr:hover > * {
+  background: var(--surface-subtle);
+}
+.source-table tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--surface-card);
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+.source-table code {
+  font: inherit;
+  white-space: pre;
+}
+.source-provenance {
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.source-provenance > summary {
+  padding: var(--space-3) var(--space-4);
+  font: var(--type-small);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.source-provenance > :not(summary) {
+  margin: 0 var(--space-4) var(--space-3);
+}
+.source-provenance h3 {
+  font-size: var(--font-size-14);
+}
+.source-provenance p {
+  font: var(--type-small);
+}
+
+.advanced-controls {
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+}
+.advanced-controls p {
+  margin-block: var(--space-2);
+}
+.option-list,
+.mapping-preview,
+.case-preview,
+.evaluation-block,
+.sensitivity-block,
+.gate-list,
+.trace-block,
+.hash-block {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
 }
 .option {
   display: flex;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3);
   border: var(--hairline);
-  background: var(--paper-0);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
 }
 .option.selected {
-  border-color: var(--teal-700);
-  border-left: 3px solid var(--teal-700);
+  border-color: var(--brand-700);
   background: var(--selected-bg);
 }
 .option span {
@@ -1495,26 +2064,12 @@ details.step-action > summary {
 .option small {
   color: var(--text-muted);
 }
-.scenario-select,
-.mapping-row label {
-  display: grid;
-  gap: 6px;
-}
-.scenario-select select,
-.mapping-row input {
-  min-height: var(--control-height-lg);
-  padding: 0 8px;
-  color: var(--text-strong);
-  background: var(--paper-0);
-  border: var(--hairline-strong);
-  border-radius: var(--radius-md);
-}
 .mapping-row,
 .gate-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 8px;
-  padding-block: 12px;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
   border-bottom: var(--hairline);
 }
 .mapping-row > *,
@@ -1526,39 +2081,220 @@ details.step-action > summary {
 .mapping-row label,
 .gate-row small,
 .gate-row .source-evidence {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
-.source-evidence summary {
-  cursor: pointer;
-  color: var(--text-strong);
+/* On a wide screen each proposed field reads as one line: source column,
+   target, transform and status; its confidence and evidence sit below. */
+@media (min-width: 52.0625rem) {
+  .mapping-row {
+    grid-template-columns:
+      minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1.4fr)
+      auto;
+    align-items: baseline;
+  }
+  .mapping-row > .mapping-transform {
+    grid-column: 4;
+  }
+  .mapping-row > b[data-status] {
+    grid-column: 5;
+    grid-row: 1;
+  }
 }
-.source-evidence summary:focus-visible {
-  outline: 2px solid currentColor;
+.mapping-confidence,
+.mapping-evidence {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.mapping-row b[data-status="REVIEW_REQUIRED"] {
+  color: var(--state-review);
+  border-bottom: 1px dashed currentColor;
+}
+.gate-id {
+  font-size: var(--font-size-12);
+  color: var(--text-muted);
+}
+.gate-description {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+}
+.gate-row b[data-passed="true"] {
+  color: var(--result-supported);
+}
+.gate-row b[data-passed="false"] {
+  color: var(--result-not-supported);
+}
+.gate-row:focus,
+.approved-mapping-row:focus {
+  outline: var(--focus-outline);
   outline-offset: 4px;
 }
-.source-evidence article {
-  margin-top: 12px;
-  padding: 12px;
+/* The fields blocking the step, named above the proposal rather than found by
+   scrolling it. */
+.review-summary {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--state-review);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--state-review-bg);
+}
+.review-summary p {
+  max-width: var(--prose-max);
+}
+.review-summary ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-jump {
+  padding: var(--space-1) var(--space-3);
+  border: var(--hairline-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  font: var(--type-mono-sm);
+  cursor: pointer;
+}
+.review-jump:hover {
+  background: var(--action-quiet-hover);
+}
+.review-jump::after {
+  content: " \2193";
+}
+input[data-review-unresolved="true"] {
+  border-color: var(--state-review);
+  background: var(--state-review-bg);
+}
+.approval-binding {
+  max-width: var(--prose-max);
+  margin-block: var(--space-3) var(--space-2);
+  color: var(--text-muted);
+  font: var(--type-small);
+}
+.approval-coverage {
+  margin-block: var(--space-3) var(--space-1);
+  color: var(--text-strong);
+}
+.approval-receipt > div,
+.case-rules dl > div {
+  padding-block: var(--space-2);
+  border-bottom: var(--hairline);
+}
+.approval-receipt dd,
+.case-rules dd,
+.case-rules dt {
+  overflow-wrap: anywhere;
+}
+.approval-receipt code {
+  overflow-wrap: anywhere;
+}
+.workflow-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border: var(--hairline);
-  background: var(--paper-0);
+  border-radius: var(--radius-md);
+}
+.workflow-state small {
+  display: block;
+  max-width: var(--prose-max);
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+}
+/* The verdict leads the result in words; the machine values that produced
+   it wait in one disclosure below the checks. */
+.result-headline {
+  font: var(--type-body);
+}
+.result-tally {
+  display: block;
+  margin-top: var(--space-1);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.result-technical {
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-subtle);
+}
+.result-technical > summary {
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
+  cursor: pointer;
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+}
+.result-technical[open] > summary {
+  margin-bottom: var(--space-3);
+}
+.guide-next {
+  margin-top: var(--space-4);
+  font: var(--type-small);
+}
+.guide-next span {
+  color: var(--text-muted);
+}
+.evaluation-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.run-button {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+.empty-result {
+  padding: var(--space-10) 0;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: var(--hairline-strong);
+  border-radius: 50%;
+  font: var(--type-label);
+}
+
+/* Evidence under a finding, traced back through the approved mapping. */
+.source-evidence summary {
+  color: var(--text-strong);
+}
+.source-evidence summary small {
+  display: block;
+  margin-top: 2px;
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+.source-evidence article {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
 }
 .source-evidence h3 {
-  margin-block: 12px 8px;
-  font-size: 1rem;
+  margin-block: var(--space-3) var(--space-2);
 }
 .source-evidence dl > div {
-  margin-block: 8px;
-}
-.source-evidence dd {
-  margin: 0;
-  overflow-wrap: anywhere;
+  margin-block: var(--space-2);
 }
 .source-values code {
   white-space: pre-wrap;
-}
-.approval-coverage {
-  margin-block: 12px 4px;
-  color: var(--text-strong);
 }
 .trace-lines,
 .approved-mapping-rows {
@@ -1571,8 +2307,8 @@ details.step-action > summary {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 8px;
-  padding-block: 8px;
+  gap: var(--space-1) var(--space-2);
+  padding-block: var(--space-2);
   border-bottom: var(--hairline);
   overflow-wrap: anywhere;
   scroll-margin-top: 110px;
@@ -1596,505 +2332,38 @@ details.step-action > summary {
 .trace-checks {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-}
-.gate-row:focus,
-.approved-mapping-row:focus {
-  outline: 2px solid currentColor;
-  outline-offset: 4px;
+  gap: var(--space-1) var(--space-3);
 }
 .approved-mapping,
 .trace-machine-values {
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 .approved-mapping summary,
 .trace-machine-values summary {
-  cursor: pointer;
   color: var(--text-strong);
 }
 .approved-mapping summary small {
   display: block;
   color: var(--text-muted);
 }
-.mapping-row b[data-status="REVIEW_REQUIRED"] {
-  color: var(--state-review);
-  border-bottom: 1px dashed currentColor;
-}
-.run-button {
-  width: 100%;
-  margin-top: 16px;
-}
-.review-message,
-.error-message,
-.boundary-note {
-  display: grid;
-  gap: 4px;
-  padding: 12px;
-  border-left: 3px solid var(--state-review);
-  background: var(--state-review-bg);
-}
-.error-message {
-  border-left-color: var(--state-refused);
-  background: var(--state-refused-bg);
-  color: var(--state-refused);
-}
-.workflow-state {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 12px;
-  border: var(--hairline);
-}
-.metric-grid {
-  margin-top: 16px;
-}
-.metric-grid div {
-  display: grid;
-  gap: 4px;
-  padding: 12px;
-  border: var(--hairline);
-}
-.metric-grid strong {
-  font: var(--type-mono-lg);
-  font-variant-numeric: var(--numeric-machine);
-}
-code {
-  overflow-wrap: anywhere;
-  font: var(--type-mono);
-  font-variant-numeric: var(--numeric-machine);
-}
-.evaluation-heading {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-  margin-top: 16px;
-}
-.gate-row b[data-passed="true"] {
-  color: var(--result-supported);
-}
-.gate-row b[data-passed="false"] {
-  color: var(--result-not-supported);
-}
-.hash-block code {
-  padding: 12px;
-  background: var(--surface-code);
-  border: var(--hairline);
-}
-.empty-result {
-  padding: 40px 0;
-  text-align: center;
-  color: var(--text-muted);
-}
-.empty-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: var(--hairline-ink);
-  font: var(--type-label);
-}
-.site-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 24px;
-  border-top: var(--hairline);
-  color: var(--text-muted);
-  font: var(--type-small);
-}
-/* The published case reads as numbered chapters. The number sits in a gutter so
-   the eye can find its place while scrolling, the purpose line sits directly
-   under the title where a reader looks for "why am I seeing this", and the body
-   aligns with the title rather than the number. */
-.case-chapter {
-  padding-block: 40px;
-  border-top: var(--hairline);
-}
-.case-chapter:first-of-type {
-  border-top: 0;
-}
-/* Inside the stepper only one chapter is on screen, so the rule that separated
-   stacked chapters would draw a line above nothing. The rail and the controls
-   carry the separation instead. */
-.case-chapters .case-chapter {
-  border-top: 0;
-  padding-block: 0;
-}
-/* The rail is a column beside the chapter, not a band above it. Sitting above,
-   it pushed the step it describes below the fold, which is the one thing this
-   layout exists to prevent. Sticky, so the whole procedure stays in view and
-   any chapter is one click away at any scroll position. */
-.case-split {
-  display: grid;
-  grid-template-columns: minmax(14rem, 1fr) minmax(0, 3fr);
-  gap: 12px 32px;
-  align-items: start;
-  padding-top: 20px;
-  border-top: var(--hairline);
-}
-.case-split > .case-opening,
-.case-split > .case-chapters,
-.case-split > .chapter-controls,
-.case-split > noscript {
-  grid-column: 2;
-}
-.case-split > .case-chapter-rail {
-  position: sticky;
-  top: calc(var(--appbar-height) + 16px);
-  grid-column: 1;
-  grid-row: 1 / -1;
-  align-self: start;
-  max-height: calc(100vh - var(--appbar-height) - 32px);
-  overflow-y: auto;
-}
-.case-chapter-rail {
-  padding-block: 4px;
-}
-/* One entry per line in the column; the six-across grid was for a band. */
-.case-split .case-chapter-rail .journey-progress {
-  grid-template-columns: minmax(0, 1fr);
-}
-@media (max-width: 900px) {
-  .case-split {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .case-split > .case-opening,
-  .case-split > .case-chapters,
-  .case-split > .chapter-controls,
-  .case-split > noscript,
-  .case-split > .case-chapter-rail {
-    grid-column: 1;
-  }
-  .case-split > .case-chapter-rail {
-    position: static;
-    grid-row: auto;
-    max-height: none;
-    border-bottom: var(--hairline);
-  }
-  .case-split .case-chapter-rail .journey-progress {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-/* A grid rather than a wrapping row: six equal columns break to three and to
-   two without ever leaving one entry stretched across a row of its own. */
-.case-chapter-rail .journey-progress {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.case-chapter-rail .journey-step {
-  padding: 8px 10px;
-  border-radius: 2px;
-}
-.case-chapter-rail .journey-step span {
-  font: var(--type-small);
-  line-height: 1.5;
-}
-.case-chapter-rail .journey-step:hover {
-  background: var(--selected-bg);
-}
-/* The reader's own position is the one thing on the rail that must not be
-   mistaken for anything else, so it carries a colour and a weight no other
-   entry has. */
-.case-chapter-rail [aria-current="step"] .journey-step {
-  background: var(--selected-bg);
-  box-shadow: inset 2px 0 0 var(--teal-700);
-  font-weight: var(--weight-semibold);
-}
-.chapter-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: var(--hairline);
-}
-/* Stated in the row that is visible from every chapter, because a run can
-   finish while the reader is somewhere the result cannot be seen. */
-.run-finished {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  margin-right: auto;
-  padding: 6px 10px;
-  border-left: 3px solid var(--authorship-human);
-  background: var(--authorship-human-bg);
-}
-/* Printing has no way to advance a chapter, and the `[hidden]` rule that makes
-   the stepper work would otherwise reduce a printed case to whichever chapter
-   happened to be open. The paper copy carries the whole procedure. */
-@media print {
-  .evidence-badge--inverse {
-    border: var(--hairline-ink);
-    color: var(--authorship-code);
-    background: transparent;
-  }
-  .case-split {
-    display: block;
-  }
-  .case-chapter[hidden] {
-    display: block !important;
-  }
-  .case-chapter + .case-chapter {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: var(--hairline) !important;
-  }
-  .case-chapter-rail,
-  .chapter-controls,
-  .run-finished {
-    display: none !important;
-  }
-}
-.chapter-position {
-  font: var(--type-small);
-  color: var(--text-muted);
-}
-@media (max-width: 1100px) {
-  .case-chapter-rail .journey-progress {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-@media (max-width: 640px) {
-  .case-chapter-rail .journey-progress {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .chapter-controls {
-    flex-wrap: wrap;
-  }
-}
-.chapter-head {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
-  gap: 0 16px;
-  align-items: start;
-}
-.chapter-number {
-  font: var(--type-mono-lg);
-  font-size: var(--text-28);
-  line-height: 1.1;
-  color: var(--ledger-rule-strong);
-}
-.chapter-head h2 {
-  margin: 0;
-  font: var(--type-title);
-  line-height: 1.35;
-}
-.chapter-purpose {
-  max-width: var(--prose-max);
-  margin: 10px 0 0;
-  font: var(--type-body-lg);
-  line-height: 1.8;
-  color: var(--text-muted);
-}
-.chapter-body {
-  margin-top: 24px;
-  padding-left: calc(3rem + 16px);
-}
-.chapter-body > p {
-  max-width: var(--prose-max);
-  line-height: 1.8;
-}
-.chapter-body > h3 {
-  margin-top: 28px;
-}
-/* The frame the chapters are read inside, kept to a band. The chart in its
-   short form sits beside what the page refuses to claim rather than above it,
-   so the first step is reachable without scrolling past a screenful first. */
-.case-opening {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px 24px;
-  align-items: start;
-  padding-block: 0 16px;
-}
-/* Chart and premise share one row; the provenance note runs full width under
-   them, where it wraps in two lines instead of the six a narrow column costs. */
-/* The day itself runs the full width of the column, because the shape of the
-   session is the one thing on this page worth seeing at size. What the chart is
-   and what the page will not claim sit under it, side by side. */
-.case-session {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  min-width: 0;
-}
-/* The three notes under the chart are supporting text and are sized as such.
-   The day itself is what the opening is for; these say what the chart is,
-   where the intraday view came from, and what the page will not do. Scoped to
-   the opening so the same chart note keeps its size wherever else it is drawn.
-   The premise keeps body colour rather than the muted grey the two provenance
-   notes take: it is a disclosure that has to stay readable, not a caption. */
-.case-opening .session-note,
-.case-opening .intraday-reference,
-.case-opening .case-premise {
-  font-size: var(--text-12);
-  line-height: 1.55;
-}
-.case-opening .session-note {
-  margin-top: 8px;
-}
-.case-opening .intraday-reference {
-  gap: 3px;
-  padding: 8px 12px;
-}
-.case-opening .case-premise {
-  padding: 10px 14px;
-  color: var(--text-body);
-}
-.case-opening .case-premise h2 {
-  margin: 0 0 4px;
-  font: var(--weight-semibold) var(--text-13) / 1.35 var(--font-sans);
-}
-.case-opening .case-premise p {
-  margin: 4px 0 0;
-  line-height: 1.55;
-}
-.case-opening .case-premise .machine-note {
-  margin-top: 6px;
-  font-size: var(--text-11);
-}
-.case-opening .intraday-reference {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: stretch;
-  max-width: none;
-  padding: 10px 14px;
-}
-.case-opening .case-premise {
-  grid-column: 2;
-  grid-row: 2;
-  align-self: stretch;
-  max-width: none;
-}
-@media (max-width: 900px) {
-  .case-session,
-  .case-opening .case-premise,
-  .case-opening .intraday-reference {
-    grid-column: 1;
-    grid-row: auto;
-  }
-}
-@media (max-width: 900px) {
-  .case-opening {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.case-premise {
-  max-width: var(--prose-max);
-  padding: 16px 20px;
-  border-left: var(--rule-accent);
-  background: var(--surface-sunken);
-}
-.case-premise h2 {
-  margin: 0 0 8px;
-  font: var(--type-section);
-}
-.case-premise p {
-  margin: 8px 0 0;
-  line-height: 1.8;
-}
-.column-table {
-  width: 100%;
-  margin-block: 16px;
-  border-collapse: collapse;
-  font-size: 0.9375rem;
-}
-.column-table th,
-.column-table td {
-  padding: 10px 12px;
-  border-bottom: var(--hairline);
-  text-align: left;
-  vertical-align: top;
-}
-.column-table th {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-  background: var(--ledger-head);
-}
-.scope-facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
-  gap: 16px;
-  margin-block: 20px;
-}
-.scope-facts dt {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.scope-facts dd {
-  margin: 6px 0 0;
-  font: var(--type-mono);
-  color: var(--text-strong);
-}
-.awaiting-result {
-  padding: 20px;
-  border: 1px dashed var(--ledger-rule-strong);
-  color: var(--text-muted);
-}
-.case-says {
-  margin-top: 24px;
-  padding: 16px 20px;
-  border-left: 3px solid var(--authorship-human);
-  background: var(--authorship-human-bg);
-}
-.case-says h3,
-.case-stop-grid h3 {
-  margin: 0;
-  font: var(--type-section);
-}
-.case-closing {
-  max-width: var(--prose-max);
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: var(--hairline);
-  font: var(--type-body-lg);
-  line-height: 1.85;
-  color: var(--text-strong);
-}
-.case-page .case-chapter ul {
-  line-height: 1.8;
-}
+
+/* ───────────────────────── Narrow screens ───────────────────────── */
 
 @media (max-width: 64rem) {
-  .app-shell {
-    width: 100%;
-    max-width: 100vw;
+  .home-answer,
+  .home-board-columns {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
   }
-  .side-nav {
-    width: 100%;
-    max-width: 100vw;
-    border-right: 0;
-    border-bottom: var(--hairline);
-    padding: 12px 24px;
+  .home-flow ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .side-nav nav,
-  .nav-group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-  }
-  .nav-group-label {
-    padding-inline: 0;
+  .home-reasons {
+    grid-template-columns: minmax(0, 1fr);
   }
   .guided-split,
   .replay-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .guided-split > *,
   .guided-split > .journey-header {
@@ -2117,26 +2386,34 @@ code {
     bottom: 0;
     z-index: 40;
     margin: 0;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: var(--space-3) var(--space-4)
+      calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
     max-height: 50vh;
     overflow-y: auto;
-    border-top: var(--hairline-strong);
+    border-top: var(--hairline);
     background: var(--surface-card);
-    box-shadow: 0 -8px 24px rgb(12 21 19 / 12%);
+    box-shadow: 0 -8px 24px rgb(14 23 22 / 10%);
   }
   .guided-split {
     padding-bottom: 13rem;
   }
-  /* The supporting prose and the step list stay reachable without standing
-     between the visitor and the case content. */
   .guided-split .rail-scroll {
     max-height: 40vh;
     overflow-y: auto;
   }
+  .replay-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mode-choice {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mode-choice a {
+    justify-content: center;
+  }
 }
-/* A viewport too short to hold the step block and any of the region below it
-   would clip the rail rather than scroll it, so the two columns stack there and
-   nothing sticks, exactly as they do on a narrow one. */
+/* A viewport too short to hold the step block and anything below it would
+   clip the rail rather than scroll it, so the columns stack there too. */
 @media (min-width: 64.0625rem) and (max-height: 40rem) {
   .guided-split > .journey-header {
     position: static;
@@ -2148,78 +2425,91 @@ code {
     overflow-y: visible;
   }
 }
-@media (max-width: 48rem) {
-  /* The chapter gutter costs more than it gives once the measure is narrow. */
-  .chapter-head {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
+/* Below the tablet width the bar holds the mark, the language and one menu
+   button; every destination opens from it. */
+@media (max-width: 56rem) {
+  .site-header-inner {
+    gap: var(--space-3);
   }
-  .chapter-number {
-    font-size: var(--text-18);
+  /* The DOM order is kept, so focus moves left to right: the menu button
+     sits at the right edge before the language switch. */
+  .site-nav {
+    justify-content: flex-end;
   }
-  .chapter-body {
-    padding-left: 0;
+  .language-selector {
+    margin-left: 0;
   }
-  .event-teaser {
-    padding: 24px 20px;
+  .site-nav-bar,
+  .site-nav-more > .site-nav-trigger:not(.site-nav-menu-button) {
+    display: none;
+  }
+  .site-nav-menu-button {
+    display: inline-flex;
+  }
+  .site-nav-panel {
+    position: fixed;
+    top: var(--appbar-height);
+    left: var(--gutter-narrow);
+    right: var(--gutter-narrow);
+    min-width: 0;
+    max-height: calc(100vh - var(--appbar-height) - var(--space-6));
+    overflow-y: auto;
+  }
+  .site-nav-panel .site-nav-group[data-group="primary"] {
+    display: block;
+  }
+  .site-nav-panel .site-nav-group + .site-nav-group {
+    border-top: var(--hairline);
+  }
+  .site-nav-more {
+    position: static;
   }
 }
 @media (max-width: 40rem) {
-  /* One row: the mark and the language switch fit side by side at 390px. */
-  .site-header {
-    padding-inline: 16px;
+  :root {
+    --gutter: var(--gutter-narrow);
   }
-  /* The navigation becomes one scrollable row of links; group names would
-     only be cut off at the edge. */
-  .nav-group-label {
-    display: none;
-  }
-  .side-nav nav,
-  .nav-group {
-    gap: 4px;
-  }
-  .side-nav nav a {
-    padding: 6px 10px;
-    border-left: 0;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-  }
-  .side-nav nav a[aria-current="page"] {
-    border-bottom-color: var(--teal-700);
+  .page-shell {
+    padding-block: var(--space-6) var(--space-12);
   }
   .home-hero {
-    padding-block: 24px 32px;
-    gap: 28px;
+    padding-block: var(--space-5) var(--space-10);
   }
-  .shell {
-    width: calc(100% - 32px);
+  .home-intro h1 {
+    font-size: var(--font-size-24);
   }
-  .side-nav {
-    padding-inline: 16px;
-    overflow-x: auto;
+  .home-lede {
+    font: var(--type-body);
   }
-  .side-nav nav {
-    min-width: max-content;
-    flex-wrap: nowrap;
+  .home-ai {
+    padding: var(--space-4);
   }
-  .hero {
-    padding-top: 40px;
+  .home-ai h2 {
+    font: var(--type-subhead);
   }
-  .hero h1 {
-    font-size: var(--text-28);
+  .home-flow ol {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .home-answer h1 {
-    font-size: var(--text-22);
+  .home-band,
+  .home-board {
+    padding-block: var(--space-10);
+  }
+  .section-heading h2 {
+    font: var(--type-section);
   }
   .method-grid,
   .metric-grid,
   .expectation-facts,
+  .eval-row,
+  .layer-authority {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .eval-row {
-    grid-template-columns: 1fr;
+    gap: var(--space-2);
   }
   .mapping-row,
   .gate-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .mapping-row > *,
   .gate-row > *,
@@ -2227,12 +2517,49 @@ code {
   .gate-row small {
     grid-column: 1;
   }
-  .site-footer {
-    align-items: flex-start;
+  .panel {
+    padding: var(--space-4);
+  }
+  .mc-answer h1 {
+    font: var(--type-section);
+  }
+  .site-footer-inner {
     flex-direction: column;
-    padding-inline: 16px;
+  }
+  .wordmark span {
+    font-size: var(--font-size-16);
   }
 }
+.language-selector .language-short {
+  display: none;
+}
+/* A phone narrower than 375px, or a zoomed one, keeps the menu button in
+   the bar by shortening the language names. */
+@media (max-width: 24rem) {
+  .language-selector .language-full {
+    display: none;
+  }
+  .language-selector .language-short {
+    display: inline;
+  }
+}
+
+/* Printing cannot advance a step; `PrintDisclosures` opens every closed
+   disclosure for the print, and the inverse badge keeps its label when
+   backgrounds are not printed. */
+@media print {
+  .evidence-badge--inverse {
+    border: var(--hairline-ink);
+    color: var(--authorship-code);
+    background: transparent;
+  }
+  .site-header,
+  .site-footer,
+  .rail-actions {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2242,230 +2569,4 @@ code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Language selection in the site header. */
-.language-selector {
-  display: inline-flex;
-  gap: 0;
-  margin-left: auto;
-  border: 1px solid var(--rule, rgba(0, 0, 0, 0.16));
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.language-selector button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 0.78rem;
-  line-height: 1;
-  padding: 0.35rem 0.7rem;
-  cursor: pointer;
-}
-
-.language-selector button[aria-current="true"] {
-  background: var(--ink, #111);
-  color: var(--paper, #fff);
-}
-
-.language-selector button:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
-}
-
-/* Model comparison on /evals: the answer, both roles and the eligibility
-   table share the first viewport; everything else sits one tab away. */
-.model-comparison {
-  display: grid;
-  gap: 16px;
-  padding-bottom: 40px;
-}
-.mc-answer h1 {
-  max-width: 40em;
-  margin-top: 6px;
-  font: var(--type-section);
-  color: var(--text-strong);
-}
-.mc-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  margin: 12px 0 0;
-}
-.mc-roles > div {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.mc-roles dt {
-  font: var(--type-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.mc-roles dd {
-  margin: 0;
-  color: var(--text-strong);
-}
-.mc-roles dd.mc-model {
-  font: var(--type-mono);
-}
-.mc-caption {
-  margin-bottom: -10px;
-  font: var(--type-small);
-  color: var(--text-muted);
-}
-.mc-table-wrap {
-  max-width: 100%;
-  overflow-x: auto;
-}
-.mc-table {
-  width: 100%;
-  border-collapse: collapse;
-  font: var(--type-small);
-  font-variant-numeric: tabular-nums;
-}
-.mc-table caption {
-  padding-bottom: 6px;
-  text-align: left;
-  color: var(--text-muted);
-}
-.mc-table th,
-.mc-table td {
-  padding: 5px 10px 5px 0;
-  border-bottom: 1px solid var(--ledger-rule);
-  text-align: left;
-  vertical-align: top;
-  white-space: nowrap;
-}
-.mc-table thead th {
-  font-weight: var(--weight-semibold);
-  border-bottom-color: var(--ledger-rule-strong);
-}
-.mc-table th small,
-.mc-number small {
-  display: block;
-  font: var(--type-mono-sm);
-  color: var(--text-faint);
-}
-.mc-eligibility tbody th {
-  position: sticky;
-  left: 0;
-  background: var(--surface-page);
-  font: var(--type-mono-sm);
-}
-.mc-eligibility tr[data-eligible="true"] th {
-  border-left: 3px solid var(--teal-700);
-  padding-left: 6px;
-}
-.mc-reference th,
-.mc-reference td {
-  background: var(--surface-sunken);
-  font-style: italic;
-}
-.mc-number {
-  font: var(--type-mono-sm);
-}
-.mc-term {
-  color: inherit;
-  text-decoration-style: dotted;
-}
-.mc-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  border-bottom: var(--hairline-strong);
-}
-.mc-tabs button {
-  padding: 6px 10px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.mc-tabs button[aria-selected="true"] {
-  border-bottom-color: var(--teal-700);
-  color: var(--text-strong);
-  font-weight: var(--weight-semibold);
-}
-.mc-panel {
-  display: grid;
-  gap: 12px;
-  max-width: 100%;
-  min-width: 0;
-}
-.mc-panel[hidden] {
-  display: none;
-}
-.mc-panel h2 {
-  font: var(--type-subhead);
-}
-.mc-panel p,
-.mc-list {
-  max-width: var(--prose-max);
-  color: var(--text-body);
-}
-.mc-list {
-  display: grid;
-  gap: 4px;
-  margin: 0;
-  padding-left: 1.2em;
-}
-.mc-empty {
-  color: var(--text-muted);
-}
-.mc-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-}
-.mc-chart {
-  width: 100%;
-  max-width: 560px;
-  height: auto;
-}
-.mc-axis {
-  stroke: var(--ledger-rule-strong);
-}
-.mc-axis-label,
-.mc-mark-label {
-  fill: var(--text-muted);
-  font: 11px var(--font-sans);
-}
-.mc-mark-eligible {
-  fill: var(--teal-700);
-  stroke: var(--teal-700);
-}
-.mc-mark-ineligible {
-  fill: var(--surface-page);
-  stroke: var(--text-muted);
-  stroke-width: 2;
-}
-.mc-mark-reference {
-  fill: var(--ink-500);
-}
-.mc-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  font: var(--type-small);
-}
-.mc-terms {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-}
-.mc-terms dt {
-  font-weight: var(--weight-semibold);
-}
-.mc-terms dd {
-  margin: 0;
-  color: var(--text-muted);
-}
-.ledger-heading h2 {
-  margin-top: 8px;
 }
