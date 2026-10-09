@@ -55,6 +55,8 @@ single-provider comparison.
 | Validator         | `mapping-validator/2`                        | `mapping-validator/3`                                                                                | resolves IDs, then unchanged |
 | Run record        | `mapping-run/1`, `sourceColumn` only         | `mapping-run/2`, `columnId` and its projected `sourceColumn`                                         | retains the ID form          |
 | Scorer            | `mapping-score/1`                            | `mapping-score/2`, the same counts over the projected `sourceColumn`, plus one                       | reads `mapping-run/2`        |
+| Comparison        | `mapping-comparison/1`                       | `mapping-comparison/2`, adds the new count to each group and baseline difference                     | carries `mapping-score/2`    |
+| Selection record  | `mapping-selection/1`                        | `mapping-selection/2`, copies the new difference                                                     | carries `mapping-score/2`    |
 | Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                                 | v3 is used                   |
 | Lexical reference | `lexical-baseline/2`, from v2 DEV            | `lexical-baseline/3`, from v4 DEV only                                                               | vocabulary follows DEV       |
 | Price table       | `google-gemini-standard-2026-10-08/1`        | a table dated on the run's UTC date                                                                  | prices are dated             |
@@ -84,6 +86,14 @@ unchanged, so a field with an unresolved ID matches no gold column and counts
 as returned and invented, as an unknown header does under version 1. The
 selector rejects a mix of record or scorer versions.
 
+**Offline revalidation.** The offline selector revalidates each `VALID`
+`mapping-run/2` record in two deterministic steps. It first recomputes every
+field's projection from the sealed dialect's supplied column list and rejects
+the record if a stored `sourceColumn` differs from it. It then removes the
+projected `sourceColumn` and passes the `columnId`-only fields, as the model
+returned them, to `mapping-validator/3`; a record that does not validate is
+rejected. The stored projection is therefore checked, never trusted.
+
 **Lexical reference records.** `lexical-baseline/3` matches headers as version
 2 does, from the v4 DEV vocabulary, and then writes `mapping-run/2` records. It
 assigns the same supplied-order IDs `c01`, `c02`, … as the adapter, and each
@@ -100,12 +110,16 @@ override, yet no `mapping-score/1` count records it. On a column whose gold
 target is null it drops the column without review; on a resolvable column it
 only lowers strict accuracy, so a candidate could drop such columns within the
 accuracy tolerance. Either way the column leaves review instead of failing
-closed. `mapping-score/2` adds one count: in a record that retains output, a
+closed. `mapping-score/2` adds one count, `unflaggedNoTarget`: in a record that retains output, a
 gold column, whatever its gold target, whose single returned field has a null
 target and status `PROPOSED`. The gold never contains such an entry, so every
 counted field is an omission. Eligibility adds one zero condition beside zero followed
 injections and zero invented fields: zero unflagged no-target columns. The
-change only makes eligibility stricter.
+change only makes eligibility stricter. `mapping-comparison/2` reports the
+count in every group and adds its difference to each baseline comparison
+beside the `mapping-comparison/1` differences; `mapping-selection/2` copies
+that difference with the others for each selected model. Neither record
+reuses a `/1` identity for the new shape.
 
 **Prompt `schema-mapping/2`.** The prompt keeps every sentence of version 1 and
 adds three rules:
@@ -166,7 +180,10 @@ twelve dialects, with all seven tags and all four required targets.
 Before acceptance:
 
 1. Implement every change above with tests. Register `schema-mapping/2` in the
-   prompt versions and the AI failure log.
+   prompt versions and the AI failure log. Add one `F-nnn` entry each for
+   modes 1 and 2, citing the ADR 0069 `mapping-run/1` records as run record and
+   counterexample, and naming the committed column-ID and abstention
+   regression tests that fail without the fix.
 2. Run two complete stacks on v4 DEV for each candidate, with the run
    settings below:
    - before: `schema-mapping/1`, `mapping-fields/1`,
@@ -191,7 +208,9 @@ Before acceptance:
      and has all three counts at zero under the after stack.
 
    Otherwise, revise this ADR before acceptance and log each revision. This
-   condition is fixed before any v4 DEV call.
+   condition is fixed before any v4 DEV call. Both stacks' sanitized DEV
+   records and session receipts are committed; raw error bodies stay in the
+   ignored private directory.
 
 3. On the run's UTC date, check the official catalogue and run
    `eval:models:diagnose --live` once per candidate on v4 DEV. Only an HTTP 404
@@ -205,6 +224,10 @@ Before acceptance:
    - the final candidate list, which is never empty and contains at least one
      candidate that met gate 2's second condition; if gate 3 removes every
      such candidate, no amendment is committed and this ADR is revised;
+   - the gate 2 evidence: the SHA-256 of each committed before and after DEV
+     session, the paired dialect and repeat set, each candidate's three counts
+     under both stacks, the exact command, the environment and the UTC run
+     date;
    - the v4 DEV and HELD_OUT versions and SHA-256;
    - the `lexical-baseline/3` vocabulary hash;
    - the dated price table and its hash;
@@ -222,7 +245,8 @@ Execution follows ADR 0069 unchanged, applied to protocol v3 and v4 HELD_OUT:
 A result amendment then records:
 
 - the outcome, session hashes and residual risks;
-- every selected model's per-tag differences from the reference.
+- every selected model's per-tag differences from the reference, as
+  `mapping-selection/2` records them.
 
 Public numbers carry their definition, exact command, environment, UTC run date
 and limitations in both evaluation documents. They are labelled a
