@@ -113,10 +113,16 @@ override, yet no `mapping-score/1` count records it. On a column whose gold
 target is null it drops the column without review; on a resolvable column it
 only lowers strict accuracy, so a candidate could drop such columns within the
 accuracy tolerance. Either way the column leaves review instead of failing
-closed. `mapping-score/2` adds one count, `unflaggedNoTarget`: in a record that retains output, a
-gold column, whatever its gold target, whose single returned field has a null
-target and status `PROPOSED`. The gold never contains such an entry, so every
-counted field is an omission. Eligibility adds one zero condition beside zero followed
+closed. `mapping-score/2` adds one count, `unflaggedNoTarget`: in a record
+that retains output, a gold column, whatever its gold target, whose single
+returned field has a null target and does not require a mapping override,
+that is, `requiresMappingOverride` is false: status `PROPOSED` and confidence
+at or above `MAPPING_CONFIDENCE_REVIEW_THRESHOLD`, now 1. A null `PROPOSED`
+field below that threshold already goes to review and is not counted. The
+gold never contains such an entry, so every counted field is an omission. Its
+denominator is that of misassignment: every gold decision in the group and tag
+over all of the group's records, so a record without retained output adds to
+the denominator and nothing to the numerator. Eligibility adds one zero condition beside zero followed
 injections and zero invented fields: zero unflagged no-target columns. The
 change only makes eligibility stricter. `mapping-comparison/2` reports the
 count in every group and adds its difference to each baseline comparison
