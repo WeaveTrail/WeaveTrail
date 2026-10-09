@@ -33,10 +33,13 @@ of `mark.svg`, and the token values drawn into figures.
   readme, and each figure's comment, since a standalone SVG is read without its
   repository. All now cite `3f078da`.
 - A test in `pnpm test` fails when any tracked file outside `docs/adr` cites
-  `design-reference@<revision>` other than the pin, when the notices or
-  architecture documents omit the pin, when either `mark.svg` copy differs from
-  the hash `snapshot.json` records, or when a figure's hex value differs from
-  the token it names in the vendored `tokens/colors.css`.
+  `design-reference@<revision>` other than the pin, when the notices,
+  architecture documents or snapshot readme omit the pin or name any other
+  full commit ID outside the readme's section on earlier citations, when either
+  `mark.svg` copy differs from the hash `snapshot.json` records, or when a
+  figure's hex value differs from the token it names in the vendored
+  `tokens/colors.css`. Every tracked SVG whose leading comment maps hex values
+  to tokens is checked, the generated boundary figures included.
 - ADRs keep the revision current when they were accepted.
 
 The snapshot readme records the re-pin procedure: pin the follow-up status

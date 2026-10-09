@@ -28,13 +28,26 @@ const citingFiles = trackedFiles.filter(
     !path.startsWith("docs/adr/") && /\.(md|svg|ts|tsx|mjs)$/.test(path),
 );
 
-// Hand-authored and generated figures that map literal hex values to tokens.
+// Records that state the revision in prose or in a command. Only the snapshot
+// readme's section on earlier citations may name another commit.
+const revisionRecords = [
+  "THIRD_PARTY_NOTICES.md",
+  "docs/ARCHITECTURE.md",
+  "docs/ARCHITECTURE.ko.md",
+  "apps/web/src/design-reference/README.md",
+];
+const withoutEarlierCitations = (text: string) =>
+  text.replace(/^## Earlier revision citations\n[\s\S]*?(?=^## )/m, "");
+
+const leadingComment = (path: string) =>
+  read(path).match(/<!--[\s\S]*?-->/)?.[0] ?? "";
+const hexTokenPattern = /(#[0-9a-f]{6}) ([a-z][a-z0-9-]*)/g;
+
+// Hand-authored and generated figures that map literal hex values to tokens,
+// whether or not their comment also cites the revision.
 const tokenFigures = trackedFiles.filter(
   (path) =>
-    path.endsWith(".svg") &&
-    read(path).includes(
-      "WeaveTrail design system, pinned at design-reference@",
-    ),
+    path.endsWith(".svg") && /#[0-9a-f]{6} [a-z]/.test(leadingComment(path)),
 );
 
 describe("design-reference pin", () => {
@@ -48,13 +61,17 @@ describe("design-reference pin", () => {
   });
 
   it("names the pinned revision wherever the prose records it", () => {
-    for (const path of [
-      "THIRD_PARTY_NOTICES.md",
-      "docs/ARCHITECTURE.md",
-      "docs/ARCHITECTURE.ko.md",
-      "apps/web/src/design-reference/README.md",
-    ])
+    for (const path of revisionRecords)
       expect(read(path), path).toContain(snapshot.revision);
+  });
+
+  it("names no other commit in a revision record, however it is spelled", () => {
+    const stale = revisionRecords.flatMap((path) =>
+      [...withoutEarlierCitations(read(path)).matchAll(/\b[0-9a-f]{40}\b/g)]
+        .filter(([commit]) => commit !== snapshot.revision)
+        .map(([commit]) => `${path}: ${commit}`),
+    );
+    expect(stale).toEqual([]);
   });
 
   it("ships both copies of the mark as the pinned bytes", () => {
@@ -85,14 +102,15 @@ describe("design-reference pin", () => {
       return value?.toLowerCase();
     };
 
-    expect(tokenFigures.length).toBeGreaterThan(0);
-    const mismatched = tokenFigures.flatMap((path) => {
-      const comment = read(path).match(/<!--[\s\S]*?-->/)?.[0] ?? "";
+    expect(
+      tokenFigures.filter((path) => path.startsWith("docs/assets/boundary/")),
+    ).not.toEqual([]);
+    const mismatched = tokenFigures.flatMap((path) =>
       // The first name after a hex is its token; later names are role labels.
-      return [...comment.matchAll(/(#[0-9a-f]{6}) ([a-z][a-z0-9-]*)/g)]
+      [...leadingComment(path).matchAll(hexTokenPattern)]
         .filter(([, hex, token = ""]) => valueOf(token) !== hex)
-        .map(([, hex, token]) => `${path}: ${hex} ${token}`);
-    });
+        .map(([, hex, token]) => `${path}: ${hex} ${token}`),
+    );
     expect(mismatched).toEqual([]);
   });
 });

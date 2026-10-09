@@ -22,8 +22,9 @@ Do not optimise, minify or reformat the file. It carries an embedded C2PA
 content credential that an SVG optimiser strips silently.
 
 The boundary figures under `boundary/` are generated from
-`scripts/boundary-figures.mjs` and carry the same literal token values; rebuild
-them with `pnpm figures:build` rather than editing an SVG.
+`scripts/boundary-figures.mjs` and carry the same literal token values, which
+`pnpm test` holds to the vendored `tokens/colors.css`; rebuild them with
+`pnpm figures:build` rather than editing an SVG.
 
 The three README diagrams in the parent directory are hand-authored from the pinned
 revision's token files. Each carries a comment citing that revision and mapping
