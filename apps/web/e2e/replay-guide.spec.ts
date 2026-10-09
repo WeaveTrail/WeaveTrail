@@ -215,6 +215,12 @@ for (const viewport of VIEWPORTS) {
   }
 }
 
+test("keeps the mode links at the 40px control height", async ({ page }) => {
+  await open(page, "en");
+  for (const link of await page.locator(".mode-choice a").all())
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});
+
 test("does not satisfy the evidence step by printing", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await open(page, "en");

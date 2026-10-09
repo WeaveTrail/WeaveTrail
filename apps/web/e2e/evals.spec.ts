@@ -213,3 +213,13 @@ test("opens every closed disclosure for printing and closes it after", async ({
   await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
   await expect(closed).toHaveCount(count);
 });
+
+test("gives every model-comparison tab the 40px control height", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const tabs = page.locator(".mc-tabs button");
+  expect(await tabs.count()).toBeGreaterThan(0);
+  for (const tab of await tabs.all())
+    expect((await tab.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+});
