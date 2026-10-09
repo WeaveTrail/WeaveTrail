@@ -99,10 +99,11 @@ describe("architecture layer diagram", () => {
       "utf8",
     );
     const order = [
-      "Start here",
+      "Explore",
       "/",
+      "/evals",
       "/replay",
-      "About this project",
+      "How it works",
       "/architecture",
     ];
     let cursor = -1;

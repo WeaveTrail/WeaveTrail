@@ -489,13 +489,14 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ![공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay](assets/boundary/public-routes.svg)
 
-- 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
-  스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
-  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 이 고정은
-  `apps/web/src/design-reference/snapshot.json` 한 곳에 기록되며, 그림에 쓰인 토큰
-  값도 같은 리비전을 따릅니다
-  ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)(영문)). 디자인 저장소는
-  빌드나 런타임 의존성이 아닙니다.
+- 여덟 개의 공개 경로는 `apps/web/src/app/design/`에 둔 제품 자체의 디자인 토큰과
+  상단 메뉴 막대 하나를 씁니다
+  ([ADR 0074](adr/0074-give-the-product-its-own-design-system-and-top-navigation.md)(영문)).
+  원본 브랜드 마크와 그림에 쓰인 토큰 값은 제품 안에 둔 스냅숏에서 오며,
+  `WeaveTrail/design-reference` 리비전 `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에
+  고정되어 있습니다. 이 고정은 `apps/web/src/design-reference/snapshot.json` 한 곳에
+  기록됩니다 ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)(영문)). 디자인
+  저장소는 빌드나 런타임 의존성이 아닙니다.
 - 제품 문구와 눈에 보이는 모든 근거 값은 이 저장소의 런타임 응답과 커밋된 합성
   시나리오가 소유합니다
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)(영문)).

@@ -164,13 +164,73 @@ for (const language of LANGUAGES) {
   });
 }
 
-test("keeps the header on one row and the navigation inside the screen at 390x844", async ({
+test("keeps the header on one row and opens every destination from the menu at 390x844", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await open(page, "ko");
   const header = await page.locator(".site-header").boundingBox();
-  expect(header!.height).toBeLessThanOrEqual(64);
-  await expect(page.locator(".nav-group-label").first()).toBeHidden();
-  await expect(page.locator('.side-nav a[href="/evals"]')).toBeInViewport();
+  expect(header!.height).toBeLessThanOrEqual(72);
+  const button = page.locator(".site-nav-menu-button");
+  await expect(button).toBeVisible();
+  await button.focus();
+  await page.keyboard.press("Enter");
+  await expect(button).toHaveAttribute("aria-expanded", "true");
+  const panel = page.locator(".site-nav-panel");
+  for (const href of [
+    "/",
+    "/evals",
+    "/replay",
+    "/why",
+    "/architecture",
+    "/methodology",
+    "/expectations",
+    "/data-handling",
+  ])
+    await expect(panel.locator(`a[href="${href}"]`)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(button).toBeFocused();
+});
+
+test("opens the how-it-works menu from the bar at 1280x720", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  await expect(page.locator('.site-nav-bar a[href="/evals"]')).toBeVisible();
+  const trigger = page.locator(".site-nav-trigger:not(.site-nav-menu-button)");
+  await trigger.click();
+  const panel = page.locator(".site-nav-panel");
+  await expect(panel.locator('a[href="/architecture"]')).toBeVisible();
+  // The bar already holds the first group, so the menu does not repeat it.
+  await expect(panel.locator('a[href="/evals"]')).toBeHidden();
+  await panel.locator('a[href="/architecture"]').click();
+  await expect(page).toHaveURL(/\/architecture$/);
+  await expect(panel).toBeHidden();
+  await expect(trigger).toHaveAttribute("data-current", "true");
+});
+
+test.describe("on the guided case at 1280x720", () => {
+  test.use({ viewport: { width: 1280, height: 720 } });
+
+  test("shows every committed source row in one table at step 1", async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      window.localStorage.setItem("weavetrail.language", "en"),
+    );
+    await page.goto("/replay");
+    // The first table is the worked case; the separate mapping-review
+    // example carries its own further down.
+    const table = page.locator(".source-table").first();
+    await expect(table).toBeVisible();
+    const rows = table.locator("tbody tr");
+    expect(await rows.count()).toBeGreaterThan(1);
+    await expect(rows.first()).toBeInViewport();
+    // Where the source comes from and its hash wait one disclosure below.
+    await expect(
+      page.locator(".source-provenance").first(),
+    ).not.toHaveAttribute("open");
+  });
 });

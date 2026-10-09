@@ -8,6 +8,11 @@ values in the figures under `docs/assets` and `apps/web/public/diagrams`
 ([ADR 0071](../../../../docs/adr/0071-keep-one-design-reference-pin.md)).
 Included upstream paths are `styles.css` and `tokens/**`; the byte-identical
 `assets/mark.svg` is served from `apps/web/public/brand/mark.svg`.
+The site's interface no longer imports these tokens: it uses its own design
+system in `apps/web/src/app/design/`
+([ADR 0074](../../../../docs/adr/0074-give-the-product-its-own-design-system-and-top-navigation.md)).
+The snapshot remains the verified source of the mark and of the figures'
+colours.
 
 To verify the pin and the pinned revision's allowlist:
 

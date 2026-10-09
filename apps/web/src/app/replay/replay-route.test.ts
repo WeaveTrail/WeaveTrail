@@ -49,15 +49,25 @@ describe("Case Replay entry contract", () => {
       );
       expect(markup).toContain(scenario.sourceArtifactHash);
       expect(markup).toContain(scenario.value);
-      const renderedTerms = new Set(markup.match(/<dt>.*?<\/dt>/g) ?? []);
+      // One table: a header cell per column, a row header per source row.
+      const renderedTerms = new Set(
+        [...markup.matchAll(/<th scope="col">(.*?)<\/th>/g)].map(
+          (match) => match[1],
+        ),
+      );
       const renderedValues = new Set(markup.match(/<code>.*?<\/code>/g) ?? []);
       const renderedRows = new Set(
-        [...markup.matchAll(/Source row ([^<]+)/g)].map((match) => match[1]),
+        [...markup.matchAll(/<th scope="row">([^<]+)<\/th>/g)].map(
+          (match) => match[1],
+        ),
       );
       const escapedTerms = new Map(
         committed.columns.map((column) => [
           column,
-          renderToStaticMarkup(createElement("dt", null, column)),
+          renderToStaticMarkup(createElement("span", null, column)).slice(
+            "<span>".length,
+            -"</span>".length,
+          ),
         ]),
       );
       const escapedValues = new Map<string, string>();
@@ -127,10 +137,10 @@ describe("Case Replay entry contract", () => {
     // The entry's secondary action now carries the argument, which links on to
     // the architecture in turn.
     expect(home).toContain('href="/why"');
-    expect(nav).toContain('["Walk through a case", "/replay"]');
+    expect(nav).toMatch(/\["Walk through a case",\s*"\/replay",/);
     // One entry: the guided and working modes are chosen inside the surface.
     expect(nav).not.toContain("mode=");
-    expect(nav).toContain('"Start here"');
+    expect(nav).toContain('"Explore"');
     expect(home + nav).not.toContain('"/lab"');
   });
 });

@@ -531,49 +531,85 @@ export function ApprovalReceipt({
   );
 }
 
+/**
+ * Step 1 reads the committed source at a glance: what it is, how big it is,
+ * and every row in one table with the original strings as committed. Where it
+ * came from and its hash sit one disclosure below, not ahead of the rows.
+ */
 export function SourceRows({ scenario }: { scenario: ReplayScenarioOption }) {
   const language = useReplayLanguage();
   const t = (en: string, ko: string) => replayText(language, en, ko);
+  const columns = [
+    ...new Set(scenario.rows.flatMap((row) => Object.keys(row.values))),
+  ];
+  const kind = scenario.provenance?.kind ?? "synthetic";
   return (
     <section
       className="source-preview"
       aria-label={t("Committed source rows", "커밋된 원본 거래자료")}
     >
-      <p>
-        {t("Artifact", "아티팩트")}: <code>{scenario.value}</code>
-      </p>
-      <HashValue scope="sourceArtifact" value={scenario.sourceArtifactHash} />
-      <p>
-        {t(
-          `These ${scenario.provenance?.kind ?? "synthetic"} source records are fixed. Values below are the original strings, before mapping, shown in committed order.`,
-          "이 원본 기록은 고정되어 있습니다. 아래 값은 항목을 연결하기 전의 원본 그대로입니다.",
-        )}
-      </p>
-      {scenario.provenance && (
-        <SourceProvenanceDetails provenance={scenario.provenance} />
-      )}
-      {scenario.rows.map((row) => (
-        <details
-          key={row.coordinate.rowNumber}
-          open={
-            row.coordinate.rowNumber === scenario.rows[0]?.coordinate.rowNumber
-          }
-        >
-          <summary>
-            {t("Source row", "원본 행")} {row.coordinate.rowNumber}
-          </summary>
-          <dl className="source-values">
-            {Object.entries(row.values).map(([column, value]) => (
-              <div key={column}>
-                <dt>{column}</dt>
-                <dd>
-                  <code>{value}</code>
-                </dd>
-              </div>
+      <div className="source-summary">
+        <ul className="source-facts">
+          <li>
+            {t("Artifact", "아티팩트")} <code>{scenario.value}</code>
+          </li>
+          <li>
+            <strong>{scenario.rows.length}</strong> {t("rows", "행")}
+          </li>
+          <li>
+            <strong>{columns.length}</strong> {t("columns", "열")}
+          </li>
+          <li>{kind === "synthetic" ? t("Synthetic", "합성 자료") : kind}</li>
+        </ul>
+        <p>
+          {t(
+            `These ${kind} source records are fixed. Values below are the original strings, before mapping, shown in committed order.`,
+            "이 원본 기록은 고정되어 있습니다. 아래 값은 항목을 연결하기 전의 원본 그대로이며, 커밋된 순서대로 보입니다.",
+          )}
+        </p>
+      </div>
+      <div
+        aria-label={t("Source rows as committed", "커밋된 그대로의 원본 행")}
+        className="source-table-wrap"
+        role="region"
+        tabIndex={0}
+      >
+        <table className="source-table">
+          <thead>
+            <tr>
+              <th scope="col">{t("Row", "행")}</th>
+              {columns.map((column) => (
+                <th key={column} scope="col">
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {scenario.rows.map((row) => (
+              <tr key={row.coordinate.rowNumber}>
+                <th scope="row">{row.coordinate.rowNumber}</th>
+                {columns.map((column) => (
+                  <td key={column}>
+                    {column in row.values ? (
+                      <code>{row.values[column]}</code>
+                    ) : null}
+                  </td>
+                ))}
+              </tr>
             ))}
-          </dl>
-        </details>
-      ))}
+          </tbody>
+        </table>
+      </div>
+      <details className="source-provenance">
+        <summary>
+          {t("Where this source comes from, and its hash", "출처와 해시")}
+        </summary>
+        <HashValue scope="sourceArtifact" value={scenario.sourceArtifactHash} />
+        {scenario.provenance && (
+          <SourceProvenanceDetails provenance={scenario.provenance} />
+        )}
+      </details>
     </section>
   );
 }
