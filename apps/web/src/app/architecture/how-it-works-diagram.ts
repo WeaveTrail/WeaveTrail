@@ -306,7 +306,7 @@ export function howItWorksSvg(
   );
   push(`    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken`);
   push(
-    `    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500`,
+    `    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400`,
   );
   push(
     `    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint | #085652 teal-800`,

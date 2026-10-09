@@ -131,4 +131,21 @@ describe("design-reference pin", () => {
     );
     expect(mismatched).toEqual([]);
   });
+
+  it("declares every hex literal a figure draws in its token mapping", () => {
+    const undeclared = tokenFigures.flatMap((path) => {
+      const comment = leadingComment(path);
+      const declared = new Set(
+        [...comment.matchAll(hexTokenPattern)].map(([, hex]) => hex),
+      );
+      // A preceding "&" marks a numeric character reference, not a color.
+      const drawn = read(path)
+        .replace(comment, "")
+        .matchAll(/(?<!&)#[0-9a-f]{3,8}\b/gi);
+      return [...new Set([...drawn].map(([hex]) => hex))]
+        .filter((hex) => !declared.has(hex))
+        .map((hex) => `${path}: ${hex}`);
+    });
+    expect(undeclared).toEqual([]);
+  });
 });

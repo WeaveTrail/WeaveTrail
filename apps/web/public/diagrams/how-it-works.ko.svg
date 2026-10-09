@@ -6,7 +6,7 @@
     WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken
-    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500
+    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400
     #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint | #085652 teal-800
     #4f6270 authorship-ai state-review | #eef1f2 slate-tint
     #8a6a12 result-inconclusive | #fbf4e4 amber-tint

@@ -29,7 +29,8 @@ The boundary figures under `boundary/` are generated from
 The three README diagrams in the parent directory are hand-authored from the pinned
 revision's token files. Each carries a comment citing that revision and mapping
 its literal hex values back to their token names; `pnpm test` fails when a
-figure drops that citation, cites another revision, or a hex value no longer matches the vendored
+figure drops that citation, cites another revision, draws a hex value the
+comment does not map, or a mapped value no longer matches the vendored
 `tokens/colors.css`. Each also has a hand-authored `.ko.svg`
 counterpart drawn from the same tokens and the same geometry, with its own
 Korean line breaks and chip widths; `entry-point-diagrams.test.ts` holds the

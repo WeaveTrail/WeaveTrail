@@ -40,7 +40,8 @@ of `mark.svg`, and the token values drawn into figures.
   full commit ID outside the readme's section on earlier citations, when either
   `mark.svg` copy differs from the hash `snapshot.json` records, or when a
   figure's hex value differs from the token it names in the vendored
-  `tokens/colors.css`. Every tracked SVG whose leading comment maps hex values
+  `tokens/colors.css`, or when a figure draws a hex literal its comment does
+  not map to a token. Every tracked SVG whose leading comment maps hex values
   to tokens is checked, the generated boundary figures included.
 - ADRs keep the revision current when they were accepted.
 
@@ -52,8 +53,8 @@ stale citation and changed figure color.
 
 A re-pin changes `snapshot.json` first and then fails `pnpm test` until every
 citing record and figure has been reviewed against the new tokens. The figure
-check reads only the hex-to-token comment; it does not prove that each drawn
-shape uses the color its comment lists. `design:snapshot:verify` still needs a
+check holds every drawn hex literal to a token named in the comment; it does
+not prove that each shape uses the token its role calls for. `design:snapshot:verify` still needs a
 checkout of the private upstream repository, so offline checks hold the
 repository's records consistent with each other and with the recorded hashes,
 not with upstream itself.
