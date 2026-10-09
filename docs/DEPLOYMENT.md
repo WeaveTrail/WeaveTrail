@@ -479,8 +479,13 @@ hotfix: no `develop`-to-`main` promotion or other pull request merges into
    eligible. Promotion moves the production domains to it and turns automatic
    assignment back on, so production follows `main` again from here.
 5. Confirm the stable production origin points at the promoted immutable URL
-   and the tile no longer shows a rollback. Then tag the commit with the next
-   patch version and carry the change into `develop`, as for any hotfix.
+   and the tile no longer shows a rollback. Then complete every release step in
+   [versions and release tags](#versions-and-release-tags) on that commit: tag
+   it, publish its GitHub release and close its milestone. If the failed
+   release was already tagged, the commit takes the next patch version in a
+   milestone of its own; if the gate failed before any tag existed, it keeps
+   the planned version and milestone. Carry the change into `develop`, as for
+   any hotfix.
 
 After step 4, production serves the hotfix commit: the failed release plus the
 hotfix change. The next ordinary `develop` promotion may merge only after

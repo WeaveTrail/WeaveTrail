@@ -48,9 +48,12 @@ Use the second sequence.
   **Undo Rollback** or `vercel promote`. Promotion moves the production domains
   to it and makes them follow `main` again.
 - Production then serves the hotfix commit: the failed release plus the hotfix
-  change. It takes the next patch version, under the existing
-  [version rules](../DEPLOYMENT.md#versions-and-release-tags), and the change
-  is carried into `develop` as for any hotfix.
+  change. Under the existing
+  [version rules](../DEPLOYMENT.md#versions-and-release-tags), it takes the
+  next patch version if the failed release was already tagged, and keeps the
+  planned version and milestone if the gate failed before any tag existed. It
+  is tagged, published as a GitHub release and its milestone closed, and the
+  change is carried into `develop` as for any hotfix.
 - From the rollback until the hotfix is promoted, tagged and carried into
   `develop`, `main` is frozen to the recovery hotfix. No `develop`-to-`main`
   promotion merges in that window; otherwise the hotfix would ship that
