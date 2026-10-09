@@ -149,8 +149,15 @@ for (const viewport of VIEWPORTS) {
       ).toBeVisible();
       await pressButton(page, ui.continueLabel);
 
-      // Evidence traces back: the rail goes to the disclosure; Enter opens it.
+      // Evidence traces back: the verdict and its tally lead the result, and
+      // the machine values wait in one closed disclosure.
       await expectStep(page, language, 5);
+      await expect(page.locator(".result-tally")).toBeVisible();
+      await expect(page.locator(".result-technical")).not.toHaveAttribute(
+        "open",
+        "",
+      );
+      // The rail goes to the disclosure; Enter opens it.
       await pressButton(page, ui.goToEvidence);
       await expect.poll(async () => (await focused(page)).tag).toBe("summary");
       await page.keyboard.press("Enter");

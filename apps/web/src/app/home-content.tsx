@@ -26,7 +26,8 @@ export const HOME_TERM_KEYS = [
 export type HomeTermKey = (typeof HOME_TERM_KEYS)[number];
 
 /**
- * The first screen: the question, a one-sentence answer and the control line.
+ * The AI card on the first screen: the question, a one-sentence answer and
+ * the control line.
  * `[[key|label]]` marks a term whose plain explanation opens from it; the key
  * names an entry of `terms`.
  */
@@ -178,6 +179,13 @@ export interface HomeEvaluation {
 }
 
 interface HomeCopy {
+  /** What the site is, in one line, before any question about it. */
+  readonly intro: {
+    readonly eyebrow: string;
+    readonly title: string;
+    readonly lede: string;
+    readonly walkMeta: string;
+  };
   readonly answer: AnswerCopy;
   readonly flowLabel: string;
   /** One short line per stage; the stage name already says who acts. */
@@ -203,13 +211,20 @@ interface HomeCopy {
 }
 
 /**
- * Voice copy is written in each language rather than translated. Each block
- * is a title and at most one short line: the first screen answers, the rest
- * says why and what exists, and every detail is one link away. Stage names
+ * Voice copy is written in each language rather than translated. The first
+ * screen says what the site is and offers the walkthrough, answers which AI
+ * runs here beside it, and draws the four stages below; the rest says why and
+ * what exists, and every detail is one link away. Stage names
  * come from the guided walkthrough, so the two never name a stage differently.
  */
 export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   en: {
+    intro: {
+      eyebrow: "Synthetic market-surveillance cases",
+      title: "AI reads the data. Code decides the result.",
+      lede: "A model suggests what each column of a trading file means. You approve it, versioned code checks the pattern, and every finding opens to its source row.",
+      walkMeta: "8 steps · about 5–10 minutes · no sign-in",
+    },
     answer: ANSWER_EN,
     flowLabel: "From proposal to evidence",
     stages: {
@@ -223,7 +238,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
       text: "Rejected or unclear: a person checks it before anything runs. Never a result.",
     },
     whyKicker: "Why it is needed",
-    whyHeading: "A model reads the data. It never decides the result.",
+    whyHeading: "Where a model helps, and where it goes wrong",
     reasons: [
       [
         "Every file names columns differently",
@@ -260,6 +275,12 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
     gateLinkText: "Where it fits",
   },
   ko: {
+    intro: {
+      eyebrow: "합성 시장감시 사례",
+      title: "AI는 자료를 읽고, 판정은 코드가 합니다.",
+      lede: "모델이 거래 파일의 열마다 뜻을 제안하면 사람이 승인하고, 버전이 고정된 코드가 패턴을 확인합니다. 판단 근거마다 원본 행이 열립니다.",
+      walkMeta: "8단계 · 약 5~10분 · 회원가입 없음",
+    },
     answer: ANSWER_KO,
     flowLabel: "제안에서 근거까지",
     stages: {
@@ -273,7 +294,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
       text: "거절되거나 모호하면 실행 전에 사람이 확인합니다. 결과가 아닙니다.",
     },
     whyKicker: "필요한 이유",
-    whyHeading: "모델은 데이터를 읽을 뿐, 결과를 정하지 않습니다.",
+    whyHeading: "모델이 돕는 곳, 그리고 틀리는 곳",
     reasons: [
       [
         "파일마다 열 이름이 다릅니다",
@@ -369,57 +390,66 @@ export function HomeContent({
 
   return (
     <main className="home">
-      <section className="home-hero shell" aria-labelledby="home-question">
-        <div className="hero home-answer">
-          <span className="eyebrow">{answer.eyebrow}</span>
-          <h1 id="home-question">{withTerms(answer.question)}</h1>
-          <p
-            className="home-answer-sentence"
-            data-state={selection.state}
-            id="home-answer"
-          >
-            {withTerms(sentence)}
-          </p>
-          {selection.state === "selected" ? (
-            <dl className="home-facts" aria-label={answer.factsLabel}>
-              <div>
-                <dt>{answer.primaryAccuracy}</dt>
-                <dd>
-                  <a href={links.rule}>
-                    {fraction(selection.primaryAccuracy)} ·{" "}
-                    {percent(selection.primaryAccuracy)}
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt>{answer.validOutput}</dt>
-                <dd>
-                  <a href={links.metrics}>
-                    {fraction(selection.validOutput)} ·{" "}
-                    {percent(selection.validOutput)}
-                  </a>
-                </dd>
-              </div>
-            </dl>
-          ) : null}
-          {selection.state === "selected" ? (
-            <p className="home-run">
-              <a href={selection.sessionReceipt}>
-                {answer.runDate(selection.runDate)}
-              </a>
-            </p>
-          ) : null}
-          <p className="home-control" id="home-control">
-            {withTerms(answer.control)}
-          </p>
-          <div className="hero-actions">
-            <Link className="button primary" href="/evals">
-              {answer.seeComparison}
-            </Link>
-            <Link className="button secondary" href="/replay?mode=guided">
-              {answer.walkThrough}
-            </Link>
+      <section className="home-hero shell" aria-labelledby="home-title">
+        <div className="home-answer">
+          <div className="home-intro">
+            <span className="eyebrow">{text.intro.eyebrow}</span>
+            <h1 id="home-title">{text.intro.title}</h1>
+            <p className="home-lede">{text.intro.lede}</p>
+            <div className="hero-actions">
+              <Link className="button primary" href="/replay?mode=guided">
+                {answer.walkThrough}
+              </Link>
+              <Link className="button secondary" href="/evals">
+                {answer.seeComparison}
+              </Link>
+            </div>
+            <p className="home-walk-meta">{text.intro.walkMeta}</p>
           </div>
+
+          <section className="home-ai" aria-labelledby="home-question">
+            <span className="eyebrow">{answer.eyebrow}</span>
+            <h2 id="home-question">{withTerms(answer.question)}</h2>
+            <p
+              className="home-answer-sentence"
+              data-state={selection.state}
+              id="home-answer"
+            >
+              {withTerms(sentence)}
+            </p>
+            {selection.state === "selected" ? (
+              <dl className="home-facts" aria-label={answer.factsLabel}>
+                <div>
+                  <dt>{answer.primaryAccuracy}</dt>
+                  <dd>
+                    <a href={links.rule}>
+                      {fraction(selection.primaryAccuracy)} ·{" "}
+                      {percent(selection.primaryAccuracy)}
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{answer.validOutput}</dt>
+                  <dd>
+                    <a href={links.metrics}>
+                      {fraction(selection.validOutput)} ·{" "}
+                      {percent(selection.validOutput)}
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+            ) : null}
+            {selection.state === "selected" ? (
+              <p className="home-run">
+                <a href={selection.sessionReceipt}>
+                  {answer.runDate(selection.runDate)}
+                </a>
+              </p>
+            ) : null}
+            <p className="home-control" id="home-control">
+              {withTerms(answer.control)}
+            </p>
+          </section>
           {HOME_TERM_KEYS.map((key) => (
             <div
               aria-labelledby={`${termId(key)}-title`}
@@ -456,7 +486,7 @@ export function HomeContent({
                   {index + 1}
                 </span>
                 <div>
-                  <h2>{stageNames[stage]}</h2>
+                  <h3>{stageNames[stage]}</h3>
                   <p>{text.stages[stage]}</p>
                 </div>
               </li>

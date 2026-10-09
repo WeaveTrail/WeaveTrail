@@ -76,7 +76,16 @@ for (const viewport of VIEWPORTS) {
       await expect(page.locator(".home-facts")).toHaveCount(0);
       await expect(page.locator("#home-answer")).not.toContainText(/\d/);
 
+      // What the site is comes first, and the walkthrough is the first
+      // action offered.
+      await expect(page.locator("#home-title")).toHaveText(
+        homeCopy[language].intro.title,
+      );
+      await expect(
+        page.locator("main .hero-actions a").first(),
+      ).toHaveAttribute("href", "/replay?mode=guided");
       for (const selector of [
+        "#home-title",
         "#home-question",
         "#home-answer",
         "#home-control",

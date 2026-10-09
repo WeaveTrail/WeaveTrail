@@ -44,12 +44,24 @@ visitor comes to do from how the system works.
   `Expected results`, `Data handling`, each with a one-line description) and the
   language switch. Below the tablet width, one `Menu` button opens every
   destination. Escape closes the menu and returns focus to the button.
-- Each block on an entry screen is a title and at most one short line, and
-  every detail is one link or disclosure away. On the home page the four stages
-  carry one line each, the reasons one sentence each, and the build board one
-  linked row per capability with its single fact (count, date or duration).
-  Planned capabilities are titles only. The walkthrough heading is one sentence
-  with two facts, and the mode switch gives each mode one line.
+- The site follows one path for a first-time visitor: what this is, then try
+  it, then which AI and why, then how it works.
+  - **Home** opens with what the site is in one heading and one line, and
+    offers `Walk through a case` as its first action, with its length.
+    Beside it, a card asks which AI model proposes the column mappings and
+    answers in one sentence with the control line. The four stages run in one
+    row below, so all three sit in the first 1280x720 screen.
+  - **The walkthrough** heading is one line: what the case is and how long it
+    takes, with the two modes as a segmented control. The step rail shows the
+    step, its one instruction, its control and who acted; why the step exists
+    and the full step list each wait in one disclosure. A proposed field reads
+    as one line on a wide screen. The result leads with the verdict and how
+    many checks pass; each check says how many canonical events it counted,
+    and its evidence disclosure lists them with their source rows. The engine
+    version, canonical order and result hash sit in one disclosure below the
+    checks. The last step links to the model comparison.
+  - Each block on an entry screen is a title and at most one short line, and
+    every detail is one link or disclosure away.
 - The first walkthrough step shows the committed source as one table: a summary
   line (artifact, rows, columns, kind), then every row with its original
   strings. Provenance and the artifact hash sit in one disclosure below the
@@ -67,6 +79,10 @@ re-pin no longer changes the interface. The figures and the interface can now
 drift apart in neutral tones; the brand teal is shared.
 
 Tests that held the old navigation names now hold the new ones. Browser tests
-cover the menu by keyboard at 390x844, the `How it works` menu at 1280x720, and
-the step-1 table in the first viewport. The fixed mobile action bar, the sticky
+cover the menu by keyboard at 390x844, the menu closing when the width crosses
+the tablet breakpoint, the header within 320px and 375px screens in tab order,
+the `How it works` menu at 1280x720, the step-1 table in the first viewport,
+the home heading and its walkthrough action in the first viewport, the result's
+check tally with its technical details closed, and every closed disclosure
+opening for print. The fixed mobile action bar, the sticky
 step rail and the evidence-badge rules carry over unchanged in behaviour.

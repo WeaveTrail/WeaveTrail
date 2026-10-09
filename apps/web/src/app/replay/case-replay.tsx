@@ -353,6 +353,11 @@ interface GuideUi {
   readonly goToExample: string;
   readonly goToEvidence: string;
   readonly stepListLabel: string;
+  readonly whyThisStep: string;
+  readonly technicalDetails: string;
+  readonly eventsCounted: (count: number) => string;
+  readonly nextHeading: string;
+  readonly nextComparison: string;
 }
 
 export const guideUi: Readonly<Record<Language, GuideUi>> = {
@@ -392,6 +397,13 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
     goToExample: "Go to the review example",
     goToEvidence: "Go to the finding evidence",
     stepListLabel: "All steps",
+    whyThisStep: "Why this step",
+    technicalDetails:
+      "Technical details: engine version, canonical order and result hash",
+    eventsCounted: (count) =>
+      `${count} canonical ${count === 1 ? "event" : "events"} counted`,
+    nextHeading: "Where to go next",
+    nextComparison: "See how the model was chosen",
   },
   ko: {
     blockers: [
@@ -429,6 +441,11 @@ export const guideUi: Readonly<Record<Language, GuideUi>> = {
     goToExample: "검토 예시로 이동",
     goToEvidence: "판단 근거로 이동",
     stepListLabel: "전체 단계",
+    whyThisStep: "이 단계를 두는 이유",
+    technicalDetails: "기술 정보: 엔진 버전, 정리된 기록 순서, 결과 해시",
+    eventsCounted: (count) => `정리된 거래 기록 ${count}건을 셈`,
+    nextHeading: "다음에 볼 것",
+    nextComparison: "모델을 어떻게 골랐는지 보기",
   },
 };
 
@@ -960,7 +977,13 @@ export function RapidPriceLiftEvaluation({
                 <p className="gate-description">
                   {gateReading(finding.gate as GateName, language).tests}
                 </p>
-                <small>{finding.referencedEventIds.join(" · ")}</small>
+                {/* Each event id opens with its source row in the disclosure
+                    below; the row says how many the check counted. */}
+                <small>
+                  {guideUi[language].eventsCounted(
+                    finding.referencedEventIds.length,
+                  )}
+                </small>
                 <details
                   className={
                     advancesStep
@@ -1881,67 +1904,82 @@ export function CaseReplay({
                   </div>
                 </div>
                 <div className="rail-scroll">
-                  <dl className="step-intent">
-                    <div>
-                      <dt>{ui.whatThisShows}</dt>
-                      <dd>{guideStep.purpose}</dd>
-                    </div>
-                    <div>
-                      <dt>{ui.whoActed}</dt>
-                      <dd>
-                        <strong>
-                          {actorLabels[language][guideStep.actor]}
-                        </strong>{" "}
-                        {guideStep.actorDetail}
-                      </dd>
-                    </div>
-                  </dl>
+                  <p className="step-actor" data-actor={guideStep.actor}>
+                    <span>{ui.whoActed}</span>{" "}
+                    <strong>{actorLabels[language][guideStep.actor]}</strong>
+                  </p>
+                  {/* The reasoning is one tap away, so the rail leads with
+                      the instruction and its control. */}
+                  <details className="step-why">
+                    <summary>{ui.whyThisStep}</summary>
+                    <dl className="step-intent">
+                      <div>
+                        <dt>{ui.whatThisShows}</dt>
+                        <dd>{guideStep.purpose}</dd>
+                      </div>
+                      <div>
+                        <dt>{ui.whoActed}</dt>
+                        <dd>
+                          <strong>
+                            {actorLabels[language][guideStep.actor]}
+                          </strong>{" "}
+                          {guideStep.actorDetail}
+                        </dd>
+                      </div>
+                    </dl>
+                  </details>
                   {guideStep.refusal ? (
                     <p className="step-refusal" data-status="REVIEW_REQUIRED">
                       {guideStep.refusal}
                     </p>
                   ) : null}
-                  <h3 className="rail-list-heading">{ui.stepListLabel}</h3>
-                  <nav aria-label={ui.progressLabel} className="stage-groups">
-                    {stepGroups.map((group) => (
-                      <section
-                        aria-labelledby={`guide-group-${group.key}`}
-                        className="stage-group"
-                        data-current={group.steps.includes(chapter)}
-                        key={group.key}
-                      >
-                        <h4 id={`guide-group-${group.key}`}>{group.heading}</h4>
-                        <ol className="journey-progress">
-                          {group.steps.map((index) => (
-                            <li
-                              key={activeSteps[index]!.title}
-                              aria-current={
-                                chapter === index ? "step" : undefined
-                              }
-                            >
-                              <button
-                                className="journey-step"
-                                data-complete={stepCompleted(index)}
-                                onClick={() => goToChapter(index)}
-                                type="button"
+                  <details className="rail-steps">
+                    <summary className="rail-list-heading">
+                      {ui.stepListLabel}
+                    </summary>
+                    <nav aria-label={ui.progressLabel} className="stage-groups">
+                      {stepGroups.map((group) => (
+                        <section
+                          aria-labelledby={`guide-group-${group.key}`}
+                          className="stage-group"
+                          data-current={group.steps.includes(chapter)}
+                          key={group.key}
+                        >
+                          <h4 id={`guide-group-${group.key}`}>
+                            {group.heading}
+                          </h4>
+                          <ol className="journey-progress">
+                            {group.steps.map((index) => (
+                              <li
+                                key={activeSteps[index]!.title}
+                                aria-current={
+                                  chapter === index ? "step" : undefined
+                                }
                               >
-                                <span>
-                                  {index + 1}. {activeSteps[index]!.title}
-                                </span>
-                                {stepCompleted(index) || chapter === index ? (
-                                  <small>
-                                    {stepCompleted(index)
-                                      ? ui.completed
-                                      : ui.currentStep}
-                                  </small>
-                                ) : null}
-                              </button>
-                            </li>
-                          ))}
-                        </ol>
-                      </section>
-                    ))}
-                  </nav>
+                                <button
+                                  className="journey-step"
+                                  data-complete={stepCompleted(index)}
+                                  onClick={() => goToChapter(index)}
+                                  type="button"
+                                >
+                                  <span>
+                                    {index + 1}. {activeSteps[index]!.title}
+                                  </span>
+                                  {stepCompleted(index) || chapter === index ? (
+                                    <small>
+                                      {stepCompleted(index)
+                                        ? ui.completed
+                                        : ui.currentStep}
+                                    </small>
+                                  ) : null}
+                                </button>
+                              </li>
+                            ))}
+                          </ol>
+                        </section>
+                      ))}
+                    </nav>
+                  </details>
                 </div>
               </>
             ) : (
@@ -2247,11 +2285,11 @@ export function CaseReplay({
                     <code>{field.sourceColumn}</code>
                     <span>→</span>
                     <code>{field.targetField ?? "unmapped"}</code>
-                    <span>
+                    <span className="mapping-transform">
                       {t("Transform", "변환")}:{" "}
                       <code>{field.transform ?? "none"}</code>
                     </span>
-                    <span>
+                    <span className="mapping-confidence">
                       {t("Confidence", "확신도")}: {field.confidence.toFixed(2)}{" "}
                       (
                       {t(
@@ -2260,7 +2298,7 @@ export function CaseReplay({
                       )}
                       )
                     </span>
-                    <span>
+                    <span className="mapping-evidence">
                       {t("Evidence", "근거")}: {field.evidence}
                     </span>
                     <b data-status={field.status}>{field.status}</b>
@@ -2566,12 +2604,8 @@ export function CaseReplay({
                   )}
                 </p>
               )}
-              <p>
-                {t("Engine version", "엔진 버전")}:{" "}
-                <code>{result.replay.engineVersion}</code>
-              </p>
               {"evaluation" in result && (
-                <p>
+                <p className="result-headline">
                   {t("Pattern outcome", "패턴 결과")}:{" "}
                   <strong>{result.evaluation.result}</strong>{" "}
                   {t("under the approved case and", "승인된 사례와")}{" "}
@@ -2579,39 +2613,16 @@ export function CaseReplay({
                     {result.evaluation.ruleId}@{result.evaluation.ruleVersion}
                   </code>
                   .
+                  {"findings" in result.evaluation ? (
+                    <span className="result-tally">
+                      {t(
+                        `${result.evaluation.findings.filter(({ passed }) => passed).length} of ${result.evaluation.findings.length} checks pass.`,
+                        `판단 항목 ${result.evaluation.findings.length}개 중 ${result.evaluation.findings.filter(({ passed }) => passed).length}개 충족.`,
+                      )}
+                    </span>
+                  ) : null}
                 </p>
               )}
-              <div className="metric-grid">
-                <div>
-                  <span>{t("Input", "입력")}</span>
-                  <strong>{result.replay.inputEventCount}</strong>
-                </div>
-                <div>
-                  <span>{t("Canonical", "정리 후")}</span>
-                  <strong>{result.replay.canonicalEventCount}</strong>
-                </div>
-                <div>
-                  <span>{t("Duplicates", "중복")}</span>
-                  <strong>{result.replay.duplicateCount}</strong>
-                </div>
-              </div>
-              <div className="trace-block">
-                <span>{t("Canonical order", "정리된 기록 순서")}</span>
-                <small className="machine-note">
-                  {eventFieldNote("eventId", language)}
-                </small>
-                <div className="event-chain">
-                  {result.replay.orderedEventIds.map((eventId) => (
-                    <code key={eventId}>{eventId}</code>
-                  ))}
-                </div>
-              </div>
-              <div className="hash-block">
-                <HashValue
-                  scope="canonicalResult"
-                  value={result.replay.canonicalResultHash}
-                />
-              </div>
               {"evaluation" in result ? (
                 <RapidPriceLiftEvaluation
                   advancesStep={
@@ -2629,16 +2640,60 @@ export function CaseReplay({
               ) : null}
               <p>
                 {t(
-                  "The engine can independently assemble and verify an Evidence Bundle from source bytes; browser export is planned. Each displayed hash states what it covers where it is shown.",
-                  "엔진은 원본 바이트에서 증거 묶음을 독립적으로 조립하고 검증할 수 있으며, 브라우저 내보내기는 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
-                )}
-              </p>
-              <p>
-                {t(
                   "Pattern support is not a legal or causal conclusion. Actor removal is a mechanical sensitivity comparison.",
                   "패턴을 뒷받침한다는 결과는 법적 판단도, 인과관계에 대한 결론도 아닙니다. 특정 거래 주체를 빼고 비교한 값은 기계적인 대조일 뿐입니다.",
                 )}
               </p>
+              {/* What a first reading does not need stays one disclosure
+                  away; a normalization without a case has nothing else, so
+                  it opens there. */}
+              <details
+                className="result-technical"
+                open={!("evaluation" in result)}
+              >
+                <summary>{ui.technicalDetails}</summary>
+                <p>
+                  {t("Engine version", "엔진 버전")}:{" "}
+                  <code>{result.replay.engineVersion}</code>
+                </p>
+                <div className="metric-grid">
+                  <div>
+                    <span>{t("Input", "입력")}</span>
+                    <strong>{result.replay.inputEventCount}</strong>
+                  </div>
+                  <div>
+                    <span>{t("Canonical", "정리 후")}</span>
+                    <strong>{result.replay.canonicalEventCount}</strong>
+                  </div>
+                  <div>
+                    <span>{t("Duplicates", "중복")}</span>
+                    <strong>{result.replay.duplicateCount}</strong>
+                  </div>
+                </div>
+                <div className="trace-block">
+                  <span>{t("Canonical order", "정리된 기록 순서")}</span>
+                  <small className="machine-note">
+                    {eventFieldNote("eventId", language)}
+                  </small>
+                  <div className="event-chain">
+                    {result.replay.orderedEventIds.map((eventId) => (
+                      <code key={eventId}>{eventId}</code>
+                    ))}
+                  </div>
+                </div>
+                <div className="hash-block">
+                  <HashValue
+                    scope="canonicalResult"
+                    value={result.replay.canonicalResultHash}
+                  />
+                </div>
+                <p>
+                  {t(
+                    "The engine can independently assemble and verify an Evidence Bundle from source bytes; browser export is planned. Each displayed hash states what it covers where it is shown.",
+                    "엔진은 원본 바이트에서 증거 묶음을 독립적으로 조립하고 검증할 수 있으며, 브라우저 내보내기는 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
+                  )}
+                </p>
+              </details>
               <div className="boundary-note">
                 <strong>{t("Fixture mode", "Fixture 모드")}</strong>
                 <p>{result.boundary}</p>
@@ -2797,6 +2852,12 @@ export function CaseReplay({
               >
                 {workingModeLabel}
               </button>
+            )}
+            {guided && (
+              <p className="guide-next">
+                <span>{ui.nextHeading}</span>{" "}
+                <a href="/evals">{ui.nextComparison}</a>
+              </p>
             )}
           </section>
         )}
