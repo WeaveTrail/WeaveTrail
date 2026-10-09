@@ -9,6 +9,7 @@ import { SiteNavigation } from "./site-navigation";
 import { LanguageProvider } from "./i18n/language";
 import { LanguageSelector } from "./i18n/language-selector";
 import { ChromeText } from "./i18n/chrome-text";
+import { PrintDisclosures } from "./print-disclosures";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -59,6 +60,7 @@ export default function RootLayout({
     <html className={`${plex.variable} ${mono.variable}`} lang="en">
       <body>
         <LanguageProvider>
+          <PrintDisclosures />
           <a className="skip-link" href="#main-content">
             <ChromeText id="skipToContent" />
           </a>

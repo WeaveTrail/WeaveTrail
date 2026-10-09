@@ -197,3 +197,16 @@ test("folds the engine checks under one summary that opens by keyboard", async (
   await page.keyboard.press("Enter");
   await expect(rows.first()).toBeVisible();
 });
+
+test("opens every closed disclosure for printing and closes it after", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const closed = page.locator("details:not([open])");
+  const count = await closed.count();
+  expect(count).toBeGreaterThan(0);
+  await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+  await expect(closed).toHaveCount(0);
+  await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  await expect(closed).toHaveCount(count);
+});
