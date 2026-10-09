@@ -214,3 +214,38 @@ for (const viewport of VIEWPORTS) {
     });
   }
 }
+
+test("does not satisfy the evidence step by printing", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  const rail = page.locator(".journey-header .rail-actions");
+  const railContinue = rail.getByRole("button", { name: "Continue" });
+  const press = async (name: string) =>
+    rail.getByRole("button", { name, exact: true }).click();
+  await railContinue.click();
+  await press(labels.en.approveMapping);
+  await railContinue.click();
+  await press(labels.en.approveCase);
+  await railContinue.click();
+  await press(labels.en.run);
+  await expect(railContinue).toBeEnabled();
+  await railContinue.click();
+  await press(labels.en.repeat);
+  await expect(railContinue).toBeEnabled();
+  await railContinue.click();
+  await expect(page.locator(".journey-header h2")).toHaveText(
+    guideUi.en.stepHeading(6, guideStepsByLanguage.en[5]!.title),
+  );
+  await expect(railContinue).toBeDisabled();
+  await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+  await expect(page.locator(".source-evidence").first()).toHaveAttribute(
+    "open",
+    "",
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  await expect(page.locator(".source-evidence").first()).not.toHaveAttribute(
+    "open",
+    "",
+  );
+  await expect(railContinue).toBeDisabled();
+});

@@ -60,6 +60,7 @@ import {
   useReplayLanguage,
 } from "./replay-language";
 import { type Language } from "../i18n/language";
+import { openedForPrint } from "../print-disclosures";
 
 type Mutation = "baseline" | "shuffle" | "duplicate";
 
@@ -991,7 +992,11 @@ export function RapidPriceLiftEvaluation({
                       : "source-evidence"
                   }
                   onToggle={(event) => {
-                    if (event.currentTarget.open) onEvidenceOpen?.();
+                    if (
+                      event.currentTarget.open &&
+                      !openedForPrint(event.currentTarget)
+                    )
+                      onEvidenceOpen?.();
                   }}
                 >
                   <summary id={index === 0 ? GUIDE_TARGET_EVIDENCE : undefined}>
