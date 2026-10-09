@@ -85,59 +85,73 @@ export function EvalsContent({
 }) {
   const { language } = useLanguage();
   const ko = language === "ko";
+  const implemented = checks.filter(
+    (check) => check.status === "Implemented",
+  ).length;
   const heading = ko
     ? [
         "평가 목록",
-        "검증한 것만 말합니다.",
+        "모든 결과를 받치는 엔진 검증",
         "실행할 수 있는 검증과 계획된 측정을 구분합니다.",
         "현재 평가는 합성 사례만 사용합니다. 이전 공개자료 평가는 출처가 철회된 과거 캡처입니다.",
       ]
     : [
         "Evaluation ledger",
-        "Measured evidence only.",
+        "The engine checks behind every result",
         "This page distinguishes runnable invariants from future measurements. Targets do not become results until their cases, command, environment, and limitations are committed.",
         "The current evaluation uses synthetic cases only. Earlier published-data evaluations are historical captures with withdrawn sources.",
       ];
   return (
     <main className="shell page-shell">
       <ModelComparison result={heldOut} />
-      <div className="page-heading ledger-heading">
-        <span className="eyebrow">{heading[0]}</span>
-        <h2>{heading[1]}</h2>
-        <p>{heading[2]}</p>
-        <p>{heading[3]}</p>
-        <p>
-          <a
-            href={`https://github.com/WeaveTrail/WeaveTrail/blob/develop/docs/EVALUATION${ko ? ".ko" : ""}.md`}
-          >
-            {ko
-              ? "평가 정의, 재현 명령, 실행 환경과 원시 결과"
-              : "Evaluation cases, reproduction command, environment and raw results"}
-          </a>
-        </p>
-      </div>
-      <section className="eval-list">
-        {checks.map((check, index) => {
-          const localized = koreanChecks[index];
-          return (
-            <article className="eval-row" key={check.name}>
-              <span
-                className={
-                  check.status === "Implemented" ? "pill implemented" : "pill"
-                }
-              >
-                {ko
-                  ? check.status === "Implemented"
-                    ? "구현됨"
-                    : "계획"
-                  : check.status}
-              </span>
-              <h2>{ko ? localized?.[0] : check.name}</h2>
-              <p>{ko ? localized?.[1] : check.detail}</p>
-            </article>
-          );
-        })}
-      </section>
+      <details className="ledger">
+        <summary>
+          <span className="eyebrow">{heading[0]}</span>
+          <span className="ledger-summary">
+            <strong>{heading[1]}</strong>
+            <span>
+              {ko
+                ? `구현됨 ${implemented} · 계획 ${checks.length - implemented}`
+                : `${implemented} implemented · ${checks.length - implemented} planned`}
+            </span>
+          </span>
+        </summary>
+        <div className="page-heading ledger-heading">
+          <p>{heading[2]}</p>
+          <p>{heading[3]}</p>
+          <p>
+            <a
+              href={`https://github.com/WeaveTrail/WeaveTrail/blob/develop/docs/EVALUATION${ko ? ".ko" : ""}.md`}
+            >
+              {ko
+                ? "평가 정의, 재현 명령, 실행 환경과 원시 결과"
+                : "Evaluation cases, reproduction command, environment and raw results"}
+            </a>
+          </p>
+        </div>
+        <section className="eval-list">
+          {checks.map((check, index) => {
+            const localized = koreanChecks[index];
+            return (
+              <article className="eval-row" key={check.name}>
+                <span
+                  className={
+                    check.status === "Implemented" ? "pill implemented" : "pill"
+                  }
+                >
+                  {ko
+                    ? check.status === "Implemented"
+                      ? "구현됨"
+                      : "계획"
+                    : check.status}
+                </span>
+                <h2>{ko ? localized?.[0] : check.name}</h2>
+                <p>{ko ? localized?.[1] : check.detail}</p>
+              </article>
+            );
+          })}
+        </section>
+      </details>
     </main>
   );
 }

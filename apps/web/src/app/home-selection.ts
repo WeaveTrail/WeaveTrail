@@ -13,7 +13,7 @@ import {
 
 export type HomeSelection =
   | {
-      /** No published selection; the home page shows no numbers. */
+      /** No published selection; the home page shows no accuracy figures. */
       readonly state: "planned";
       /**
        * `notRun`: no held-out session is committed. `noOutput`: a session is

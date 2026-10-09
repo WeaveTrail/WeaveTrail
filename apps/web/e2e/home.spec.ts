@@ -152,3 +152,25 @@ for (const [href, path] of [
     expect(new URL(page.url()).pathname).toBe(path);
   });
 }
+
+for (const language of LANGUAGES) {
+  test(`shows the four stages beside the answer at 1280x720 in ${language}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await open(page, language);
+    await expect(page.locator(".home-flow li")).toHaveCount(4);
+    await expectInFirstViewport(page, ".home-flow");
+  });
+}
+
+test("keeps the header on one row and the navigation inside the screen at 390x844", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "ko");
+  const header = await page.locator(".site-header").boundingBox();
+  expect(header!.height).toBeLessThanOrEqual(64);
+  await expect(page.locator(".nav-group-label").first()).toBeHidden();
+  await expect(page.locator('.side-nav a[href="/evals"]')).toBeInViewport();
+});
