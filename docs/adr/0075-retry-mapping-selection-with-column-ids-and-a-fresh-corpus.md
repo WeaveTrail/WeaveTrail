@@ -86,13 +86,16 @@ unchanged, so a field with an unresolved ID matches no gold column and counts
 as returned and invented, as an unknown header does under version 1. The
 selector rejects a mix of record or scorer versions.
 
-**Offline revalidation.** The offline selector revalidates each `VALID`
-`mapping-run/2` record in two deterministic steps. It first recomputes every
-field's projection from the sealed dialect's supplied column list and rejects
-the record if a stored `sourceColumn` differs from it. It then removes the
-projected `sourceColumn` and passes the `columnId`-only fields, as the model
-returned them, to `mapping-validator/3`; a record that does not validate is
-rejected. The stored projection is therefore checked, never trusted.
+**Offline revalidation.** Before scoring, for the DEV gate and for
+selection alike, every `mapping-run/2` record that retains output, `VALID` or
+`CONTRACT_REJECTED` with `failureClass` `OUTPUT_CONTRACT`, has each field's
+projection recomputed from the sealed dialect's supplied column list. A stored
+`sourceColumn` that differs from it, or one present where the projection
+leaves it absent, rejects the whole input set. Then, for `VALID` records only,
+the projected `sourceColumn` is removed and the `columnId`-only fields, as the
+model returned them, are passed to `mapping-validator/3`; a record that does
+not validate is rejected. The stored projection is therefore checked, never
+trusted, wherever it feeds a count.
 
 **Lexical reference records.** `lexical-baseline/3` matches headers as version
 2 does, from the v4 DEV vocabulary, and then writes `mapping-run/2` records. It
