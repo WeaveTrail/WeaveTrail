@@ -46,20 +46,20 @@ now is to measure, select and restrict the models that propose its inputs.
 the synthetic Case Replay walkthrough, the mapping and case-scope contracts, a
 sealed synthetic schema-dialect evaluation set, the mapping run-record
 contract, the shared mapping validator with its hostile probes, and the
-[AI failure log](docs/AI_FAILURE_LOG.md) are implemented. Running and scoring
-models, the non-model baseline, model selection, routing and case-scope
-proposals are planned. No model has been run against the held-out set, so this
-repository publishes no model accuracy, comparison or selection.
+[AI failure log](docs/AI_FAILURE_LOG.md) are implemented. Running
+models, scoring, the non-model baseline and rule-based model selection are
+implemented. The first held-out run and the fresh recovery run both returned
+`NO_MODEL`; the [evaluation protocol](docs/EVALUATION.md) publishes their records
+and comparison. Routing and case-scope proposals remain planned.
 
 - **What it reads ·** synthetic trade and quotation files with unfamiliar
   column names, each with its provenance beside it. Real quotation data and the
   pages built on it have been withdrawn.
 - **What a model may do ·** propose a field mapping and, as planned, a case
   scope chosen from values code has already computed. Nothing else.
-- **What it is planned to return ·** a comparison of models on a sealed
-  held-out set beside a non-model baseline, a selection made by a rule fixed
-  before that run, and a proposal path that escalates once and otherwise stops
-  at review.
+- **What it returns ·** a comparison of models on a sealed held-out set beside
+  a non-model baseline, and a selection made by a rule fixed before that run.
+  A proposal path that escalates once and otherwise stops at review is planned.
 - **What it never does ·** let a model compute, approve or decide a result;
   state a cause, intent or legality; single out an account; forecast a price;
   or recommend a trade.
@@ -114,14 +114,14 @@ never do, and the record it leaves behind.
   the stored source rows and evaluates the versioned rule. A rejected or
   ambiguous proposal fails closed as `REVIEW_REQUIRED`.
 - **Evidence ·** every finding opens onto its canonical `eventId` and
-  `rawRowHash`. A run-record contract is in place for the planned model runs:
+  `rawRowHash`. A run-record contract captures the model runs:
   model, prompt version, validator outcome, latency and tokens.
 
 A model holds two roles, and only two:
 
 | Role                        | What the model proposes                                                                       | What code fixes first                                                                                                                           | What it may never do                                                       | Status                                                                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Field mapping               | Each column's canonical field and allowed transform, with a reason, or `REVIEW_REQUIRED`      | The column list, the target and transform lists, the contract, a dry run                                                                        | Invent a column, use an unlisted transform, change a source value, approve | Fixture and one configured adapter exist; evaluation (`v0.2.0`), routing (`v0.3.0`) planned                                 |
+| Field mapping               | Each column's canonical field and allowed transform, with a reason, or `REVIEW_REQUIRED`      | The column list, the target and transform lists, the contract, a dry run                                                                        | Invent a column, use an unlisted transform, change a source value, approve | Fixture, configured adapter and evaluation (`v0.2.0`) exist; routing (`v0.3.0`) planned                                     |
 | Bounded case-scope proposal | The instrument, actor group, time window and rule version to examine, chosen from the profile | The `DatasetProfile`: instruments, actors and the earliest and latest event time; event counts, candidate windows and rule versions are planned | Invent an actor, widen the time bounds, predict a result, set a threshold  | Profile and its instrument, actor and time checks exist; rule-version and threshold guards and proposals (`v0.4.0`) planned |
 
 > Code defines the possible space. AI proposes within it. A person decides.
@@ -168,8 +168,8 @@ fixed choices, written down and tested.
   exactly, never through a rounded quotient.
 - **A model run is a record, not a replay ·** the run-record contract keeps the
   parsed output, validator outcome, latency and tokens, never the raw provider
-  envelope. The planned scorer must give the same summary whenever committed
-  records are re-scored; running a model again makes a new record.
+  envelope. The scorer gives the same summary whenever committed records are
+  re-scored; running a model again makes a new record.
 - **The fingerprint covers the answer, not the run ·** shuffling the same rows
   leaves it unchanged; who approved and when is kept in the approval record
   instead, where it can still be read.
@@ -193,10 +193,19 @@ no result until its evaluation is published.
   HELD_OUT schema-dialect set, the run-record contract, the shared validator
   with its hostile probes, and the AI failure log with its prompt-version
   registry; one configuration-driven Chat Completions adapter and an explicit
-  local smoke command with sanitized run records. Planned: scoring accuracy,
-  invented fields, abstention, rejection,
-  latency and cost beside a non-model lexical baseline; a selection rule fixed
-  before the held-out run; and the comparison on the evaluation and home pages.
+  local smoke command with sanitized run records; scoring of accuracy, invented
+  fields, abstention, rejection, latency and cost beside a non-model lexical
+  baseline; a selection rule fixed before the held-out run; and the comparison
+  on the evaluation page, with the home page answering which model was chosen.
+  The first held-out run selected no model: every request failed without
+  output. The fresh recovery run observed model output but no candidate passed
+  the pre-declared thresholds; its comparison and `NO_MODEL` decision are
+  committed and documented in the evaluation protocol. Both web pages are bound
+  to the recovery session, so they show no selection and the home page shows
+  no numbers. Any changed configuration needs another fresh held-out set and a
+  decision record before the run. Planned: the guided replay grouped under
+  propose, approve, verify and trace, with each finding traced back through the
+  approved mapping.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
   validator checks it. A valid, clear proposal goes to review; an ambiguous or
   rejected one goes once to an escalation model that never sees the primary

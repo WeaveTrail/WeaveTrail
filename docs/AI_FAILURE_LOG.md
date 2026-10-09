@@ -67,10 +67,21 @@ changed a prompt.
 
 HELD_OUT `schema-dialects/2` was used by the first complete live session on
 2026-10-08. All 180 attempts failed without retained output. There has been no
-post-result prompt, contract, validator, candidate or routing change; the prompt
+post-result prompt, mapping-output schema, validator, candidate or routing change; the prompt
 version is unchanged. This used session cannot be replaced to improve the
 outcome. Any subsequent configuration or rule change requires a fresh sealed
 corpus and pre-run ADR under ADR 0067. F-004 records the residual.
+
+The recovery under [ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
+changes the adapter after DEV-only diagnostics. HELD_OUT `schema-dialects/3`
+is now used by session `f869738c-fb61-42df-9b50-ecfd9c3b299a`, starting at
+2026-10-08T16:15:18.202Z. Further prompt, schema, adapter, validator, candidate
+or rule changes require another fresh sealed version and pre-run ADR.
+
+The complete v3 grid has 56 valid outputs, 79 contract rejections and 45 provider
+failures; no candidate qualifies. The [captured recovery](../packages/evals/results/mapping-held-out-v2/README.md)
+records the observed safety failures, unknown outputs and unchanged-rule
+`NO_MODEL` decision. No prompt or threshold was tuned from these records.
 
 ## Entries
 
@@ -161,3 +172,16 @@ codes above in the regression test.
 | Fix               | No prompt, adapter or validator change. Preserve the first session and publish its fail-closed `NO_MODEL` decision under ADR 0067, PR #309; any configuration change needs a new sealed corpus                                                                              |
 | Regression test   | `packages/evals/src/held-out-result.test.ts`                                                                                                                                                                                                                                |
 | Status            | `ACCEPTED_RESIDUAL`: no candidate is selected and the AI path stays off. Safety, model quality and cost are unobserved; offline replay pins the complete failed grid, receipt hashes, unknown cost and no-model decision                                                    |
+
+### F-005: The compatibility endpoint rejects the store request parameter
+
+| Field             | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Configured field mapping transport                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Model and version | The same five Google candidates as F-004; adapter `openai-compatible-mapping/1`, unchanged prompt `schema-mapping/1` and validator `mapping-validator/2`                                                                                                                                                                                                                                                                                                    |
+| Run record        | DEV-only diagnostic on 2026-10-08 UTC; raw error bodies remain server-only under ignored `.model-runs/raw/`. The first held-out records cannot reconstruct their lost bodies                                                                                                                                                                                                                                                                                |
+| Assumption        | Sending `store: false` is accepted by the configured compatibility endpoint                                                                                                                                                                                                                                                                                                                                                                                 |
+| Counterexample    | All five DEV requests with the legacy parameter return HTTP 400 / `INVALID_ARGUMENT`, rejecting unknown parameter `store`. Removing it returns HTTP 200 on four; listed `gemini-2.5-pro` returns HTTP 404, unavailable to new users                                                                                                                                                                                                                         |
+| Fix               | Adapter `openai-compatible-mapping/2` omits the parameter without vendor branches or retries. Optional `httpStatus` records the response status. Explicit diagnostics retain bounded error bodies only in private ignored files. [ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md) seals v3 before rerunning; v2 is used and offline-only. Recovery tracked in #272; [PR #310](https://github.com/WeaveTrail/WeaveTrail/pull/310) |
+| Regression test   | `packages/evals/src/mapping-recovery.test.ts`                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Status            | `FIXED`                                                                                                                                                                                                                                                                                                                                                                                                                                                     |

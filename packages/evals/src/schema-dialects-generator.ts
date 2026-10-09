@@ -36,7 +36,7 @@ export interface Dialect {
   }[];
 }
 export interface Corpus {
-  version: "schema-dialects/1" | "schema-dialects/2";
+  version: "schema-dialects/1" | "schema-dialects/2" | "schema-dialects/3";
   split: Split;
   dialects: Dialect[];
 }

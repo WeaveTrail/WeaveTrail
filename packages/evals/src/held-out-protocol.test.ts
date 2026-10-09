@@ -19,7 +19,8 @@ vi.mock("node:child_process", () => ({
   execFileSync: (_cmd: string, args: string[]) => {
     if (args[0] === "diff") return Buffer.from("");
     if (args[0] === "rev-parse") return "synthetic-test-commit\n";
-    if (args[1]!.endsWith(".md")) return Buffer.from("- Status: Accepted");
+    if (args[1]!.endsWith(".md"))
+      return readFileSync(args[1]!.slice("HEAD:".length));
     return readFileSync(args[1]!.slice("HEAD:".length));
   },
 }));

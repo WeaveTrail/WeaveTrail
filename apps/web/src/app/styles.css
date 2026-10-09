@@ -305,6 +305,67 @@ button:disabled {
 .hero-actions {
   margin-top: 24px;
 }
+.home-answer h1 {
+  max-width: 30em;
+  margin-top: 8px;
+  font: var(--type-display);
+}
+.home-answer-sentence {
+  max-width: var(--prose-max);
+  margin-top: 16px;
+  font: var(--type-body-lg);
+  line-height: 1.6;
+  color: var(--text-strong);
+}
+.home-control {
+  max-width: var(--prose-max);
+  margin-top: 16px;
+  padding-left: 12px;
+  border-left: 3px solid var(--teal-700);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.home-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 12px;
+}
+.home-facts dt {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.home-run {
+  margin-top: 4px;
+  font: var(--type-label);
+}
+/* A term reads as part of its sentence and opens its explanation. */
+.home-term {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: help;
+}
+.home-term:hover {
+  color: var(--teal-700);
+}
+.home-term-note {
+  width: min(28rem, calc(100% - 32px));
+  padding: 16px;
+  border: var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-overlay);
+}
+.home-term-note p {
+  margin-block: 8px 12px;
+  line-height: 1.6;
+}
 .button {
   min-height: var(--control-height-lg);
   display: inline-flex;
@@ -1823,6 +1884,9 @@ code {
   }
   .hero h1 {
     font-size: var(--text-28);
+  }
+  .home-answer h1 {
+    font-size: var(--text-22);
   }
   .role-grid,
   .position-chain,

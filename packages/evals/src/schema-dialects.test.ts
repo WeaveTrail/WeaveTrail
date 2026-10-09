@@ -14,22 +14,30 @@ import { generateCorpus, tags, type Corpus } from "./schema-dialects-generator";
 // gold, run records and every other evaluation import remain offline.
 const publishedOutputs = new Map([
   [
-    "packages/evals/results/mapping-held-out-v1/comparison.json",
-    "3850fefce368f8efd0941dc2e77e47652f50d5818eab7fa4d6876f11b9c378c0",
+    "packages/evals/results/mapping-held-out-v2/comparison.json",
+    "416d84d358493c29b4140682802b7481a7648e9d941466c6195564e0ae1e88e7",
   ],
   [
-    "packages/evals/results/mapping-held-out-v1/decision.json",
-    "74015061dbcb68a4da319a8f84c939126e21ca05160b7cf1f2849775b8ea1316",
+    "packages/evals/results/mapping-held-out-v2/decision.json",
+    "e78d5e8fac1a54c468cf742dba78befad8b0a78ffd5a4bd810a591debd18f1d0",
   ],
   [
-    "packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/session.json",
-    "ae63e014d166b2722701237f48cd308b513ada10dba0f59f2ce2250e5e824a3f",
+    "packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/session.json",
+    "c52069dacd09b544d92efb60b6e52fb88fb7ce08360579e4f456c7c32df14349",
   ],
 ]);
 
 function assertEvaluationImport(name: string, imported: string, root: string) {
-  if (!/@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/.test(imported)) return;
   const target = relative(root, resolve(root, name, "..", imported));
+  // A relative import is judged by where it resolves, so a web module under
+  // `app/evals/` is not mistaken for the evaluation package. Any other
+  // specifier that names evals is held to the binding.
+  if (
+    imported.startsWith(".")
+      ? !/(?:^|\/)packages\/evals(?:\/|$)/.test(target)
+      : !/@weavetrail\/evals|(?:^|\/)evals(?:\/|$)/.test(imported)
+  )
+    return;
   expect(name).toBe("apps/web/src/app/evals/held-out-result.ts");
   expect(publishedOutputs.has(target), target).toBe(true);
   const bytes = readFileSync(resolve(root, target));
@@ -316,8 +324,14 @@ describe("offline schema dialect evaluation input", () => {
       "../../../../../packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json",
       "../../../../../packages/evals/fixtures/schema-dialects-v2/DEV.json",
       "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/records.json",
+      "../../../../../packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/records.json",
+      // The superseded first capture is no longer published.
+      "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json",
       "../../../../../packages/evals/src/mapping-selection",
       "@weavetrail/evals",
+      "@weavetrail/evals/src/mapping-selection",
+      "../../../../../packages/ai-harness/../evals/src/mapping-selection",
+      "../../../../../packages/evals/src/../fixtures/schema-dialects-v3/HELD_OUT.json",
     ])
       expect(() => assertEvaluationImport(binding, imported, root)).toThrow();
     for (const name of [
@@ -327,10 +341,25 @@ describe("offline schema dialect evaluation input", () => {
       expect(() =>
         assertEvaluationImport(
           name,
-          "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json",
+          "../../../../../packages/evals/results/mapping-held-out-v2/comparison.json",
           root,
         ),
       ).toThrow();
+    // The home page reaches the binding through the web's own evals modules.
+    for (const imported of [
+      "./evals/held-out-result",
+      "./evals/model-comparison-data",
+    ])
+      expect(() =>
+        assertEvaluationImport("apps/web/src/app/page.tsx", imported, root),
+      ).not.toThrow();
+    expect(() =>
+      assertEvaluationImport(
+        "apps/web/src/app/page.tsx",
+        "../../../../packages/evals/results/mapping-held-out-v1/comparison.json",
+        root,
+      ),
+    ).toThrow();
     for (const target of publishedOutputs.keys())
       expect(() =>
         assertEvaluationImport(binding, `../../../../../${target}`, root),

@@ -285,7 +285,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         "Escalation: the other eligible candidate that gets the most fields right on ambiguous and conversion-lure columns and on dialects where the primary failed.",
       noModel:
         "No eligible primary: no model is selected and the AI path stays off.",
-      adr: "ADR 0067, the accepted rule",
+      adr: "ADR 0069, the accepted rule",
       definition: "Full rule and tie-breaks",
     },
     prompts: {
@@ -505,7 +505,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         "상위 모델: 모호한 이름·잘못된 변환 유도 열과 기본 모델이 실패한 형식에서 가장 많은 항목을 맞힌 다른 적격 후보입니다.",
       noModel:
         "기본 모델 자격을 갖춘 후보가 없으면 모델을 선택하지 않고 AI 경로를 켜지 않습니다.",
-      adr: "승인된 규칙, ADR 0067(영문)",
+      adr: "승인된 규칙, ADR 0069(영문)",
       definition: "전체 규칙과 동률 처리",
     },
     prompts: {

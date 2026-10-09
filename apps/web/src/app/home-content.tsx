@@ -3,7 +3,13 @@
 import Link from "next/link";
 import React from "react";
 
-import { useCopy, type Language } from "./i18n/language";
+import {
+  definitionLinks,
+  fraction,
+  percent,
+} from "./evals/model-comparison-data";
+import type { HomeSelection } from "./home-selection";
+import { useCopy, useLanguage, type Language } from "./i18n/language";
 
 interface Position {
   readonly name: string;
@@ -17,12 +23,166 @@ interface Role {
   readonly text: string;
 }
 
-interface HomeCopy {
-  readonly headingLead: string;
-  readonly headingEmphasis: string;
-  readonly heroCopy: string;
+export const HOME_TERM_KEYS = [
+  "mapping",
+  "heldOut",
+  "rule",
+  "primary",
+  "escalation",
+  "validator",
+  "versionedCode",
+  "reviewRequired",
+] as const;
+export type HomeTermKey = (typeof HOME_TERM_KEYS)[number];
+
+/**
+ * The first screen: the question, a one-sentence answer and the control line.
+ * `[[key|label]]` marks a term whose plain explanation opens from it; the key
+ * names an entry of `terms`.
+ */
+interface AnswerCopy {
+  readonly eyebrow: string;
+  readonly question: string;
+  readonly planned: Readonly<
+    Record<"notRun" | "noOutput" | "noneQualified", string>
+  >;
+  readonly selected: (primary: string, escalation: string) => string;
+  readonly primaryOnly: (primary: string) => string;
+  readonly factsLabel: string;
+  readonly primaryAccuracy: string;
+  readonly validOutput: string;
+  readonly runDate: (date: string) => string;
+  readonly control: string;
+  readonly seeComparison: string;
   readonly walkThrough: string;
-  readonly whereItFits: string;
+  readonly close: string;
+  readonly terms: Readonly<Record<HomeTermKey, readonly [string, string]>>;
+}
+
+const ANSWER_EN: AnswerCopy = {
+  eyebrow: "The AI here",
+  question:
+    "Which AI model proposes the [[mapping|column mappings]] here, and why that one?",
+  planned: {
+    notRun:
+      "No model is chosen yet: the comparison on the [[heldOut|held-out set]] is planned, and none is chosen until a candidate passes the [[rule|rule fixed before the run]].",
+    noOutput:
+      "No model is chosen yet: the first run on the [[heldOut|held-out set]] returned no model output, so the comparison is planned again and none is chosen until a candidate passes the [[rule|rule fixed before the run]].",
+    noneQualified:
+      "No model is chosen: on the [[heldOut|held-out set]], no candidate passed the [[rule|rule fixed before the run]].",
+  },
+  selected: (primary, escalation) =>
+    `${primary} is the [[primary|primary model]] and ${escalation} the [[escalation|escalation model]], chosen by the [[rule|rule fixed before the run]] from their results on the [[heldOut|held-out set]].`,
+  primaryOnly: (primary) =>
+    `${primary} is the [[primary|primary model]], chosen by the [[rule|rule fixed before the run]] from its results on the [[heldOut|held-out set]]; no other candidate qualifies as the [[escalation|escalation model]].`,
+  factsLabel: "The primary model's held-out results",
+  primaryAccuracy: "Exactly right on clear, abbreviated and synonym columns",
+  validOutput: "Answers the validator could read",
+  runDate: (date) => `Run on ${date}`,
+  control:
+    "What stops wrong output: a [[validator|validator]] checks every proposal against a fixed contract, a person approves it before [[versionedCode|versioned code]] computes anything, and a rejected or unclear proposal stops at [[reviewRequired|REVIEW_REQUIRED]].",
+  seeComparison: "See the model comparison",
+  walkThrough: "Walk through a case",
+  close: "Close",
+  terms: {
+    mapping: [
+      "Column mapping",
+      "Saying which field each column of an unfamiliar data file holds, such as price or quantity, and how to convert its values.",
+    ],
+    heldOut: [
+      "Held-out set",
+      "Synthetic column layouts kept sealed until the run, so no prompt or rule was tuned on them.",
+    ],
+    rule: [
+      "Rule fixed before the run",
+      "The pass marks for valid answers, wrong mappings and needless hand-offs, and how the primary and escalation models are picked. It was committed before any candidate saw the held-out set.",
+    ],
+    primary: [
+      "Primary model",
+      "The model chosen to propose column mappings first.",
+    ],
+    escalation: [
+      "Escalation model",
+      "The second model chosen for the proposals the primary model leaves for review. Routing to it is planned, not yet running.",
+    ],
+    validator: [
+      "Validator",
+      "Code, not a model, that checks a proposal's fields and conversions against the versioned contract. A proposal it rejects goes no further.",
+    ],
+    versionedCode: [
+      "Versioned code",
+      "The replay engine at a fixed version: the same approved input always gives the same result and the same hash.",
+    ],
+    reviewRequired: [
+      "REVIEW_REQUIRED",
+      "Where a rejected or unclear proposal stops. A person has to look at it; nothing is decided for them.",
+    ],
+  },
+};
+
+const ANSWER_KO: AnswerCopy = {
+  eyebrow: "이 사이트의 AI",
+  question:
+    "여기서 [[mapping|데이터 항목 연결]]을 제안하는 AI 모델은 무엇이고, 왜 그 모델인가요?",
+  planned: {
+    notRun:
+      "아직 고른 모델이 없습니다. [[heldOut|보관 평가 집합]]에서 비교할 계획이며, [[rule|실행 전에 정한 규칙]]을 통과한 후보가 나올 때까지 모델을 고르지 않습니다.",
+    noOutput:
+      "아직 고른 모델이 없습니다. [[heldOut|보관 평가 집합]]의 첫 실행에서 모델 출력을 하나도 받지 못해 비교를 다시 계획했고, [[rule|실행 전에 정한 규칙]]을 통과한 후보가 나올 때까지 모델을 고르지 않습니다.",
+    noneQualified:
+      "고른 모델이 없습니다. [[heldOut|보관 평가 집합]]에서 [[rule|실행 전에 정한 규칙]]을 통과한 후보가 없었습니다.",
+  },
+  selected: (primary, escalation) =>
+    `[[rule|실행 전에 정한 규칙]]에 따라 [[heldOut|보관 평가 집합]] 결과로 고른 [[primary|기본 모델]]은 ${primary}, [[escalation|상위 모델]]은 ${escalation}입니다.`,
+  primaryOnly: (primary) =>
+    `[[rule|실행 전에 정한 규칙]]에 따라 [[heldOut|보관 평가 집합]] 결과로 고른 [[primary|기본 모델]]은 ${primary}이며, [[escalation|상위 모델]] 자격을 갖춘 다른 후보는 없습니다.`,
+  factsLabel: "기본 모델의 보관 평가 집합 결과",
+  primaryAccuracy: "분명한 이름·줄인 이름·동의어 열을 정확히 연결한 비율",
+  validOutput: "검증기가 읽을 수 있는 답의 비율",
+  runDate: (date) => `${date} 실행`,
+  control:
+    "잘못된 출력을 막는 장치: [[validator|검증기]]가 모든 제안을 정해진 계약으로 검사하고, 사람이 승인한 뒤에야 [[versionedCode|버전이 고정된 코드]]가 계산하며, 거절되거나 모호한 제안은 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다.",
+  seeComparison: "모델 비교 보기",
+  walkThrough: "사례 따라가기",
+  close: "닫기",
+  terms: {
+    mapping: [
+      "데이터 항목 연결",
+      "처음 보는 데이터 파일의 각 열이 가격, 수량 같은 어느 항목인지, 값을 어떻게 바꿔 읽는지 정하는 일입니다.",
+    ],
+    heldOut: [
+      "보관 평가 집합",
+      "실행 전까지 봉인해 둔 합성 열 구성입니다. 프롬프트나 규칙을 이 집합에 맞춰 고치지 않았습니다.",
+    ],
+    rule: [
+      "실행 전에 정한 규칙",
+      "유효한 답, 잘못된 연결, 불필요하게 넘긴 항목의 통과 기준과 기본 모델·상위 모델을 고르는 방법입니다. 어떤 후보도 보관 평가 집합을 보기 전에 커밋했습니다.",
+    ],
+    primary: [
+      "기본 모델",
+      "데이터 항목 연결을 먼저 제안하도록 고른 모델입니다.",
+    ],
+    escalation: [
+      "상위 모델",
+      "기본 모델이 검토 필요로 남긴 제안을 맡도록 고른 두 번째 모델입니다. 이 모델로 넘기는 경로는 계획 단계이며 아직 동작하지 않습니다.",
+    ],
+    validator: [
+      "검증기",
+      "모델이 아닌 코드입니다. 제안의 항목과 변환을 버전이 고정된 계약으로 검사하고, 거절한 제안은 더 나아가지 못합니다.",
+    ],
+    versionedCode: [
+      "버전이 고정된 코드",
+      "버전이 고정된 분석 엔진입니다. 같은 승인 입력은 언제나 같은 결과와 같은 해시를 냅니다.",
+    ],
+    reviewRequired: [
+      "REVIEW_REQUIRED",
+      "거절되거나 모호한 제안이 멈추는 상태입니다. 사람이 직접 확인해야 하며, 대신 결정되는 것은 없습니다.",
+    ],
+  },
+};
+
+interface HomeCopy {
+  readonly answer: AnswerCopy;
   readonly positionKicker: string;
   readonly positionHeading: string;
   readonly positionLabel: string;
@@ -48,12 +208,7 @@ interface HomeCopy {
  */
 export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   en: {
-    headingLead: "AI raised the alert. ",
-    headingEmphasis: "Verify it before you sign.",
-    heroCopy:
-      "Market surveillance and AI analysis raise an unusual-trading candidate. A person confirms the scope, versioned code re-verifies it, and each finding opens onto its source rows.",
-    walkThrough: "Walk through a case",
-    whereItFits: "Where it fits",
+    answer: ANSWER_EN,
     positionKicker: "Where it fits",
     positionHeading: "After the alert. Before the judgement.",
     positionLabel: "Where WeaveTrail sits in an investigation",
@@ -110,12 +265,7 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
       " sets out the reasoning behind the question and the boundaries of what it answers.",
   },
   ko: {
-    headingLead: "AI를 믿지 않아도 ",
-    headingEmphasis: "사용할 수 있는 금융 AI.",
-    heroCopy:
-      "시장감시와 AI 분석이 이상거래 후보를 올립니다. 그다음 사람이 범위를 확인하고, 버전이 고정된 코드가 다시 검증합니다. 발견은 원본 행까지 확인할 수 있습니다.",
-    walkThrough: "사례 따라가기",
-    whereItFits: "어디에 쓰이나",
+    answer: ANSWER_KO,
     positionKicker: "쓰이는 자리",
     positionHeading: "알림이 나온 뒤, 판단이 내려지기 전.",
     positionLabel: "조사 과정에서 WeaveTrail이 놓이는 자리",
@@ -172,25 +322,130 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
   },
 };
 
-export function HomeContent() {
+const TERM_MARK = /\[\[(\w+)\|([^\]]+)\]\]/g;
+
+/** The plain text of a marked sentence, as a reader sees it. */
+export function plainText(marked: string): string {
+  return marked.replace(TERM_MARK, "$2");
+}
+
+const termId = (key: HomeTermKey) => `home-term-${key}`;
+
+/**
+ * Splits a marked sentence into text and term buttons. Each button opens its
+ * explanation as a native popover, so Enter, Space and a tap all open it and
+ * Escape or a tap outside closes it.
+ */
+function withTerms(marked: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  for (const match of marked.matchAll(TERM_MARK)) {
+    const [whole, key, label] = match;
+    if (match.index > last) parts.push(marked.slice(last, match.index));
+    parts.push(
+      <button
+        className="home-term"
+        key={`${key}-${match.index}`}
+        popoverTarget={termId(key as HomeTermKey)}
+        type="button"
+      >
+        {label}
+      </button>,
+    );
+    last = match.index + whole.length;
+  }
+  if (last < marked.length) parts.push(marked.slice(last));
+  return parts;
+}
+
+export function HomeContent({ selection }: { selection: HomeSelection }) {
   const text = useCopy(homeCopy);
+  const { language } = useLanguage();
+  const answer = text.answer;
+  const links = definitionLinks(language);
+  const sentence =
+    selection.state === "planned"
+      ? answer.planned[selection.reason]
+      : selection.escalation === null
+        ? answer.primaryOnly(selection.primary)
+        : answer.selected(selection.primary, selection.escalation);
 
   return (
     <main>
-      <section className="hero shell">
-        <h1>
-          {text.headingLead}
-          <em>{text.headingEmphasis}</em>
-        </h1>
-        <p className="hero-copy">{text.heroCopy}</p>
+      <section
+        className="hero home-answer shell"
+        aria-labelledby="home-question"
+      >
+        <span className="eyebrow">{answer.eyebrow}</span>
+        <h1 id="home-question">{withTerms(answer.question)}</h1>
+        <p
+          className="home-answer-sentence"
+          data-state={selection.state}
+          id="home-answer"
+        >
+          {withTerms(sentence)}
+        </p>
+        {selection.state === "selected" ? (
+          <dl className="home-facts" aria-label={answer.factsLabel}>
+            <div>
+              <dt>{answer.primaryAccuracy}</dt>
+              <dd>
+                <a href={links.rule}>
+                  {fraction(selection.primaryAccuracy)} ·{" "}
+                  {percent(selection.primaryAccuracy)}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt>{answer.validOutput}</dt>
+              <dd>
+                <a href={links.metrics}>
+                  {fraction(selection.validOutput)} ·{" "}
+                  {percent(selection.validOutput)}
+                </a>
+              </dd>
+            </div>
+          </dl>
+        ) : null}
+        {selection.state === "selected" ? (
+          <p className="home-run">
+            <a href={selection.sessionReceipt}>
+              {answer.runDate(selection.runDate)}
+            </a>
+          </p>
+        ) : null}
+        <p className="home-control" id="home-control">
+          {withTerms(answer.control)}
+        </p>
         <div className="hero-actions">
-          <Link className="button primary" href="/replay?mode=guided">
-            {text.walkThrough}
+          <Link className="button primary" href="/evals">
+            {answer.seeComparison}
           </Link>
-          <Link className="button secondary" href="/why">
-            {text.whereItFits}
+          <Link className="button secondary" href="/replay?mode=guided">
+            {answer.walkThrough}
           </Link>
         </div>
+        {HOME_TERM_KEYS.map((key) => (
+          <div
+            aria-labelledby={`${termId(key)}-title`}
+            className="home-term-note"
+            id={termId(key)}
+            key={key}
+            popover="auto"
+            role="dialog"
+          >
+            <strong id={`${termId(key)}-title`}>{answer.terms[key][0]}</strong>
+            <p>{answer.terms[key][1]}</p>
+            <button
+              className="button secondary"
+              popoverTarget={termId(key)}
+              popoverTargetAction="hide"
+              type="button"
+            >
+              {answer.close}
+            </button>
+          </div>
+        ))}
       </section>
 
       <section className="shell system-section">

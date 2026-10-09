@@ -110,9 +110,9 @@ export function definitionLinks(language: Language) {
     rule: doc + anchors.rule,
     reference: doc + anchors.reference,
     failureLog: `${REPO}/docs/AI_FAILURE_LOG${language === "ko" ? ".ko" : ""}.md`,
-    adr: `${REPO}/docs/adr/0067-separate-mapping-validity-from-approval-before-selection.md`,
+    adr: `${REPO}/docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md`,
     prices: `${REPO}/packages/evals/fixtures/mapping-selection-v1/README.md`,
-    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v1/protocol.json`,
+    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v2/protocol.json`,
   };
 }
 
@@ -308,6 +308,12 @@ export const FAILURE_LOG_ENTRIES = [
     status: "ACCEPTED_RESIDUAL",
     en: "Every held-out mapping request failed without observed output",
     ko: "보관 평가 집합의 모든 매핑 요청이 출력 관측 없이 실패함",
+  },
+  {
+    id: "F-005",
+    status: "FIXED",
+    en: "The compatibility endpoint rejects the store request parameter",
+    ko: "호환 엔드포인트가 store 요청 매개변수를 거부함",
   },
 ] as const;
 
