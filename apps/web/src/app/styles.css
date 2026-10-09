@@ -272,7 +272,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  height: 36px;
+  height: var(--control-height);
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-md);
@@ -375,13 +375,12 @@ button:disabled {
   display: inline-flex;
   flex: 0 0 auto;
   margin-left: auto;
-  padding: 3px;
   border-radius: var(--radius-full);
   background: var(--surface-sunken);
 }
 .language-selector button {
   appearance: none;
-  min-height: 30px;
+  min-height: var(--control-height);
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-full);
@@ -2353,9 +2352,13 @@ input[data-review-unresolved="true"] {
   .site-header-inner {
     gap: var(--space-3);
   }
+  /* The DOM order is kept, so focus moves left to right: the menu button
+     sits at the right edge before the language switch. */
   .site-nav {
-    order: 3;
-    flex: 0 0 auto;
+    justify-content: flex-end;
+  }
+  .language-selector {
+    margin-left: 0;
   }
   .site-nav-bar,
   .site-nav-more > .site-nav-trigger:not(.site-nav-menu-button) {
@@ -2442,9 +2445,23 @@ input[data-review-unresolved="true"] {
     font-size: var(--font-size-16);
   }
 }
+.language-selector .language-short {
+  display: none;
+}
+/* A phone narrower than 375px, or a zoomed one, keeps the menu button in
+   the bar by shortening the language names. */
+@media (max-width: 24rem) {
+  .language-selector .language-full {
+    display: none;
+  }
+  .language-selector .language-short {
+    display: inline;
+  }
+}
 
-/* Printing has no way to open a disclosure or advance a step; the inverse
-   badge keeps its label when backgrounds are not printed. */
+/* Printing cannot advance a step; `PrintDisclosures` opens every closed
+   disclosure for the print, and the inverse badge keeps its label when
+   backgrounds are not printed. */
 @media print {
   .evidence-badge--inverse {
     border: var(--hairline-ink);

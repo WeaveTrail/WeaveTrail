@@ -193,6 +193,52 @@ test("keeps the header on one row and opens every destination from the menu at 3
   await expect(button).toBeFocused();
 });
 
+test("closes an open menu when the width crosses the tablet breakpoint", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  const trigger = page.locator(".site-nav-trigger:not(.site-nav-menu-button)");
+  await trigger.click();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".site-nav-panel")).toBeHidden();
+  await expect(page.locator(".site-nav-menu-button")).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+});
+
+for (const width of [320, 375]) {
+  test(`keeps the header controls within a ${width}px screen in tab order`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 700 });
+    await open(page, "ko");
+    const controls = [
+      page.locator(".wordmark"),
+      page.locator(".site-nav-menu-button"),
+      page.locator(".language-selector button").last(),
+    ];
+    let previousRight = -1;
+    for (const control of controls) {
+      const box = (await control.boundingBox())!;
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      expect(box.x).toBeGreaterThan(previousRight - 1);
+      previousRight = box.x + box.width;
+    }
+    for (const control of [
+      page.locator(".site-nav-menu-button"),
+      ...(await page.locator(".language-selector button").all()),
+    ])
+      expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(40);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
+
 test("opens the how-it-works menu from the bar at 1280x720", async ({
   page,
 }) => {

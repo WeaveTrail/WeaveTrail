@@ -87,6 +87,15 @@ export function SiteNavigation() {
   const [[, primary], [moreLabel, more]] = navigationGroups;
   const moreIsCurrent = more.some(([, href]) => href === pathname);
 
+  // The bar and the single menu swap at the tablet width, so crossing it
+  // closes the menu: an open panel always belongs to a visible trigger.
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 52rem)");
+    const close = () => setOpened(null);
+    query.addEventListener("change", close);
+    return () => query.removeEventListener("change", close);
+  }, []);
+
   // Escape or a press outside closes the menu; Escape returns focus to the
   // button that opened it.
   useEffect(() => {
