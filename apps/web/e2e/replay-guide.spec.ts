@@ -157,6 +157,10 @@ for (const viewport of VIEWPORTS) {
         "open",
         "",
       );
+      expect(
+        (await page.locator(".result-technical > summary").boundingBox())!
+          .height,
+      ).toBeGreaterThanOrEqual(40);
       // The rail goes to the disclosure; Enter opens it.
       await pressButton(page, ui.goToEvidence);
       await expect.poll(async () => (await focused(page)).tag).toBe("summary");

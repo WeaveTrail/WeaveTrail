@@ -2227,6 +2227,8 @@ input[data-review-unresolved="true"] {
   background: var(--surface-subtle);
 }
 .result-technical > summary {
+  min-height: var(--control-height);
+  padding-block: var(--space-2);
   cursor: pointer;
   font: var(--type-small);
   font-weight: var(--weight-medium);
@@ -2425,7 +2427,7 @@ input[data-review-unresolved="true"] {
 }
 /* Below the tablet width the bar holds the mark, the language and one menu
    button; every destination opens from it. */
-@media (max-width: 52rem) {
+@media (max-width: 56rem) {
   .site-header-inner {
     gap: var(--space-3);
   }

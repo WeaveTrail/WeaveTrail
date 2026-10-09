@@ -92,7 +92,7 @@ export function SiteNavigation() {
   // The bar and the single menu swap at the tablet width, so crossing it
   // closes the menu: an open panel always belongs to a visible trigger.
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 52rem)");
+    const query = window.matchMedia("(max-width: 56rem)");
     const close = () => setOpened(null);
     query.addEventListener("change", close);
     return () => query.removeEventListener("change", close);

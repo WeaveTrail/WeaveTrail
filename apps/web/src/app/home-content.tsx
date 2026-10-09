@@ -230,7 +230,8 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
     stages: {
       propose: "Suggests what each column holds",
       approve: "Nothing runs until approved",
-      verify: "SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, the same every time",
+      verify:
+        "SUPPORTED, NOT_SUPPORTED or INCONCLUSIVE, the same for the same approved input",
       trace: "Every finding opens to its source row",
     },
     flowStop: {
@@ -286,7 +287,8 @@ export const homeCopy: Readonly<Record<Language, HomeCopy>> = {
     stages: {
       propose: "열마다 어느 항목인지 제안",
       approve: "승인 전에는 아무것도 실행하지 않음",
-      verify: "SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE 가운데 하나, 매번 같게",
+      verify:
+        "SUPPORTED, NOT_SUPPORTED, INCONCLUSIVE 가운데 하나, 같은 승인 입력이면 언제나 같게",
       trace: "판단 근거마다 원본 행까지 열림",
     },
     flowStop: {
@@ -476,8 +478,10 @@ export function HomeContent({
         </div>
 
         <figure className="home-flow" aria-labelledby="home-flow-title">
-          <figcaption className="eyebrow" id="home-flow-title">
-            {text.flowLabel}
+          <figcaption>
+            <h2 className="eyebrow" id="home-flow-title">
+              {text.flowLabel}
+            </h2>
           </figcaption>
           <ol>
             {GUIDE_STAGES.map((stage, index) => (

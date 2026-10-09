@@ -169,6 +169,8 @@ for (const language of LANGUAGES) {
     await page.setViewportSize({ width: 1280, height: 720 });
     await open(page, language);
     await expect(page.locator(".home-flow li")).toHaveCount(4);
+    // The stages sit under the flow's own level-two heading.
+    await expect(page.locator(".home-flow figcaption h2")).toBeVisible();
     await expectInFirstViewport(page, ".home-flow");
   });
 }
@@ -245,6 +247,24 @@ for (const width of [320, 375]) {
       () => document.documentElement.scrollWidth - window.innerWidth,
     );
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
+
+for (const language of LANGUAGES) {
+  test(`keeps the full bar clear of the language switch at 897px in ${language}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 897, height: 700 });
+    await open(page, language);
+    await expect(page.locator(".site-nav-menu-button")).toBeHidden();
+    const switcher = (await page.locator(".language-selector").boundingBox())!;
+    for (const control of await page
+      .locator(".site-nav-bar a, .site-nav-more > button")
+      .all()) {
+      if (!(await control.isVisible())) continue;
+      const box = (await control.boundingBox())!;
+      expect(box.x + box.width).toBeLessThan(switcher.x);
+    }
   });
 }
 
