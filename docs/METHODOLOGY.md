@@ -68,6 +68,20 @@ spelling, and unmapped columns remain visible as escaped text. Repeated gate
 references share one trace entry, and exact duplicate events collapse to one
 canonical event. A missing or ambiguous server-owned link is an internal error.
 
+Each traced event then reads as one line per row of the approved mapping: the
+committed source column and its value, the approved target field and transform,
+the canonical value the server returned, and the checks whose
+`referencedEventIds` include that event. The rows come from the proposal the
+mapping approval is bound to, and a reviewer reason comes verbatim from that
+approval record; the browser looks values up and never recomputes, infers or
+rewrites them. Each line links to its row in the approved mapping, and each row
+links to the checks that used it, so a reviewer can go from a finding to the
+mapping and back. A column the mapping leaves unmapped, or a target it declares
+absent, names no check. Hashes and event IDs stay available as machine values
+beneath the lines. After a mapping approval, one sentence states that it covers
+exactly that mapping, with its reasons, and that any change needs a new
+approval before anything runs.
+
 An `INCONCLUSIVE` response has empty findings and empty source evidence. Counts
 without findings do not acquire substitute rows. Input or approval changes,
 new runs, and failures clear prior evidence; older requests cannot repopulate a
