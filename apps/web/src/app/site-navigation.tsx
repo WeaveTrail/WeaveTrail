@@ -73,12 +73,14 @@ export function SiteNavigation() {
   const pathname = usePathname();
   const navigationGroups = useCopy(navigationCopy);
   const menu = useCopy(menuCopy);
-  // The menu belongs to the page it was opened on, so moving to another page
-  // closes it without an effect.
+  // The menu belongs to the page it was opened on. Moving to another page,
+  // by a link or by history, clears it during render, so returning to that
+  // page later does not reopen it.
   const [opened, setOpened] = useState<{
     kind: MenuKind;
     path: string;
   } | null>(null);
+  if (opened !== null && opened.path !== pathname) setOpened(null);
   const open = opened?.path === pathname ? opened.kind : null;
   const toggle = (kind: MenuKind) =>
     setOpened(open === kind ? null : { kind, path: pathname });

@@ -248,6 +248,20 @@ for (const width of [320, 375]) {
   });
 }
 
+test("does not reopen a menu after leaving its page and coming back", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  await page.locator(".site-nav-trigger:not(.site-nav-menu-button)").click();
+  await expect(page.locator(".site-nav-panel")).toBeVisible();
+  await page.locator('.site-nav-bar a[href="/evals"]').click();
+  await expect(page).toHaveURL(/\/evals$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator(".site-nav-panel")).toBeHidden();
+});
+
 test("opens the how-it-works menu from the bar at 1280x720", async ({
   page,
 }) => {
