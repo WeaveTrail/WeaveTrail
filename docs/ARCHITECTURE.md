@@ -72,12 +72,18 @@ because none has been published.
   surface, so in-memory approvals and the result stay valid. Guide progress is
   distinct from the request-local server workflow
   ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)).
-- The guided source is `published-execution-fix44.csv` at `baseline`. Its
-  mapping chapter embeds the actorless `published-execution-h0stcnt0.jsonl` as a
-  separate review example: each instance owns its proposal-specific approval and
-  async generation guard, only an example-completion flag crosses into guide
-  progress, and the example's approval, source and result never enter the case
-  request. The server loader strips committed case approval records before
+- The guided steps sit under four stages that follow the control line: AI
+  proposes, a person approves, code verifies, evidence traces back. The rail
+  names the current step's stage in its action block, and the step list is
+  grouped by stage
+  ([ADR 0070](adr/0070-group-guided-steps-under-the-control-line-stages.md)).
+- The guided source is `published-execution-fix44.csv` at `baseline`, and its
+  mapping step requires only its own approval. The actorless
+  `published-execution-h0stcnt0.jsonl` is a separate review example in its own
+  step after the main flow: each instance owns its proposal-specific approval
+  and async generation guard, only an example-completion flag crosses into
+  guide progress, and the example's approval, source and result never enter the
+  case request. The server loader strips committed case approval records before
   sending props.
 - Advanced controls permute submitted rows before mapping or duplicate one
   derived event after mapping; original coordinates and values stay unchanged

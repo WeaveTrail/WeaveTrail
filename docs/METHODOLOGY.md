@@ -304,13 +304,17 @@ The entry action opens `/replay?mode=guided`, and `/replay` itself opens the
 same walkthrough; working mode is the named alternative beside it. Each step
 states what it demonstrates, what the visitor must do to
 advance it, and whether a model proposed, a person approved or versioned code
-decided the work it shows. A visitor may open any step to read it; completion is
+decided the work it shows. The steps sit under four stages in the order of the
+control line: AI proposes, a person approves, code verifies, evidence traces
+back. A visitor may open any step to read it; completion is
 recorded only for a step the visitor satisfied, and it is withdrawn when a later
 change stops satisfying it. The supported case and the
 Dialect B review example are distinct committed sources, with independent
 proposal hashes and approvals. The example's unmapped field is retained with
 a justified reason; this does not invent a transform or provide a rule manifest.
-The worked case needs its own explicit mapping and case approvals.
+The worked case needs its own explicit mapping and case approvals, and reaches
+its run without the example's approval; the example is its own step after the
+main flow and does not authorize the case.
 
 The guide displays actual source strings and coordinates, fixture proposal
 fields, approval records, authored case scope and thresholds, and API-returned

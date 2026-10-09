@@ -12,7 +12,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   CaseReplay,
+  GUIDE_STAGES,
+  guideStageNames,
   guideSteps,
+  guideStepsByLanguage,
   RapidPriceLiftEvaluation,
 } from "./case-replay";
 import { prepareReplayScenarios } from "./prepare-scenarios";
@@ -125,6 +128,14 @@ async function guide(guided = true) {
     if (!element?.props.onClick) throw new Error(`Missing button ${label}`);
     return element.props.onClick();
   }
+  function buttonDisabled(label: string) {
+    const element = render().find(
+      (element) =>
+        element.type === "button" && element.props.children === label,
+    );
+    if (!element) throw new Error(`Missing button ${label}`);
+    return element.props.disabled === true;
+  }
   function stepButtons() {
     return render().filter(
       (element) => element.props.className === "journey-step",
@@ -165,6 +176,7 @@ async function guide(guided = true) {
     indexOf,
     withClass,
     button,
+    buttonDisabled,
     stepButtons,
     openStep,
     heading,
@@ -176,11 +188,9 @@ async function guide(guided = true) {
   };
 }
 
-async function approveExampleAndMapping(ui: Awaited<ReturnType<typeof guide>>) {
+/** Approves the worked case's own mapping, and nothing of the example. */
+async function approveMapping(ui: Awaited<ReturnType<typeof guide>>) {
   await ui.button("Continue");
-  const example = await nestedExample(ui);
-  example.reason("Reviewed as intentionally unmapped.");
-  await example.approve();
   await ui.button("Approve executed mapping");
 }
 
@@ -236,7 +246,7 @@ afterEach(() => {
 
 describe("guided step intent", () => {
   it("names one authority for every step", () => {
-    expect(guideSteps).toHaveLength(7);
+    expect(guideSteps).toHaveLength(8);
     for (const step of guideSteps) {
       expect([
         "Committed input",
@@ -257,6 +267,67 @@ describe("guided step intent", () => {
     expect(guideSteps.map(({ actor }) => actor)).toContain(
       "Versioned code decided it",
     );
+  });
+
+  it("groups the worked case under the four stages in control-line order", () => {
+    const mainFlow = guideSteps.filter((step) => !step.afterMainFlow);
+    const order = mainFlow.map(({ stage }) => GUIDE_STAGES.indexOf(stage));
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect([...new Set(mainFlow.map(({ stage }) => stage))]).toEqual([
+      ...GUIDE_STAGES,
+    ]);
+    // The separate example and the hand-off follow the worked case.
+    expect(
+      guideSteps.map(({ title, afterMainFlow }) => [
+        title,
+        afterMainFlow === true,
+      ]),
+    ).toEqual([
+      ["Read the source", false],
+      ["Review the mapping", false],
+      ["Approve the case", false],
+      ["Run the replay", false],
+      ["Repeat the case", false],
+      ["Inspect the finding", false],
+      ["Review the separate example", true],
+      ["Take the controls", true],
+    ]);
+    // Both languages place every step in the same stage.
+    expect(
+      guideStepsByLanguage.ko.map(({ stage, afterMainFlow }) => [
+        stage,
+        afterMainFlow,
+      ]),
+    ).toEqual(
+      guideSteps.map(({ stage, afterMainFlow }) => [stage, afterMainFlow]),
+    );
+    expect(guideStageNames.en).toEqual({
+      propose: "AI proposes",
+      approve: "A person approves",
+      verify: "Code verifies",
+      trace: "Evidence traces back",
+    });
+    expect(guideStageNames.ko).toEqual({
+      propose: "AI가 제안",
+      approve: "사람이 승인",
+      verify: "코드가 검증",
+      trace: "근거를 원본까지 추적",
+    });
+  });
+
+  it("names the current step's stage in the rail's action block", async () => {
+    const ui = await guide();
+    for (const [step, expected] of guideSteps.entries()) {
+      ui.openStep(step);
+      const stage = elements(ui.withClass("rail-actions")).find(
+        (element) => element.props.className === "step-stage",
+      );
+      expect(textContent(stage), `step ${step + 1}`).toBe(
+        expected.afterMainFlow
+          ? `After the worked case ${guideStageNames.en[expected.stage]}`
+          : `Stage ${GUIDE_STAGES.indexOf(expected.stage) + 1} of 4 ${guideStageNames.en[expected.stage]}`,
+      );
+    }
   });
 
   it("leads each step with what to do, then why it exists and who acted", async () => {
@@ -289,15 +360,16 @@ describe("guided step intent", () => {
     const ui = await guide();
     // A step whose work happens in the case content gets a control that goes
     // there; a step that commits something gets the control that commits it.
-    // Step 1 is read-and-continue, and step 5 has nothing to reach until a
+    // Step 1 is read-and-continue, and step 6 has nothing to reach until a
     // result exists, so `Continue` is the advancing control on both.
     const expected = [
       undefined,
-      "Go to the review example",
+      "Approve executed mapping",
       "Approve case manifest",
       "Run deterministic replay",
-      undefined,
       "Repeat the same approved case",
+      undefined,
+      "Go to the review example",
       "Continue in working mode",
     ];
     for (const [step, label] of expected.entries()) {
@@ -317,7 +389,7 @@ describe("guided step intent", () => {
     ui.openStep(1);
     expect(ui.requirement()!.props["data-met"]).toBe(false);
     expect(textContent(ui.requirement())).toContain(
-      "To continue: Approve the separate mapping review example and this case's mapping to continue.",
+      "To continue: Approve this case's mapping to continue.",
     );
     expect(ui.indexOf("step-requirement")).toBeLessThan(
       ui.indexOf("replay-control panel"),
@@ -339,11 +411,11 @@ describe("guided step intent", () => {
 
   it("lets a visitor open an uncompleted step without reporting it as completed", async () => {
     const ui = await guide();
-    ui.openStep(4);
-    expect(ui.heading()).toBe("Step 5 · Inspect the finding");
-    expect(ui.stepButtons()[4]!.props["data-complete"]).toBe(false);
-    expect(textContent(ui.stepButtons()[4])).not.toContain("Completed");
-    expect(textContent(ui.stepButtons()[4])).toContain("Current step");
+    ui.openStep(5);
+    expect(ui.heading()).toBe("Step 6 · Inspect the finding");
+    expect(ui.stepButtons()[5]!.props["data-complete"]).toBe(false);
+    expect(textContent(ui.stepButtons()[5])).not.toContain("Completed");
+    expect(textContent(ui.stepButtons()[5])).toContain("Current step");
     expect(ui.withClass("panel result-panel")!.props.hidden).toBe(false);
   });
 
@@ -352,21 +424,43 @@ describe("guided step intent", () => {
     expect(ui.stepButtons().map((step) => step.props["data-complete"])).toEqual(
       Array.from(guideSteps, () => false),
     );
-    await approveExampleAndMapping(ui);
+    await approveMapping(ui);
     expect(ui.stepButtons()[0]!.props["data-complete"]).toBe(true);
     expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(false);
     await ui.button("Continue");
     expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(true);
     expect(textContent(ui.stepButtons()[1])).toContain("Completed");
 
+    ui.openStep(6);
+    expect(ui.buttonDisabled("Continue")).toBe(true);
     const example = await nestedExample(ui);
+    example.reason("Reviewed as intentionally unmapped.");
+    await example.approve();
+    expect(ui.buttonDisabled("Continue")).toBe(false);
+    await ui.button("Continue");
+    expect(ui.stepButtons()[6]!.props["data-complete"]).toBe(true);
     example.reason("");
-    expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(false);
+    expect(ui.stepButtons()[6]!.props["data-complete"]).toBe(false);
+    // The example's approval never decided the worked case's step.
+    expect(ui.stepButtons()[1]!.props["data-complete"]).toBe(true);
+  });
+
+  it("reaches the run with the worked case's approvals alone", async () => {
+    const ui = await guide();
+    await approveMapping(ui);
+    expect(ui.buttonDisabled("Continue")).toBe(false);
+    await ui.button("Continue");
+    await ui.button("Approve case manifest");
+    await ui.button("Continue");
+    expect(ui.heading()).toBe("Step 4 · Run the replay");
+    expect(ui.buttonDisabled("Run deterministic replay")).toBe(false);
+    expect(ui.requirement()!.props["data-met"]).toBe(false);
+    expect(textContent(ui.requirement())).not.toContain("reading ahead");
   });
 
   it("keeps a refusal on the path and states the condition that clears it", async () => {
     const ui = await guide();
-    ui.openStep(1);
+    ui.openStep(6);
     const refusal = textContent(ui.withClass("step-refusal"));
     expect(refusal).toContain("REVIEW_REQUIRED");
     expect(refusal).toContain(
@@ -421,9 +515,8 @@ describe("guided step intent", () => {
     const markedLabels = () => [...new Set(marked())];
     expect(marked()).toEqual([]);
     ui.openStep(1);
-    // The rail still points at the review example here, so the marked control
-    // is the approval in the case content alone.
-    expect(marked()).toEqual(["Approve executed mapping"]);
+    expect(markedLabels()).toEqual(["Approve executed mapping"]);
+    expect(marked()).toHaveLength(2);
     ui.openStep(2);
     expect(markedLabels()).toEqual(["Approve case manifest"]);
     expect(marked()).toHaveLength(2);
@@ -431,29 +524,40 @@ describe("guided step intent", () => {
     expect(markedLabels()).toEqual(["Run deterministic replay"]);
     expect(marked()).toHaveLength(2);
     ui.openStep(4);
+    expect(markedLabels()).toEqual(["Repeat the same approved case"]);
+    expect(marked()).toHaveLength(2);
+    ui.openStep(5);
     expect(marked()).toEqual([]);
     expect(
       ui.render().find((element) => element.props.className === "empty-result"),
     ).toBeDefined();
+    // The example's own approval is the work here; the rail only goes there.
     ui.openStep(6);
+    expect(marked()).toEqual([]);
+    ui.openStep(7);
     expect(markedLabels()).toEqual(["Continue in working mode"]);
     expect(marked()).toHaveLength(2);
   });
 
   it("marks the finding disclosure as the control that advances inspection", async () => {
     const ui = await guide();
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(replayed()));
-    await approveExampleAndMapping(ui);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.resolve(replayed())),
+    );
+    await approveMapping(ui);
     await ui.button("Continue");
     await ui.button("Approve case manifest");
     await ui.button("Continue");
     await ui.button("Run deterministic replay");
     await ui.button("Continue");
+    await ui.button("Repeat the same approved case");
+    await ui.button("Continue");
 
     const disclosure = () =>
       ui.render().find((element) => element.type === RapidPriceLiftEvaluation)!
         .props as unknown as ComponentProps<typeof RapidPriceLiftEvaluation>;
-    expect(ui.heading()).toBe("Step 5 · Inspect the finding");
+    expect(ui.heading()).toBe("Step 6 · Inspect the finding");
     expect(disclosure().advancesStep).toBe(true);
     disclosure().onEvidenceOpen!();
     expect(disclosure().advancesStep).toBe(false);

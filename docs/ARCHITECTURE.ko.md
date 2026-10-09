@@ -67,11 +67,16 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   승인과 결과가 그대로 유효합니다. 안내 진행 상태는 요청 단위 서버 워크플로와
   별개입니다
   ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)(영문)).
-- 안내 원본은 `published-execution-fix44.csv`의 `baseline`입니다. 항목 연결 장에는
-  행위자 없는 `published-execution-h0stcnt0.jsonl`을 별도 검토 예시로 넣습니다. 각
-  인스턴스는 제안별 승인과 비동기 생성 가드를 따로 가지고, 안내 진행에는 예시 완료
-  표시만 넘어가며, 예시의 승인·원본·결과는 사례 요청에 들어가지 않습니다. 서버
-  로더는 커밋된 사례 승인 기록을 props로 보내기 전에 제거합니다.
+- 안내 단계는 통제 문장을 따르는 네 과정 아래에 놓입니다: AI가 제안, 사람이 승인,
+  코드가 검증, 근거를 원본까지 추적. 레일은 동작 영역에 현재 단계의 과정을 밝히고,
+  단계 목록은 과정별로 묶입니다
+  ([ADR 0070](adr/0070-group-guided-steps-under-the-control-line-stages.md)(영문)).
+- 안내 원본은 `published-execution-fix44.csv`의 `baseline`이며, 항목 연결 단계는
+  이 사례 자신의 승인만 요구합니다. 행위자 없는 `published-execution-h0stcnt0.jsonl`은
+  본 흐름 뒤의 별도 단계에서 검토 예시로 보여 줍니다. 각 인스턴스는 제안별 승인과
+  비동기 생성 가드를 따로 가지고, 안내 진행에는 예시 완료 표시만 넘어가며, 예시의
+  승인·원본·결과는 사례 요청에 들어가지 않습니다. 서버 로더는 커밋된 사례 승인
+  기록을 props로 보내기 전에 제거합니다.
 - 고급 조작은 항목 연결 전에 제출 행의 순서를 바꾸거나 연결 뒤 파생 사건 하나를
   복제합니다. 원본 좌표와 값은 그대로입니다
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)(영문)).
