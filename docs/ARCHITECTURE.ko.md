@@ -491,7 +491,10 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 - 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
   스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
-  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 디자인 저장소는
+  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 이 고정은
+  `apps/web/src/design-reference/snapshot.json` 한 곳에 기록되며, 그림에 쓰인 토큰
+  값도 같은 리비전을 따릅니다
+  ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)(영문)). 디자인 저장소는
   빌드나 런타임 의존성이 아닙니다.
 - 제품 문구와 눈에 보이는 모든 근거 값은 이 저장소의 런타임 응답과 커밋된 합성
   시나리오가 소유합니다

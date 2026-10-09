@@ -540,8 +540,11 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 
 - The eight public routes use a product-local snapshot of the paper-first design
   tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
-  revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is
-  neither a build nor a runtime dependency.
+  revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. That pin is recorded once
+  in `apps/web/src/design-reference/snapshot.json`, which also covers the token
+  values drawn into the figures
+  ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)). The design repository
+  is neither a build nor a runtime dependency.
 - Product copy and every visible evidence value stay owned by this repository's
   runtime responses and committed synthetic scenarios
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)).

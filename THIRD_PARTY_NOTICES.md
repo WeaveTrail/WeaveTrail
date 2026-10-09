@@ -47,6 +47,10 @@ review.
 The product includes tokens and `assets/mark.svg` from
 `WeaveTrail/design-reference` revision
 `3f078da1970e8accd83fbdde73308a2a24d0d1f8`, licensed under Apache-2.0. The
+mark ships byte-identical as `apps/web/public/brand/mark.svg` and
+`docs/assets/brand/mark.svg`, and the token values drawn into the figures under
+`docs/assets` and `apps/web/public/diagrams` come from the same revision, as
+recorded in `apps/web/src/design-reference/snapshot.json`. The
 upstream license is copied at `third_party/design-reference-LICENSE.txt`. The
 WeaveTrail name and marks are not granted trademark rights by that license.
 The SVG is preserved byte-for-byte, including its embedded C2PA provenance
