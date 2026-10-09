@@ -54,12 +54,12 @@ Use the second sequence.
   planned version and milestone if the gate failed before any tag existed. It
   is tagged, published as a GitHub release and its milestone closed, and the
   change is carried into `develop` as for any hotfix.
-- From the rollback until the hotfix is promoted, tagged and carried into
-  `develop`, `main` is frozen to the recovery hotfix. No `develop`-to-`main`
-  promotion merges in that window; otherwise the hotfix would ship that
-  release's changes under a patch version and milestone, while the release
-  range would treat the `develop` promotion as already shipped. Only a
-  deployment that has passed the gate is promoted.
+- From the rollback until the hotfix is promoted, tagged, released with its
+  milestone closed, and carried into `develop`, `main` is frozen to the
+  recovery hotfix. No `develop`-to-`main` promotion merges in that window;
+  otherwise the hotfix would ship that release's changes under a patch version
+  and milestone, while the release range would treat the `develop` promotion
+  as already shipped. Only a deployment that has passed the gate is promoted.
 
 ## Consequences
 

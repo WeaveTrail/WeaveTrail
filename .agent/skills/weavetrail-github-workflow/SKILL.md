@@ -19,7 +19,8 @@ acting.
   branch from an up-to-date `origin/main`, target `main`, and then carry the
   merged change back into `develop`. After a production rollback, follow
   `docs/DEPLOYMENT.md` "Hotfix after a rollback": the merge is not served
-  until its gated deployment is promoted, and the promotion merge is never
+  until its gated deployment is promoted, `main` takes no other merge until
+  that procedure's step 5 completes, and the promotion merge is never
   reverted.
 - Do not retarget an existing pull request unless the user explicitly requests
   it.
