@@ -213,8 +213,12 @@ Before acceptance:
    - for every candidate, no count is higher under the after stack than under
      the before stack, each counted over only the dialect and repeat pairs
      where both stacks retained output;
-   - at least one candidate retained output in every after-stack DEV record
-     and has all three counts at zero under the after stack.
+   - at least one candidate retained output in every after-stack DEV record,
+     has all three counts at zero under the after stack and meets the
+     valid-output threshold, at least 95/100 of its records `VALID`, on v4 DEV
+     under the after stack. A retained `CONTRACT_REJECTED` record keeps its
+     counts but is not valid output, so a candidate whose responses are
+     retained but rejected cannot open HELD_OUT.
 
    Otherwise, revise this ADR before acceptance and log each revision. This
    condition is fixed before any v4 DEV call. Both stacks' sanitized DEV
@@ -228,15 +232,20 @@ Before acceptance:
    including authentication, rate limiting, a timeout or a server error, stops
    the protocol without removing anyone; the probe is repeated on a later UTC
    date. If no candidate returns HTTP 200, no amendment is committed and no
-   HELD_OUT record is made.
+   HELD_OUT record is made. The command's sanitized output, each candidate's
+   HTTP status and closed outcome, is committed; raw error bodies stay in the
+   ignored private directory.
 4. Commit a pre-run amendment that accepts this ADR and records:
    - the final candidate list, which is never empty and contains at least one
      candidate that met gate 2's second condition; if gate 3 removes every
      such candidate, no amendment is committed and this ADR is revised;
    - the gate 2 evidence: the SHA-256 of each committed before and after DEV
      session, the paired dialect and repeat set, each candidate's three counts
-     under both stacks, the exact command, the environment and the UTC run
-     date;
+     under both stacks and its after-stack valid-output count, the exact
+     command, the environment and the UTC run date;
+   - the gate 3 evidence: the catalogue check and probe UTC date, the SHA-256
+     of the committed sanitized probe output, each candidate's HTTP status and
+     closed outcome, and, for a removed candidate, the 404 that removed it;
    - the v4 DEV and HELD_OUT versions and SHA-256;
    - the `lexical-baseline/3` vocabulary hash;
    - the dated price table and its hash;
@@ -256,6 +265,12 @@ A result amendment then records:
 - the outcome, session hashes and residual risks;
 - every selected model's per-tag differences from the reference, as
   `mapping-selection/2` records them.
+
+The public evaluation page switches to the v4 result only with the new count:
+its result type, eligibility table and failure rendering carry
+`unflaggedNoTarget` with its bilingual definition, and a test fails if a
+candidate ineligible only on that count shows every displayed condition as
+passing.
 
 Public numbers carry their definition, exact command, environment, UTC run date
 and limitations in both evaluation documents. They are labelled a
