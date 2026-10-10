@@ -98,9 +98,9 @@ describe("architecture layer diagram", () => {
     for (const { navigation } of Object.values(shellCopy)) {
       const [[, explore], [, howItWorks]] = navigation;
       expect(explore.map(([, href]) => href)).toEqual([
+        "/replay",
         "/",
         "/evals",
-        "/replay",
       ]);
       expect(howItWorks.map(([, href]) => href)).toContain("/architecture");
     }

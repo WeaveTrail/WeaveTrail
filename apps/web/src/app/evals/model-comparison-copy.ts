@@ -34,10 +34,11 @@ type Copy = {
     pending: string;
     selected: (primary: string, escalation: string) => string;
     primaryOnly: (primary: string) => string;
-    noModel: string;
+    /** A committed run with no selection: what was measured, not a verdict. */
+    measured: (candidates: number) => string;
   };
   roles: { primary: string; escalation: string };
-  roleValue: { pending: string; noModel: string; noEscalation: string };
+  roleValue: { pending: string; noEscalation: string };
   caption: { pending: string; run: (date: string) => string };
   columns: {
     model: string;
@@ -147,13 +148,12 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `${primary} is the primary model and ${escalation} the escalation model, under the rule declared before the held-out run.`,
       primaryOnly: (primary) =>
         `${primary} is the primary model; no other candidate qualifies for escalation under the rule declared before the held-out run.`,
-      noModel:
-        "No model is selected: no candidate met the rule declared before the held-out run, so the AI path stays off.",
+      measured: (candidates) =>
+        `${candidates} candidate models measured on a sealed synthetic held-out set, beside a non-model baseline, against the rule declared before the run.`,
     },
     roles: { primary: "Primary model", escalation: "Escalation model" },
     roleValue: {
       pending: "Not run yet",
-      noModel: "No model selected",
       noEscalation: "None qualifies",
     },
     caption: {
@@ -373,13 +373,12 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}, 상위 모델은 ${escalation}입니다.`,
       primaryOnly: (primary) =>
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}이며, 상위 모델 자격을 갖춘 다른 후보는 없습니다.`,
-      noModel:
-        "선택한 모델이 없습니다. 보관 평가 집합 실행 전에 선언한 규칙을 충족한 후보가 없어 AI 경로를 켜지 않습니다.",
+      measured: (candidates) =>
+        `봉인한 합성 보관 평가 집합에서 후보 모델 ${candidates}개를 비모델 기준선과 함께, 실행 전에 선언한 규칙으로 측정한 기록입니다.`,
     },
     roles: { primary: "기본 모델", escalation: "상위 모델" },
     roleValue: {
       pending: "아직 실행 전",
-      noModel: "선택한 모델 없음",
       noEscalation: "자격 후보 없음",
     },
     caption: {

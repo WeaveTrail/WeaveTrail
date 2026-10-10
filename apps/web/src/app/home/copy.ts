@@ -3,10 +3,7 @@ import type { GuideStage } from "../guide-stages";
 
 export const HOME_TERM_KEYS = [
   "mapping",
-  "heldOut",
-  "rule",
-  "primary",
-  "escalation",
+  "threshold",
   "validator",
   "versionedCode",
   "reviewRequired",
@@ -14,75 +11,60 @@ export const HOME_TERM_KEYS = [
 export type HomeTermKey = (typeof HOME_TERM_KEYS)[number];
 
 /**
- * The AI card on the first screen: the question, a one-sentence answer and
- * the control line.
+ * The example screen on the first screen: the worked case's prepared mapping,
+ * its result and its thresholds, and the control line.
  * `[[key|label]]` marks a term whose plain explanation opens from it; the key
  * names an entry of `terms`.
  */
-interface AnswerCopy {
+interface ExampleCopy {
   readonly eyebrow: string;
-  readonly question: string;
-  readonly planned: Readonly<
-    Record<"notRun" | "noOutput" | "noneQualified", string>
-  >;
-  readonly selected: (primary: string, escalation: string) => string;
-  readonly primaryOnly: (primary: string) => string;
-  readonly factsLabel: string;
-  readonly primaryAccuracy: string;
-  readonly validOutput: string;
-  readonly runDate: (date: string) => string;
+  readonly title: string;
+  readonly mappingLabel: string;
+  readonly resultLabel: string;
+  readonly rule: (rule: string) => string;
+  readonly gatesLabel: string;
+  readonly gateColumn: string;
+  readonly observedColumn: string;
+  readonly thresholdColumn: string;
+  readonly passed: string;
+  readonly failed: string;
+  readonly unitNote: string;
+  readonly resultHash: string;
   readonly control: string;
-  readonly seeComparison: string;
   readonly walkThrough: string;
+  readonly seeExpected: string;
   readonly close: string;
   readonly terms: Readonly<Record<HomeTermKey, readonly [string, string]>>;
 }
 
-const ANSWER_EN: AnswerCopy = {
-  eyebrow: "The AI here",
-  question:
-    "Which AI model proposes the [[mapping|column mappings]] here, and why that one?",
-  planned: {
-    notRun:
-      "No model is chosen yet: the comparison on the [[heldOut|held-out set]] is planned, and none is chosen until a candidate passes the [[rule|rule fixed before the run]].",
-    noOutput:
-      "No model is chosen yet: the first run on the [[heldOut|held-out set]] returned no model output, so the comparison is planned again and none is chosen until a candidate passes the [[rule|rule fixed before the run]].",
-    noneQualified:
-      "No model is chosen: on the [[heldOut|held-out set]], no candidate passed the [[rule|rule fixed before the run]].",
-  },
-  selected: (primary, escalation) =>
-    `${primary} is the [[primary|primary model]] and ${escalation} the [[escalation|escalation model]], chosen by the [[rule|rule fixed before the run]] from their results on the [[heldOut|held-out set]].`,
-  primaryOnly: (primary) =>
-    `${primary} is the [[primary|primary model]], chosen by the [[rule|rule fixed before the run]] from its results on the [[heldOut|held-out set]]; no other candidate qualifies as the [[escalation|escalation model]].`,
-  factsLabel: "The primary model's held-out results",
-  primaryAccuracy: "Exactly right on clear, abbreviated and synonym columns",
-  validOutput: "Answers the validator could read",
-  runDate: (date) => `Run on ${date}`,
+const EXAMPLE_EN: ExampleCopy = {
+  eyebrow: "Example screen · synthetic data",
+  title: "What the walkthrough ends with",
+  mappingLabel:
+    "Prepared [[mapping|column mapping]] you approve in the walkthrough",
+  resultLabel: "Result",
+  rule: (rule) => `Rule ${rule}`,
+  gatesLabel: "Each [[threshold|threshold]] beside its observation",
+  gateColumn: "Check",
+  observedColumn: "Observed",
+  thresholdColumn: "Threshold",
+  passed: "Passes",
+  failed: "Fails",
+  unitNote: "Rates in basis points (100 bps = 1%); repeats are a count.",
+  resultHash: "Result hash",
   control:
     "Rejected, malformed or ambiguous output stops at the [[validator|validator]] or at [[reviewRequired|REVIEW_REQUIRED]]. Only [[versionedCode|versioned code]] computes a result, after a person approves.",
-  seeComparison: "See the model comparison",
   walkThrough: "Walk through a case",
+  seeExpected: "Every case's expected results",
   close: "Close",
   terms: {
     mapping: [
       "Column mapping",
       "Saying which field each column of an unfamiliar data file holds, such as price or quantity, and how to convert its values.",
     ],
-    heldOut: [
-      "Held-out set",
-      "Synthetic column layouts kept sealed until the run, so no prompt or rule was tuned on them.",
-    ],
-    rule: [
-      "Rule fixed before the run",
-      "The pass marks for valid answers, wrong mappings and needless hand-offs, and how the primary and escalation models are picked. It was committed before any candidate saw the held-out set.",
-    ],
-    primary: [
-      "Primary model",
-      "The model chosen to propose column mappings first.",
-    ],
-    escalation: [
-      "Escalation model",
-      "The second model chosen for the proposals the primary model leaves for review. Routing to it is planned, not yet running.",
+    threshold: [
+      "Threshold",
+      "The value a check must reach, fixed in the versioned rule before the case runs.",
     ],
     validator: [
       "Validator",
@@ -99,51 +81,34 @@ const ANSWER_EN: AnswerCopy = {
   },
 };
 
-const ANSWER_KO: AnswerCopy = {
-  eyebrow: "이 사이트의 AI",
-  question:
-    "여기서 [[mapping|데이터 항목 연결]]을 제안하는 AI 모델은 무엇이고, 왜 그 모델인가요?",
-  planned: {
-    notRun:
-      "아직 고른 모델이 없습니다. [[heldOut|보관 평가 집합]]에서 비교할 계획이며, [[rule|실행 전에 정한 규칙]]을 통과한 후보가 나올 때까지 모델을 고르지 않습니다.",
-    noOutput:
-      "아직 고른 모델이 없습니다. [[heldOut|보관 평가 집합]]의 첫 실행에서 모델 출력을 하나도 받지 못해 비교를 다시 계획했고, [[rule|실행 전에 정한 규칙]]을 통과한 후보가 나올 때까지 모델을 고르지 않습니다.",
-    noneQualified:
-      "고른 모델이 없습니다. [[heldOut|보관 평가 집합]]에서 [[rule|실행 전에 정한 규칙]]을 통과한 후보가 없었습니다.",
-  },
-  selected: (primary, escalation) =>
-    `[[rule|실행 전에 정한 규칙]]에 따라 [[heldOut|보관 평가 집합]] 결과로 고른 [[primary|기본 모델]]은 ${primary}, [[escalation|상위 모델]]은 ${escalation}입니다.`,
-  primaryOnly: (primary) =>
-    `[[rule|실행 전에 정한 규칙]]에 따라 [[heldOut|보관 평가 집합]] 결과로 고른 [[primary|기본 모델]]은 ${primary}이며, [[escalation|상위 모델]] 자격을 갖춘 다른 후보는 없습니다.`,
-  factsLabel: "기본 모델의 보관 평가 집합 결과",
-  primaryAccuracy: "분명한 이름·줄인 이름·동의어 열을 정확히 연결한 비율",
-  validOutput: "검증기가 읽을 수 있는 답의 비율",
-  runDate: (date) => `${date} 실행`,
+const EXAMPLE_KO: ExampleCopy = {
+  eyebrow: "예시 화면 · 합성 자료",
+  title: "사례 따라가기의 마지막 화면",
+  mappingLabel:
+    "사례 따라가기에서 승인하는, 미리 준비된 [[mapping|데이터 항목 연결]]",
+  resultLabel: "분석 결과",
+  rule: (rule) => `규칙 ${rule}`,
+  gatesLabel: "관측값 옆에 둔 [[threshold|판단 기준]]",
+  gateColumn: "판단 항목",
+  observedColumn: "관측값",
+  thresholdColumn: "판단 기준",
+  passed: "통과",
+  failed: "미달",
+  unitNote: "비율은 bps(100 bps = 1%), 반복 체결은 건수입니다.",
+  resultHash: "결과 해시",
   control:
     "거절되거나 형식이 깨졌거나 모호한 출력은 [[validator|검증기]]나 [[reviewRequired|REVIEW_REQUIRED]]에서 멈춥니다. 결과는 사람이 승인한 뒤 [[versionedCode|버전이 고정된 코드]]만 계산합니다.",
-  seeComparison: "모델 비교 보기",
   walkThrough: "사례 따라가기",
+  seeExpected: "모든 사례의 기대 결과",
   close: "닫기",
   terms: {
     mapping: [
       "데이터 항목 연결",
       "처음 보는 데이터 파일의 각 열이 가격, 수량 같은 어느 항목인지, 값을 어떻게 바꿔 읽는지 정하는 일입니다.",
     ],
-    heldOut: [
-      "보관 평가 집합",
-      "실행 전까지 봉인해 둔 합성 열 구성입니다. 프롬프트나 규칙을 이 집합에 맞춰 고치지 않았습니다.",
-    ],
-    rule: [
-      "실행 전에 정한 규칙",
-      "유효한 답, 잘못된 연결, 불필요하게 넘긴 항목의 통과 기준과 기본 모델·상위 모델을 고르는 방법입니다. 어떤 후보도 보관 평가 집합을 보기 전에 커밋했습니다.",
-    ],
-    primary: [
-      "기본 모델",
-      "데이터 항목 연결을 먼저 제안하도록 고른 모델입니다.",
-    ],
-    escalation: [
-      "상위 모델",
-      "기본 모델이 검토 필요로 남긴 제안을 맡도록 고른 두 번째 모델입니다. 이 모델로 넘기는 경로는 계획 단계이며 아직 동작하지 않습니다.",
+    threshold: [
+      "판단 기준",
+      "판단 항목이 넘어야 하는 값입니다. 사례를 실행하기 전에 버전이 고정된 규칙에 정해 둡니다.",
     ],
     validator: [
       "검증기",
@@ -174,7 +139,7 @@ interface HomeCopy {
     readonly lede: string;
     readonly walkMeta: string;
   };
-  readonly answer: AnswerCopy;
+  readonly example: ExampleCopy;
   readonly flowLabel: string;
   /** One short line per stage; the stage name already says who acts. */
   readonly stages: Readonly<Record<GuideStage, string>>;
@@ -200,8 +165,8 @@ interface HomeCopy {
 
 /**
  * Voice copy is written in each language rather than translated. The first
- * screen says what the site is and offers the walkthrough, answers which AI
- * runs here beside it, and draws the four stages below; the rest says why and
+ * screen says what the site is and offers the walkthrough, shows the end of
+ * its worked case beside it, and draws the four stages below; the rest says why and
  * what exists, and every detail is one link away. Stage names
  * come from the guided walkthrough, so the two never name a stage differently.
  */
@@ -213,7 +178,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       lede: "A model suggests what each column of a trading file means. You approve it, versioned code checks the pattern, and every finding opens to its source row.",
       walkMeta: "8 steps · about 5–10 minutes · no sign-in",
     },
-    answer: ANSWER_EN,
+    example: EXAMPLE_EN,
     flowLabel: "From proposal to evidence",
     stages: {
       propose: "Suggests what each column holds",
@@ -270,7 +235,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       lede: "모델이 거래 파일의 열마다 뜻을 제안하면 사람이 승인하고, 버전이 고정된 코드가 패턴을 확인합니다. 판단 근거마다 원본 행이 열립니다.",
       walkMeta: "8단계 · 약 5~10분 · 회원가입 없음",
     },
-    answer: ANSWER_KO,
+    example: EXAMPLE_KO,
     flowLabel: "제안에서 근거까지",
     stages: {
       propose: "열마다 어느 항목인지 제안",

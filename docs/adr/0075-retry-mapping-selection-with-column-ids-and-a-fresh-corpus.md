@@ -414,5 +414,6 @@ No further gate run, run-date probe, pre-run amendment, dated price table or
 HELD_OUT run is made under this ADR. v4 HELD_OUT stays sealed and unseen by any
 model, and the protocol 3 held-out command keeps refusing to run because this
 ADR is not accepted. The ADR 0069 session and its `NO_MODEL` decision remain
-the decision the site shows, and the live web path stays on the ADR 0069
-stack. Another selection attempt needs a new ADR.
+the committed decision, which the site shows as a measured comparison under
+[ADR 0077](0077-lead-with-the-walkthrough-and-its-example-screen.md), and the
+live web path stays on the ADR 0069 stack. Another selection attempt needs a new ADR.
