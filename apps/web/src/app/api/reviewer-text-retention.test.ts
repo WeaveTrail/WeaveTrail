@@ -16,28 +16,21 @@ import ts from "typescript";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 /**
- * docs/DATA_HANDLING.md states that a check route keeps nothing a person sends
- * it: no store, no file, no log line and no outbound call. These checks enforce
- * that for every route under `api/check`, including ones added later, which
- * fail here until they are given a canary request below. The remaining approval
- * route takes a reviewer reference and reasons a person types, so the run-time
- * check covers them too.
+ * docs/DATA_HANDLING.md states that the application keeps nothing a person
+ * types: no store, no file and no log line. The replay route takes a reviewer
+ * reference and reasons a person types, so it gets a canary request in every
+ * free-text field. Every API route, including one added later, is either given
+ * canary requests here or listed as taking no typed text; a new route fails
+ * until it is one or the other.
  */
 
-const checkDirectory = dirname(fileURLToPath(import.meta.url));
-const webDirectory = resolve(checkDirectory, "../../../..");
+const apiDirectory = dirname(fileURLToPath(import.meta.url));
+const webDirectory = resolve(apiDirectory, "../../..");
 const repositoryDirectory = resolve(webDirectory, "../..");
 
 const CANARY = "WT-CANARY-PASTED-TEXT-7f3a";
 
 type CanaryRequest = { readonly body: unknown; readonly status: number };
-
-/**
- * Requests carrying the canary in every free-text field. Each route needs at
- * least one that passes validation (HTTP 200), so the run-time check covers
- * the processing path and not only the refusal.
- */
-const canaryRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {};
 
 const quotesKey = "actorless-multi-instrument-quotes.jsonl";
 const source = committedReplayScenarios[quotesKey];
@@ -55,9 +48,13 @@ const canaryApproval = (
   approvedAt: "2026-09-07T00:00:00Z",
 });
 
-/** Routes outside `api/check` that accept text a person types. */
+/**
+ * Routes that accept text a person types, each with requests carrying the
+ * canary in every free-text field. At least one passes validation (HTTP 200),
+ * so the run-time check covers the processing path and not only the refusal.
+ */
 const approvalRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
-  "../replay/route.ts": [
+  "replay/route.ts": [
     {
       body: {
         scenario: quotesKey,
@@ -89,27 +86,9 @@ const approvalRequests: Readonly<Record<string, readonly CanaryRequest[]>> = {
 };
 
 /**
- * Packages a check route may load. Anything that can persist, log or send a
- * request (a file system, database, network client, provider adapter or
- * logger) has to be added here deliberately, together with the statement in
- * docs/DATA_HANDLING.md that it changes.
- */
-const allowedExternalModules = new Set(["zod", "node:crypto", "next/server"]);
-
-/** Workspace packages that store snapshots or call a model provider. */
-const forbiddenWorkspaceDirectories = [
-  "packages/service-store/",
-  "packages/ai-harness/",
-];
-
-/** Source that writes to a log, a stream, a file or the network. */
-const forbiddenCalls =
-  /\bconsole\s*\.|\bprocess\s*\.\s*(?:stdout|stderr)\b|\bfetch\s*\(|\b(?:writeFile|appendFile|createWriteStream)\w*\s*\(/;
-
-/**
- * The same calls without `fetch`: the mapping adapter an approval route loads
- * may call a configured provider, which the run-time check rules out for these
- * requests in fixture mode.
+ * Source that writes to a log, a stream or a file. Network calls are left to
+ * the run-time check: the mapping adapter the replay route loads may call a
+ * configured provider, which fixture mode rules out for these requests.
  */
 const storageOrLogCalls =
   /\bconsole\s*\.|\bprocess\s*\.\s*(?:stdout|stderr)\b|\b(?:writeFile|appendFile|createWriteStream)\w*\s*\(/;
@@ -131,8 +110,11 @@ function routeFiles(directory: string): string[] {
   });
 }
 
-const routes = routeFiles(checkDirectory).map((path) =>
-  relative(checkDirectory, path),
+/** API routes that take no text a person types: only a source's name. */
+const NO_TYPED_TEXT = ["mapping/route.ts"];
+
+const routes = routeFiles(apiDirectory).map((path) =>
+  relative(apiDirectory, path),
 );
 
 /** Repository modules a route loads, and every module it loads from outside. */
@@ -167,7 +149,7 @@ function moduleGraph(entry: string) {
 
 const posted = async (route: string, body: unknown) => {
   const handlers = (await import(
-    /* @vite-ignore */ resolve(checkDirectory, route)
+    /* @vite-ignore */ resolve(apiDirectory, route)
   )) as {
     POST?: (request: Request) => Promise<Response>;
   };
@@ -199,7 +181,6 @@ const carriesCanary = (calls: readonly (readonly unknown[])[]) =>
 async function expectNothingRetained(
   route: string,
   requests: readonly CanaryRequest[],
-  echoesScope: boolean,
 ) {
   const logs = (
     ["log", "info", "warn", "error", "debug", "trace"] as const
@@ -225,9 +206,7 @@ async function expectNothingRetained(
   for (const { body, status } of requests) {
     const response = await posted(route, body);
     expect(response.status).toBe(status);
-    // A processed check returns its validated scope to the caller only.
-    if (echoesScope && status === 200) expect(response.text).toContain(CANARY);
-    if (!echoesScope) expect(response.text).not.toContain(CANARY);
+    expect(response.text).not.toContain(CANARY);
   }
 
   for (const spy of [...logs, ...streams])
@@ -238,45 +217,21 @@ async function expectNothingRetained(
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("check routes keep no pasted text", () => {
-  it("finds the check routes and a canary request for each", () => {
-    expect(routes).toEqual([]);
-    expect(routes.filter((route) => !(route in canaryRequests))).toEqual([]);
-  });
-
-  describe.each(routes)("%s", (route) => {
-    const graph = moduleGraph(resolve(checkDirectory, route));
-
-    it("loads no store, file writer, logger, network client or model provider", () => {
-      expect(
-        graph.external.filter((name) => !allowedExternalModules.has(name)),
-      ).toEqual([]);
-      expect(
-        graph.local
-          .map((file) => relative(repositoryDirectory, file))
-          .filter((file) =>
-            forbiddenWorkspaceDirectories.some((directory) =>
-              file.startsWith(directory),
-            ),
-          ),
-      ).toEqual([]);
-      expect(
-        graph.local
-          .filter((file) => !file.endsWith(".json"))
-          .filter((file) => forbiddenCalls.test(readFileSync(file, "utf8")))
-          .map((file) => relative(repositoryDirectory, file)),
-      ).toEqual([]);
-    });
-
-    it("writes the request to no log, stream or file and sends it nowhere", () =>
-      expectNothingRetained(route, canaryRequests[route] ?? [], true));
+describe("every API route is accounted for", () => {
+  it("gives each route canary requests or lists it as taking no typed text", () => {
+    expect(
+      routes.filter(
+        (route) =>
+          !(route in approvalRequests) && !NO_TYPED_TEXT.includes(route),
+      ),
+    ).toEqual([]);
   });
 });
 
 describe("approval routes keep no reviewer text", () => {
   describe.each(Object.keys(approvalRequests))("%s", (route) => {
     it("loads no store and writes to no log, stream or file", () => {
-      const graph = moduleGraph(resolve(checkDirectory, route));
+      const graph = moduleGraph(resolve(apiDirectory, route));
       expect(
         graph.local
           .map((file) => relative(repositoryDirectory, file))
@@ -291,6 +246,6 @@ describe("approval routes keep no reviewer text", () => {
     });
 
     it("writes reviewer text to no log, stream or file and sends it nowhere", () =>
-      expectNothingRetained(route, approvalRequests[route] ?? [], false));
+      expectNothingRetained(route, approvalRequests[route] ?? []));
   });
 });

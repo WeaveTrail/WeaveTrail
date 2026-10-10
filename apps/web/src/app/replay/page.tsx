@@ -5,9 +5,9 @@ import { ReplayHeading } from "./replay-heading";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
 
 export const metadata: Metadata = {
-  title: "Case Replay",
+  title: "Walk through a case",
   description:
-    "Normalize published daily quotes and replay synthetic cases through WeaveTrail's explicit approval workflow.",
+    "Follow one synthetic case from an AI mapping proposal through a person's approval to versioned code's result and the source rows behind every finding.",
   alternates: { canonical: "/replay" },
 };
 

@@ -12,7 +12,7 @@ The `/data-handling` page links evidence at the deployment revision, or `develop
 
 Case Replay sends a reviewer reference and nonblank override reasons to `/api/replay`. Approval records are validated to bind the exact proposal; responses do not return the reference or reasons. Fixture-mode approval requests are neither persisted, logged nor sent to a model. Type no personal or confidential text there.
 
-The retention test posts approved and rejected canary requests to the remaining synthetic replay route and inspects its module graph for storage and log writes.
+The retention test posts approved and rejected canary requests to the replay route and inspects its module graph for storage and log writes. Every API route is either given such requests or listed as taking no typed text, so a new route fails the test until it is one or the other.
 
 ## Provider and browser boundary
 
@@ -87,7 +87,7 @@ logging or retain counter backups beyond the KST day. See
 ## Verification
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/check/pasted-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
+pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
 ```
 
 ## Limits

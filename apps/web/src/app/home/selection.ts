@@ -9,7 +9,7 @@ import {
   primaryAccuracy,
   type Count,
   type HeldOutResult,
-} from "./evals/model-comparison-data";
+} from "../evals/model-comparison-data";
 
 export type HomeSelection =
   | {

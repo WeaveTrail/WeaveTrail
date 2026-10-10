@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   createElement,
@@ -9,8 +9,11 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { committedReplaySources } from "../../lib/replay-sources";
+import HomePage from "../page";
+import { shellCopy } from "../shell/copy";
 import ReplayPage, { metadata } from "./page";
-import { CaseReplay, SourceRows } from "./case-replay";
+import { CaseReplay } from "./case-replay";
+import { SourceRows } from "./source-rows";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
 
@@ -122,25 +125,26 @@ describe("Case Replay entry contract", () => {
   );
 
   it("removes the former route and points entry, metadata and navigation at Case Replay", () => {
-    expect(metadata.title).toBe("Case Replay");
+    expect(metadata.title).toBe("Walk through a case");
     expect(metadata.alternates?.canonical).toBe("/replay");
     expect(existsSync(resolve("apps/web/src/app/lab/page.tsx"))).toBe(false);
-    const home = readFileSync(
-      resolve("apps/web/src/app/home-content.tsx"),
-      "utf8",
-    );
-    const nav = readFileSync(
-      resolve("apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
+    const home = renderToStaticMarkup(createElement(HomePage));
     expect(home).toContain('href="/replay?mode=guided"');
-    // The entry's secondary action now carries the argument, which links on to
-    // the architecture in turn.
     expect(home).toContain('href="/why"');
-    expect(nav).toMatch(/\["Walk through a case",\s*"\/replay",/);
-    // One entry: the guided and working modes are chosen inside the surface.
-    expect(nav).not.toContain("mode=");
-    expect(nav).toContain('"Explore"');
-    expect(home + nav).not.toContain('"/lab"');
+    for (const { navigation } of Object.values(shellCopy)) {
+      const [explore] = navigation;
+      // One entry: the guided and working modes are chosen inside the surface.
+      expect(explore[1].map(([, href]) => href)).toContain("/replay");
+      for (const [, items] of navigation)
+        for (const [, href] of items) {
+          expect(href).not.toContain("mode=");
+          expect(href).not.toBe("/lab");
+        }
+    }
+    expect(shellCopy.en.navigation[0][1][2]).toEqual([
+      "Walk through a case",
+      "/replay",
+      "One case, proposal to source row",
+    ]);
   });
 });

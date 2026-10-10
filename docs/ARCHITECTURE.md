@@ -550,6 +550,18 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 - Product copy and every visible evidence value stay owned by this repository's
   runtime responses and committed synthetic scenarios
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)).
+- `apps/web/src/app` is organized by page
+  ([ADR 0076](adr/0076-organize-the-web-app-by-page-with-typed-bilingual-copy.md)).
+  Each route folder holds its page, its typed bilingual `copy.ts`, its view and
+  its stylesheet; `shell/` holds the header, navigation, language switch and
+  footer, and `explainer/` the layout the five explanatory pages share: one
+  opening answer, then sections of a title and one line with detail one
+  disclosure or link away. No user-visible string is written inline in markup.
+- Guided Case Replay keeps its state in `replay/use-case-replay.ts`. Each of
+  the eight steps under `replay/steps/` declares its stage, actor, narration,
+  gate, rail control and panel copy beside the render function for its panel;
+  `replay/guide-rail.tsx` draws the rail and `replay/case-replay.tsx` composes
+  the panels. Working mode renders the same panels without the rail.
 
 ## Daily quote and cross-market rule version coexistence
 

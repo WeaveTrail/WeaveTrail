@@ -2,22 +2,18 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import firstComparison from "../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
-import firstDecision from "../../../../packages/evals/results/mapping-held-out-v1/decision.json";
-import { committedHeldOutResult } from "./evals/held-out-result";
+import firstComparison from "../../../../../packages/evals/results/mapping-held-out-v1/comparison.json";
+import firstDecision from "../../../../../packages/evals/results/mapping-held-out-v1/decision.json";
+import { committedHeldOutResult } from "../evals/held-out-result";
 import type {
   ComparisonGroup,
   HeldOutResult,
-} from "./evals/model-comparison-data";
-import {
-  HOME_TERM_KEYS,
-  HomeContent,
-  homeCopy,
-  plainText,
-} from "./home-content";
-import { homeSelection, type HomeSelection } from "./home-selection";
-import { LANGUAGES } from "./i18n/language";
-import HomePage from "./page";
+} from "../evals/model-comparison-data";
+import { HOME_TERM_KEYS, homeCopy } from "./copy";
+import { HomeContent, plainText } from "./home-view";
+import { homeSelection, type HomeSelection } from "./selection";
+import { LANGUAGES } from "../i18n/language";
+import HomePage from "../page";
 
 /** A synthetic SELECTED decision over the committed comparison's shape. */
 function selectedResult(escalation: string | null): HeldOutResult {

@@ -1,0 +1,307 @@
+/* ───────────────────────── Model comparison (/evals) ───────────────────────── */
+
+.model-comparison {
+  display: grid;
+  gap: var(--space-4);
+  padding-bottom: var(--space-10);
+}
+.mc-answer h1 {
+  max-width: 40em;
+  margin-top: var(--space-2);
+  font: var(--type-heading);
+  letter-spacing: var(--tracking-tight);
+}
+.mc-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+.mc-roles > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+}
+.mc-roles dt {
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mc-roles dd {
+  color: var(--text-strong);
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+}
+.mc-roles dd.mc-model {
+  font: var(--type-mono-sm);
+}
+.mc-caption {
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.mc-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+}
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-caption);
+  font-variant-numeric: tabular-nums;
+}
+.mc-table caption {
+  padding: 0 0 var(--space-2);
+  text-align: left;
+  color: var(--text-muted);
+}
+.mc-table th,
+.mc-table td {
+  padding: 6px var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.mc-table thead th {
+  background: var(--surface-subtle);
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}
+.mc-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.mc-table th small,
+.mc-number small {
+  display: block;
+  font: var(--type-mono-sm);
+  font-size: var(--font-size-12);
+  color: var(--text-faint);
+}
+.mc-eligibility tbody th {
+  position: sticky;
+  left: 0;
+  background: var(--surface-card);
+  font: var(--type-mono-sm);
+}
+.mc-eligibility tr[data-eligible="true"] th {
+  box-shadow: inset 3px 0 0 var(--brand-700);
+}
+.mc-reference th,
+.mc-reference td {
+  background: var(--surface-subtle);
+  font-style: italic;
+}
+.mc-eligibility .mc-reference th {
+  background: var(--surface-subtle);
+}
+.mc-number {
+  font: var(--type-mono-sm);
+}
+.mc-term {
+  color: inherit;
+  text-decoration-style: dotted;
+}
+.mc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  width: fit-content;
+  max-width: 100%;
+}
+.mc-tabs button {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--font-size-14);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.mc-tabs button:hover {
+  color: var(--text-strong);
+}
+.mc-tabs button[aria-selected="true"] {
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-1);
+}
+.mc-panel {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 100%;
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+.mc-panel h2 {
+  font: var(--type-subhead);
+}
+.mc-panel p,
+.mc-list {
+  max-width: var(--prose-max);
+  color: var(--text-body);
+}
+.mc-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: 1.2em;
+}
+.mc-empty {
+  color: var(--text-muted);
+}
+.mc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+.mc-chart {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+.mc-axis {
+  stroke: var(--line-strong);
+}
+.mc-axis-label,
+.mc-mark-label {
+  fill: var(--text-muted);
+  font: 11px var(--font-sans);
+}
+.mc-mark-eligible {
+  fill: var(--brand-700);
+  stroke: var(--brand-700);
+}
+.mc-mark-ineligible {
+  fill: var(--surface-page);
+  stroke: var(--text-muted);
+  stroke-width: 2;
+}
+.mc-mark-reference {
+  fill: var(--gray-500);
+}
+.mc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font: var(--type-caption);
+}
+.mc-terms {
+  display: grid;
+  gap: var(--space-3);
+}
+.mc-terms dt {
+  font-weight: var(--weight-semibold);
+}
+.mc-terms dd {
+  color: var(--text-muted);
+}
+
+/* The engine checks fold under one summary line, so the comparison stays the
+   page's answer and the ledger is one click away. */
+.ledger {
+  margin-top: var(--space-8);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+}
+.ledger > summary {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  list-style: none;
+}
+.ledger > summary::-webkit-details-marker {
+  display: none;
+}
+.ledger-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-4);
+}
+.ledger-summary strong {
+  color: var(--text-strong);
+}
+.ledger-summary strong::before {
+  content: "▸ ";
+  color: var(--brand-700);
+}
+.ledger[open] .ledger-summary strong::before {
+  content: "▾ ";
+}
+.ledger-summary > span {
+  font: var(--type-mono-sm);
+  color: var(--text-muted);
+}
+.ledger > .page-heading,
+.ledger > .eval-list {
+  margin-inline: var(--space-5);
+}
+.ledger > .page-heading {
+  margin-bottom: 0;
+  padding-bottom: var(--space-4);
+}
+.ledger > .page-heading > p {
+  font: var(--type-small);
+}
+.ledger > .eval-list {
+  margin-bottom: var(--space-5);
+}
+
+/* A list of checks or claims, each with its status. */
+.eval-list {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.eval-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr) minmax(0, 2fr);
+  align-items: start;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+.eval-row h2 {
+  font: var(--type-subhead);
+  font-size: var(--font-size-14);
+}
+.eval-row p {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.eval-tests {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font: var(--type-small);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+.eval-tests ul {
+  padding-inline-start: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .eval-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .mc-answer h1 {
+    font: var(--type-section);
+  }
+}

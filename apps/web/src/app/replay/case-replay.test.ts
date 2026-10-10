@@ -25,14 +25,15 @@ import {
   attemptApproval,
   flaggedMappingFields,
   hasUnresolvedMappingReview,
-  CaseReplay,
   mappingOverrides,
-  unresolvedMappingFields,
-  RapidPriceLiftEvaluation,
   resetReplayForScenarioChange,
-  type ReplayScenarioOption,
-  WorkflowStateBadge,
-} from "./case-replay";
+  unresolvedMappingFields,
+} from "./approval";
+import { CaseReplay } from "./case-replay";
+import { caseApprovalStep } from "./steps/case-approval";
+import { RapidPriceLiftEvaluation } from "./findings";
+import type { ReplayScenarioOption } from "./types";
+import { WorkflowStateBadge } from "./workflow-state";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import { ReplayLanguageContext } from "./replay-language";
 import { scenarioOptionLabel } from "./scenario-labels";
@@ -77,24 +78,17 @@ describe("replay mapping status boundary", () => {
     // English committed label in the Korean list is one they cannot find.
     const { scenarios } = await prepareReplayScenarios();
     expect(scenarios.length).toBeGreaterThan(0);
-    for (const { value, label, provenance, purpose } of scenarios) {
+    for (const { value, label, purpose } of scenarios) {
       const korean = scenarioOptionLabel(
         value,
         label,
-        provenance?.kind ?? "synthetic",
         purpose ?? "ENGINE_REGRESSION",
         "ko",
       );
       expect(/[가-힣]/.test(korean), value).toBe(true);
       expect(korean, value).not.toContain(label);
       expect(
-        scenarioOptionLabel(
-          value,
-          label,
-          provenance?.kind ?? "synthetic",
-          purpose ?? "ENGINE_REGRESSION",
-          "en",
-        ),
+        scenarioOptionLabel(value, label, purpose ?? "ENGINE_REGRESSION", "en"),
         value,
       ).toContain(label);
     }
@@ -362,26 +356,32 @@ describe("replay mapping status boundary", () => {
 
   it("says an approval covers the whole manifest it hashes", async () => {
     const source = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      resolve(process.cwd(), "apps/web/src/app/replay/use-case-replay.ts"),
       "utf8",
     );
     // approveCase hashes the entire manifest, so naming only the instrument,
     // window and thresholds understated what the reviewer was committing to.
     expect(source).toContain("attemptApproval(selectedScenario.manifest)");
-    expect(source).toContain("this exact case manifest in full");
-    expect(source).toContain("사례 manifest 전체에 그대로 묶입니다");
-    expect(source).not.toContain("and to nothing else.");
+    expect(caseApprovalStep.panel.en.binding).toContain(
+      "this exact case manifest in full",
+    );
+    expect(caseApprovalStep.panel.ko.binding).toContain(
+      "조사 범위 전체에 그대로 묶입니다",
+    );
+    expect(caseApprovalStep.panel.en.binding).not.toContain(
+      "and to nothing else.",
+    );
   });
 
   it("only offers the proposal request while the example has no proposal", async () => {
     const source = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/replay/case-replay.tsx"),
+      resolve(process.cwd(), "apps/web/src/app/replay/steps/example.ts"),
       "utf8",
     );
     // The request control stays rendered after a proposal arrives, so offering
     // it unconditionally sent the visitor to re-request an approved proposal.
     expect(source).toContain(
-      'const proposalShown = example.querySelector(".mapping-preview") !== null',
+      'const proposalShown = example.querySelector(".mapping-preview") !== null;',
     );
     expect(source).toContain("proposalShown");
   });

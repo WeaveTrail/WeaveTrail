@@ -9,8 +9,9 @@ import type {
   SourceTrace,
 } from "@weavetrail/contracts";
 
+import { replayCopy } from "./copy";
 import { gateReading, type GateName } from "./machine-values";
-import { replayText, useReplayLanguage } from "./replay-language";
+import { useReplayLanguage } from "./replay-language";
 
 type TraceEntry = SourceTrace["entries"][number];
 
@@ -193,11 +194,10 @@ function CheckLinks({
 }
 
 function Target({ row }: { row: MappingTraceRow }) {
-  const language = useReplayLanguage();
-  const t = (en: string, ko: string) => replayText(language, en, ko);
+  const text = replayCopy[useReplayLanguage()].trace;
   return (
     <>
-      <code>{row.targetField ?? t("not mapped", "연결하지 않음")}</code>
+      <code>{row.targetField ?? text.notMapped}</code>
       {row.transform ? (
         <>
           {" · "}
@@ -209,11 +209,11 @@ function Target({ row }: { row: MappingTraceRow }) {
 }
 
 function ReviewerReason({ reason }: { reason: string | null }) {
-  const language = useReplayLanguage();
+  const text = replayCopy[useReplayLanguage()].trace;
   if (reason === null) return null;
   return (
     <span className="trace-reason">
-      {replayText(language, "Reviewer reason", "확인 이유")}: <q>{reason}</q>
+      {text.reviewerReason}: <q>{reason}</q>
     </span>
   );
 }
@@ -232,8 +232,7 @@ export function EvidenceLines({
   entry: TraceEntry;
   findings: readonly Finding[];
 }) {
-  const language = useReplayLanguage();
-  const t = (en: string, ko: string) => replayText(language, en, ko);
+  const text = replayCopy[useReplayLanguage()].trace;
   return (
     <ol className="trace-lines">
       {rows.map((row) => {
@@ -242,7 +241,7 @@ export function EvidenceLines({
           <li className="trace-line" data-mapping-row={row.key} key={row.key}>
             <span className="trace-source">
               {row.sourceColumns === null ? (
-                <code>{t("source field absent", "원본 항목 없음")}</code>
+                <code>{text.sourceAbsent}</code>
               ) : (
                 row.sourceColumns.map((column) => (
                   <span key={column}>
@@ -250,7 +249,7 @@ export function EvidenceLines({
                     {column in entry.sourceRow.values ? (
                       <code>{entry.sourceRow.values[column]}</code>
                     ) : (
-                      <em>{t("absent in this row", "이 행에 없음")}</em>
+                      <em>{text.absentInRow}</em>
                     )}
                   </span>
                 ))
@@ -263,26 +262,26 @@ export function EvidenceLines({
             <span aria-hidden="true">→</span>
             <span className="trace-canonical">
               {row.targetField === null ? (
-                <em>{t("no canonical value", "정리된 값 없음")}</em>
+                <em>{text.noCanonicalValue}</em>
               ) : value === undefined ? (
-                <em>{t("not in the source trace", "근거 추적에 없음")}</em>
+                <em>{text.notInTrace}</em>
               ) : (
                 <code>{value}</code>
               )}
             </span>
             <ReviewerReason reason={row.reason} />
             <span className="trace-used">
-              {t("Checks that used it", "이 값을 쓴 판단 항목")}:{" "}
+              {text.lineChecks}:{" "}
               <CheckLinks
                 checks={checksForLine(row, entry, findings)}
-                none={t("none", "없음")}
+                none={text.none}
               />
             </span>
             <AnchorLink
               className="trace-row-link"
               target={mappingRowId(row.key)}
             >
-              {t("Go to its mapping row", "연결 행으로 이동")}
+              {text.goToRow}
             </AnchorLink>
           </li>
         );
@@ -305,21 +304,12 @@ export function ApprovedMappingTrace({
   sourceTrace: SourceTrace;
   findings: readonly Finding[];
 }) {
-  const language = useReplayLanguage();
-  const t = (en: string, ko: string) => replayText(language, en, ko);
+  const text = replayCopy[useReplayLanguage()].trace;
   return (
     <details className="approved-mapping">
       <summary>
-        {t(
-          "Approved mapping behind these findings",
-          "이 판단 근거에 쓰인 데이터 항목 연결",
-        )}
-        <small>
-          {t(
-            "Read from the mapping the approval is bound to. Each row links to the checks that used it.",
-            "승인이 묶인 연결 제안을 그대로 보여 줍니다. 행마다 그 행을 쓴 판단 항목으로 이동할 수 있습니다.",
-          )}
-        </small>
+        {text.approvedMapping}
+        <small>{text.approvedMappingNote}</small>
       </summary>
       <ol className="approved-mapping-rows">
         {rows.map((row) => (
@@ -334,7 +324,7 @@ export function ApprovedMappingTrace({
           >
             <span className="trace-source">
               {row.sourceColumns === null ? (
-                <code>{t("source field absent", "원본 항목 없음")}</code>
+                <code>{text.sourceAbsent}</code>
               ) : (
                 <code>{row.sourceColumns.join(" + ")}</code>
               )}
@@ -344,15 +334,14 @@ export function ApprovedMappingTrace({
               <Target row={row} />
             </span>
             <span className="trace-evidence">
-              {t("Proposal evidence, as proposed", "제안 원문 근거")}:{" "}
-              {row.evidence}
+              {text.proposalEvidence}: {row.evidence}
             </span>
             <ReviewerReason reason={row.reason} />
             <span className="trace-used">
-              {t("Checks that used it", "이 행을 쓴 판단 항목")}:{" "}
+              {text.rowChecks}:{" "}
               <CheckLinks
                 checks={checksForRow(row, sourceTrace, findings)}
-                none={t("none", "없음")}
+                none={text.none}
               />
             </span>
           </li>

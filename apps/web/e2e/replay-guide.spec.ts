@@ -1,12 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import type { Language } from "../src/app/i18n/language";
-import {
-  GUIDE_STAGES,
-  guideStageNames,
-  guideStepsByLanguage,
-  guideUi,
-} from "../src/app/replay/case-replay";
+import { GUIDE_STAGES, guideStageNames } from "../src/app/guide-stages";
+import { replayCopy } from "../src/app/replay/copy";
+import { guideStepsByLanguage } from "../src/app/replay/steps";
+import { evidenceStep } from "../src/app/replay/steps/evidence";
+import { caseApprovalStep } from "../src/app/replay/steps/case-approval";
+import { controlsStep } from "../src/app/replay/steps/controls";
+import { exampleStep } from "../src/app/replay/steps/example";
+import { mappingStep } from "../src/app/replay/steps/mapping";
+import { repeatStep } from "../src/app/replay/steps/repeat";
+import { runStep } from "../src/app/replay/steps/run";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
@@ -14,22 +18,19 @@ const VIEWPORTS = [
 ] as const;
 const LANGUAGES: readonly Language[] = ["en", "ko"];
 
-const labels = {
-  en: {
-    approveMapping: "Approve executed mapping",
-    approveCase: "Approve case manifest",
-    run: "Run deterministic replay",
-    repeat: "Repeat the same approved case",
-    workingMode: "Continue in working mode",
-  },
-  ko: {
-    approveMapping: "연결 제안 승인",
-    approveCase: "조사 범위 승인",
-    run: "분석 실행",
-    repeat: "같은 사례 다시 실행",
-    workingMode: "직접 조작으로 이동",
-  },
-} as const;
+/** The controls the visitor presses, as the steps name them. */
+const labels = Object.fromEntries(
+  LANGUAGES.map((language) => [
+    language,
+    {
+      approveMapping: mappingStep.panel[language].approve,
+      approveCase: caseApprovalStep.panel[language].approve,
+      run: runStep.panel[language].run,
+      repeat: repeatStep.panel[language].repeat,
+      workingMode: controlsStep.panel[language].toWorkingMode,
+    },
+  ]),
+) as Record<Language, Record<string, string>>;
 
 async function open(page: Page, language: Language) {
   await page.addInitScript((value) => {
@@ -73,7 +74,7 @@ async function expectStageInView(page: Page, language: Language, step: number) {
   await expect(stage).toContainText(guideStageNames[language][expected.stage]);
   if (!expected.afterMainFlow)
     await expect(stage).toContainText(
-      guideUi[language].stageOf(
+      replayCopy[language].rail.stageOf(
         GUIDE_STAGES.indexOf(expected.stage) + 1,
         GUIDE_STAGES.length,
       ),
@@ -89,7 +90,7 @@ async function expectStageInView(page: Page, language: Language, step: number) {
 
 async function expectStep(page: Page, language: Language, step: number) {
   await expect(page.locator(".journey-header h2")).toHaveText(
-    guideUi[language].stepHeading(
+    replayCopy[language].rail.stepHeading(
       step + 1,
       guideStepsByLanguage[language][step]!.title,
     ),
@@ -103,7 +104,11 @@ for (const viewport of VIEWPORTS) {
       page,
     }) => {
       const text = labels[language];
-      const ui = guideUi[language];
+      const ui = {
+        ...replayCopy[language].rail,
+        goToEvidence: evidenceStep.panel[language].goToEvidence,
+        goToExample: exampleStep.panel[language].goToExample,
+      };
       await page.setViewportSize(viewport);
       await open(page, language);
       await expect(page.locator(".journey-step")).toHaveCount(8);
@@ -254,7 +259,7 @@ test("does not satisfy the evidence step by printing", async ({ page }) => {
   await expect(railContinue).toBeEnabled();
   await railContinue.click();
   await expect(page.locator(".journey-header h2")).toHaveText(
-    guideUi.en.stepHeading(6, guideStepsByLanguage.en[5]!.title),
+    replayCopy.en.rail.stepHeading(6, guideStepsByLanguage.en[5]!.title),
   );
   await expect(railContinue).toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));

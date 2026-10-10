@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Link from "next/link";
 
-import "./styles.css";
+import "./design/tokens.css";
+import "./design/base.css";
+import "./design/components.css";
+import "./shell/shell.css";
 
 import { getSiteUrl } from "./site-url";
-import { SiteNavigation } from "./site-navigation";
 import { LanguageProvider } from "./i18n/language";
-import { LanguageSelector } from "./i18n/language-selector";
-import { ChromeText } from "./i18n/chrome-text";
-import { PrintDisclosures } from "./print-disclosures";
+import { PrintDisclosures } from "./shell/print-disclosures";
+import { SiteFooter, SiteHeader, SkipLink } from "./shell/site-chrome";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | WeaveTrail",
   },
   description:
-    "WeaveTrail re-verifies a market-surveillance alert with versioned code before an investigator signs off, and traces every finding back to its source rows.",
+    "An AI model proposes what each column of a trading file means, a person approves it, versioned code computes the result, and every finding traces back to its source rows.",
 };
 
 const plex = localFont({
@@ -61,32 +61,10 @@ export default function RootLayout({
       <body>
         <LanguageProvider>
           <PrintDisclosures />
-          <a className="skip-link" href="#main-content">
-            <ChromeText id="skipToContent" />
-          </a>
-          <header className="site-header">
-            <div className="site-header-inner">
-              <Link className="wordmark" href="/">
-                {/* The SVG is served verbatim so its embedded C2PA metadata remains intact. */}
-                {/* eslint-disable-next-line @next/next/no-img-element -- next/image would transform the provenance-bearing SVG. */}
-                <img alt="" height="32" src="/brand/mark.svg" width="32" />
-                <span>WeaveTrail</span>
-              </Link>
-              <SiteNavigation />
-              <LanguageSelector />
-            </div>
-          </header>
+          <SkipLink />
+          <SiteHeader />
           <div id="main-content">{children}</div>
-          <footer className="site-footer">
-            <div className="site-footer-inner">
-              <span>
-                <ChromeText id="footerStatus" />
-              </span>
-              <span>
-                <ChromeText id="footerPlanned" />
-              </span>
-            </div>
-          </footer>
+          <SiteFooter />
         </LanguageProvider>
       </body>
     </html>

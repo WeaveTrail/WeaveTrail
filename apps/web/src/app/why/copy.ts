@@ -11,10 +11,10 @@
  * or firm up a claim the English makes, and neither may the English.
  */
 
-import type { Language } from "../i18n/language";
+import type { Bilingual } from "../i18n/language";
 
-/** One string per language. English is what a caller without a provider sees. */
-export type Localized = Readonly<Record<Language, string>>;
+/** One string per language. */
+export type Localized = Bilingual<string>;
 
 export type SourceId =
   | "fss-surveillance-automation"
@@ -181,7 +181,7 @@ export const handoverStatements: readonly Statement[] = [
   {
     text: {
       en: "An automated pass names a candidate and a suspected interval. It does not, by itself, leave the executions, the field mapping and the rule version a second person would need to reach the same conclusion.",
-      ko: "자동으로 한 번 돌린 결과는 후보와 혐의 구간을 짚어줍니다. 그것만으로는 체결 내역도, 필드 매핑도, 규칙 버전도 남지 않습니다. 다른 사람이 같은 결론에 이르려면 그 셋이 필요합니다.",
+      ko: "자동으로 한 번 돌린 결과는 후보와 혐의 구간을 짚어줍니다. 그것만으로는 체결 내역도, 항목 연결도, 규칙 버전도 남지 않습니다. 다른 사람이 같은 결론에 이르려면 그 셋이 필요합니다.",
     },
     reasoning: true,
   },
@@ -225,14 +225,14 @@ export const gateInputs: readonly (readonly [Localized, Localized])[] = [
     { en: "An approved review scope", ko: "승인된 검토 범위" },
     {
       en: "A field mapping a person approved, bound to that exact proposal's artifact hash. An unapproved or altered proposal never reaches the deterministic core.",
-      ko: "사람이 승인한 필드 매핑입니다. 그 제안의 아티팩트 해시에 정확히 묶입니다. 승인되지 않았거나 손댄 제안은 결정론적 core에 닿지 못합니다.",
+      ko: "사람이 승인한 항목 연결입니다. 그 제안의 아티팩트 해시에 정확히 묶입니다. 승인되지 않았거나 손댄 제안은 결정론적 계산에 닿지 못합니다.",
     },
   ],
   [
     { en: "A hypothesis and its thresholds", ko: "가설과 임계값" },
     {
       en: "A versioned pattern with its gates, its thresholds and its abstention reasons declared before the run. The canonical result hash covers the engine version, the canonical events and the evaluation; the approved manifest and its approval records sit beside the result rather than inside that hash.",
-      ko: "버전이 붙은 패턴입니다. gate와 임계값, 판단 보류 사유를 실행 전에 선언합니다. 정본 결과 해시는 엔진 버전과 정본 이벤트, 평가를 덮습니다. 승인된 manifest와 그 승인 기록은 이 해시 안이 아니라 결과 옆에 놓입니다.",
+      ko: "버전이 붙은 패턴입니다. 판단 항목과 판단 기준, 판단 보류 사유를 실행 전에 선언합니다. 분석 결과 해시는 엔진 버전과 정리된 거래 기록, 평가를 포함합니다. 승인된 조사 범위와 그 승인 기록은 이 해시 안이 아니라 결과 옆에 놓입니다.",
     },
   ],
 ];
@@ -244,7 +244,7 @@ export const CONCLUSION_NOT_METHOD: Localized = {
 
 export const NO_UPSTREAM_INTEGRATION: Localized = {
   en: "No upstream integration is implemented. A replay request carries a committed scenario, its rows, the approvals and an optional authored manifest, and has no alert, referral or score field, so an alert reaches the gate today only as the executions and the scope a person submits.",
-  ko: "상류 연동은 구현돼 있지 않습니다. 리플레이 요청에는 커밋된 시나리오와 그 행, 승인, 그리고 선택적으로 직접 작성한 manifest가 담기고, 알림이나 통보, 스코어 필드는 없습니다. 그래서 지금 알림은 사람이 제출하는 체결 내역과 범위의 형태로만 이 단계에 도착합니다.",
+  ko: "상류 연동은 구현돼 있지 않습니다. 분석 실행 요청에는 커밋된 사례와 그 행, 승인, 그리고 선택적으로 직접 작성한 조사 범위가 담기고, 알림이나 통보, 스코어 필드는 없습니다. 그래서 지금 알림은 사람이 제출하는 체결 내역과 범위의 형태로만 이 단계에 도착합니다.",
 };
 
 export interface LayerAuthority {
@@ -260,22 +260,22 @@ export const layerAuthorities: readonly LayerAuthority[] = [
     name: { en: "L1 · Interpret", ko: "L1 · 해석" },
     may: {
       en: "Propose one target field and one allowlisted transform per source column, each with a confidence and the evidence behind it.",
-      ko: "소스 열마다 대상 필드 하나와 허용된 변환 하나를 제안합니다. 각각에 확신도와 근거가 붙습니다.",
+      ko: "원본 열마다 대상 항목 하나와 허용된 변환 하나를 제안합니다. 각각에 확신도와 근거가 붙습니다.",
     },
     mayNot: {
       en: "Edit a source row, compute a metric, or decide a result. Its output is untrusted until a contract and a person clear it.",
-      ko: "소스 행을 고치거나, 지표를 계산하거나, 결과를 정하지 못합니다. 계약과 사람이 통과시키기 전까지 그 출력은 신뢰하지 않습니다.",
+      ko: "원본 행을 고치거나, 지표를 계산하거나, 결과를 정하지 못합니다. 계약과 사람이 통과시키기 전까지 그 출력은 신뢰하지 않습니다.",
     },
     status: {
-      en: "A deterministic fixture is the default. Explicitly configured mapping for two synthetic dialects has mocked transport checks; a bounded case proposer is planned.",
-      ko: "기본값은 결정론적 fixture입니다. 합성 방언 두 개에 대해서는 설정을 명시한 매핑이 있고, 전송 검사는 아직 모킹입니다. 한정된 사례 제안기는 계획입니다.",
+      en: "The walkthrough runs a deterministic fixture proposal. A configured model can propose mappings through one adapter for eligible synthetic sources; routing to an escalation model and a bounded case proposer are planned.",
+      ko: "사례 따라가기는 결정론적 fixture 제안을 씁니다. 설정한 모델은 어댑터 하나로 허용된 합성 자료의 항목 연결을 제안할 수 있으며, 상위 모델로 넘기는 경로와 한정된 사례 제안기는 계획입니다.",
     },
   },
   {
     name: { en: "L2 · Approve", ko: "L2 · 승인" },
     may: {
       en: "Approve that exact proposal, bound to its artifact hash, and clear a flagged field with a justified override.",
-      ko: "그 제안을 아티팩트 해시에 묶어 그대로 승인하고, 표시된 필드는 사유를 적은 override로 통과시킵니다.",
+      ko: "그 제안을 아티팩트 해시에 묶어 그대로 승인하고, 표시된 항목은 확인 이유를 적어 통과시킵니다.",
     },
     mayNot: {
       en: "Edit a computed result, or widen the scope the approval fixed. Approval sets what runs, never what the run returns.",
@@ -286,22 +286,22 @@ export const layerAuthorities: readonly LayerAuthority[] = [
     name: { en: "L3 · Decide", ko: "L3 · 판정" },
     may: {
       en: "Order, deduplicate, compare exact decimals and evaluate the versioned rule across its declared gates. A gate that does not pass reports NOT_SUPPORTED, and declared inputs that are insufficient report INCONCLUSIVE; both are results.",
-      ko: "정렬하고, 중복을 거르고, 소수를 정확히 비교하고, 선언된 gate에 걸쳐 버전이 붙은 규칙을 평가합니다. 통과하지 못한 gate는 NOT_SUPPORTED를 내고, 선언된 입력이 부족하면 INCONCLUSIVE를 냅니다. 둘 다 결과입니다.",
+      ko: "정렬하고, 중복을 거르고, 소수를 정확히 비교하고, 선언된 판단 항목에 걸쳐 버전이 붙은 규칙을 평가합니다. 통과하지 못한 판단 항목이 있으면 NOT_SUPPORTED를 내고, 선언된 입력이 부족하면 INCONCLUSIVE를 냅니다. 둘 다 결과입니다.",
     },
     mayNot: {
       en: "Read anything outside the approved scope, or widen the scope it was given. It cannot return a review state as an outcome: a review state is a pre-replay validation or approval failure, never an engine verdict.",
-      ko: "승인된 범위 밖을 읽거나, 받은 범위를 넓히지 못합니다. 검토 상태를 결과로 돌려줄 수도 없습니다. 검토 상태는 리플레이 이전의 검증 실패나 승인 실패이지, 엔진의 판정이 아닙니다.",
+      ko: "승인된 범위 밖을 읽거나, 받은 범위를 넓히지 못합니다. 검토 상태를 결과로 돌려줄 수도 없습니다. 검토 상태는 분석 실행 이전의 검증 실패나 승인 실패이지, 엔진의 판정이 아닙니다.",
     },
   },
   {
     name: { en: "L4 · Evidence", ko: "L4 · 증거" },
     may: {
       en: "Resolve every finding to its canonical event identifiers, raw row hashes, artifact coordinates and unchanged source values.",
-      ko: "모든 발견을 정본 이벤트 식별자와 원본 행 해시, 아티팩트 좌표, 손대지 않은 원본 값까지 되짚습니다.",
+      ko: "모든 판단 근거를 정리된 거래 기록의 식별자와 원본 행 해시, 아티팩트 좌표, 손대지 않은 원본 값까지 되짚습니다.",
     },
     mayNot: {
       en: "Display a finding whose lineage cannot be resolved; that is refused. An INCONCLUSIVE result carries no finding evidence.",
-      ko: "계보를 되짚지 못하는 발견은 보여주지 않고 거부합니다. INCONCLUSIVE 결과에는 발견 증거가 없습니다.",
+      ko: "계보를 되짚지 못하는 판단 근거는 보여주지 않고 거부합니다. INCONCLUSIVE 결과에는 판단 근거가 없습니다.",
     },
     status: {
       en: "Byte-backed Evidence Bundle assembly and independent verification are implemented; browser export is planned.",
@@ -343,3 +343,158 @@ export const notClaimed: readonly Localized[] = [
     ko: "이 저장소 밖의 무엇인가를 말하는 문장에는 전부 출처가 붙거나, 이 프로젝트의 해석이라는 표시가 붙습니다. 표시가 붙은 문장은 이 프로젝트가 전제로 삼는 것이지, 공표된 사실이 아닙니다.",
   },
 ];
+
+/**
+ * The short line each section leads with. Each one restates the first point
+ * of its section, carrying the same citation or own-reading mark.
+ */
+export const sectionLines = {
+  upstream: {
+    text: {
+      en: "In 2026 the Financial Supervisory Service described AI that runs from detecting abnormal trading to a drafted review report in one pass.",
+      ko: "2026년 금융감독원은 이상거래 탐지부터 심리 보고서 초안까지 한 번에 잇는 AI 프로세스를 설명했습니다.",
+    },
+    source: "fss-surveillance-automation",
+  },
+  handover: {
+    text: {
+      en: "The financial-sector AI guideline keeps the final decision, and the responsibility for it, with the firm's own people.",
+      ko: "금융분야 AI 가이드라인은 최종 판단과 그 책임을 회사의 임직원에게 둡니다.",
+    },
+    source: "financial-ai-guideline",
+  },
+  addition: {
+    text: {
+      en: "One check before an alert becomes a judgement: a person fixes the scope, and versioned code re-derives the result from it.",
+      ko: "알림이 판단이 되기 전에 검증 하나를 둡니다. 사람이 범위를 정하고, 버전이 고정된 코드가 그 범위에서 결과를 다시 도출합니다.",
+    },
+    reasoning: true,
+  },
+} as const satisfies Record<string, Statement>;
+
+/** One line per declared input, in the order of `gateInputs`. */
+export const inputLines: readonly Localized[] = [
+  {
+    en: "The rows the alert's number rests on, checked against the committed rows.",
+    ko: "알림의 숫자가 딛고 선 행입니다. 커밋된 행과 대조합니다.",
+  },
+  {
+    en: "A mapping a person approved, bound to that exact proposal's hash.",
+    ko: "사람이 승인한 항목 연결입니다. 그 제안의 해시에 묶입니다.",
+  },
+  {
+    en: "A versioned pattern, with its thresholds and abstention declared before the run.",
+    ko: "버전이 고정된 패턴입니다. 판단 기준과 판단 보류를 실행 전에 선언합니다.",
+  },
+];
+
+/** One line per layer, in the order of `layerAuthorities`. */
+export const layerLines: readonly Localized[] = [
+  {
+    en: "Proposes a mapping. Never computes, edits a row or decides.",
+    ko: "항목 연결을 제안합니다. 계산하거나, 행을 고치거나, 판정하지 않습니다.",
+  },
+  {
+    en: "A person approves that exact proposal. Never edits a result.",
+    ko: "사람이 그 제안을 그대로 승인합니다. 결과는 고치지 않습니다.",
+  },
+  {
+    en: "Versioned code orders, computes and evaluates the approved scope.",
+    ko: "버전이 고정된 코드가 승인된 범위를 정렬하고 계산하고 평가합니다.",
+  },
+  {
+    en: "Resolves every finding to its canonical events and source rows.",
+    ko: "모든 판단 근거를 정리된 거래 기록과 원본 행까지 되짚습니다.",
+  },
+];
+
+interface WhyCopy {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly sections: Readonly<
+    Record<
+      | "upstream"
+      | "handover"
+      | "addition"
+      | "inputs"
+      | "layers"
+      | "notClaimed"
+      | "sources",
+      string
+    >
+  >;
+  readonly inputsLine: string;
+  readonly layersLine: string;
+  readonly notClaimedLine: string;
+  readonly diagramLabel: string;
+  readonly diagramAlt: string;
+  readonly diagramCaption: string;
+  readonly may: string;
+  readonly mayNot: string;
+  readonly enforced: string;
+  readonly sourcesLine: (mark: string) => string;
+  readonly next: string;
+}
+
+export const whyCopy: Bilingual<WhyCopy> = {
+  en: {
+    eyebrow: "Where it fits",
+    title: "AI finds the case. A person still answers for it.",
+    sections: {
+      upstream: "What detection already does",
+      handover: "What it leaves to a person",
+      addition: "What this adds",
+      inputs: "What the check needs",
+      layers: "Who may do what",
+      notClaimed: "What this page does not claim",
+      sources: "Sources",
+    },
+    inputsLine:
+      "Three declared inputs. Without all three no pattern is evaluated; with an approved mapping alone the rows are only ordered and hashed, with no pattern verdict.",
+    layersLine:
+      "Four layers, one authority each. Nothing reaches versioned code without a person's approval.",
+    notClaimedLine:
+      "No one named here is affiliated with this project, and a result is never a finding of guilt, cause or advice.",
+    diagramLabel: "Diagram: where the gate sits",
+    diagramAlt:
+      "Three bands top to bottom: an existing upstream pipeline carries order and trade data into an AI market surveillance process that detects, narrows and drafts, and emits an alert; beneath that output sits the gate, which asks for source executions, an approved review scope and a versioned hypothesis, runs four single-authority layers, and returns one of three results or a review state; beneath the gate an investigator reads the result and the rows behind it and decides what the case is",
+    diagramCaption:
+      "The upper band is not part of WeaveTrail. The gate reads what that band concluded, never how, and the decision stays in the lower band.",
+    may: "May.",
+    mayNot: "May not.",
+    enforced: "Enforced by contract on every replay request.",
+    sourcesLine: (mark) =>
+      `Every statement here about anything outside this repository carries one of these sources or the mark “${mark}”, which means a premise this project works from, not a published finding.`,
+    next: "See who does what in the architecture",
+  },
+  ko: {
+    eyebrow: "어디에 쓰이나",
+    title: "찾아내는 것은 AI가 합니다. 답은 사람이 해야 합니다.",
+    sections: {
+      upstream: "탐지가 이미 하는 일",
+      handover: "사람에게 남는 일",
+      addition: "이 프로젝트가 더하는 것",
+      inputs: "검증에 필요한 것",
+      layers: "누가 무엇을 할 수 있나",
+      notClaimed: "이 페이지가 주장하지 않는 것",
+      sources: "출처",
+    },
+    inputsLine:
+      "선언된 입력 세 가지가 필요합니다. 셋이 모두 없으면 패턴을 평가하지 않고, 항목 연결 승인만 있으면 행을 정렬하고 해시만 계산하며 패턴 결과는 내지 않습니다.",
+    layersLine:
+      "네 계층이 권한을 하나씩 가집니다. 사람의 승인 없이는 아무것도 버전이 고정된 코드에 닿지 않습니다.",
+    notClaimedLine:
+      "여기 이름이 나오는 누구와도 제휴 관계가 없으며, 결과는 유죄, 인과, 투자 조언이 아닙니다.",
+    diagramLabel: "다이어그램: 이 단계가 놓이는 자리",
+    diagramAlt:
+      "위에서 아래로 띠 세 개. 맨 위는 이미 돌아가는 상류 파이프라인입니다. 주문과 체결 데이터가 AI 시장감시 프로세스로 들어가 탐지, 구간 좁히기, 보고서 초안 작성을 거쳐 알림으로 나옵니다. 그 아래에 이 단계가 놓입니다. 이 단계가 요구하는 것은 셋입니다. 원본 체결 내역, 승인된 검토 범위, 그리고 버전이 붙은 가설입니다. 네 계층을 차례로 거치며 계층마다 권한은 하나씩입니다. 그런 다음 세 결과 가운데 하나, 또는 검토 상태를 돌려줍니다. 맨 아래에서 조사자가 결과와 그 뒤의 행을 읽고 사건을 판단합니다",
+    diagramCaption:
+      "맨 위 띠는 이 프로젝트의 범위 밖입니다. 그 띠의 결론만 읽고 방법은 읽지 않으며, 최종 판단은 맨 아래 사람에게 남깁니다.",
+    may: "할 수 있는 일.",
+    mayNot: "할 수 없는 일.",
+    enforced: "모든 분석 실행 요청에서 계약으로 강제합니다.",
+    sourcesLine: (mark) =>
+      `저장소 밖의 사실에는 아래 출처를 붙였습니다. “${mark}” 표시는 공표된 사실이 아닌, 이 프로젝트가 전제로 삼는 해석입니다.`,
+    next: "아키텍처에서 누가 무엇을 하는지 보기",
+  },
+};

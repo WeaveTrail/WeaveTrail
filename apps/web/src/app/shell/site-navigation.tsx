@@ -4,75 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useId, useRef, useState } from "react";
 
-import { useCopy, type Language } from "./i18n/language";
-
-/** A destination: its label, its route and, for the menu, one line on it. */
-type NavigationItem = readonly [label: string, href: string, note: string];
-type NavigationGroup = readonly [string, readonly NavigationItem[]];
-type NavigationGroups = readonly [NavigationGroup, NavigationGroup];
-
-/**
- * Two groups. The first holds what a visitor comes to do and sits in the bar;
- * the second explains how it works and opens from one menu (ADR 0074).
- */
-export const navigationCopy: Readonly<Record<Language, NavigationGroups>> = {
-  en: [
-    [
-      "Explore",
-      [
-        ["Home", "/", "The question and the answer"],
-        ["Model comparison", "/evals", "Every candidate on the held-out set"],
-        ["Walk through a case", "/replay", "One case, proposal to source row"],
-      ],
-    ],
-    [
-      "How it works",
-      [
-        ["Where it fits", "/why", "The setting the question comes from"],
-        ["Architecture", "/architecture", "Packages, boundaries and data flow"],
-        ["Methodology", "/methodology", "How a result is computed and hashed"],
-        [
-          "Expected results",
-          "/expectations",
-          "What each committed scenario returns",
-        ],
-        ["Data handling", "/data-handling", "What is stored and what never is"],
-      ],
-    ],
-  ],
-  ko: [
-    [
-      "둘러보기",
-      [
-        ["홈", "/", "질문과 답"],
-        ["모델 비교", "/evals", "보관 평가 집합의 모든 후보"],
-        ["사례 따라가기", "/replay", "제안에서 원본 행까지, 사례 하나"],
-      ],
-    ],
-    [
-      "작동 방식",
-      [
-        ["어디에 쓰이나", "/why", "이 질문이 나온 맥락"],
-        ["아키텍처", "/architecture", "패키지, 경계, 데이터 흐름"],
-        ["방법론", "/methodology", "결과를 계산하고 해시하는 방법"],
-        ["기대 결과", "/expectations", "커밋된 시나리오마다 나오는 결과"],
-        ["데이터 처리", "/data-handling", "저장하는 것과 저장하지 않는 것"],
-      ],
-    ],
-  ],
-};
-
-const menuCopy: Readonly<Record<Language, { menu: string; close: string }>> = {
-  en: { menu: "Menu", close: "Close menu" },
-  ko: { menu: "메뉴", close: "메뉴 닫기" },
-};
+import { useCopy } from "../i18n/language";
+import { shellCopy } from "./copy";
 
 type MenuKind = "more" | "all";
 
 export function SiteNavigation() {
   const pathname = usePathname();
-  const navigationGroups = useCopy(navigationCopy);
-  const menu = useCopy(menuCopy);
+  const text = useCopy(shellCopy);
+  const navigationGroups = text.navigation;
   // The menu belongs to the page it was opened on. Moving to another page,
   // by a link or by history, clears it during render, so returning to that
   // page later does not reopen it.
@@ -121,7 +61,7 @@ export function SiteNavigation() {
   }, [open]);
 
   return (
-    <nav aria-label="Primary navigation" className="site-nav" ref={root}>
+    <nav aria-label={text.navigationLabel} className="site-nav" ref={root}>
       <ul className="site-nav-bar">
         {primary.map(([label, href]) => (
           <li key={href}>
@@ -148,12 +88,12 @@ export function SiteNavigation() {
         <button
           aria-controls={panelId}
           aria-expanded={open === "all"}
-          aria-label={open === "all" ? menu.close : menu.menu}
+          aria-label={open === "all" ? text.closeMenu : text.menu}
           className="site-nav-trigger site-nav-menu-button"
           onClick={() => toggle("all")}
           type="button"
         >
-          {menu.menu}
+          {text.menu}
         </button>
         <div className="site-nav-panel" hidden={open === null} id={panelId}>
           {navigationGroups.map(([group, items], index) => (

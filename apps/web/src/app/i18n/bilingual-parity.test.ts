@@ -1,16 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { LANGUAGES, type Language } from "./language";
-import { chromeCopy } from "./chrome-text";
-import { homeCopy } from "../home-content";
-import { navigationCopy } from "../site-navigation";
-import { architectureCopy } from "../architecture/architecture-content";
-import { whyCopy } from "../why/why-view";
-import { guideStepsByLanguage, guideUi } from "../replay/case-replay";
-import { methodologyCopy } from "../methodology/methodology-content";
-import { dataHandlingCopy } from "../data-handling/data-handling-content";
-import { evidenceGradeCopy } from "../evidence-grade";
-import { checks } from "../evals/page";
+import { checks } from "../evals/checks";
+import { ledgerCopy } from "../evals/copy";
 import { howItWorksSvg } from "../architecture/how-it-works-diagram";
 import {
   CONCLUSION_NOT_METHOD,
@@ -22,22 +13,60 @@ import {
   diagramAttribution,
   gateInputs,
   handoverStatements,
+  inputLines,
   layerAuthorities,
+  layerLines,
   lede,
   notClaimed,
+  sectionLines,
   sources,
   upstreamStatements,
-} from "../why/why-content";
+} from "../why/copy";
+import { architectureCopy } from "../architecture/copy";
+import { shellCopy } from "../shell/copy";
+import { guideStepsByLanguage } from "../replay/steps";
+import { LANGUAGES, type Language } from "./language";
 
 /**
  * Each language writes its own voice copy, so the two surfaces cannot be
- * diffed line by line any more. What still has to hold is that they carry the
- * same claims: the same capabilities, the same limits, the same disclosures,
- * and one spelling for contract vocabulary.
+ * diffed line by line. What still has to hold is that they carry the same
+ * claims: the same capabilities, the same limits, the same disclosures, and
+ * one spelling for contract vocabulary.
  *
- * These checks are structural, because structure is what a translation can
- * silently drop — a role card, a layer, a chain entry, a "planned" marker.
+ * The checks are structural, because structure is what a translation can
+ * silently drop — a section, a layer, a chain entry, a "planned" marker. They
+ * run over every bilingual table the copy modules export, found here rather
+ * than listed, so a new table cannot be left out.
  */
+
+type Surface = Readonly<Record<Language, unknown>>;
+
+const isBilingual = (value: unknown): value is Surface =>
+  value !== null &&
+  typeof value === "object" &&
+  Object.keys(value).sort().join() === [...LANGUAGES].sort().join();
+
+const modules = {
+  ...import.meta.glob("../**/*copy.ts", { eager: true }),
+  ...import.meta.glob("../replay/steps/*.ts", { eager: true }),
+} as Record<string, Record<string, unknown>>;
+
+/** Every bilingual table exported by a copy module or a guided step. */
+const surfaces: readonly (readonly [string, Surface])[] = Object.entries(
+  modules,
+).flatMap(([path, exports]) =>
+  Object.entries(exports).flatMap(([name, value]) => {
+    if (isBilingual(value)) return [[`${path} ${name}`, value] as const];
+    if (value && typeof value === "object" && "narration" in value)
+      return Object.entries(value)
+        .filter(([, part]) => isBilingual(part))
+        .map(
+          ([part, table]) =>
+            [`${path} ${name}.${part}`, table as Surface] as const,
+        );
+    return [];
+  }),
+);
 
 /** Describes a copy value by shape alone, ignoring every word in it. */
 function shapeOf(value: unknown): unknown {
@@ -62,53 +91,7 @@ function stringsIn(value: unknown): string[] {
   return [];
 }
 
-const surfaces: readonly (readonly [
-  string,
-  Readonly<Record<Language, unknown>>,
-])[] = [
-  ["chrome", chromeCopy],
-  ["home", homeCopy],
-  ["navigation", navigationCopy],
-  ["architecture", architectureCopy],
-  ["why", whyCopy],
-  ["guide UI", guideUi],
-  ["guide steps", guideStepsByLanguage],
-  ["methodology", methodologyCopy],
-  ["data handling", dataHandlingCopy],
-  ["evidence grades", evidenceGradeCopy],
-];
-
-const koreanEvaluationCheckNames = [
-  "행 순서 불변성",
-  "리터럴 골든 해시",
-  "완전히 같은 중복 행 허용",
-  "식별자 충돌 거부",
-  "시각 형식 동등성",
-  "밀리초 미만 순서",
-  "로캘과 무관한 순서",
-  "변동 메타데이터 제외",
-  "혼합 sequence 정책",
-  "방언 수렴",
-  "데이터셋 프로파일 결정성",
-  "매핑 승인 결속",
-  "레코드 집합 완전성",
-  "매핑 일치 보고",
-  "도달 가능한 매핑 검토",
-  "사례 분류",
-  "증거 완전성",
-  "버전별 픽스처 평가",
-  "독립 자료의 제공자 정확도",
-];
-
 /** The `why` argument, whose statements are localized one string at a time. */
-const whyStatements = [
-  lede,
-  diagramAttribution,
-  ...upstreamStatements,
-  ...handoverStatements,
-  ...additionStatements,
-];
-
 const whyLocalized = [
   POSITION,
   CONCLUSION_NOT_METHOD,
@@ -116,7 +99,16 @@ const whyLocalized = [
   NON_AFFILIATION,
   OWN_REASONING_MARK,
   ...notClaimed,
-  ...whyStatements.map((statement) => statement.text),
+  ...inputLines,
+  ...layerLines,
+  ...[
+    lede,
+    diagramAttribution,
+    ...Object.values(sectionLines),
+    ...upstreamStatements,
+    ...handoverStatements,
+    ...additionStatements,
+  ].map((statement) => statement.text),
   ...gateInputs.flat(),
   ...layerAuthorities.flatMap((layer) => [
     layer.name,
@@ -131,10 +123,36 @@ const whyLocalized = [
   ]),
 ];
 
+/** Strings that keep one spelling in both languages on purpose. */
+const SHARED = new Set([
+  // The guide's actor discriminants stay in English by design.
+  "Committed input",
+  "A model proposed it",
+  "A person approved it",
+  "Versioned code decided it",
+  // The capture platform is named as the tools name it.
+  "Linux WSL2 x86_64",
+]);
+
 describe("the two languages carry the same claims", () => {
-  it("holds a copy table for every language", () => {
-    for (const [name, surface] of surfaces)
-      expect(Object.keys(surface).sort(), name).toEqual([...LANGUAGES].sort());
+  it("finds the copy tables", () => {
+    const names = surfaces.map(([name]) => name).join("\n");
+    for (const expected of [
+      "shellCopy",
+      "homeCopy",
+      "replayCopy",
+      "mappingStep.narration",
+      "mappingStep.panel",
+      "whyCopy",
+      "architectureCopy",
+      "methodologyCopy",
+      "dataHandlingCopy",
+      "expectationsCopy",
+      "ledgerCopy",
+      "modelComparisonCopy",
+      "explainerCopy",
+    ])
+      expect(names).toContain(expected);
   });
 
   it("keeps every surface the same shape in both languages", () => {
@@ -148,8 +166,6 @@ describe("the two languages carry the same claims", () => {
   });
 
   it("leaves a string blank in one language only when it is blank in both", () => {
-    // The guide keeps a blank blocker for the steps that have none, so blank
-    // is a value here. What would be a bug is a blank on one side only.
     for (const [name, surface] of surfaces) {
       const en = stringsIn(surface.en);
       const ko = stringsIn(surface.ko);
@@ -184,30 +200,38 @@ describe("the two languages carry the same claims", () => {
         ].join("\n"),
       ]),
     ) as Record<Language, string>;
-
     for (const identifier of identifiers) {
       const carriers = LANGUAGES.filter((language) =>
         rendered[language].includes(identifier),
       );
-      // Either both surfaces name it or neither does; a translated identifier
-      // would show up as one carrier.
+      // Either both name it or neither does; a translated identifier would
+      // show up as one carrier.
       expect(carriers.length, identifier).not.toBe(1);
     }
   });
 
+  it("uses the fixed Korean product vocabulary", () => {
+    // `분석 실행` runs the replay and `직접 조작` is working mode; the
+    // retired words never reach a Korean screen.
+    const korean = [
+      ...surfaces.flatMap(([, surface]) => stringsIn(surface.ko)),
+      ...whyLocalized.map((value) => value.ko),
+    ].join("\n");
+    for (const retired of ["리플레이", "워킹 모드"])
+      expect(korean, retired).not.toContain(retired);
+  });
+
   it("marks planned components as planned in both languages", () => {
-    // Neither language may present a planned component as working.
     const planned: Readonly<Record<Language, RegExp>> = {
       en: /\bplanned\b/i,
       ko: /계획/,
     };
     for (const language of LANGUAGES) {
-      const architecture = stringsIn(architectureCopy[language]).join("\n");
-      expect(planned[language].test(architecture), language).toBe(true);
-      expect(
-        planned[language].test(stringsIn(chromeCopy[language]).join("\n")),
-        language,
-      ).toBe(true);
+      for (const surface of [architectureCopy, shellCopy])
+        expect(
+          planned[language].test(stringsIn(surface[language]).join("\n")),
+          language,
+        ).toBe(true);
     }
     for (const layer of layerAuthorities)
       if (layer.status)
@@ -219,11 +243,8 @@ describe("the two languages carry the same claims", () => {
   });
 
   it("states fixture mode and the source kind on every page, in both languages", () => {
-    // The header context line and the home status strip are gone; the footer
-    // is where these disclosures now reach every page, so both languages have
-    // to carry them there.
     for (const language of LANGUAGES) {
-      const footer = chromeCopy[language].footerStatus;
+      const footer = shellCopy[language].footerStatus;
       expect(footer.toLowerCase(), language).toContain("fixture");
       expect(
         /synthetic|합성/.test(footer) && !/quote|시세/.test(footer),
@@ -233,39 +254,34 @@ describe("the two languages carry the same claims", () => {
   });
 
   it("writes Korean rather than repeating the English string", () => {
-    // Voice copy and prose are written in each language. A Korean value equal
-    // to its English one is an untranslated string, not a decision.
     for (const [name, surface] of surfaces) {
       const en = stringsIn(surface.en);
       const ko = stringsIn(surface.ko);
       expect(ko.length, name).toBe(en.length);
-      // A repeated multi-word English phrase is an untranslated string. Single
-      // tokens are product names, contract identifiers and machine values,
-      // which carry one spelling on purpose.
+      // A repeated multi-word English phrase is an untranslated string.
+      // Single tokens are product names, contract identifiers and machine
+      // values, which carry one spelling on purpose.
       const shared = en.filter(
         (value, index) =>
           value === ko[index] && /[A-Za-z]{4,}\s+\S/.test(value),
       );
-      // The guide's actor discriminants stay in English by design; nothing
-      // else may.
       for (const value of shared)
-        expect(
-          [
-            "Committed input",
-            "A model proposed it",
-            "A person approved it",
-            "Versioned code decided it",
-          ],
-          `${name}: ${value}`,
-        ).toContain(value);
+        expect(SHARED.has(value), `${name}: ${value}`).toBe(true);
     }
     for (const value of whyLocalized)
       expect(value.ko, value.en).not.toBe(value.en);
   });
 
+  it("names the walkthrough's steps in both languages", () => {
+    expect(guideStepsByLanguage.ko).toHaveLength(
+      guideStepsByLanguage.en.length,
+    );
+  });
+
   it("keeps a Korean name for every evaluation check", () => {
-    expect(koreanEvaluationCheckNames).toHaveLength(checks.length);
-    for (const name of koreanEvaluationCheckNames)
-      expect(/[가-힣]/.test(name), name).toBe(true);
+    for (const check of checks) {
+      const [name] = ledgerCopy.ko.checks[check.name];
+      expect(/[가-힣]/.test(name), check.name).toBe(true);
+    }
   });
 });

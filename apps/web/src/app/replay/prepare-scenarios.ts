@@ -4,7 +4,7 @@ import {
   reviewerFacingReplaySources,
 } from "../../lib/replay-sources";
 import type { SchemaMappingProposal } from "@weavetrail/contracts";
-import type { ReplayScenarioOption } from "./case-replay";
+import type { ReplayScenarioOption } from "./types";
 import { mappingRequestRequired } from "../../lib/mapping-provider";
 
 // Both modes receive the same server-prepared artifacts, never fixture approvals.

@@ -6,7 +6,7 @@ import { sourceRevision } from "./source-revision";
 export const metadata: Metadata = {
   title: "Data handling",
   description:
-    "What a check sends, keeps and logs, with the source files and tests that enforce each statement.",
+    "What the site sends, keeps and logs, with the code and tests that enforce each statement.",
   alternates: { canonical: "/data-handling" },
 };
 

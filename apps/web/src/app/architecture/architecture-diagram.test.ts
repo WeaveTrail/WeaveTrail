@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import ArchitecturePage from "./page";
 import { LANGUAGES } from "../i18n/language";
 import { howItWorksSvg } from "./how-it-works-diagram";
+import { shellCopy } from "../shell/copy";
 
 const read = (path: string) => readFileSync(resolve(process.cwd(), path));
 
@@ -71,9 +72,9 @@ describe("architecture layer diagram", () => {
   it("marks the trust boundary, the hash coverage and the end of a model's authority", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
     for (const mark of [
-      "Where a model&#x27;s authority ends.",
-      "The trust boundary.",
-      "What the canonical hash covers.",
+      "Where a model&#x27;s authority ends",
+      "The trust boundary",
+      "What the canonical hash covers",
     ])
       expect(markup).toContain(mark);
     expect(markup).toContain('href="#canonical-hash"');
@@ -93,24 +94,19 @@ describe("architecture layer diagram", () => {
     );
   });
 
-  it("groups the primary navigation by investigation stage", () => {
-    const navigation = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
-    const order = [
-      "Explore",
-      "/",
-      "/evals",
-      "/replay",
-      "How it works",
-      "/architecture",
-    ];
-    let cursor = -1;
-    for (const token of order) {
-      const next = navigation.indexOf(`"${token}"`, cursor + 1);
-      expect(next, token).toBeGreaterThan(cursor);
-      cursor = next;
+  it("groups the primary navigation by what a visitor does, then how it works", () => {
+    for (const { navigation } of Object.values(shellCopy)) {
+      const [[, explore], [, howItWorks]] = navigation;
+      expect(explore.map(([, href]) => href)).toEqual([
+        "/",
+        "/evals",
+        "/replay",
+      ]);
+      expect(howItWorks.map(([, href]) => href)).toContain("/architecture");
     }
+    expect(shellCopy.en.navigation.map(([group]) => group)).toEqual([
+      "Explore",
+      "How it works",
+    ]);
   });
 });

@@ -3,9 +3,9 @@ import React from "react";
 import { MethodologyContent } from "./methodology-content";
 
 export const metadata: Metadata = {
-  title: "Methodology and Boundaries",
+  title: "Methodology",
   description:
-    "Understand WeaveTrail's versioned pattern hypothesis, closed result vocabulary, approval boundary, and interpretation limits.",
+    "The three results a replay can return, the review stop before anything runs, and what a result does not mean.",
   alternates: { canonical: "/methodology" },
 };
 

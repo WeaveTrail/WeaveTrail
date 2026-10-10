@@ -1,0 +1,343 @@
+/* ───────────────────────── Home ───────────────────────── */
+
+/* The first screen: what the site is and the walkthrough on the left, the AI
+   question and its answer on the right, the four stages in one row below. */
+.home-hero {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-8) var(--space-12);
+}
+.home-answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 1fr);
+  gap: var(--space-10);
+  align-items: start;
+}
+.home-intro {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding-top: var(--space-2);
+}
+.home-intro h1 {
+  font: var(--type-display);
+  font-size: clamp(var(--font-size-30), 3.4vw, var(--font-size-38));
+  letter-spacing: var(--tracking-tight);
+}
+.home-lede {
+  max-width: 36rem;
+  font: var(--type-body-lg);
+  color: var(--text-body);
+}
+.home-intro .hero-actions {
+  margin-top: var(--space-2);
+}
+.home-intro .hero-actions .button {
+  min-height: 44px;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-16);
+}
+.home-walk-meta {
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+.home-ai {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--surface-brand), var(--white) 70%);
+  box-shadow: var(--shadow-2);
+}
+.home-ai h2 {
+  font: var(--type-section);
+  letter-spacing: var(--tracking-tight);
+}
+.home-answer-sentence {
+  font: var(--type-body);
+  color: var(--text-strong);
+}
+.home-control {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  font: var(--type-small);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+.home-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+}
+.home-facts dt {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.home-run {
+  font: var(--type-label);
+}
+/* A term reads as part of its sentence and opens its explanation. */
+.home-term {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--brand-500);
+  text-underline-offset: 0.22em;
+  cursor: help;
+}
+.home-term:hover {
+  color: var(--brand-700);
+}
+.home-term-note {
+  width: min(28rem, calc(100% - 32px));
+  padding: var(--space-5);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-overlay);
+}
+.home-term-note::backdrop {
+  background: rgb(14 23 22 / 12%);
+}
+.home-term-note p {
+  margin-block: var(--space-2) var(--space-4);
+  color: var(--text-body);
+}
+
+.home-flow {
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+}
+.home-flow figcaption {
+  margin-bottom: var(--space-3);
+}
+.home-flow ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-flow li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+.home-flow-index {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--authorship-code);
+  border-radius: 50%;
+  background: var(--authorship-code-bg);
+  color: var(--authorship-code);
+  font: 600 13px/1 var(--font-mono);
+}
+.home-flow li[data-stage="propose"] .home-flow-index {
+  border: 2px dashed var(--authorship-ai);
+  background: var(--authorship-ai-bg);
+  color: var(--authorship-ai);
+}
+.home-flow li[data-stage="approve"] .home-flow-index {
+  border-color: var(--authorship-human);
+  background: var(--authorship-human-bg);
+  color: var(--authorship-human);
+}
+.home-flow h3 {
+  margin-top: 4px;
+  font: var(--type-subhead);
+}
+.home-flow li p {
+  margin-top: 2px;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.home-flow-stop {
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-proposal);
+  border-radius: var(--radius-md);
+  background: var(--state-review-bg);
+  color: var(--state-review);
+  font: var(--type-small);
+}
+.home-flow-state {
+  margin-right: var(--space-2);
+  font: 600 12px/1.3 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.home-band {
+  padding-block: var(--space-16);
+  background: var(--surface-subtle);
+  border-block: var(--hairline);
+}
+.home-reasons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: reason;
+}
+.home-reasons li {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+  counter-increment: reason;
+}
+.home-reasons li::before {
+  content: counter(reason);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font: 600 13px/1 var(--font-mono);
+}
+.home-reasons h3 {
+  font: var(--type-subhead);
+}
+.home-reasons p {
+  color: var(--text-muted);
+}
+.home-board {
+  padding-block: var(--space-12) var(--space-16);
+}
+.home-board > .eyebrow {
+  margin-bottom: var(--space-5);
+}
+.home-board-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-8);
+}
+.home-board-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.home-board-label::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--brand-600);
+}
+.home-board-label[data-status="planned"]::before {
+  background: transparent;
+  border: 2px dashed var(--state-planned);
+}
+.home-board-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-board-list li {
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+/* Each running capability is one row that is itself the link: what it is on
+   the left, the one fact that matters on the right, an arrow to go. */
+.home-board-list a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: inherit;
+  color: var(--text-strong);
+  text-decoration: none;
+}
+.home-board-list a:hover {
+  background: var(--surface-subtle);
+}
+.home-board-list a strong::after {
+  content: " →";
+  color: var(--brand-700);
+}
+.home-board-list a span {
+  font: var(--type-caption);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.home-board-list li[data-status="planned"] {
+  padding: var(--space-3) var(--space-4);
+  border-style: dashed;
+  background: var(--surface-subtle);
+}
+.home-board-list li[data-status="planned"] strong {
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+.home-boundary {
+  max-width: var(--prose-max);
+  margin-top: var(--space-10);
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+@media (max-width: 64rem) {
+  .home-answer,
+  .home-board-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+  .home-flow ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-reasons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 40rem) {
+  .home-hero {
+    padding-block: var(--space-5) var(--space-10);
+  }
+  .home-intro h1 {
+    font-size: var(--font-size-24);
+  }
+  .home-lede {
+    font: var(--type-body);
+  }
+  .home-ai {
+    padding: var(--space-4);
+  }
+  .home-ai h2 {
+    font: var(--type-subhead);
+  }
+  .home-flow ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-band,
+  .home-board {
+    padding-block: var(--space-10);
+  }
+}

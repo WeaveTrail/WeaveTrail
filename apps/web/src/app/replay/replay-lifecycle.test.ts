@@ -1,4 +1,3 @@
-import { syntheticDailyQuoteSpecimen } from "../../../../../packages/replay-engine/src/testing/daily-quotes";
 import {
   isValidElement,
   type ComponentProps,
@@ -7,15 +6,13 @@ import {
 } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
-import {
-  CaseReplay,
-  ApprovalReceipt,
-  guideSteps,
-  mappingApprovalCoverage,
-  RapidPriceLiftEvaluation,
-  DailyQuoteCaseLimitation,
-  type ReplayScenarioOption,
-} from "./case-replay";
+import { flaggedMappingFields } from "./approval";
+import { ApprovalReceipt } from "./approval-receipt";
+import { CaseReplay } from "./case-replay";
+import { RapidPriceLiftEvaluation } from "./findings";
+import { guideSteps } from "./steps";
+import { mappingStep } from "./steps/mapping";
+import type { ReplayScenarioOption } from "./types";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import * as rowShuffle from "./shuffle-source-rows";
 import type { ApprovalRecord, ReplayRequest } from "@weavetrail/contracts";
@@ -570,29 +567,22 @@ async function finishGuidedAfterRepeat(guide: ReturnType<typeof setup>) {
 }
 
 describe("replay result lifecycle", () => {
-  it("clears a synthetic verdict, requires daily reasons, normalizes without a case and returns to the guide unapproved", async () => {
+  it("clears a synthetic verdict, requires review reasons, normalizes without a case and returns to the guide unapproved", async () => {
     const prepared = await prepareReplayScenarios();
-    const dailyKey = "concentrated-buy-dialect-a.csv";
-    const specimen = syntheticDailyQuoteSpecimen();
-    const daily = {
-      value: "concentrated-buy-dialect-a.csv" as const,
-      label: "Synthetic daily specimen",
-      purpose: "ENGINE_REGRESSION" as const,
-      sourceArtifactHash: specimen.proposal.sourceArtifactHash,
-      rows: specimen.rows,
-      availableMutations: ["baseline", "shuffle"] as const,
-    };
-    const scenarios = [
-      prepared.scenarios.find(({ value }) => value === first)!,
-      daily,
-    ];
+    const normalizeKey = "published-execution-h0stcnt0.jsonl";
+    const normalizing = prepared.scenarios.find(
+      ({ value }) => value === normalizeKey,
+    )!;
+    expect(normalizing.manifest).toBeUndefined();
+    const proposal = prepared.proposals[normalizing.sourceArtifactHash]!;
+    const flagged = flaggedMappingFields(proposal);
+    expect(flagged.length).toBeGreaterThan(0);
     const ui = setup({
       ...prepared,
-      scenarios,
-      proposals: {
-        ...prepared.proposals,
-        [daily.sourceArtifactHash]: specimen.proposal,
-      },
+      scenarios: [
+        prepared.scenarios.find(({ value }) => value === first)!,
+        normalizing,
+      ],
     });
     const requests: ReplayRequest[] = [];
     vi.stubGlobal(
@@ -603,18 +593,18 @@ describe("replay result lifecycle", () => {
         if (body.scenario === first) return ok();
         const replay = replayApproved(
           body.rows,
-          specimen.rows,
-          specimen.proposal,
+          normalizing.rows,
+          proposal,
           body.mappingApproval,
           body.caseManifest,
         );
         if (!("canonicalResultHash" in replay))
-          throw new Error("Expected daily normalization");
+          throw new Error("Expected normalization");
         const { events: _, ...foundation } = replay;
         void _;
         return Response.json({
           mode: "fixture",
-          scenario: dailyKey,
+          scenario: normalizeKey,
           mutation: "baseline",
           workflowState: "MAPPING_APPROVED",
           boundary: "Foundation normalization",
@@ -625,39 +615,33 @@ describe("replay result lifecycle", () => {
     await ui.approve();
     await ui.button("Run deterministic replay");
     expect(ui.evidence()).toHaveLength(1);
-    ui.changeScenario(dailyKey);
+    ui.changeScenario(normalizeKey);
     expect(ui.evidence()).toHaveLength(0);
     expect(
       ui.render().filter((element) => element.type === ApprovalReceipt),
     ).toHaveLength(0);
     expect(ui.buttonDisabled("Normalize source")).toBe(true);
     expect(ui.buttonDisabled("Approve executed mapping")).toBe(true);
-    for (const column of ["date", "close", "volume"]) {
+    for (const { label } of flagged)
       ui
         .render()
         .find(
           (element) =>
-            element.props["aria-label"] === `Reviewer reason for ${column}`,
+            element.props["aria-label"] === `Reviewer reason for ${label}`,
         )!.props.onChange!({
-        target: {
-          value: `Accept the declared synthetic daily ${column} interpretation.`,
-        },
+        target: { value: `Reviewed ${label} as declared.` },
       });
-    }
     await ui.button("Approve executed mapping");
     expect(ui.buttonDisabled("Normalize source")).toBe(false);
     await ui.button("Normalize source");
     expect(requests.at(-1)).not.toHaveProperty("caseManifest");
-    expect(requests.at(-1)!.mappingApproval!.overrides).toHaveLength(3);
+    expect(requests.at(-1)!.mappingApproval!.overrides).toHaveLength(
+      flagged.length,
+    );
     expect(ui.evidence()).toHaveLength(0);
     expect(ui.hasText("Mapping and normalization only.")).toBe(true);
-    const limitation = ui
-      .render()
-      .find((element) => element.type === DailyQuoteCaseLimitation)!;
-    expect(
-      (limitation.props as ComponentProps<typeof DailyQuoteCaseLimitation>)
-        .normalized,
-    ).toBe(true);
+    // A source without a case offers no case approval at all.
+    expect(ui.hasText("Approve case manifest")).toBe(false);
     ui.changeScenario(first);
     ui.setGuided(true);
     expect(ui.evidence()).toHaveLength(0);
@@ -684,7 +668,7 @@ describe("replay result lifecycle", () => {
       );
     // The mapping receipt leads with what it covers; the case receipt does not.
     expect(receipts.map(({ coverage }) => coverage)).toEqual([
-      mappingApprovalCoverage.en,
+      mappingStep.panel.en.coverage,
       undefined,
     ]);
     await ui.button("Run deterministic replay");
