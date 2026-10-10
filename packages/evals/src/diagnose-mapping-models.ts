@@ -9,12 +9,18 @@ import {
 import { dialectMappingInput } from "./schema-dialects-v2";
 import { CorpusSchema } from "./mapping-scorer";
 import { diagnosticTransport } from "./provider-diagnostics";
-import { root } from "./held-out-protocol";
+import {
+  declaredCandidates,
+  isDeclaredGrid,
+  protocolStack,
+  root,
+} from "./held-out-protocol";
 import { loadDevGateCorpus } from "./dev-gate";
 
 /**
  * One DEV request per configured candidate. By default it probes the first
- * sealed v4 DEV dialect with the ADR 0075 stack (gate 3); `--legacy-store`
+ * sealed v4 DEV dialect with protocol 3's stack (ADR 0075 gate 3), and only
+ * for exactly its declared candidates on the fixed endpoint; `--legacy-store`
  * reproduces the removed request parameter on v2 DEV with the ADR 0069 stack.
  * Only each candidate's HTTP status and closed outcome are printed and written.
  */
@@ -28,6 +34,9 @@ async function main() {
   )
     throw new Error("Arguments");
   const legacy = args.includes("--legacy-store");
+  const models = readEvaluationModels(process.env);
+  if (!legacy && !isDeclaredGrid(models, declaredCandidates(3)))
+    throw new Error("Declared single-provider grid required");
   const { corpus, sha256 } = legacy
     ? {
         corpus: CorpusSchema.parse(
@@ -61,10 +70,10 @@ async function main() {
           }
         : options,
     );
-  const stack = legacy ? "adr-0069" : "adr-0075";
+  const stack = legacy ? "adr-0069" : protocolStack(3);
   const probedAt = new Date().toISOString();
   const results = [];
-  for (const model of readEvaluationModels(process.env)) {
+  for (const model of models) {
     const attempt = await new ConfiguredSchemaMappingProvider(
       model,
       probe,

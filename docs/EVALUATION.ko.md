@@ -871,22 +871,23 @@ ADR 0069의 `NO_MODEL` 뒤에 선택을 한 번 더 시도하는 조건을 고�
 커밋된 v3 기록과 정답에서 분류한 실패 유형에서 도출했으며, v3 점수에서 도출한 것은
 없습니다. v3는 선택에 다시 쓰지 않습니다. 임계값·정의·동점 처리 규칙은 그대로이며,
 자격 조건에 0이어야 하는 조건 하나만 더합니다. 이 시도가 새 결정을 커밋하기 전까지
-사이트는 ADR 0069의 결정을 계속 보여 줍니다.
+사이트는 ADR 0069의 결정을 계속 보여 줍니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
+개정 1판과 2판을 반영한 프로토콜 3의 스택 `adr-0075-r2`를 보여 줍니다.
 
-| 입력        | ADR 0069                                         | ADR 0075                                                                                       |
-| ----------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| 후보        | `gemini-2.5-pro`를 포함한 다섯 개                | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview` |
-| 프롬프트    | `schema-mapping/1`                               | `schema-mapping/2`: 1판 문장 전부와 규칙 세 개([F-006, F-007](AI_FAILURE_LOG.ko.md))           |
-| 출력 스키마 | `mapping-fields/1`, 헤더로 지정한 `sourceColumn` | `mapping-fields/2`, 불투명 ID로 지정한 `columnId`                                              |
-| 어댑터      | `openai-compatible-mapping/2`                    | `openai-compatible-mapping/3`                                                                  |
-| 검증기      | `mapping-validator/2`                            | `mapping-validator/3`: ID를 해석한 뒤 2판 검사 전부                                            |
-| 실행 기록   | `mapping-run/1`                                  | `mapping-run/2`: 반환된 `columnId`와 그로부터 투영한 헤더                                      |
-| 채점기      | `mapping-score/1`                                | `mapping-score/2`: 같은 집계에 `unflaggedNoTarget` 추가                                        |
-| 비교        | `mapping-comparison/1`                           | `mapping-comparison/2`                                                                         |
-| 선택 기록   | `mapping-selection/1`                            | `mapping-selection/2`                                                                          |
-| 평가 집합   | v2 DEV, v3 HELD_OUT                              | `schema-dialects/4` DEV와 HELD_OUT                                                             |
-| 어휘 기준선 | `lexical-baseline/2`                             | v4 DEV만으로 만든 `lexical-baseline/3`                                                         |
-| 가격표      | `google-gemini-standard-2026-10-08/1`            | 보관 평가 집합 실행일(UTC)에 사전 수정안과 함께 수집                                           |
+| 입력        | ADR 0069                                         | ADR 0075                                                                                          |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| 후보        | `gemini-2.5-pro`를 포함한 다섯 개                | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview`    |
+| 프롬프트    | `schema-mapping/1`                               | `schema-mapping/4`: 1판 문장 전부와 [F-006~F-008, F-010](AI_FAILURE_LOG.ko.md)의 규칙             |
+| 출력 스키마 | `mapping-fields/1`, 헤더로 지정한 `sourceColumn` | `mapping-fields/2`, 불투명 ID로 지정한 `columnId`                                                 |
+| 어댑터      | `openai-compatible-mapping/2`                    | `openai-compatible-mapping/4`: ID 형식과 `reasoning_effort: "low"`([F-009](AI_FAILURE_LOG.ko.md)) |
+| 검증기      | `mapping-validator/2`                            | `mapping-validator/3`: ID를 해석한 뒤 2판 검사 전부                                               |
+| 실행 기록   | `mapping-run/1`                                  | `mapping-run/2`: 반환된 `columnId`와 그로부터 투영한 헤더                                         |
+| 채점기      | `mapping-score/1`                                | `mapping-score/2`: 같은 집계에 `unflaggedNoTarget` 추가                                           |
+| 비교        | `mapping-comparison/1`                           | `mapping-comparison/2`                                                                            |
+| 선택 기록   | `mapping-selection/1`                            | `mapping-selection/2`                                                                             |
+| 평가 집합   | v2 DEV, v3 HELD_OUT                              | `schema-dialects/4` DEV와 HELD_OUT                                                                |
+| 어휘 기준선 | `lexical-baseline/2`                             | v4 DEV만으로 만든 `lexical-baseline/3`                                                            |
+| 가격표      | `google-gemini-standard-2026-10-08/1`            | 보관 평가 집합 실행일(UTC)에 사전 수정안과 함께 수집                                              |
 
 **열 ID.** 어댑터는 제공 순서대로 `c01`, `c02`, …를 붙이고 열마다
 `{ id, header, samples }`를 보냅니다. 헤더와 표본은 인용된 데이터이며 출력 스키마에는
@@ -934,8 +935,12 @@ pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnost
 pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
 ```
 
-보관 평가 집합 명령은 ADR 0075가 수락되고 날짜가 붙은 가격표를 포함한 봉인 입력이
-모두 커밋된 뒤에만 프로토콜 3으로 실행됩니다. 선택기는 세션 해시로 프로토콜을 읽으므로
+보관 평가 집합 명령은 ADR 0075가 수락되고 실행일(UTC) 날짜가 붙은 가격표를 포함한 봉인
+입력이 모두 커밋된 뒤에만 프로토콜 3으로 실행됩니다. 보관 평가 집합 실행과 사전 점검은
+선언된 후보를 각각 한 번씩, Google 엔드포인트에서만 받으며, 사전 점검은 프로토콜 3의
+스택을 보냅니다. 오프라인 게이트는 한 게이트 실행의 이전·이후 세션만 받으며, 두 세션
+모두 후보 네 개 전부를 프로토콜 3에 봉인된 DEV에서 실행해야 합니다. 선택기는 세션 해시로
+프로토콜을 읽으므로
 이전 세션은 각자의 결정을 그대로 재현합니다.
 
 ### v4 DEV 게이트 2: 2026-10-10
@@ -970,5 +975,5 @@ pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/
 
 수락 전에 개정 1판과 2판이 이어졌습니다([ADR 0075 게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)).
 개정 1판에서는 늘어난 집계가 없고 모든 후보가 VALID 36/36을 반환했지만, null 정답 열에
-만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 인증 정보의
-선불 크레딧이 소진되어 요청이 HTTP 402나 429를 반환했으며, 결제가 복구되면 다시 실행합니다.
+만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 계정이
+Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했으며, 한도가 허용되면 다시 실행합니다.

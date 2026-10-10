@@ -11,7 +11,12 @@ import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { sha256Canonical } from "@weavetrail/replay-engine";
 import { RETRY_SELECTION_MODELS, SELECTION_MODELS } from "./mapping-selection";
-import { loadHeldOutSession, runHeldOut } from "./held-out-protocol";
+import {
+  attestsRunDate,
+  loadHeldOutSession,
+  runHeldOut,
+  sameList,
+} from "./held-out-protocol";
 import { requireLiveMappingCommand } from "./mapping-model-runner";
 
 // Test the write/network orchestration without a pre-run commit or real provider.
@@ -189,4 +194,21 @@ it("refuses protocol 3 before transport while ADR 0075 has no dated price table 
     ),
   ).rejects.toThrow("Price table must be sealed");
   expect(transport).not.toHaveBeenCalled();
+});
+
+it("rejects a candidate list that repeats one candidate and omits another", () => {
+  const [a, b, c, d] = RETRY_SELECTION_MODELS;
+  expect(sameList([a, b, c, d], [d, c, b, a])).toBe(true);
+  expect(sameList([a, a, b, c], [a, b, c, d])).toBe(false);
+  expect(sameList([a, b, c, d], [a, a, b, c])).toBe(false);
+  expect(sameList([a, b, c], [a, b, c, d])).toBe(false);
+});
+
+it("requires protocol 3 prices dated on the run's UTC date", () => {
+  const today = "2026-10-12";
+  expect(attestsRunDate(3, today, today, today)).toBe(true);
+  expect(attestsRunDate(3, today, "2026-10-11", today)).toBe(false);
+  expect(attestsRunDate(3, "2026-10-11", today, today)).toBe(false);
+  // Protocols 1 and 2 used the fixed 2026-10-08 table.
+  expect(attestsRunDate(2, today, "2026-10-08", today)).toBe(true);
 });

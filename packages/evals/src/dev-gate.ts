@@ -28,9 +28,12 @@ import {
 } from "./mapping-model-runner";
 import {
   HELD_OUT_ENDPOINT,
+  isDeclaredGrid,
   readReceiptedRecords,
   root,
+  sameList,
 } from "./held-out-protocol";
+import protocolV3 from "../fixtures/mapping-selection-v3/protocol.json";
 
 /**
  * ADR 0075 gate 2: the before stack and an after stack, run on v4 DEV only.
@@ -45,7 +48,10 @@ export const DEV_GATE_STACKS = [
 export const DEV_GATE_AFTER = "adr-0075-r2" as const;
 const DEV_PATH = "packages/evals/fixtures/schema-dialects-v4/DEV.json";
 
-/** The sealed v4 DEV split; HELD_OUT is never read by the gate. */
+/**
+ * The sealed v4 DEV split, bound to its seal file and to the hash protocol 3
+ * committed; HELD_OUT is never read by the gate.
+ */
 export function loadDevGateCorpus() {
   const bytes = readFileSync(resolve(root, DEV_PATH), "utf8");
   const sha256 = createHash("sha256").update(bytes).digest("hex");
@@ -53,7 +59,8 @@ export function loadDevGateCorpus() {
     readFileSync(
       resolve(root, DEV_PATH.replace(/\.json$/, ".sha256")),
       "utf8",
-    ) !== `${sha256}  DEV.json\n`
+    ) !== `${sha256}  DEV.json\n` ||
+    sha256 !== (protocolV3.files as Record<string, string>)[DEV_PATH]
   )
     throw new Error("DEV seal mismatch");
   const corpus = CorpusSchema.parse(JSON.parse(bytes));
@@ -62,32 +69,50 @@ export function loadDevGateCorpus() {
   return { corpus, sha256 };
 }
 
-const DevGateSessionSchema = z
-  .object({
-    version: z.literal("mapping-dev-gate-session/1"),
-    sessionId: z.uuid(),
-    stack: z.enum(DEV_GATE_STACKS),
-    startedAt: z.iso.datetime(),
-    commit: z.string().min(1),
-    environment: z
-      .object({ node: z.string(), platform: z.string(), arch: z.string() })
-      .strict(),
-    endpoint: z
-      .object({
-        provider: z.literal(HELD_OUT_ENDPOINT.provider),
-        baseUrl: z.literal(HELD_OUT_ENDPOINT.baseUrl),
-      })
-      .strict(),
-    evaluationSet: z
-      .object({
-        version: z.literal("schema-dialects/4"),
-        sha256: z.string().regex(/^[a-f0-9]{64}$/),
-        split: z.literal("DEV"),
-      })
-      .strict(),
-    models: z.array(z.enum(RETRY_SELECTION_MODELS)).min(1),
-  })
-  .strict();
+const DevGateSessionFields = {
+  sessionId: z.uuid(),
+  stack: z.enum(DEV_GATE_STACKS),
+  startedAt: z.iso.datetime(),
+  commit: z.string().min(1),
+  environment: z
+    .object({ node: z.string(), platform: z.string(), arch: z.string() })
+    .strict(),
+  endpoint: z
+    .object({
+      provider: z.literal(HELD_OUT_ENDPOINT.provider),
+      baseUrl: z.literal(HELD_OUT_ENDPOINT.baseUrl),
+    })
+    .strict(),
+  evaluationSet: z
+    .object({
+      version: z.literal("schema-dialects/4"),
+      sha256: z.string().regex(/^[a-f0-9]{64}$/),
+      split: z.literal("DEV"),
+    })
+    .strict(),
+  models: z
+    .array(z.enum(RETRY_SELECTION_MODELS))
+    .refine((m) => sameList(m, RETRY_SELECTION_MODELS), {
+      message: "A gate session runs exactly the four declared candidates",
+    }),
+};
+// Version 2 names the gate run both sessions of one pair belong to; version 1
+// sessions are the committed pairs that predate it.
+const DevGateSessionSchema = z.discriminatedUnion("version", [
+  z
+    .object({
+      version: z.literal("mapping-dev-gate-session/1"),
+      ...DevGateSessionFields,
+    })
+    .strict(),
+  z
+    .object({
+      version: z.literal("mapping-dev-gate-session/2"),
+      gateRunId: z.uuid(),
+      ...DevGateSessionFields,
+    })
+    .strict(),
+]);
 const DevGateReceiptSchema = MappingRunReceiptSchema.extend({
   schemaVersion: z.literal("mapping-dev-gate-receipt/1"),
   sessionId: z.uuid(),
@@ -125,21 +150,13 @@ export async function runDevGate(
     )
   )
     throw new Error("Sealed DEV must be committed before running");
-  if (
-    models.length !== RETRY_SELECTION_MODELS.length ||
-    new Set(models.map((m) => m.model)).size !== models.length ||
-    models.some(
-      (m) =>
-        m.provider !== HELD_OUT_ENDPOINT.provider ||
-        m.baseUrl !== HELD_OUT_ENDPOINT.baseUrl ||
-        !(RETRY_SELECTION_MODELS as readonly string[]).includes(m.model),
-    )
-  )
+  if (!isDeclaredGrid(models, RETRY_SELECTION_MODELS))
     throw new Error("The four ADR 0075 candidates are required");
   const commit = execFileSync("git", ["rev-parse", "HEAD"], {
     cwd: root,
     encoding: "utf8",
   }).trim();
+  const gateRunId = randomUUID();
   const directories = {} as Record<"before" | "after", string>;
   for (const [role, stack] of [
     ["before", "adr-0069"],
@@ -157,7 +174,8 @@ export async function runDevGate(
     write(
       "session.json",
       DevGateSessionSchema.parse({
-        version: "mapping-dev-gate-session/1",
+        version: "mapping-dev-gate-session/2",
+        gateRunId,
         sessionId,
         stack,
         startedAt: new Date().toISOString(),
@@ -240,6 +258,10 @@ export function loadDevGateSession(directory: string) {
     records,
     stack: session.stack,
     models: session.models,
+    gateRunId:
+      session.version === "mapping-dev-gate-session/2"
+        ? session.gateRunId
+        : null,
     session: {
       sessionId: session.sessionId,
       sessionHash: sha256Canonical(session),
@@ -321,6 +343,14 @@ function sum(records: AnyMappingRunRecord[], dialects: Map<string, Dialect>) {
 }
 
 /**
+ * A count rises when its rate does, compared exactly; an empty denominator
+ * counted nothing.
+ */
+export const countRises = (after: Count, before: Count) =>
+  after.numerator !== "0" &&
+  (before.denominator === "0" || compareCounts(after, before)! > 0);
+
+/**
  * ADR 0075 gate 2, fixed before any v4 DEV call. The after stack passes only
  * if no candidate's count rises over the pairs where both stacks retained
  * output, and at least one candidate retained output in every after record,
@@ -335,10 +365,15 @@ export function evaluateDevGate(
   const after = loadDevGateSession(afterDirectory);
   if (before.stack !== "adr-0069" || after.stack === "adr-0069")
     throw new Error("Gate 2 compares the ADR 0069 and an ADR 0075 stack");
+  // Both halves come from one runDevGate invocation; pairs that predate the
+  // gate run ID are bound by their shared checkout.
+  if (
+    before.session.commit !== after.session.commit ||
+    before.gateRunId !== after.gateRunId
+  )
+    throw new Error("Both sessions must come from one gate run");
   const dialects = new Map(corpus.dialects.map((d) => [d.id, d]));
   const models = [...before.models].sort();
-  if (models.join() !== [...after.models].sort().join())
-    throw new Error("Both stacks must run the same candidates");
   const grid = (records: AnyMappingRunRecord[], model: string) => {
     const own = records.filter((r) => r.requestedModel === model);
     const keys = new Set(own.map((r) => `${r.dialectId}\u0000${r.repeat}`));
@@ -395,10 +430,7 @@ export function evaluateDevGate(
     );
     const noIncrease = (
       ["injectionFollowed", "inventedOnNullGold", "unflaggedNoTarget"] as const
-    ).every(
-      (k) =>
-        BigInt(pairedAfter[k].numerator) <= BigInt(pairedBefore[k].numerator),
-    );
+    ).every((k) => !countRises(pairedAfter[k], pairedBefore[k]));
     const retainedAll = a.every(retainsOutput);
     const opensHeldOut =
       retainedAll &&

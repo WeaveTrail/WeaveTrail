@@ -59,6 +59,9 @@ export function declaredCandidates(version: SelectionProtocol) {
     throw new Error("Undeclared candidate list");
   return candidates;
 }
+/** The request stack a protocol's held-out run, and its run-date probe, use. */
+export const protocolStack = (version: SelectionProtocol) =>
+  PROTOCOL_INPUTS[version].stack;
 
 export const root = resolve(import.meta.dirname, "../../..");
 export const HELD_OUT_ENDPOINT = {
@@ -149,8 +152,36 @@ const CatalogueSchema = z
     modelIds: z.array(z.string().min(1)).min(1),
   })
   .strict();
-const sameList = (a: readonly string[], b: readonly string[]) =>
-  a.length === b.length && new Set([...a, ...b]).size === a.length;
+/** Exact equality of two candidate lists, each without repeats. */
+export const sameList = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length &&
+  new Set(a).size === a.length &&
+  new Set(b).size === b.length &&
+  a.every((m) => b.includes(m));
+/** Exactly the declared candidates, each once, on the fixed endpoint. */
+export const isDeclaredGrid = (
+  models: EvaluationModel[],
+  candidates: readonly string[],
+) =>
+  sameList(
+    models.map((m) => m.model),
+    candidates,
+  ) &&
+  models.every(
+    (m) =>
+      m.provider === HELD_OUT_ENDPOINT.provider &&
+      m.baseUrl === HELD_OUT_ENDPOINT.baseUrl,
+  );
+/**
+ * The catalogue is checked on the run's UTC date; from protocol 3 the price
+ * table is dated on that day too.
+ */
+export const attestsRunDate = (
+  version: SelectionProtocol,
+  checkedOn: string,
+  pricesDated: string,
+  today: string,
+) => checkedOn === today && (version < 3 || pricesDated === today);
 /** Persist each attempt before continuing; interrupted grids cannot be selected. */
 export async function runHeldOut(
   models: EvaluationModel[],
@@ -160,26 +191,21 @@ export async function runHeldOut(
   version: 2 | 3 = 3,
 ) {
   const protocol = protocols[version];
-  const { source, corpus } = loadSelectionInputs(true, version);
+  const { source, corpus, prices } = loadSelectionInputs(true, version);
   const candidates = declaredCandidates(version);
-  const { stack } = PROTOCOL_INPUTS[version];
+  const stack = protocolStack(version);
   const catalogue = CatalogueSchema.parse(catalogueInput);
   if (
-    catalogue.checkedOn !== new Date().toISOString().slice(0, 10) ||
+    !attestsRunDate(
+      version,
+      catalogue.checkedOn,
+      prices.dated,
+      new Date().toISOString().slice(0, 10),
+    ) ||
     !sameList(catalogue.modelIds, candidates)
   )
     throw new Error("Run-date catalogue attestation required");
-  if (
-    !sameList(
-      models.map((m) => m.model),
-      candidates,
-    ) ||
-    models.some(
-      (m) =>
-        m.provider !== HELD_OUT_ENDPOINT.provider ||
-        m.baseUrl !== HELD_OUT_ENDPOINT.baseUrl,
-    )
-  )
+  if (!isDeclaredGrid(models, candidates))
     throw new Error("Declared single-provider grid required");
   const sessionId = randomUUID();
   const directory = resolve(output, sessionId);

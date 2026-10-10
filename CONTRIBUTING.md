@@ -178,13 +178,15 @@ bounded error bodies under ignored `.model-runs/raw/`; never commit those files.
 
 The live held-out command targets protocol 3 of
 [ADR 0075](docs/adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md):
-columns are named by opaque IDs, the prompt is `schema-mapping/2`, and the
-inputs are `schema-dialects/4`. It refuses to run until that ADR is accepted
+columns are named by opaque IDs, the stack is `adr-0075-r2` (prompt
+`schema-mapping/4`, adapter `openai-compatible-mapping/4`), and the inputs are
+`schema-dialects/4`. It refuses to run until that ADR is accepted
 with a dated price table; its pre-run gate 2 did not pass on 2026-10-10.
 `pnpm eval:schemas:generate:v4` reproduces both v4 splits and the DEV-only
 reference vocabulary. `pnpm eval:models:dev-gate --live` runs the before and
 after stacks on v4 DEV, and `pnpm eval:mappings:dev-gate --before <session>
 --after <session>` applies the pre-run gate offline.
-`pnpm eval:models:diagnose --live` probes each candidate once on v4 DEV and
-writes a sanitized status-and-outcome file. See the
+The offline gate accepts only the two sessions of one gate run.
+`pnpm eval:models:diagnose --live` probes each declared candidate once on v4 DEV
+with that stack and writes a sanitized status-and-outcome file. See the
 [retry protocol](docs/EVALUATION.md#retry-protocol-column-ids-and-fresh-v4) before a live run.

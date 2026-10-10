@@ -968,21 +968,23 @@ derived from failure modes classified in the committed v3 records and gold, neve
 from a v3 score, and v3 is not reused for selection. Thresholds, definitions and
 tie-breaks are unchanged except that eligibility adds one zero condition. The
 site keeps showing the ADR 0069 decision until this attempt commits a new one.
+The table shows protocol 3's stack, `adr-0075-r2`, after revisions 1 and 2 of
+the [gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log).
 
-| Input             | ADR 0069                                     | ADR 0075                                                                                          |
-| ----------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Candidates        | five, including `gemini-2.5-pro`             | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview`    |
-| Prompt            | `schema-mapping/1`                           | `schema-mapping/2`: every version 1 sentence plus three rules ([F-006, F-007](AI_FAILURE_LOG.md)) |
-| Output schema     | `mapping-fields/1`, `sourceColumn` by header | `mapping-fields/2`, `columnId` by opaque ID                                                       |
-| Adapter           | `openai-compatible-mapping/2`                | `openai-compatible-mapping/3`                                                                     |
-| Validator         | `mapping-validator/2`                        | `mapping-validator/3`: resolves IDs, then every version 2 check                                   |
-| Run record        | `mapping-run/1`                              | `mapping-run/2`: returned `columnId` and the header projected from it                             |
-| Scorer            | `mapping-score/1`                            | `mapping-score/2`: the same counts plus `unflaggedNoTarget`                                       |
-| Comparison        | `mapping-comparison/1`                       | `mapping-comparison/2`                                                                            |
-| Selection record  | `mapping-selection/1`                        | `mapping-selection/2`                                                                             |
-| Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                              |
-| Lexical reference | `lexical-baseline/2`                         | `lexical-baseline/3`, from v4 DEV only                                                            |
-| Price table       | `google-gemini-standard-2026-10-08/1`        | dated on the held-out run's UTC date, with the pre-run amendment                                  |
+| Input             | ADR 0069                                     | ADR 0075                                                                                                     |
+| ----------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Candidates        | five, including `gemini-2.5-pro`             | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview`               |
+| Prompt            | `schema-mapping/1`                           | `schema-mapping/4`: every version 1 sentence plus the rules of [F-006 to F-008 and F-010](AI_FAILURE_LOG.md) |
+| Output schema     | `mapping-fields/1`, `sourceColumn` by header | `mapping-fields/2`, `columnId` by opaque ID                                                                  |
+| Adapter           | `openai-compatible-mapping/2`                | `openai-compatible-mapping/4`: the ID form with `reasoning_effort: "low"` ([F-009](AI_FAILURE_LOG.md))       |
+| Validator         | `mapping-validator/2`                        | `mapping-validator/3`: resolves IDs, then every version 2 check                                              |
+| Run record        | `mapping-run/1`                              | `mapping-run/2`: returned `columnId` and the header projected from it                                        |
+| Scorer            | `mapping-score/1`                            | `mapping-score/2`: the same counts plus `unflaggedNoTarget`                                                  |
+| Comparison        | `mapping-comparison/1`                       | `mapping-comparison/2`                                                                                       |
+| Selection record  | `mapping-selection/1`                        | `mapping-selection/2`                                                                                        |
+| Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                                         |
+| Lexical reference | `lexical-baseline/2`                         | `lexical-baseline/3`, from v4 DEV only                                                                       |
+| Price table       | `google-gemini-standard-2026-10-08/1`        | dated on the held-out run's UTC date, with the pre-run amendment                                             |
 
 **Column IDs.** The adapter assigns `c01`, `c02`, … in supplied order and sends
 `{ id, header, samples }` for each column. Headers and samples are quoted data
@@ -1036,7 +1038,11 @@ pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
 ```
 
 The held-out command runs protocol 3 only after ADR 0075 is accepted and every
-sealed input, including the dated price table, is committed. The selector reads
+sealed input, including a price table dated on the run's UTC date, is
+committed. The held-out run and the probe each accept exactly the declared
+candidates, each once, on Google's endpoint, and the probe sends protocol 3's
+stack. The offline gate accepts only the before and after sessions of one gate
+run, each with all four candidates, on the DEV split sealed in protocol 3. The selector reads
 the protocol from the session hash, so the earlier sessions still reproduce
 their own decisions.
 
@@ -1075,5 +1081,5 @@ Revisions 1 and 2 followed before acceptance (see the
 [ADR 0075 gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)).
 Under revision 1 no count rose and every candidate returned 36/36 `VALID`
 records, but invented fields on null-gold columns stayed nonzero (16–30 of 252).
-The revision 2 run is void: the credential's prepayment credits ran out and the
-requests returned HTTP 402 or 429. It is repeated once billing is restored.
+The revision 2 run is void: the account reached its Gemini API usage limit and
+the requests returned HTTP 402 or 429. It is repeated once the limit allows.

@@ -9,7 +9,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { sha256Canonical } from "@weavetrail/replay-engine";
-import { evaluateDevGate, loadDevGateCorpus, runDevGate } from "./dev-gate";
+import {
+  countRises,
+  evaluateDevGate,
+  loadDevGateCorpus,
+  runDevGate,
+} from "./dev-gate";
 import { RETRY_SELECTION_MODELS } from "./mapping-selection";
 import { dialectMappingInput } from "./schema-dialects-v2";
 
@@ -237,5 +242,44 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
     expect(() => evaluateDevGate(dirs.before, directory)).toThrow(
       "Unreceipted",
     );
+  });
+
+  it("binds both sessions to one gate run and exactly the declared candidates", async () => {
+    const first = await run();
+    const second = await run();
+    const session = (directory: string) =>
+      JSON.parse(readFileSync(join(directory, "session.json"), "utf8"));
+    expect(session(first.before)).toMatchObject({
+      version: "mapping-dev-gate-session/2",
+      gateRunId: session(first.after).gateRunId,
+    });
+    expect(session(second.after).gateRunId).not.toBe(
+      session(first.after).gateRunId,
+    );
+    expect(() => evaluateDevGate(first.before, second.after)).toThrow(
+      "one gate run",
+    );
+    // A repeated candidate in place of a missing one has the declared length.
+    const [a, b, c] = RETRY_SELECTION_MODELS;
+    for (const directory of [first.before, first.after])
+      writeFileSync(
+        join(directory, "session.json"),
+        JSON.stringify({ ...session(directory), models: [a, a, b, c] }),
+      );
+    expect(() => evaluateDevGate(first.before, first.after)).toThrow(
+      "four declared candidates",
+    );
+  });
+
+  it("compares each count as an exact rate, not by its numerator", () => {
+    const n = (numerator: string, denominator: string) => ({
+      numerator,
+      denominator,
+    });
+    expect(countRises(n("1", "1"), n("2", "100"))).toBe(true);
+    expect(countRises(n("2", "100"), n("1", "1"))).toBe(false);
+    expect(countRises(n("3", "6"), n("1", "2"))).toBe(false);
+    expect(countRises(n("0", "0"), n("2", "100"))).toBe(false);
+    expect(countRises(n("1", "2"), n("0", "0"))).toBe(true);
   });
 });

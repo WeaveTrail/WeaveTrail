@@ -65,7 +65,7 @@ reproduces with the same command and `--expected` file.
 | ---------- | --------- | -------------------------------------- | -------------------------------------- | ------------- | -------------------------------------------------------------------- |
 | Original   | `8fa6265` | `fa32db2a-3f6a-4f7e-842c-aaa9a531addf` | `82d1d299-4060-444c-ba92-70ced8fe62fa` | `adr-0075`    | [not passed](gate.json)                                              |
 | Revision 1 | `2ba476a` | `162a9e46-a011-488a-9fb5-10cb427e7e1a` | `706cc7a9-a262-411d-89fa-9ae127b850a7` | `adr-0075-r1` | [not passed](gate-r1.json): no count rose, 36/36 VALID, invented > 0 |
-| Revision 2 | `99a77cf` | `abf2cd88-68ba-4571-b43c-569939e20f95` | `3551c0b9-7e20-4c5f-9881-88ed746bc878` | `adr-0075-r2` | [void](gate-r2-void.json): credits ran out, HTTP 402/429             |
+| Revision 2 | `99a77cf` | `abf2cd88-68ba-4571-b43c-569939e20f95` | `3551c0b9-7e20-4c5f-9881-88ed746bc878` | `adr-0075-r2` | [void](gate-r2-void.json): usage limit, HTTP 402/429                 |
 
 Under revision 1, over paired records, followed injections were 3, 0, 0 and 0
 of 72 and invented fields on null-gold columns 30, 27, 18 and 16 of 252 for
