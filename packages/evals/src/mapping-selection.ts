@@ -77,11 +77,12 @@ const RULES = {
     outputSchemaVersion: "mapping-fields/1",
     validatorVersion: "mapping-validator/2",
   },
+  // ADR 0075 as revised before acceptance (revision 1).
   "schema-dialects/4": {
     rule: "ADR-0075",
     recordVersion: "mapping-run/2",
-    adapterVersion: "openai-compatible-mapping/3",
-    promptVersion: "schema-mapping/2",
+    adapterVersion: "openai-compatible-mapping/4",
+    promptVersion: "schema-mapping/3",
     outputSchemaVersion: "mapping-fields/2",
     validatorVersion: "mapping-validator/3",
   },

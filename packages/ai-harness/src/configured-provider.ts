@@ -54,6 +54,14 @@ export const MAPPING_STACKS = {
     outputSchemaVersion: "mapping-fields/2",
     validatorVersion: MAPPING_COLUMN_ID_VALIDATOR_VERSION,
   },
+  // ADR 0075 revision 1, derived from the gate 2 DEV records only.
+  "adr-0075-r1": {
+    recordVersion: "mapping-run/2",
+    promptVersion: "schema-mapping/3",
+    adapterVersion: "openai-compatible-mapping/4",
+    outputSchemaVersion: "mapping-fields/2",
+    validatorVersion: MAPPING_COLUMN_ID_VALIDATOR_VERSION,
+  },
 } as const satisfies Record<
   string,
   {
@@ -311,6 +319,7 @@ export class StructuredOutputClient {
     schema: unknown,
     input: MappingInput,
     contract: OutputContract = headerContract,
+    parameters: Record<string, string> = {},
   ): Promise<MappingAttempt> {
     const started = performance.now();
     const signal = AbortSignal.timeout(MAPPING_TIMEOUT_MS);
@@ -334,6 +343,7 @@ export class StructuredOutputClient {
           body: JSON.stringify({
             model: this.configuration.model,
             temperature: 0,
+            ...parameters,
             messages: [
               { role: "system", content: instruction },
               { role: "user", content: JSON.stringify(data) },
@@ -503,11 +513,31 @@ const columnIdInstruction =
   " If a column fits no target field, could fit more than one, or its header and values do not settle which one, return a null target, a null transform and REVIEW_REQUIRED." +
   " Use each target field at most once.";
 
+// schema-mapping/3 keeps every version 2 sentence. It supplies the target
+// definitions version 2 refers to but never sent, ties a target to certainty,
+// and names the conversions no allowed transform performs (ADR 0075 revision 1).
+const revisedInstruction =
+  columnIdInstruction +
+  " Target definitions: sourceEventId is the source's own identifier for the event row; eventTime is when the event occurred; receivedAt is when a downstream system received or recorded it, distinct from eventTime; sequence is an explicit source sequence or ordinal counter; instrumentId identifies the traded instrument or product; eventType is the kind of event; side is the buy or sell direction; actorId is the participant who executed the event; counterpartyId is the opposite participant; orderId identifies the order; price is the per-unit execution price in major currency units; quantity is the number of units executed; openPrice, highPrice, lowPrice, closePrice and netChange are daily quote values." +
+  " A non-null target means you are certain: status PROPOSED and confidence 1. If you are not certain, return a null target, a null transform, REVIEW_REQUIRED and confidence below 1; never pair a target with REVIEW_REQUIRED or with confidence below 1." +
+  " A transform must convert every sample value exactly as given. No allowed transform converts spreadsheet serial dates or amounts in minor currency units such as cents, so such a column gets a null target." +
+  " Exactly one column maps to each of sourceEventId, eventTime, instrumentId and eventType.";
+
 /** The system message each stack sends, exposed for regression tests. */
 export const MAPPING_INSTRUCTIONS = {
   "adr-0069": instruction,
   "adr-0075": columnIdInstruction,
+  "adr-0075-r1": revisedInstruction,
 } as const satisfies Record<MappingStackId, string>;
+/**
+ * Extra request parameters per stack. Revision 1 asks for low reasoning effort
+ * so output arrives within the unchanged 30,000 ms deadline.
+ */
+const REQUEST_PARAMETERS: Record<MappingStackId, Record<string, string>> = {
+  "adr-0069": {},
+  "adr-0075": {},
+  "adr-0075-r1": { reasoning_effort: "low" },
+};
 
 function fieldProperties() {
   return {
@@ -639,7 +669,7 @@ export class ConfiguredSchemaMappingProvider implements SchemaMappingProvider {
     // Under ADR 0075 headers and samples are quoted data beside an opaque ID;
     // no header text appears in the output schema.
     const data =
-      this.stack === "adr-0075"
+      this.stack !== "adr-0069"
         ? {
             sourceArtifactHash: input.sourceArtifactHash,
             columns: input.columns.map((header, index) => ({
@@ -655,13 +685,14 @@ export class ConfiguredSchemaMappingProvider implements SchemaMappingProvider {
           };
     if (new TextEncoder().encode(JSON.stringify(data)).byteLength > 16_384)
       throw new ProviderReviewRequired();
-    return this.stack === "adr-0075"
+    return this.stack !== "adr-0069"
       ? this.client.generate(
-          columnIdInstruction,
+          MAPPING_INSTRUCTIONS[this.stack],
           data,
           columnIdOutputSchema(ids),
           input,
           columnIdContract,
+          REQUEST_PARAMETERS[this.stack],
         )
       : this.client.generate(
           instruction,

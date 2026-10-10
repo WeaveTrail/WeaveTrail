@@ -26,8 +26,8 @@ async function main() {
         )
       : undefined,
   );
-  for (const [stack, directory] of Object.entries(directories))
-    console.log(`${stack} DEV records and receipts: ${directory}`);
+  for (const [role, directory] of Object.entries(directories))
+    console.log(`${role} DEV records and receipts: ${directory}`);
 }
 main().catch(() => {
   console.error(

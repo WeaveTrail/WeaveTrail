@@ -8,6 +8,7 @@
 export const PROMPT_VERSIONS = [
   "schema-mapping/1",
   "schema-mapping/2",
+  "schema-mapping/3",
   "fixture-mapping/1",
   "rapid-price-lift-case-v1",
   "published-execution-schema-case-v1",

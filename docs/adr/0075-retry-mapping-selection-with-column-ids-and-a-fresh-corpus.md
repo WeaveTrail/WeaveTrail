@@ -334,3 +334,22 @@ revised gate that passes. Status stays Proposed; there is no amendment, dated
 price table or v4 HELD_OUT record, and v4 HELD_OUT remains unseen. The site keeps
 showing the ADR 0069 `NO_MODEL` decision. A revision may use these DEV records
 and must be logged here before any further v4 DEV run.
+
+### Revision 1: 2026-10-10, before any further v4 DEV run
+
+Derived only from the gate 2 DEV records and a DEV-only parameter check on the
+used `schema-dialects/2` DEV split; v4 HELD_OUT is still unseen. Nothing below
+changes a threshold, definition, tie-break, the deadline, the validator, the
+output schema, the scorer or any gate condition.
+
+| Gate 2 DEV observation (after stack)                                                                                                                                                                                                                                            | Change                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Most invented fields sit on `AMBIGUOUS` and `TRANSFORM_LURE` columns that already carry confidence below 1 or `REVIEW_REQUIRED` (for example `DEV-v4-03` `Misc Time` → `receivedAt`, `PROPOSED`, 0.9). `schema-mapping/2` refers to "the target definitions" but none are sent. | Prompt `schema-mapping/3` keeps every version 2 sentence and adds: a one-clause definition of each allowed target; a non-null target means `PROPOSED` at confidence 1, otherwise a null target, a null transform, `REVIEW_REQUIRED` and confidence below 1; no allowed transform converts spreadsheet serial dates or minor-unit amounts, so such a column gets a null target; exactly one column maps to each required target. |
+| `gemini-3.8-flash` timed out 14 times (valid p50 16,512 ms, maximum 26,396 ms). On used v2 DEV it timed out without the parameter and returned in 6,800 ms with `reasoning_effort: "low"`; all four candidates accepted it with HTTP 200.                                       | Adapter `openai-compatible-mapping/4` sends `reasoning_effort: "low"`; nothing else in the request changes. The 30,000 ms deadline is unchanged.                                                                                                                                                                                                                                                                                |
+
+The revised after stack is `adr-0075-r1`: `schema-mapping/3`,
+`mapping-fields/2`, `openai-compatible-mapping/4`, `mapping-validator/3`,
+`mapping-run/2`. It replaces the after stack in gate 2 and the stack of the
+held-out run and selection. The before stack is unchanged. Gate 2 is run again
+as a new complete pair of before and after sessions; the first pair stays
+committed. F-008 and F-009 record the two observations.

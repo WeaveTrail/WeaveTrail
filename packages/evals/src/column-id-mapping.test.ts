@@ -380,6 +380,27 @@ describe("F-006: headers are data, never allowed output values", () => {
     });
   });
 
+  it("asks for low reasoning effort only under revision 1, with the same ID-form request otherwise", async () => {
+    const input = dialectMappingInput(dialect);
+    const bodies: Record<string, unknown>[] = [];
+    for (const stack of ["adr-0069", "adr-0075", "adr-0075-r1"] as const) {
+      const { requests, transport } = capture({ fields: [] });
+      await new ConfiguredSchemaMappingProvider(
+        configuration,
+        transport,
+        stack,
+      ).attempt(input);
+      bodies.push(requests[0] as unknown as Record<string, unknown>);
+    }
+    expect(bodies.map((b) => b.reasoning_effort)).toEqual([
+      undefined,
+      undefined,
+      "low",
+    ]);
+    expect(bodies[2]!.response_format).toEqual(bodies[1]!.response_format);
+    expect(bodies[2]!.temperature).toBe(0);
+  });
+
   it("keeps the live default on the ADR 0069 stack and returns the same proposal under ADR 0075", async () => {
     const provider = new ConfiguredSchemaMappingProvider(
       configuration,

@@ -128,10 +128,10 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
       }
     }
     const before = JSON.parse(
-      readFileSync(join(dirs["adr-0069"], "records.json"), "utf8"),
+      readFileSync(join(dirs.before, "records.json"), "utf8"),
     );
     const after = JSON.parse(
-      readFileSync(join(dirs["adr-0075"], "records.json"), "utf8"),
+      readFileSync(join(dirs.after, "records.json"), "utf8"),
     );
     expect(before[0]).toMatchObject({
       schemaVersion: "mapping-run/1",
@@ -139,17 +139,15 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
     });
     expect(after[0]).toMatchObject({
       schemaVersion: "mapping-run/2",
-      promptVersion: "schema-mapping/2",
+      promptVersion: "schema-mapping/3",
     });
-    const gate = evaluateDevGate(dirs["adr-0069"], dirs["adr-0075"]);
+    const gate = evaluateDevGate(dirs.before, dirs.after);
     expect(gate.passed).toBe(true);
     for (const c of gate.candidates) {
       expect(c.pairs).toHaveLength(36);
       expect(c).toMatchObject({ noIncrease: true, opensHeldOut: true });
     }
-    expect(() => evaluateDevGate(dirs["adr-0075"], dirs["adr-0069"])).toThrow(
-      "compares",
-    );
+    expect(() => evaluateDevGate(dirs.after, dirs.before)).toThrow("compares");
   });
 
   it("fails when any candidate's count rises under the after stack, even if another opens HELD_OUT", async () => {
@@ -161,7 +159,7 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
       )
         Object.assign(field, { status: "PROPOSED", confidence: 1 });
     });
-    const gate = evaluateDevGate(dirs["adr-0069"], dirs["adr-0075"]);
+    const gate = evaluateDevGate(dirs.before, dirs.after);
     const flash = gate.candidates.find((c) => c.model === "gemini-3.8-flash")!;
     expect(flash.paired.after.unflaggedNoTarget.numerator).toBe(
       String(12 * 3 * 2),
@@ -184,7 +182,7 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
           confidence: 1,
         });
     });
-    const gate = evaluateDevGate(dirs["adr-0069"], dirs["adr-0075"]);
+    const gate = evaluateDevGate(dirs.before, dirs.after);
     for (const c of gate.candidates) {
       expect(c.after.retainedAll).toBe(true);
       expect(c.after.validOutput.numerator).toBe("0");
@@ -197,18 +195,16 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
 
   it("rejects a re-receipted tampered projection, a changed record and an unreceipted file", async () => {
     const dirs = await run();
-    const directory = dirs["adr-0075"];
+    const directory = dirs.after;
     const records = JSON.parse(
       readFileSync(join(directory, "records.json"), "utf8"),
     );
-    expect(() => evaluateDevGate(dirs["adr-0069"], directory)).not.toThrow();
+    expect(() => evaluateDevGate(dirs.before, directory)).not.toThrow();
     writeFileSync(
       join(directory, "records.json"),
       JSON.stringify([...records.slice(1), { ...records[0], repeat: 9 }]),
     );
-    expect(() => evaluateDevGate(dirs["adr-0069"], directory)).toThrow(
-      "receipted",
-    );
+    expect(() => evaluateDevGate(dirs.before, directory)).toThrow("receipted");
     // Rewrite one record, its receipt and records.json consistently: only the
     // offline projection check can catch a header that is not the ID's.
     const receiptName = readdirSync(directory).find((f) =>
@@ -236,11 +232,9 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
         ),
       ),
     );
-    expect(() => evaluateDevGate(dirs["adr-0069"], directory)).toThrow(
-      "projection",
-    );
+    expect(() => evaluateDevGate(dirs.before, directory)).toThrow("projection");
     writeFileSync(join(directory, "extra.json"), "{}");
-    expect(() => evaluateDevGate(dirs["adr-0069"], directory)).toThrow(
+    expect(() => evaluateDevGate(dirs.before, directory)).toThrow(
       "Unreceipted",
     );
   });

@@ -9,10 +9,7 @@ import {
   MappingRunRecordV2Schema,
   type AnyMappingRunRecord,
 } from "@weavetrail/contracts";
-import {
-  MAPPING_STACKS,
-  type MappingStackId,
-} from "@weavetrail/ai-harness/server";
+import { MAPPING_STACKS } from "@weavetrail/ai-harness/server";
 import { validateMappingStructure } from "@weavetrail/ai-harness/validator";
 import { sha256Canonical } from "@weavetrail/replay-engine";
 import {
@@ -35,8 +32,12 @@ import {
   root,
 } from "./held-out-protocol";
 
-/** ADR 0075 gate 2: the before and after stacks, run on v4 DEV only. */
-export const DEV_GATE_STACKS = ["adr-0069", "adr-0075"] as const;
+/**
+ * ADR 0075 gate 2: the before stack and an after stack, run on v4 DEV only.
+ * `adr-0075` is the original after stack; each logged revision adds its own.
+ */
+export const DEV_GATE_STACKS = ["adr-0069", "adr-0075", "adr-0075-r1"] as const;
+export const DEV_GATE_AFTER = "adr-0075-r1" as const;
 const DEV_PATH = "packages/evals/fixtures/schema-dialects-v4/DEV.json";
 
 /** The sealed v4 DEV split; HELD_OUT is never read by the gate. */
@@ -96,6 +97,7 @@ export async function runDevGate(
   models: EvaluationModel[],
   output: string,
   transport?: typeof fetch,
+  after: Exclude<(typeof DEV_GATE_STACKS)[number], "adr-0069"> = DEV_GATE_AFTER,
 ) {
   const { corpus, sha256 } = loadDevGateCorpus();
   execFileSync(
@@ -133,8 +135,11 @@ export async function runDevGate(
     cwd: root,
     encoding: "utf8",
   }).trim();
-  const directories: Record<MappingStackId, string> = {} as never;
-  for (const stack of DEV_GATE_STACKS) {
+  const directories = {} as Record<"before" | "after", string>;
+  for (const [role, stack] of [
+    ["before", "adr-0069"],
+    ["after", after],
+  ] as const) {
     const sessionId = randomUUID();
     const directory = resolve(output, sessionId);
     mkdirSync(directory, { recursive: true });
@@ -193,7 +198,7 @@ export async function runDevGate(
           records.push(record);
         }
     write("records.json", records);
-    directories[stack] = directory;
+    directories[role] = directory;
   }
   return directories;
 }
@@ -323,8 +328,8 @@ export function evaluateDevGate(
   const { corpus, sha256 } = loadDevGateCorpus();
   const before = loadDevGateSession(beforeDirectory);
   const after = loadDevGateSession(afterDirectory);
-  if (before.stack !== "adr-0069" || after.stack !== "adr-0075")
-    throw new Error("Gate 2 compares the ADR 0069 and ADR 0075 stacks");
+  if (before.stack !== "adr-0069" || after.stack === "adr-0069")
+    throw new Error("Gate 2 compares the ADR 0069 and an ADR 0075 stack");
   const dialects = new Map(corpus.dialects.map((d) => [d.id, d]));
   const models = [...before.models].sort();
   if (models.join() !== [...after.models].sort().join())
