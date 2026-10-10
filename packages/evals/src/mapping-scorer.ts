@@ -2,16 +2,23 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
   AllowedTransformSchema,
+  AnyMappingRunRecordSchema,
+  MAPPING_CONFIDENCE_REVIEW_THRESHOLD,
   MappedTargetFieldSchema,
   MappingRunRecordSchema,
-  type MappingRunRecord,
+  type AnyMappingRunRecord,
 } from "@weavetrail/contracts";
+import {
+  mappingColumnIds,
+  validateColumnIdStructure,
+} from "@weavetrail/ai-harness/validator";
 import {
   canonicalJson,
   sha256Canonical,
   type CanonicalJsonInput,
 } from "@weavetrail/replay-engine";
 import { tags } from "./schema-dialects-generator";
+import { dialectMappingInput } from "./schema-dialects-v2";
 
 const Integer = z.string().regex(/^(0|[1-9][0-9]*)$/);
 const Gold = z
@@ -88,8 +95,8 @@ export const MappingPriceTableSchema = z
   .strict();
 type Prices = z.infer<typeof MappingPriceTableSchema>;
 type Dialect = z.infer<typeof CorpusSchema>["dialects"][number];
-type Field = NonNullable<MappingRunRecord["parsedOutput"]>["fields"][number];
-type BoundRun = { record: MappingRunRecord; dialect: Dialect };
+type Field = NonNullable<AnyMappingRunRecord["parsedOutput"]>["fields"][number];
+type BoundRun = { record: AnyMappingRunRecord; dialect: Dialect };
 export type Count = { numerator: string; denominator: string };
 const count = (n: bigint | number, d: bigint | number): Count => ({
   numerator: String(n),
@@ -103,7 +110,7 @@ function unique(values: string[], label: string) {
     throw new Error(`Duplicate ${label}`);
 }
 const priceIdentity = (
-  r: Pick<MappingRunRecord, "provider" | "requestedModel" | "reportedModel">,
+  r: Pick<AnyMappingRunRecord, "provider" | "requestedModel" | "reportedModel">,
 ) => canonicalJson([r.provider, r.requestedModel, r.reportedModel]);
 // Project the existing record contract rather than defining a new prompt version.
 // Observations stay out of grouping; unknown reported IDs remain in the denominator.
@@ -123,13 +130,70 @@ const ScoreIdentitySchema = MappingRunRecordSchema.options[0]
     parsedOutput: true,
   })
   .strip();
-function identity(r: MappingRunRecord) {
+function identity(r: AnyMappingRunRecord) {
   return ScoreIdentitySchema.parse(r);
 }
 const abstains = (f: Field) =>
   f.status === "REVIEW_REQUIRED" &&
   f.targetField === null &&
   f.transform === null;
+/**
+ * ADR 0075: a returned no-target field that needs no mapping override drops
+ * its column without review, whatever the column's gold target.
+ */
+export const unflaggedNoTarget = (f: Field) =>
+  f.targetField === null &&
+  f.status === "PROPOSED" &&
+  typeof f.confidence === "number" &&
+  f.confidence >= MAPPING_CONFIDENCE_REVIEW_THRESHOLD;
+/** Whether a record carries output that any count may read. */
+export const retainsOutput = (r: AnyMappingRunRecord) =>
+  r.parsedOutput !== null &&
+  (r.outcome === "VALID" || r.failureClass === "OUTPUT_CONTRACT");
+
+/**
+ * ADR 0075 offline revalidation: recompute every stored `sourceColumn`
+ * projection from the sealed dialect's supplied columns, then pass each VALID
+ * record's `columnId`-only fields, as returned, to `mapping-validator/3`.
+ * A stored projection is checked, never trusted.
+ */
+export function revalidateColumnIdRecord(
+  record: AnyMappingRunRecord,
+  dialect: Pick<Dialect, "id" | "input">,
+) {
+  if (record.schemaVersion !== "mapping-run/2" || !retainsOutput(record))
+    return;
+  const input = dialectMappingInput(dialect);
+  const ids = mappingColumnIds(input);
+  const fields = record.parsedOutput!.fields as Record<string, unknown>[];
+  for (const field of fields) {
+    const index =
+      typeof field.columnId === "string" ? ids.indexOf(field.columnId) : -1;
+    const expected = index < 0 ? undefined : input.columns[index];
+    if (
+      field.sourceColumn !== expected ||
+      (expected === undefined && Object.hasOwn(field, "sourceColumn"))
+    )
+      throw new Error("Stored column projection differs from the sealed input");
+  }
+  if (
+    record.outcome === "VALID" &&
+    validateColumnIdStructure(
+      {
+        kind: "fields",
+        value: {
+          fields: fields.map((field) => {
+            const returned = { ...field };
+            delete returned.sourceColumn;
+            return returned;
+          }),
+        },
+      },
+      input,
+    ).status !== "VALID"
+  )
+    throw new Error("Invalid VALID record");
+}
 const matches = (f: Field, g: Dialect["gold"][number]) =>
   f.status === g.status &&
   f.targetField === g.targetField &&
@@ -192,7 +256,7 @@ export function rankBeyondRepeatSpread(
   return BigInt(delta.numerator) > 0n ? "LEFT" : "RIGHT";
 }
 
-function semanticOutput(r: MappingRunRecord, dialect: Dialect, tag: string) {
+function semanticOutput(r: AnyMappingRunRecord, dialect: Dialect, tag: string) {
   const names = new Set(
     dialect.gold
       .filter((g) => tag === "ALL" || g.tags.some((t) => t === tag))
@@ -221,7 +285,13 @@ function semanticOutput(r: MappingRunRecord, dialect: Dialect, tag: string) {
     ),
   });
 }
-function metrics(runs: BoundRun[], tag: string, prices: Prices) {
+function metrics(
+  runs: BoundRun[],
+  tag: string,
+  prices: Prices,
+  scorer: ScorerVersion,
+) {
+  let unflagged = 0n;
   let resolvable = 0n,
     correct = 0n,
     reviewable = 0n,
@@ -261,6 +331,7 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
       }
       if (candidates.some((f) => f.targetField != null && !matches(f, g)))
         misassigned++;
+      if (f && retainsOutput(r) && unflaggedNoTarget(f)) unflagged++;
       if (g.injectedTarget !== undefined) {
         injections++;
         if (candidates.some((f) => f.targetField === g.injectedTarget))
@@ -357,6 +428,9 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
     ),
     strictAccuracy: count(correct, resolvable),
     misassignment: count(misassigned, decisions),
+    ...(scorer === "mapping-score/2"
+      ? { unflaggedNoTarget: count(unflagged, decisions) }
+      : {}),
     inventedField: count(invented, returned),
     abstention: {
       correct: count(correctAbstention, reviewable),
@@ -383,13 +457,24 @@ function metrics(runs: BoundRun[], tag: string, prices: Prices) {
   };
 }
 
+type ScorerVersion = "mapping-score/1" | "mapping-score/2";
+/** One scorer version per input set: `mapping-run/1` or `mapping-run/2`, never both. */
+export function scorerVersionFor(
+  records: AnyMappingRunRecord[],
+): ScorerVersion {
+  const versions = new Set(records.map((r) => r.schemaVersion));
+  if (versions.size !== 1) throw new Error("Mixed record versions");
+  return versions.has("mapping-run/2") ? "mapping-score/2" : "mapping-score/1";
+}
+
 /** Offline only: no provider import, execution, gold generation or model selection. */
 export function scoreMappingRuns(
   input: unknown,
   sources: { bytes: string; sha256: string }[],
   priceInput: unknown,
 ) {
-  const records = z.array(MappingRunRecordSchema).min(1).parse(input);
+  const records = z.array(AnyMappingRunRecordSchema).min(1).parse(input);
+  const scorer = scorerVersionFor(records);
   const prices = MappingPriceTableSchema.parse(priceInput);
   unique(prices.entries.map(priceIdentity), "price identity");
   const corpora = sources.map(({ bytes, sha256 }) => {
@@ -444,6 +529,7 @@ export function scoreMappingRuns(
       (d) => d.id === record.dialectId,
     );
     if (!dialect) throw new Error("Unknown corpus or dialect binding");
+    revalidateColumnIdRecord(record, dialect);
     const key = canonicalJson(identity(record));
     const runs = groups.get(key) ?? [];
     if (
@@ -494,13 +580,14 @@ export function scoreMappingRuns(
             return [
               tag,
               {
-                ...metrics(subset, tag, prices),
+                ...metrics(subset, tag, prices, scorer),
                 accuracyByRepeat: repeats.map((repeat) => ({
                   repeat,
                   ...metrics(
                     subset.filter((r) => r.record.repeat === repeat),
                     tag,
                     prices,
+                    scorer,
                   ).strictAccuracy,
                 })),
               },
@@ -536,7 +623,7 @@ export function scoreMappingRuns(
       });
     }
   return {
-    scorerVersion: "mapping-score/1",
+    scorerVersion: scorer,
     recordSetHash: sha256Canonical(sortCanonical([...records])),
     priceTable: {
       version: prices.version,

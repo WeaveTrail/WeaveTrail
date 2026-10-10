@@ -4,15 +4,19 @@ import {
   DecimalStringSchema,
   MappedTargetFieldSchema,
   MappingRunRecordSchema,
+  MappingRunRecordV2Schema,
   SchemaMappingProposalSchema,
+  type AnyMappingRunRecord,
 } from "@weavetrail/contracts";
 import type { MappingInput } from "@weavetrail/ai-harness";
 import {
-  MAPPING_OUTPUT_SCHEMA_VERSION,
+  MAPPING_COLUMN_ID_VALIDATOR_VERSION,
   MAPPING_VALIDATOR_VERSION,
+  mappingColumnIds,
+  validateColumnIdStructure,
   validateMappingOutput,
   validateMappingStructure,
-} from "@weavetrail/ai-harness/server";
+} from "@weavetrail/ai-harness/validator";
 import vocabularyJson from "../fixtures/lexical-baseline-v1/vocabulary.json";
 import {
   lexicalKey,
@@ -25,7 +29,11 @@ import { sha256Canonical } from "@weavetrail/replay-engine";
 export const LEXICAL_BASELINE_PROVIDER = "deterministic-lexical-reference";
 export const VocabularySchema = z
   .object({
-    version: z.enum([LEXICAL_BASELINE_VERSION, "lexical-baseline/2"]),
+    version: z.enum([
+      LEXICAL_BASELINE_VERSION,
+      "lexical-baseline/2",
+      "lexical-baseline/3",
+    ]),
     normalizationVersion: z.literal(LEXICAL_NORMALIZATION_VERSION),
     devSha256: z.string().regex(/^[a-f0-9]{64}$/),
     entries: z.array(
@@ -120,30 +128,62 @@ export function runLexicalMapping(
   input: MappingInput,
   context: MappingRunContext,
   vocabulary: LexicalVocabulary = vocabularyV1,
-) {
+): AnyMappingRunRecord {
   const proposal = proposeLexicalMapping(input, vocabulary);
+  const base = {
+    ...context,
+    provider: LEXICAL_BASELINE_PROVIDER,
+    requestedModel: vocabulary.version,
+    reportedModel: null,
+    adapterVersion: vocabulary.version,
+    promptVersion: "non-model/no-prompt/1",
+    temperature: "0",
+    latencyMs: 0,
+    inputTokens: null,
+    outputTokens: null,
+  } as const;
+  if (vocabulary.version === "lexical-baseline/3") {
+    // ADR 0075: the same supplied-order IDs as the adapter, validated by
+    // mapping-validator/3 exactly as model output is.
+    const ids = mappingColumnIds(input);
+    const fields = proposal.fields.map(({ sourceColumn, ...field }) => ({
+      columnId: ids[input.columns.indexOf(sourceColumn)]!,
+      ...field,
+    }));
+    const validation = validateColumnIdStructure(
+      { kind: "fields", value: { fields } },
+      input,
+    );
+    return MappingRunRecordV2Schema.parse({
+      ...base,
+      schemaVersion: "mapping-run/2",
+      outputSchemaVersion: "mapping-fields/2",
+      validatorVersion: MAPPING_COLUMN_ID_VALIDATOR_VERSION,
+      outcome: validation.status === "VALID" ? "VALID" : "CONTRACT_REJECTED",
+      failureClass: validation.status === "VALID" ? null : "OUTPUT_CONTRACT",
+      validatorReasons: validation.reasons,
+      parsedOutput: {
+        fields: fields.map(({ columnId, ...field }) => ({
+          columnId,
+          sourceColumn: input.columns[ids.indexOf(columnId)]!,
+          ...field,
+        })),
+      },
+    });
+  }
   const validation = (
     vocabulary.version === "lexical-baseline/2"
       ? validateMappingStructure
       : validateMappingOutput
   )({ kind: "proposal", value: proposal }, input);
   return MappingRunRecordSchema.parse({
-    ...context,
+    ...base,
     schemaVersion: "mapping-run/1",
-    provider: LEXICAL_BASELINE_PROVIDER,
-    requestedModel: vocabulary.version,
-    reportedModel: null,
-    adapterVersion: vocabulary.version,
-    promptVersion: "non-model/no-prompt/1",
-    outputSchemaVersion: MAPPING_OUTPUT_SCHEMA_VERSION,
+    outputSchemaVersion: "mapping-fields/1",
     validatorVersion:
       vocabulary.version === "lexical-baseline/2"
         ? MAPPING_VALIDATOR_VERSION
         : "mapping-validator/1",
-    temperature: "0",
-    latencyMs: 0,
-    inputTokens: null,
-    outputTokens: null,
     outcome: validation.status === "VALID" ? "VALID" : "CONTRACT_REJECTED",
     failureClass: validation.status === "VALID" ? null : "OUTPUT_CONTRACT",
     validatorReasons: validation.reasons,
