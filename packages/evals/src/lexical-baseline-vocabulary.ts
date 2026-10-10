@@ -26,7 +26,9 @@ export function buildLexicalVocabulary(
     throw new Error("DEV seal mismatch");
   const corpus = JSON.parse(bytes) as Corpus;
   if (
-    !["schema-dialects/1", "schema-dialects/2"].includes(corpus.version) ||
+    !["schema-dialects/1", "schema-dialects/2", "schema-dialects/4"].includes(
+      corpus.version,
+    ) ||
     corpus.split !== "DEV"
   )
     throw new Error("Vocabulary requires DEV only");

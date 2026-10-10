@@ -1,0 +1,201 @@
+{
+  "version": "lexical-baseline/3",
+  "normalizationVersion": "ascii-separators/1",
+  "devSha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+  "entries": [
+    { "key": "adt", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    {
+      "key": "arvopaperi",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    { "key": "coldealer", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "colfilltime",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    { "key": "colordno", "targetField": "orderId", "transform": "IDENTITY" },
+    {
+      "key": "colproduct",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    { "key": "colq", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    {
+      "key": "colunitprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "dealer", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "dealercode", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "dealerid", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "dealprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "dlqty",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "emirno", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "eventtype", "targetField": "eventType", "transform": "IDENTITY" },
+    {
+      "key": "eventuid",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "fillprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "fillq",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "filltime",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    {
+      "key": "fillts",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    { "key": "giakhop", "targetField": "price", "transform": "DECIMAL_STRING" },
+    {
+      "key": "hargatransaksi",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "idofdealer", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "islemfiyati",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "islemyapan", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "islemzamani",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    { "key": "jml", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    { "key": "kauppias", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "kodeefek",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    { "key": "kpl", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    {
+      "key": "machungkhoan",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "masukien",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "menkulkiymet",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "nguoigiaodich",
+      "targetField": "actorId",
+      "transform": "IDENTITY"
+    },
+    { "key": "nooford", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "nopesanan", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "ordno", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "pialang", "targetField": "actorId", "transform": "IDENTITY" },
+    {
+      "key": "priceoffill",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "product",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "productcode",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "productsymbol",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "qfill",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "qoffill",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "qtyf", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    { "key": "slg", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    { "key": "solenh", "targetField": "orderId", "transform": "IDENTITY" },
+    {
+      "key": "symbolofproduct",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "tapahtumatunnus",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "thoigiankhop",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    { "key": "tilnro", "targetField": "orderId", "transform": "IDENTITY" },
+    {
+      "key": "timeoffill",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    {
+      "key": "toteutusaika",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    {
+      "key": "toteutushinta",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "tradets",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    {
+      "key": "unitprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "unitpx", "targetField": "price", "transform": "DECIMAL_STRING" },
+    {
+      "key": "waktutransaksi",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    }
+  ]
+}

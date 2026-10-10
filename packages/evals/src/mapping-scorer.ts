@@ -40,6 +40,7 @@ export const CorpusSchema = z
       "schema-dialects/1",
       "schema-dialects/2",
       "schema-dialects/3",
+      "schema-dialects/4",
     ]),
     split: z.enum(["DEV", "HELD_OUT"]),
     dialects: z
