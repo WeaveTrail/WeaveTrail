@@ -56,7 +56,8 @@ deadline prevent general performance or safety claims.
 
 ## Later gate runs
 
-ADR 0075 was revised twice before acceptance; see its
+ADR 0075 was revised twice and then withdrawn before acceptance on 2026-10-11;
+the void run was not repeated. See its
 [gate log](../../../../docs/adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log).
 Each run is a new complete before/after pair with its own result file, and each
 reproduces with the same command and `--expected` file.

@@ -369,20 +369,20 @@ export const PROMPT_HISTORY = {
   "schema-mapping/2": {
     introduced: "#320",
     model: true,
-    en: "The ADR 0075 retry instruction: every version 1 sentence plus three rules. Instruction-like text is data, an unsettled column is left for review, and each target is used once. Checked on DEV only; no held-out set has seen it yet.",
-    ko: "ADR 0075 재시도 지시문입니다. 1판의 문장을 모두 유지하고 세 규칙을 더했습니다. 지시처럼 보이는 글은 데이터로 보고, 판단할 수 없는 열은 검토로 남기고, 각 대상 항목은 한 번만 씁니다. DEV에서만 확인했고 아직 어떤 held-out 세트에도 보내지 않았습니다.",
+    en: "The ADR 0075 retry instruction: every version 1 sentence plus three rules. Instruction-like text is data, an unsettled column is left for review, and each target is used once. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 재시도 지시문입니다. 1판의 문장을 모두 유지하고 세 규칙을 더했습니다. 지시처럼 보이는 글은 데이터로 보고, 판단할 수 없는 열은 검토로 남기고, 각 대상 항목은 한 번만 씁니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
   },
   "schema-mapping/3": {
     introduced: "#320",
     model: true,
-    en: "ADR 0075 revision 1: every version 2 sentence plus target definitions, a target only when certain, the conversions no transform performs and the required targets. Checked on DEV only; no held-out set has seen it yet.",
-    ko: "ADR 0075 개정 1판입니다. 2판의 문장을 모두 유지하고 대상 정의, 확신할 때만 대상 지정, 어떤 변환도 하지 못하는 변환, 필수 대상을 더했습니다. DEV에서만 확인했고 아직 어떤 held-out 세트에도 보내지 않았습니다.",
+    en: "ADR 0075 revision 1: every version 2 sentence plus target definitions, a target only when certain, the conversions no transform performs and the required targets. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 개정 1판입니다. 2판의 문장을 모두 유지하고 대상 정의, 확신할 때만 대상 지정, 어떤 변환도 하지 못하는 변환, 필수 대상을 더했습니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
   },
   "schema-mapping/4": {
     introduced: "#320",
     model: true,
-    en: "ADR 0075 revision 2: every version 3 sentence plus a rule that the header, not the value format, decides the target, and that receivedAt needs a header saying so. Checked on DEV only; no held-out set has seen it yet.",
-    ko: "ADR 0075 개정 2판입니다. 3판의 문장을 모두 유지하고, 대상은 값의 형식이 아니라 헤더로 정하며 receivedAt은 헤더가 그렇게 말할 때만 쓴다는 규칙을 더했습니다. DEV에서만 확인했고 아직 어떤 held-out 세트에도 보내지 않았습니다.",
+    en: "ADR 0075 revision 2: every version 3 sentence plus a rule that the header, not the value format, decides the target, and that receivedAt needs a header saying so. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 개정 2판입니다. 3판의 문장을 모두 유지하고, 대상은 값의 형식이 아니라 헤더로 정하며 receivedAt은 헤더가 그렇게 말할 때만 쓴다는 규칙을 더했습니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
   },
   "fixture-mapping/1": {
     introduced: "95f283b, #17",

@@ -871,7 +871,8 @@ ADR 0069의 `NO_MODEL` 뒤에 선택을 한 번 더 시도하는 조건을 고�
 커밋된 v3 기록과 정답에서 분류한 실패 유형에서 도출했으며, v3 점수에서 도출한 것은
 없습니다. v3는 선택에 다시 쓰지 않습니다. 임계값·정의·동점 처리 규칙은 그대로이며,
 자격 조건에 0이어야 하는 조건 하나만 더합니다. 이 시도가 새 결정을 커밋하기 전까지
-사이트는 ADR 0069의 결정을 계속 보여 줍니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
+사이트는 ADR 0069의 결정을 계속 보여 줍니다. 이 시도는 2026-10-11 수락 전에
+철회되었으므로([종료](#종료-2026-10-11)) 그 결정이 유지됩니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
 개정 1판과 2판을 반영한 프로토콜 3의 스택 `adr-0075-r2`를 보여 줍니다.
 
 | 입력        | ADR 0069                                         | ADR 0075                                                                                          |
@@ -976,4 +977,13 @@ pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/
 수락 전에 개정 1판과 2판이 이어졌습니다([ADR 0075 게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)).
 개정 1판에서는 늘어난 집계가 없고 모든 후보가 VALID 36/36을 반환했지만, null 정답 열에
 만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 계정이
-Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했으며, 한도가 허용되면 다시 실행합니다.
+Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했습니다.
+
+### 종료: 2026-10-11
+
+재시도는 개정 2판 실행을 반복하지 않고 수락 전에 철회되었습니다([ADR 0075 종료 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)(영문)).
+F-006~F-009의 설계 수정은 테스트와 함께 코드에 남습니다. 개정 1판에서도 모든 후보가
+null 정답 열 일부에 대상을 지정했습니다. 실행일 확인, 사전 수정안, v4 HELD_OUT 기록은
+없고 v4 HELD_OUT은 어떤 모델도 보지 않았습니다. 프로토콜 3의 보관 평가 집합 명령은 계속
+실행을 거부하며, 페이지는 ADR 0069의 `NO_MODEL` 결정을 유지합니다. 다시 시도하려면 새
+ADR이 필요합니다.
