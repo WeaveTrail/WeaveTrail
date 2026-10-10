@@ -315,6 +315,18 @@ export const FAILURE_LOG_ENTRIES = [
     en: "The compatibility endpoint rejects the store request parameter",
     ko: "호환 엔드포인트가 store 요청 매개변수를 거부함",
   },
+  {
+    id: "F-006",
+    status: "ACCEPTED_RESIDUAL",
+    en: "An attack header is also an allowed output value",
+    ko: "공격 문구가 담긴 헤더가 허용된 출력 값이기도 함",
+  },
+  {
+    id: "F-007",
+    status: "ACCEPTED_RESIDUAL",
+    en: "An ambiguous column is mapped instead of left for review",
+    ko: "모호한 열을 검토로 남기지 않고 연결함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */
