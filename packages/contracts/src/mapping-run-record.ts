@@ -1,8 +1,14 @@
 import { z } from "zod";
 import { DecimalStringSchema } from "./decimal-string";
-import { MappingFieldSchema } from "./schema-mapping";
+import {
+  AllowedTransformSchema,
+  MappedTargetFieldSchema,
+  MappingFieldSchema,
+} from "./schema-mapping";
 
 export const MAPPING_RUN_RECORD_VERSION = "mapping-run/1";
+/** ADR 0075: retains the returned column ID and the header projected from it. */
+export const MAPPING_RUN_RECORD_V2_VERSION = "mapping-run/2";
 export const MAPPING_RUN_OUTPUT_MAX_BYTES = 65_536;
 
 const Identifier = z.string().trim().min(1).max(256);
@@ -41,6 +47,14 @@ const RetainedField = z
   })
   .strict();
 
+// Version 2 keeps the returned `columnId` scalar as received. `sourceColumn` is
+// never model output here: the runner projects it from the supplied column list,
+// and offline revalidation recomputes it before any count reads it.
+const RetainedFieldV2 = RetainedField.extend({
+  columnId: Scalar.optional(),
+  sourceColumn: z.string().optional(),
+}).strict();
+
 function boundedOutput<T extends z.ZodType>(schema: T) {
   return schema.refine(
     (output) =>
@@ -57,9 +71,38 @@ export const MappingRunStructuredOutputSchema = boundedOutput(
 const ValidOutput = boundedOutput(
   z.object({ fields: z.array(MappingFieldSchema) }).strict(),
 );
+export const MappingRunStructuredOutputV2Schema = boundedOutput(
+  z.object({ fields: z.array(RetainedFieldV2) }).strict(),
+);
+const ValidOutputV2 = boundedOutput(
+  z
+    .object({
+      fields: z.array(
+        z
+          .object({
+            columnId: z.string().min(1),
+            sourceColumn: z.string().min(1),
+            targetField: MappedTargetFieldSchema.nullable(),
+            transform: AllowedTransformSchema.nullable(),
+            confidence: z.number().min(0).max(1),
+            evidence: z.string().min(1),
+            status: z.enum(["PROPOSED", "REVIEW_REQUIRED"]),
+          })
+          .strict()
+          .refine(
+            ({ targetField, transform }) =>
+              (targetField === null) === (transform === null),
+            {
+              message:
+                "targetField and transform must either both be null or both be set",
+            },
+          ),
+      ),
+    })
+    .strict(),
+);
 
-const Base = {
-  schemaVersion: z.literal(MAPPING_RUN_RECORD_VERSION),
+const Observations = {
   evaluationSet: z
     .object({
       version: Identifier,
@@ -84,6 +127,14 @@ const Base = {
   httpStatus: z.number().int().min(100).max(599).nullable().optional(),
   inputTokens: TokenCount,
   outputTokens: TokenCount,
+};
+const Base = {
+  schemaVersion: z.literal(MAPPING_RUN_RECORD_VERSION),
+  ...Observations,
+};
+const BaseV2 = {
+  schemaVersion: z.literal(MAPPING_RUN_RECORD_V2_VERSION),
+  ...Observations,
 };
 
 export const MappingRunRecordSchema = z.discriminatedUnion("outcome", [
@@ -137,6 +188,44 @@ export const MappingRunRecordSchema = z.discriminatedUnion("outcome", [
     .strict(),
 ]);
 
+/** The same outcomes and failure classes as version 1, over the ID-form output. */
+export const MappingRunRecordV2Schema = z.discriminatedUnion("outcome", [
+  MappingRunRecordSchema.options[0]
+    .omit({ schemaVersion: true, parsedOutput: true })
+    .extend({ ...BaseV2, parsedOutput: ValidOutputV2 })
+    .strict(),
+  z
+    .object({
+      ...BaseV2,
+      outcome: z.literal("CONTRACT_REJECTED"),
+      validatorReasons: z.array(MappingRunValidatorReasonSchema).min(1),
+      failureClass: z.enum([
+        "OUTPUT_CONTRACT",
+        "UNPARSEABLE_OUTPUT",
+        "OUTPUT_NOT_RETAINABLE",
+      ]),
+      parsedOutput: MappingRunStructuredOutputV2Schema.nullable(),
+    })
+    .strict()
+    .refine(
+      ({ failureClass, parsedOutput }) =>
+        failureClass === "OUTPUT_CONTRACT" || parsedOutput === null,
+      {
+        path: ["parsedOutput"],
+        message: "Unparseable or non-retainable output must be null",
+      },
+    ),
+  MappingRunRecordSchema.options[2]
+    .omit({ schemaVersion: true })
+    .extend(BaseV2)
+    .strict(),
+]);
+/** Either record version; scorers reject a mix of versions in one input set. */
+export const AnyMappingRunRecordSchema = z.union([
+  MappingRunRecordSchema,
+  MappingRunRecordV2Schema,
+]);
+
 /** A record hash links actual run context without putting it in the summary. */
 export const MappingRunReceiptSchema = z
   .object({
@@ -148,6 +237,8 @@ export const MappingRunReceiptSchema = z
   .strict();
 
 export type MappingRunRecord = z.infer<typeof MappingRunRecordSchema>;
+export type MappingRunRecordV2 = z.infer<typeof MappingRunRecordV2Schema>;
+export type AnyMappingRunRecord = z.infer<typeof AnyMappingRunRecordSchema>;
 export type MappingRunReceipt = z.infer<typeof MappingRunReceiptSchema>;
 export type MappingRunValidatorReason = z.infer<
   typeof MappingRunValidatorReasonSchema
