@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { sha256Canonical } from "@weavetrail/replay-engine";
-import { SELECTION_MODELS } from "./mapping-selection";
+import { RETRY_SELECTION_MODELS, SELECTION_MODELS } from "./mapping-selection";
 import { loadHeldOutSession, runHeldOut } from "./held-out-protocol";
 import { requireLiveMappingCommand } from "./mapping-model-runner";
 
@@ -35,6 +35,9 @@ vi.mock("node:fs", async (importOriginal) => {
       if (
         String(path).endsWith(
           "0069-recover-mapping-transport-with-a-fresh-held-out-set.md",
+        ) ||
+        String(path).endsWith(
+          "0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md",
         )
       )
         return Buffer.from("- Status: Accepted");
@@ -170,4 +173,20 @@ it("rejects an attempt receipted under another session", async () => {
     JSON.stringify({ ...receipt, sessionId: randomUUID() }),
   );
   expect(() => loadHeldOutSession(output)).toThrow("another session");
+});
+
+it("refuses protocol 3 before transport while ADR 0075 has no dated price table or acceptance", async () => {
+  const retry = models.filter((m) =>
+    (RETRY_SELECTION_MODELS as readonly string[]).includes(m.model),
+  );
+  const transport = vi.fn<typeof fetch>();
+  await expect(
+    runHeldOut(
+      retry,
+      { ...catalogue(), modelIds: [...RETRY_SELECTION_MODELS] },
+      "/tmp/unused",
+      transport,
+    ),
+  ).rejects.toThrow("Price table must be sealed");
+  expect(transport).not.toHaveBeenCalled();
 });

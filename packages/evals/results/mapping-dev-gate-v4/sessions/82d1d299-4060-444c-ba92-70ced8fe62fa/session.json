@@ -1,0 +1,27 @@
+{
+  "version": "mapping-dev-gate-session/1",
+  "sessionId": "82d1d299-4060-444c-ba92-70ced8fe62fa",
+  "stack": "adr-0075",
+  "startedAt": "2026-10-10T09:03:58.350Z",
+  "commit": "8fa6265c9138f457230a1675af60024c04954f5a",
+  "environment": {
+    "node": "v22.18.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "endpoint": {
+    "provider": "google",
+    "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai"
+  },
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "models": [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-3.8-flash",
+    "gemini-3.1-pro-preview"
+  ]
+}
