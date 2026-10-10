@@ -43,3 +43,17 @@ it("reproduces the committed revision 1 gate result, which did not pass on inven
     expect(c.after.inventedOnNullGold.numerator).not.toBe("0");
   }
 });
+
+it("reproduces the void revision 2 run, in which no after record retained output", () => {
+  const result = evaluateDevGate(
+    session("abf2cd88-68ba-4571-b43c-569939e20f95"),
+    session("3551c0b9-7e20-4c5f-9881-88ed746bc878"),
+  );
+  expect(JSON.stringify(result, null, 2) + "\n").toBe(
+    readFileSync(new URL("gate-r2-void.json", capture), "utf8"),
+  );
+  for (const c of result.candidates) {
+    expect(c.pairs).toEqual([]);
+    expect(c.after.validOutput.numerator).toBe("0");
+  }
+});

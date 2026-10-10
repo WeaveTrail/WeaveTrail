@@ -380,3 +380,17 @@ received, arrived or recorded. The after stack becomes `adr-0075-r2`
 (`schema-mapping/4`, `openai-compatible-mapping/4`, `mapping-fields/2`,
 `mapping-validator/3`, `mapping-run/2`); nothing else changes. Gate 2 runs again
 as a new complete pair. F-010 records the observation.
+
+### Gate 2 under revision 2: 2026-10-10, void
+
+The pair from checkout `99a77cf`, before `abf2cd88-68ba-4571-b43c-569939e20f95`
+and after `3551c0b9-7e20-4c5f-9881-88ed746bc878`
+([result](../../packages/evals/results/mapping-dev-gate-v4/gate-r2-void.json)),
+ended when the credential's prepayment credits ran out. From then on every
+request returned HTTP 402 or 429: 57 of 144 before records and all 144 after
+records are `PROVIDER_FAILED`, and no after record retains output. Like a gate 3
+failure other than a model's HTTP 404, this is an operator condition, not a model
+observation. The run is committed and void: it neither passes nor fails revision
+2 and does not justify another revision. Gate 2 under revision 2 is repeated as
+a new complete pair once billing is restored. Status stays Proposed; v4 HELD_OUT
+remains unseen.

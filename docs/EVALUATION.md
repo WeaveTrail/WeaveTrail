@@ -1070,3 +1070,10 @@ pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/
 See the [capture](../packages/evals/results/mapping-dev-gate-v4/README.md) for
 definitions and limits: synthetic rows, shared slot templates, one provider,
 three repeats, preview aliases and the 30-second deadline.
+
+Revisions 1 and 2 followed before acceptance (see the
+[ADR 0075 gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)).
+Under revision 1 no count rose and every candidate returned 36/36 `VALID`
+records, but invented fields on null-gold columns stayed nonzero (16–30 of 252).
+The revision 2 run is void: the credential's prepayment credits ran out and the
+requests returned HTTP 402 or 429. It is repeated once billing is restored.

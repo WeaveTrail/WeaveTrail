@@ -1,0 +1,26 @@
+{
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "dialectId": "DEV-v4-12",
+  "repeat": 3,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": null,
+  "adapterVersion": "openai-compatible-mapping/4",
+  "promptVersion": "schema-mapping/4",
+  "outputSchemaVersion": "mapping-fields/2",
+  "validatorVersion": "mapping-validator/3",
+  "temperature": "0",
+  "latencyMs": 266,
+  "httpStatus": 402,
+  "inputTokens": null,
+  "outputTokens": null,
+  "outcome": "PROVIDER_FAILED",
+  "validatorReasons": [],
+  "failureClass": "HTTP_ERROR",
+  "parsedOutput": null,
+  "schemaVersion": "mapping-run/2"
+}

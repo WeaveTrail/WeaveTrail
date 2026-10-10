@@ -967,3 +967,8 @@ pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/
 정의와 한계는 [수집 기록](../packages/evals/results/mapping-dev-gate-v4/README.md)(영문)을
 참고하세요. 합성 행, 공유 슬롯 기준, 단일 제공자, 반복 세 번, 미리보기 별칭과 30초
 마감 시간 때문에 일반적인 성능·안전성 주장은 할 수 없습니다.
+
+수락 전에 개정 1판과 2판이 이어졌습니다([ADR 0075 게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)).
+개정 1판에서는 늘어난 집계가 없고 모든 후보가 VALID 36/36을 반환했지만, null 정답 열에
+만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 인증 정보의
+선불 크레딧이 소진되어 요청이 HTTP 402나 429를 반환했으며, 결제가 복구되면 다시 실행합니다.
