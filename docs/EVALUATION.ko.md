@@ -270,15 +270,17 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 
 ## 평가 페이지의 모델 비교
 
-`/evals`는 보관 평가 집합 모델 비교로 시작합니다. 한 문장 답, 기본 모델과 상위
-모델, 비모델 기준선을 비교 기준 행으로 둔 적격 여부 표를 먼저 보여 줍니다.
+`/evals`는 보관 평가 집합 모델 비교로 시작합니다. 한 문장 요약과 비모델 기준선을
+비교 기준 행으로 둔 적격 여부 표를 먼저 보여 줍니다. 결정이 모델을 고르면 요약에 그
+모델을 적고 기본 모델과 상위 모델 행을 보여 줍니다. 고른 모델이 없는 결정은 측정한
+내용으로 요약하고 역할 행을 두지 않습니다([ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)(영문)).
 비용과 정확도(같은 값의 표 포함), 태그별 엄격 정확도, 실행 기록과
 [AI 실패 기록](AI_FAILURE_LOG.ko.md)으로 연결되는 실패, 선택 규칙, 프롬프트 버전,
 쉬운 용어 설명, 한계와 실행일은 탭 하나로 엽니다. 모든 숫자는 위의 정의로
 연결됩니다. 페이지는 커밋된 비교와 `mapping-selection-decision/1` 기록만 읽고,
 네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 첫 세션은
 2026-10-08 UTC에 실행했고 180회 요청 모두 `HTTP_ERROR`로 실패해 `NO_MODEL`을
-기록했습니다. 페이지는 실행 건수, 비용 미상과 선택한 모델 없음을 보여 줍니다.
+기록했습니다. 페이지는 실행 건수와 비용 미상을 보여 줍니다.
 실패한 시도로 모델 품질을 추정할 수는 없습니다.
 [첫 보관 평가 집합 세션](#첫-보관-평가-집합-세션-2026-10-08)을 참고하세요. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
 참고하십시오.
@@ -871,7 +873,8 @@ ADR 0069의 `NO_MODEL` 뒤에 선택을 한 번 더 시도하는 조건을 고�
 커밋된 v3 기록과 정답에서 분류한 실패 유형에서 도출했으며, v3 점수에서 도출한 것은
 없습니다. v3는 선택에 다시 쓰지 않습니다. 임계값·정의·동점 처리 규칙은 그대로이며,
 자격 조건에 0이어야 하는 조건 하나만 더합니다. 이 시도가 새 결정을 커밋하기 전까지
-사이트는 ADR 0069의 결정을 계속 보여 줍니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
+사이트는 ADR 0069의 결정을 계속 보여 줍니다. 이 시도는 2026-10-11 수락 전에
+철회되었으므로([종료](#종료-2026-10-11)) 그 결정이 유지됩니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
 개정 1판과 2판을 반영한 프로토콜 3의 스택 `adr-0075-r2`를 보여 줍니다.
 
 | 입력        | ADR 0069                                         | ADR 0075                                                                                          |
@@ -976,4 +979,14 @@ pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/
 수락 전에 개정 1판과 2판이 이어졌습니다([ADR 0075 게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)).
 개정 1판에서는 늘어난 집계가 없고 모든 후보가 VALID 36/36을 반환했지만, null 정답 열에
 만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 계정이
-Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했으며, 한도가 허용되면 다시 실행합니다.
+Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했습니다.
+
+### 종료: 2026-10-11
+
+재시도는 개정 2판 실행을 반복하지 않고 수락 전에 철회되었습니다([ADR 0075 종료 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)(영문)).
+F-006~F-009의 설계 수정은 테스트와 함께 코드에 남습니다. 개정 1판에서도 모든 후보가
+null 정답 열 일부에 대상을 지정했습니다. 실행일 확인, 사전 수정안, v4 HELD_OUT 기록은
+없고 v4 HELD_OUT은 어떤 모델도 보지 않았습니다. 프로토콜 3의 보관 평가 집합 명령은 계속
+실행을 거부하며, 커밋된 결정은 ADR 0069의 `NO_MODEL`로 남습니다. 평가 페이지는 이를
+[ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)(영문)에 따라 측정
+기록으로 보여 줍니다. 다시 시도하려면 새 ADR이 필요합니다.

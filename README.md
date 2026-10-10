@@ -196,14 +196,15 @@ no result until its evaluation is published.
   local smoke command with sanitized run records; scoring of accuracy, invented
   fields, abstention, rejection, latency and cost beside a non-model lexical
   baseline; a selection rule fixed before the held-out run; and the comparison
-  on the evaluation page, with the home page answering which model was chosen.
+  on the evaluation page.
   The first held-out run selected no model: every request failed without
   output. The fresh recovery run observed model output but no candidate passed
   the pre-declared thresholds; its comparison and `NO_MODEL` decision are
-  committed and documented in the evaluation protocol. Both web pages are bound
-  to the recovery session, so they show no selection and the home page shows
-  no accuracy figures; beside the answer it draws the four control-line stages
-  and lists what runs today apart from what is planned. Any changed configuration needs another fresh held-out set and a
+  committed and documented in the evaluation protocol. The evaluation page shows
+  the recovery session as a measured comparison. The home page leads with the
+  guided walkthrough and an example of its end screen from committed data,
+  draws the four control-line stages and lists what runs today apart from what
+  is planned. Any changed configuration needs another fresh held-out set and a
   decision record before the run. Each finding's evidence traces back through
   the approved mapping, line by line, to the committed source value. Planned:
   the guided replay grouped under propose, approve, verify and trace.

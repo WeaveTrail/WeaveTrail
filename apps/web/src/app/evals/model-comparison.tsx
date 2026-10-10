@@ -79,25 +79,25 @@ export function ModelComparison({
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const decision = result?.decision;
-  const answer = !decision
-    ? t.answer.pending
-    : decision.outcome === "NO_MODEL" || !decision.primary
-      ? t.answer.noModel
-      : decision.escalation
-        ? t.answer.selected(decision.primary, decision.escalation)
-        : t.answer.primaryOnly(decision.primary);
-  const primaryValue = !decision
-    ? t.roleValue.pending
-    : (decision.primary ?? t.roleValue.noModel);
-  const escalationValue = !decision
-    ? t.roleValue.pending
-    : decision.primary
-      ? (decision.escalation ?? t.roleValue.noEscalation)
-      : t.roleValue.noModel;
-
   const models = result
     ? result.comparison.groups.filter((g) => g.role === "MODEL")
     : [];
+  // A run without a selection is shown as what it measured; the roles appear
+  // only while pending or once a primary model is selected.
+  const primary =
+    decision?.outcome === "SELECTED" ? (decision.primary ?? null) : null;
+  const answer = !decision
+    ? t.answer.pending
+    : primary === null
+      ? t.answer.measured(models.length)
+      : decision.escalation
+        ? t.answer.selected(primary, decision.escalation)
+        : t.answer.primaryOnly(primary);
+  const showRoles = !decision || primary !== null;
+  const primaryValue = primary ?? t.roleValue.pending;
+  const escalationValue = !decision
+    ? t.roleValue.pending
+    : (decision.escalation ?? t.roleValue.noEscalation);
   const reference = result?.comparison.groups.find(
     (g) => g.role === "REFERENCE",
   );
@@ -244,26 +244,28 @@ export function ModelComparison({
       <div className="mc-answer">
         <span className="eyebrow">{t.eyebrow}</span>
         <h1 id="model-comparison-answer">{answer}</h1>
-        <dl className="mc-roles">
-          <div>
-            <dt>{term("primary", t.roles.primary)}</dt>
-            <dd
-              className={decision?.primary ? "mc-model" : undefined}
-              data-role="primary"
-            >
-              {primaryValue}
-            </dd>
-          </div>
-          <div>
-            <dt>{term("escalation", t.roles.escalation)}</dt>
-            <dd
-              className={decision?.escalation ? "mc-model" : undefined}
-              data-role="escalation"
-            >
-              {escalationValue}
-            </dd>
-          </div>
-        </dl>
+        {showRoles ? (
+          <dl className="mc-roles">
+            <div>
+              <dt>{term("primary", t.roles.primary)}</dt>
+              <dd
+                className={decision?.primary ? "mc-model" : undefined}
+                data-role="primary"
+              >
+                {primaryValue}
+              </dd>
+            </div>
+            <div>
+              <dt>{term("escalation", t.roles.escalation)}</dt>
+              <dd
+                className={decision?.escalation ? "mc-model" : undefined}
+                data-role="escalation"
+              >
+                {escalationValue}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
       </div>
 
       <p className="mc-caption" id="mc-eligibility-caption">

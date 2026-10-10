@@ -181,7 +181,9 @@ The live held-out command targets protocol 3 of
 columns are named by opaque IDs, the stack is `adr-0075-r2` (prompt
 `schema-mapping/4`, adapter `openai-compatible-mapping/4`), and the inputs are
 `schema-dialects/4`. It refuses to run until that ADR is accepted
-with a dated price table; its pre-run gate 2 did not pass on 2026-10-10.
+with a dated price table; its pre-run gate 2 did not pass on 2026-10-10, and
+the ADR was withdrawn before acceptance on 2026-10-11, so the command stays
+refused.
 `pnpm eval:schemas:generate:v4` reproduces both v4 splits and the DEV-only
 reference vocabulary. `pnpm eval:models:dev-gate --live` runs the before and
 after stacks on v4 DEV, and `pnpm eval:mappings:dev-gate --before <session>

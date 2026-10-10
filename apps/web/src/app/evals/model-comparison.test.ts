@@ -222,7 +222,8 @@ describe("model comparison on the evaluation page", () => {
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
       const markup = render(committedHeldOutResult, korean);
-      expect(markup).toContain(copy.answer.noModel);
+      expect(markup).toContain(copy.answer.measured(DECLARED_MODELS.length));
+      expect(markup).not.toContain('class="mc-roles"');
       expect(markup).not.toContain(copy.answer.pending);
       expect(markup).toContain(
         copy.caption.run(committedHeldOutResult.runDate),
@@ -283,10 +284,8 @@ describe("model comparison on the evaluation page", () => {
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
       const markup = render(result, korean);
-      expect(markup).toContain(copy.answer.noModel);
-      expect(
-        markup.match(new RegExp(copy.roleValue.noModel, "g")),
-      ).toHaveLength(2);
+      expect(markup).toContain(copy.answer.measured(DECLARED_MODELS.length));
+      expect(markup).not.toContain('class="mc-roles"');
     }
     const model = result.comparison.groups.find((g) => g.role === "MODEL")!;
     expect(failureModes(model).map((m) => m.key)[0]).toBe("providerFailed");
@@ -374,10 +373,8 @@ describe("model comparison on the evaluation page", () => {
     for (const korean of [false, true]) {
       const copy = modelComparisonCopy[korean ? "ko" : "en"];
       const markup = render(result, korean);
-      expect(markup).toContain(copy.answer.noModel);
-      expect(
-        markup.match(new RegExp(copy.roleValue.noModel, "g")),
-      ).toHaveLength(2);
+      expect(markup).toContain(copy.answer.measured(DECLARED_MODELS.length));
+      expect(markup).not.toContain('class="mc-roles"');
       expect(markup.match(/data-eligible="true"/g)).toHaveLength(
         DECLARED_MODELS.length,
       );

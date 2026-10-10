@@ -39,22 +39,18 @@ async function expectInFirstViewport(page: Page, selector: string) {
 
 for (const viewport of VIEWPORTS) {
   for (const language of LANGUAGES) {
-    test(`answers the selection question in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
+    test(`shows the measured comparison in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
       page,
     }) => {
       const copy = modelComparisonCopy[language];
       await page.setViewportSize(viewport);
       await open(page, language);
 
+      // A run without a selection reads as what it measured, with no roles.
       await expect(page.locator("#model-comparison-answer")).toHaveText(
-        copy.answer.noModel,
+        copy.answer.measured(DECLARED_MODELS.length),
       );
-      await expect(page.locator('[data-role="primary"]')).toHaveText(
-        copy.roleValue.noModel,
-      );
-      await expect(page.locator('[data-role="escalation"]')).toHaveText(
-        copy.roleValue.noModel,
-      );
+      await expect(page.locator(".mc-roles")).toHaveCount(0);
       const rows = page.locator(".mc-eligibility tbody tr");
       await expect(rows).toHaveCount(DECLARED_MODELS.length + 1);
       const models = committedHeldOutResult.comparison.groups.filter(
@@ -76,7 +72,6 @@ for (const viewport of VIEWPORTS) {
       );
 
       await expectInFirstViewport(page, "#model-comparison-answer");
-      await expectInFirstViewport(page, ".mc-roles");
       await expectInFirstViewport(page, "#mc-eligibility-caption");
       await expectInFirstViewport(page, ".mc-eligibility thead tr");
       await expectInFirstViewport(page, ".mc-eligibility tbody tr");

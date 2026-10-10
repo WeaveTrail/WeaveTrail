@@ -3,21 +3,17 @@
 import Link from "next/link";
 import React from "react";
 
-import {
-  FAILURE_LOG_ENTRIES,
-  definitionLinks,
-  fraction,
-  percent,
-} from "../evals/model-comparison-data";
+import { FAILURE_LOG_ENTRIES } from "../evals/model-comparison-data";
 import { GUIDE_STAGES, guideStageNames } from "../guide-stages";
 import { useCopy, useLanguage } from "../i18n/language";
+import { replayCopy } from "../replay/copy";
 import {
   HOME_TERM_KEYS,
   homeCopy,
   type HomeEvaluation,
   type HomeTermKey,
 } from "./copy";
-import type { HomeSelection } from "./selection";
+import type { HomeExample } from "./example";
 
 import "./home.css";
 
@@ -58,24 +54,18 @@ function withTerms(marked: string): React.ReactNode[] {
 }
 
 export function HomeContent({
-  selection,
+  example,
   evaluation,
 }: {
-  selection: HomeSelection;
+  example: HomeExample;
   evaluation: HomeEvaluation;
 }) {
   const text = useCopy(homeCopy);
   const stageNames = useCopy(guideStageNames);
+  const gates = useCopy(replayCopy).machine.gates;
   const { language } = useLanguage();
-  const answer = text.answer;
-  const links = definitionLinks(language);
+  const shown = text.example;
   const failureLog = `https://github.com/WeaveTrail/WeaveTrail/blob/develop/docs/AI_FAILURE_LOG${language === "ko" ? ".ko" : ""}.md`;
-  const sentence =
-    selection.state === "planned"
-      ? answer.planned[selection.reason]
-      : selection.escalation === null
-        ? answer.primaryOnly(selection.primary)
-        : answer.selected(selection.primary, selection.escalation);
 
   return (
     <main className="home">
@@ -87,56 +77,69 @@ export function HomeContent({
             <p className="home-lede">{text.intro.lede}</p>
             <div className="hero-actions">
               <Link className="button primary" href="/replay?mode=guided">
-                {answer.walkThrough}
+                {shown.walkThrough}
               </Link>
-              <Link className="button secondary" href="/evals">
-                {answer.seeComparison}
+              <Link className="button secondary" href="/expectations">
+                {shown.seeExpected}
               </Link>
             </div>
             <p className="home-walk-meta">{text.intro.walkMeta}</p>
+            <p className="home-control" id="home-control">
+              {withTerms(shown.control)}
+            </p>
           </div>
 
-          <section className="home-ai" aria-labelledby="home-question">
-            <span className="eyebrow">{answer.eyebrow}</span>
-            <h2 id="home-question">{withTerms(answer.question)}</h2>
-            <p
-              className="home-answer-sentence"
-              data-state={selection.state}
-              id="home-answer"
-            >
-              {withTerms(sentence)}
-            </p>
-            {selection.state === "selected" ? (
-              <dl className="home-facts" aria-label={answer.factsLabel}>
-                <div>
-                  <dt>{answer.primaryAccuracy}</dt>
-                  <dd>
-                    <a href={links.rule}>
-                      {fraction(selection.primaryAccuracy)} ·{" "}
-                      {percent(selection.primaryAccuracy)}
-                    </a>
-                  </dd>
-                </div>
-                <div>
-                  <dt>{answer.validOutput}</dt>
-                  <dd>
-                    <a href={links.metrics}>
-                      {fraction(selection.validOutput)} ·{" "}
-                      {percent(selection.validOutput)}
-                    </a>
-                  </dd>
-                </div>
-              </dl>
-            ) : null}
-            {selection.state === "selected" ? (
-              <p className="home-run">
-                <a href={selection.sessionReceipt}>
-                  {answer.runDate(selection.runDate)}
-                </a>
-              </p>
-            ) : null}
-            <p className="home-control" id="home-control">
-              {withTerms(answer.control)}
+          <section
+            className="home-example"
+            aria-labelledby="home-example-title"
+            data-scenario={example.scenario}
+          >
+            <span className="eyebrow">{shown.eyebrow}</span>
+            <h2 id="home-example-title">{shown.title}</h2>
+            <div className="home-example-result" id="home-example-result">
+              <span>{shown.resultLabel}</span>
+              <strong data-result={example.result}>{example.result}</strong>
+              <small>{shown.rule(example.rule)}</small>
+            </div>
+            <div className="home-example-mapping">
+              <h3>{withTerms(shown.mappingLabel)}</h3>
+              <ul>
+                {example.mapping.map(({ sourceColumn, targetField }) => (
+                  <li key={targetField}>
+                    <code>{sourceColumn}</code>
+                    <span aria-hidden="true">→</span>
+                    <code>{targetField}</code>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <table className="home-example-gates">
+              <caption>{withTerms(shown.gatesLabel)}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{shown.gateColumn}</th>
+                  <th scope="col">{shown.observedColumn}</th>
+                  <th scope="col">{shown.thresholdColumn}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {example.gates.map((gate) => (
+                  <tr data-passed={gate.passed} key={gate.gate}>
+                    <th scope="row">{gates[gate.gate].label}</th>
+                    <td>
+                      {gate.observedValue}{" "}
+                      <small>{gate.passed ? shown.passed : shown.failed}</small>
+                    </td>
+                    <td>{gate.threshold}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="home-example-note">
+              {shown.unitNote} {shown.resultHash}{" "}
+              <code title={example.canonicalResultHash}>
+                {example.canonicalResultHash.slice(0, 12)}…
+              </code>
             </p>
           </section>
           {HOME_TERM_KEYS.map((key) => (
@@ -148,17 +151,15 @@ export function HomeContent({
               popover="auto"
               role="dialog"
             >
-              <strong id={`${termId(key)}-title`}>
-                {answer.terms[key][0]}
-              </strong>
-              <p>{answer.terms[key][1]}</p>
+              <strong id={`${termId(key)}-title`}>{shown.terms[key][0]}</strong>
+              <p>{shown.terms[key][1]}</p>
               <button
                 className="button secondary"
                 popoverTarget={termId(key)}
                 popoverTargetAction="hide"
                 type="button"
               >
-                {answer.close}
+                {shown.close}
               </button>
             </div>
           ))}
@@ -219,6 +220,7 @@ export function HomeContent({
             <ul className="home-board-list">
               {(
                 [
+                  ["/replay?mode=guided", text.guidedTitle, text.guided],
                   [
                     "/evals",
                     text.comparisonTitle,
@@ -230,7 +232,6 @@ export function HomeContent({
                     text.failureLogTitle,
                     text.failureLog(FAILURE_LOG_ENTRIES.length),
                   ],
-                  ["/replay?mode=guided", text.guidedTitle, text.guided],
                 ] as const
               ).map(([href, title, meta]) => (
                 <li data-status="implemented" key={href}>

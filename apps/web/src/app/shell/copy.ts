@@ -37,13 +37,13 @@ export const shellCopy: Bilingual<ShellCopy> = {
       [
         "Explore",
         [
-          ["Home", "/", "The question and the answer"],
-          ["Model comparison", "/evals", "Every candidate on the held-out set"],
           [
             "Walk through a case",
             "/replay",
             "One case, proposal to source row",
           ],
+          ["Home", "/", "What it does, with an example screen"],
+          ["Model comparison", "/evals", "Every candidate on the held-out set"],
         ],
       ],
       [
@@ -84,9 +84,9 @@ export const shellCopy: Bilingual<ShellCopy> = {
       [
         "둘러보기",
         [
-          ["홈", "/", "질문과 답"],
-          ["모델 비교", "/evals", "보관 평가 집합의 모든 후보"],
           ["사례 따라가기", "/replay", "제안에서 원본 행까지, 사례 하나"],
+          ["홈", "/", "하는 일과 예시 화면"],
+          ["모델 비교", "/evals", "보관 평가 집합의 모든 후보"],
         ],
       ],
       [

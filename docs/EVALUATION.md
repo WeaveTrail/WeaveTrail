@@ -301,17 +301,20 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 
 ## Model comparison on the evaluation page
 
-`/evals` opens on the held-out model comparison: a one-sentence answer, the
-primary and escalation models and an eligibility table with the non-model
-baseline as a reference row. Cost and accuracy (with an equivalent table),
+`/evals` opens on the held-out model comparison: a one-sentence summary and an
+eligibility table with the non-model baseline as a reference row. Once a
+decision selects a model, the summary names it and role rows show the primary
+and escalation models; a decision without a selection is summarized as what
+was measured, with no role rows
+([ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)). Cost and accuracy (with an equivalent table),
 per-tag strict accuracy, failures linked to run records and the
 [AI failure log](AI_FAILURE_LOG.md), the selection rule, prompt versions, plain
 terms, limits and the run date are one tab away. Every number links to its
 definition above. The page reads only the committed comparison and
 `mapping-selection-decision/1` record; it makes no network request and applies
 no rule itself. The first session ran on 2026-10-08 UTC and produced `NO_MODEL`:
-all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts,
-unknown cost and no selected model. These failed attempts do not estimate model
+all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts
+and unknown cost. These failed attempts do not estimate model
 quality; see [the captured session](#first-held-out-session-2026-10-08). See
 [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md).
 
@@ -968,6 +971,8 @@ derived from failure modes classified in the committed v3 records and gold, neve
 from a v3 score, and v3 is not reused for selection. Thresholds, definitions and
 tie-breaks are unchanged except that eligibility adds one zero condition. The
 site keeps showing the ADR 0069 decision until this attempt commits a new one.
+The attempt was withdrawn before acceptance on 2026-10-11 (see
+[closure](#closure-2026-10-11)), so that decision stands.
 The table shows protocol 3's stack, `adr-0075-r2`, after revisions 1 and 2 of
 the [gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log).
 
@@ -1082,4 +1087,16 @@ Revisions 1 and 2 followed before acceptance (see the
 Under revision 1 no count rose and every candidate returned 36/36 `VALID`
 records, but invented fields on null-gold columns stayed nonzero (16–30 of 252).
 The revision 2 run is void: the account reached its Gemini API usage limit and
-the requests returned HTTP 402 or 429. It is repeated once the limit allows.
+the requests returned HTTP 402 or 429.
+
+### Closure: 2026-10-11
+
+The retry was withdrawn before acceptance without repeating the revision 2
+run ([ADR 0075 closure](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)).
+The design fixes of F-006 to F-009 stay in the code with their tests. Under
+revision 1, every candidate still mapped some null-gold columns. No run-date
+probe, pre-run amendment or v4 HELD_OUT record exists, and v4 HELD_OUT remains
+unseen. The protocol 3 held-out command still refuses to run, and the ADR 0069
+`NO_MODEL` decision stays the committed one; the evaluation page shows it as a
+measured comparison under
+[ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md). Another attempt needs a new ADR.

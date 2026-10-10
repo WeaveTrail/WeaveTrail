@@ -97,8 +97,9 @@ v4 모델 호출 전에 봉인했습니다. F-006과 F-007이 유형 1과 2를 �
 유형 4, 시간 초과 9회는 마감 시간이 라이브 경로도 제한하므로 아무것도 바꾸지 않습니다.
 2026-10-10 v4 DEV에서 ADR 0075 사전 게이트는 통과하지 못했습니다
 ([수집 기록](../packages/evals/results/mapping-dev-gate-v4/README.md)(영문)). 새 스택에서
-후보 세 개의 null 정답 열에 만든 필드가 늘었습니다. ADR은 Proposed로 남고 보관 평가
-집합 실행 전에 개정하며, v4 HELD_OUT은 아직 어떤 모델도 보지 않았습니다.
+후보 세 개의 null 정답 열에 만든 필드가 늘었습니다. ADR은 두 번 개정한 뒤
+2026-10-11 보관 평가 집합 실행 없이 수락 전에 철회되었으며, v4 HELD_OUT은 어떤 모델도
+보지 않았습니다.
 
 ## 항목
 
@@ -247,7 +248,7 @@ pnpm exec vitest run packages/evals/src/history/f-001-pre-269-gate.test.ts
 | 반례        | `DEV-v4-03`, 반복 3: `AMBIGUOUS` 열 `Misc Time`(`c01`)을 `receivedAt`, `PROPOSED`, 신뢰도 0.9로 연결함. 게이트 2의 짝지은 기록에서 후보 네 개 중 세 개의 null 정답 열에 만든 필드가 늘었음                                                                                                                                                  |
 | 수정        | 프롬프트 `schema-mapping/3`은 2판 문장을 모두 유지하고 대상 정의를 더하며, null이 아닌 대상은 신뢰도 1의 `PROPOSED`일 때만 쓰게 하고, 허용된 변환으로 할 수 없는 변환을 명시함. [ADR 0075 개정 1판](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#revision-1-2026-10-10-before-any-further-v4-dev-run)(영문), #320 |
 | 회귀 테스트 | `packages/evals/src/mapping-abstention.test.ts`                                                                                                                                                                                                                                                                                             |
-| 상태        | `ACCEPTED_RESIDUAL`: 프롬프트 규칙으로 판단 보류를 강제할 수 없음. 만든 필드와 표시 없는 무대상 열은 계속 집계되며, 다시 실행한 게이트가 이 개정으로 HELD_OUT을 열 수 있는지 결정함                                                                                                                                                         |
+| 상태        | `ACCEPTED_RESIDUAL`: 프롬프트 규칙으로 판단 보류를 강제할 수 없음. 만든 필드와 표시 없는 무대상 열은 계속 집계되며, 0이 아니면 후보 자격을 잃음. 개정 1판에서도 모든 후보가 252개 중 16–30개였고, ADR 0075는 보관 평가 집합 실행 없이 철회됨                                                                                                |
 
 ### F-009: 추론 시간이 매핑 마감 시간을 넘김
 
