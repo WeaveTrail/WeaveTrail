@@ -37,8 +37,11 @@
     "eval:schemas:generate:v3": "node --import tsx scripts/generate-schema-dialects-v3.mts",
     "eval:models:diagnose": "node --import tsx packages/evals/src/diagnose-mapping-models.ts",
     "eval:schemas:generate:v2": "node --import tsx scripts/generate-schema-dialects-v2.mts",
+    "eval:schemas:generate:v4": "node --import tsx scripts/generate-schema-dialects-v4.mts",
     "eval:models:held-out": "node --import tsx packages/evals/src/run-held-out-models.ts",
-    "eval:mappings:select": "node --import tsx packages/evals/src/select-mapping-models.ts"
+    "eval:mappings:select": "node --import tsx packages/evals/src/select-mapping-models.ts",
+    "eval:models:dev-gate": "node --import tsx packages/evals/src/run-dev-gate.ts",
+    "eval:mappings:dev-gate": "node --import tsx packages/evals/src/evaluate-dev-gate.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

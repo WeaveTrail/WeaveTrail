@@ -10,8 +10,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { sha256Canonical } from "@weavetrail/replay-engine";
-import { SELECTION_MODELS } from "./mapping-selection";
-import { loadHeldOutSession, runHeldOut } from "./held-out-protocol";
+import { RETRY_SELECTION_MODELS, SELECTION_MODELS } from "./mapping-selection";
+import {
+  attestsRunDate,
+  loadHeldOutSession,
+  runHeldOut,
+  sameList,
+} from "./held-out-protocol";
 import { requireLiveMappingCommand } from "./mapping-model-runner";
 
 // Test the write/network orchestration without a pre-run commit or real provider.
@@ -34,7 +39,10 @@ vi.mock("node:fs", async (importOriginal) => {
     ) => {
       if (
         String(path).endsWith(
-          "0067-separate-mapping-validity-from-approval-before-selection.md",
+          "0069-recover-mapping-transport-with-a-fresh-held-out-set.md",
+        ) ||
+        String(path).endsWith(
+          "0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md",
         )
       )
         return Buffer.from("- Status: Accepted");
@@ -72,10 +80,11 @@ it("rejects wrong catalogue or provider before transport", async () => {
       { ...catalogue(), checkedOn: "2000-01-01" },
       "/tmp/unused",
       transport,
+      2,
     ),
   ).rejects.toThrow();
   await expect(
-    runHeldOut(models.slice(1), catalogue(), "/tmp/unused", transport),
+    runHeldOut(models.slice(1), catalogue(), "/tmp/unused", transport, 2),
   ).rejects.toThrow();
   expect(transport).not.toHaveBeenCalled();
 });
@@ -88,7 +97,7 @@ it("writes 180 attempts and hash-bound receipts, including provider failures, wi
     expect(body).not.toContain('"rationale"');
     return new Response("unretained provider diagnostic", { status: 503 });
   });
-  const output = await runHeldOut(models, catalogue(), directory, transport);
+  const output = await runHeldOut(models, catalogue(), directory, transport, 2);
   expect(transport).toHaveBeenCalledTimes(180);
   const read = (name: string) =>
     JSON.parse(readFileSync(join(output, name), "utf8"));
@@ -117,6 +126,7 @@ it("loads only a receipted session whose records match their receipts", async ()
     catalogue(),
     directory,
     vi.fn<typeof fetch>(async () => new Response("", { status: 503 })),
+    2,
   );
   const session = JSON.parse(
     readFileSync(join(output, "session.json"), "utf8"),
@@ -159,6 +169,7 @@ it("rejects an attempt receipted under another session", async () => {
     catalogue(),
     directory,
     vi.fn<typeof fetch>(async () => new Response("", { status: 503 })),
+    2,
   );
   const name = readdirSync(output).find((f) => f.endsWith(".receipt.json"))!;
   const receipt = JSON.parse(readFileSync(join(output, name), "utf8"));
@@ -167,4 +178,37 @@ it("rejects an attempt receipted under another session", async () => {
     JSON.stringify({ ...receipt, sessionId: randomUUID() }),
   );
   expect(() => loadHeldOutSession(output)).toThrow("another session");
+});
+
+it("refuses protocol 3 before transport while ADR 0075 has no dated price table or acceptance", async () => {
+  const retry = models.filter((m) =>
+    (RETRY_SELECTION_MODELS as readonly string[]).includes(m.model),
+  );
+  const transport = vi.fn<typeof fetch>();
+  await expect(
+    runHeldOut(
+      retry,
+      { ...catalogue(), modelIds: [...RETRY_SELECTION_MODELS] },
+      "/tmp/unused",
+      transport,
+    ),
+  ).rejects.toThrow("Price table must be sealed");
+  expect(transport).not.toHaveBeenCalled();
+});
+
+it("rejects a candidate list that repeats one candidate and omits another", () => {
+  const [a, b, c, d] = RETRY_SELECTION_MODELS;
+  expect(sameList([a, b, c, d], [d, c, b, a])).toBe(true);
+  expect(sameList([a, a, b, c], [a, b, c, d])).toBe(false);
+  expect(sameList([a, b, c, d], [a, a, b, c])).toBe(false);
+  expect(sameList([a, b, c], [a, b, c, d])).toBe(false);
+});
+
+it("requires protocol 3 prices dated on the run's UTC date", () => {
+  const today = "2026-10-12";
+  expect(attestsRunDate(3, today, today, today)).toBe(true);
+  expect(attestsRunDate(3, today, "2026-10-11", today)).toBe(false);
+  expect(attestsRunDate(3, "2026-10-11", today, today)).toBe(false);
+  // Protocols 1 and 2 used the fixed 2026-10-08 table.
+  expect(attestsRunDate(2, today, "2026-10-08", today)).toBe(true);
 });

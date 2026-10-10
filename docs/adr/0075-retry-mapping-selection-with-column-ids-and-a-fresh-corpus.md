@@ -296,3 +296,101 @@ and limitations in both evaluation documents. They are labelled a
 - **Reuse:** once any v4 HELD_OUT record exists, v4 HELD_OUT is used. Any
   further prompt, schema, adapter, validator, candidate or rule change needs a
   fresh seal and a new pre-run ADR.
+
+## Gate log
+
+### Gate 1: 2026-10-10
+
+Every change in [What changes](#what-changes) is implemented with tests in #320.
+`schema-mapping/2` is registered, and the [AI failure log](../AI_FAILURE_LOG.md)
+records F-006 (mode 1) and F-007 (mode 2) with the regression tests
+`packages/evals/src/column-id-mapping.test.ts` and
+`packages/evals/src/mapping-abstention.test.ts`. `schema-dialects/4` DEV and
+HELD_OUT were generated, sealed and pushed in `5c1c96f` before any v4 model
+call: DEV `c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d`,
+HELD_OUT `2e7b715b1169a1c10f13d963ae34634b6659112f060c277c0fe297f921129194`.
+The live web path stays on the ADR 0069 stack.
+
+### Gate 2: 2026-10-10, not passed
+
+Both stacks ran once on v4 DEV from checkout `8fa6265`, as receipted sessions
+`fa32db2a-3f6a-4f7e-842c-aaa9a531addf` (before) and
+`82d1d299-4060-444c-ba92-70ced8fe62fa` (after). The
+[capture](../../packages/evals/results/mapping-dev-gate-v4/README.md) holds the
+records, receipts, counts and exact commands; the offline result reproduces
+byte for byte.
+
+- Condition 1 fails. Over the paired records, invented fields on null-gold
+  columns rose for `gemini-3.1-flash-lite` (60 → 72), `gemini-3.5-flash-lite`
+  (44 → 51) and `gemini-3.1-pro-preview` (20 → 24). Followed injections and
+  unflagged no-target columns fell or stayed equal for every candidate.
+- Condition 2 fails. No candidate opens HELD_OUT: `gemini-3.8-flash` timed out
+  14 times and invented 3 fields, and every other candidate has nonzero counts
+  and fewer than 95/100 VALID records.
+
+As fixed above, this ADR is therefore revised before acceptance. Gates 3 and 4
+were not run: a run-date probe and a pre-run amendment can only follow a
+revised gate that passes. Status stays Proposed; there is no amendment, dated
+price table or v4 HELD_OUT record, and v4 HELD_OUT remains unseen. The site keeps
+showing the ADR 0069 `NO_MODEL` decision. A revision may use these DEV records
+and must be logged here before any further v4 DEV run.
+
+### Revision 1: 2026-10-10, before any further v4 DEV run
+
+Derived only from the gate 2 DEV records and a DEV-only parameter check on the
+used `schema-dialects/2` DEV split; v4 HELD_OUT is still unseen. Nothing below
+changes a threshold, definition, tie-break, the deadline, the validator, the
+output schema, the scorer or any gate condition.
+
+| Gate 2 DEV observation (after stack)                                                                                                                                                                                                                                            | Change                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Most invented fields sit on `AMBIGUOUS` and `TRANSFORM_LURE` columns that already carry confidence below 1 or `REVIEW_REQUIRED` (for example `DEV-v4-03` `Misc Time` → `receivedAt`, `PROPOSED`, 0.9). `schema-mapping/2` refers to "the target definitions" but none are sent. | Prompt `schema-mapping/3` keeps every version 2 sentence and adds: a one-clause definition of each allowed target; a non-null target means `PROPOSED` at confidence 1, otherwise a null target, a null transform, `REVIEW_REQUIRED` and confidence below 1; no allowed transform converts spreadsheet serial dates or minor-unit amounts, so such a column gets a null target; exactly one column maps to each required target. |
+| `gemini-3.8-flash` timed out 14 times (valid p50 16,512 ms, maximum 26,396 ms). On used v2 DEV it timed out without the parameter and returned in 6,800 ms with `reasoning_effort: "low"`; all four candidates accepted it with HTTP 200.                                       | Adapter `openai-compatible-mapping/4` sends `reasoning_effort: "low"`; nothing else in the request changes. The 30,000 ms deadline is unchanged.                                                                                                                                                                                                                                                                                |
+
+The revised after stack is `adr-0075-r1`: `schema-mapping/3`,
+`mapping-fields/2`, `openai-compatible-mapping/4`, `mapping-validator/3`,
+`mapping-run/2`. It replaces the after stack in gate 2 and the stack of the
+held-out run and selection. The before stack is unchanged. Gate 2 is run again
+as a new complete pair of before and after sessions; the first pair stays
+committed. F-008 and F-009 record the two observations.
+
+### Gate 2 under revision 1: 2026-10-10, not passed
+
+A new complete pair ran from checkout `2ba476a`: before
+`162a9e46-a011-488a-9fb5-10cb427e7e1a`, after (`adr-0075-r1`)
+`706cc7a9-a262-411d-89fa-9ae127b850a7`
+([result](../../packages/evals/results/mapping-dev-gate-v4/gate-r1.json)).
+Condition 1 passes: no count rose for any candidate. Every candidate returned
+36/36 `VALID` records with no timeout, and followed injections fell to 0–3 of 72.
+Condition 2 fails on invented fields alone: 30, 27, 18 and 16 of 252 for
+`gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash` and
+`gemini-3.1-pro-preview`. Nearly all of them map the `AMBIGUOUS` timestamp
+column, whose header does not say which time it holds, to `receivedAt` at
+confidence 1. The revision 1 definition, "distinct from eventTime", reads as
+an invitation to do so.
+
+### Revision 2: 2026-10-10, before any further v4 DEV run
+
+Derived only from the revision 1 gate records. Prompt `schema-mapping/4` keeps
+every version 3 sentence and adds: a value's format shows only what kind of
+value a column holds, never which target it is, so a timestamp column is
+`eventTime` or `receivedAt`, and a decimal column `price` or `quantity`, only
+when its header says so; `receivedAt` needs a header saying the record was
+received, arrived or recorded. The after stack becomes `adr-0075-r2`
+(`schema-mapping/4`, `openai-compatible-mapping/4`, `mapping-fields/2`,
+`mapping-validator/3`, `mapping-run/2`); nothing else changes. Gate 2 runs again
+as a new complete pair. F-010 records the observation.
+
+### Gate 2 under revision 2: 2026-10-10, void
+
+The pair from checkout `99a77cf`, before `abf2cd88-68ba-4571-b43c-569939e20f95`
+and after `3551c0b9-7e20-4c5f-9881-88ed746bc878`
+([result](../../packages/evals/results/mapping-dev-gate-v4/gate-r2-void.json)),
+ended when the account reached its Gemini API usage limit. From then on every
+request returned HTTP 402 or 429: 57 of 144 before records and all 144 after
+records are `PROVIDER_FAILED`, and no after record retains output. Like a gate 3
+failure other than a model's HTTP 404, this is an operator condition, not a model
+observation. The run is committed and void: it neither passes nor fails revision
+2 and does not justify another revision. Gate 2 under revision 2 is repeated as
+a new complete pair once the limit allows. Status stays Proposed; v4 HELD_OUT
+remains unseen.

@@ -1,16 +1,15 @@
 import { z } from "zod";
 import {
-  MAPPING_RUN_RECORD_VERSION,
   MappingRunRecordSchema,
+  MappingRunRecordV2Schema,
+  type AnyMappingRunRecord,
   type MappingRunRecord,
 } from "@weavetrail/contracts";
 import {
   ConfiguredSchemaMappingProvider,
-  MAPPING_ADAPTER_VERSION,
-  MAPPING_OUTPUT_SCHEMA_VERSION,
-  MAPPING_PROMPT_VERSION,
-  MAPPING_VALIDATOR_VERSION,
+  MAPPING_STACKS,
   ProviderReviewRequired,
+  type MappingStackId,
   validateProviderConfiguration,
   type ProviderConfiguration,
   type ProviderEnvironment,
@@ -73,22 +72,41 @@ export async function runConfiguredMapping(
   input: MappingInput,
   context: MappingRunContext,
   transport?: typeof fetch,
-): Promise<MappingRunRecord> {
+): Promise<MappingRunRecord>;
+export async function runConfiguredMapping(
+  model: EvaluationModel,
+  input: MappingInput,
+  context: MappingRunContext,
+  transport: typeof fetch | undefined,
+  stack: MappingStackId,
+): Promise<AnyMappingRunRecord>;
+export async function runConfiguredMapping(
+  model: EvaluationModel,
+  input: MappingInput,
+  context: MappingRunContext,
+  transport?: typeof fetch,
+  stack: MappingStackId = "adr-0069",
+): Promise<AnyMappingRunRecord> {
+  const versions = MAPPING_STACKS[stack];
+  const Schema =
+    versions.recordVersion === "mapping-run/2"
+      ? MappingRunRecordV2Schema
+      : MappingRunRecordSchema;
   const base = {
     ...context,
-    schemaVersion: MAPPING_RUN_RECORD_VERSION,
+    schemaVersion: versions.recordVersion,
     provider: model.provider,
     requestedModel: model.model,
-    adapterVersion: MAPPING_ADAPTER_VERSION,
-    promptVersion: MAPPING_PROMPT_VERSION,
-    outputSchemaVersion: MAPPING_OUTPUT_SCHEMA_VERSION,
-    validatorVersion: MAPPING_VALIDATOR_VERSION,
+    adapterVersion: versions.adapterVersion,
+    promptVersion: versions.promptVersion,
+    outputSchemaVersion: versions.outputSchemaVersion,
+    validatorVersion: versions.validatorVersion,
     temperature: "0",
   };
   if (model.apiKey && JSON.stringify(base).includes(model.apiKey))
     throw new ProviderReviewRequired();
   // Validate operator context before spending a request.
-  MappingRunRecordSchema.parse({
+  Schema.parse({
     ...base,
     outcome: "PROVIDER_FAILED",
     failureClass: "UNKNOWN_PROVIDER_FAILURE",
@@ -102,8 +120,9 @@ export async function runConfiguredMapping(
   const result = await new ConfiguredSchemaMappingProvider(
     model,
     transport,
+    stack,
   ).attempt(input);
-  return MappingRunRecordSchema.parse({
+  return Schema.parse({
     ...base,
     outcome: result.outcome,
     failureClass: result.failureClass,

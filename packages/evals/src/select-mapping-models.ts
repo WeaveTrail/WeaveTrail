@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
+  declaredCandidates,
   loadHeldOutSession,
   loadSelectionInputs,
   root,
@@ -13,7 +14,13 @@ const { records, session, protocolVersion } = loadHeldOutSession(
   resolve(args[1]),
 );
 const { source, prices } = loadSelectionInputs(false, protocolVersion);
-const result = selectMappingModels(records, source, prices, session);
+const result = selectMappingModels(
+  records,
+  source,
+  prices,
+  session,
+  protocolVersion === 3 ? declaredCandidates(3) : undefined,
+);
 const output = resolve(root, "dist/mapping-selection");
 mkdirSync(output, { recursive: true });
 for (const [name, value] of Object.entries(result))

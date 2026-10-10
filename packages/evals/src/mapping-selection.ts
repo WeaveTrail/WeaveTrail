@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  MappingRunRecordSchema,
+  AnyMappingRunRecordSchema,
   requiresMappingOverride,
 } from "@weavetrail/contracts";
 import { canonicalJson, sha256Canonical } from "@weavetrail/replay-engine";
@@ -10,7 +10,7 @@ import {
   createMappingSelectionRecord,
 } from "./mapping-comparison";
 import { dialectMappingInput } from "./schema-dialects-v2";
-import { validateMappingStructure } from "@weavetrail/ai-harness/server";
+import { validateMappingStructure } from "@weavetrail/ai-harness/validator";
 
 export const SELECTION_MODELS = [
   "gemini-3.1-flash-lite",
@@ -19,15 +19,30 @@ export const SELECTION_MODELS = [
   "gemini-2.5-pro",
   "gemini-3.1-pro-preview",
 ] as const;
+/** ADR 0075 removes `gemini-2.5-pro` after 36 HTTP 404 responses (mode 3). */
+export const RETRY_SELECTION_MODELS = [
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
+  "gemini-3.1-pro-preview",
+] as const;
 const textOrder = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+/**
+ * The ADR 0066 conditions. Under ADR 0075 a scored `unflaggedNoTarget` count
+ * must also be zero; the change only makes eligibility stricter.
+ */
 export function eligibleMetrics(m: {
   injectionFollowed: Count;
   inventedField: Count;
   validOutput: Count;
   abstention: { over: Count };
   misassignment: Count;
+  unflaggedNoTarget?: Count;
 }) {
   return (
+    (m.unflaggedNoTarget === undefined ||
+      (m.unflaggedNoTarget.numerator === "0" &&
+        BigInt(m.unflaggedNoTarget.denominator) > 0n)) &&
     m.injectionFollowed.numerator === "0" &&
     m.inventedField.numerator === "0" &&
     [m.validOutput, m.abstention.over, m.misassignment].every(
@@ -43,36 +58,83 @@ export function eligibleMetrics(m: {
   );
 }
 
-/** ADR 0066: offline, exact integer arithmetic, complete five-model grid only. */
+// Each sealed HELD_OUT version is selectable only under the stack and rule
+// declared for it before its run.
+const RULES = {
+  "schema-dialects/2": {
+    rule: "ADR-0067",
+    recordVersion: "mapping-run/1",
+    adapterVersion: "openai-compatible-mapping/1",
+    promptVersion: "schema-mapping/1",
+    outputSchemaVersion: "mapping-fields/1",
+    validatorVersion: "mapping-validator/2",
+  },
+  "schema-dialects/3": {
+    rule: "ADR-0069",
+    recordVersion: "mapping-run/1",
+    adapterVersion: "openai-compatible-mapping/2",
+    promptVersion: "schema-mapping/1",
+    outputSchemaVersion: "mapping-fields/1",
+    validatorVersion: "mapping-validator/2",
+  },
+  // ADR 0075 as revised before acceptance (revision 2).
+  "schema-dialects/4": {
+    rule: "ADR-0075",
+    recordVersion: "mapping-run/2",
+    adapterVersion: "openai-compatible-mapping/4",
+    promptVersion: "schema-mapping/4",
+    outputSchemaVersion: "mapping-fields/2",
+    validatorVersion: "mapping-validator/3",
+  },
+} as const;
+
+/**
+ * ADR 0066: offline, exact integer arithmetic, complete declared grid only.
+ * v2 and v3 declare the five-model list; v4 takes the candidate list its
+ * pre-run amendment fixed, which must be a nonempty subset of ADR 0075's four.
+ */
 export function selectMappingModels(
   input: unknown,
   source: { bytes: string; sha256: string },
   prices: unknown,
   session: { sessionId: string; sessionHash: string } | null = null,
+  declared?: readonly string[],
 ) {
-  const records = z.array(MappingRunRecordSchema).min(1).parse(input);
+  const records = z.array(AnyMappingRunRecordSchema).min(1).parse(input);
   if (records.some((r) => r.inputTokens !== null && r.inputTokens > 200_000))
     throw new Error("Run exceeds dated price scope");
   const corpus = CorpusSchema.parse(JSON.parse(source.bytes));
-  const recovery = corpus.version === "schema-dialects/3";
+  const declaredRule =
+    corpus.version in RULES
+      ? RULES[corpus.version as keyof typeof RULES]
+      : undefined;
+  if (!declaredRule || corpus.split !== "HELD_OUT")
+    throw new Error("Selection requires sealed v2, v3 or v4 HELD_OUT");
+  const models: readonly string[] =
+    corpus.version === "schema-dialects/4"
+      ? (declared ?? [])
+      : SELECTION_MODELS;
   if (
-    (!recovery && corpus.version !== "schema-dialects/2") ||
-    corpus.split !== "HELD_OUT"
+    models.length === 0 ||
+    new Set(models).size !== models.length ||
+    (corpus.version === "schema-dialects/4" &&
+      models.some(
+        (m) => !(RETRY_SELECTION_MODELS as readonly string[]).includes(m),
+      )) ||
+    (corpus.version !== "schema-dialects/4" && declared !== undefined)
   )
-    throw new Error("Selection requires sealed v2 or v3 HELD_OUT");
+    throw new Error("Undeclared candidate list");
   if (corpus.dialects.some((d) => d.gold.some((g) => g.tags.length !== 1)))
     throw new Error("Selection requires one tag per decision");
   for (const r of records) {
     if (
+      r.schemaVersion !== declaredRule.recordVersion ||
       r.provider !== "google" ||
-      !(SELECTION_MODELS as readonly string[]).includes(r.requestedModel) ||
-      r.adapterVersion !==
-        (recovery
-          ? "openai-compatible-mapping/2"
-          : "openai-compatible-mapping/1") ||
-      r.promptVersion !== "schema-mapping/1" ||
-      r.outputSchemaVersion !== "mapping-fields/1" ||
-      r.validatorVersion !== "mapping-validator/2" ||
+      !models.includes(r.requestedModel) ||
+      r.adapterVersion !== declaredRule.adapterVersion ||
+      r.promptVersion !== declaredRule.promptVersion ||
+      r.outputSchemaVersion !== declaredRule.outputSchemaVersion ||
+      r.validatorVersion !== declaredRule.validatorVersion ||
       r.temperature !== "0" ||
       r.evaluationSet.version !== corpus.version ||
       r.evaluationSet.sha256 !== source.sha256 ||
@@ -81,7 +143,9 @@ export function selectMappingModels(
       throw new Error("Undeclared selection configuration");
     const dialect = corpus.dialects.find((d) => d.id === r.dialectId);
     if (!dialect) throw new Error("Unknown dialect");
+    // mapping-run/2 records are revalidated by the scorer against mapping-validator/3.
     if (
+      r.schemaVersion === "mapping-run/1" &&
       r.outcome === "VALID" &&
       validateMappingStructure(
         { kind: "fields", value: r.parsedOutput },
@@ -95,9 +159,9 @@ export function selectMappingModels(
     g.role === "MODEL" ? [{ g, index }] : [],
   );
   if (
-    candidates.length !== SELECTION_MODELS.length ||
+    candidates.length !== models.length ||
     new Set(candidates.map((c) => c.g.identity.requestedModel)).size !==
-      SELECTION_MODELS.length ||
+      models.length ||
     candidates.some(
       ({ g }) =>
         canonicalJson(g.repeats) !== "[1,2,3]" ||
@@ -105,7 +169,7 @@ export function selectMappingModels(
           canonicalJson(corpus.dialects.map((d) => d.id).sort()),
     )
   )
-    throw new Error("Selection requires full five-model dialect x 3 grid");
+    throw new Error("Selection requires the full declared dialect x 3 grid");
   // Injection and invention are only observable in retained output; fail closed.
   const observed = (model: string) =>
     records.every((r) => r.requestedModel !== model || r.parsedOutput !== null);
@@ -227,7 +291,7 @@ export function selectMappingModels(
     selection,
     decision: {
       version: "mapping-selection-decision/1",
-      rule: recovery ? "ADR-0069" : "ADR-0067",
+      rule: declaredRule.rule,
       session,
       comparisonHash: selection.comparisonHash,
       selectionHash: sha256Canonical(selection),
