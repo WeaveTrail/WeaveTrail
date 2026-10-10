@@ -50,8 +50,8 @@ selection candidate. See [the baseline protocol](docs/EVALUATION.md#non-model-le
 vocabulary. `pnpm eval:models:held-out --live --catalogue <attestation.json>`
 checks committed pre-run inputs and records three attempts per model and dialect.
 `pnpm eval:mappings:select --session <session directory>` verifies one
-receipted session and applies ADR 0067 offline, writing the comparison,
-existing selection record and a hash-bound primary/escalation decision. See [the run protocol](docs/EVALUATION.md#run-and-reproduce) before a live
+receipted session and applies the rule of the protocol it was run under offline,
+writing the comparison, selection record and a hash-bound primary/escalation decision. See [the run protocol](docs/EVALUATION.md#run-and-reproduce) before a live
 run. CI exercises mock transports and offline replay of the committed first
 held-out session. That session selected no model: all 180 requests failed with
 `HTTP_ERROR`. See the [captured result](docs/EVALUATION.md#first-held-out-session-2026-10-08).
@@ -167,11 +167,24 @@ on those terms.
 
 ## Mapping transport recovery
 
-The live held-out command now follows
 [ADR 0069](docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
-and fresh v3 inputs; the used v2 session remains reproducible offline.
-`pnpm eval:schemas:generate:v3` reproduces the fresh seal.
-`pnpm eval:models:diagnose --live` checks v2 DEV transport before spending a new
-holdout. `--legacy-store` reproduces the removed request parameter on DEV only.
-Explicit diagnostics and held-out `--diagnostics` write private bounded error
-bodies under ignored `.model-runs/raw/`; never commit those files.
+ran on fresh v3 inputs; the used v2 and v3 sessions remain reproducible offline.
+`pnpm eval:schemas:generate:v3` reproduces the v3 seal.
+`pnpm eval:models:diagnose --live --legacy-store` reproduces the removed request
+parameter on v2 DEV only. Explicit diagnostics and `--diagnostics` write private
+bounded error bodies under ignored `.model-runs/raw/`; never commit those files.
+
+## Mapping selection retry
+
+The live held-out command targets protocol 3 of
+[ADR 0075](docs/adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md):
+columns are named by opaque IDs, the prompt is `schema-mapping/2`, and the
+inputs are `schema-dialects/4`. It refuses to run until that ADR is accepted
+with a dated price table; its pre-run gate 2 did not pass on 2026-10-10.
+`pnpm eval:schemas:generate:v4` reproduces both v4 splits and the DEV-only
+reference vocabulary. `pnpm eval:models:dev-gate --live` runs the before and
+after stacks on v4 DEV, and `pnpm eval:mappings:dev-gate --before <session>
+--after <session>` applies the pre-run gate offline.
+`pnpm eval:models:diagnose --live` probes each candidate once on v4 DEV and
+writes a sanitized status-and-outcome file. See the
+[retry protocol](docs/EVALUATION.md#retry-protocol-column-ids-and-fresh-v4) before a live run.

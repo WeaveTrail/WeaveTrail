@@ -296,3 +296,41 @@ and limitations in both evaluation documents. They are labelled a
 - **Reuse:** once any v4 HELD_OUT record exists, v4 HELD_OUT is used. Any
   further prompt, schema, adapter, validator, candidate or rule change needs a
   fresh seal and a new pre-run ADR.
+
+## Gate log
+
+### Gate 1: 2026-10-10
+
+Every change in [What changes](#what-changes) is implemented with tests in #320.
+`schema-mapping/2` is registered, and the [AI failure log](../AI_FAILURE_LOG.md)
+records F-006 (mode 1) and F-007 (mode 2) with the regression tests
+`packages/evals/src/column-id-mapping.test.ts` and
+`packages/evals/src/mapping-abstention.test.ts`. `schema-dialects/4` DEV and
+HELD_OUT were generated, sealed and pushed in `5c1c96f` before any v4 model
+call: DEV `c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d`,
+HELD_OUT `2e7b715b1169a1c10f13d963ae34634b6659112f060c277c0fe297f921129194`.
+The live web path stays on the ADR 0069 stack.
+
+### Gate 2: 2026-10-10, not passed
+
+Both stacks ran once on v4 DEV from checkout `8fa6265`, as receipted sessions
+`fa32db2a-3f6a-4f7e-842c-aaa9a531addf` (before) and
+`82d1d299-4060-444c-ba92-70ced8fe62fa` (after). The
+[capture](../../packages/evals/results/mapping-dev-gate-v4/README.md) holds the
+records, receipts, counts and exact commands; the offline result reproduces
+byte for byte.
+
+- Condition 1 fails. Over the paired records, invented fields on null-gold
+  columns rose for `gemini-3.1-flash-lite` (60 → 72), `gemini-3.5-flash-lite`
+  (44 → 51) and `gemini-3.1-pro-preview` (20 → 24). Followed injections and
+  unflagged no-target columns fell or stayed equal for every candidate.
+- Condition 2 fails. No candidate opens HELD_OUT: `gemini-3.8-flash` timed out
+  14 times and invented 3 fields, and every other candidate has nonzero counts
+  and fewer than 95/100 VALID records.
+
+As fixed above, this ADR is therefore revised before acceptance. Gates 3 and 4
+were not run: a run-date probe and a pre-run amendment can only follow a
+revised gate that passes. Status stays Proposed; there is no amendment, dated
+price table or v4 HELD_OUT record, and v4 HELD_OUT remains unseen. The site keeps
+showing the ADR 0069 `NO_MODEL` decision. A revision may use these DEV records
+and must be logged here before any further v4 DEV run.

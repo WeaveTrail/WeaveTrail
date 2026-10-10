@@ -93,6 +93,10 @@ DEV split; `schema-dialects/4` HELD_OUT was sealed before any v4 model call.
 F-006 and F-007 record modes 1 and 2. Mode 3, a listed candidate that returned
 HTTP 404, removes `gemini-2.5-pro` from the candidate list; mode 4, nine
 timeouts, changes nothing, because the deadline also bounds the live path.
+The ADR 0075 pre-run gate on v4 DEV did not pass on 2026-10-10
+([capture](../packages/evals/results/mapping-dev-gate-v4/README.md)): invented
+fields on null-gold columns rose for three candidates under the new stack. The
+ADR stays Proposed and is revised before any held-out run; v4 HELD_OUT is unseen.
 
 ## Entries
 
