@@ -62,6 +62,14 @@ export const MAPPING_STACKS = {
     outputSchemaVersion: "mapping-fields/2",
     validatorVersion: MAPPING_COLUMN_ID_VALIDATOR_VERSION,
   },
+  // ADR 0075 revision 2: the revision 1 request with prompt version 4.
+  "adr-0075-r2": {
+    recordVersion: "mapping-run/2",
+    promptVersion: "schema-mapping/4",
+    adapterVersion: "openai-compatible-mapping/4",
+    outputSchemaVersion: "mapping-fields/2",
+    validatorVersion: MAPPING_COLUMN_ID_VALIDATOR_VERSION,
+  },
 } as const satisfies Record<
   string,
   {
@@ -523,11 +531,19 @@ const revisedInstruction =
   " A transform must convert every sample value exactly as given. No allowed transform converts spreadsheet serial dates or amounts in minor currency units such as cents, so such a column gets a null target." +
   " Exactly one column maps to each of sourceEventId, eventTime, instrumentId and eventType.";
 
+// schema-mapping/4 keeps every version 3 sentence and adds that a value's
+// format is not evidence of which target it is (ADR 0075 revision 2).
+const headerEvidenceInstruction =
+  revisedInstruction +
+  " The values' format shows only what kind of value a column holds, never which target it is: a timestamp column is eventTime or receivedAt, and a decimal column is price or quantity, only when its header says so." +
+  " Use receivedAt only when the header itself says the record was received, arrived or recorded; a header that does not say which time or amount a column holds gets a null target.";
+
 /** The system message each stack sends, exposed for regression tests. */
 export const MAPPING_INSTRUCTIONS = {
   "adr-0069": instruction,
   "adr-0075": columnIdInstruction,
   "adr-0075-r1": revisedInstruction,
+  "adr-0075-r2": headerEvidenceInstruction,
 } as const satisfies Record<MappingStackId, string>;
 /**
  * Extra request parameters per stack. Revision 1 asks for low reasoning effort
@@ -537,6 +553,7 @@ const REQUEST_PARAMETERS: Record<MappingStackId, Record<string, string>> = {
   "adr-0069": {},
   "adr-0075": {},
   "adr-0075-r1": { reasoning_effort: "low" },
+  "adr-0075-r2": { reasoning_effort: "low" },
 };
 
 function fieldProperties() {

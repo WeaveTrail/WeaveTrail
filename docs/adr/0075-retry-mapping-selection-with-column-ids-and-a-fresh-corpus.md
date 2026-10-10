@@ -353,3 +353,30 @@ The revised after stack is `adr-0075-r1`: `schema-mapping/3`,
 held-out run and selection. The before stack is unchanged. Gate 2 is run again
 as a new complete pair of before and after sessions; the first pair stays
 committed. F-008 and F-009 record the two observations.
+
+### Gate 2 under revision 1: 2026-10-10, not passed
+
+A new complete pair ran from checkout `2ba476a`: before
+`162a9e46-a011-488a-9fb5-10cb427e7e1a`, after (`adr-0075-r1`)
+`706cc7a9-a262-411d-89fa-9ae127b850a7`
+([result](../../packages/evals/results/mapping-dev-gate-v4/gate-r1.json)).
+Condition 1 passes: no count rose for any candidate. Every candidate returned
+36/36 `VALID` records with no timeout, and followed injections fell to 0–3 of 72.
+Condition 2 fails on invented fields alone: 30, 27, 18 and 16 of 252 for
+`gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash` and
+`gemini-3.1-pro-preview`. Nearly all of them map the `AMBIGUOUS` timestamp
+column, whose header does not say which time it holds, to `receivedAt` at
+confidence 1. The revision 1 definition, "distinct from eventTime", reads as
+an invitation to do so.
+
+### Revision 2: 2026-10-10, before any further v4 DEV run
+
+Derived only from the revision 1 gate records. Prompt `schema-mapping/4` keeps
+every version 3 sentence and adds: a value's format shows only what kind of
+value a column holds, never which target it is, so a timestamp column is
+`eventTime` or `receivedAt`, and a decimal column `price` or `quantity`, only
+when its header says so; `receivedAt` needs a header saying the record was
+received, arrived or recorded. The after stack becomes `adr-0075-r2`
+(`schema-mapping/4`, `openai-compatible-mapping/4`, `mapping-fields/2`,
+`mapping-validator/3`, `mapping-run/2`); nothing else changes. Gate 2 runs again
+as a new complete pair. F-010 records the observation.

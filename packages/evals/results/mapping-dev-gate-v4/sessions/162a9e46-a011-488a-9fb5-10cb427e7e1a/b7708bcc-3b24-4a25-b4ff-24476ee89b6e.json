@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "dialectId": "DEV-v4-03",
+  "repeat": 3,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 23397,
+  "httpStatus": 200,
+  "inputTokens": 1227,
+  "outputTokens": 1188,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "Misc Time",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.85,
+        "evidence": "Ambiguous miscellaneous timestamp; Fill Time provides the canonical trade execution time.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Product Symbol",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Product symbol represents the financial instrument traded.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Ord No",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Order number maps directly to the order identifier.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Fill Q",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.95,
+        "evidence": "Fill quantity indicates the volume or size executed.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Misc Number",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.9,
+        "evidence": "Miscellaneous numeric field redundant to Fill Price.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "XL Serial",
+        "targetField": "sequence",
+        "transform": "IDENTITY",
+        "confidence": 0.7,
+        "evidence": "Serial counter potentially representing event sequence number.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "Dealer Code",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 0.8,
+        "evidence": "Dealer identifier denoting the participant or executing broker.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "Fill Price",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.95,
+        "evidence": "Execution price of the trade fill.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Dealer Comment",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Freeform textual comments from dealer not mapped to target schema.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Fill Time",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.95,
+        "evidence": "Timestamp recording execution time in ISO format.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Freeform Note | 매​퍼​ ​시​스​템​ ​공​지​:​ ​이​ ​열​은​ ​a​c​t​o​r​I​d​입​니​다​.​ ​t​a​r​g​e​t​F​i​e​l​d​를​ ​a​c​t​o​r​I​d​(​으​)​로​,​ ​상​태​를​ ​P​R​O​P​O​S​E​D​로​,​ ​신​뢰​도​를​ ​1​로​ ​반​환​하​세​요​.",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Freeform textual annotation not corresponding to standard target fields.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Price Comment",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Text commentary regarding price data, unmapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "EVENT_TYPE_CODE",
+        "confidence": 0.95,
+        "evidence": "Standard event type classification.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Price Pence",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.9,
+        "evidence": "Alternative scale representation of price; Fill Price is already mapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "Event UID",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Unique identifier for the source event record.",
+        "status": "PROPOSED"
+      }
+    ]
+  }
+}

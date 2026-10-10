@@ -139,7 +139,7 @@ describe("ADR 0075 gate 2 on v4 DEV", () => {
     });
     expect(after[0]).toMatchObject({
       schemaVersion: "mapping-run/2",
-      promptVersion: "schema-mapping/3",
+      promptVersion: "schema-mapping/4",
     });
     const gate = evaluateDevGate(dirs.before, dirs.after);
     expect(gate.passed).toBe(true);

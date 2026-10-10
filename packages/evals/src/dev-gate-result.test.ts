@@ -27,3 +27,19 @@ it("reproduces the committed gate 2 result, which did not pass", () => {
     "gemini-3.5-flash-lite",
   ]);
 });
+
+it("reproduces the committed revision 1 gate result, which did not pass on invented fields alone", () => {
+  const result = evaluateDevGate(
+    session("162a9e46-a011-488a-9fb5-10cb427e7e1a"),
+    session("706cc7a9-a262-411d-89fa-9ae127b850a7"),
+  );
+  expect(JSON.stringify(result, null, 2) + "\n").toBe(
+    readFileSync(new URL("gate-r1.json", capture), "utf8"),
+  );
+  expect(result.passed).toBe(false);
+  for (const c of result.candidates) {
+    expect(c.noIncrease).toBe(true);
+    expect(c.after.validOutput.numerator).toBe("36");
+    expect(c.after.inventedOnNullGold.numerator).not.toBe("0");
+  }
+});

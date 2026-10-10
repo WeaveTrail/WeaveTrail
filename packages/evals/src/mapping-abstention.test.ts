@@ -72,7 +72,7 @@ function goldRecords(
           requestedModel: model,
           reportedModel: model,
           adapterVersion: "openai-compatible-mapping/4",
-          promptVersion: "schema-mapping/3",
+          promptVersion: "schema-mapping/4",
           outputSchemaVersion: "mapping-fields/2",
           validatorVersion: "mapping-validator/3",
           temperature: "0",
@@ -155,6 +155,15 @@ describe("F-007: an unsettled column is left for review", () => {
     );
     expect(v3).toContain(
       "No allowed transform converts spreadsheet serial dates or amounts in minor currency units",
+    );
+  });
+
+  it("keeps every schema-mapping/3 sentence in schema-mapping/4 and makes the header, not the format, decide", () => {
+    const v3 = MAPPING_INSTRUCTIONS["adr-0075-r1"];
+    const v4 = MAPPING_INSTRUCTIONS["adr-0075-r2"];
+    expect(v4.startsWith(v3 + " ")).toBe(true);
+    expect(v4).toContain(
+      "Use receivedAt only when the header itself says the record was received, arrived or recorded",
     );
   });
 

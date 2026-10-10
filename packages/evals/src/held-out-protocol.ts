@@ -43,7 +43,7 @@ const PROTOCOL_INPUTS = {
     corpus: "packages/evals/fixtures/schema-dialects-v4/HELD_OUT.json",
     prices: "packages/evals/fixtures/mapping-selection-v3/prices.json",
     candidates: protocolV3.candidates as readonly string[],
-    stack: "adr-0075-r1",
+    stack: "adr-0075-r2",
   },
 } as const;
 /** The candidate list a protocol's pre-run ADR or amendment fixed. */

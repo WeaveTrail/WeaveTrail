@@ -339,6 +339,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Reasoning time exceeds the mapping deadline",
     ko: "추론 시간이 매핑 마감 시간을 넘김",
   },
+  {
+    id: "F-010",
+    status: "ACCEPTED_RESIDUAL",
+    en: "A timestamp format is read as a receipt time",
+    ko: "시각 형식을 수신 시각으로 읽음",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */
@@ -371,6 +377,12 @@ export const PROMPT_HISTORY = {
     model: true,
     en: "ADR 0075 revision 1: every version 2 sentence plus target definitions, a target only when certain, the conversions no transform performs and the required targets. Checked on DEV only; no held-out set has seen it yet.",
     ko: "ADR 0075 개정 1판입니다. 2판의 문장을 모두 유지하고 대상 정의, 확신할 때만 대상 지정, 어떤 변환도 하지 못하는 변환, 필수 대상을 더했습니다. DEV에서만 확인했고 아직 어떤 held-out 세트에도 보내지 않았습니다.",
+  },
+  "schema-mapping/4": {
+    introduced: "#320",
+    model: true,
+    en: "ADR 0075 revision 2: every version 3 sentence plus a rule that the header, not the value format, decides the target, and that receivedAt needs a header saying so. Checked on DEV only; no held-out set has seen it yet.",
+    ko: "ADR 0075 개정 2판입니다. 3판의 문장을 모두 유지하고, 대상은 값의 형식이 아니라 헤더로 정하며 receivedAt은 헤더가 그렇게 말할 때만 쓴다는 규칙을 더했습니다. DEV에서만 확인했고 아직 어떤 held-out 세트에도 보내지 않았습니다.",
   },
   "fixture-mapping/1": {
     introduced: "95f283b, #17",

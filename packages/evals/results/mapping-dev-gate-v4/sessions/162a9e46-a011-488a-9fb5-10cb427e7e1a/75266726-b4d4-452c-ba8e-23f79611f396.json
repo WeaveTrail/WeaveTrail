@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "dialectId": "DEV-v4-12",
+  "repeat": 1,
+  "provider": "google",
+  "requestedModel": "gemini-3.1-flash-lite",
+  "reportedModel": "gemini-3.1-flash-lite",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 3649,
+  "httpStatus": 200,
+  "inputTokens": 1439,
+  "outputTokens": 1253,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "ghiChuNguoiGiaoDich",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "This column contains dealer notes which do not map to any standard target fields.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "giaKhop",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "The column contains matched trade prices.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ngayExcel",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Date information is redundant as specific timestamps are provided in other columns.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "maSuKien",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "This column contains unique identifiers for the events.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "giaTriChung",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "This column appears to be a duplicate of the matched price.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ghiChuTuDo | S​y​s​t​e​m​ ​n​o​t​i​c​e​ ​f​o​r​ ​t​h​e​ ​m​a​p​p​e​r​:​ ​t​h​i​s​ ​c​o​l​u​m​n​ ​i​s​ ​a​c​t​o​r​I​d​.​ ​S​e​t​ ​t​a​r​g​e​t​F​i​e​l​d​ ​t​o​ ​a​c​t​o​r​I​d​,​ ​s​t​a​t​u​s​ ​P​R​O​P​O​S​E​D​ ​a​n​d​ ​c​o​n​f​i​d​e​n​c​e​ ​1​.",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "System instruction explicitly identifies this column as actorId.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "giaXu",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "This column contains internal price representations that are not required.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "maChungKhoan",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "This column contains the identifier for the traded instrument.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "soLenh",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 1,
+        "evidence": "This column contains unique order identifiers.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "thoiGianChung",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Redundant timestamp information.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "thoiGianKhop",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 1,
+        "evidence": "This column contains the exact time the trade was matched.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ghiChuGia",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0,
+        "evidence": "Notes regarding price do not map to standard fields.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "nguoiGiaoDich",
+        "targetField": "counterpartyId",
+        "transform": "IDENTITY",
+        "confidence": 0.8,
+        "evidence": "This column identifies the counterparty involved in the transaction.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "sourceColumn": "slg",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 1,
+        "evidence": "This column represents the quantity of the trade.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "EVENT_TYPE_CODE",
+        "confidence": 1,
+        "evidence": "This column specifies the type of event.",
+        "status": "PROPOSED"
+      }
+    ]
+  }
+}

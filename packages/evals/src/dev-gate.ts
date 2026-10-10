@@ -36,8 +36,13 @@ import {
  * ADR 0075 gate 2: the before stack and an after stack, run on v4 DEV only.
  * `adr-0075` is the original after stack; each logged revision adds its own.
  */
-export const DEV_GATE_STACKS = ["adr-0069", "adr-0075", "adr-0075-r1"] as const;
-export const DEV_GATE_AFTER = "adr-0075-r1" as const;
+export const DEV_GATE_STACKS = [
+  "adr-0069",
+  "adr-0075",
+  "adr-0075-r1",
+  "adr-0075-r2",
+] as const;
+export const DEV_GATE_AFTER = "adr-0075-r2" as const;
 const DEV_PATH = "packages/evals/fixtures/schema-dialects-v4/DEV.json";
 
 /** The sealed v4 DEV split; HELD_OUT is never read by the gate. */

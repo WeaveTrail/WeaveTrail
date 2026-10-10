@@ -380,10 +380,15 @@ describe("F-006: headers are data, never allowed output values", () => {
     });
   });
 
-  it("asks for low reasoning effort only under revision 1, with the same ID-form request otherwise", async () => {
+  it("asks for low reasoning effort only from revision 1, with the same ID-form request otherwise", async () => {
     const input = dialectMappingInput(dialect);
     const bodies: Record<string, unknown>[] = [];
-    for (const stack of ["adr-0069", "adr-0075", "adr-0075-r1"] as const) {
+    for (const stack of [
+      "adr-0069",
+      "adr-0075",
+      "adr-0075-r1",
+      "adr-0075-r2",
+    ] as const) {
       const { requests, transport } = capture({ fields: [] });
       await new ConfiguredSchemaMappingProvider(
         configuration,
@@ -395,6 +400,7 @@ describe("F-006: headers are data, never allowed output values", () => {
     expect(bodies.map((b) => b.reasoning_effort)).toEqual([
       undefined,
       undefined,
+      "low",
       "low",
     ]);
     expect(bodies[2]!.response_format).toEqual(bodies[1]!.response_format);
