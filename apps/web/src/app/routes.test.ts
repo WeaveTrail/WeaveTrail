@@ -28,10 +28,7 @@ function files(directory: string, name: RegExp): string[] {
 const PAGES = [
   "page.tsx",
   "architecture/page.tsx",
-  "data-handling/page.tsx",
   "evals/page.tsx",
-  "expectations/page.tsx",
-  "methodology/page.tsx",
   "replay/page.tsx",
   "why/page.tsx",
 ];

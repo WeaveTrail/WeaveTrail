@@ -4,6 +4,7 @@ import { PROMPT_VERSIONS } from "@weavetrail/contracts";
 import React, { useRef, useSyncExternalStore } from "react";
 
 import { useLanguage } from "../i18n/language";
+import { Phrased } from "../shell/sentence-lines";
 import {
   PANEL_KEYS,
   TERM_KEYS,
@@ -242,12 +243,42 @@ export function ModelComparison({
 
   return (
     <section
-      aria-labelledby="model-comparison-answer"
+      aria-labelledby="model-comparison-title"
       className="model-comparison"
     >
-      <div className="mc-answer">
+      <div className="mc-why">
         <span className="eyebrow">{t.eyebrow}</span>
-        <h1 id="model-comparison-answer">{answer}</h1>
+        <h1 id="model-comparison-title">
+          <Phrased text={t.why.title} />
+        </h1>
+        <p className="sentence-lines">
+          {t.why.lines.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </p>
+      </div>
+
+      <div className="mc-status" data-outcome={decision?.outcome ?? "PENDING"}>
+        <span className="mc-status-label">{t.status.label}</span>
+        <strong>
+          {!decision
+            ? t.status.pending
+            : primary === null
+              ? t.status.noModel
+              : t.status.selected(primary)}
+        </strong>
+        {decision && primary === null ? (
+          <p className="sentence-lines">
+            {t.status.noModelNote.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mc-answer">
+        <h2>{t.resultsHeading}</h2>
+        <p id="model-comparison-answer">{answer}</p>
         {showRoles ? (
           <dl className="mc-roles">
             <div>

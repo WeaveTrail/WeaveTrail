@@ -15,13 +15,12 @@ export const SCENARIO_LABELS_KO: Readonly<Record<ReplayScenario, string>> = {
     "거래 주체 없는 다종목 시세 · JSON Lines",
   "concentrated-buy-dialect-a.csv": "매수 집중 · 형식 A · CSV",
   "concentrated-buy-dialect-b.jsonl": "매수 집중 · 형식 B · JSON Lines",
-  "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목 · CSV",
+  "published-execution-fix44.csv": "FIX 4.4 형식 체결 자료 · CSV",
   "published-execution-fix44-broad-participation.csv":
-    "합성 · 공개 FIX 4.4 참여자가 분산된 사례 · CSV",
+    "FIX 4.4 형식 · 참여자가 분산된 사례 · CSV",
   "published-execution-fix44-conflicting-evidence.csv":
-    "합성 · 공개 FIX 4.4 체결 식별자 충돌 · CSV",
-  "published-execution-h0stcnt0.jsonl":
-    "합성 · 공개 H0STCNT0 체결 항목 · JSON Lines",
+    "FIX 4.4 형식 · 체결 번호가 겹치는 사례 · CSV",
+  "published-execution-h0stcnt0.jsonl": "H0STCNT0 형식 체결 자료 · JSON Lines",
   "rapid-price-lift-supported.csv": "단기 급등 · 기준을 충족한 사례 · CSV",
   "rapid-price-lift-broad-participation.csv":
     "단기 급등 · 참여자가 분산된 사례 · CSV",

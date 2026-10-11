@@ -383,15 +383,18 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/expectations`, `/evals`, `/methodology`, and
-`/data-handling` from the recorded immutable deployment URL. In `/replay`:
+`/replay` and `/evals` from the recorded immutable deployment URL, and confirm
+that `/methodology`, `/expectations` and `/data-handling` redirect to
+`/architecture`. In `/replay`:
 
-1. From `/`, select **Walk through a case**. Read the supported source, exercise
-   the separate Dialect B review stop, supply its justified reason, and approve
-   the worked case's own mapping and manifest. Run it, open source evidence,
-   repeat it and compare both returned hashes with the committed golden oracle.
-   Continue to working mode and confirm the case, approvals and result remain.
-   Refresh and confirm approvals and results are cleared. Inspect a narrow
+1. From `/`, select **Try an example**. Walk the five scenes: approve the worked
+   case's mapping and scope, compute the result, compute it again and confirm
+   the second run reports the same result, then pick each criterion and confirm
+   its source rows are marked. Refresh and confirm approvals and results are
+   cleared. In `/replay?mode=working`, approve and run the same worked case and
+   compare the canonical result hash its result panel shows with the committed
+   golden oracle. There, pick the H0STCNT0 source and confirm it stops at
+   `REVIEW_REQUIRED` until each flagged field has a reason. Inspect a narrow
    viewport and keyboard navigation.
 2. Submit the committed rejected mapping path and confirm an HTTP `422`
    response with `status: REVIEW_REQUIRED`, a review workflow state, and no

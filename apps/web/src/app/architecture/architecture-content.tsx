@@ -4,108 +4,112 @@ import React from "react";
 
 import { ExplainerPage, ExplainerSection } from "../explainer/explainer";
 import { useCopy, useLanguage } from "../i18n/language";
+import { SentenceLines } from "../shell/sentence-lines";
 import { architectureCopy } from "./copy";
-import { howItWorksSvg } from "./how-it-works-diagram";
 
 const SECTIONS = [
-  ["layers", "layers"],
-  ["authority", "authority"],
-  ["boundary", "boundary"],
-  ["chain", "chain"],
-  ["canonical-hash", "hash"],
-  ["packages", "packages"],
+  "roles",
+  "results",
+  "mistakes",
+  "repeat",
+  "data",
+  "docs",
 ] as const;
 
+const REPOSITORY = "https://github.com/WeaveTrail/WeaveTrail/blob/develop";
+
+/** A short list of one-sentence points. */
+function Points({ points }: { points: readonly string[] }) {
+  return (
+    <ul className="explainer-list">
+      {points.map((point) => (
+        <li key={point}>{point}</li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * How the service runs: who does what, the three results, what happens when
+ * the AI is wrong, why a rerun repeats, and how data is handled. The
+ * repository documents hold the detail.
+ */
 export function ArchitectureContent() {
   const { language } = useLanguage();
   const text = useCopy(architectureCopy);
-  const repository = "https://github.com/WeaveTrail/WeaveTrail/blob/develop";
+  const document = (file: string) =>
+    `${REPOSITORY}/docs/${file}${language === "ko" ? ".ko" : ""}.md`;
 
   return (
     <ExplainerPage
-      answer={<p>{text.answer}</p>}
+      answer={<SentenceLines lines={text.answer} />}
       eyebrow={text.eyebrow}
-      sections={SECTIONS.map(([id, key]) => [id, text.sections[key]])}
+      sections={SECTIONS.map((id) => [id, text.sections[id]])}
       title={text.title}
     >
       <ExplainerSection
-        id="layers"
-        items={text.layers.map(([title, line]) => ({
+        id="roles"
+        items={text.roles.map(([title, body]) => ({
           key: title,
           title,
-          line,
+          line: <SentenceLines lines={body} />,
         }))}
-        line={text.layersLine}
-        title={text.sections.layers}
+        line={text.rolesLine}
+        title={text.sections.roles}
+        wide
+      />
+      <ExplainerSection
+        id="results"
+        items={text.results.map(([result, name, body]) => ({
+          key: result,
+          title: (
+            <>
+              {name} <code data-result={result}>{result}</code>
+            </>
+          ),
+          line: body,
+        }))}
+        line={text.resultsLine}
+        title={text.sections.results}
+        wide
       >
-        <figure className="explainer-figure">
-          <div
-            aria-label={text.diagramLabel}
-            className="diagram-frame"
-            role="group"
-            tabIndex={0}
-          >
-            {/* The diagram is drawn from its copy table, so its words follow
-                the reader's language and are set in the committed faces. The
-                markup is this module's own output over committed geometry —
-                no request, no reader input, nothing to escape. */}
-            <div
-              className="inline-diagram"
-              dangerouslySetInnerHTML={{
-                __html: howItWorksSvg(language, "inline"),
-              }}
-            />
-          </div>
-        </figure>
+        <p className="explainer-note">{text.reviewRequired}</p>
       </ExplainerSection>
       <ExplainerSection
-        id="authority"
-        line={text.authorityLine}
-        link={[text.authorityLink, "/evals"]}
-        more={<p>{text.authorityMore}</p>}
-        title={text.sections.authority}
-      />
+        id="mistakes"
+        line={text.mistakesLine}
+        link={[text.comparisonLink, "/evals"]}
+        title={text.sections.mistakes}
+      >
+        <Points points={text.mistakes} />
+      </ExplainerSection>
       <ExplainerSection
-        id="boundary"
-        line={text.boundaryLine}
-        more={text.boundaryMore.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-        title={text.sections.boundary}
-      />
+        id="repeat"
+        line={text.repeatLine}
+        title={text.sections.repeat}
+      >
+        <Points points={text.repeat} />
+      </ExplainerSection>
       <ExplainerSection
-        id="chain"
-        items={text.chain.map(([title, line, planned]) => ({
-          key: title,
-          title,
-          line,
-          ...(planned ? { status: "planned" as const } : {}),
-        }))}
-        line={text.chainLine}
-        title={text.sections.chain}
-      />
+        id="data"
+        line={text.dataLine}
+        title={text.sections.data}
+      >
+        <Points points={text.data} />
+      </ExplainerSection>
       <ExplainerSection
-        id="canonical-hash"
-        line={text.hashLine}
-        more={text.hashMore.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-        title={text.sections.hash}
-      />
-      <ExplainerSection
-        id="packages"
-        items={text.packages.map(([title, line]) => ({
-          key: title,
-          title: <code>{title}</code>,
-          line,
-        }))}
-        line={text.packagesLine}
-        link={[
-          text.document,
-          `${repository}/docs/ARCHITECTURE${language === "ko" ? ".ko" : ""}.md`,
-        ]}
-        title={text.sections.packages}
-      />
+        id="docs"
+        line={text.docsLine}
+        title={text.sections.docs}
+      >
+        <ul className="explainer-list">
+          {text.docs.map(([title, file]) => (
+            <li key={file}>
+              <a href={document(file)}>{title}</a>
+            </li>
+          ))}
+        </ul>
+      </ExplainerSection>
     </ExplainerPage>
   );
 }

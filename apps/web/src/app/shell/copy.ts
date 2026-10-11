@@ -37,34 +37,19 @@ export const shellCopy: Bilingual<ShellCopy> = {
       [
         "Explore",
         [
-          [
-            "Walk through a case",
-            "/replay",
-            "One case, proposal to source row",
-          ],
-          ["Home", "/", "What it does, with an example screen"],
-          ["Model comparison", "/evals", "Every candidate on the held-out set"],
+          ["Try it", "/replay", "Five steps with an example case"],
+          ["Home", "/", "What you can do here"],
+          ["Model comparison", "/evals", "How the AI model is chosen"],
         ],
       ],
       [
         "How it works",
         [
-          ["Where it fits", "/why", "The review step this tool supports"],
-          ["Architecture", "/architecture", "Who may do what, and where"],
+          ["Why WeaveTrail", "/why", "What it gives a reviewer"],
           [
-            "Methodology",
-            "/methodology",
-            "The three results and how to read them",
-          ],
-          [
-            "Expected results",
-            "/expectations",
-            "What each committed case returns",
-          ],
-          [
-            "Data handling",
-            "/data-handling",
-            "What is stored and what never is",
+            "How it runs",
+            "/architecture",
+            "Who does what: the AI, you and fixed rules",
           ],
         ],
       ],
@@ -72,9 +57,8 @@ export const shellCopy: Bilingual<ShellCopy> = {
     menu: "Menu",
     closeMenu: "Close menu",
     languageLabel: "Language",
-    footerStatus: "Fixture mode · synthetic cases, provenance recorded",
-    footerPlanned:
-      "Live AI proposals and independent Evidence Bundle export are planned.",
+    footerStatus: "Runs on synthetic demo data · provenance recorded",
+    footerPlanned: "Live AI suggestions and evidence export are planned.",
   },
   ko: {
     skipToContent: "본문으로 건너뛰기",
@@ -84,28 +68,28 @@ export const shellCopy: Bilingual<ShellCopy> = {
       [
         "둘러보기",
         [
-          ["사례 따라가기", "/replay", "제안에서 원본 행까지, 사례 하나"],
-          ["홈", "/", "하는 일과 예시 화면"],
-          ["모델 비교", "/evals", "보관 평가 집합의 모든 후보"],
+          ["체험하기", "/replay", "예시 사례로 5단계 체험"],
+          ["홈", "/", "여기서 할 수 있는 일"],
+          ["모델 비교", "/evals", "AI 모델을 고르는 방법"],
         ],
       ],
       [
         "작동 방식",
         [
-          ["어디에 쓰이나", "/why", "이 도구가 돕는 검토 단계"],
-          ["아키텍처", "/architecture", "누가 어디서 무엇을 하는가"],
-          ["방법론", "/methodology", "세 가지 결과와 읽는 법"],
-          ["기대 결과", "/expectations", "커밋된 사례마다 나오는 결과"],
-          ["데이터 처리", "/data-handling", "저장하는 것과 저장하지 않는 것"],
+          ["왜 WeaveTrail인가", "/why", "검토자가 얻는 것"],
+          [
+            "작동 원리",
+            "/architecture",
+            "AI와 검토자, 계산 규칙이 나눠 맡는 일",
+          ],
         ],
       ],
     ],
     menu: "메뉴",
     closeMenu: "메뉴 닫기",
     languageLabel: "언어",
-    footerStatus: "fixture 모드 · 합성 사례, 출처 기록 있음",
-    footerPlanned:
-      "실시간 AI 제안과 독립적인 증거 번들 내보내기는 아직 계획입니다.",
+    footerStatus: "시연용 합성 자료로 동작합니다 · 출처 기록 있음",
+    footerPlanned: "실시간 AI 제안과 근거 내보내기는 계획 단계입니다.",
   },
 };
 

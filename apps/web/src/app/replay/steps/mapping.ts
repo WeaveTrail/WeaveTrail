@@ -1,6 +1,6 @@
 import type { Language } from "../../i18n/language";
 import type { ReplayView } from "../use-case-replay";
-import type { GuideStep } from "./step";
+import type { PanelCopy } from "./step";
 
 interface MappingPanel {
   readonly requestNote: string;
@@ -41,31 +41,7 @@ interface MappingPanel {
  * Step 2: a model proposes what each column means, and the visitor approves
  * this case's own mapping. A flagged field needs a reviewer reason first.
  */
-export const mappingStep: GuideStep<MappingPanel> = {
-  stage: "propose",
-  actor: "A model proposed it",
-  narration: {
-    en: {
-      title: "Review the mapping",
-      purpose:
-        "A model proposes which columns mean the same thing; it cannot approve them. The proposal below comes from a deterministic fixture, so no live model call occurred.",
-      action:
-        "Review this case's proposed fields, transforms and evidence, then approve this case's own mapping.",
-      actorDetail:
-        "The fixture mapping provider proposes targets, transforms and evidence. It cannot approve them.",
-      blocker: "Approve this case's mapping to continue.",
-    },
-    ko: {
-      title: "데이터 항목 연결 검토",
-      purpose:
-        "어떤 항목끼리 같은 뜻인지는 AI가 초안만 제안합니다. 아래 제안은 미리 준비된 예시 제안이며, 실시간 모델 호출은 일어나지 않았습니다.",
-      action:
-        "이 사례에 제안된 항목과 변환, 근거를 검토한 뒤 이 사례의 연결 제안을 승인하세요.",
-      actorDetail:
-        "제안까지가 AI의 몫입니다. 대상 항목과 변환, 근거를 내놓을 뿐 승인은 하지 못합니다.",
-      blocker: "이 사례의 연결 제안을 승인해야 계속할 수 있습니다.",
-    },
-  },
+export const mappingStep: PanelCopy<MappingPanel> = {
   panel: {
     en: {
       requestNote:
@@ -76,7 +52,7 @@ export const mappingStep: GuideStep<MappingPanel> = {
       proposedLabel: "Proposed mapping",
       executedLabel: "Executed mapping proposal",
       configuredProvider: "Configured provider",
-      fixtureProvider: "Fixture provider",
+      fixtureProvider: "Prepared suggestion",
       reviewNote:
         "Review the proposed fields, transforms and evidence. Approval binds to this exact proposal.",
       evidenceNote:
@@ -111,7 +87,7 @@ export const mappingStep: GuideStep<MappingPanel> = {
       proposedLabel: "데이터 항목 연결 제안",
       executedLabel: "실행에 쓰인 연결 제안",
       configuredProvider: "설정된 모델 제공자",
-      fixtureProvider: "미리 준비된 fixture 제안",
+      fixtureProvider: "미리 준비한 제안",
       reviewNote:
         "제안된 항목과 변환, 근거를 검토하세요. 승인은 지금 보고 있는 이 제안 하나에만 묶입니다.",
       evidenceNote:
@@ -138,14 +114,6 @@ export const mappingStep: GuideStep<MappingPanel> = {
         "이 승인은 위 연결 제안의 원본 열과 대상 항목, 변환 하나하나와 함께 적은 확인 이유에 그대로 적용되며, 무엇이든 바뀌면 다시 승인해야 실행할 수 있습니다.",
     },
   },
-  satisfied: (view) => view.approval !== null,
-  railAction: (view, language) => ({
-    kind: "perform",
-    label: approveMappingLabel(view, language),
-    disabled: view.approveMappingBlocked,
-    done: view.approval !== null,
-    run: view.approveMapping,
-  }),
 };
 
 export function approveMappingLabel(view: ReplayView, language: Language) {

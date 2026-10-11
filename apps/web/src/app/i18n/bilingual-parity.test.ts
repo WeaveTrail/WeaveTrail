@@ -3,28 +3,9 @@ import { describe, expect, it } from "vitest";
 import { checks } from "../evals/checks";
 import { ledgerCopy } from "../evals/copy";
 import { howItWorksSvg } from "../architecture/how-it-works-diagram";
-import {
-  CONCLUSION_NOT_METHOD,
-  NON_AFFILIATION,
-  NO_UPSTREAM_INTEGRATION,
-  OWN_REASONING_MARK,
-  POSITION,
-  additionStatements,
-  diagramAttribution,
-  gateInputs,
-  handoverStatements,
-  inputLines,
-  layerAuthorities,
-  layerLines,
-  lede,
-  notClaimed,
-  sectionLines,
-  sources,
-  upstreamStatements,
-} from "../why/copy";
+import { situation, sources } from "../why/copy";
 import { architectureCopy } from "../architecture/copy";
 import { shellCopy } from "../shell/copy";
-import { guideStepsByLanguage } from "../replay/steps";
 import { LANGUAGES, type Language } from "./language";
 
 /**
@@ -51,13 +32,13 @@ const modules = {
   ...import.meta.glob("../replay/steps/*.ts", { eager: true }),
 } as Record<string, Record<string, unknown>>;
 
-/** Every bilingual table exported by a copy module or a guided step. */
+/** Every bilingual table exported by a copy module or a panel's copy. */
 const surfaces: readonly (readonly [string, Surface])[] = Object.entries(
   modules,
 ).flatMap(([path, exports]) =>
   Object.entries(exports).flatMap(([name, value]) => {
     if (isBilingual(value)) return [[`${path} ${name}`, value] as const];
-    if (value && typeof value === "object" && "narration" in value)
+    if (value && typeof value === "object" && "panel" in value)
       return Object.entries(value)
         .filter(([, part]) => isBilingual(part))
         .map(
@@ -91,31 +72,9 @@ function stringsIn(value: unknown): string[] {
   return [];
 }
 
-/** The `why` argument, whose statements are localized one string at a time. */
+/** The `why` facts and sources, localized one string at a time. */
 const whyLocalized = [
-  POSITION,
-  CONCLUSION_NOT_METHOD,
-  NO_UPSTREAM_INTEGRATION,
-  NON_AFFILIATION,
-  OWN_REASONING_MARK,
-  ...notClaimed,
-  ...inputLines,
-  ...layerLines,
-  ...[
-    lede,
-    diagramAttribution,
-    ...Object.values(sectionLines),
-    ...upstreamStatements,
-    ...handoverStatements,
-    ...additionStatements,
-  ].map((statement) => statement.text),
-  ...gateInputs.flat(),
-  ...layerAuthorities.flatMap((layer) => [
-    layer.name,
-    layer.may,
-    layer.mayNot,
-    ...(layer.status ? [layer.status] : []),
-  ]),
+  ...situation.map((statement) => statement.text),
   ...sources.flatMap((source) => [
     source.publisher,
     source.title,
@@ -124,15 +83,7 @@ const whyLocalized = [
 ];
 
 /** Strings that keep one spelling in both languages on purpose. */
-const SHARED = new Set([
-  // The guide's actor discriminants stay in English by design.
-  "Committed input",
-  "A model proposed it",
-  "A person approved it",
-  "Versioned code decided it",
-  // The capture platform is named as the tools name it.
-  "Linux WSL2 x86_64",
-]);
+const SHARED = new Set<string>([]);
 
 describe("the two languages carry the same claims", () => {
   it("finds the copy tables", () => {
@@ -141,15 +92,12 @@ describe("the two languages carry the same claims", () => {
       "shellCopy",
       "homeCopy",
       "replayCopy",
-      "mappingStep.narration",
       "mappingStep.panel",
       "whyCopy",
       "architectureCopy",
-      "methodologyCopy",
-      "dataHandlingCopy",
-      "expectationsCopy",
       "ledgerCopy",
       "modelComparisonCopy",
+      "tourCopy",
       "explainerCopy",
     ])
       expect(names).toContain(expected);
@@ -233,19 +181,12 @@ describe("the two languages carry the same claims", () => {
           language,
         ).toBe(true);
     }
-    for (const layer of layerAuthorities)
-      if (layer.status)
-        for (const language of LANGUAGES)
-          expect(
-            planned[language].test(layer.status[language]),
-            layer.name.en,
-          ).toBe(true);
   });
 
-  it("states fixture mode and the source kind on every page, in both languages", () => {
+  it("states demo mode and the source kind on every page, in both languages", () => {
     for (const language of LANGUAGES) {
       const footer = shellCopy[language].footerStatus;
-      expect(footer.toLowerCase(), language).toContain("fixture");
+      expect(footer.toLowerCase(), language).toMatch(/demo|시연/);
       expect(
         /synthetic|합성/.test(footer) && !/quote|시세/.test(footer),
         language,
@@ -270,12 +211,6 @@ describe("the two languages carry the same claims", () => {
     }
     for (const value of whyLocalized)
       expect(value.ko, value.en).not.toBe(value.en);
-  });
-
-  it("names the walkthrough's steps in both languages", () => {
-    expect(guideStepsByLanguage.ko).toHaveLength(
-      guideStepsByLanguage.en.length,
-    );
   });
 
   it("keeps a Korean name for every evaluation check", () => {

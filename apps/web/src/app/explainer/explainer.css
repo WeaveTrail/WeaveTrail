@@ -18,6 +18,9 @@
   text-wrap: balance;
 }
 .explainer-answer {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
   max-width: var(--prose-max);
   font: var(--type-body-lg);
   color: var(--text-strong);
@@ -62,6 +65,9 @@
   margin: 0;
   list-style: none;
 }
+.explainer-items[data-layout="wide"] {
+  grid-template-columns: minmax(0, 1fr);
+}
 .explainer-items li {
   display: grid;
   align-content: start;
@@ -80,7 +86,7 @@
   align-items: center;
   gap: var(--space-2);
 }
-.explainer-items li > span {
+.explainer-item-line {
   font: var(--type-small);
   color: var(--text-muted);
 }
@@ -101,20 +107,11 @@
   font-weight: var(--weight-medium);
 }
 
-/* A citation, or the mark that a sentence is the project's own reading. */
+/* A citation beside the sentence it supports. */
 .cite {
   margin-left: 2px;
   font: var(--type-label);
   text-decoration: none;
-}
-.reasoning-mark {
-  display: inline-block;
-  margin-right: var(--space-1);
-  padding: 0 var(--space-1);
-  border: var(--border-proposal);
-  border-radius: var(--radius-sm);
-  font: var(--type-label);
-  color: var(--authorship-ai);
 }
 .source-list {
   display: grid;
@@ -130,46 +127,6 @@
   font: var(--type-mono-sm);
 }
 
-/* A committed figure in a frame that scrolls rather than shrinks it. */
-.diagram-frame {
-  overflow-x: auto;
-  border: var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--surface-card);
-}
-.diagram-frame img,
-.diagram-frame .inline-diagram svg {
-  display: block;
-  min-width: 44rem;
-  width: 100%;
-  height: auto;
-}
-.explainer-figure figcaption {
-  margin-top: var(--space-2);
-  font: var(--type-small);
-  color: var(--text-muted);
-}
-
-/* Expected results: one compact row per committed case. */
-.expectation-table {
-  width: 100%;
-  border-collapse: collapse;
-  font: var(--type-small);
-}
-.expectation-table th,
-.expectation-table td {
-  padding: var(--space-2) var(--space-3);
-  border-bottom: var(--hairline);
-  text-align: left;
-  vertical-align: top;
-}
-.expectation-table code {
-  overflow-wrap: anywhere;
-}
-.expectation-wrap {
-  overflow-x: auto;
-}
-
 @media (max-width: 40rem) {
   .explainer-head h1 {
     font: var(--type-section);
@@ -177,4 +134,23 @@
   .explainer-section {
     padding-block: var(--space-6);
   }
+  .explainer-answer {
+    font: var(--type-body);
+  }
+}
+
+/* A short list of plain statements, one per line. */
+.explainer-list {
+  display: grid;
+  gap: var(--space-2);
+  padding-left: 1.2em;
+  margin: 0;
+}
+.explainer-note {
+  max-width: var(--prose-max);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  font: var(--type-small);
+  color: var(--text-muted);
 }

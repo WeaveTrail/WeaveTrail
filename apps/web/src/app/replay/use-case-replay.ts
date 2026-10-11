@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import type {
   ApprovalRecord,
@@ -26,38 +26,26 @@ import {
 import { shuffleSourceRows } from "./shuffle-source-rows";
 import type { CaseReplayProps, Mutation, ReplayError } from "./types";
 
-/** The worked case the walkthrough follows, and its separate review example. */
+/** The worked case the walkthrough follows, and working mode opens on. */
 export const WORKED_CASE = "published-execution-fix44.csv";
-export const REVIEW_EXAMPLE = "published-execution-h0stcnt0.jsonl";
 
 /**
- * Everything the replay surface knows and can do. One hook owns the state, so
- * each step reads the same values and calls the same handlers; the steps
- * themselves only describe what they show and when they are satisfied.
+ * Everything a replay surface knows and can do. One hook owns the state, so
+ * the guided walkthrough and working mode make the same approvals and runs.
  */
 export function useCaseReplay({
   proposals,
   providerMode,
   scenarios,
-  guided = false,
-  mappingExample = false,
-  onMappingApprovalChange,
-  onGuideComplete,
 }: CaseReplayProps) {
   const requestGeneration = useRef(0);
-  const [focusPending, setFocusPending] = useState(false);
-  const previousGuided = useRef(guided);
   const lastSubmittedRows = useRef<ReplayRequest["rows"] | null>(null);
   const [submittedOrder, setSubmittedOrder] = useState<string[] | null>(null);
-  const [chapter, setChapter] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [exampleApproved, setExampleApproved] = useState(false);
-  const [evidenceOpened, setEvidenceOpened] = useState(false);
   const [previousHash, setPreviousHash] = useState<string | null>(null);
-  const guidedScenario =
+  const [scenario, setScenario] = useState<ReplayScenario>(
     scenarios.find(({ value }) => value === WORKED_CASE)?.value ??
-    scenarios[0]!.value;
-  const [scenario, setScenario] = useState<ReplayScenario>(guidedScenario);
+      scenarios[0]!.value,
+  );
   const [mutation, setMutation] = useState<Mutation>("baseline");
   const [result, setResult] = useState<ReplayResultResponse | null>(null);
   const [running, setRunning] = useState(false);
@@ -84,9 +72,6 @@ export function useCaseReplay({
   const displayedProviderMode = requestedMapping?.mode ?? providerMode;
   const unresolvedFields = unresolvedMappingFields(proposal, reviewReasons);
   const unresolvedReview = unresolvedFields.length > 0;
-  const exampleScenario =
-    scenarios.find(({ value }) => value === REVIEW_EXAMPLE) ??
-    scenarios.find(({ value }) => value === "concentrated-buy-dialect-b.jsonl");
   const completeResult =
     result?.workflowState === "REPLAYED" &&
     "evaluation" in result &&
@@ -109,49 +94,6 @@ export function useCaseReplay({
   const repeatBlocked =
     running || !approval || !caseApproval || (!completeResult && !previousHash);
 
-  useEffect(() => {
-    if (guided && !previousGuided.current) {
-      requestGeneration.current += 1;
-      setChapter(0);
-      setCompletedSteps([]);
-      setExampleApproved(false);
-      setEvidenceOpened(false);
-      setPreviousHash(null);
-      lastSubmittedRows.current = null;
-      setSubmittedOrder(null);
-      setScenario(guidedScenario);
-      setMutation("baseline");
-      setResult(null);
-      setRunning(false);
-      setError(null);
-      setWorkflowState(null);
-      setApproval(null);
-      setCaseApproval(null);
-      setReviewReasons({});
-      setRequestedMapping(null);
-      setRequestingMapping(false);
-    }
-    previousGuided.current = guided;
-  }, [guided, guidedScenario]);
-
-  function goToChapter(next: number) {
-    setFocusPending(true);
-    setChapter(next);
-  }
-
-  function completeChapter(step: number) {
-    setCompletedSteps((current) =>
-      current.includes(step) ? current : [...current, step],
-    );
-  }
-
-  function focusChapterTitle(node: HTMLHeadingElement | null) {
-    if (node && focusPending) {
-      node.focus();
-      setFocusPending(false);
-    }
-  }
-
   function invalidateResult() {
     requestGeneration.current += 1;
     setResult(null);
@@ -159,7 +101,6 @@ export function useCaseReplay({
     setWorkflowState(null);
     setRunning(false);
     setRequestingMapping(false);
-    setEvidenceOpened(false);
     setPreviousHash(null);
     setSubmittedOrder(null);
     return requestGeneration.current;
@@ -170,14 +111,12 @@ export function useCaseReplay({
     const generation = invalidateResult();
     setCaseApproval(null);
     setApproval(null);
-    onMappingApprovalChange?.(false);
     const attempt = await attemptApproval(
       proposal,
       mappingOverrides(proposal, reviewReasons),
     );
     if (generation !== requestGeneration.current) return;
     setApproval(attempt.approval);
-    onMappingApprovalChange?.(attempt.approval !== null);
     setError(attempt.error === null ? null : { kind: "approval-hash" });
   }
 
@@ -187,7 +126,6 @@ export function useCaseReplay({
     setCaseApproval(null);
     setReviewReasons((current) => ({ ...current, [fieldPath]: reason }));
     setApproval(null);
-    onMappingApprovalChange?.(false);
   }
 
   async function requestMapping() {
@@ -196,7 +134,6 @@ export function useCaseReplay({
     setCaseApproval(null);
     setReviewReasons({});
     setRequestedMapping(null);
-    onMappingApprovalChange?.(false);
     setRequestingMapping(true);
     try {
       const response = await fetch("/api/mapping", {
@@ -318,6 +255,24 @@ export function useCaseReplay({
     }
   }
 
+  /**
+   * Back to the walkthrough's start: the worked case at its baseline, with no
+   * approval, result or evidence that may belong to working-mode inputs.
+   */
+  function restoreWorkedCase() {
+    invalidateResult();
+    lastSubmittedRows.current = null;
+    setMutation("baseline");
+    setScenario(
+      scenarios.find(({ value }) => value === WORKED_CASE)?.value ??
+        scenarios[0]!.value,
+    );
+    setApproval(null);
+    setCaseApproval(null);
+    setReviewReasons({});
+    setRequestedMapping(null);
+  }
+
   /** Working mode: another committed source, so every approval starts over. */
   function chooseScenario(next: ReplayScenario) {
     invalidateResult();
@@ -341,19 +296,12 @@ export function useCaseReplay({
   }
 
   return {
-    guided,
-    mappingExample,
     providerMode,
     proposals,
     scenarios,
-    chapter,
-    completedSteps,
-    exampleApproved,
-    evidenceOpened,
     previousHash,
     scenario,
     selectedScenario,
-    exampleScenario,
     mutation,
     submittedOrder,
     result,
@@ -375,10 +323,6 @@ export function useCaseReplay({
     approveMappingBlocked,
     runBlocked,
     repeatBlocked,
-    goToChapter,
-    completeChapter,
-    focusChapterTitle,
-    setFocusPending,
     approveMapping,
     setReviewReason,
     requestMapping,
@@ -386,9 +330,7 @@ export function useCaseReplay({
     runReplay,
     chooseScenario,
     chooseMutation,
-    setExampleApproved,
-    openEvidence: () => setEvidenceOpened(true),
-    onGuideComplete,
+    restoreWorkedCase,
   };
 }
 

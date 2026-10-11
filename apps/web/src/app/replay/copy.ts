@@ -4,19 +4,12 @@ import type { Bilingual } from "../i18n/language";
 import type { Mutation } from "./types";
 
 /**
- * The copy the replay surface shares across its steps: the heading, the step
- * rail, the source table, receipts, workflow states, machine values and the
- * finding trace. Each step's own narration and panel copy sit in its module
- * under `steps/`. Korean follows the fixed product vocabulary: 원본 거래자료,
+ * The copy the replay surfaces share: the heading, the source table,
+ * receipts, workflow states, machine values and the finding trace. Each
+ * working-mode panel's own copy sits in its module under `steps/`, and the
+ * guided walkthrough's in `tour/copy.ts`. Korean follows the fixed product vocabulary: 원본 거래자료,
  * 데이터 항목 연결, 조사 범위, 분석 실행, 판단 항목, 판단 근거, 확인 이유.
  */
-
-/** Who acted in a step. The English value is the discriminant behaviour keys on. */
-export type Actor =
-  | "Committed input"
-  | "A model proposed it"
-  | "A person approved it"
-  | "Versioned code decided it";
 
 export type HashScope =
   "sourceArtifact" | "approvedArtifact" | "canonicalResult" | "rawRow";
@@ -30,35 +23,14 @@ export type GateName =
 
 interface ReplayCopy {
   readonly heading: {
-    readonly title: string;
+    readonly guidedTitle: string;
+    readonly workingTitle: string;
     readonly workingLede: string;
     readonly guidedMeta: string;
     readonly modesLabel: string;
     readonly guidedMode: string;
     readonly workingMode: string;
   };
-  readonly rail: {
-    readonly hashesDiffer: string;
-    readonly readyToContinue: string;
-    readonly toContinue: (reason: string) => string;
-    readonly readingAhead: (step: number, title: string) => string;
-    readonly stepHeading: (step: number, title: string) => string;
-    readonly stepOf: (step: number, total: number) => string;
-    readonly stageOf: (stage: number, total: number) => string;
-    readonly afterMainFlow: string;
-    readonly whatThisShows: string;
-    readonly whoActed: string;
-    readonly completed: string;
-    readonly currentStep: string;
-    readonly back: string;
-    readonly continueLabel: string;
-    readonly navigationInRail: string;
-    readonly navigationAtEnd: string;
-    readonly progressLabel: string;
-    readonly stepListLabel: string;
-    readonly whyThisStep: string;
-  };
-  readonly actors: Readonly<Record<Actor, string>>;
   readonly working: {
     readonly heading: string;
     readonly withCase: string;
@@ -141,43 +113,15 @@ interface ReplayCopy {
 export const replayCopy: Bilingual<ReplayCopy> = {
   en: {
     heading: {
-      title: "Follow a case from source to finding.",
+      guidedTitle: "Try it with an example case",
+      workingTitle: "Hands-on",
       workingLede:
-        "The same case without the steps: pick a source, approve it, run it.",
+        "Pick a source, approve its mapping and then its scope, and compute the result.",
       guidedMeta:
-        "One synthetic case · 8 steps · about 5–10 minutes · no sign-in, a refresh starts over",
-      modesLabel: "Case Replay mode",
-      guidedMode: "Guided walkthrough",
-      workingMode: "Working mode",
-    },
-    rail: {
-      hashesDiffer:
-        "The returned hashes differ. Retry the same approved case or inspect the results.",
-      readyToContinue: "Ready to continue.",
-      toContinue: (reason) => `To continue: ${reason}`,
-      readingAhead: (step, title) =>
-        ` You are reading ahead: step ${step}, ${title}, is not completed.`,
-      stepHeading: (step, title) => `Step ${step} · ${title}`,
-      stepOf: (step, total) => `Step ${step} of ${total}`,
-      stageOf: (stage, total) => `Stage ${stage} of ${total}`,
-      afterMainFlow: "After the worked case",
-      whatThisShows: "What this shows",
-      whoActed: "Who acted",
-      completed: "Completed",
-      currentStep: "Current step",
-      back: "Back",
-      continueLabel: "Continue",
-      navigationInRail: "Step navigation in the step rail",
-      navigationAtEnd: "Step navigation at the end of the step",
-      progressLabel: "Case walkthrough progress",
-      stepListLabel: "All steps",
-      whyThisStep: "Why this step",
-    },
-    actors: {
-      "Committed input": "Committed input",
-      "A model proposed it": "A model proposed it",
-      "A person approved it": "A person approved it",
-      "Versioned code decided it": "Versioned code decided it",
+        "Synthetic data · 5 steps · no sign-in · a refresh starts over",
+      modesLabel: "How to try it",
+      guidedMode: "Step by step",
+      workingMode: "Hands-on",
     },
     working: {
       heading: "Case Replay controls",
@@ -209,14 +153,13 @@ export const replayCopy: Bilingual<ReplayCopy> = {
       synthetic: "synthetic",
     },
     source: {
-      region: "Committed source rows",
-      artifact: "Artifact",
+      region: "Source trades",
+      artifact: "File",
       rows: "rows",
       columns: "columns",
       synthetic: "Synthetic",
-      summary:
-        "The synthetic source as committed: original strings, before any mapping.",
-      tableLabel: "Source rows as committed",
+      summary: "The trading data as received, before any column is matched.",
+      tableLabel: "Source rows as received",
       rowHeader: "Row",
       provenanceSummary: "Where this source comes from, and its hash",
       provenanceLabel: "Synthetic source provenance",
@@ -364,43 +307,14 @@ export const replayCopy: Bilingual<ReplayCopy> = {
   },
   ko: {
     heading: {
-      title: "의심 사례의 근거를 직접 확인합니다.",
+      guidedTitle: "예시 사례로 체험해 보세요",
+      workingTitle: "직접 조작",
       workingLede:
-        "단계 안내 없이 같은 사례를 다룹니다. 원본을 고르고, 승인하고, 실행하세요.",
-      guidedMeta:
-        "합성 사례 하나 · 8단계 · 약 5~10분 · 회원가입 없음, 새로고침하면 처음부터",
-      modesLabel: "사례를 확인하는 방식",
-      guidedMode: "사례 따라가기",
+        "자료를 고르고, 항목 연결과 조사 범위를 차례로 승인한 뒤 결과를 계산해 봅니다.",
+      guidedMeta: "합성 자료 · 5단계 · 회원가입 없음 · 새로고침하면 처음부터",
+      modesLabel: "체험 방식",
+      guidedMode: "단계별 체험",
       workingMode: "직접 조작",
-    },
-    rail: {
-      hashesDiffer:
-        "두 결과 해시가 서로 다릅니다. 같은 사례를 다시 실행하거나 결과를 확인하세요.",
-      readyToContinue: "계속할 수 있습니다.",
-      toContinue: (reason) => `계속하려면: ${reason}`,
-      readingAhead: (step, title) =>
-        ` 앞서 읽고 있습니다. ${step}단계 "${title}"를 아직 완료하지 않았습니다.`,
-      stepHeading: (step, title) => `${step}단계 · ${title}`,
-      stepOf: (step, total) => `${total}단계 중 ${step}단계`,
-      stageOf: (stage, total) => `${total}개 과정 중 ${stage}번째`,
-      afterMainFlow: "사례를 마친 뒤",
-      whatThisShows: "이 단계가 필요한 이유",
-      whoActed: "누가 했는가",
-      completed: "완료",
-      currentStep: "현재 단계",
-      back: "이전",
-      continueLabel: "계속",
-      navigationInRail: "단계 목록에서 단계 이동하기",
-      navigationAtEnd: "단계 끝에서 단계 이동하기",
-      progressLabel: "사례 따라가기 진행 상황",
-      stepListLabel: "전체 단계",
-      whyThisStep: "이 단계를 두는 이유",
-    },
-    actors: {
-      "Committed input": "커밋된 입력",
-      "A model proposed it": "모델이 제안했습니다",
-      "A person approved it": "사람이 승인했습니다",
-      "Versioned code decided it": "버전이 고정된 코드가 판정했습니다",
     },
     working: {
       heading: "직접 조작 컨트롤",
@@ -432,13 +346,13 @@ export const replayCopy: Bilingual<ReplayCopy> = {
       synthetic: "시연용 가상자료",
     },
     source: {
-      region: "커밋된 원본 거래자료",
-      artifact: "아티팩트",
+      region: "원본 거래자료",
+      artifact: "파일",
       rows: "행",
       columns: "열",
       synthetic: "합성 자료",
-      summary: "커밋된 원본 그대로입니다. 항목을 연결하기 전의 값입니다.",
-      tableLabel: "커밋된 그대로의 원본 행",
+      summary: "받은 그대로의 거래 자료입니다. 아직 항목을 맞추기 전입니다.",
+      tableLabel: "받은 그대로의 원본 행",
       rowHeader: "행",
       provenanceSummary: "출처와 해시",
       provenanceLabel: "합성 자료 출처",

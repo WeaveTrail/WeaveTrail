@@ -2,19 +2,17 @@ import React from "react";
 
 import type { Language } from "../i18n/language";
 import { replayCopy } from "./copy";
-import type { GuideView } from "./steps/step";
+import type { ReplayView } from "./use-case-replay";
 
 /**
- * Working mode has no step rail: one heading says what to do with the chosen
- * source, and the input variations change what is submitted.
+ * One heading says what to do with the chosen source, and the input
+ * variations change what is submitted.
  */
-export function renderWorkingHeader(view: GuideView, language: Language) {
+export function renderWorkingHeader(view: ReplayView, language: Language) {
   const text = replayCopy[language].working;
   return (
     <>
-      <h2 ref={view.focusChapterTitle} tabIndex={-1}>
-        {text.heading}
-      </h2>
+      <h2>{text.heading}</h2>
       <p>
         {view.selectedScenario.manifest ? text.withCase : text.withoutCase}{" "}
         {text.variationsNote}
@@ -23,7 +21,7 @@ export function renderWorkingHeader(view: GuideView, language: Language) {
   );
 }
 
-export function renderVariations(view: GuideView, language: Language) {
+export function renderVariations(view: ReplayView, language: Language) {
   const text = replayCopy[language].working;
   return (
     <details className="advanced-controls">
@@ -60,7 +58,7 @@ export function renderVariations(view: GuideView, language: Language) {
 }
 
 /** The order the request carried, to compare with the canonical order. */
-export function renderSubmittedOrder(view: GuideView, language: Language) {
+export function renderSubmittedOrder(view: ReplayView, language: Language) {
   const text = replayCopy[language].working;
   if (!view.submittedOrder) return null;
   return (

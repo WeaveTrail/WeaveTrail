@@ -1,16 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { HOME_TERM_KEYS, homeCopy } from "../src/app/home/copy";
-import { homeExample } from "../src/app/home/example";
-import { plainText } from "../src/app/home/home-view";
+import { homeCopy } from "../src/app/home/copy";
 import type { Language } from "../src/app/i18n/language";
+import { plainText } from "../src/app/shell/sentence-lines";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
   { width: 390, height: 844 },
 ] as const;
 const LANGUAGES: readonly Language[] = ["en", "ko"];
-const example = homeExample();
 
 async function open(page: Page, language: Language) {
   await page.addInitScript((value) => {
@@ -49,38 +47,25 @@ async function tabTo(page: Page, href: string) {
 
 for (const viewport of VIEWPORTS) {
   for (const language of LANGUAGES) {
-    test(`shows the walkthrough and its example screen in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
+    test(`leads with the gain and the walkthrough in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
       page,
     }) => {
-      const shown = homeCopy[language].example;
       await page.setViewportSize(viewport);
       await open(page, language);
 
-      // What the site is comes first, and the walkthrough is the first
+      // What a reviewer gains comes first, and the walkthrough is the one
       // action offered.
       await expect(page.locator("#home-title")).toHaveText(
-        homeCopy[language].intro.title,
+        plainText(homeCopy[language].intro.title),
       );
+      await expect(page.locator("main .hero-actions a")).toHaveCount(1);
       await expect(
         page.locator("main .hero-actions a").first(),
       ).toHaveAttribute("href", "/replay?mode=guided");
-      // The example screen is the worked case's committed end screen.
-      await expect(page.locator("#home-example-title")).toHaveText(shown.title);
-      await expect(
-        page.locator("#home-example-result [data-result]"),
-      ).toHaveText(example.result);
-      await expect(page.locator(".home-example-gates tbody tr")).toHaveCount(
-        example.gates.length,
-      );
-      await expect(page.locator("#home-control")).toHaveText(
-        plainText(shown.control),
-      );
-      await expect(page.locator("main")).not.toContainText(/NO_MODEL/);
       for (const selector of [
         "#home-title",
-        '.home-answer a[href="/replay?mode=guided"]',
-        "#home-example-title",
-        "#home-example-result",
+        ".home-lede",
+        '.hero-actions a[href="/replay?mode=guided"]',
       ])
         await expectInFirstViewport(page, selector);
       const overflow = await page.evaluate(
@@ -92,50 +77,6 @@ for (const viewport of VIEWPORTS) {
     });
   }
 }
-
-for (const language of LANGUAGES) {
-  test(`opens every first-screen term by keyboard in ${language}`, async ({
-    page,
-  }) => {
-    const answer = homeCopy[language].example;
-    await open(page, language);
-    const terms = page.locator("main .home-term:visible");
-    const count = await terms.count();
-    expect(count).toBeGreaterThan(0);
-    const opened = new Set<string>();
-    for (let index = 0; index < count; index++) {
-      const term = terms.nth(index);
-      const key = (await term.getAttribute("popovertarget"))!;
-      await term.focus();
-      await page.keyboard.press("Enter");
-      const note = page.locator(`#${key}`);
-      await expect(note).toBeVisible();
-      const name = key.replace("home-term-", "") as keyof typeof answer.terms;
-      await expect(note).toContainText(answer.terms[name][1]);
-      await page.keyboard.press("Escape");
-      await expect(note).toBeHidden();
-      await expect(term).toBeFocused();
-      opened.add(name);
-    }
-    // Every explained term appears on the first screen.
-    for (const key of HOME_TERM_KEYS) expect([...opened], key).toContain(key);
-  });
-}
-
-test.describe("on a touch screen", () => {
-  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
-
-  test("opens and closes a term's explanation by tapping", async ({ page }) => {
-    const answer = homeCopy.ko.example;
-    await open(page, "ko");
-    await page.locator("#home-control .home-term").first().tap();
-    const note = page.locator("#home-term-validator");
-    await expect(note).toBeVisible();
-    await expect(note).toContainText(answer.terms.validator[1]);
-    await note.getByRole("button", { name: answer.close }).tap();
-    await expect(note).toBeHidden();
-  });
-});
 
 for (const [href, path] of [
   ["/evals", "/evals"],
@@ -151,7 +92,7 @@ for (const [href, path] of [
 }
 
 for (const language of LANGUAGES) {
-  test(`shows the four stages under the example at 1280x720 in ${language}`, async ({
+  test(`shows the four stages beside the opening at 1280x720 in ${language}`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
@@ -176,16 +117,7 @@ test("keeps the header on one row and opens every destination from the menu at 3
   await page.keyboard.press("Enter");
   await expect(button).toHaveAttribute("aria-expanded", "true");
   const panel = page.locator(".site-nav-panel");
-  for (const href of [
-    "/",
-    "/evals",
-    "/replay",
-    "/why",
-    "/architecture",
-    "/methodology",
-    "/expectations",
-    "/data-handling",
-  ])
+  for (const href of ["/", "/evals", "/replay", "/why", "/architecture"])
     await expect(panel.locator(`a[href="${href}"]`)).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(panel).toBeHidden();
@@ -288,26 +220,18 @@ test("opens the how-it-works menu from the bar at 1280x720", async ({
   await expect(trigger).toHaveAttribute("data-current", "true");
 });
 
-test.describe("on the guided case at 1280x720", () => {
+test.describe("on the guided walkthrough at 1280x720", () => {
   test.use({ viewport: { width: 1280, height: 720 } });
 
-  test("shows every committed source row in one table at step 1", async ({
+  test("shows every row of the worked case in one table at the first step", async ({
     page,
   }) => {
     await page.addInitScript(() =>
       window.localStorage.setItem("weavetrail.language", "en"),
     );
     await page.goto("/replay");
-    // The first table is the worked case; the separate mapping-review
-    // example carries its own further down.
-    const table = page.locator(".source-table").first();
-    await expect(table).toBeVisible();
-    const rows = table.locator("tbody tr");
-    expect(await rows.count()).toBeGreaterThan(1);
+    const rows = page.locator(".tour-table tbody tr");
+    await expect(rows).toHaveCount(6);
     await expect(rows.first()).toBeInViewport();
-    // Where the source comes from and its hash wait one disclosure below.
-    await expect(
-      page.locator(".source-provenance").first(),
-    ).not.toHaveAttribute("open");
   });
 });

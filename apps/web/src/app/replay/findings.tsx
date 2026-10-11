@@ -10,7 +10,6 @@ import type {
   SourceTrace,
 } from "@weavetrail/contracts";
 
-import { openedForPrint } from "../shell/print-disclosures";
 import {
   Bps,
   eventFieldNote,
@@ -29,7 +28,6 @@ import {
 } from "./mapping-trace";
 import { useReplayLanguage } from "./replay-language";
 import { evidenceStep } from "./steps/evidence";
-import { GUIDE_TARGET_EVIDENCE } from "./steps/step";
 
 /**
  * The rule's checks, each with its observed value against its threshold, how
@@ -41,15 +39,11 @@ export function RapidPriceLiftEvaluation({
   evaluation,
   sourceTrace,
   scenario,
-  onEvidenceOpen,
-  advancesStep = false,
   mapping,
 }: {
   evaluation: RapidPriceLiftResult;
   sourceTrace: SourceTrace;
   scenario: ReplayScenario;
-  onEvidenceOpen?: () => void;
-  advancesStep?: boolean;
   /** The proposal and the approval bound to it that this result ran under. */
   mapping?:
     { proposal: SchemaMappingProposal; approval: ApprovalRecord } | undefined;
@@ -78,7 +72,7 @@ export function RapidPriceLiftEvaluation({
         ) : (
           <div className="gate-list">
             <p className="machine-note">{reportedValueNote(language)}</p>
-            {evaluation.findings.map((finding, index) => (
+            {evaluation.findings.map((finding) => (
               <div
                 className="gate-row"
                 key={finding.gate}
@@ -105,21 +99,8 @@ export function RapidPriceLiftEvaluation({
                 <small>
                   {text.eventsCounted(finding.referencedEventIds.length)}
                 </small>
-                <details
-                  className={
-                    advancesStep
-                      ? "source-evidence step-action"
-                      : "source-evidence"
-                  }
-                  onToggle={(event) => {
-                    if (
-                      event.currentTarget.open &&
-                      !openedForPrint(event.currentTarget)
-                    )
-                      onEvidenceOpen?.();
-                  }}
-                >
-                  <summary id={index === 0 ? GUIDE_TARGET_EVIDENCE : undefined}>
+                <details className="source-evidence">
+                  <summary>
                     {text.inspect(
                       finding.gate,
                       gateReading(finding.gate as GateName, language).label,

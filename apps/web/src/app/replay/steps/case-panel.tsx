@@ -4,23 +4,23 @@ import type { Language } from "../../i18n/language";
 import { ApprovalReceipt } from "../approval-receipt";
 import { Instant } from "../machine-values";
 import { approveCaseLabel, caseApprovalStep } from "./case-approval";
-import { STEP } from "./index";
-import { panelLabel, shows, type GuideView } from "./step";
+import type { ReplayView } from "../use-case-replay";
+import { panelLabel } from "./step";
 
 /**
  * The authored case: instrument, actor group, window and the rule's threshold
  * values, with the exact artifact the approval binds to one disclosure away.
  * A source without a case manifest has no case to approve.
  */
-export function renderCasePanel(view: GuideView, language: Language) {
+export function renderCasePanel(view: ReplayView, language: Language) {
   const text = caseApprovalStep.panel[language];
   const { manifest } = view.selectedScenario;
   return (
-    <div hidden={!shows(view, STEP.caseApproval) || view.mappingExample}>
+    <div>
       {manifest ? (
         <div className="case-preview">
           <span className="panel-label">
-            {panelLabel(view, "03", text.panelLabel)}
+            {panelLabel("03", text.panelLabel)}
           </span>
           <dl>
             <div>
@@ -78,13 +78,7 @@ export function renderCasePanel(view: GuideView, language: Language) {
           {!view.approval && <p>{text.mappingFirst}</p>}
           <p className="approval-binding">{text.binding}</p>
           <button
-            className={`button approve-case${view.caseApproval ? "" : " primary"}${
-              view.guided &&
-              view.chapter === STEP.caseApproval &&
-              !view.caseApproval
-                ? " step-action"
-                : ""
-            }`}
+            className={`button approve-case${view.caseApproval ? "" : " primary"}`}
             data-approved={view.caseApproval !== null}
             disabled={!view.approval}
             onClick={view.approveCase}

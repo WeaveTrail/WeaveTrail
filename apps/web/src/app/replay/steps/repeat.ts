@@ -1,7 +1,6 @@
 import type { Language } from "../../i18n/language";
-import { replayCopy } from "../copy";
 import type { ReplayView } from "../use-case-replay";
-import type { GuideStep } from "./step";
+import type { PanelCopy } from "./step";
 
 interface RepeatPanel {
   readonly heading: string;
@@ -18,30 +17,7 @@ interface RepeatPanel {
  * Step 5: the same approved input again. Two server-returned hashes compared
  * as strings check same-input repeatability, and nothing more.
  */
-export const repeatStep: GuideStep<RepeatPanel> = {
-  stage: "verify",
-  actor: "Versioned code decided it",
-  narration: {
-    en: {
-      title: "Repeat the case",
-      purpose:
-        "Execute the same approved input again. Comparing two returned hashes checks same-input repeatability only.",
-      action:
-        "Repeat the same approved case and compare the two server-returned hashes.",
-      actorDetail:
-        "Both hashes are returned by the server. The browser compares them as strings.",
-      blocker: "Repeat the same approved case to compare returned hashes.",
-    },
-    ko: {
-      title: "동일 사례 반복 확인",
-      purpose:
-        "같은 자료를 같은 조건으로 한 번 더 실행합니다. 두 결과 해시를 비교하는 것은 같은 입력에 대한 재현성만 확인하는 일입니다.",
-      action: "같은 사례를 다시 실행하고 두 결과 해시가 같은지 비교하세요.",
-      actorDetail:
-        "두 해시 모두 서버가 반환한 값이고, 화면은 그 둘을 문자열로 비교합니다.",
-      blocker: "같은 사례를 다시 실행해 두 결과 해시를 비교하세요.",
-    },
-  },
+export const repeatStep: PanelCopy<RepeatPanel> = {
   panel: {
     en: {
       heading: "Same-input repeatability",
@@ -64,19 +40,6 @@ export const repeatStep: GuideStep<RepeatPanel> = {
       mismatch: "불일치 · 다시 실행하거나 결과 확인",
     },
   },
-  satisfied: (view) => view.repeatMatches,
-  railAction: (view, language) => ({
-    kind: "perform",
-    label: repeatLabel(view, language),
-    disabled: view.repeatBlocked,
-    done: view.repeatMatches,
-    run: () => view.runReplay(true),
-  }),
-  // Once a repeat has come back, what is missing is a match, not a repeat.
-  blockerFor: (view, language) =>
-    view.previousHash && view.completeResult
-      ? replayCopy[language].rail.hashesDiffer
-      : null,
 };
 
 export function repeatLabel(view: ReplayView, language: Language) {

@@ -49,28 +49,17 @@ afterEach(() => {
 });
 
 describe("replay mapping status boundary", () => {
-  it("renders the guided control surface in Korean when requested", async () => {
+  it("renders working mode in the fixed Korean product vocabulary", async () => {
     const prepared = await prepareReplayScenarios();
     const markup = renderToStaticMarkup(
-      createElement(CaseReplay, { ...prepared, guided: true, language: "ko" }),
+      createElement(CaseReplay, { ...prepared, language: "ko" }),
     );
-    // The Korean surface names each thing the way the product's own screens
-    // name it, so a Korean reader never meets a step in one vocabulary and the
-    // control that performs it in another.
-    expect(markup).toContain("커밋된 원본 거래자료");
-    expect(markup).toContain("데이터 항목 연결 제안");
+    // A Korean reader never meets a step in one vocabulary and the control
+    // that performs it in another.
+    expect(markup).toContain("원본 거래자료");
     expect(markup).toContain("연결 제안 승인");
     expect(markup).toContain("분석 실행");
     expect(markup).toContain("조사 범위 승인");
-    expect(markup).toContain("판단 근거 확인");
-    // The rail leads with where the visitor is and what to do here.
-    expect(markup).toContain("8단계 중 1단계");
-    expect(markup).toContain(
-      '<span class="step-stage-label">4개 과정 중 1번째</span> <strong>AI가 제안</strong>',
-    );
-    expect(markup).toContain(
-      '<p class="step-instruction">아래 원본 거래자료의 열 이름과 값을 훑어본 뒤 계속하세요.</p>',
-    );
   });
 
   it("names every committed source in Korean in the source list", async () => {
@@ -96,9 +85,7 @@ describe("replay mapping status boundary", () => {
 
   it("attributes displayed threshold values to the authored case configuration", async () => {
     const prepared = await prepareReplayScenarios();
-    const markup = renderToStaticMarkup(
-      createElement(CaseReplay, { ...prepared, guided: true }),
-    );
+    const markup = renderToStaticMarkup(createElement(CaseReplay, prepared));
 
     expect(markup).toContain("Threshold values proposed in this authored case");
     expect(markup).toContain(
@@ -373,19 +360,6 @@ describe("replay mapping status boundary", () => {
     );
   });
 
-  it("only offers the proposal request while the example has no proposal", async () => {
-    const source = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/replay/steps/example.ts"),
-      "utf8",
-    );
-    // The request control stays rendered after a proposal arrives, so offering
-    // it unconditionally sent the visitor to re-request an approved proposal.
-    expect(source).toContain(
-      'const proposalShown = example.querySelector(".mapping-preview") !== null;',
-    );
-    expect(source).toContain("proposalShown");
-  });
-
   it("explains every workflow state it can render, in both languages", async () => {
     const { WorkflowStateSchema } = await import("@weavetrail/contracts");
     // The badge prints the contract's own code. A partial table left the
@@ -501,7 +475,7 @@ describe("replay mapping status boundary", () => {
     expect(markup).toContain("mapping-row");
     for (const { fieldPath } of flaggedMappingFields(proposal))
       expect(markup).toContain(
-        `id="mapping-review-case-${fieldPath.replace(".", "-")}"`,
+        `id="mapping-review-${fieldPath.replace(".", "-")}"`,
       );
     // An input that still blocks the step says so where it sits.
     expect(markup).toContain('data-review-unresolved="true"');
@@ -635,13 +609,10 @@ describe("finding evidence disclosures", () => {
         ]).toHaveLength(1);
       evaluation.findings.forEach((finding, index) => {
         const disclosure = disclosures[index]!;
-        // The first disclosure carries the id the step rail sends a visitor
-        // to; the rest carry none. The summary also says what opening it
-        // shows, so the name is asserted rather than the whole element.
+        // The summary also says what opening it shows, so the name is
+        // asserted rather than the whole element.
         expect(disclosure).toContain(
-          index === 0
-            ? `<summary id="guide-target-evidence">Inspect source evidence for ${finding.gate}`
-            : `<summary>Inspect source evidence for ${finding.gate}`,
+          `<summary>Inspect source evidence for ${finding.gate}`,
         );
         expect(disclosure).toContain(
           "The canonical events this check counted, and the committed source row behind each one.",

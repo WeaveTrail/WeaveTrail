@@ -33,10 +33,6 @@ export type CaseReplayProps = {
   providerMode: "fixture";
   proposals: Record<string, SchemaMappingProposal>;
   scenarios: ReplayScenarioOption[];
-  guided?: boolean;
-  mappingExample?: boolean;
-  onMappingApprovalChange?: (approved: boolean) => void;
-  onGuideComplete?: () => void;
   /** English unless a language-aware caller supplies otherwise. */
   language?: Language;
 };

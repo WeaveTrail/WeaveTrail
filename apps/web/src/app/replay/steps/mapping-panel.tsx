@@ -4,23 +4,20 @@ import { requiresMappingOverride } from "@weavetrail/contracts";
 
 import type { Language } from "../../i18n/language";
 import { ApprovalReceipt } from "../approval-receipt";
-import { STEP } from "./index";
 import { approveMappingLabel, mappingStep } from "./mapping";
-import { GUIDE_TARGET_EXAMPLE, reveal, shows, type GuideView } from "./step";
+import type { ReplayView } from "../use-case-replay";
+import { panelLabel, reveal } from "./step";
 
-/**
- * Both the worked case and the review example render a proposal, so an input
- * id says which of the two it belongs to.
- */
-const reviewInputId = (view: GuideView, fieldPath: string) =>
-  `mapping-review-${view.mappingExample ? "example" : "case"}-${fieldPath.replace(".", "-")}`;
+/** The reason input for one field of the proposal. */
+const reviewInputId = (fieldPath: string) =>
+  `mapping-review-${fieldPath.replace(".", "-")}`;
 
 /**
  * The proposal in full, as proposed: each field's target, transform,
  * confidence and evidence. The fields that block approval are named above it,
  * each linking to its reason input, and the approval binds to these bytes.
  */
-export function renderMappingPanel(view: GuideView, language: Language) {
+export function renderMappingPanel(view: ReplayView, language: Language) {
   const text = mappingStep.panel[language];
   const { proposal } = view;
   const reasonInput = (fieldPath: string, label: string) => (
@@ -31,7 +28,7 @@ export function renderMappingPanel(view: GuideView, language: Language) {
       <input
         aria-label={`${text.reasonFor} ${label}`}
         data-review-unresolved={!view.reviewReasons[fieldPath]?.trim()}
-        id={reviewInputId(view, fieldPath)}
+        id={reviewInputId(fieldPath)}
         onChange={(event) =>
           view.setReviewReason(fieldPath, event.target.value)
         }
@@ -50,7 +47,7 @@ export function renderMappingPanel(view: GuideView, language: Language) {
       : null,
   ];
   return (
-    <div hidden={!shows(view, STEP.mapping)}>
+    <div>
       {view.selectedScenario.mappingRequestRequired && (
         <div>
           <p>{text.requestNote}</p>
@@ -69,9 +66,10 @@ export function renderMappingPanel(view: GuideView, language: Language) {
       ) : (
         <div className="mapping-preview">
           <span className="panel-label">
-            {view.guided
-              ? text.proposedLabel
-              : `02 · ${text.executedLabel} · ${view.displayedProviderMode} · ${view.selectedScenario.value}`}
+            {panelLabel(
+              "02",
+              `${text.executedLabel} · ${view.displayedProviderMode} · ${view.selectedScenario.value}`,
+            )}
           </span>
           <p>
             {view.displayedProviderMode === "ai"
@@ -92,9 +90,7 @@ export function renderMappingPanel(view: GuideView, language: Language) {
                       onClick={() =>
                         typeof document !== "undefined" &&
                         reveal(
-                          document.getElementById(
-                            reviewInputId(view, fieldPath),
-                          ),
+                          document.getElementById(reviewInputId(fieldPath)),
                         )
                       }
                       type="button"
@@ -182,14 +178,9 @@ export function renderMappingPanel(view: GuideView, language: Language) {
         </div>
       )}
       <button
-        className={`button approve-mapping${view.approval ? "" : " primary"}${
-          view.guided && view.chapter === STEP.mapping && !view.approval
-            ? " step-action"
-            : ""
-        }`}
+        className={`button approve-mapping${view.approval ? "" : " primary"}`}
         data-approved={view.approval !== null}
         disabled={view.approveMappingBlocked}
-        id={view.mappingExample ? GUIDE_TARGET_EXAMPLE : undefined}
         onClick={view.approveMapping}
         type="button"
       >

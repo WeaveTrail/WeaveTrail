@@ -301,7 +301,11 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 
 ## Model comparison on the evaluation page
 
-`/evals` opens on the held-out model comparison: a one-sentence summary and an
+`/evals` opens on why models are compared — a wrong column match makes the
+result wrong, so each candidate takes the same test and only one that clears
+the bar is used — and on what the latest test means for the service
+([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+The held-out model comparison follows: a one-sentence summary and an
 eligibility table with the non-model baseline as a reference row. Once a
 decision selects a model, the summary names it and role rows show the primary
 and escalation models; a decision without a selection is summarized as what
