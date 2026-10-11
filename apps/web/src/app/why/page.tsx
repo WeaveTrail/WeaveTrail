@@ -4,9 +4,9 @@ import React from "react";
 import { WhyView } from "./why-view";
 
 export const metadata: Metadata = {
-  title: "Where it fits",
+  title: "Why WeaveTrail",
   description:
-    "Where WeaveTrail sits relative to an existing surveillance pipeline: what detection already does, what it still hands to a person, and what each of the four layers may and may not do.",
+    "What a reviewer gains: unfamiliar trading files ready to review, only checked input computed, the same result on every rerun, and evidence that goes back to the source trades.",
   alternates: { canonical: "/why" },
 };
 

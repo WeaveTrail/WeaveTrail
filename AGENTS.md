@@ -36,7 +36,13 @@ reproducible check confirms it.
   `main`.
 - An explicitly authorized emergency hotfix starts from an up-to-date
   `origin/main` and targets `main`. After it merges, carry the same change into
-  `develop` so the integration branch does not regress the fix.
+  `develop` so the integration branch does not regress the fix. After a
+  production rollback, `origin/main` still holds the failed release and its
+  merge is not served; `main` takes no other merge until that hotfix is
+  promoted, released and carried into `develop` (step 5 of that procedure).
+  Promote the hotfix deployment only as
+  `docs/DEPLOYMENT.md` "Hotfix after a rollback" describes, and never revert
+  the promotion merge.
 - Existing pull requests retain their current base unless the owner requests
   a retargeting.
 - Each GitHub milestone names one version, and every promotion to `main`, a

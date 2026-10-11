@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   createElement,
@@ -9,18 +9,22 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { committedReplaySources } from "../../lib/replay-sources";
+import HomePage from "../page";
+import { shellCopy } from "../shell/copy";
 import ReplayPage, { metadata } from "./page";
-import { CaseReplay, SourceRows } from "./case-replay";
+import { CaseReplay } from "./case-replay";
+import { SourceRows } from "./source-rows";
 import { prepareReplayScenarios } from "./prepare-scenarios";
-import { ReplayModeBoundary } from "./replay-mode-boundary";
+import { ReplaySurface } from "./replay-surface";
 
+/** The props the page hands its one replay surface. */
 function replayProps(
   node: ReactNode,
-): ComponentProps<typeof ReplayModeBoundary> | undefined {
+): ComponentProps<typeof ReplaySurface> | undefined {
   if (Array.isArray(node)) return node.map(replayProps).find(Boolean);
   if (!isValidElement<{ children?: ReactNode }>(node)) return;
-  if (node.type === ReplayModeBoundary)
-    return node.props as ComponentProps<typeof ReplayModeBoundary>;
+  if (node.type === ReplaySurface)
+    return node.props as ComponentProps<typeof ReplaySurface>;
   return replayProps(node.props.children);
 }
 
@@ -49,15 +53,25 @@ describe("Case Replay entry contract", () => {
       );
       expect(markup).toContain(scenario.sourceArtifactHash);
       expect(markup).toContain(scenario.value);
-      const renderedTerms = new Set(markup.match(/<dt>.*?<\/dt>/g) ?? []);
+      // One table: a header cell per column, a row header per source row.
+      const renderedTerms = new Set(
+        [...markup.matchAll(/<th scope="col">(.*?)<\/th>/g)].map(
+          (match) => match[1],
+        ),
+      );
       const renderedValues = new Set(markup.match(/<code>.*?<\/code>/g) ?? []);
       const renderedRows = new Set(
-        [...markup.matchAll(/Source row ([^<]+)/g)].map((match) => match[1]),
+        [...markup.matchAll(/<th scope="row">([^<]+)<\/th>/g)].map(
+          (match) => match[1],
+        ),
       );
       const escapedTerms = new Map(
         committed.columns.map((column) => [
           column,
-          renderToStaticMarkup(createElement("dt", null, column)),
+          renderToStaticMarkup(createElement("span", null, column)).slice(
+            "<span>".length,
+            -"</span>".length,
+          ),
         ]),
       );
       const escapedValues = new Map<string, string>();
@@ -98,8 +112,8 @@ describe("Case Replay entry contract", () => {
           scenario: "concentrated-buy-dialect-b.jsonl",
         }),
       });
-      const props = replayProps(page)!;
-      expect(props.guided).toBe(mode !== "working");
+      const { guided, ...props } = replayProps(page)!;
+      expect(guided).toBe(mode !== "working");
       expect(props).not.toHaveProperty("approval");
       expect(props).not.toHaveProperty("result");
       const markup = renderToStaticMarkup(createElement(CaseReplay, props));
@@ -112,25 +126,26 @@ describe("Case Replay entry contract", () => {
   );
 
   it("removes the former route and points entry, metadata and navigation at Case Replay", () => {
-    expect(metadata.title).toBe("Case Replay");
+    expect(metadata.title).toBe("Try it");
     expect(metadata.alternates?.canonical).toBe("/replay");
     expect(existsSync(resolve("apps/web/src/app/lab/page.tsx"))).toBe(false);
-    const home = readFileSync(
-      resolve("apps/web/src/app/home-content.tsx"),
-      "utf8",
-    );
-    const nav = readFileSync(
-      resolve("apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
+    const home = renderToStaticMarkup(createElement(HomePage));
     expect(home).toContain('href="/replay?mode=guided"');
-    // The entry's secondary action now carries the argument, which links on to
-    // the architecture in turn.
     expect(home).toContain('href="/why"');
-    expect(nav).toContain('["Walk through a case", "/replay"]');
-    // One entry: the guided and working modes are chosen inside the surface.
-    expect(nav).not.toContain("mode=");
-    expect(nav).toContain('"Start here"');
-    expect(home + nav).not.toContain('"/lab"');
+    for (const { navigation } of Object.values(shellCopy)) {
+      const [explore] = navigation;
+      // One entry: the guided and working modes are chosen inside the surface.
+      expect(explore[1].map(([, href]) => href)).toContain("/replay");
+      for (const [, items] of navigation)
+        for (const [, href] of items) {
+          expect(href).not.toContain("mode=");
+          expect(href).not.toBe("/lab");
+        }
+    }
+    expect(shellCopy.en.navigation[0][1][0]).toEqual([
+      "Try it",
+      "/replay",
+      "Five steps with an example case",
+    ]);
   });
 });

@@ -299,14 +299,14 @@ export function howItWorksSvg(
     `    Generated from apps/web/src/app/architecture/how-it-works-diagram.ts by \`pnpm diagram:build\`. Do not hand-edit.`,
   );
   push(
-    `    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4`,
+    `    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8`,
   );
   push(
     `    Literal hex, because CSS custom properties do not resolve inside a standalone SVG.`,
   );
   push(`    #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken`);
   push(
-    `    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500`,
+    `    #0c1513 ink-900 | #14211f ink-800 authorship-code | #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400`,
   );
   push(
     `    #0b6e6a teal-700 authorship-human | #e6f2f1 teal-tint | #085652 teal-800`,
