@@ -175,7 +175,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     intro: {
       eyebrow: "Synthetic market-surveillance cases",
       title: "AI reads the data. Code decides the result.",
-      lede: "A model suggests what each column of a trading file means. You approve it, versioned code checks the pattern, and every finding opens to its source row.",
+      lede: "A model suggests what each column of a trading file means; the walkthrough uses a prepared suggestion. You approve it, code checks the pattern, and each finding opens to its source row.",
       walkMeta: "8 steps · about 5–10 minutes · no sign-in",
     },
     example: EXAMPLE_EN,
@@ -232,7 +232,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     intro: {
       eyebrow: "합성 시장감시 사례",
       title: "AI는 자료를 읽고, 판정은 코드가 합니다.",
-      lede: "모델이 거래 파일의 열마다 뜻을 제안하면 사람이 승인하고, 버전이 고정된 코드가 패턴을 확인합니다. 판단 근거마다 원본 행이 열립니다.",
+      lede: "모델이 거래 파일의 열마다 뜻을 제안하면 사람이 승인하고, 버전이 고정된 코드가 패턴을 확인합니다. 판단 근거마다 원본 행이 열립니다. 실시간 제안이 동작하기 전까지 사례 따라가기는 미리 준비된 제안을 씁니다.",
       walkMeta: "8단계 · 약 5~10분 · 회원가입 없음",
     },
     example: EXAMPLE_KO,
