@@ -57,7 +57,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html className={`${plex.variable} ${mono.variable}`} lang="en">
+    <html className={`${plex.variable} ${mono.variable}`} lang="ko">
       <body>
         <LanguageProvider>
           <PrintDisclosures />

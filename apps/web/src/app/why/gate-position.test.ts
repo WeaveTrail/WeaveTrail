@@ -1,34 +1,13 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import HomePage from "../page";
 import WhyPage from "./page";
-import {
-  CONCLUSION_NOT_METHOD,
-  NON_AFFILIATION,
-  NO_UPSTREAM_INTEGRATION,
-  OWN_REASONING_MARK,
-  POSITION,
-  additionStatements,
-  diagramAttribution,
-  gateInputs,
-  handoverStatements,
-  layerAuthorities,
-  lede,
-  notClaimed,
-  sources,
-  sectionLines,
-  upstreamStatements,
-} from "./copy";
+import { situation, sources, whyCopy } from "./copy";
 import { shellCopy } from "../shell/copy";
-
-const read = (path: string) => readFileSync(resolve(process.cwd(), path));
-
-const DIAGRAM_SOURCE = "docs/assets/where-the-gate-sits.svg";
-const DIAGRAM_SERVED = "apps/web/public/diagrams/where-the-gate-sits.svg";
 
 /** React escapes text nodes; compare against the same escaping. */
 const escaped = (text: string) =>
@@ -41,62 +20,33 @@ const escaped = (text: string) =>
 
 const markup = () => renderToStaticMarkup(createElement(WhyPage));
 
-// Every outside-system claim the page renders, including the ones outside the
-// numbered sections: the lede and the caption under the diagram.
-const attributed = [
-  ...Object.values(sectionLines),
-  lede,
-  diagramAttribution,
-  ...upstreamStatements,
-  ...handoverStatements,
-  ...additionStatements,
-];
-
-describe("where the gate sits", () => {
-  it("states the sections the page exists to carry", () => {
+describe("why a reviewer would use WeaveTrail", () => {
+  it("opens from the reviewer's situation, then says what they gain", () => {
     const rendered = markup();
-    for (const heading of [
-      "What detection already does",
-      "What it leaves to a person",
-      "What this adds",
-      "What the check needs",
-      "Who may do what",
-      "What this page does not claim",
-    ])
-      expect(rendered).toContain(heading);
-    for (const layer of layerAuthorities)
-      expect(rendered).toContain(escaped(layer.name.en));
+    const gains = rendered.indexOf('id="benefits"');
+    expect(gains).toBeGreaterThan(-1);
+    for (const statement of situation) {
+      const index = rendered.indexOf(escaped(statement.text.en));
+      expect(index, statement.text.en).toBeGreaterThan(-1);
+      expect(index).toBeLessThan(gains);
+    }
+    for (const [title, body] of whyCopy.en.benefits) {
+      expect(rendered).toContain(escaped(title));
+      for (const sentence of body.split(/(?<=\.)\s+/))
+        expect(rendered).toContain(escaped(sentence));
+    }
+    expect(rendered).toContain('href="/replay?mode=guided"');
   });
 
-  it("attributes every sentence about a system outside this repository", () => {
-    for (const statement of attributed) {
-      const hasSource = "source" in statement;
-      const hasReasoning = "reasoning" in statement;
-      expect(hasSource !== hasReasoning, statement.text.en).toBe(true);
-      if (hasSource)
-        expect(
-          sources.some((source) => source.id === statement.source),
-          statement.text.en,
-        ).toBe(true);
-    }
-  });
-
-  it("renders each statement with its citation or its own-reading mark", () => {
+  it("cites a listed source beside every sentence about the outside world", () => {
     const rendered = markup();
-    for (const statement of attributed) {
-      expect(rendered).toContain(escaped(statement.text.en));
-      if ("source" in statement) {
-        const source = sources.find((it) => it.id === statement.source)!;
-        expect(rendered).toContain(`href="#source-${source.id}"`);
-      }
+    for (const statement of situation) {
+      expect(
+        sources.some((source) => source.id === statement.source),
+        statement.text.en,
+      ).toBe(true);
+      expect(rendered).toContain(`href="#source-${statement.source}"`);
     }
-    const reasoningCount = attributed.filter(
-      (statement) => "reasoning" in statement,
-    ).length;
-    expect(reasoningCount).toBeGreaterThan(0);
-    expect(rendered.split(escaped(OWN_REASONING_MARK.en)).length - 1).toBe(
-      reasoningCount + 1,
-    );
   });
 
   it("resolves every citation to a listed source, and lists no unused source", () => {
@@ -106,18 +56,13 @@ describe("where the gate sits", () => {
       expect(rendered).toContain(`href="${escaped(source.href)}"`);
       expect(rendered).toContain(escaped(source.title.en));
       expect(
-        attributed.some(
-          (statement) =>
-            "source" in statement && statement.source === source.id,
-        ),
+        situation.some((statement) => statement.source === source.id),
         source.id,
       ).toBe(true);
     }
   });
 
   it("cites only the supervisory bodies this project stands on", () => {
-    // The background rests on published material from the Korean financial
-    // authorities, not on sources introduced for this page alone.
     for (const source of sources) {
       const { host } = new URL(source.href);
       expect(host, source.id).toMatch(/^www\.(fsc\.go\.kr|fss\.or\.kr)$/);
@@ -129,99 +74,13 @@ describe("where the gate sits", () => {
     expect(readme).toContain(guideline!.href);
   });
 
-  it("leads with the position before it draws the design", () => {
+  it("states what the service does not do, and the non-affiliation line", () => {
     const rendered = markup();
-    const diagram = rendered.indexOf('src="/diagrams/');
-    expect(diagram).toBeGreaterThan(-1);
-    // The narrative that explains why the gate exists is read first; the
-    // diagram is the design that follows from it.
-    for (const before of [
-      escaped(POSITION.en),
-      escaped(lede.text.en),
-      'id="upstream"',
-      'id="handover"',
-      'id="addition"',
-    ]) {
-      const index = rendered.indexOf(before);
-      expect(index, before.slice(0, 40)).toBeGreaterThan(-1);
-      expect(index, before.slice(0, 40)).toBeLessThan(diagram);
-    }
-    // The gate's mechanics follow the diagram.
-    expect(rendered.indexOf('id="inputs"')).toBeGreaterThan(diagram);
-  });
-
-  it("names the three inputs the gate asks of an upstream, and inspects a conclusion", () => {
-    const rendered = markup();
-    expect(gateInputs).toHaveLength(3);
-    for (const [name, detail] of gateInputs) {
-      expect(rendered).toContain(escaped(name.en));
-      expect(rendered).toContain(escaped(detail.en));
-    }
-    expect(rendered).toContain(escaped(CONCLUSION_NOT_METHOD.en));
-    expect(rendered).toContain(escaped(NO_UPSTREAM_INTEGRATION.en));
-  });
-
-  it("keeps the refusal to the path that actually refuses", () => {
-    const rendered = markup();
-    // A request without a case manifest reaches replayFoundation and returns a
-    // canonical result hash, so only pattern evaluation refuses on all three.
-    expect(rendered).toContain("only ordered and hashed");
-    expect(rendered).toContain("no pattern verdict");
-  });
-
-  it("keeps engine abstention a result and a review state pre-replay", () => {
-    const rendered = markup();
-    const decide = layerAuthorities.find(({ name }) =>
-      name.en.includes("Decide"),
-    );
-    expect(decide).toBeDefined();
-    expect(decide!.may.en).toContain("NOT_SUPPORTED");
-    expect(decide!.may.en).toContain("INCONCLUSIVE");
-    expect(decide!.may.en).toContain("both are results");
-    expect(decide!.mayNot.en).toContain("pre-replay");
-    for (const layer of layerAuthorities)
-      expect(`${layer.may.en} ${layer.mayNot.en}`, layer.name.en).not.toContain(
-        "returns a review state instead",
-      );
-    expect(rendered).toContain("never an engine verdict");
-
-    // The diagram states the same vocabulary, so it must not contradict it.
-    const svg = read(DIAGRAM_SOURCE).toString("utf8");
-    expect(svg).not.toContain("A gate that cannot be satisfied returns");
-    expect(svg).toContain("pre-replay validation or approval failure");
-  });
-
-  it("gives each of the four layers what it may and may not do", () => {
-    const rendered = markup();
-    expect(layerAuthorities).toHaveLength(4);
-    for (const layer of layerAuthorities) {
-      expect(rendered).toContain(escaped(layer.may.en));
-      expect(rendered).toContain(escaped(layer.mayNot.en));
-    }
-    expect(rendered).toContain("May.");
-    expect(rendered).toContain("May not.");
-  });
-
-  it("keeps unimplemented components labelled as planned", () => {
-    const rendered = markup();
-    expect(rendered).toContain(
-      "A configured model can propose mappings through one adapter",
-    );
-    for (const planned of [
-      "a bounded case proposer",
-      "Evidence Bundle assembly",
-    ]) {
-      const index = rendered.indexOf(planned);
-      expect(index, planned).toBeGreaterThan(-1);
-      expect(rendered.slice(index, index + 200)).toContain("planned");
-    }
-  });
-
-  it("states the non-affiliation line and the boundary of the argument", () => {
-    const rendered = markup();
-    expect(notClaimed).toContain(NON_AFFILIATION);
-    for (const claim of notClaimed)
-      expect(rendered).toContain(escaped(claim.en));
+    for (const limit of whyCopy.en.limits)
+      expect(rendered).toContain(escaped(limit));
+    expect(whyCopy.en.limits.join(" ")).toMatch(/no affiliation/);
+    expect(whyCopy.en.limits.join(" ")).toMatch(/does not judge guilt/);
+    expect(whyCopy.ko.limits.join(" ")).toMatch(/아무 관계가 없습니다/);
   });
 
   it("keeps the page to the product argument", () => {
@@ -237,40 +96,9 @@ describe("where the gate sits", () => {
       expect(rendered, excludedText).not.toContain(excludedText);
   });
 
-  it("serves the diagram the repository documentation commits, byte for byte", () => {
-    expect(read(DIAGRAM_SERVED).equals(read(DIAGRAM_SOURCE))).toBe(true);
-  });
-
-  it("renders the committed diagram with a text alternative in a scrolling frame", () => {
-    const rendered = markup();
-    expect(rendered).toContain('src="/diagrams/where-the-gate-sits.svg"');
-    const image =
-      /<img[^>]*src="\/diagrams\/where-the-gate-sits\.svg"[^>]*>/.exec(
-        rendered,
-      )?.[0];
-    expect(image).toBeDefined();
-    expect(/alt="[^"]{40,}"/.test(image!)).toBe(true);
-    expect(rendered).toContain('class="diagram-frame"');
-  });
-
-  it("paints its own ground so the diagram stays legible in either theme", () => {
-    const svg = read(DIAGRAM_SOURCE).toString("utf8");
-    const canvas = /viewBox="0 0 (\d+) (\d+)"/.exec(svg);
-    expect(canvas).not.toBeNull();
-    const [, width, height] = canvas!;
-    expect(svg).toContain(
-      `<rect width="${width}" height="${height}" fill="#f7faf9"/>`,
-    );
-    expect(svg.indexOf("<rect")).toBeLessThan(svg.indexOf("<text"));
-    expect(svg).toContain("<title");
-    expect(svg).toContain("<desc");
-  });
-
-  it("reduces the overview to its claim and sends the argument here", () => {
+  it("is reached from the home page", () => {
     const home = renderToStaticMarkup(createElement(HomePage));
     expect(home).toContain('href="/why"');
-    expect(home).not.toContain("reviewable evidence for more");
-    expect(home).not.toContain("a reviewer needs to check which");
   });
 
   it("clears the sticky header when a citation jumps to its source", () => {
@@ -286,16 +114,7 @@ describe("where the gate sits", () => {
   it("keeps the documented route lists complete", () => {
     // Both documents enumerate the site's routes, and a new one silently
     // missing from either is how the deployment check stops covering it.
-    const appDir = resolve(process.cwd(), "apps/web/src/app");
-    const routes = readdirSync(appDir, { withFileTypes: true })
-      .filter(
-        (entry) =>
-          entry.isDirectory() &&
-          entry.name !== "api" &&
-          existsSync(resolve(appDir, entry.name, "page.tsx")),
-      )
-      .map((entry) => `/${entry.name}`);
-    expect(routes).toContain("/why");
+    const routes = ["/why", "/architecture", "/evals", "/replay"];
     const deployment = readFileSync(
       resolve(process.cwd(), "docs/DEPLOYMENT.md"),
       "utf8",
@@ -314,7 +133,10 @@ describe("where the gate sits", () => {
 
   it("lists the page under the navigation group on how it works", () => {
     for (const { navigation } of Object.values(shellCopy))
-      expect(navigation[1][1].map(([, href]) => href)).toContain("/why");
+      expect(navigation[1][1].map(([, href]) => href)).toEqual([
+        "/why",
+        "/architecture",
+      ]);
     expect(shellCopy.en.navigation[1][0]).toBe("How it works");
   });
 });

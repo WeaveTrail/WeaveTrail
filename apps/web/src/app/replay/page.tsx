@@ -3,11 +3,12 @@ import React from "react";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import { ReplayHeading } from "./replay-heading";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
+import { GuidedTour } from "./tour/guided-tour";
 
 export const metadata: Metadata = {
-  title: "Walk through a case",
+  title: "Try it",
   description:
-    "Follow one synthetic case from an AI mapping proposal through a person's approval to versioned code's result and the source rows behind every finding.",
+    "Try one synthetic case in five steps: see the AI's column matches, approve them and the scope, get the result, and find the source trades behind it.",
   alternates: { canonical: "/replay" },
 };
 
@@ -23,7 +24,11 @@ export default async function ReplayPage({
       className={guided ? "shell page-shell guided-page" : "shell page-shell"}
     >
       <ReplayHeading guided={guided} />
-      <ReplayModeBoundary {...prepared} guided={guided} />
+      {guided ? (
+        <GuidedTour {...prepared} />
+      ) : (
+        <ReplayModeBoundary {...prepared} />
+      )}
     </main>
   );
 }

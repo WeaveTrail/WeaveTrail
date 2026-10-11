@@ -4,9 +4,9 @@ import React from "react";
 import { ArchitectureContent } from "./architecture-content";
 
 export const metadata: Metadata = {
-  title: "Architecture",
+  title: "How it runs",
   description:
-    "Review WeaveTrail's trust boundary between untrusted interpretation, human approval, deterministic decisions, and traceable evidence.",
+    "Who does what: the AI only suggests, a reviewer approves, versioned rules compute the result, and every finding goes back to its source row.",
   alternates: { canonical: "/architecture" },
 };
 

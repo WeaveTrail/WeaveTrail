@@ -1,0 +1,383 @@
+/* ───────────────────────── Guided walkthrough ───────────────────────── */
+
+/* One scene at a time: where the visitor is, what they are looking at and
+   why, the thing itself, and one action at the bottom. */
+.tour {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 64rem;
+}
+
+.tour-progress ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tour-progress button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-top: 3px solid var(--slate-100);
+  background: none;
+  color: var(--text-muted);
+  font: var(--type-label);
+  text-align: left;
+  cursor: pointer;
+}
+.tour-progress button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.tour-progress li[data-done="true"] button {
+  border-top-color: var(--brand-200);
+  color: var(--text-body);
+}
+.tour-progress li[data-current="true"] button {
+  border-top-color: var(--brand-600);
+  background: var(--brand-50);
+  color: var(--brand-800);
+  font-weight: var(--weight-semibold);
+}
+.tour-progress li[data-current="true"] .tour-progress-index,
+.tour-progress li[data-done="true"] .tour-progress-index {
+  background: var(--brand-600);
+  color: var(--white);
+}
+.tour-progress-index {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font: 600 12px/1 var(--font-mono);
+}
+
+.tour-scene {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  border: var(--hairline);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-2);
+}
+.tour-scene-head {
+  display: grid;
+  gap: var(--space-2);
+}
+.tour-scene-head h2 {
+  font: var(--type-display);
+  font-size: var(--font-size-30);
+  letter-spacing: var(--tracking-tight);
+}
+.tour-scene-head h2:focus {
+  outline: none;
+}
+.tour-lines {
+  font: var(--type-body-lg);
+  color: var(--text-body);
+}
+.tour-body {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* The file as received, and the rows a criterion used. */
+.tour-table-wrap {
+  overflow-x: auto;
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+}
+.tour-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-small);
+}
+.tour-table th,
+.tour-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  white-space: nowrap;
+}
+.tour-table thead th {
+  background: var(--surface-subtle);
+}
+.tour-table thead code {
+  color: var(--brand-700);
+  font-weight: var(--weight-semibold);
+}
+.tour-table tbody th {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+.tour-table tr[data-marked="true"] {
+  background: var(--brand-50);
+}
+.tour-table tr[data-marked="true"] th {
+  box-shadow: inset 4px 0 0 var(--brand-600);
+  color: var(--brand-700);
+  font-weight: var(--weight-semibold);
+}
+
+.tour-goal {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-left: 4px solid var(--brand-600);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+}
+.tour-goal span {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.tour-goal strong {
+  font: var(--type-subhead);
+}
+
+/* What the AI says each column holds. */
+.tour-mapping {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tour-mapping th,
+.tour-mapping td {
+  padding: var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+  vertical-align: top;
+}
+.tour-mapping thead th {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.tour-mapping tbody th {
+  font-weight: var(--weight-regular);
+}
+.tour-mapping td strong {
+  display: block;
+}
+.tour-mapping td small {
+  display: block;
+  color: var(--text-muted);
+}
+
+.tour-more summary {
+  cursor: pointer;
+  font: var(--type-small);
+  font-weight: var(--weight-medium);
+  color: var(--brand-700);
+}
+.tour-more dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+.tour-more dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+.tour-more p {
+  margin-top: var(--space-2);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.tour-note {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.tour-done {
+  font-weight: var(--weight-semibold);
+  color: var(--result-supported);
+}
+
+/* The scope in one sentence, then the criteria it is judged by. */
+.tour-scope {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  font: var(--type-subhead);
+}
+.tour-criteria-label {
+  font-weight: var(--weight-medium);
+}
+.tour-criteria {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+/* The verdict, then each criterion against this data. */
+.tour-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-5);
+  border-left: 5px solid var(--result-inconclusive);
+  border-radius: var(--radius-md);
+  background: var(--result-inconclusive-bg);
+}
+.tour-verdict[data-verdict="SUPPORTED"] {
+  border-left-color: var(--result-supported);
+  background: var(--result-supported-bg);
+}
+.tour-verdict[data-verdict="NOT_SUPPORTED"] {
+  border-left-color: var(--result-not-supported);
+  background: var(--result-not-supported-bg);
+}
+.tour-verdict strong {
+  font: var(--type-heading);
+}
+.tour-verdict span {
+  color: var(--text-body);
+}
+.tour-verdict code {
+  margin-left: auto;
+  font: var(--type-mono-sm);
+  color: var(--text-muted);
+}
+.tour-findings {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tour-findings th,
+.tour-findings td {
+  padding: var(--space-3);
+  border-bottom: var(--hairline);
+  text-align: left;
+}
+.tour-findings thead th {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.tour-findings tbody th {
+  font-weight: var(--weight-regular);
+}
+.tour-findings td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tour-findings b[data-passed="true"] {
+  color: var(--result-supported);
+}
+.tour-findings b[data-passed="false"] {
+  color: var(--result-not-supported);
+}
+.tour-repeat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.tour-repeat span[data-same="true"] {
+  color: var(--result-supported);
+  font-weight: var(--weight-medium);
+}
+
+/* Pick a criterion; its trades are marked in the file. */
+.tour-pick {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.tour-pick legend {
+  margin-bottom: var(--space-2);
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.tour-pick label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.tour-pick label[data-picked="true"] {
+  border-color: var(--brand-600);
+  background: var(--brand-50);
+}
+.tour-used {
+  font-weight: var(--weight-semibold);
+  color: var(--brand-700);
+}
+
+.tour-finish {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--surface-subtle);
+}
+.tour-finish h3 {
+  font: var(--type-subhead);
+}
+.tour-finish-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tour-error {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--result-not-supported-bg);
+  color: var(--result-not-supported);
+}
+.tour-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+}
+.tour-actions .button {
+  min-height: 44px;
+  padding-inline: var(--space-6);
+}
+
+@media (max-width: 40rem) {
+  .tour-progress button {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-inline: 0;
+  }
+  .tour-scene {
+    padding: var(--space-5);
+  }
+  .tour-scene-head h2 {
+    font-size: var(--font-size-24);
+  }
+  .tour-lines {
+    font: var(--type-body);
+  }
+  .tour-findings th,
+  .tour-findings td {
+    padding: var(--space-2);
+  }
+  .tour-findings td {
+    white-space: normal;
+  }
+  /* The criterion already states its threshold. */
+  .tour-findings th:nth-child(3),
+  .tour-findings td:nth-child(3) {
+    display: none;
+  }
+}

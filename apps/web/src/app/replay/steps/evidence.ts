@@ -1,4 +1,4 @@
-import { GUIDE_TARGET_EVIDENCE, reveal, type GuideStep } from "./step";
+import type { PanelCopy } from "./step";
 
 interface EvidencePanel {
   readonly panelLabel: string;
@@ -19,7 +19,6 @@ interface EvidencePanel {
   readonly readyToNormalize: string;
   readonly readyWithCase: string;
   readonly readyWithoutCase: string;
-  readonly goToEvidence: string;
   readonly resultLabel: string;
   readonly reason: string;
   readonly noEvidence: string;
@@ -49,31 +48,7 @@ interface EvidencePanel {
  * and every check opens to the canonical events it counted and the committed
  * source row behind each. The visitor satisfies the step by opening one.
  */
-export const evidenceStep: GuideStep<EvidencePanel> = {
-  stage: "trace",
-  actor: "Versioned code decided it",
-  narration: {
-    en: {
-      title: "Inspect the finding",
-      purpose:
-        "This result describes support for one versioned pattern hypothesis under the approved scope. Five checks are reported, each with the value observed and the threshold it is compared against.",
-      action:
-        "Open the source evidence under a gate to reach its canonical events and committed source rows.",
-      actorDetail:
-        "Gates, observed values and the source trace are server-derived, not model output.",
-      blocker: "Open a finding's source evidence to continue.",
-    },
-    ko: {
-      title: "판단 근거 확인",
-      purpose:
-        "결과는 하나의 패턴 가설을 승인된 범위 안에서 얼마나 뒷받침하는지만 말합니다. 다섯 개 판단 항목마다 관측값과 기준 충족 여부가 함께 나옵니다.",
-      action:
-        "판단 항목 하나의 근거를 열어, 그 값이 나온 원본 거래자료까지 따라가 보세요.",
-      actorDetail:
-        "판단 항목과 관측값, 근거 추적은 모두 서버가 계산한 값이며 모델이 지어낸 문장이 아닙니다.",
-      blocker: "판단 근거를 하나 열어야 계속할 수 있습니다.",
-    },
-  },
+export const evidenceStep: PanelCopy<EvidencePanel> = {
   panel: {
     en: {
       panelLabel: "Canonical result",
@@ -93,14 +68,13 @@ export const evidenceStep: GuideStep<EvidencePanel> = {
       order: "Canonical order",
       bundle:
         "The engine can independently assemble and verify an Evidence Bundle from source bytes; browser export is planned. Each displayed hash states what it covers where it is shown.",
-      fixtureMode: "Fixture mode",
+      fixtureMode: "Demo mode",
       readyToReplay: "Ready to replay",
       readyToNormalize: "Ready to normalize",
       readyWithCase:
         "Review the source and explicitly approve its mapping and case.",
       readyWithoutCase:
         "Review the source and explicitly approve its mapping, including any required interpretation reasons. Normalization has no case evaluation.",
-      goToEvidence: "Go to the finding evidence",
       resultLabel: "Pattern hypothesis result",
       reason: "Reason",
       noEvidence: "No evaluated finding evidence is available.",
@@ -144,14 +118,13 @@ export const evidenceStep: GuideStep<EvidencePanel> = {
       order: "정리된 기록 순서",
       bundle:
         "엔진은 원본 바이트에서 증거 묶음을 독립적으로 조립하고 검증할 수 있으며, 브라우저 내보내기는 계획 단계입니다. 화면에 나오는 해시는 저마다 어디까지를 덮는지 그 자리에서 밝힙니다.",
-      fixtureMode: "Fixture 모드",
+      fixtureMode: "시연 모드",
       readyToReplay: "분석 실행 준비 완료",
       readyToNormalize: "자료 정리 준비 완료",
       readyWithCase:
         "원본 자료를 검토하고, 데이터 항목 연결과 조사 범위를 직접 승인하세요.",
       readyWithoutCase:
         "원본 자료를 검토하고 항목 연결을 직접 승인하세요. 확인이 필요한 항목에는 이유를 함께 적어야 합니다. 자료 정리에는 사례 평가가 없습니다.",
-      goToEvidence: "판단 근거로 이동",
       resultLabel: "패턴 가설 결과",
       reason: "사유",
       noEvidence: "평가된 발견 증거가 없습니다.",
@@ -177,18 +150,4 @@ export const evidenceStep: GuideStep<EvidencePanel> = {
       nonComparable: "비교할 수 없는 이벤트",
     },
   },
-  satisfied: (view) => view.completeResult && view.evidenceOpened,
-  // Nothing to reach until a result exists; then the control goes to the
-  // first finding's evidence rather than opening it for the visitor.
-  railAction: (view, language) =>
-    view.completeResult
-      ? {
-          kind: "locate",
-          label: evidenceStep.panel[language].goToEvidence,
-          disabled: false,
-          run: () =>
-            typeof document !== "undefined" &&
-            reveal(document.getElementById(GUIDE_TARGET_EVIDENCE)),
-        }
-      : null,
 };

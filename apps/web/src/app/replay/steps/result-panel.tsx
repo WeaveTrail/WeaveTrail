@@ -5,8 +5,8 @@ import { RapidPriceLiftEvaluation } from "../findings";
 import { eventFieldNote, HashValue } from "../machine-values";
 import { WorkflowStateBadge } from "../workflow-state";
 import { evidenceStep } from "./evidence";
-import { STEP } from "./index";
-import { panelLabel, type GuideView } from "./step";
+import type { ReplayView } from "../use-case-replay";
+import { panelLabel } from "./step";
 
 /**
  * The canonical result. It leads with the verdict and how many checks pass;
@@ -14,24 +14,12 @@ import { panelLabel, type GuideView } from "./step";
  * and result hash sit in one disclosure below. A normalization without a case
  * has nothing else, so that disclosure opens there.
  */
-export function renderResultPanel(view: GuideView, language: Language) {
+export function renderResultPanel(view: ReplayView, language: Language) {
   const text = evidenceStep.panel[language];
   const { result, selectedScenario } = view;
   return (
-    <div
-      hidden={
-        view.mappingExample ||
-        (view.guided &&
-          view.chapter !== STEP.repeat &&
-          view.chapter !== STEP.evidence &&
-          view.chapter !== STEP.controls)
-      }
-      className="panel result-panel"
-      aria-live="polite"
-    >
-      <span className="panel-label">
-        {panelLabel(view, "04", text.panelLabel)}
-      </span>
+    <div className="panel result-panel" aria-live="polite">
+      <span className="panel-label">{panelLabel("04", text.panelLabel)}</span>
       {result ? (
         <>
           <WorkflowStateBadge state={result.workflowState} />
@@ -59,11 +47,6 @@ export function renderResultPanel(view: GuideView, language: Language) {
           )}
           {"evaluation" in result ? (
             <RapidPriceLiftEvaluation
-              advancesStep={
-                view.guided &&
-                view.chapter === STEP.evidence &&
-                !view.evidenceOpened
-              }
               evaluation={result.evaluation}
               sourceTrace={result.sourceTrace}
               scenario={result.scenario}
@@ -75,7 +58,6 @@ export function renderResultPanel(view: GuideView, language: Language) {
                   ? { proposal: view.proposal, approval: view.approval }
                   : undefined
               }
-              onEvidenceOpen={view.openEvidence}
             />
           ) : null}
           <p>{text.boundary}</p>

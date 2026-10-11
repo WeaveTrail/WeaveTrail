@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 import { useCopy } from "../i18n/language";
+import { Phrased } from "../shell/sentence-lines";
 import { explainerCopy } from "./copy";
 
 import "./explainer.css";
@@ -32,7 +33,9 @@ export function ExplainerPage({
     <main className="shell page-shell explainer">
       <header className="explainer-head">
         <span className="eyebrow">{eyebrow}</span>
-        <h1>{title}</h1>
+        <h1>
+          <Phrased text={title} />
+        </h1>
         <div className="explainer-answer">{answer}</div>
         <nav aria-label={text.onThisPage} className="explainer-contents">
           <ol>
@@ -62,6 +65,7 @@ export function ExplainerSection({
   title,
   line,
   items,
+  wide,
   more,
   link,
   children,
@@ -70,6 +74,8 @@ export function ExplainerSection({
   readonly title: string;
   readonly line: React.ReactNode;
   readonly items?: readonly ExplainerItem[];
+  /** One item per row, for items whose lines are whole sentences. */
+  readonly wide?: boolean;
   readonly more?: React.ReactNode;
   readonly link?: readonly [label: string, href: string];
   /** Content that has to stay in view, such as a list citations jump to. */
@@ -84,9 +90,8 @@ export function ExplainerSection({
     >
       <h2 id={`${id}-title`}>{title}</h2>
       <div className="explainer-line">{line}</div>
-      {children}
       {items ? (
-        <ul className="explainer-items">
+        <ul className="explainer-items" data-layout={wide ? "wide" : undefined}>
           {items.map((item) => (
             <li data-status={item.status} key={item.key}>
               <strong>
@@ -105,11 +110,12 @@ export function ExplainerSection({
                   </span>
                 ) : null}
               </strong>
-              <span>{item.line}</span>
+              <div className="explainer-item-line">{item.line}</div>
             </li>
           ))}
         </ul>
       ) : null}
+      {children}
       {more ? (
         <details className="explainer-more">
           <summary>{text.more}</summary>

@@ -16,14 +16,21 @@ import { CaseReplay } from "./case-replay";
 import { SourceRows } from "./source-rows";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import { ReplayModeBoundary } from "./replay-mode-boundary";
+import { GuidedTour } from "./tour/guided-tour";
 
+/** The surface the page renders, and the props it hands that surface. */
 function replayProps(
   node: ReactNode,
-): ComponentProps<typeof ReplayModeBoundary> | undefined {
+):
+  | { guided: boolean; props: ComponentProps<typeof ReplayModeBoundary> }
+  | undefined {
   if (Array.isArray(node)) return node.map(replayProps).find(Boolean);
   if (!isValidElement<{ children?: ReactNode }>(node)) return;
-  if (node.type === ReplayModeBoundary)
-    return node.props as ComponentProps<typeof ReplayModeBoundary>;
+  if (node.type === ReplayModeBoundary || node.type === GuidedTour)
+    return {
+      guided: node.type === GuidedTour,
+      props: node.props as ComponentProps<typeof ReplayModeBoundary>,
+    };
   return replayProps(node.props.children);
 }
 
@@ -111,8 +118,8 @@ describe("Case Replay entry contract", () => {
           scenario: "concentrated-buy-dialect-b.jsonl",
         }),
       });
-      const props = replayProps(page)!;
-      expect(props.guided).toBe(mode !== "working");
+      const { guided, props } = replayProps(page)!;
+      expect(guided).toBe(mode !== "working");
       expect(props).not.toHaveProperty("approval");
       expect(props).not.toHaveProperty("result");
       const markup = renderToStaticMarkup(createElement(CaseReplay, props));
@@ -125,7 +132,7 @@ describe("Case Replay entry contract", () => {
   );
 
   it("removes the former route and points entry, metadata and navigation at Case Replay", () => {
-    expect(metadata.title).toBe("Walk through a case");
+    expect(metadata.title).toBe("Try it");
     expect(metadata.alternates?.canonical).toBe("/replay");
     expect(existsSync(resolve("apps/web/src/app/lab/page.tsx"))).toBe(false);
     const home = renderToStaticMarkup(createElement(HomePage));
@@ -142,9 +149,9 @@ describe("Case Replay entry contract", () => {
         }
     }
     expect(shellCopy.en.navigation[0][1][0]).toEqual([
-      "Walk through a case",
+      "Try it",
       "/replay",
-      "One case, proposal to source row",
+      "Five steps with an example case",
     ]);
   });
 });

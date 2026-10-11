@@ -207,6 +207,21 @@ details > summary:focus-visible {
   font: var(--type-body-lg);
   color: var(--text-muted);
 }
+/* A sentence set on its own line: copy that is a list of sentences shows one
+   per line, so the line ends where a sentence does, not in the middle of one. */
+.sentence-lines > span {
+  display: block;
+  text-wrap: pretty;
+}
+/* A heading phrase stays whole; headings break only between phrases. */
+.phrase {
+  display: inline-block;
+}
+/* Capitals are a Latin convention; a Korean label keeps its words as typed. */
+:lang(ko) .eyebrow {
+  text-transform: none;
+}
+
 .section-heading {
   display: grid;
   gap: var(--space-2);

@@ -6,6 +6,7 @@ import { DECLARED_MODELS } from "../src/app/evals/model-comparison-data";
 import { percent } from "../src/app/evals/model-comparison-data";
 import { committedHeldOutResult } from "../src/app/evals/held-out-result";
 import type { Language } from "../src/app/i18n/language";
+import { plainText } from "../src/app/shell/sentence-lines";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
@@ -72,10 +73,16 @@ for (const viewport of VIEWPORTS) {
         copy.referenceName,
       );
 
-      await expectInFirstViewport(page, "#model-comparison-answer");
-      await expectInFirstViewport(page, "#mc-eligibility-caption");
-      await expectInFirstViewport(page, ".mc-eligibility thead tr");
-      await expectInFirstViewport(page, ".mc-eligibility tbody tr");
+      // Why models are compared, and what the latest test means, come
+      // first; the numbers are the next step.
+      await expect(page.locator("#model-comparison-title")).toHaveText(
+        plainText(copy.why.title),
+      );
+      await expect(page.locator(".mc-status strong")).toHaveText(
+        copy.status.noModel,
+      );
+      await expectInFirstViewport(page, "#model-comparison-title");
+      await expectInFirstViewport(page, ".mc-status");
       const overflow = await page.evaluate(
         () =>
           document.documentElement.scrollWidth >

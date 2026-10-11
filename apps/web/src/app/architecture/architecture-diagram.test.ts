@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import ArchitecturePage from "./page";
 import { LANGUAGES } from "../i18n/language";
+import { architectureCopy } from "./copy";
 import { howItWorksSvg } from "./how-it-works-diagram";
 import { shellCopy } from "../shell/copy";
 
@@ -37,16 +38,6 @@ describe("architecture layer diagram", () => {
       expect(read(file).toString("utf8"), file).toBe(korean);
   });
 
-  it("draws the diagram inline so its words follow the reader's language", () => {
-    const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    expect(markup).not.toContain('src="/diagrams/how-it-works.svg"');
-    expect(markup).toContain('<svg xmlns="http://www.w3.org/2000/svg"');
-    // The figure names and describes itself, which is what replaces the alt
-    // text the committed image used to carry.
-    expect(markup).toContain('aria-labelledby="flowTitle flowDesc"');
-    expect(/<desc id="flowDesc">[^<]{40,}<\/desc>/.test(markup)).toBe(true);
-  });
-
   it("draws every language from the same geometry", () => {
     for (const language of LANGUAGES) {
       const svg = howItWorksSvg(language);
@@ -69,29 +60,22 @@ describe("architecture layer diagram", () => {
     }
   });
 
-  it("marks the trust boundary, the hash coverage and the end of a model's authority", () => {
+  it("says who does what, and keeps the review stop apart from the three results", () => {
     const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    for (const mark of [
-      "Where a model&#x27;s authority ends",
-      "The trust boundary",
-      "What the canonical hash covers",
-    ])
-      expect(markup).toContain(mark);
-    expect(markup).toContain('href="#canonical-hash"');
-    expect(markup).toContain('id="canonical-hash"');
+    for (const [role] of architectureCopy.en.roles)
+      expect(markup).toContain(role);
+    for (const result of ["SUPPORTED", "NOT_SUPPORTED", "INCONCLUSIVE"])
+      expect(markup).toContain(`data-result="${result}"`);
+    // REVIEW_REQUIRED is named only as what it is: a stop, never a result.
+    expect(markup).not.toContain('data-result="REVIEW_REQUIRED"');
+    expect(markup).toContain("REVIEW_REQUIRED is not a result.");
   });
 
-  it("keeps unimplemented components labelled as planned", () => {
-    const markup = renderToStaticMarkup(createElement(ArchitecturePage));
-    const planned = markup.indexOf("Bounded case proposer");
-    expect(planned).toBeGreaterThan(-1);
-    expect(markup.slice(planned, planned + 200)).toContain("Planned");
-
-    const implemented = markup.indexOf("Evidence Bundle");
-    expect(implemented).toBeGreaterThan(-1);
-    expect(markup.slice(implemented, implemented + 200)).toContain(
-      "byte-backed verification",
-    );
+  it("keeps the planned scope proposal labelled as planned", () => {
+    for (const language of LANGUAGES) {
+      const [, ai] = architectureCopy[language].roles[0]!;
+      expect(ai, language).toMatch(language === "en" ? /planned/ : /계획/);
+    }
   });
 
   it("groups the primary navigation by what a visitor does, then how it works", () => {

@@ -15,14 +15,49 @@ const LANGUAGES: readonly Language[] = ["en", "ko"];
  */
 const ROUTES = [
   ["/", ".hero-actions"],
-  ["/evals", ".mc-answer"],
-  ["/replay", ".journey-header h2"],
+  ["/evals", ".mc-status"],
+  ["/replay", "#tour-title"],
   ["/why", ".explainer-answer"],
   ["/architecture", ".explainer-answer"],
-  ["/methodology", ".explainer-answer"],
-  ["/expectations", ".explainer-answer"],
-  ["/data-handling", ".explainer-answer"],
 ] as const;
+
+/** The pages folded into the two explanation pages, and where they lead. */
+const FOLDED = ["/methodology", "/expectations", "/data-handling"] as const;
+
+for (const path of FOLDED)
+  test(`leads the folded ${path} to the page on how it runs`, async ({
+    page,
+  }) => {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/architecture$/);
+  });
+
+/**
+ * At desktop width a line ends where a sentence or a heading phrase does:
+ * each sentence set on its own line, and each phrase of a heading, fits on
+ * one line.
+ */
+for (const language of LANGUAGES)
+  for (const path of ["/", "/why", "/architecture", "/evals"])
+    test(`breaks no sentence or heading phrase across lines on ${path} at 1280x720 in ${language}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 720 });
+      await open(page, path, language);
+      const broken = await page.evaluate(() =>
+        [
+          ...document.querySelectorAll(
+            "main .sentence-lines > span, main .phrase",
+          ),
+        ]
+          .filter((element) => {
+            const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+            return element.getBoundingClientRect().height > lineHeight * 1.5;
+          })
+          .map((element) => element.textContent),
+      );
+      expect(broken).toEqual([]);
+    });
 
 async function open(page: Page, path: string, language: Language) {
   await page.addInitScript((value) => {

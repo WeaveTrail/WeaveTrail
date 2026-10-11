@@ -7,9 +7,8 @@ import { useCopy } from "../i18n/language";
 import { replayCopy } from "./copy";
 
 /**
- * One line for the page and one switch between the modes. In the walkthrough
- * the step rail says what to do, so the heading only says what this is and
- * how long it takes.
+ * One line for the page and one switch between the modes. Each scene of the
+ * walkthrough says what to do, so the heading only says what this is.
  */
 export function ReplayHeading({ guided }: { guided: boolean }) {
   const text = useCopy(replayCopy).heading;
@@ -20,7 +19,7 @@ export function ReplayHeading({ guided }: { guided: boolean }) {
   return (
     <div className="page-heading replay-heading">
       <div>
-        <h1>{text.title}</h1>
+        <h1>{guided ? text.guidedTitle : text.workingTitle}</h1>
         <p>{guided ? text.guidedMeta : text.workingLede}</p>
       </div>
       <nav aria-label={text.modesLabel} className="mode-choice">
