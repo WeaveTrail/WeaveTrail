@@ -393,8 +393,10 @@ request returned HTTP 402 or 429: 57 of 144 before records and all 144 after
 records are `PROVIDER_FAILED`, and no after record retains output. Like a gate 3
 failure other than a model's HTTP 404, this is an operator condition, not a model
 observation. The run is committed and void: it neither passes nor fails revision
-2 and does not justify another revision. Gate 2 under revision 2 is repeated as
-a new complete pair once the limit allows. Status stays Proposed; v4 HELD_OUT
+2 and does not justify another revision. The plan recorded then, to repeat
+gate 2 under revision 2 as a new complete pair once the limit allowed, was
+dropped: the attempt was withdrawn without that rerun (see
+[Closure](#closure-2026-10-11-withdrawn-before-acceptance)). v4 HELD_OUT
 remains unseen.
 
 ### Closure: 2026-10-11, withdrawn before acceptance
