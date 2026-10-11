@@ -141,7 +141,7 @@ describe("Case Replay entry contract", () => {
           expect(href).not.toBe("/lab");
         }
     }
-    expect(shellCopy.en.navigation[0][1][2]).toEqual([
+    expect(shellCopy.en.navigation[0][1][0]).toEqual([
       "Walk through a case",
       "/replay",
       "One case, proposal to source row",

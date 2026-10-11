@@ -1,9 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { committedHeldOutResult } from "../src/app/evals/held-out-result";
 import { HOME_TERM_KEYS, homeCopy } from "../src/app/home/copy";
+import { homeExample } from "../src/app/home/example";
 import { plainText } from "../src/app/home/home-view";
-import { homeSelection } from "../src/app/home/selection";
 import type { Language } from "../src/app/i18n/language";
 
 const VIEWPORTS = [
@@ -11,7 +10,7 @@ const VIEWPORTS = [
   { width: 390, height: 844 },
 ] as const;
 const LANGUAGES: readonly Language[] = ["en", "ko"];
-const selection = homeSelection(committedHeldOutResult);
+const example = homeExample();
 
 async function open(page: Page, language: Language) {
   await page.addInitScript((value) => {
@@ -50,32 +49,12 @@ async function tabTo(page: Page, href: string) {
 
 for (const viewport of VIEWPORTS) {
   for (const language of LANGUAGES) {
-    test(`answers the question in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
+    test(`shows the walkthrough and its example screen in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
       page,
     }) => {
-      const answer = homeCopy[language].answer;
+      const shown = homeCopy[language].example;
       await page.setViewportSize(viewport);
       await open(page, language);
-
-      // The committed recovery session observed output, but no candidate
-      // passed the rule: no selection is published.
-      expect(selection).toEqual({ state: "planned", reason: "noneQualified" });
-      await expect(page.locator("#home-question")).toHaveText(
-        plainText(answer.question),
-      );
-      await expect(page.locator("#home-answer")).toHaveText(
-        plainText(answer.planned.noneQualified),
-      );
-      await expect(page.locator("#home-answer")).toHaveAttribute(
-        "data-state",
-        "planned",
-      );
-      await expect(page.locator("#home-control")).toHaveText(
-        plainText(answer.control),
-      );
-      // No numbers until a selection is published.
-      await expect(page.locator(".home-facts")).toHaveCount(0);
-      await expect(page.locator("#home-answer")).not.toContainText(/\d/);
 
       // What the site is comes first, and the walkthrough is the first
       // action offered.
@@ -85,13 +64,23 @@ for (const viewport of VIEWPORTS) {
       await expect(
         page.locator("main .hero-actions a").first(),
       ).toHaveAttribute("href", "/replay?mode=guided");
+      // The example screen is the worked case's committed end screen.
+      await expect(page.locator("#home-example-title")).toHaveText(shown.title);
+      await expect(
+        page.locator("#home-example-result [data-result]"),
+      ).toHaveText(example.result);
+      await expect(page.locator(".home-example-gates tbody tr")).toHaveCount(
+        example.gates.length,
+      );
+      await expect(page.locator("#home-control")).toHaveText(
+        plainText(shown.control),
+      );
+      await expect(page.locator("main")).not.toContainText(/NO_MODEL/);
       for (const selector of [
         "#home-title",
-        "#home-question",
-        "#home-answer",
-        "#home-control",
-        '.home-answer a[href="/evals"]',
         '.home-answer a[href="/replay?mode=guided"]',
+        "#home-example-title",
+        "#home-example-result",
       ])
         await expectInFirstViewport(page, selector);
       const overflow = await page.evaluate(
@@ -108,7 +97,7 @@ for (const language of LANGUAGES) {
   test(`opens every first-screen term by keyboard in ${language}`, async ({
     page,
   }) => {
-    const answer = homeCopy[language].answer;
+    const answer = homeCopy[language].example;
     await open(page, language);
     const terms = page.locator("main .home-term:visible");
     const count = await terms.count();
@@ -128,10 +117,8 @@ for (const language of LANGUAGES) {
       await expect(term).toBeFocused();
       opened.add(name);
     }
-    // Every explained term appears on the first screen in this state.
-    for (const key of HOME_TERM_KEYS)
-      if (!["primary", "escalation"].includes(key))
-        expect([...opened], key).toContain(key);
+    // Every explained term appears on the first screen.
+    for (const key of HOME_TERM_KEYS) expect([...opened], key).toContain(key);
   });
 }
 
@@ -139,7 +126,7 @@ test.describe("on a touch screen", () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 
   test("opens and closes a term's explanation by tapping", async ({ page }) => {
-    const answer = homeCopy.ko.answer;
+    const answer = homeCopy.ko.example;
     await open(page, "ko");
     await page.locator("#home-control .home-term").first().tap();
     const note = page.locator("#home-term-validator");
@@ -164,7 +151,7 @@ for (const [href, path] of [
 }
 
 for (const language of LANGUAGES) {
-  test(`shows the four stages beside the answer at 1280x720 in ${language}`, async ({
+  test(`shows the four stages under the example at 1280x720 in ${language}`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 720 });

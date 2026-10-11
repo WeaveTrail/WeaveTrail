@@ -98,7 +98,8 @@ timeouts, changes nothing, because the deadline also bounds the live path.
 The ADR 0075 pre-run gate on v4 DEV did not pass on 2026-10-10
 ([capture](../packages/evals/results/mapping-dev-gate-v4/README.md)): invented
 fields on null-gold columns rose for three candidates under the new stack. The
-ADR stays Proposed and is revised before any held-out run; v4 HELD_OUT is unseen.
+ADR was revised twice and then withdrawn before acceptance on 2026-10-11, without
+any held-out run; v4 HELD_OUT is unseen.
 
 ## Entries
 
@@ -253,7 +254,7 @@ authored gold. None of this measures a model.
 | Counterexample    | `DEV-v4-03`, repeat 3: the `AMBIGUOUS` column `Misc Time` (`c01`) is mapped to `receivedAt`, `PROPOSED`, confidence 0.9. Over the paired gate 2 records, invented fields on null-gold columns rose for three of four candidates                                                                                                                              |
 | Fix               | Prompt `schema-mapping/3` keeps every version 2 sentence and adds target definitions, ties a non-null target to `PROPOSED` at confidence 1, and names the conversions no allowed transform performs. [ADR 0075 revision 1](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#revision-1-2026-10-10-before-any-further-v4-dev-run), #320 |
 | Regression test   | `packages/evals/src/mapping-abstention.test.ts`                                                                                                                                                                                                                                                                                                              |
-| Status            | `ACCEPTED_RESIDUAL`: a prompt rule cannot force a model to abstain; invented fields and unflagged no-target columns are still counted, and the rerun gate decides whether the revision opens HELD_OUT                                                                                                                                                        |
+| Status            | `ACCEPTED_RESIDUAL`: a prompt rule cannot force a model to abstain; invented fields and unflagged no-target columns are still counted, and any nonzero count makes a candidate ineligible. Under revision 1 every candidate still had 16 to 30 of 252, and ADR 0075 was withdrawn without a held-out run                                                     |
 
 ### F-009: Reasoning time exceeds the mapping deadline
 

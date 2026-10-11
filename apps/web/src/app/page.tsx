@@ -3,13 +3,13 @@ import React from "react";
 
 import { committedHeldOutResult } from "./evals/held-out-result";
 import { DECLARED_MODELS } from "./evals/model-comparison-data";
+import { homeExample } from "./home/example";
 import { HomeContent } from "./home/home-view";
-import { homeSelection } from "./home/selection";
 
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Which AI model proposes column mappings in WeaveTrail, why it was chosen, and what stops wrong output before versioned code computes anything.",
+    "Walk through one synthetic case: a prepared column mapping, a person's approval, versioned code's result and the source row behind every finding.",
   alternates: { canonical: "/" },
 };
 
@@ -22,7 +22,7 @@ export default function HomePage() {
         candidates: DECLARED_MODELS.length,
         runDate: committedHeldOutResult?.runDate ?? null,
       }}
-      selection={homeSelection(committedHeldOutResult)}
+      example={homeExample()}
     />
   );
 }

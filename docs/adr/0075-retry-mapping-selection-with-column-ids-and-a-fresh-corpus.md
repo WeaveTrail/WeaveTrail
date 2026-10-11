@@ -1,13 +1,15 @@
 # ADR 0075: Retry mapping selection with column IDs and a fresh corpus
 
-- Status: Proposed. It is accepted only by a pre-run amendment, committed
-  before the first `schema-dialects/4` HELD_OUT record.
+- Status: Withdrawn before acceptance on 2026-10-11 (see
+  [Closure](#closure-2026-10-11-withdrawn-before-acceptance)). It was to be
+  accepted only by a pre-run amendment, committed before the first
+  `schema-dialects/4` HELD_OUT record; none was made.
 - Date: 2026-10-09
-- Supersedes: [ADR 0069](0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
-  for subsequent selection inputs: candidates, prompt, output schema, adapter,
-  validator and corpus. The ADR 0069 session, its comparison and its
-  `NO_MODEL` decision remain committed and reproducible offline, and the site
-  keeps showing that decision until this attempt commits a new one.
+- Supersedes: none. It proposed to supersede
+  [ADR 0069](0069-recover-mapping-transport-with-a-fresh-held-out-set.md) for
+  subsequent selection inputs: candidates, prompt, output schema, adapter,
+  validator and corpus. It was withdrawn before acceptance, so ADR 0069 and
+  its `NO_MODEL` decision stand, committed and reproducible offline.
 
 ## Context
 
@@ -391,6 +393,30 @@ request returned HTTP 402 or 429: 57 of 144 before records and all 144 after
 records are `PROVIDER_FAILED`, and no after record retains output. Like a gate 3
 failure other than a model's HTTP 404, this is an operator condition, not a model
 observation. The run is committed and void: it neither passes nor fails revision
-2 and does not justify another revision. Gate 2 under revision 2 is repeated as
-a new complete pair once the limit allows. Status stays Proposed; v4 HELD_OUT
+2 and does not justify another revision. The plan recorded then, to repeat
+gate 2 under revision 2 as a new complete pair once the limit allowed, was
+dropped: the attempt was withdrawn without that rerun (see
+[Closure](#closure-2026-10-11-withdrawn-before-acceptance)). v4 HELD_OUT
 remains unseen.
+
+### Closure: 2026-10-11, withdrawn before acceptance
+
+The attempt was closed after the void revision 2 run, without repeating it.
+The design changes made for the recorded failures stay in the code with their
+regression tests: opaque column IDs, so a header attack is no longer an allowed
+output value (F-006); target definitions and the null-target rule in the prompt
+(F-007, F-008); and low reasoning effort against the deadline (F-009). They are
+mitigations, not fixes: each failure remains `ACCEPTED_RESIDUAL` in the
+[AI failure log](../AI_FAILURE_LOG.md), because a model can still follow quoted
+text, decline to abstain or time out. What remained
+under revision 1 is model behavior that the unchanged rule counts: every
+candidate still mapped some null-gold columns, 16 to 30 of 252. Revision 2 has
+no valid gate result.
+
+No further gate run, run-date probe, pre-run amendment, dated price table or
+HELD_OUT run is made under this ADR. v4 HELD_OUT stays sealed and unseen by any
+model, and the protocol 3 held-out command keeps refusing to run because this
+ADR is not accepted. The ADR 0069 session and its `NO_MODEL` decision remain
+the committed decision, which the site shows as a measured comparison under
+[ADR 0077](0077-lead-with-the-walkthrough-and-its-example-screen.md), and the
+live web path stays on the ADR 0069 stack. Another selection attempt needs a new ADR.
