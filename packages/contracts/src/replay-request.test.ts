@@ -12,12 +12,9 @@ describe("ReplayRequestSchema", () => {
     "concentrated-buy-dialect-a.csv",
     "concentrated-buy-dialect-b.jsonl",
     "published-execution-fix44.csv",
+    "published-execution-fix44-broad-participation.csv",
     "published-execution-fix44-conflicting-evidence.csv",
     "published-execution-h0stcnt0.jsonl",
-    "real/fsc-kospi-index-family-20260903/source.jsonl",
-    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
-    "real/fsc-kospi-200-futures-20260903/source.jsonl",
-    "real/fsc-weekly-options-20260903/source.jsonl",
   ] as const)("accepts the committed scenario %s", (scenario) => {
     expect(
       ReplayRequestSchema.parse({
@@ -238,6 +235,64 @@ describe("ReplayResultResponseSchema", () => {
 });
 
 describe("ReplayReviewResponseSchema", () => {
+  it.each(["VISITOR_DAILY_LIMIT", "GLOBAL_DAILY_LIMIT", "BUDGET_UNAVAILABLE"])(
+    "accepts budget reason %s only on mapping application review issues",
+    (budgetReason) => {
+      const response = {
+        status: "REVIEW_REQUIRED",
+        workflowState: "MAPPING_REVIEW_REQUIRED",
+        issues: [
+          {
+            code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+            path: [],
+            message: "Budget denied",
+            budgetReason,
+          },
+        ],
+      };
+      expect(ReplayReviewResponseSchema.parse(response)).toEqual(response);
+      for (const code of [
+        "APPROVAL_RECORD_REQUIRED",
+        "MAPPING_OVERRIDE_REQUIRED",
+      ]) {
+        expect(
+          ReplayReviewResponseSchema.safeParse({
+            ...response,
+            issues: [{ ...response.issues[0], code }],
+          }).success,
+        ).toBe(false);
+      }
+      for (const workflowState of [
+        "INPUT_REVIEW_REQUIRED",
+        "CASE_REVIEW_REQUIRED",
+      ]) {
+        expect(
+          ReplayReviewResponseSchema.safeParse({ ...response, workflowState })
+            .success,
+        ).toBe(false);
+      }
+    },
+  );
+
+  it.each(["UNKNOWN", null, 42])(
+    "rejects invalid budget reason %j",
+    (budgetReason) => {
+      expect(
+        ReplayReviewResponseSchema.safeParse({
+          status: "REVIEW_REQUIRED",
+          workflowState: "MAPPING_REVIEW_REQUIRED",
+          issues: [
+            {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+              path: [],
+              message: "Budget denied",
+              budgetReason,
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    },
+  );
   const reviewResponse = (workflowState: string, codes: readonly string[]) => ({
     status: "REVIEW_REQUIRED",
     workflowState,

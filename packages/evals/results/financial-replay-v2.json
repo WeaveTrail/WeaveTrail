@@ -1,0 +1,1274 @@
+{
+  "schemaVersion": "1.0",
+  "evaluationVersion": "financial-replay-evaluation/2",
+  "mutationVersion": "canonical-mutations/1",
+  "engineVersion": "0.7.0-canonical-decimal",
+  "scenarioExpectationVersion": "1.0",
+  "scenarioExpectationPath": "apps/web/src/app/expectations/scenario-expectations.json",
+  "provider": {
+    "mode": "fixture",
+    "model": "registered-mapping",
+    "promptVersion": "fixture-mapping/1"
+  },
+  "command": "pnpm eval",
+  "aggregation": "Counts of declared cases; each synthetic rule scenario counted once; mutations and published normalizations are separate.",
+  "counts": {
+    "mappingCases": 2,
+    "mappingFields": 13,
+    "scenarios": 15,
+    "publishedBaselines": 5,
+    "syntheticRuleScenarios": 5,
+    "results": {
+      "SUPPORTED": 2,
+      "NOT_SUPPORTED": 2,
+      "INCONCLUSIVE": 1
+    },
+    "mutations": 72,
+    "preservedMutations": 45,
+    "rejectedMutations": 27,
+    "findings": 20,
+    "findingReferences": 100,
+    "resolvedFindingReferences": 100
+  },
+  "mappings": [
+    {
+      "source": "published-execution-fix44.csv",
+      "provider": {
+        "mode": "fixture",
+        "model": "registered-mapping",
+        "promptVersion": "fixture-mapping/1"
+      },
+      "mappingVersion": "1.8",
+      "fields": [
+        {
+          "sourceColumn": "ExecID(17)",
+          "targetField": "sourceEventId",
+          "transform": "IDENTITY",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "TransactTime(60)",
+          "targetField": "eventTime",
+          "transform": "FIX_UTC_TIMESTAMP_TO_ISO",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "Symbol(55)",
+          "targetField": "instrumentId",
+          "transform": "IDENTITY",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "Side(54)",
+          "targetField": "side",
+          "transform": "FIX_SIDE_CODE",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "LastPx(31)",
+          "targetField": "price",
+          "transform": "DECIMAL_STRING",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "LastQty(32)",
+          "targetField": "quantity",
+          "transform": "DECIMAL_STRING",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "Account(1)",
+          "targetField": "actorId",
+          "transform": "IDENTITY",
+          "status": "PROPOSED",
+          "agrees": true
+        }
+      ],
+      "compositeEventTime": null,
+      "absentFields": [],
+      "withoutOverrides": "APPROVED",
+      "withFixtureOverrides": "APPROVED"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "provider": {
+        "mode": "fixture",
+        "model": "registered-mapping",
+        "promptVersion": "fixture-mapping/1"
+      },
+      "mappingVersion": "1.8",
+      "fields": [
+        {
+          "sourceColumn": "MKSC_SHRN_ISCD",
+          "targetField": "instrumentId",
+          "transform": "IDENTITY",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "STCK_CNTG_HOUR",
+          "targetField": "sourceEventId",
+          "transform": "IDENTITY",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "STCK_PRPR",
+          "targetField": "price",
+          "transform": "DECIMAL_STRING",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "CNTG_VOL",
+          "targetField": "quantity",
+          "transform": "DECIMAL_STRING",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "CCLD_DVSN",
+          "targetField": "side",
+          "transform": "KIS_CCLD_DVSN",
+          "status": "PROPOSED",
+          "agrees": true
+        },
+        {
+          "sourceColumn": "BSOP_DATE",
+          "targetField": null,
+          "transform": null,
+          "status": "PROPOSED",
+          "agrees": true
+        }
+      ],
+      "compositeEventTime": {
+        "sourceColumns": ["BSOP_DATE", "STCK_CNTG_HOUR"],
+        "transform": "KIS_DATE_TIME_TO_KST_ISO",
+        "status": "PROPOSED"
+      },
+      "absentFields": [["actorId", "REVIEW_REQUIRED"]],
+      "withoutOverrides": "REVIEW_REQUIRED",
+      "withFixtureOverrides": "APPROVED"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario": "actorless-multi-instrument-quotes.jsonl",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-multi-instrument-quotes-v1",
+      "eventContractVersion": "1.2",
+      "mappingVersion": "1.5",
+      "sourceArtifactHash": "b1eae0149d9903a25e30f66e630d441035b3356b191d54e7c30327fe1853f094",
+      "sourceRowCount": 2,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "d41938b51aac2ce0f38187a25fe4a9461c56f273c8b37fb64f7ee69f123a0de2",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "concentrated-buy-dialect-a.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-concentrated-buy-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.4",
+      "sourceArtifactHash": "d4bd80adf6a853adcf98f9ee08092f786b9b9276b349ad11fef6d0af078b867e",
+      "sourceRowCount": 4,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "d514dae6698ab079719c0e8970fb3813a63852b8f128ff09759548f2e10d9abb",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "concentrated-buy-dialect-b.jsonl",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-concentrated-buy-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.4",
+      "sourceArtifactHash": "71a367b78a9bfefa685b9f40414b778712860b358882537b7f87127ab1584cff",
+      "sourceRowCount": 4,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "d514dae6698ab079719c0e8970fb3813a63852b8f128ff09759548f2e10d9abb",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "published-execution-fix44.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-published-execution-schema-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.8",
+      "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+      "sourceRowCount": 6,
+      "manifestVersion": "1.3",
+      "rules": [
+        {
+          "ruleId": "RAPID_PRICE_LIFT",
+          "ruleVersion": "1.1"
+        }
+      ],
+      "workflowState": "REPLAYED",
+      "result": "SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "8ff6d5cd9b8c5362e9bcfd9337a8c52c5cbfb226eba29c10d353134e39c0d3c5",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a",
+      "trace": {
+        "findingCount": 5,
+        "referenceCount": 25,
+        "resolvedReferenceCount": 25,
+        "uniqueEventCount": 6,
+        "entries": [
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100000",
+            "rawRowHash": "cc0d4c551760445428f08dd3d9be1e05c56b61bf36984d7253fcc0709cbd7cf8",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "2"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100001",
+            "rawRowHash": "ac7f8f33169d9fd877685faca07ab3034c409191e5ed597f17474e0fe8debd16",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "3"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100002",
+            "rawRowHash": "a256dc7550dd493d39ddde7fc2c946a1efd599520e613da95ec23fa224fa66ec",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "4"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100003",
+            "rawRowHash": "78772e6d04cc4750ce5e58ad96b4b59c0fcd2c885797f2397d7dbc255855326f",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "5"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100004",
+            "rawRowHash": "304d0795c25a14e7a3e0a5b41b397e61f4351a65ebd81462ef75f2817eace3b8",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "6"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-schema-v1:SYNTH-KRX-RULES:100005",
+            "rawRowHash": "56a7c7ac9083316047407d92f783f9c060ef7d36850e6990359a9bc003da2b83",
+            "coordinate": {
+              "sourceArtifactHash": "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
+              "rowNumber": "7"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "published-execution-fix44-broad-participation.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-published-execution-broad-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.8",
+      "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+      "sourceRowCount": 6,
+      "manifestVersion": "1.3",
+      "rules": [
+        {
+          "ruleId": "RAPID_PRICE_LIFT",
+          "ruleVersion": "1.1"
+        }
+      ],
+      "workflowState": "REPLAYED",
+      "result": "NOT_SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "35785e7ed4c4ce9b1b4c7cb390d4c2117b9509ac5eefb951b82803bed2e2f33d",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5",
+      "trace": {
+        "findingCount": 5,
+        "referenceCount": 25,
+        "resolvedReferenceCount": 25,
+        "uniqueEventCount": 6,
+        "entries": [
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130000",
+            "rawRowHash": "a3e8a0c7eb722f7eef21de93823a8400781c4b5d8bc4a3f8e1de5339b118345a",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "2"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130001",
+            "rawRowHash": "625e75fa8eed77625a85ba25bd4d3167b816b01266c19d9bc29988429fea294c",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "3"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130002",
+            "rawRowHash": "a52bb865c2711f80ddbe9592eef6c4a9fe3ddf347dba2dfccf78ea67a2cc146f",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "4"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130003",
+            "rawRowHash": "9a6459384e56aaccae73d3dd3314c23e887278256ddc9526c89d7b4523cb001a",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "5"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130004",
+            "rawRowHash": "d8d817013d3e52e5d427d099b63c4890a5652ed1aaee819289e182d6ce2df661",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "6"
+            }
+          },
+          {
+            "eventId": "event:synthetic-published-execution-broad-v1:SYNTH-KRX-RULES:130005",
+            "rawRowHash": "0a597ba7eb86d3f5a6b43b2325301e4a6093f1d9feb829b70b2fa9c8b41f92ce",
+            "coordinate": {
+              "sourceArtifactHash": "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+              "rowNumber": "7"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "published-execution-fix44-conflicting-evidence.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-published-execution-conflict-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.8",
+      "sourceArtifactHash": "fb1f933e6c979c75bd4631fb581fb5c4796b84d89d73a28bf414dc7d9e2fdc57",
+      "sourceRowCount": 4,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "INPUT_REVIEW_REQUIRED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": ["CONFLICTING_SOURCE_IDENTITY"],
+      "canonicalDatasetHash": null,
+      "canonicalResultHash": null,
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "published-execution-h0stcnt0.jsonl",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-published-execution-schema-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.8",
+      "sourceArtifactHash": "c6fb040df7cf060d43795424f95a8261b0ca4a06486750639c9762e39893c8ef",
+      "sourceRowCount": 6,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "46b150dc603c7bd250f10429e06df0916425ae30b72cd542f111bb81bc628d72",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "rapid-price-lift-supported.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-rapid-price-lift-supported-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.4",
+      "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+      "sourceRowCount": 6,
+      "manifestVersion": "1.3",
+      "rules": [
+        {
+          "ruleId": "RAPID_PRICE_LIFT",
+          "ruleVersion": "1.1"
+        }
+      ],
+      "workflowState": "REPLAYED",
+      "result": "SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "9eeb45d15373e1222c8b7e1b147b5010d415a72109aca8a264f1da0a8ae4b706",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45",
+      "trace": {
+        "findingCount": 5,
+        "referenceCount": 25,
+        "resolvedReferenceCount": 25,
+        "uniqueEventCount": 6,
+        "entries": [
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-001",
+            "rawRowHash": "5bbc2504da6e7ee9067d26e49b7b3b4b2ef729b9326d914a1c5396a1d914459c",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "2"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-002",
+            "rawRowHash": "bb75c51a45d91f5d580d559abc5ed5f34d0a3c684d2d42acf072a6eb0d2c43a6",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "3"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-003",
+            "rawRowHash": "d06ff8adec840bc2519f8a01586335497be0962c5a4c1bde48d5da3d55e70af4",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "4"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-004",
+            "rawRowHash": "8d26446cb61dd17525b17cea5d620f4ea3588bbed57447eb03ccfdd51fc95af1",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "5"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-005",
+            "rawRowHash": "220aefda2655d2b59307724d38967be6c47cc28fded4db43387b76a8a54002e8",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "6"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-supported-v1:SYNTH-RULE:supported-006",
+            "rawRowHash": "6f6b1b2cdee558e5c781b7f37f1c5c4b9df2b32ba7296322054c3b544ada0c8c",
+            "coordinate": {
+              "sourceArtifactHash": "72511e0c67ec066130fcb10d92f0afa43e1147023722ca0fa6d82ef57a90a827",
+              "rowNumber": "7"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "rapid-price-lift-broad-participation.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-rapid-price-lift-broad-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.4",
+      "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+      "sourceRowCount": 6,
+      "manifestVersion": "1.3",
+      "rules": [
+        {
+          "ruleId": "RAPID_PRICE_LIFT",
+          "ruleVersion": "1.1"
+        }
+      ],
+      "workflowState": "REPLAYED",
+      "result": "NOT_SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "704fb15495b7fb2c5b612ba9a9213d1a429342e408587a085cdf4e28e859100f",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93",
+      "trace": {
+        "findingCount": 5,
+        "referenceCount": 25,
+        "resolvedReferenceCount": 25,
+        "uniqueEventCount": 6,
+        "entries": [
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-001",
+            "rawRowHash": "573a98a1931d232be64f87df402db27903f86dc1d1b7f357d3b6ec968321dc77",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "2"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-002",
+            "rawRowHash": "b7d16d65774ba654476d66c72b8fdefa39577316b9a36bb411e8a4ac730b693d",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "3"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-003",
+            "rawRowHash": "9a47efd08986c16aac4f3cf752b9bcc14ffdc3317fc742430d456fcd3373d0cc",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "4"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-004",
+            "rawRowHash": "a52f32e60a1323345e9bbcb19f0b0b5107c8148d3256e8c476d2622773ca5f07",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "5"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-005",
+            "rawRowHash": "6e7632279f42b8b5892c07dff32e71e5721703ca11075d2494ea2f5c58f2ec9c",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "6"
+            }
+          },
+          {
+            "eventId": "event:synthetic-rapid-price-lift-broad-v1:SYNTH-RULE:broad-006",
+            "rawRowHash": "fef640dc9293f71ea292bff05037b8a4fd168766dae769f8ac464c660313e6fc",
+            "coordinate": {
+              "sourceArtifactHash": "08b1d150939e10d91c8818424572feab58e55e6fd2e71acd3a2149b72b76f6d0",
+              "rowNumber": "7"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "rapid-price-lift-insufficient-evidence.csv",
+      "dataKind": "synthetic",
+      "datasetVersion": "synthetic-rapid-price-lift-missing-evidence-v1",
+      "eventContractVersion": "1.1",
+      "mappingVersion": "1.8",
+      "sourceArtifactHash": "33db4b61e5bb86a057f9f2c80f9c9d0033d024d0499d3ef2133f7c5aa102bb4b",
+      "sourceRowCount": 4,
+      "manifestVersion": "1.3",
+      "rules": [
+        {
+          "ruleId": "RAPID_PRICE_LIFT",
+          "ruleVersion": "1.1"
+        }
+      ],
+      "workflowState": "REPLAYED",
+      "result": "INCONCLUSIVE",
+      "inconclusiveReason": "INSUFFICIENT_ELIGIBLE_EVENTS",
+      "nonComparableEventCount": 4,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "df9992cf54c354d5d9c4feb3d68929af0f36dfc59435fba0c5f26056972a7298",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "real/fsc-stock-quotes-20260903.jsonl",
+      "dataKind": "published",
+      "datasetVersion": "fsc-stock-quotes-20260903-v1",
+      "eventContractVersion": "1.2",
+      "mappingVersion": "1.5",
+      "sourceArtifactHash": "17d3e9462f2322b0227554d76a4c7c4022261b4976727b3884f452d68f075eea",
+      "sourceRowCount": 40,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "2f70f316b6a7979b2472e2ebfc0da303c69961ed0833e060762e1567d39af939",
+      "canonicalResultHash": "f8bb2a21d695aab89e826039861204ecb741d5f56ecab69e354c9b5840ae25fc",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "real/fsc-kospi-index-family-20260903/source.jsonl",
+      "dataKind": "published",
+      "datasetVersion": "fsc-kospi-index-family-20260903-v1",
+      "eventContractVersion": "1.2",
+      "mappingVersion": "1.6",
+      "sourceArtifactHash": "e74903d528a94ce35bab66e25e8b6a784d1e8679195d6ef99aafcf4b3efdcff4",
+      "sourceRowCount": 32,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "b0b42b61f5668bc23b5f622a4e9819263ce2554f4d900e547d3d28ce50dcf9da",
+      "canonicalResultHash": "e828a2671e5078bf77c153ea4af8638791dadd8771a1c8e222c5bad9d9bef9a5",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
+      "dataKind": "published",
+      "datasetVersion": "fsc-kospi-200-baseline-20260701-20260903-v1",
+      "eventContractVersion": "1.3",
+      "mappingVersion": "1.7",
+      "sourceArtifactHash": "0ba6f0b0eb53876f60dcd51d2e1b480da215afdf6954f00f1fc443c08b8c7ae7",
+      "sourceRowCount": 45,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "a75e867995419eb2c144e03886405097c718e66f7eb00edc96ccd4178a55ea37",
+      "canonicalResultHash": "568ae50d81d18537ca1e537d2aedb204e3cc9aeb1e6dcc8ba06f661c5004f512",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "real/fsc-kospi-200-futures-20260903/source.jsonl",
+      "dataKind": "published",
+      "datasetVersion": "fsc-kospi-200-futures-20260903-v1",
+      "eventContractVersion": "1.3",
+      "mappingVersion": "1.7",
+      "sourceArtifactHash": "49c1bb4fa3f703993308b0508212534e35133952df9be7c614651202f7626d1f",
+      "sourceRowCount": 13,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "e6216cb956dcc9ba2ded19873b74fcffabab5db2cad530c4de4ba9ef5edc5e9a",
+      "canonicalResultHash": "5feffa3a3fd9c93489708e2d0d693e6f4f68283f1f77deccd5f8a282d5c6fdf9",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    },
+    {
+      "scenario": "real/fsc-weekly-options-20260903/source.jsonl",
+      "dataKind": "published",
+      "datasetVersion": "fsc-weekly-options-20260903-v1",
+      "eventContractVersion": "1.2",
+      "mappingVersion": "1.5",
+      "sourceArtifactHash": "70ee7e832071df6b8e3f073cb148275aa123402c53e078ba8e6b0909487d0458",
+      "sourceRowCount": 546,
+      "manifestVersion": null,
+      "rules": [],
+      "workflowState": "MAPPING_APPROVED",
+      "result": null,
+      "inconclusiveReason": null,
+      "nonComparableEventCount": null,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "b087b9b8311003d35a0051428f61eff0af25e348f76caa7470d5626c880158dc",
+      "canonicalResultHash": "e74d9316e8c329ab5732b73845ea3163a070541dd16071b81e12e39d652adbed",
+      "trace": {
+        "findingCount": 0,
+        "referenceCount": 0,
+        "resolvedReferenceCount": 0,
+        "uniqueEventCount": 0,
+        "entries": []
+      }
+    }
+  ],
+  "mutations": [
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f"
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f"
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f"
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f"
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "5ffea016e6ee8db6731bd1dfae762a3f2f647a20165b42338718a4698f719f6f"
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "actorless-multi-instrument-quotes.jsonl",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-a.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "8ecbc17157e5d95bc204e9b44425b7a0b2cbee402a906de75619a689c81b13ff"
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "concentrated-buy-dialect-b.jsonl",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "46879311285315bde660914487063074b8ea45ce186beef230e57f1691662d6a"
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5"
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5"
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5"
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5"
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5"
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-fix44-broad-participation.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "2586eee825997fd2bd0f650f409e446790e09daef5851e013d8fe4e13a750b3f"
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "published-execution-h0stcnt0.jsonl",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45"
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45"
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45"
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45"
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "c41c4484a3b6678c01e07e30289ab6564eff502ba972a22484165cd2cda2bb45"
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-supported.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93"
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93"
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93"
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93"
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "0bbf4ae93ce978ed615457b1699a19cbe24d7ed771c88958251f00e7c4d77c93"
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-broad-participation.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "repeat",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14"
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "reverse",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14"
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "duplicate",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14"
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "equivalent-time",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14"
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "late-arrival",
+      "expected": "PRESERVED",
+      "outcome": "PRESERVED",
+      "canonicalResultHash": "a08ccbedb578fc10c716220206c9a6aa315a44dce22d33de6970344de5e0bc14"
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "source-conflict",
+      "expected": "CONFLICTING_SOURCE_IDENTITY",
+      "outcome": "CONFLICTING_SOURCE_IDENTITY",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "event-id-conflict",
+      "expected": "CONFLICTING_EVENT_IDENTIFIER",
+      "outcome": "CONFLICTING_EVENT_IDENTIFIER",
+      "canonicalResultHash": null
+    },
+    {
+      "source": "rapid-price-lift-insufficient-evidence.csv",
+      "mutation": "mixed-sequence",
+      "expected": "MIXED_SEQUENCE_PRESENCE",
+      "outcome": "MIXED_SEQUENCE_PRESENCE",
+      "canonicalResultHash": null
+    }
+  ],
+  "limitations": [
+    "Authored fixture agreement counts are not accuracy estimates or independent samples.",
+    "Only the registered fixture provider runs; configured AI providers are excluded.",
+    "Synthetic RAPID_PRICE_LIFT outcomes are rule regressions, not real-market performance.",
+    "Canonical mutations are synthetic engine probes, not changed source facts or market observations.",
+    "Published artifacts enter baseline normalization only; no real-instrument rule verdict is aggregated.",
+    "Generated approvals are evaluation fixtures, not human-approved cases or publication permission.",
+    "Zero findings have zero trace references and are not counted as successful trace coverage.",
+    "No latency, memory, investigation-effort, generalization, or evidence-grade shares are measured."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "version": "google-gemini-standard-2026-10-08/1",
+  "dated": "2026-10-08",
+  "provenance": "Google, Gemini Developer API pricing, https://ai.google.dev/gemini-api/docs/pricing?hl=ja; retrieved 2026-10-08; original-byte SHA-256 8d990daf5c915e003a8fb2d754625993ed795d20222690e8c23e97d575b2b759. CC BY 4.0. Standard paid text, uncached, prompts <= 200000 tokens; output includes thinking. Gemini 3.8 introductory rates through 2026-12-31. Deterministic extraction: scripts/extract-mapping-prices.mjs.",
+  "entries": [
+    {
+      "provider": "google",
+      "requestedModel": "gemini-3.1-flash-lite",
+      "reportedModel": "gemini-3.1-flash-lite",
+      "inputMicroUsdPerMillionTokens": "250000",
+      "outputMicroUsdPerMillionTokens": "1500000"
+    },
+    {
+      "provider": "google",
+      "requestedModel": "gemini-3.5-flash-lite",
+      "reportedModel": "gemini-3.5-flash-lite",
+      "inputMicroUsdPerMillionTokens": "300000",
+      "outputMicroUsdPerMillionTokens": "2500000"
+    },
+    {
+      "provider": "google",
+      "requestedModel": "gemini-3.8-flash",
+      "reportedModel": "gemini-3.8-flash",
+      "inputMicroUsdPerMillionTokens": "750000",
+      "outputMicroUsdPerMillionTokens": "3750000"
+    },
+    {
+      "provider": "google",
+      "requestedModel": "gemini-2.5-pro",
+      "reportedModel": "gemini-2.5-pro",
+      "inputMicroUsdPerMillionTokens": "1250000",
+      "outputMicroUsdPerMillionTokens": "10000000"
+    },
+    {
+      "provider": "google",
+      "requestedModel": "gemini-3.1-pro-preview",
+      "reportedModel": "gemini-3.1-pro-preview",
+      "inputMicroUsdPerMillionTokens": "2000000",
+      "outputMicroUsdPerMillionTokens": "12000000"
+    }
+  ]
+}

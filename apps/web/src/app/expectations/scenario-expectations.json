@@ -114,6 +114,67 @@
       ]
     },
     {
+      "scenario": "published-execution-fix44-broad-participation.csv",
+      "label": "Synthetic · published FIX 4.4 broad participation · CSV",
+      "purpose": "REVIEWER_FACING",
+      "availableInCaseReplay": true,
+      "availableMutations": ["baseline", "shuffle", "duplicate"],
+      "demonstrates": "Six FIX-shaped executions carry every comparable input. Broad buy participation fails ACTOR_CONCENTRATION (below 8000 bps), and removing the approved actor leaves the same price lift, failing REMOVAL_SENSITIVITY (0 bps below 100); the other three gates pass.",
+      "workflowState": "REPLAYED",
+      "result": "NOT_SUPPORTED",
+      "inconclusiveReason": null,
+      "nonComparableEventCount": 0,
+      "reviewIssues": [],
+      "canonicalDatasetHash": "35785e7ed4c4ce9b1b4c7cb390d4c2117b9509ac5eefb951b82803bed2e2f33d",
+      "canonicalResultHash": "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5",
+      "hypothesis": {
+        "manifestVersion": "1.3",
+        "pattern": "RAPID_PRICE_LIFT",
+        "instrumentIds": ["ZZ79X1"],
+        "actorIds": ["SYNTH-ACCOUNT-FOCUS"],
+        "startTime": "2026-09-03T01:03:00Z",
+        "endTime": "2026-09-03T01:03:05Z",
+        "rules": [
+          {
+            "ruleId": "RAPID_PRICE_LIFT",
+            "ruleVersion": "1.1"
+          }
+        ]
+      },
+      "gates": [
+        {
+          "gate": "PRICE_CHANGE",
+          "observedValue": "250.0000",
+          "threshold": "200",
+          "passed": true
+        },
+        {
+          "gate": "AGGRESSIVE_BUY_SHARE",
+          "observedValue": "7542.1994",
+          "threshold": "7000",
+          "passed": true
+        },
+        {
+          "gate": "ACTOR_CONCENTRATION",
+          "observedValue": "1658.1892",
+          "threshold": "8000",
+          "passed": false
+        },
+        {
+          "gate": "REPEATED_EXECUTION",
+          "observedValue": "2",
+          "threshold": "2",
+          "passed": true
+        },
+        {
+          "gate": "REMOVAL_SENSITIVITY",
+          "observedValue": "0.0000",
+          "threshold": "100",
+          "passed": false
+        }
+      ]
+    },
+    {
       "scenario": "published-execution-fix44-conflicting-evidence.csv",
       "label": "Synthetic · conflicting FIX 4.4 execution evidence · CSV",
       "purpose": "REVIEWER_FACING",
@@ -212,7 +273,7 @@
       "scenario": "rapid-price-lift-broad-participation.csv",
       "label": "Rapid price lift · broad participation",
       "purpose": "ENGINE_REGRESSION",
-      "availableInCaseReplay": true,
+      "availableInCaseReplay": false,
       "availableMutations": ["baseline", "shuffle", "duplicate"],
       "demonstrates": "Complete evidence is sufficient to evaluate, but broad participation fails the declared concentration gates.",
       "workflowState": "REPLAYED",
@@ -329,91 +390,6 @@
           "passed": null
         }
       ]
-    },
-    {
-      "scenario": "real/fsc-stock-quotes-20260903.jsonl",
-      "label": "FSC · KOSPI daily quotes · 2026-09-03",
-      "purpose": "REVIEWER_FACING",
-      "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
-      "demonstrates": null,
-      "workflowState": "MAPPING_APPROVED",
-      "result": null,
-      "inconclusiveReason": null,
-      "nonComparableEventCount": null,
-      "reviewIssues": [],
-      "canonicalDatasetHash": "2f70f316b6a7979b2472e2ebfc0da303c69961ed0833e060762e1567d39af939",
-      "canonicalResultHash": "f8bb2a21d695aab89e826039861204ecb741d5f56ecab69e354c9b5840ae25fc",
-      "hypothesis": null,
-      "gates": []
-    },
-    {
-      "scenario": "real/fsc-kospi-index-family-20260903/source.jsonl",
-      "label": "FSC · KOSPI index family · 2026-09-03",
-      "purpose": "REVIEWER_FACING",
-      "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
-      "demonstrates": null,
-      "workflowState": "MAPPING_APPROVED",
-      "result": null,
-      "inconclusiveReason": null,
-      "nonComparableEventCount": null,
-      "reviewIssues": [],
-      "canonicalDatasetHash": "b0b42b61f5668bc23b5f622a4e9819263ce2554f4d900e547d3d28ce50dcf9da",
-      "canonicalResultHash": "e828a2671e5078bf77c153ea4af8638791dadd8771a1c8e222c5bad9d9bef9a5",
-      "hypothesis": null,
-      "gates": []
-    },
-    {
-      "scenario": "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
-      "label": "FSC · KOSPI 200 baseline · 2026-07-01–2026-09-03",
-      "purpose": "REVIEWER_FACING",
-      "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
-      "demonstrates": null,
-      "workflowState": "MAPPING_APPROVED",
-      "result": null,
-      "inconclusiveReason": null,
-      "nonComparableEventCount": null,
-      "reviewIssues": [],
-      "canonicalDatasetHash": "a75e867995419eb2c144e03886405097c718e66f7eb00edc96ccd4178a55ea37",
-      "canonicalResultHash": "568ae50d81d18537ca1e537d2aedb204e3cc9aeb1e6dcc8ba06f661c5004f512",
-      "hypothesis": null,
-      "gates": []
-    },
-    {
-      "scenario": "real/fsc-kospi-200-futures-20260903/source.jsonl",
-      "label": "FSC · KOSPI 200 futures · 2026-09-03",
-      "purpose": "REVIEWER_FACING",
-      "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
-      "demonstrates": null,
-      "workflowState": "MAPPING_APPROVED",
-      "result": null,
-      "inconclusiveReason": null,
-      "nonComparableEventCount": null,
-      "reviewIssues": [],
-      "canonicalDatasetHash": "e6216cb956dcc9ba2ded19873b74fcffabab5db2cad530c4de4ba9ef5edc5e9a",
-      "canonicalResultHash": "5feffa3a3fd9c93489708e2d0d693e6f4f68283f1f77deccd5f8a282d5c6fdf9",
-      "hypothesis": null,
-      "gates": []
-    },
-    {
-      "scenario": "real/fsc-weekly-options-20260903/source.jsonl",
-      "label": "FSC · weekly options · 2026-09-03",
-      "purpose": "REVIEWER_FACING",
-      "availableInCaseReplay": true,
-      "availableMutations": ["baseline", "shuffle"],
-      "demonstrates": null,
-      "workflowState": "MAPPING_APPROVED",
-      "result": null,
-      "inconclusiveReason": null,
-      "nonComparableEventCount": null,
-      "reviewIssues": [],
-      "canonicalDatasetHash": "b087b9b8311003d35a0051428f61eff0af25e348f76caa7470d5626c880158dc",
-      "canonicalResultHash": "e74d9316e8c329ab5732b73845ea3163a070541dd16071b81e12e39d652adbed",
-      "hypothesis": null,
-      "gates": []
     }
   ]
 }

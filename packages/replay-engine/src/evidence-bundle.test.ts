@@ -7,7 +7,6 @@ import {
   type CaseManifest,
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
-import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   actorlessMultiInstrumentMappingProposal,
   committedReplayScenarios,
@@ -15,6 +14,7 @@ import {
   concentratedBuyDialectBProposal,
   publishedExecutionConflictProposal,
   publishedExecutionManifest,
+  publishedExecutionBroadManifest,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 import { describe, expect, it } from "vitest";
@@ -87,6 +87,10 @@ const syntheticProposals: Record<string, SchemaMappingProposal> = {
   ),
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"].mappingProposal,
+  "published-execution-fix44-broad-participation.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-broad-participation.csv"
+    ].mappingProposal,
   "published-execution-fix44-conflicting-evidence.csv":
     publishedExecutionConflictProposal,
   "published-execution-h0stcnt0.jsonl":
@@ -108,19 +112,13 @@ const syntheticEntries: Entry[] = Object.entries(syntheticProposals).map(
         }
       : name === "published-execution-fix44.csv"
         ? { manifest: publishedExecutionManifest }
-        : {}),
+        : name === "published-execution-fix44-broad-participation.csv"
+          ? { manifest: publishedExecutionBroadManifest }
+          : {}),
   }),
 );
 
-const publishedEntries: Entry[] = Object.entries(publishedReplaySources).map(
-  ([name, source]) => ({
-    name,
-    artifact: artifact(`../../published-data/src/sources/${name}`),
-    proposal: source.mappingProposal,
-  }),
-);
-
-const entries = [...syntheticEntries, ...publishedEntries];
+const entries = [...syntheticEntries];
 
 function assemble(entry: Entry) {
   return assembleEvidenceBundle({
@@ -146,10 +144,7 @@ describe("Evidence Bundle 1.3 assembly and independent verification", () => {
     expect(Object.keys(syntheticProposals).sort()).toEqual(
       Object.keys(committedReplayScenarios).sort(),
     );
-    expect(entries).toHaveLength(
-      Object.keys(committedReplayScenarios).length +
-        Object.keys(publishedReplaySources).length,
-    );
+    expect(entries).toHaveLength(Object.keys(committedReplayScenarios).length);
   });
 
   it.each(entries)(

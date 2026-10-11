@@ -1,0 +1,100 @@
+{
+  "version": "lexical-baseline/2",
+  "normalizationVersion": "ascii-separators/1",
+  "devSha256": "9260c8bcfe565d4bcffd1f53cfbc09dd4b874afcc750f6b76a80f97b8cda0d0b",
+  "entries": [
+    {
+      "key": "assetcode",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "assetsymbol",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "assetticker",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "eventid",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "eventtime",
+      "targetField": "eventTime",
+      "transform": "ISO_DATETIME"
+    },
+    { "key": "eventtype", "targetField": "eventType", "transform": "IDENTITY" },
+    {
+      "key": "execqty",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "executingparty",
+      "targetField": "actorId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "executionprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "oid", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "ord", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "orderref", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "ordid", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "ordref", "targetField": "orderId", "transform": "IDENTITY" },
+    { "key": "owner", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "participant", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "partyowner", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "partytrader", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "price", "targetField": "price", "transform": "DECIMAL_STRING" },
+    {
+      "key": "qexec",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "qty", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    {
+      "key": "qtyexec",
+      "targetField": "quantity",
+      "transform": "DECIMAL_STRING"
+    },
+    {
+      "key": "security",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "securitysymbol",
+      "targetField": "instrumentId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "sourceeventid",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    {
+      "key": "sourceid",
+      "targetField": "sourceEventId",
+      "transform": "IDENTITY"
+    },
+    { "key": "symbol", "targetField": "instrumentId", "transform": "IDENTITY" },
+    { "key": "sz", "targetField": "quantity", "transform": "DECIMAL_STRING" },
+    { "key": "ticker", "targetField": "instrumentId", "transform": "IDENTITY" },
+    {
+      "key": "tradeprice",
+      "targetField": "price",
+      "transform": "DECIMAL_STRING"
+    },
+    { "key": "trader", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "tradercode", "targetField": "actorId", "transform": "IDENTITY" },
+    { "key": "vol", "targetField": "quantity", "transform": "DECIMAL_STRING" }
+  ]
+}

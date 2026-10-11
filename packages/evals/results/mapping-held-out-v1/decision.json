@@ -1,0 +1,16 @@
+{
+  "version": "mapping-selection-decision/1",
+  "rule": "ADR-0067",
+  "session": {
+    "sessionId": "365e2daf-a833-427d-8921-718890100b59",
+    "sessionHash": "0cdfd13d06eec1f8a61103db2edf6343efecb16c7aa03cdd66f839afb4365371"
+  },
+  "comparisonHash": "86d198fe7272c42cd8e179352ca15b583b37c51437cdb56b7d2ab77206eadb5a",
+  "selectionHash": "1b37e6c272ab322449819416ba451f80136f23d1a0f58a90e40e703b5d57cd8e",
+  "primary": null,
+  "escalation": null,
+  "outcome": "NO_MODEL",
+  "eligible": [],
+  "primaryFailedDialects": [],
+  "escalationCounts": []
+}

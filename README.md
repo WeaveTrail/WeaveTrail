@@ -7,7 +7,8 @@
 <h1 align="center">WeaveTrail</h1>
 
 <p align="center">
-  Evidence-graded market event analysis from official releases and public data.
+  Deterministic case replay, and a planned measured choice of which model may
+  propose its field mappings.
 </p>
 
 <p align="center">
@@ -23,112 +24,112 @@
 </p>
 
 <p align="center">
-  <a href="#a-summary-is-not-yet-evidence">Problem</a> &middot;
-  <a href="#a-worked-case">A worked case</a> &middot;
+  <a href="#which-model-and-how-far-it-is-trusted">Problem</a> &middot;
+  <a href="#a-synthetic-case">A synthetic case</a> &middot;
   <a href="#layer-separation">Layers</a> &middot;
   <a href="#the-boundary-is-a-contract-not-a-convention">Design</a> &middot;
-  <a href="#how-it-fits-together">How it fits together</a>
+  <a href="#how-it-fits-together">Plan</a>
 </p>
 
-When something happens in the market, two kinds of text follow. Regulators
-publish official releases: exact, but scattered and hard to read. Analysts and
-AI tools publish summaries: easy to read, but nothing in them shows which
-sentence was checked and which is the writer's own inference.
+Before anything can be computed from an unfamiliar trade file, someone has to
+read it: which column is the event time, which the price, which the account. A
+language model can propose that reading from the headers and a few sample
+rows, and can be confidently wrong.
 
-WeaveTrail is being built to join the two: collect official releases and the
-published market data behind them, turn each release into an event, and lead
-with the conclusions that data supports on one screen.
+WeaveTrail is being built to answer one question with numbers and code:
+**which model was chosen for that reading and why, how far it is trusted, and
+how the system controls an answer that is wrong or ambiguous.** The
+deterministic replay engine underneath already decides every result. The work
+now is to measure, select and restrict the models that propose its inputs.
 
-**Current status:** Evidence Grade `1.0`, its deterministic verification
-boundaries, and bilingual badge and tally components are implemented. No public
-route renders those badges or tallies yet; connecting validated declarations to
-each displayed sentence remains planned. Existing pages must not be read as
-sentence-graded output.
+**Current status:** the deterministic replay engine and its evidence hashes,
+the synthetic Case Replay walkthrough, the mapping and case-scope contracts, a
+sealed synthetic schema-dialect evaluation set, the mapping run-record
+contract, the shared mapping validator with its hostile probes, and the
+[AI failure log](docs/AI_FAILURE_LOG.md) are implemented. Running
+models, scoring, the non-model baseline and rule-based model selection are
+implemented. The first held-out run and the fresh recovery run both returned
+`NO_MODEL`; the [evaluation protocol](docs/EVALUATION.md) publishes their records
+and comparison. Routing and case-scope proposals remain planned.
 
-- **What it reads ·** releases from the Financial Services Commission, the
-  Financial Supervisory Service and the SEC, and published market data. Primary
-  sources only, and no affiliation with any of them.
-- **Who it is for ·** anyone who has to explain a market event to someone else:
-  research, risk, compliance and planning staff at financial firms, and
-  individual analysts who read and write in depth.
-- **What it is planned to return ·** conclusions first, every sentence graded
-  by its evidence, and a one-page brief whose link reopens the same numbers.
-- **What it never does ·** state a cause, intent or legality, single out an
-  account, forecast a price, or recommend a trade.
+- **What it reads ·** synthetic trade and quotation files with unfamiliar
+  column names, each with its provenance beside it. Real quotation data and the
+  pages built on it have been withdrawn.
+- **What a model may do ·** propose a field mapping and, as planned, a case
+  scope chosen from values code has already computed. Nothing else.
+- **What it returns ·** a comparison of models on a sealed held-out set beside
+  a non-model baseline, and a selection made by a rule fixed before that run.
+  A proposal path that escalates once and otherwise stops at review is planned.
+- **What it never does ·** let a model compute, approve or decide a result;
+  state a cause, intent or legality; single out an account; forecast a price;
+  or recommend a trade.
 
-## A summary is not yet evidence
+## Which model, and how far it is trusted
 
-Whoever has to explain an event goes between the two by hand: find the release,
-look up the prices somewhere else, match the numbers, and still end up without
-one page of evidence to pass on.
+Field mapping is narrow and checkable, which is what makes it worth measuring,
+and a wrong mapping is cheap to make and expensive to miss.
 
-- **Releases are scattered ·** each institution publishes on its own site, in
-  HTML, PDF or HWP, and the first sentence is already statute and acronyms.
-- **The numbers live elsewhere ·** checking one figure in a release means
-  opening the market data on another site.
-- **Every sentence weighs the same ·** in a fluent summary a quotation, a
-  calculation and a guess look alike, and the reader cannot tell which is which.
+- **A wrong mapping can look right ·** swapping two same-shaped columns, such
+  as price and quantity, passes every format check. The validator cannot catch
+  it; only review can, and the evaluation names it as residual risk.
+- **Calling one model is not a choice ·** without a held-out set, a non-model
+  baseline and a rule fixed before the run, "we picked this model" is an
+  explanation written after the fact.
+- **Ambiguity is a correct answer ·** `amt` may be a quantity or a notional. A
+  model that guesses is worse than one that returns `REVIEW_REQUIRED`, and one
+  that always abstains helps nobody, so both are counted.
 
 See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
-## A worked case
+## A synthetic case
 
-On 3 September 2026 the KOSPI 200 finished a hair above the previous day. Inside
-that day it had given back roughly fourteen times that gain from its own high,
-and the futures contract on it gave back roughly twenty-five times. Nothing in a
-closing price says so. Suppose someone hands you the date and asks whether it is
-worth a second look.
+The guided walkthrough uses synthetic executions with published FIX 4.4 field
+names. In five steps you see the AI's column matches, approve them and the case
+scope, compute the result, compute it again to compare, and mark the source
+rows each criterion used.
+Real quotation sources and the pages built on them have been withdrawn.
 
-![One day re-derived from published records: the index drawn as the session minute by minute — the same line the site shows, illustrative and taking no part in the checks — marked at its high and its low with the published open and close beneath it, its futures contract as the day's published range, the day and period a person fixes before anything runs, and what the versioned rule returned — each observed value beside the threshold it was compared with, and a note that the thresholds were chosen by someone who had already seen the day](docs/assets/worked-case.svg)
-
-The published records are read exactly as published. A person fixes what will be
-examined — the date, the period it is compared against, how large a pull-back
-has to be — before anything runs. Fixed code then does the arithmetic and
-reports where the day stands within that period. Each observed value opens onto
-the published row it was read from, and running it again on the same inputs
-produces the same result.
-
-What it does not say: who traded, why, or whether anything was wrong. The
-comparison period and the thresholds were chosen by a person who had already
-seen the day, which is part of how the result should be read.
-
-[Walk the case](https://weave-trail-web-flax.vercel.app/case-2026-09-03)
-&middot; [Limitations](docs/LIMITATIONS.md)
+[Try it](https://weave-trail-web-flax.vercel.app/replay)
+&middot; [Withdrawal decision](docs/adr/0056-withdraw-the-committed-real-data-tier.md)
 
 ## Layer separation
 
-**AI proposes. A person approves. Code decides. Evidence carries it back.**
+**AI proposes. Human approves. Code verifies. Evidence traces back.**
 
-A model reads faster than anyone, and a fluent summary can hide a gap. So the
+A model's answer can be fluent and still wrong, and fluency can hide a gap. So the
 work is separated by authority: each layer holds what it may do, what it may
-never do, and the record it leaves behind. The planned public surface makes
-that separation visible with an evidence badge on every sentence; current
-routes do not yet render it.
+never do, and the record it leaves behind.
 
-![Planned four-layer surface between an official release, published market data or a pasted analysis and a sentence on screen: a model proposes a release's facts with their passages and the claims in a pasted text, a person fixes what will be examined and adopts conclusions into a brief, fixed code matches quotations against source bytes and recomputes calculated claims from verified source data, and each planned sentence opens onto its evidence. Beneath them, quoted, recomputed, differs and not confirmable are checked by code, and AI interpretation is a model's proposal](docs/assets/layer-separation.svg)
+![Four layers from an unfamiliar trade file to a finding: a model proposes a field mapping now, and a case scope from the dataset profile as planned; a person approves the proposal bound to its hash and the scope before anything runs; fixed code validates the contract, dry-runs every transform, re-derives events from the stored rows and evaluates the versioned rule; every finding opens onto its eventId and rawRowHash. Beneath them, the planned proposal path: the validator sends a primary model's valid, clear proposal straight to review; an ambiguous or rejected one goes once to an escalation model that never sees the primary output and through the validator again, to review if valid or to REVIEW_REQUIRED if unresolved](docs/assets/layer-separation.svg)
 
-- **Interpret · a model ·** proposes the structure of a release — who, when,
-  what, how much, which action, under which provision — with the passage each
-  fact was read from, and picks out the claims worth checking in a pasted text.
-  It never computes a number or owns an answer.
-- **Approve · a person ·** fixes what will be examined before anything runs,
-  and chooses which conclusions go into a brief. Approval cannot edit what comes
-  back.
-- **Decide · fixed code ·** matches quotations against retained source bytes,
-  including numbers in quoted text. For calculated claims, it recomputes the
-  value from verified source data. Where the data is absent it says so instead
-  of guessing. A source's provenance tier is recorded separately.
-- **Evidence ·** the planned surface opens every sentence onto its source
-  passage, or onto the source rows, the formula and the definition behind it. A
-  number whose origin cannot be resolved is withheld rather than shown.
+- **Propose · a model ·** reads the column names and at most eight sample rows
+  and proposes, for each column, a canonical field and an allowed transform
+  with a reason, or returns `REVIEW_REQUIRED`. As planned, it will also choose
+  a case scope from inside the dataset profile. It never computes a number,
+  invents a column or approves anything.
+- **Approve · a person ·** approves the mapping, bound to the hash of the exact
+  proposal, and the case scope before anything runs. Approval cannot edit what
+  comes back.
+- **Verify · fixed code ·** validates every model output against a closed
+  contract, dry-runs each transform on the sample rows, re-derives events from
+  the stored source rows and evaluates the versioned rule. A rejected or
+  ambiguous proposal fails closed as `REVIEW_REQUIRED`.
+- **Evidence ·** every finding opens onto its canonical `eventId` and
+  `rawRowHash`. A run-record contract captures the model runs:
+  model, prompt version, validator outcome, latency and tokens.
 
-| Badge             | What it means                                                            | Who vouches for it               |
-| ----------------- | ------------------------------------------------------------------------ | -------------------------------- |
-| Quoted            | The sentence stands in the original, at that passage                     | Code, against the original bytes |
-| Recomputed        | Recomputed from verified source data, or equal to that value             | Code                             |
-| Differs           | Recomputing gives another value, shown beside it                         | Code                             |
-| Not confirmable   | Verified source data cannot settle it; reason and missing data are shown | Code                             |
-| AI interpretation | A model's summary, or a question data cannot answer                      | Nobody — it is a proposal        |
+A model holds two roles, and only two:
+
+| Role                        | What the model proposes                                                                       | What code fixes first                                                                                                                           | What it may never do                                                       | Status                                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Field mapping               | Each column's canonical field and allowed transform, with a reason, or `REVIEW_REQUIRED`      | The column list, the target and transform lists, the contract, a dry run                                                                        | Invent a column, use an unlisted transform, change a source value, approve | Fixture, configured adapter and evaluation (`v0.2.0`) exist; routing (`v0.3.0`) planned                                     |
+| Bounded case-scope proposal | The instrument, actor group, time window and rule version to examine, chosen from the profile | The `DatasetProfile`: instruments, actors and the earliest and latest event time; event counts, candidate windows and rule versions are planned | Invent an actor, widen the time bounds, predict a result, set a threshold  | Profile and its instrument, actor and time checks exist; rule-version and threshold guards and proposals (`v0.4.0`) planned |
+
+> Code defines the possible space. AI proposes within it. A person decides.
+
+Neither role decides a result, and escalating to a stronger model does not
+change that. `SUPPORTED`, `NOT_SUPPORTED` and `INCONCLUSIVE` come only from the
+deterministic engine, over an approved mapping and scope.
 
 Two rules hold the separation up, and both live in code rather than in
 guidance:
@@ -137,18 +138,18 @@ guidance:
    the layer that approves cannot compute, and the layer that computes cannot
    widen what it was given.
 2. **An answer carries the conditions it is true under.** Not true in general,
-   but true for this version of this definition, against this snapshot of the
-   data, at the thresholds shown beside it.
+   but true for this version of this rule, against these approved inputs, at
+   the thresholds shown beside it.
 
-A conclusion says what the public data supports, not why it happened, whether
-anyone did wrong, or where a price goes next.
+A result says whether the data supports a versioned pattern hypothesis, not why
+it happened, whether anyone did wrong, or where a price goes next.
 
-Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
+Historical policy reference: Korea's [financial AI guideline](https://www.fsc.go.kr/no010101/87142), in force
 since 22 June 2026, holds that the final decision and the responsibility for it
 stay with a person, and the supervisory risk-management framework issued
 alongside it asks for verification before release and documentation across the
-process. Layer separation is one way to carry that out, sentence by sentence.
-It is a design alignment, not a certification, an approval, or an endorsement.
+process. Layer separation is one way to carry that out. It is a design
+alignment, not a certification, an approval, or an endorsement.
 
 See [Methodology](docs/METHODOLOGY.md) for the rules, their checks and where
 they decline to answer.
@@ -161,14 +162,15 @@ fixed choices, written down and tested.
 
 ![Untrusted input passes a gate that validates the contract, binds the approval to the proposed artifact hash, and compares every submitted row with the stored row, before reaching a deterministic core that fixes ordering, time precision, decimal arithmetic and number spelling](docs/assets/design.svg)
 
-- **Nothing a model wrote crosses unapproved ·** a quotation is shown only when
-  it matches the original, and records are rebuilt from the stored source, not
-  from anything the model handed over.
+- **Nothing a model wrote crosses unapproved ·** an output that fails the
+  contract never reaches review as a mapping, and events are rebuilt from the
+  stored source rows, not from anything the model handed over.
 - **No floating point where it matters ·** prices and thresholds are compared
   exactly, never through a rounded quotient.
-- **A snapshot is never overwritten ·** a collected document keeps its original
-  bytes and hash, and a changed one is linked to the one before it, so a shared
-  link reopens the same numbers after new data arrives.
+- **A model run is a record, not a replay ·** the run-record contract keeps the
+  parsed output, validator outcome, latency and tokens, never the raw provider
+  envelope. The scorer gives the same summary whenever committed records are
+  re-scored; running a model again makes a new record.
 - **The fingerprint covers the answer, not the run ·** shuffling the same rows
   leaves it unchanged; who approved and when is kept in the approval record
   instead, where it can still be read.
@@ -183,49 +185,63 @@ See [Architecture](docs/ARCHITECTURE.md) for the trust boundaries, and the
 
 ## How it fits together
 
-One chain runs from a collected document to a sentence on screen, and every
-handover is a contract rather than a convention. Each step names who authors
-its output — a model, a person, or fixed code — so "who decided this?" has an
-answer at every step.
+The plan adds one measured step per version, each on top of the boundary
+above. What exists is on `develop`; everything else is planned, tracked in the
+[milestones](https://github.com/WeaveTrail/WeaveTrail/milestones), and carries
+no result until its evaluation is published.
 
-- **Collect · code ·** official releases and published market data, kept as
-  immutable snapshots with their original bytes, hash, origin and reuse terms.
-- **Read · code ·** HTML, PDF and HWP parsed into text and tables that keep the
-  position of every character in the original.
-- **Structure · a model, then code ·** a model proposes the event's facts and
-  their passages; code keeps a quotation only if it matches the original.
-- **Link · code ·** names of instruments and indices resolved to their
-  published market data as of the event's date.
-- **Conclude · code ·** fixed-definition conclusions for each event, and
-  market-wide statistics for every day that flag nothing.
-- **Check · a model, then code ·** claims picked out of a pasted text, each
-  recomputed or matched and graded like any other sentence.
-- **Pass on · a person ·** adopted conclusions exported as a one-page brief,
-  whose link pins the snapshots and definitions it used.
+- **`v0.2.0` · Evaluation harness ·** exists: the sealed synthetic DEV and
+  HELD_OUT schema-dialect set, the run-record contract, the shared validator
+  with its hostile probes, and the AI failure log with its prompt-version
+  registry; one configuration-driven Chat Completions adapter and an explicit
+  local smoke command with sanitized run records; scoring of accuracy, invented
+  fields, abstention, rejection, latency and cost beside a non-model lexical
+  baseline; a selection rule fixed before the held-out run; and the comparison
+  on the evaluation page.
+  The first held-out run selected no model: every request failed without
+  output. The fresh recovery run observed model output but no candidate passed
+  the pre-declared thresholds; its comparison and `NO_MODEL` decision are
+  committed and documented in the evaluation protocol. The evaluation page shows
+  the recovery session as a measured comparison. The home page leads with what
+  a reviewer gains and the guided walkthrough, which follows the worked case in
+  five scenes, each saying what and why before it asks for one action. Any
+  changed configuration needs another fresh held-out set and a decision record
+  before the run. Each finding's evidence traces back through the approved
+  mapping, line by line, to the committed source value. Planned: live AI
+  suggestions on the site, once a model clears the selection rule.
+- **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
+  validator checks it. A valid, clear proposal goes to review; an ambiguous or
+  rejected one goes once to an escalation model that never sees the primary
+  output, then through the same validator to review, or stops at
+  `REVIEW_REQUIRED`. At most two calls, no merging of the two models' fields,
+  and no path creates an approval. The policy is compared against single-model
+  baselines on the held-out set.
+- **`v0.4.0` · Bounded case proposal ·** planned. A model proposes a case
+  scope only from values in the dataset profile, out-of-profile and injection
+  probes test the validator, and a person reviews the scope beside the profile
+  before approving it.
 
-Case replay is the expert view of the same separation: a model proposes what the
-columns of an unfamiliar file mean, a person approves that reading and the
+Case Replay is the expert view of the same separation: a model proposes what
+the columns of an unfamiliar file mean, a person approves that reading and the
 scope, versioned code replays the case, and every finding opens onto its source
 rows.
 
 [Architecture](docs/ARCHITECTURE.md) carries the trust boundaries and what the
-result fingerprint covers, [Methodology](docs/METHODOLOGY.md) the rules and
-their checks, and the [decision records](docs/adr) the reason behind each
-choice.
+result fingerprint covers, [Evaluation](docs/EVALUATION.md) how every
+measurement is defined and reproduced, and the [decision records](docs/adr) the
+reason behind each choice.
 
 ## See it running
 
 The [deployed site](https://weave-trail-web-flax.vercel.app) follows the `main`
-branch and may differ from this checkout. It serves the worked case above and
-case replay at `/replay`; the rest of the chain is tracked in the
-[v0.1.0 milestone](https://github.com/WeaveTrail/WeaveTrail/milestone/1).
+branch and may differ from this checkout. The current checkout serves the synthetic
+walkthrough at `/replay`; the evaluation harness is tracked in the
+[v0.2.0 milestone](https://github.com/WeaveTrail/WeaveTrail/milestone/2).
 
 Case replay carries one file along the whole chain: read the actual rows, review
 what a model proposed the columns mean, approve that reading and the scope, run
 it, and open a result back to the rows it rests on. Approvals and results live
-in the open page only, so a refresh starts unapproved. The cases are synthetic
-except for the published market records, which are committed under a licence
-that permits it, with their origin and retrieval recorded beside them. By
+in the open page only, so a refresh starts unapproved. All current cases are synthetic, with adjacent provenance. By
 default the reading step runs from stored fixtures rather than calling a model,
 and the deployed configuration carries no model credential.
 [Contributing](CONTRIBUTING.md) covers running it locally.
@@ -238,12 +254,17 @@ and the deployed configuration carries no model credential.
   rules ([한국어](docs/METHODOLOGY.ko.md))
 - [Evaluation](docs/EVALUATION.md) — how every published measurement is defined
   and reproduced ([한국어](docs/EVALUATION.ko.md))
+- [AI failure log](docs/AI_FAILURE_LOG.md) — observed model and validator
+  failures, their fixes and regression tests, and every prompt version
+  ([한국어](docs/AI_FAILURE_LOG.ko.md))
 - [Limitations](docs/LIMITATIONS.md) — non-goals and interpretation boundaries
   ([한국어](docs/LIMITATIONS.ko.md))
-- [Daily quote normalization](docs/DAILY_QUOTES.md) — the published market
-  records, their permission and their exact reproduction
+- [Data handling](docs/DATA_HANDLING.md) — what a check sends, keeps and logs,
+  with the tests that enforce it ([한국어](docs/DATA_HANDLING.ko.md))
+- [Instrument and index resolution](docs/INSTRUMENT_RESOLUTION.md) — dated name/code matching, ambiguity, quotation links and snapshot references ([한국어](docs/INSTRUMENT_RESOLUTION.ko.md))
+- [Daily quote contracts](docs/DAILY_QUOTES.md) — retained versions, synthetic checks and the withdrawn source boundary
   ([한국어](docs/DAILY_QUOTES.ko.md))
-- [Expected scenario results](https://weave-trail-web-flax.vercel.app/expectations)
+- [Expected scenario results](apps/web/src/app/expectations/scenario-expectations.json)
   — what every committed case returns, taken from the engine itself
 - [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Decision records](docs/adr) — why each design choice was made

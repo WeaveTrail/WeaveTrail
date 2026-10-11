@@ -42,7 +42,6 @@ TOOL_VERSIONS = (("fonttools", "4.65.0"), ("brotli", "1.2.0"))
 
 # Figure, and the fragment file its generator reads, if it has one.
 FIGURES = [
-    ("docs/assets/worked-case.ko.svg", "docs/assets/fonts/worked-case.ko.faces.svg"),
     ("docs/assets/layer-separation.ko.svg", None),
     ("docs/assets/design.ko.svg", None),
 ]

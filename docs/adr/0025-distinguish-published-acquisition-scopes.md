@@ -1,6 +1,14 @@
 # ADR 0025: Distinguish bounded windows from complete published series
 
+> Historical decision: source-dependent portions are superseded by
+> [ADR 0056](0056-withdraw-the-committed-real-data-tier.md). The original
+> account below describes the withdrawn tier. Generic contracts, synthetic
+> behavior and provenance safeguards remain applicable.
+
 ## Status
+
+Partially superseded by ADR 0056 for the committed real-data tier.
+The following status is historical:
 
 Accepted.
 

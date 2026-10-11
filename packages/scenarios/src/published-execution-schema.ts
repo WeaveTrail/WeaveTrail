@@ -2,6 +2,7 @@ import {
   CaseManifestSchema,
   SchemaMappingProposalSchema,
   deriveApprovedSourceMapping,
+  type PromptVersion,
 } from "@weavetrail/contracts";
 
 const FIX_SOURCE_ARTIFACT_HASH =
@@ -264,7 +265,7 @@ export const publishedExecutionManifest = CaseManifestSchema.parse({
   aiTrace: {
     provider: "fixture",
     model: "deterministic",
-    promptVersion: "published-execution-schema-case-v1",
+    promptVersion: "published-execution-schema-case-v1" satisfies PromptVersion,
     confidence: 1,
     referencedEventIds: [],
   },

@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 766 131" role="img" aria-labelledby="t decision-boundary">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 152" role="img" aria-labelledby="t decision-boundary">
   <title id="t">What the replay engine owns and what it never does · 재현 엔진이 소유하는 것과 절대 하지 않는 것</title>
-  <desc id="decision-boundary">replay engine owns  ordering · deduplication · decimal arithmetic · window aggregation
-                    · rule evaluation · mechanical sensitivity comparison · canonical hashes
+  <desc id="decision-boundary">canonical kernel    ordering · canonical JSON + hashing · scaled-decimal arithmetic
+replay engine owns  event normalization · deduplication · window aggregation
+                    · rule evaluation · mechanical sensitivity comparison · hash preimages
 replay engine never executes code written by a model
 
 재현 엔진이 소유하는 것과 절대 하지 않는 것 도식입니다. 그림 안의 글자는 위 내용과 같습니다.</desc>
@@ -26,12 +27,13 @@ replay engine never executes code written by a model
     </style>
   </defs>
 
-  <rect width="766" height="131" fill="#ffffff"/>
-  <rect width="766" height="4" fill="#0b6e6a"/>
-  <rect x=".5" y=".5" width="765" height="130" fill="none" stroke="#d0d7de"/>
+  <rect width="750" height="152" fill="#ffffff"/>
+  <rect width="750" height="4" fill="#0b6e6a"/>
+  <rect x=".5" y=".5" width="749" height="151" fill="none" stroke="#d0d7de"/>
   <text class="eyebrow" x="24" y="26">WHAT THE REPLAY ENGINE OWNS AND WHAT IT NEVER DOES</text>
 
-    <text><tspan class="l" x="24.0" y="46">replay</tspan><tspan class="l" x="78.6" y="46">engine</tspan><tspan class="l" x="133.2" y="46">owns</tspan><tspan class="t" x="180.0" y="46">ordering</tspan><tspan class="g" x="250.2" y="46">·</tspan><tspan class="t" x="265.8" y="46">deduplication</tspan><tspan class="g" x="375.0" y="46">·</tspan><tspan class="t" x="390.6" y="46">decimal</tspan><tspan class="t" x="453.0" y="46">arithmetic</tspan><tspan class="g" x="538.8" y="46">·</tspan><tspan class="t" x="554.4" y="46">window</tspan><tspan class="t" x="609.0" y="46">aggregation</tspan></text>
-    <text><tspan class="g" x="180.0" y="67">·</tspan><tspan class="t" x="195.6" y="67">rule</tspan><tspan class="t" x="234.6" y="67">evaluation</tspan><tspan class="g" x="320.4" y="67">·</tspan><tspan class="t" x="336.0" y="67">mechanical</tspan><tspan class="t" x="421.8" y="67">sensitivity</tspan><tspan class="t" x="515.4" y="67">comparison</tspan><tspan class="g" x="601.2" y="67">·</tspan><tspan class="t" x="616.8" y="67">canonical</tspan><tspan class="t" x="694.8" y="67">hashes</tspan></text>
-    <text><tspan class="l" x="24.0" y="88">replay</tspan><tspan class="l" x="78.6" y="88">engine</tspan><tspan class="l" x="133.2" y="88">never</tspan><tspan class="l" x="180.0" y="88">executes</tspan><tspan class="l" x="250.2" y="88">code</tspan><tspan class="l" x="289.2" y="88">written</tspan><tspan class="l" x="351.6" y="88">by</tspan><tspan class="l" x="375.0" y="88">a</tspan><tspan class="l" x="390.6" y="88">model</tspan></text>
+    <text><tspan class="l" x="24.0" y="46">canonical</tspan><tspan class="l" x="102.0" y="46">kernel</tspan><tspan class="t" x="180.0" y="46">ordering</tspan><tspan class="g" x="250.2" y="46">·</tspan><tspan class="t" x="265.8" y="46">canonical</tspan><tspan class="k" x="343.8" y="46">JSON</tspan><tspan class="t" x="382.8" y="46">+</tspan><tspan class="t" x="398.4" y="46">hashing</tspan><tspan class="g" x="460.8" y="46">·</tspan><tspan class="t" x="476.4" y="46">scaled-decimal</tspan><tspan class="t" x="593.4" y="46">arithmetic</tspan></text>
+    <text><tspan class="l" x="24.0" y="67">replay</tspan><tspan class="l" x="78.6" y="67">engine</tspan><tspan class="l" x="133.2" y="67">owns</tspan><tspan class="t" x="180.0" y="67">event</tspan><tspan class="t" x="226.8" y="67">normalization</tspan><tspan class="g" x="336.0" y="67">·</tspan><tspan class="t" x="351.6" y="67">deduplication</tspan><tspan class="g" x="460.8" y="67">·</tspan><tspan class="t" x="476.4" y="67">window</tspan><tspan class="t" x="531.0" y="67">aggregation</tspan></text>
+    <text><tspan class="g" x="180.0" y="88">·</tspan><tspan class="t" x="195.6" y="88">rule</tspan><tspan class="t" x="234.6" y="88">evaluation</tspan><tspan class="g" x="320.4" y="88">·</tspan><tspan class="t" x="336.0" y="88">mechanical</tspan><tspan class="t" x="421.8" y="88">sensitivity</tspan><tspan class="t" x="515.4" y="88">comparison</tspan><tspan class="g" x="601.2" y="88">·</tspan><tspan class="t" x="616.8" y="88">hash</tspan><tspan class="t" x="655.8" y="88">preimages</tspan></text>
+    <text><tspan class="l" x="24.0" y="109">replay</tspan><tspan class="l" x="78.6" y="109">engine</tspan><tspan class="l" x="133.2" y="109">never</tspan><tspan class="l" x="180.0" y="109">executes</tspan><tspan class="l" x="250.2" y="109">code</tspan><tspan class="l" x="289.2" y="109">written</tspan><tspan class="l" x="351.6" y="109">by</tspan><tspan class="l" x="375.0" y="109">a</tspan><tspan class="l" x="390.6" y="109">model</tspan></text>
 </svg>

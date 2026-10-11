@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import React from "react";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import { ReplayHeading } from "./replay-heading";
-import { ReplayModeBoundary } from "./replay-mode-boundary";
+import { ReplaySurface } from "./replay-surface";
 
 export const metadata: Metadata = {
-  title: "Case Replay",
+  title: "Try it",
   description:
-    "Normalize published daily quotes and replay synthetic cases through WeaveTrail's explicit approval workflow.",
+    "Try one synthetic case in five steps: see the AI's column matches, approve them and the scope, get the result, and find the source trades behind it.",
   alternates: { canonical: "/replay" },
 };
 
@@ -23,7 +23,7 @@ export default async function ReplayPage({
       className={guided ? "shell page-shell guided-page" : "shell page-shell"}
     >
       <ReplayHeading guided={guided} />
-      <ReplayModeBoundary {...prepared} guided={guided} />
+      <ReplaySurface {...prepared} guided={guided} />
     </main>
   );
 }

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "command": "pnpm eval:coverage",
+  "commitSha": "bcb9c4201eb8869654243d6014d2e3e268c626ef",
+  "workingTreeDirty": false,
+  "inputTreeSha256": "8af2991fc3a339add84a4f274c83387d498244fa36e86b531e1ceeed08d35f5b",
+  "inputTreeDefinition": "SHA-256 of JSON-encoded, path-sorted [path, SHA-256(bytes)] pairs from git ls-files --cached --others --exclude-standard over packages, scripts, package.json, pnpm-lock.yaml, tsconfig.base.json and vitest.config.ts; excludes captured evaluation run receipts.",
+  "summarySha256": "1aa0903e92d335d774a115a4265299ad3cbc88419dd6f3ec265430e28e040e44",
+  "environment": {
+    "node": "v22.18.0",
+    "pnpm": "10.33.2",
+    "vitest": "5.0.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "release": "6.18.33.2-microsoft-standard-WSL2"
+  }
+}

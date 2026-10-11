@@ -6,19 +6,18 @@ import {
 } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { committedReplayScenarios } from "@weavetrail/scenarios";
-import {
-  CaseReplay,
-  ApprovalReceipt,
-  guideSteps,
-  RapidPriceLiftEvaluation,
-  DailyQuoteCaseLimitation,
-  type ReplayScenarioOption,
-} from "./case-replay";
+import { flaggedMappingFields } from "./approval";
+import { ApprovalReceipt } from "./approval-receipt";
+import { CaseReplay } from "./case-replay";
+import { RapidPriceLiftEvaluation } from "./findings";
+import { mappingStep } from "./steps/mapping";
+import type { ReplayScenarioOption } from "./types";
 import { prepareReplayScenarios } from "./prepare-scenarios";
 import * as rowShuffle from "./shuffle-source-rows";
-import type { ReplayRequest } from "@weavetrail/contracts";
+import type { ApprovalRecord, ReplayRequest } from "@weavetrail/contracts";
 import { concentratedBuyDialectAProposal } from "@weavetrail/scenarios";
 import { replayApproved } from "@weavetrail/replay-engine";
+import { PublicModelBudgetRequired } from "../../lib/public-model-budget";
 
 // Exercise the actual CaseReplay handlers with persistent hook slots. This is a
 // component-state regression harness, not a browser/hydration assertion.
@@ -183,8 +182,8 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     await button("Approve executed mapping");
     await button("Approve case manifest");
   }
-  function setGuided(guided: boolean) {
-    currentOverrides = { ...currentOverrides, guided };
+  function setLanguage(language: "en" | "ko") {
+    currentOverrides = { ...currentOverrides, language };
     render();
   }
   function buttonDisabled(label: string) {
@@ -213,7 +212,7 @@ function setup(overrides: Partial<ComponentProps<typeof CaseReplay>> = {}) {
     evidence,
     approve,
     hasText,
-    setGuided,
+    setLanguage,
   };
 }
 // A response marker suffices here: provenance correctness is covered by API and
@@ -239,7 +238,7 @@ function ok(hash = "a".repeat(64)) {
 }
 
 describe("configured mapping proposal lifecycle", () => {
-  async function configuredView() {
+  async function configuredView(language: "en" | "ko" = "en") {
     const prepared = await prepareReplayScenarios();
     const source = committedReplayScenarios["concentrated-buy-dialect-a.csv"];
     const dialect: ReplayScenarioOption = {
@@ -253,6 +252,7 @@ describe("configured mapping proposal lifecycle", () => {
     };
     return setup({
       ...prepared,
+      language,
       scenarios: [
         dialect,
         ...prepared.scenarios.filter((option) => option.value === first),
@@ -269,6 +269,189 @@ describe("configured mapping proposal lifecycle", () => {
       proposal: concentratedBuyDialectAProposal,
       mappingReceipt: "synthetic_receipt",
     });
+
+  it.each([
+    ["visitor-limit", "오늘의 실제 모델 요청 한도에 도달했습니다."],
+    ["global-limit", "오늘의 전체 실제 모델 호출 한도에 도달했습니다."],
+    ["unavailable", "실제 모델 호출 예산을 확인할 수 없습니다."],
+  ] as const)(
+    "localizes %s on the Korean replay surface",
+    async (reason, expected) => {
+      const view = await configuredView("ko");
+      view.changeScenario("concentrated-buy-dialect-a.csv");
+      const denial = new PublicModelBudgetRequired(reason);
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(
+          Response.json(
+            {
+              status: "REVIEW_REQUIRED",
+              workflowState: "MAPPING_REVIEW_REQUIRED",
+              issues: [
+                {
+                  code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                  path: [],
+                  message: denial.message,
+                  budgetReason: denial.budgetReason,
+                },
+              ],
+            },
+            { status: 422 },
+          ),
+        ),
+      );
+      await view.button("연결 제안 요청");
+      expect(view.hasText(expected)).toBe(true);
+      expect(view.hasText(denial.message)).toBe(false);
+      expect(view.hasText("REVIEW_REQUIRED")).toBe(true);
+      expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+    },
+  );
+
+  it.each(["visitor-limit", "global-limit", "unavailable"] as const)(
+    "shows the validated %s reason and keeps approval blocked",
+    async (reason) => {
+      const view = await configuredView();
+      view.changeScenario("concentrated-buy-dialect-a.csv");
+      const message = new PublicModelBudgetRequired(reason).message;
+      const fetcher = vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message,
+                budgetReason: new PublicModelBudgetRequired(reason)
+                  .budgetReason,
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      );
+      vi.stubGlobal("fetch", fetcher);
+      await view.button("Request mapping proposal");
+      expect(view.hasText(message)).toBe(true);
+      expect(view.hasText("Request a new proposal before approval")).toBe(
+        false,
+      );
+      expect(view.buttonDisabled("Approve executed mapping")).toBe(true);
+      expect(view.hasText("Configured provider")).toBe(false);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("updates an existing denial when the replay language changes", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    const denial = new PublicModelBudgetRequired("visitor-limit");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message: denial.message,
+                budgetReason: denial.budgetReason,
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.hasText(denial.message)).toBe(true);
+    view.setLanguage("ko");
+    expect(view.hasText("오늘의 실제 모델 요청 한도에 도달했습니다.")).toBe(
+      true,
+    );
+    expect(view.hasText(denial.message)).toBe(false);
+    expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+    view.setLanguage("en");
+    expect(view.hasText(denial.message)).toBe(true);
+  });
+
+  it("rejects unknown budget codes before displaying any returned message", async () => {
+    const view = await configuredView("ko");
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            workflowState: "MAPPING_REVIEW_REQUIRED",
+            issues: [
+              {
+                code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+                path: [],
+                message: "unrecognized budget message",
+                budgetReason: "UNKNOWN",
+              },
+            ],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("연결 제안 요청");
+    expect(view.hasText("unrecognized budget message")).toBe(false);
+    expect(view.hasText("연결 제안을 받지 못했거나 거부되었습니다.")).toBe(
+      true,
+    );
+    expect(view.buttonDisabled("연결 제안 승인")).toBe(true);
+  });
+
+  it("discards malformed failure messages and stale review responses", async () => {
+    const view = await configuredView();
+    view.changeScenario("concentrated-buy-dialect-a.csv");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            status: "REVIEW_REQUIRED",
+            issues: [{ message: "unvalidated error text" }],
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await view.button("Request mapping proposal");
+    expect(view.hasText("unvalidated error text")).toBe(false);
+    expect(view.hasText("Mapping proposal unavailable")).toBe(true);
+    const pending = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn().mockReturnValue(pending.promise));
+    const requested = view.button("Request mapping proposal");
+    view.changeScenario(first);
+    pending.resolve(
+      Response.json(
+        {
+          status: "REVIEW_REQUIRED",
+          workflowState: "MAPPING_REVIEW_REQUIRED",
+          issues: [
+            {
+              code: "MAPPING_APPLICATION_REVIEW_REQUIRED",
+              path: [],
+              message: "stale budget denial",
+            },
+          ],
+        },
+        { status: 422 },
+      ),
+    );
+    await requested;
+    expect(view.hasText("stale budget denial")).toBe(false);
+  });
 
   it("labels the actual provider, requires new approval and sends the receipt with replay", async () => {
     const view = await configuredView();
@@ -298,7 +481,7 @@ describe("configured mapping proposal lifecycle", () => {
     expect(view.hasText("REVIEW_REQUIRED")).toBe(true);
   });
 
-  it("ignores late proposals after source changes and clears a proposal on guided re-entry", async () => {
+  it("ignores late proposals after source changes", async () => {
     const view = await configuredView();
     view.changeScenario("concentrated-buy-dialect-a.csv");
     const pending = deferred<Response>();
@@ -312,8 +495,6 @@ describe("configured mapping proposal lifecycle", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mappingResponse()));
     await view.button("Request mapping proposal");
     expect(view.hasText("Configured provider")).toBe(true);
-    view.setGuided(true);
-    expect(view.hasText("Configured provider")).toBe(false);
   });
 
   it("can retry when a variation invalidates a pending mapping request", async () => {
@@ -334,53 +515,23 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function advanceGuidedToRepeat(guide: ReturnType<typeof setup>) {
-  await guide.button("Continue");
-  const exampleElement = guide
-    .render()
-    .find((element) => element.type === CaseReplay)!;
-  const example = setup(
-    exampleElement.props as ComponentProps<typeof CaseReplay>,
-  );
-  example.render().find((element) => element.type === "input")!.props.onChange!(
-    {
-      target: { value: "Reviewed as intentionally unmapped." },
-    },
-  );
-  await example.button("Approve executed mapping");
-  await guide.button("Approve executed mapping");
-  await guide.button("Continue");
-  await guide.button("Approve case manifest");
-  await guide.button("Continue");
-  await guide.button("Run deterministic replay");
-  await guide.button("Continue");
-  const evaluation = guide.evidence()[0]!.props as ComponentProps<
-    typeof RapidPriceLiftEvaluation
-  >;
-  evaluation.onEvidenceOpen!();
-  await guide.button("Continue");
-}
-
 describe("replay result lifecycle", () => {
-  it("clears a synthetic verdict, requires daily reasons, normalizes without a case and returns to the guide unapproved", async () => {
+  it("clears a synthetic verdict, requires review reasons and normalizes without a case", async () => {
     const prepared = await prepareReplayScenarios();
-    const dailyKey = "real/fsc-stock-quotes-20260903.jsonl";
-    const daily = prepared.scenarios.find(({ value }) => value === dailyKey)!;
-    const specimen = {
-      rows: daily.rows,
-      proposal: prepared.proposals[daily.sourceArtifactHash]!,
-    };
-    const scenarios = [
-      prepared.scenarios.find(({ value }) => value === first)!,
-      daily,
-    ];
+    const normalizeKey = "published-execution-h0stcnt0.jsonl";
+    const normalizing = prepared.scenarios.find(
+      ({ value }) => value === normalizeKey,
+    )!;
+    expect(normalizing.manifest).toBeUndefined();
+    const proposal = prepared.proposals[normalizing.sourceArtifactHash]!;
+    const flagged = flaggedMappingFields(proposal);
+    expect(flagged.length).toBeGreaterThan(0);
     const ui = setup({
       ...prepared,
-      scenarios,
-      proposals: {
-        ...prepared.proposals,
-        [daily.sourceArtifactHash]: specimen.proposal,
-      },
+      scenarios: [
+        prepared.scenarios.find(({ value }) => value === first)!,
+        normalizing,
+      ],
     });
     const requests: ReplayRequest[] = [];
     vi.stubGlobal(
@@ -391,18 +542,18 @@ describe("replay result lifecycle", () => {
         if (body.scenario === first) return ok();
         const replay = replayApproved(
           body.rows,
-          specimen.rows,
-          specimen.proposal,
+          normalizing.rows,
+          proposal,
           body.mappingApproval,
           body.caseManifest,
         );
         if (!("canonicalResultHash" in replay))
-          throw new Error("Expected daily normalization");
+          throw new Error("Expected normalization");
         const { events: _, ...foundation } = replay;
         void _;
         return Response.json({
           mode: "fixture",
-          scenario: dailyKey,
+          scenario: normalizeKey,
           mutation: "baseline",
           workflowState: "MAPPING_APPROVED",
           boundary: "Foundation normalization",
@@ -413,46 +564,76 @@ describe("replay result lifecycle", () => {
     await ui.approve();
     await ui.button("Run deterministic replay");
     expect(ui.evidence()).toHaveLength(1);
-    ui.changeScenario(dailyKey);
+    ui.changeScenario(normalizeKey);
     expect(ui.evidence()).toHaveLength(0);
     expect(
       ui.render().filter((element) => element.type === ApprovalReceipt),
     ).toHaveLength(0);
     expect(ui.buttonDisabled("Normalize source")).toBe(true);
     expect(ui.buttonDisabled("Approve executed mapping")).toBe(true);
-    for (const column of ["basDt", "clpr", "trqu"]) {
+    for (const { label } of flagged)
       ui
         .render()
         .find(
           (element) =>
-            element.props["aria-label"] === `Reviewer reason for ${column}`,
+            element.props["aria-label"] === `Reviewer reason for ${label}`,
         )!.props.onChange!({
-        target: {
-          value: `Accept the declared published daily ${column} interpretation.`,
-        },
+        target: { value: `Reviewed ${label} as declared.` },
       });
-    }
     await ui.button("Approve executed mapping");
     expect(ui.buttonDisabled("Normalize source")).toBe(false);
     await ui.button("Normalize source");
     expect(requests.at(-1)).not.toHaveProperty("caseManifest");
-    expect(requests.at(-1)!.mappingApproval!.overrides).toHaveLength(3);
+    expect(requests.at(-1)!.mappingApproval!.overrides).toHaveLength(
+      flagged.length,
+    );
     expect(ui.evidence()).toHaveLength(0);
     expect(ui.hasText("Mapping and normalization only.")).toBe(true);
-    const limitation = ui
-      .render()
-      .find((element) => element.type === DailyQuoteCaseLimitation)!;
-    expect(
-      (limitation.props as ComponentProps<typeof DailyQuoteCaseLimitation>)
-        .normalized,
-    ).toBe(true);
+    // A source without a case offers no case approval at all.
+    expect(ui.hasText("Approve case manifest")).toBe(false);
     ui.changeScenario(first);
-    ui.setGuided(true);
     expect(ui.evidence()).toHaveLength(0);
     expect(
       ui.render().filter((element) => element.type === ApprovalReceipt),
     ).toHaveLength(0);
     expect(ui.buttonDisabled("Run deterministic replay")).toBe(true);
+  });
+
+  it("traces the evidence through the approved proposal and its own approval", async () => {
+    const ui = setup();
+    const request = vi.fn().mockImplementation(() => Promise.resolve(ok()));
+    vi.stubGlobal("fetch", request);
+    await ui.approve();
+    const receipts = ui
+      .render()
+      .filter((element) => element.type === ApprovalReceipt)
+      .map(
+        (element) =>
+          element.props as unknown as {
+            approval: ApprovalRecord;
+            coverage?: string;
+          },
+      );
+    // The mapping receipt leads with what it covers; the case receipt does not.
+    expect(receipts.map(({ coverage }) => coverage)).toEqual([
+      mappingStep.panel.en.coverage,
+      undefined,
+    ]);
+    await ui.button("Run deterministic replay");
+    const [evidence] = ui.evidence();
+    const mapping = (
+      evidence!.props as unknown as {
+        mapping: { proposal: unknown; approval: ApprovalRecord };
+      }
+    ).mapping;
+    expect(mapping.proposal).toBe(
+      committedReplayScenarios[first].mappingProposal,
+    );
+    expect(mapping.approval).toEqual(receipts[0]!.approval);
+    const submitted = JSON.parse(
+      request.mock.calls[0]![1].body,
+    ) as ReplayRequest;
+    expect(submitted.mappingApproval).toEqual(mapping.approval);
   });
 
   it("submits varying source orders, displays the exact request and retains explicit approvals", async () => {
@@ -497,7 +678,7 @@ describe("replay result lifecycle", () => {
     expect(committedReplayScenarios[first].rows).toEqual(committed);
   });
 
-  it.each(["scenario", "guided re-entry"])(
+  it.each(["scenario"])(
     "resets submitted order history on %s",
     async (change) => {
       vi.spyOn(Math, "random").mockReturnValue(0);
@@ -514,9 +695,6 @@ describe("replay result lifecycle", () => {
       if (change === "scenario") {
         ui.changeScenario();
         ui.changeScenario(first);
-      } else {
-        ui.setGuided(true);
-        ui.setGuided(false);
       }
       expect(ui.submittedOrder()).toBeNull();
       await ui.approve();
@@ -528,7 +706,7 @@ describe("replay result lifecycle", () => {
     },
   );
 
-  it.each(["mutation", "scenario", "guided re-entry"])(
+  it.each(["mutation", "scenario"])(
     "keeps stale responses from restoring submitted order after %s",
     async (change) => {
       const ui = setup();
@@ -539,8 +717,7 @@ describe("replay result lifecycle", () => {
       const run = ui.button("Run deterministic replay");
       expect(ui.submittedOrder()).not.toBeNull();
       if (change === "mutation") ui.changeMutation("baseline");
-      else if (change === "scenario") ui.changeScenario();
-      else ui.setGuided(true);
+      else ui.changeScenario();
       expect(ui.submittedOrder()).toBeNull();
       pending.resolve(ok());
       await run;
@@ -550,43 +727,24 @@ describe("replay result lifecycle", () => {
     },
   );
   it("describes threshold values as proposed and then approved case configuration", async () => {
-    const prepared = await prepareReplayScenarios();
-    const guide = setup({ ...prepared, guided: true });
-    await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
+    const ui = setup();
+    await ui.button("Approve executed mapping");
+    expect(ui.hasText("Threshold values proposed in this authored case.")).toBe(
+      true,
     );
-    example.render().find((element) => element.type === "input")!.props
-      .onChange!({ target: { value: "Reviewed as intentionally unmapped." } });
-    await example.button("Approve executed mapping");
-    await guide.button("Approve executed mapping");
-    await guide.button("Continue");
-
-    // Read from the step table rather than restated here, so the rail and this
-    // assertion cannot drift apart.
-    expect(guide.hasText(guideSteps[2]!.purpose)).toBe(true);
     expect(
-      guide.hasText("Threshold values proposed in this authored case."),
-    ).toBe(true);
-    expect(
-      guide.hasText(
+      ui.hasText(
         "Versioned code defines the allowed parameter schema, formulas and comparisons.",
       ),
     ).toBe(true);
 
-    await guide.button("Approve case manifest");
-    expect(guide.hasText("Threshold values approved with this case.")).toBe(
-      true,
-    );
+    await ui.button("Approve case manifest");
+    expect(ui.hasText("Threshold values approved with this case.")).toBe(true);
   });
 
   it("accepts only a repeat that matches the original returned hash", async () => {
     const shuffle = vi.spyOn(rowShuffle, "shuffleSourceRows");
-    const prepared = await prepareReplayScenarios();
-    const guide = setup({ ...prepared, guided: true });
+    const ui = setup();
     const request = vi
       .fn()
       .mockResolvedValueOnce(ok())
@@ -595,25 +753,19 @@ describe("replay result lifecycle", () => {
       .mockResolvedValueOnce(ok());
     vi.stubGlobal("fetch", request);
 
-    await advanceGuidedToRepeat(guide);
-    expect(guide.buttonDisabled("Continue")).toBe(true);
-    await guide.button("Repeat the same approved case");
-    expect(
-      guide.hasText("MISMATCH · retry or inspect the returned results"),
-    ).toBe(true);
-    expect(guide.buttonDisabled("Continue")).toBe(true);
-    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
-
+    await ui.approve();
+    await ui.button("Run deterministic replay");
+    await ui.button("Repeat the same approved case");
+    expect(ui.hasText("MISMATCH · retry or inspect the returned results")).toBe(
+      true,
+    );
     // A second B must still compare with the original A baseline.
-    await guide.button("Repeat the same approved case");
-    expect(guide.buttonDisabled("Continue")).toBe(true);
-    expect(guide.buttonDisabled("Continue in working mode")).toBe(true);
-
-    // Returning to A recovers both completion gates.
-    await guide.button("Repeat the same approved case");
-    expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
-    expect(guide.buttonDisabled("Continue")).toBe(false);
-    expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
+    await ui.button("Repeat the same approved case");
+    expect(ui.hasText("MISMATCH · retry or inspect the returned results")).toBe(
+      true,
+    );
+    await ui.button("Repeat the same approved case");
+    expect(ui.hasText("MATCH · same-input repeatability")).toBe(true);
     expect(
       request.mock.calls
         .map(([, init]) => JSON.stringify(JSON.parse(init.body)))
@@ -626,115 +778,17 @@ describe("replay result lifecycle", () => {
   });
 
   it("accepts an immediate A to A repeat", async () => {
-    const prepared = await prepareReplayScenarios();
-    const guide = setup({ ...prepared, guided: true });
+    const ui = setup();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValueOnce(ok()).mockResolvedValueOnce(ok()),
     );
-
-    await advanceGuidedToRepeat(guide);
-    await guide.button("Repeat the same approved case");
-    expect(guide.hasText("MATCH · same-input repeatability")).toBe(true);
-    expect(guide.buttonDisabled("Continue")).toBe(false);
-    expect(guide.buttonDisabled("Continue in working mode")).toBe(false);
+    await ui.approve();
+    await ui.button("Run deterministic replay");
+    await ui.button("Repeat the same approved case");
+    expect(ui.hasText("MATCH · same-input repeatability")).toBe(true);
   });
 
-  it("requires an evaluated result, source inspection and a real repeat before retaining state in working mode", async () => {
-    const prepared = await prepareReplayScenarios();
-    const completeGuide = vi.fn();
-    const guide = setup({
-      ...prepared,
-      guided: true,
-      onGuideComplete: completeGuide,
-    });
-    const progressBlocked = () =>
-      guide
-        .render()
-        .find(
-          (element) =>
-            element.type === "button" && element.props.children === "Continue",
-        )!.props.disabled;
-    await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
-    );
-    example.render().find((element) => element.type === "input")!.props
-      .onChange!({ target: { value: "Reviewed as intentionally unmapped." } });
-    await example.button("Approve executed mapping");
-    await guide.button("Approve executed mapping");
-    await guide.button("Continue");
-    await guide.button("Approve case manifest");
-    await guide.button("Continue");
-    const foundation = {
-      ...result,
-      workflowState: "MAPPING_APPROVED",
-      evaluation: undefined,
-      sourceTrace: undefined,
-    };
-    const request = vi
-      .fn()
-      .mockResolvedValueOnce(Response.json(foundation))
-      .mockResolvedValueOnce(ok())
-      .mockRejectedValueOnce(new Error("temporary failure"))
-      .mockResolvedValueOnce(ok());
-    vi.stubGlobal("fetch", request);
-    await guide.button("Run deterministic replay");
-    expect(progressBlocked()).toBe(true);
-    await guide.button("Continue");
-    expect(progressBlocked()).toBe(true);
-    await guide.button("Run deterministic replay");
-    expect(progressBlocked()).toBe(false);
-    await guide.button("Continue");
-    expect(progressBlocked()).toBe(true);
-    const evaluation = guide.evidence()[0]!.props as ComponentProps<
-      typeof RapidPriceLiftEvaluation
-    >;
-    evaluation.onEvidenceOpen!();
-    expect(progressBlocked()).toBe(false);
-    await guide.button("Continue");
-    expect(progressBlocked()).toBe(true);
-    await guide.button("Repeat the same approved case");
-    expect(progressBlocked()).toBe(true);
-    expect(
-      guide
-        .render()
-        .find(
-          (element) =>
-            element.type === "button" &&
-            element.props.children === "Repeat the same approved case",
-        )!.props.disabled,
-    ).toBe(false);
-    // A failed attempt is not completion; the same approved input can be retried.
-    expect(guide.evidence()).toHaveLength(0);
-    await guide.button("Repeat the same approved case");
-    expect(progressBlocked()).toBe(false);
-    const bodies = request.mock.calls.map(([, init]) => JSON.parse(init.body));
-    expect(
-      bodies.every(
-        (body) => JSON.stringify(body) === JSON.stringify(bodies[0]),
-      ),
-    ).toBe(true);
-    await guide.button("Continue");
-    await guide.button("Continue in working mode");
-    expect(completeGuide).toHaveBeenCalledOnce();
-    guide.setGuided(false);
-    expect(
-      guide.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(2);
-    expect(guide.evidence()).toHaveLength(1);
-    expect(
-      guide.render().find((element) => element.type === "select")!.props.value,
-    ).toBe(first);
-    guide.changeScenario();
-    expect(guide.evidence()).toHaveLength(0);
-    expect(
-      guide.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-  });
   it("refuses direct handlers without explicit mapping and case approvals", async () => {
     const ui = setup();
     const request = vi.fn().mockResolvedValue(ok());
@@ -771,68 +825,6 @@ describe("replay result lifecycle", () => {
     expect(request).not.toHaveBeenCalled();
   });
 
-  it("isolates Dialect B approvals, revokes them on reason edits and ignores stale example hashes", async () => {
-    const prepared = await prepareReplayScenarios();
-    const guide = setup({ ...prepared, guided: true });
-    await guide.button("Continue");
-    const exampleElement = guide
-      .render()
-      .find((element) => element.type === CaseReplay)!;
-    const example = setup(
-      exampleElement.props as ComponentProps<typeof CaseReplay>,
-    );
-    const continueDisabled = () =>
-      guide
-        .render()
-        .find(
-          (element) =>
-            element.type === "button" && element.props.children === "Continue",
-        )!.props.disabled;
-    const reasonInput = () =>
-      example.render().find((element) => element.type === "input")!;
-    await example.button("Approve executed mapping");
-    expect(
-      example.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-    reasonInput().props.onChange!({
-      target: { value: "Reviewed as intentionally unmapped." },
-    });
-    await example.button("Approve executed mapping");
-    const exampleReceipt = example
-      .render()
-      .find((element) => element.type === ApprovalReceipt)!;
-    expect(continueDisabled()).toBe(true);
-    expect(
-      guide.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-    await guide.button("Approve executed mapping");
-    const caseReceipt = guide
-      .render()
-      .find((element) => element.type === ApprovalReceipt)!;
-    expect(exampleReceipt.props).not.toEqual(caseReceipt.props);
-    expect(continueDisabled()).toBe(false);
-    reasonInput().props.onChange!({ target: { value: "" } });
-    expect(continueDisabled()).toBe(true);
-    expect(
-      example.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-    expect(
-      guide.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(1);
-    reasonInput().props.onChange!({ target: { value: "New reason" } });
-    const hash = deferred<ArrayBuffer>();
-    vi.stubGlobal("crypto", {
-      subtle: { digest: vi.fn().mockReturnValue(hash.promise) },
-    });
-    const pendingApproval = example.button("Approve executed mapping");
-    reasonInput().props.onChange!({ target: { value: "" } });
-    hash.resolve(new ArrayBuffer(32));
-    await pendingApproval;
-    expect(continueDisabled()).toBe(true);
-    expect(
-      example.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-  });
   it("clears previous evidence at run start and keeps it cleared on failure", async () => {
     const ui = setup();
     await ui.approve();
@@ -876,57 +868,6 @@ describe("replay result lifecycle", () => {
       )!.props.onChange!({ target: { value: "shuffle" } });
     expect(ui.hasText("Previous returned hash")).toBe(false);
     expect(ui.evidence()).toHaveLength(0);
-  });
-
-  it("follows route mode changes and resets state when re-entering the guide", async () => {
-    const prepared = await prepareReplayScenarios();
-    const ui = setup({ ...prepared, guided: true });
-    await ui.button("Continue");
-    expect(
-      ui
-        .render()
-        .some((element) => element.props.className === "journey-progress"),
-    ).toBe(true);
-
-    ui.setGuided(false);
-    expect(
-      ui
-        .render()
-        .some((element) => element.props.className === "journey-progress"),
-    ).toBe(false);
-    ui.changeScenario();
-    await ui.button("Approve executed mapping");
-    expect(
-      ui.render().find((element) => element.type === "select")!.props.value,
-    ).toBe(second);
-
-    ui.setGuided(true);
-    expect(
-      ui.render().find((element) => element.type === "select")!.props.value,
-    ).toBe(first);
-    expect(
-      ui.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-    expect(ui.evidence()).toHaveLength(0);
-    ui.setGuided(false);
-    expect(
-      ui
-        .render()
-        .find(
-          (element) =>
-            element.props.name === "mutation" &&
-            element.props.value === "baseline",
-        )!.props,
-    ).toHaveProperty("checked", true);
-
-    const refreshed = setup({ ...prepared, guided: true });
-    expect(
-      refreshed.render().filter((element) => element.type === ApprovalReceipt),
-    ).toHaveLength(0);
-    expect(
-      refreshed.render().find((element) => element.type === "select")!.props
-        .value,
-    ).toBe(first);
   });
 
   it.each([

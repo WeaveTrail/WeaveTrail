@@ -10,10 +10,6 @@ import {
   type SchemaMappingProposal,
 } from "@weavetrail/contracts";
 import {
-  publishedReplaySourceCatalog,
-  publishedReplaySources,
-} from "@weavetrail/published-data";
-import {
   actorlessMultiInstrumentMappingProposal,
   actorlessMultiInstrumentScenario,
   concentratedBuyDialectAProposal,
@@ -63,6 +59,10 @@ const sources: Record<string, Source> = {
   },
   "published-execution-fix44.csv":
     committedReplayScenarios["published-execution-fix44.csv"],
+  "published-execution-fix44-broad-participation.csv":
+    committedReplayScenarios[
+      "published-execution-fix44-broad-participation.csv"
+    ],
   "published-execution-fix44-conflicting-evidence.csv":
     committedReplayScenarios[
       "published-execution-fix44-conflicting-evidence.csv"
@@ -70,7 +70,6 @@ const sources: Record<string, Source> = {
   "published-execution-h0stcnt0.jsonl":
     committedReplayScenarios["published-execution-h0stcnt0.jsonl"],
   ...rapidPriceLiftScenarios,
-  ...publishedReplaySources,
 };
 
 const sourceCatalog: Record<
@@ -82,7 +81,6 @@ const sourceCatalog: Record<
   }
 > = {
   ...replayScenarioCatalog,
-  ...publishedReplaySourceCatalog,
 };
 
 function approvalFor(
@@ -222,7 +220,6 @@ describe("published scenario expectations", () => {
   it("matches current output for every committed replay source", async () => {
     expect(Object.keys(sources)).toEqual([
       ...Object.keys(committedReplayScenarios),
-      ...Object.keys(publishedReplaySources),
     ]);
     const output = await format(JSON.stringify(publication(), null, 2), {
       parser: "json",

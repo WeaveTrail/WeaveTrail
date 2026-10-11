@@ -1,0 +1,28 @@
+{
+  "version": "synthetic-mapping-prices/1",
+  "dated": "2026-10-08",
+  "provenance": "Authored regression tariffs only, not vendor prices or model costs.",
+  "entries": [
+    {
+      "provider": "synthetic-scorer-fixture",
+      "requestedModel": "synthetic-oracle",
+      "reportedModel": "synthetic-oracle",
+      "inputMicroUsdPerMillionTokens": "1250000",
+      "outputMicroUsdPerMillionTokens": "3750000"
+    },
+    {
+      "provider": "synthetic-scorer-fixture",
+      "requestedModel": "synthetic-always-abstain",
+      "reportedModel": "synthetic-always-abstain",
+      "inputMicroUsdPerMillionTokens": "1250000",
+      "outputMicroUsdPerMillionTokens": "3750000"
+    },
+    {
+      "provider": "synthetic-scorer-fixture",
+      "requestedModel": "synthetic-failure-probes",
+      "reportedModel": "synthetic-failure-probes",
+      "inputMicroUsdPerMillionTokens": "1250000",
+      "outputMicroUsdPerMillionTokens": "3750000"
+    }
+  ]
+}

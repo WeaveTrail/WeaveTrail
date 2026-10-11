@@ -4,7 +4,7 @@ import { sha256Canonical } from "./canonical-hash";
 import { canonicalJson, type JsonValue } from "./canonical-json";
 import {
   CanonicalizationError,
-  compareCanonicalEventTimes,
+  compareCanonicalEvents,
   compareUtf16CodeUnits,
   normalizeEventTime,
 } from "./canonical-order";
@@ -87,32 +87,6 @@ function compareDuplicateRepresentatives(
   const rawRowOrder = compareUtf16CodeUnits(left.rawRowHash, right.rawRowHash);
   if (rawRowOrder !== 0) return rawRowOrder;
   return compareUtf16CodeUnits(left.receivedAt ?? "", right.receivedAt ?? "");
-}
-
-function compareUnsignedIntegerStrings(left: string, right: string): number {
-  const normalizedLeft = left.replace(/^0+(?=\d)/, "");
-  const normalizedRight = right.replace(/^0+(?=\d)/, "");
-
-  if (normalizedLeft.length !== normalizedRight.length) {
-    return normalizedLeft.length - normalizedRight.length;
-  }
-
-  return compareUtf16CodeUnits(normalizedLeft, normalizedRight);
-}
-
-function compareEvents(left: TradeEvent, right: TradeEvent): number {
-  const timeOrder = compareCanonicalEventTimes(left.eventTime, right.eventTime);
-  if (timeOrder !== 0) return timeOrder;
-
-  if (left.sequence !== undefined && right.sequence !== undefined) {
-    const sequenceOrder = compareUnsignedIntegerStrings(
-      left.sequence,
-      right.sequence,
-    );
-    if (sequenceOrder !== 0) return sequenceOrder;
-  }
-
-  return compareUtf16CodeUnits(left.eventId, right.eventId);
 }
 
 function requireConsistentSequencePresence(
@@ -217,6 +191,6 @@ export function canonicalizeEvents(
     );
   }
 
-  events.sort(compareEvents);
+  events.sort(compareCanonicalEvents);
   return { events, duplicateCount };
 }

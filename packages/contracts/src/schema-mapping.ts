@@ -41,7 +41,7 @@ export const MappedTargetFieldSchema = z.enum([
   "netChange",
 ]);
 
-const MappingFieldSchema = z
+export const MappingFieldSchema = z
   .object({
     sourceColumn: z.string().min(1),
     targetField: MappedTargetFieldSchema.nullable(),

@@ -6,5 +6,15 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@weavetrail/ai-harness": "workspace:*",
+    "@weavetrail/contracts": "workspace:*",
+    "@weavetrail/replay-engine": "workspace:*",
+    "@weavetrail/scenarios": "workspace:*",
+    "zod": "^4.6.5"
   }
 }

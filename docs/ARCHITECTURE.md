@@ -6,63 +6,86 @@ WeaveTrail separates probabilistic interpretation from authoritative
 calculation. A model can narrow ambiguity; only validated inputs and versioned
 code produce a replay result.
 
+The control line is **AI proposes. Human approves. Code verifies. Evidence
+traces back.** A model holds two roles and no other: field mapping, which runs
+today through the fixture provider and one configured adapter, and a bounded
+case-scope proposal chosen from the `DatasetProfile`, which is planned. The
+planned work measures and restricts those roles: model evaluation (`v0.2.0`),
+measured routing (`v0.3.0`) and bounded case proposals (`v0.4.0`). The
+[README](../README.md#how-it-fits-together) lists what exists in each and what
+is planned. This document describes what exists and marks every planned
+component as planned; it carries no model accuracy, comparison or selection,
+because none has been published.
+
 ## Entry and Case Replay
 
 ![Entry routes and where each one leads](assets/boundary/entry-routes.svg)
 
-- `packages/scenarios` owns synthetic datasets and controlled mutations;
-  `packages/published-data` owns licensed artifacts, provenance, offline
-  generated rows and declared mappings, and depends only on contracts. The
-  scenario package neither imports nor re-exports published data; the fixture
-  provider imports mappings from both owners
-  ([ADR 0023](adr/0023-separate-published-data-ownership.md)).
+- `packages/scenarios` owns the current synthetic datasets, provenance and controlled mutations. The fixture provider registers only synthetic mappings.
 - Catalog metadata marks each committed source `REVIEWER_FACING` or
-  `ENGINE_REGRESSION`. The picker lists the grounded set plus only the
-  regression fallbacks needed to keep all three result meanings reachable: the
-  complete FIX 4.4 case returns `SUPPORTED`, the FIX-shaped missing-side case
-  `INCONCLUSIVE`, and a `NOT_SUPPORTED` placeholder stays until a grounded case
-  reproduces that meaning. A FIX-shaped identity-conflict source stops at
-  `INPUT_REVIEW_REQUIRED` before replay. `/expectations` states each case's
+  `ENGINE_REGRESSION`. The picker lists only reviewer-facing sources. Published
+  FIX 4.4 projections reproduce all three result meanings: complete evidence
+  passes every gate for `SUPPORTED`; comparable broad participation fails
+  `ACTOR_CONCENTRATION` and `REMOVAL_SENSITIVITY` for `NOT_SUPPORTED`; missing
+  side evidence yields `INCONCLUSIVE`. A FIX-shaped identity-conflict source stops at
+  `INPUT_REVIEW_REQUIRED` before replay. The committed
+  [scenario expectations](../apps/web/src/app/expectations/scenario-expectations.json) state each case's
   exact condition, both purposes, its Case Replay availability and whether a
   result hash is produced.
 - Metadata also declares the mutations offered per source: published-schema
-  synthetic sources and result fallbacks offer `baseline`, `shuffle` and
-  `duplicate`; licensed artifacts offer `baseline` and `shuffle` only. No
+  synthetic sources offer `baseline`, `shuffle` and
+  `duplicate`. No
   control rewrites a committed value, adds a participant or adds a verdict
   ([ADR 0038](adr/0038-separate-reviewer-facing-sources-from-engine-regressions.md),
   [ADR 0039](adr/0039-separate-missing-evidence-abstention-from-conflict-review.md)).
-- `/why` states where the gate sits against an existing surveillance pipeline
-  and cites its published sources. The overview states position before
-  mechanism: surveillance raises a candidate, WeaveTrail confirms the scope,
-  re-verifies and opens the evidence, a person decides. It detects nothing.
+- The replay scenario contract additively accepts
+  `published-execution-fix44-broad-participation.csv`. Clients with exhaustive
+  scenario lists must add that identifier; existing request and response
+  shapes, mapping `1.8`, manifest `1.3` and rule `RAPID_PRICE_LIFT/1.1` stay
+  compatible. `rapid-price-lift-broad-participation.csv` remains an API and
+  engine-regression input with unchanged artifact bytes, manifest and hashes,
+  but is no longer offered in Case Replay. The new source's
+  [provenance](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)
+  records the schema and market-rule basis, synthetic attributes, authored
+  thresholds, failed gates, reproduction command and captured hashes.
+- Two explanation pages follow the reader's order
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+  `/why` says what a reviewer gains, opening from two cited published facts:
+  AI now reaches into surveillance, and the decision and its responsibility stay
+  with people. It detects nothing. `/architecture` says how it runs: who does
+  what, the three results, what happens when the AI is wrong, why a rerun
+  repeats and how data is handled. The former `/methodology`, `/expectations`
+  and `/data-handling` addresses redirect to `/architecture`.
 
-![What a guided step shows and what completes the walkthrough](assets/boundary/guided-steps.svg)
+![The five scenes of the guided walkthrough and the one action each offers](assets/boundary/guided-steps.svg)
 
-- One navigation entry, `Walk through a case`. `Guided walkthrough` and
-  `Working mode` name the two ways to use it and mark the running one. `/replay`
-  opens guided; `mode=working` selects working mode; the query is the
+- One navigation entry, `Try it`. `Step by step` and `Hands-on` name the two
+  ways to use it and mark the running one. `/replay` opens the guided
+  walkthrough; `mode=working` selects hands-on (working) mode; the query is the
   presentation-mode source of truth and carries no trusted approval or result
-  state. Re-entering guided mode restores its supported-case baseline and clears
-  working input state; refresh starts unapproved.
-- A step's control lives in the rail where the step commits something, sharing
-  one handler and one disabled state with the case column; where the work
-  happens in the case content the rail's control scrolls there and takes focus.
-  The step list is navigable for reading, and a step counts as completed only
-  while the visitor's own work still satisfies it
-  ([ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md),
-  [ADR 0033](adr/0033-lead-each-guided-step-with-its-action.md)).
-- A hash mismatch keeps the original baseline, blocks completion and stays
-  retryable. The hand-off exposes working controls without remounting the case
-  surface, so in-memory approvals and the result stay valid. Guide progress is
-  distinct from the request-local server workflow
-  ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)).
-- The guided source is `published-execution-fix44.csv` at `baseline`. Its
-  mapping chapter embeds the actorless `published-execution-h0stcnt0.jsonl` as a
-  separate review example: each instance owns its proposal-specific approval and
-  async generation guard, only an example-completion flag crosses into guide
-  progress, and the example's approval, source and result never enter the case
-  request. The server loader strips committed case approval records before
-  sending props.
+  state. A refresh starts unapproved.
+- The guided walkthrough (`replay/tour/`) follows the worked case,
+  `published-execution-fix44.csv` at `baseline`, in five scenes: the file as
+  received and what the walkthrough checks; the AI's column matches with a
+  sample value each; the scope in one sentence with its five criteria; the
+  result, each criterion against this data, and an optional second run that
+  compares the returned hashes; and the source rows each criterion used. Every
+  scene says what the visitor is looking at and why before it asks for one
+  action, and an approval moves to the next scene only once it is recorded
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+- One client surface, `replay-surface.tsx`, owns the `use-case-replay.ts`
+  state for both modes, so the walkthrough makes the same explicit mapping and
+  case approvals, and sends the same replay request, as working mode. Handing
+  off to working mode keeps the approved case and its result; re-entering the
+  walkthrough restores the worked case at its baseline, unapproved
+  ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)). Percentages on screen are converted from the
+  engine's basis-point strings by moving the decimal point, never by
+  floating-point arithmetic. The server loader strips committed case approval
+  records before sending props.
+- Working mode lists every reviewer-facing source. The actorless
+  `published-execution-h0stcnt0.jsonl` there stops at `REVIEW_REQUIRED` until
+  each flagged field carries a reviewer reason, and it normalizes without a
+  case.
 - Advanced controls permute submitted rows before mapping or duplicate one
   derived event after mapping; original coordinates and values stay unchanged
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)).
@@ -83,24 +106,6 @@ The surface is Korean and English on one set of routes
   ([ADR 0043](adr/0043-draw-the-layer-diagram-from-localized-copy.md)).
 - `/replay` replaced the former `/lab` route with no alias.
 
-`/case-2026-09-03` is one authored case over committed licensed artifacts: the
-KOSPI 200 index and its front-month future on 2026-09-03 against the index's own
-2026-07-01 baseline.
-
-![The published case: approve the scope, then the rule runs on the server](assets/boundary/published-case-run.svg)
-
-- Nothing the rule produces is shown before the rule runs, and nothing it
-  returns is written into page copy: the closing statement is read from the
-  returned analysis. The hash is pinned by
-  `apps/web/src/lib/published-case.test.ts` and the engine suite.
-- The two published field mappings were reviewed once; their approval records,
-  approved artifact hash included, are committed in
-  `apps/web/src/lib/published-case-approvals.ts`. The page says the mappings
-  were reviewed rather than presenting them as the visitor's approval.
-- Chart geometry parses every published price to a scaled integer and divides
-  once, on the unitless fraction a coordinate needs, so no price reaches binary
-  floating point.
-
 ## Component chain
 
 ![Ten components in two rows: committed source rows are untrusted input; a constrained schema mapper proposes a field mapping; a reviewer approves that proposal bound to its artifact hash; versioned code re-derives the canonical event set and computes a deterministic dataset profile; a planned bounded case proposer would select an actor group and interval from profile facts alone; a reviewer approves the case scope; the deterministic replay engine evaluates the rule; the source trace resolves every finding back to its committed rows; Evidence Bundle assembly and verification recompute the declaration from source bytes. Any gate can refuse, and a refused request carries no result hash](assets/component-chain.svg)
@@ -109,17 +114,6 @@ A `PLANNED` component is specified in contracts and tracked as open work rather
 than implemented today.
 
 ## Trust boundaries
-
-### Published acquisition scopes
-
-![The two acquisition scopes and what they never reach](assets/boundary/acquisition-scopes.svg)
-
-- The manual collector uses reviewed publisher adapters; automated transport
-  tests stay synthetic. Offline admission compares committed rows, generated
-  source coordinates and requests against the original page bytes.
-- See [Published acquisition scopes](PUBLISHED_ACQUISITION.md),
-  [ADR 0025](adr/0025-distinguish-published-acquisition-scopes.md) and
-  [ADR 0030](adr/0030-declare-published-market-family-and-range-scopes.md).
 
 ### Layer boundaries
 
@@ -323,10 +317,7 @@ automatic converter.
 
 ![What Evidence Bundle 1.3 declares, assembles and verifies](assets/boundary/bundle-13.svg)
 
-- The original FSC daily quotation artifact ends at `MAPPING_APPROVED` with a
-  result hash but no evaluation or case manifest. Bundle `1.3` is defined for
-  Event 1.1–1.3, Proposal 1.4–1.8 and Manifest 1.3; hashing converts none of
-  them and invents no missing field.
+- Synthetic daily normalization stops at `MAPPING_APPROVED` with no case or evaluation. Bundle `1.3` retains Event 1.1–1.3, Proposal 1.4–1.8 and Manifest 1.3; hashing converts none of them and invents no missing field.
 - Verification authenticates neither reviewer nor source publisher and is not a
   signature.
 - Normative preimages, the exhaustive protected/excluded field table, canonical
@@ -337,16 +328,17 @@ automatic converter.
 
 ## Package boundaries
 
-| Package          | Owns                                                            | Must not own                             |
-| ---------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| `contracts`      | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic          |
-| `ai-harness`     | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval |
-| `replay-engine`  | Canonicalization, rules, hashes, evidence assembly              | Free-form inference or legal conclusions |
-| `scenarios`      | Synthetic datasets and controlled mutations                     | Published, production, or personal data  |
-| `published-data` | Licensed published artifacts, provenance, and declared mappings | Synthetic mutations or restricted data   |
-| `service-store`  | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input    |
-| `evals`          | Versioned cases and measurement aggregation                     | Undocumented benchmark claims            |
-| `web`            | Human review flow and export surface                            | A second implementation of replay logic  |
+| Package               | Owns                                                            | Must not own                              |
+| --------------------- | --------------------------------------------------------------- | ----------------------------------------- |
+| `contracts`           | Versioned schemas and closed vocabularies                       | Provider calls or verdict logic           |
+| `ai-harness`          | Provider adapters, structured proposals, deterministic fixtures | Final calculations or automatic approval  |
+| `canonical-kernel`    | Canonical JSON, hashing, ordering and scaled-decimal arithmetic | Rules, thresholds, hypotheses or verdicts |
+| `replay-engine`       | Event normalization, rules, evidence hash scopes and assembly   | Free-form inference or legal conclusions  |
+| `scenarios`           | Synthetic datasets and controlled mutations                     | Published, production, or personal data   |
+| `service-store`       | Immutable collected snapshots and derived-result input bindings | Rules, verdicts, or uncollected input     |
+| `instrument-resolver` | Exact dated names/codes, match reasons and supplied quote links | Acquisition, guessed aliases or verdicts  |
+| `evals`               | Versioned cases and measurement aggregation                     | Undocumented benchmark claims             |
+| `web`                 | Human review flow and export surface                            | A second implementation of replay logic   |
 
 ### Dependency direction
 
@@ -365,32 +357,105 @@ added:
    evidence assembly take rows, registries, calculators and display templates
    from their caller, and resolve no store, URL, clock or provider themselves.
    That is why a new source or storage arrangement cannot reverse an edge.
-3. **Storage may not depend on the decision tier.** One edge crosses this line
-   today, because the canonical kernel — canonical JSON, hashing, ordering,
-   scaled decimals — lives beside the rules and the request workflow.
-   `service-store` reaches it through the runtime-neutral
-   `@weavetrail/replay-engine/canonical-json` entry, so serialization is all it
-   imports and no rule, threshold, hypothesis or verdict type is reachable from
-   storage. The manifest edge stays until the kernel has a home of its own
-   ([#211](https://github.com/WeaveTrail/WeaveTrail/issues/211)).
+3. **Storage may not depend on the decision tier.** `service-store` depends
+   only on `contracts` and `canonical-kernel`. It imports the snapshot-only
+   `@weavetrail/contracts/service-snapshot` entry and the runtime-neutral
+   `@weavetrail/canonical-kernel/canonical-json` entry. The kernel imports only
+   the decimal runtime entry of contracts; no rule, threshold, hypothesis or
+   verdict type is reachable from storage. `dependency-boundary.test.ts` checks
+   the workspace manifest closure and follows source imports, re-exports and
+   type imports, including the engine's independence from storage.
 4. **Fixtures are test inputs of the decision tier, not runtime inputs.**
-   `scenarios` and `published-data` are development dependencies of
-   `replay-engine`; `ai-harness` depends on both at runtime because fixture mode
+   `scenarios` is a development dependency of
+   `replay-engine`; `ai-harness` depends on it at runtime because fixture mode
    is a shipped provider, not a test aid.
 
-| Planned component                                                                                                                                                                                                                   | Tier           | May not reach |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------- |
-| Collection ([#179](https://github.com/WeaveTrail/WeaveTrail/issues/179)–[#181](https://github.com/WeaveTrail/WeaveTrail/issues/181))                                                                                                | above storage  | rules         |
-| Document parsing ([#182](https://github.com/WeaveTrail/WeaveTrail/issues/182))                                                                                                                                                      | interpretation | storage, web  |
-| Event structuring ([#184](https://github.com/WeaveTrail/WeaveTrail/issues/184))                                                                                                                                                     | interpretation | rules         |
-| Instrument resolution ([#185](https://github.com/WeaveTrail/WeaveTrail/issues/185))                                                                                                                                                 | interpretation | web           |
-| Conclusions ([#186](https://github.com/WeaveTrail/WeaveTrail/issues/186)), feed statistics ([#187](https://github.com/WeaveTrail/WeaveTrail/issues/187)), claim check ([#154](https://github.com/WeaveTrail/WeaveTrail/issues/154)) | decision       | storage       |
-| Brief and share link ([#159](https://github.com/WeaveTrail/WeaveTrail/issues/159))                                                                                                                                                  | presentation   | —             |
+The kernel has its own workspace package so the manifest graph expresses the
+boundary. Its root and `canonical-hash` entry use Node crypto; `canonical-json`,
+`canonical-order` and `scaled-decimal` are runtime-neutral subpaths. Existing
+`@weavetrail/replay-engine` exports and its `canonical-json` subpath re-export
+the same implementations, including error classes, so callers need no
+migration. The engine still owns event validation, semantic projection,
+duplicate handling and hash preimages. Engine versions, contracts and committed
+golden expectations are unchanged. See
+[ADR 0049](adr/0049-place-the-canonical-kernel-below-storage.md).
 
-The application wires a resolved snapshot into a rule; the rule never fetches
-one. Which package each planned component lands in is settled in
-[#212](https://github.com/WeaveTrail/WeaveTrail/issues/212) before the
-collection work starts, so the graph above stays drawable in full.
+### Planned component placement
+
+Instrument resolution remains implemented over caller-supplied listings,
+verified with synthetic inputs. The quotation-derived listing, web adapter and
+published coverage endpoints have been withdrawn. Generic claim scope checking
+still accepts a caller-supplied manifest. See [instrument resolution](INSTRUMENT_RESOLUTION.md)
+and [claim scope contracts](COVERAGE.md).
+
+The service components [ADR 0050](adr/0050-place-planned-service-components.md)
+placed (collectors, document parsing, event structuring, conclusion
+definitions, feed statistics, claim extraction and checking, and briefs with
+share links) are no longer planned. No package, tier or edge is reserved for
+them. [ADR 0061](adr/0061-retire-the-planned-service-components.md) records why;
+ADR 0050 links to the placement it accepted as a historical record.
+
+Mapping runs through one configurable Chat Completions transport in
+`packages/ai-harness` on its server-only export. `packages/evals` owns the
+configuration list, sanitized `mapping-run/1` binder and explicit local smoke
+command. It uses its existing downward dependencies on contracts, ai-harness,
+scenarios and replay-engine; no browser or new workspace edge is added.
+The command requires keys and `--live`, refuses CI, and writes records and
+separate receipts to ignored local `dist/`. Neither it nor default checks
+run models on HELD_OUT. Default tests also verify offline synthetic scoring and
+baseline captures over the sealed splits, without provider calls. See
+[ADR 0062](adr/0062-run-mapping-through-one-configurable-chat-completions-adapter.md).
+
+The planned components serve the two model roles and build on what exists:
+
+Offline integer scoring, a frozen DEV-only lexical reference and explicit
+selection-record serialization are implemented in `packages/evals`, outside
+production exports. Comparison publication includes a nonselectable reference
+and every candidate's tag differences. Captures use authored scorer controls;
+no real model comparison or selection rule is measured. See
+[the baseline protocol](EVALUATION.md#non-model-lexical-reference).
+
+| Planned component           | What exists today that it builds on                                                                                                                                    | Version  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Measured model evaluation   | The sealed dialect set, offline integer scorer, DEV-only lexical reference and `mapping-run/1` records                                                                 | `v0.2.0` |
+| Model selection rule        | Explicit selection-record serialization binds all reference differences; a rule must be fixed in an ADR before the held-out model run                                  | `v0.2.0` |
+| Proposal routing            | The shared mapping validator; the escalation model is part of the plan                                                                                                 | `v0.3.0` |
+| Bounded case-scope proposer | `DatasetProfile` (instruments, actors, earliest and latest event time) and the existing case-scope checks against it; rule versions and thresholds are not yet bounded | `v0.4.0` |
+
+In the routing path a valid, clear proposal goes to review, an ambiguous or
+rejected one goes once to the escalation model and through the same validator,
+and anything unresolved stops at `REVIEW_REQUIRED`. There are at most two
+calls, the two models' fields are never merged, and no path creates an
+approval. The case-scope proposer is the `PLANNED` component in the chain
+above.
+
+Each planned component records its package home and edges here when it lands,
+under the admission rules below. Shared versioned input/output schemas belong
+to `packages/contracts` (tier 0), regardless of the component that uses them.
+Provider credentials and raw model traces remain server-only.
+
+### Admission of a new package
+
+Before adding a package, its implementation must:
+
+1. Declare a workspace manifest and a published entry point in `exports`
+   (including any deliberately public subpaths). “Published” means an exported
+   workspace API, not publication to a package registry. Consumers declare the
+   workspace dependency and import only that API, never another package's
+   `src` path, a relative path into it, or an alias bypassing its exports.
+2. Record its numeric tier and every direct dependency in this document and the
+   dependency figure. Every workspace edge, including development dependencies,
+   type imports and re-exports, must point strictly down; no sideways edge,
+   upward edge or cycle is allowed. A new dependency requires recording its
+   placement here first, not just picking a lower tier.
+3. Preserve the storage/decision boundary through the transitive source graph.
+   Add narrow contract exports when needed so collection and storage cannot
+   load decision vocabulary through a contracts barrel. Extend the relevant
+   dependency-boundary checks when adding edges; the existing storage/kernel
+   check does not yet enforce every planned package's allowlist.
+4. Supply package typechecking, boundary tests and the applicable repository
+   checks before documenting the component as implemented. Until then, this
+   placement is a design commitment, not evidence of a running service.
 
 ## Determinism contract
 
@@ -465,31 +530,44 @@ rules.
 
 ## Deployment boundary
 
-![What the deployment runs and what the service tier still needs](assets/boundary/deployment-boundary.svg)
+![What the deployment runs, and what stays outside it](assets/boundary/deployment-boundary.svg)
 
 See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 [service snapshot operations](SERVICE_SNAPSHOTS.md).
 
 ## Presentation boundary
 
-![The eight public routes: /, /why, /architecture, /methodology, /evals, /expectations, /replay in guided and working modes, and /case-2026-09-03](assets/boundary/public-routes.svg)
+![The public routes: /, /why, /architecture, /evals and /replay in guided and working modes](assets/boundary/public-routes.svg)
 
-- The eight public routes use a product-local snapshot of the paper-first design
-  tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
-  revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is
-  neither a build nor a runtime dependency.
+- The five public routes use the product's own design tokens in
+  `apps/web/src/app/design/` under one top navigation bar
+  ([ADR 0074](adr/0074-give-the-product-its-own-design-system-and-top-navigation.md)).
+  The original brand mark and the token values drawn into the figures come from
+  a product-local snapshot pinned to `WeaveTrail/design-reference` revision
+  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. That pin is recorded once in
+  `apps/web/src/design-reference/snapshot.json`
+  ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)). The design repository
+  is neither a build nor a runtime dependency.
 - Product copy and every visible evidence value stay owned by this repository's
   runtime responses and committed synthetic scenarios
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)).
+- `apps/web/src/app` is organized by page
+  ([ADR 0076](adr/0076-organize-the-web-app-by-page-with-typed-bilingual-copy.md)).
+  Each route folder holds its page, its typed bilingual `copy.ts`, its view and
+  its stylesheet; `shell/` holds the header, navigation, language switch and
+  footer, and `explainer/` the layout the two explanatory pages share: one
+  opening answer, then sections of a title and one line with detail one
+  disclosure or link away. No user-visible string is written inline in markup.
+- Case Replay keeps its state in `replay/use-case-replay.ts`. The guided
+  walkthrough is `replay/tour/`: its five scenes, their bilingual copy and its
+  stylesheet. Working mode is `replay/case-replay.tsx`, which composes the
+  panels under `replay/steps/`, each beside its own panel copy.
 
 ## Daily quote and cross-market rule version coexistence
 
 ![How daily-quote versions coexist in the registry](assets/boundary/daily-quote-versions.svg)
 
-The published FSC KOSPI daily artifact is registered without a case manifest.
-See [daily quote normalization](DAILY_QUOTES.md),
-[ADR 0022](adr/0022-normalize-daily-quotes-with-version-coexistence.md) and
-[ADR 0031](adr/0031-compose-publisher-source-identities-in-mapping-1.6.md).
+The contracts and rules are verified with synthetic inputs; the real-data composition has been withdrawn.
 
 ![The separate cross-market entry point and what it accepts](assets/boundary/cross-market-entry.svg)
 
@@ -520,9 +598,8 @@ CROSS_MARKET_SESSION_REVERSAL `1.1` is a further opt-in rule contract
   source records.
 - Every committed replay source has one machine-readable provenance record.
   Synthetic records identify the exact fixture bytes and distinguish
-  repository-authored fields from published-schema projections; licensed real
-  records retain acquisition, permission and derivation details.
+  repository-authored fields from published-schema projections; the committed real-data tier has been withdrawn.
 - The display-only `SourceProvenance.recordUrl` reaches that record from the
   source-row panel and stays outside approval and canonical hash inputs. The
-  coverage and hash check spans both source-owning packages
+  coverage and hash check spans the synthetic source-owning package
   ([ADR 0037](adr/0037-record-every-replay-source-with-adjacent-provenance.md)).

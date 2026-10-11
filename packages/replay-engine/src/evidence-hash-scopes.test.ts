@@ -23,7 +23,6 @@ import {
   publishedExecutionManifest,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
-import { publishedReplaySources } from "@weavetrail/published-data";
 
 import {
   caseManifestProposal,
@@ -42,7 +41,10 @@ import { evidenceBundleHash } from "./evidence-bundle-hash";
 import { canonicalReplayResultHash, ENGINE_VERSION } from "./replay-foundation";
 import { RequestWorkflow } from "./request-workflow";
 import type { SourceRow } from "./source-ingest";
-import { syntheticDailyQuoteSpecimen } from "./testing/daily-quotes";
+import {
+  syntheticDailyQuoteSpecimen,
+  syntheticOhlcQuoteSpecimen,
+} from "./testing/daily-quotes";
 
 const document = readFileSync(
   new URL("../../../docs/EVIDENCE_HASH_SCOPES.md", import.meta.url),
@@ -210,53 +212,32 @@ const bundleV13Cases = bundleV13CaseNames.map((name) => {
 const cases = bundleV13Cases;
 const daily = syntheticDailyQuoteSpecimen();
 const syntheticDaily = specimen(daily.rows, daily.proposal);
-const fsc = publishedReplaySources["real/fsc-stock-quotes-20260903.jsonl"];
-const fscBundle = specimen(fsc.rows, fsc.mappingProposal);
-const ohlcCompositeFsc =
-  publishedReplaySources["real/fsc-kospi-index-family-20260903/source.jsonl"];
-const compositeFsc = {
-  ...ohlcCompositeFsc,
-  mappingProposal: SchemaMappingProposalSchema.parse({
+const dailyBundle = syntheticDaily;
+const compositeDaily = {
+  rows: daily.rows,
+  proposal: SchemaMappingProposalSchema.parse({
+    ...daily.proposal,
     mappingVersion: "1.6",
-    sourceArtifactHash: ohlcCompositeFsc.sourceArtifactHash,
-    constants: {
-      schemaVersion: "1.2",
-      datasetId: ohlcCompositeFsc.mappingProposal.constants.datasetId,
-      venueId: ohlcCompositeFsc.mappingProposal.constants.venueId,
-      eventType: "DAILY_QUOTE",
-    },
     compositeSourceEventId: {
-      sourceColumns: ["basDt", "idxNm"],
+      sourceColumns: ["date", "instrument"],
       transform: "NUL_JOIN",
       confidence: 1,
       status: "PROPOSED",
-      evidence:
-        "The publisher natural key is the ordered pair (basDt, idxNm). NUL cannot occur in admitted values and makes the join injective without modifying source rows.",
+      evidence: "Synthetic composite identity.",
     },
-    fields: ohlcCompositeFsc.mappingProposal.fields.map((field) => {
-      if (field.targetField === "closePrice") {
-        return { ...field, targetField: "price", transform: "DECIMAL_STRING" };
-      }
-      if (
-        ["openPrice", "highPrice", "lowPrice", "netChange"].includes(
-          field.targetField ?? "",
-        )
-      ) {
-        return { ...field, targetField: null, transform: null };
-      }
-      return field;
-    }),
+    fields: daily.proposal.fields.map((field) =>
+      field.targetField === "sourceEventId"
+        ? { ...field, targetField: null, transform: null }
+        : field,
+    ),
   }),
 };
-const compositeFscBundle = specimen(
-  compositeFsc.rows,
-  compositeFsc.mappingProposal,
+const compositeDailyBundle = specimen(
+  compositeDaily.rows,
+  compositeDaily.proposal,
 );
-const ohlcFsc =
-  publishedReplaySources[
-    "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl"
-  ];
-const ohlcFscBundle = specimen(ohlcFsc.rows, ohlcFsc.mappingProposal);
+const ohlc = syntheticOhlcQuoteSpecimen();
+const ohlcBundle = specimen(ohlc.rows, ohlc.proposal);
 const publishedExecutionBundle = specimen(
   publishedExecutionFixRows,
   publishedExecutionFixProposal,
@@ -280,10 +261,9 @@ const committed = [
     name: "published-execution-fix44.csv",
     bundle: publishedExecutionBundle,
   },
-  ...Object.entries(publishedReplaySources).map(([name, source]) => ({
-    name,
-    bundle: specimen(source.rows, source.mappingProposal),
-  })),
+  { name: "synthetic-daily", bundle: syntheticDaily },
+  { name: "synthetic-composite-daily", bundle: compositeDailyBundle },
+  { name: "synthetic-ohlc", bundle: ohlcBundle },
 ];
 
 function resultHash(bundle: EvidenceBundleV13): string | undefined {
@@ -340,22 +320,26 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
     },
   );
 
-  it("retains the actual FSC stopping point without inventing a case or evaluation", () => {
-    expect(fscBundle.workflowState).toBe("MAPPING_APPROVED");
-    expect(fscBundle).not.toHaveProperty("case");
-    expect(fscBundle.replay).not.toHaveProperty("evaluation");
+  it("retains the synthetic daily stopping point without inventing a case or evaluation", () => {
+    expect(dailyBundle.workflowState).toBe("MAPPING_APPROVED");
+    expect(dailyBundle).not.toHaveProperty("case");
+    expect(dailyBundle.replay).not.toHaveProperty("evaluation");
     expect(
-      fscBundle.replay!.events.every((event) => event.schemaVersion === "1.2"),
+      dailyBundle.replay!.events.every(
+        (event) => event.schemaVersion === "1.2",
+      ),
     ).toBe(true);
-    expect(fscBundle.mappings[0]!.proposal.mappingVersion).toBe("1.5");
-    expect(resultHash(fscBundle)).toBe(fscBundle.replay!.canonicalResultHash);
+    expect(dailyBundle.mappings[0]!.proposal.mappingVersion).toBe("1.5");
+    expect(resultHash(dailyBundle)).toBe(
+      dailyBundle.replay!.canonicalResultHash,
+    );
   });
 
   it("hashes declarations before normalization without claiming a result hash", () => {
     const pending = EvidenceBundleV13Schema.parse({
       bundleVersion: "1.3",
-      sourceArtifacts: fscBundle.sourceArtifacts,
-      mappings: [{ proposal: fsc.mappingProposal }],
+      sourceArtifacts: dailyBundle.sourceArtifacts,
+      mappings: [{ proposal: daily.proposal }],
       workflowState: "MAPPING_REVIEW_REQUIRED",
       bundleHash: "0".repeat(64),
     });
@@ -369,9 +353,9 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
       ...pending,
       mappings: [
         {
-          proposal: fsc.mappingProposal,
+          proposal: daily.proposal,
           approval: {
-            ...approvalFor(fsc.mappingProposal),
+            ...approvalFor(daily.proposal),
             decision: "REJECTED" as const,
           },
         },
@@ -436,15 +420,18 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
   });
 
   it("keeps 1.2 opt-in separate and rejects unknown or mixed declaration shapes", () => {
-    expect(EvidenceBundleSchema.safeParse(fscBundle).success).toBe(false);
+    expect(EvidenceBundleSchema.safeParse(dailyBundle).success).toBe(false);
     for (const candidate of [
-      { ...fscBundle, bundleVersion: "1.2" },
-      { ...fscBundle, runId: "not-a-declared-field" },
-      { ...fscBundle, exportedAt: "2026-09-06T00:00:00Z" },
-      { ...fscBundle, replay: { ...fscBundle.replay, result: "INCONCLUSIVE" } },
+      { ...dailyBundle, bundleVersion: "1.2" },
+      { ...dailyBundle, runId: "not-a-declared-field" },
+      { ...dailyBundle, exportedAt: "2026-09-06T00:00:00Z" },
       {
-        ...fscBundle,
-        mappings: [{ ...fscBundle.mappings[0], unexpected: true }],
+        ...dailyBundle,
+        replay: { ...dailyBundle.replay, result: "INCONCLUSIVE" },
+      },
+      {
+        ...dailyBundle,
+        mappings: [{ ...dailyBundle.mappings[0], unexpected: true }],
       },
     ])
       expect(EvidenceBundleV13Schema.safeParse(candidate).success).toBe(false);
@@ -478,10 +465,10 @@ describe("published Evidence Bundle 1.3 hash scopes", () => {
       candidate(supported, { sensitivity: null }),
       candidate(inconclusive, { sensitivity: evaluation.sensitivity }),
       {
-        ...fscBundle,
-        replay: { ...fscBundle.replay, canonicalResultHash: undefined },
+        ...dailyBundle,
+        replay: { ...dailyBundle.replay, canonicalResultHash: undefined },
       },
-      { ...fscBundle, replay: { ...fscBundle.replay, evaluation: null } },
+      { ...dailyBundle, replay: { ...dailyBundle.replay, evaluation: null } },
     ])
       expect(EvidenceBundleV13Schema.safeParse(input).success).toBe(false);
   });
@@ -532,8 +519,8 @@ probe.case!.proposal.aiTrace.referencedEventIds = [
 const probes = [
   probe,
   syntheticDaily,
-  compositeFscBundle,
-  ohlcFscBundle,
+  compositeDailyBundle,
+  ohlcBundle,
   publishedExecutionBundle,
   publishedExecutionReviewBundle,
   ...cases.map(({ bundle }) => bundle),

@@ -9,6 +9,7 @@ import {
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
 } from "./published-execution-schema";
+import { publishedExecutionBroadProposal } from "./published-execution-not-supported";
 import { syntheticSourceProvenanceByArtifact } from "./source-provenance";
 
 type ProvenanceRecord = {
@@ -67,9 +68,6 @@ type ProvenanceRecord = {
 const scenarioSourceRoot = fileURLToPath(
   new URL("./sources/", import.meta.url),
 );
-const publishedSourceRoot = fileURLToPath(
-  new URL("../../published-data/src/sources/real/", import.meta.url),
-);
 
 function filesBelow(root: string): string[] {
   return readdirSync(root)
@@ -124,6 +122,10 @@ describe("synthetic source artifacts", () => {
       "f623c3327251b5323b07d066cb940bee0ac0ed895c39fb81707469ae1e1f958b",
     ],
     [
+      "published-execution-fix44-broad-participation.csv",
+      "aa7fb847474c978919160ae2d93ec4a6f157fd4e09759f497340649324303680",
+    ],
+    [
       "published-execution-fix44-conflicting-evidence.csv",
       "fb1f933e6c979c75bd4631fb581fb5c4796b84d89d73a28bf414dc7d9e2fdc57",
     ],
@@ -150,8 +152,8 @@ describe("synthetic source artifacts", () => {
     expect(sha256(bytes)).toBe(expectedHash);
   });
 
-  it("records every committed synthetic and published replay source exactly once", () => {
-    const roots = [scenarioSourceRoot, publishedSourceRoot];
+  it("records every committed synthetic replay source exactly once", () => {
+    const roots = [scenarioSourceRoot];
     const sourceFiles = roots.flatMap((root) =>
       filesBelow(root).filter((path) => /\.(?:csv|jsonl)$/.test(path)),
     );
@@ -206,6 +208,23 @@ describe("synthetic source artifacts", () => {
   });
 
   it.each([
+    {
+      recordName:
+        "published-execution-fix44-broad-participation.provenance.json",
+      expectedFields: [
+        "ExecID",
+        "TransactTime",
+        "Symbol",
+        "Side",
+        "LastPx",
+        "LastQty",
+        "Account",
+      ],
+      expectedColumns: publishedExecutionBroadProposal.fields.map(
+        ({ sourceColumn }) => sourceColumn,
+      ),
+      absentActor: false,
+    },
     {
       recordName: "published-execution-fix44.provenance.json",
       expectedFields: [

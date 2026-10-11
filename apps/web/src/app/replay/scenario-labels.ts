@@ -1,6 +1,7 @@
 import type { ReplayScenario } from "@weavetrail/contracts";
 
-import { type Language } from "../i18n/language";
+import type { Language } from "../i18n/language";
+import { replayCopy } from "./copy";
 
 /**
  * Korean display names for the committed sources. The committed `label` in
@@ -9,56 +10,35 @@ import { type Language } from "../i18n/language";
  * Korean reader meets it on screen, so the source they are told to pick is the
  * source they can find in the list.
  */
-const SCENARIO_LABELS_KO: Readonly<Partial<Record<ReplayScenario, string>>> = {
+export const SCENARIO_LABELS_KO: Readonly<Record<ReplayScenario, string>> = {
   "actorless-multi-instrument-quotes.jsonl":
     "거래 주체 없는 다종목 시세 · JSON Lines",
   "concentrated-buy-dialect-a.csv": "매수 집중 · 형식 A · CSV",
   "concentrated-buy-dialect-b.jsonl": "매수 집중 · 형식 B · JSON Lines",
-  "published-execution-fix44.csv": "합성 · 공개 FIX 4.4 체결 항목 · CSV",
+  "published-execution-fix44.csv": "FIX 4.4 형식 체결 자료 · CSV",
+  "published-execution-fix44-broad-participation.csv":
+    "FIX 4.4 형식 · 참여자가 분산된 사례 · CSV",
   "published-execution-fix44-conflicting-evidence.csv":
-    "합성 · 공개 FIX 4.4 체결 식별자 충돌 · CSV",
-  "published-execution-h0stcnt0.jsonl":
-    "합성 · 공개 H0STCNT0 체결 항목 · JSON Lines",
+    "FIX 4.4 형식 · 체결 번호가 겹치는 사례 · CSV",
+  "published-execution-h0stcnt0.jsonl": "H0STCNT0 형식 체결 자료 · JSON Lines",
   "rapid-price-lift-supported.csv": "단기 급등 · 기준을 충족한 사례 · CSV",
   "rapid-price-lift-broad-participation.csv":
     "단기 급등 · 참여자가 분산된 사례 · CSV",
   "rapid-price-lift-insufficient-evidence.csv":
     "단기 급등 · 근거가 부족한 사례 · CSV",
-  "real/fsc-stock-quotes-20260903.jsonl":
-    "금융위원회 공개 · 코스피 일별 시세 · 2026-09-03",
-  "real/fsc-kospi-index-family-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피 지수군 · 2026-09-03",
-  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피200 기준선 · 2026-07-01~2026-09-03",
-  "real/fsc-kospi-200-futures-20260903/source.jsonl":
-    "금융위원회 공개 · 코스피200 선물 · 2026-09-03",
-  "real/fsc-weekly-options-20260903/source.jsonl":
-    "금융위원회 공개 · 주간 옵션 · 2026-09-03",
 };
 
-const SOURCE_KIND_KO: Readonly<Record<string, string>> = {
-  synthetic: "시연용 가상자료",
-  real: "공개 실제 자료",
-};
-
-/** One list entry: what the source is, and whether it is real or synthetic. */
+/** One list entry: what the source is, that it is synthetic, and its role. */
 export function scenarioOptionLabel(
   scenario: ReplayScenario,
   committedLabel: string,
-  kind: string,
   purpose: "REVIEWER_FACING" | "ENGINE_REGRESSION",
   language: Language,
 ): string {
+  const text = replayCopy[language].working;
+  const name =
+    language === "ko" ? SCENARIO_LABELS_KO[scenario] : committedLabel;
   const role =
-    purpose === "REVIEWER_FACING"
-      ? language === "ko"
-        ? "검토용"
-        : "reviewer-facing"
-      : language === "ko"
-        ? "엔진 회귀 대체 사례"
-        : "engine regression fallback";
-  if (language !== "ko") return `${committedLabel} · ${kind} · ${role}`;
-  return `${SCENARIO_LABELS_KO[scenario] ?? committedLabel} · ${
-    SOURCE_KIND_KO[kind] ?? kind
-  } · ${role}`;
+    purpose === "REVIEWER_FACING" ? text.reviewerFacing : text.engineRegression;
+  return `${name} · ${text.synthetic} · ${role}`;
 }

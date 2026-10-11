@@ -1,4 +1,3 @@
-import { publishedReplaySources } from "@weavetrail/published-data";
 import {
   SchemaMappingProposalSchema,
   type AllowedTransform,
@@ -9,12 +8,17 @@ import {
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   publishedExecutionConflictProposal,
+  publishedExecutionBroadProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
   rapidPriceLiftScenarios,
 } from "@weavetrail/scenarios";
 
-import type { MappingInput, SchemaMappingProvider } from "./provider";
+import type {
+  MappingInput,
+  ProviderTrace,
+  SchemaMappingProvider,
+} from "./provider";
 
 type DeclaredField = {
   targetField: string | null;
@@ -67,15 +71,13 @@ function eventTypeOf(
 }
 
 const registeredProposals = [
-  ...Object.values(publishedReplaySources).map(
-    ({ mappingProposal }) => mappingProposal,
-  ),
   actorlessMultiInstrumentMappingProposal,
   concentratedBuyDialectAProposal,
   concentratedBuyDialectBProposal,
   publishedExecutionConflictProposal,
   publishedExecutionFixProposal,
   publishedExecutionH0stcnt0Proposal,
+  publishedExecutionBroadProposal,
   ...Object.values(rapidPriceLiftScenarios).map(
     ({ mappingProposal }) => mappingProposal,
   ),
@@ -108,7 +110,7 @@ export const fixtureMappingsByArtifact = new Map(
 
 export class FixtureSchemaMappingProvider implements SchemaMappingProvider {
   readonly mode = "fixture" as const;
-  readonly trace = {
+  readonly trace: ProviderTrace = {
     mode: this.mode,
     model: "registered-mapping",
     promptVersion: "fixture-mapping/1",

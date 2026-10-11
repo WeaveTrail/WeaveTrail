@@ -5,7 +5,10 @@ import { CaseManifestSchema } from "./case-manifest";
 import { RapidPriceLiftResultSchema } from "./rapid-price-lift";
 import { WorkflowStateSchema } from "./workflow";
 import { SourceTraceSchema } from "./source-trace";
-import { MappingReceiptSchema } from "./mapping-response";
+import {
+  MappingBudgetDenialReasonSchema,
+  MappingReceiptSchema,
+} from "./mapping-response";
 
 export const ReplayReviewWorkflowStateSchema = WorkflowStateSchema.extract([
   "MAPPING_REVIEW_REQUIRED",
@@ -23,16 +26,12 @@ export const ReplayScenarioSchema = z.enum([
   "concentrated-buy-dialect-a.csv",
   "concentrated-buy-dialect-b.jsonl",
   "published-execution-fix44.csv",
+  "published-execution-fix44-broad-participation.csv",
   "published-execution-fix44-conflicting-evidence.csv",
   "published-execution-h0stcnt0.jsonl",
   "rapid-price-lift-supported.csv",
   "rapid-price-lift-broad-participation.csv",
   "rapid-price-lift-insufficient-evidence.csv",
-  "real/fsc-stock-quotes-20260903.jsonl",
-  "real/fsc-kospi-index-family-20260903/source.jsonl",
-  "real/fsc-kospi-200-baseline-20260701-20260903/source.jsonl",
-  "real/fsc-kospi-200-futures-20260903/source.jsonl",
-  "real/fsc-weekly-options-20260903/source.jsonl",
 ]);
 
 export const MAX_REPLAY_ROWS = 1_000;
@@ -165,6 +164,20 @@ const replayReviewResponseBranch = <
     })
     .strict();
 
+const mappingReviewIssueSchema = replayReviewIssueSchema(
+  MappingReplayReviewIssueCodeSchema,
+)
+  .extend({ budgetReason: MappingBudgetDenialReasonSchema.optional() })
+  .refine(
+    (issue) =>
+      issue.budgetReason === undefined ||
+      issue.code === "MAPPING_APPLICATION_REVIEW_REQUIRED",
+    {
+      message: "Budget reasons require a mapping application review issue",
+      path: ["budgetReason"],
+    },
+  );
+
 export const ReplayReviewResponseSchema = z.discriminatedUnion(
   "workflowState",
   [
@@ -174,7 +187,7 @@ export const ReplayReviewResponseSchema = z.discriminatedUnion(
     ),
     replayReviewResponseBranch(
       "MAPPING_REVIEW_REQUIRED",
-      replayReviewIssueSchema(MappingReplayReviewIssueCodeSchema),
+      mappingReviewIssueSchema,
     ),
     replayReviewResponseBranch(
       "CASE_REVIEW_REQUIRED",

@@ -1,5 +1,7 @@
 # Deployment
 
+[한국어: 환경과 일일 예산](DEPLOYMENT.ko.md)
+
 The public WeaveTrail workbench is designed to run on Vercel in deterministic
 fixture mode. This checkout serves committed synthetic scenarios and a licensed
 published daily quotation artifact; it never retrieves source data at runtime.
@@ -71,6 +73,9 @@ An emergency production hotfix is an explicit exception to the normal release
 path. Create its branch from the current `origin/main` and open it into `main`
 so unreleased `develop` changes are not included. After the hotfix reaches
 production, carry the same change into `develop` before the next release.
+After a [rollback](#rollback), `main` still holds the failed release and
+production no longer follows `main`. The hotfix then reaches production only
+through the steps in [hotfix after a rollback](#hotfix-after-a-rollback).
 
 ### Versions and release tags
 
@@ -148,14 +153,15 @@ Page preparation and builds never call the provider. Its configuration is:
 
 The adapter reads these binding configuration names only on the server:
 
-| Variable               | Meaning                                                          | Boundary                                                                              |
-| ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `AI_MODE`              | `fixture` (the default) or `ai`                                  | Server-only selection; the presence of the other variables does not select a provider |
-| `AI_PROVIDER_BASE_URL` | HTTPS origin for an OpenAI-compatible structured-output endpoint | Server-only; never public-prefixed or sent to the browser                             |
-| `AI_PROVIDER_API_KEY`  | Credential for that endpoint                                     | Secret, server-only; never public-prefixed, logged, or sent to the browser            |
-| `AI_PROVIDER_MODEL`    | Provider model identifier                                        | Server-only configuration; never public-prefixed or sent to the browser               |
+| Variable               | Meaning                                                                              | Boundary                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `AI_MODE`              | `fixture` (the default) or `ai`                                                      | Server-only selection; the presence of the other variables does not select a provider |
+| `AI_PROVIDER_BASE_URL` | HTTPS base URL including the API path for Chat Completions                           | Server-only; never public-prefixed or sent to the browser                             |
+| `AI_PROVIDER_API_KEY`  | Credential for that endpoint                                                         | Secret, server-only; never public-prefixed, logged, or sent to the browser            |
+| `AI_PROVIDER_MODEL`    | Pinned provider model identifier; `-latest` aliases rejected                         | Server-only configuration; never public-prefixed or sent to the browser               |
+| `AI_EVALUATION_MODELS` | JSON array of `{ provider, baseUrl, model, apiKeyEnv }` for the manual model command | Local/server only; `apiKeyEnv` names a separately supplied secret variable            |
 
-Do not create a `NEXT_PUBLIC_` variant of any of them. Leave all four unset in
+Do not create a `NEXT_PUBLIC_` variant of any of them. Leave all provider variables unset in
 CI, Preview, and Production. A future deployment may opt into `AI_MODE=ai` only as
 an explicit environment choice; merely making provider configuration available
 must leave the default fixture reviewer path and its published expected results
@@ -166,19 +172,144 @@ Migration from the old reserved names requires no runtime compatibility:
 templates and use the `AI_PROVIDER_*` names above for local adapter configuration.
 Do not add either the old or new names to a deployed environment in this change.
 
-For a local configured request, set the selector and all three provider values
-in the server environment, run `pnpm dev`, open working mode, choose Dialect A
-or B, and select **Request mapping proposal**. The base URL must be an HTTPS
-origin with no credentials, path, query or fragment. The adapter appends
-`/v1/chat/completions` and requires strict JSON-schema structured output.
+Public configured requests now require Vercel's trusted client IP and the hosted
+budget configuration below. Plain `pnpm dev` requests cannot establish that
+platform identity and fail closed; use `pnpm eval:models --live` for local
+provider checks. On an explicitly configured Vercel deployment, the mapping
+request action remains available for eligible registered synthetic dialects.
+The base URL must be an HTTPS
+base URL with no credentials, query or fragment. Include the API path:
+`https://api.openai.com/v1` or, as in Google's
+[compatibility documentation](https://ai.google.dev/gemini-api/docs/openai),
+`https://generativelanguage.googleapis.com/v1beta/openai`. Trailing slashes
+are normalized; the adapter appends `/chat/completions` to that path.
+Origin-only URLs and paths that normalize to the root are rejected before a
+provider call; there is no automatic `/v1` fallback.
+Changing provider or model requires configuration alone. Use an immutable,
+pinned ID from the provider's catalogue: `latest` aliases, `auto` and `default`
+are rejected locally, but arbitrary vendor aliases cannot be proven immutable
+by their spelling. The operator must verify the chosen ID's pinning.
+The same instruction and strict `json_schema` request are sent for every model,
+with temperature 0, no tools, no redirects and no adapter retries. Both success
+and error bodies are limited to 64 KiB; the deadline for transport and body
+consumption together is 30 seconds. The shared validator, rather than the
+endpoint's strict-mode promise, is the acceptance gate. Unsupported strict
+mode fails closed; the adapter never downgrades to JSON mode.
 No call happens on page load. A successful, validated response reveals its
 actual **Configured provider** label and enables explicit mapping approval.
 Provider mode is recorded with the model identifier and prompt version on the
 server; the model identifier is encrypted in the opaque receipt and never
 exposed as public configuration. See [ADR 0029](adr/0029-bind-configured-mapping-proposals-to-review.md)
-for sample limits, eligibility and receipt expiry. The public endpoint has no
-identity or spending controls yet; implement those before exposing configured
-mode in a shared deployment.
+for sample limits, eligibility and receipt expiry. The public endpoint checks
+the shared daily request and call budgets below before any model call.
+
+### Daily public model budget
+
+Configured public model requests require an Upstash Redis database shared by
+all Vercel functions using the same model budget. The server uses its
+[REST command API](https://upstash.com/docs/redis/features/restapi) directly
+with built-in `fetch`; no dependency is added. A single `EVAL` checks and
+reserves both counters atomically on the primary, avoiding separate cached
+reads or per-instance memory. Use a dedicated database and non-evicting
+configuration; flushing or evicting counters resets protection. Share the same
+caps and secret across functions and deployments that spend the same budget.
+Isolate preview experiments into a separate database and provider budget.
+
+| Variable                    | Meaning                                                                                        |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `UPSTASH_REDIS_REST_URL`    | HTTPS origin of the shared Redis REST endpoint, no path, credentials, query or fragment        |
+| `UPSTASH_REDIS_REST_TOKEN`  | Server-only write-capable secret for that database                                             |
+| `AI_LIMIT_VISITOR_SECRET`   | Random server-only HMAC secret of at least 32 bytes, shared across functions                   |
+| `AI_LIMIT_VISITOR_REQUESTS` | Positive integer visitor requests per KST day; unset defaults to 15                            |
+| `AI_LIMIT_GLOBAL_CALLS`     | Required positive integer global model-call cap per KST day; no implicit unlimited/default cap |
+
+Caps accept integers from 1 to 1,000,000,000. None of these variables may use a
+`NEXT_PUBLIC_` prefix, enter logs or reach the browser. Leave them unset for
+fixture-only deployments. Do not configure accounts or provision Redis as part
+of a code review; opting into a deployed live provider remains an explicit
+operator environment choice.
+
+The identity boundary requires platform `VERCEL=1` and one valid IP from
+[`x-vercel-forwarded-for`](https://vercel.com/docs/headers/request-headers#x-vercel-forwarded-for).
+No cookie, request-body identity, `x-forwarded-for` fallback or non-Vercel
+header is trusted. Do not manually set `VERCEL=1` to bypass this boundary.
+A proxy in front of Vercel may group visitors under its address; this is an IP
+budget, not person authentication. Other hosting requires a separately reviewed
+trusted identity adapter.
+
+Redis receives only a day-bound HMAC-SHA-256 visitor key, visitor request count
+and global reserved-call count. Both counters expire at the next 00:00 KST;
+no raw IP is stored or logged by the application. A new day produces a new
+HMAC. Rotate the HMAC secret at KST midnight: rotating mid-day resets visitor
+keys while the global cap still applies. Disable key/body logging and counter
+backups past the KST day; application expiry does not establish deletion from
+provider logs or backups. [Data handling](DATA_HANDLING.md#daily-live-model-counters)
+describes those limits.
+
+One direct mapping proposal reserves one visitor request and one global call.
+The shared `runPublicModelRequest` boundary also accepts a two-call reservation
+for future routed proposals: one visitor request, two global calls, and a
+callback that refuses a third or expired attempt. Routing and the mutation
+demo are still planned; their public live calls must use this boundary. Failed
+or unused reservations are not refunded, including ambiguous transport errors.
+This conservative cap bounds attempts rather than tokens or currency. No
+provider retry is enabled. Invalid configuration, absent trusted IP, store
+failure or timeout (three seconds including the body), and either exceeded cap
+prevent model calls and return HTTP 422 `REVIEW_REQUIRED` with a fixed reason,
+which the browser displays only after validating the review-response contract.
+Budget issues additionally carry a closed `budgetReason` code for English/Korean
+client guidance. Update strict response consumers with the server; older parsers
+reject this optional field. Prior responses without it remain accepted by the
+new contract. See [the denial contract and migration notes](DATA_HANDLING.md#mapping-budget-denial-codes).
+The mapping route requires `application/json` (charset allowed) and rejects an
+Origin header that differs from the request URL's origin before parsing the
+body or reserving budget. No-Origin JSON clients remain supported; cross-origin
+browser JSON requests require a preflight, for which this route grants no CORS
+access. Safelisted text/form requests cannot spend a visitor's budget.
+Redis validates the reservation day against its clock; grants arriving after
+midnight are rejected locally as well. A call started before midnight may
+finish after it, but further attempts need a new day's reservation.
+
+Fixture requests, page preparation, builds and replaying an existing encrypted
+receipt use neither model calls nor counters. `pnpm eval:models --live` calls
+the server adapter directly and intentionally bypasses public budgets. Tests
+use a shared in-memory fake and mocked Redis transport; no hosted Redis or live
+Vercel configuration has been validated. See
+[ADR 0063](adr/0063-reserve-public-model-budgets-in-shared-daily-counters.md).
+
+### Manual model adapter runs
+
+`pnpm eval` and all default checks remain offline fixture runs. The separate
+command below requires `--live` and explicit keys for every configured entry,
+and refuses to run when `CI` is set. No model list is compiled into the runner.
+The following configuration is illustrative; replace its URL, pinned model ID
+and secret variable with those for the endpoint being tested:
+
+```bash
+export AI_EVALUATION_MODELS='[{"provider":"example","baseUrl":"https://provider.invalid/v1","model":"example-model-2026-10-01","apiKeyEnv":"EXAMPLE_MAPPING_KEY"}]'
+# Supply EXAMPLE_MAPPING_KEY separately in the local environment.
+pnpm eval:models --live --scenario concentrated-buy-dialect-a.csv
+```
+
+Dialect B (`concentrated-buy-dialect-b.jsonl`) is also accepted. Each entry is
+called once over the same registered synthetic input. The command writes a
+validated `mapping-run/1` record and a separate hashed receipt to the ignored
+`dist/mapping-runs/` directory, using new IDs and exclusive file creation.
+Only the closed structured field output may be retained; raw envelopes, error
+messages and credentials are discarded. Missing or invalid usage and missing
+reported model are null. Temperature is recorded as the decimal string `"0"`.
+Provider/transport failures produce `PROVIDER_FAILED` with a stable failure
+class; parsed mapping failures produce `CONTRACT_REJECTED` and validator reasons.
+The web path continues to expose only `REVIEW_REQUIRED` on failure.
+
+These are adapter smoke runs, not the sealed schema-dialect evaluation. The
+record identifies `replay-synthetic-adapter-smoke/1`, the source artifact hash,
+`DEV`, the selected source filename and repeat 1. No HELD_OUT input, scoring,
+comparison or model selection is implemented by this command. Live compatibility
+has not been measured in this change. `tsx` is a development dependency needed
+to execute this explicit TypeScript CLI over the workspace source packages.
+See [the evaluation protocol](EVALUATION.md#configured-mapping-run-producer) and
+[ADR 0062](adr/0062-run-mapping-through-one-configurable-chat-completions-adapter.md).
 
 `DATA_GO_KR_SERVICE_KEY` is a separate retrieval credential. The manual local
 retrieval script reads it once before an admitted artifact is committed; the
@@ -252,38 +383,37 @@ pnpm build
 ```
 
 Then use a fresh browser session to load `/`, `/why`, `/architecture`,
-`/replay`, `/case-2026-09-03`, `/expectations`, `/evals`, and `/methodology`
-from the recorded immutable deployment URL. In `/replay`:
+`/replay` and `/evals` from the recorded immutable deployment URL, and confirm
+that `/methodology`, `/expectations` and `/data-handling` redirect to
+`/architecture`. In `/replay`:
 
-1. From `/`, select **Walk through a case**. Read the supported source, exercise
-   the separate Dialect B review stop, supply its justified reason, and approve
-   the worked case's own mapping and manifest. Run it, open source evidence,
-   repeat it and compare both returned hashes with the committed golden oracle.
-   Continue to working mode and confirm the case, approvals and result remain.
-   Refresh and confirm approvals and results are cleared. Inspect a narrow
+1. From `/`, select **Try an example**. Walk the five scenes: approve the worked
+   case's mapping and scope, compute the result, compute it again and confirm
+   the second run reports the same result, then pick each criterion and confirm
+   its source rows are marked. Refresh and confirm approvals and results are
+   cleared. In `/replay?mode=working`, approve and run the same worked case and
+   compare the canonical result hash its result panel shows with the committed
+   golden oracle. There, pick the H0STCNT0 source and confirm it stops at
+   `REVIEW_REQUIRED` until each flagged field has a reason. Inspect a narrow
    viewport and keyboard navigation.
 2. Submit the committed rejected mapping path and confirm an HTTP `422`
    response with `status: REVIEW_REQUIRED`, a review workflow state, and no
    replay or canonical result hash.
 
-In `/case-2026-09-03`, approve the case scope, run the evidence analysis, and
-confirm the returned canonical result hash equals the value pinned by
-`apps/web/src/lib/published-case.test.ts` and the engine suite. Then post to
-`/api/case-2026-09-03` with an approval hash that does not cover that scope and
-confirm an HTTP `422` response carrying a case review code and no result.
+Confirm the withdrawn case and coverage endpoints return HTTP `404`; no navigation entry may link to them.
 
 Inspect every production browser asset, any emitted browser source map, and the
 complete public build log. This is a disclosure check, not a check that provider
 configuration is absent from the server environment. Search all three surfaces
 for each exact term below and require zero matches:
 
-| Exact search term or regular expression                                                                         | Expected result                                                                                          |
-| --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `AI_MODE`, `AI_PROVIDER_BASE_URL`, `AI_PROVIDER_API_KEY`, `AI_PROVIDER_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL` | No current or retired provider variable name in a browser asset, browser source map, or public build log |
-| `DATA_GO_KR_SERVICE_KEY`                                                                                        | No retrieval-credential name in a deployed asset or public build log                                     |
-| `Authorization: Bearer` and `authorization\"\s*:\s*\"Bearer`                                                    | No provider authorization header in either text or serialized JSON form                                  |
-| `sk-[A-Za-z0-9_-]{20,}` and `Bearer [A-Za-z0-9._-]{20,}`                                                        | No recognizable API-key or bearer-token value                                                            |
-| `rawProviderTrace`, `raw_provider_trace`, `providerRequestBody`, `provider_request_body`                        | No raw-trace or request-body field in a public surface                                                   |
+| Exact search term or regular expression                                                                                                                                                                                                                | Expected result                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `AI_MODE`, `AI_PROVIDER_BASE_URL`, `AI_PROVIDER_API_KEY`, `AI_PROVIDER_MODEL`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `AI_LIMIT_VISITOR_SECRET`, `AI_LIMIT_VISITOR_REQUESTS`, `AI_LIMIT_GLOBAL_CALLS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | No current or retired provider variable name in a browser asset, browser source map, or public build log |
+| `DATA_GO_KR_SERVICE_KEY`                                                                                                                                                                                                                               | No retrieval-credential name in a deployed asset or public build log                                     |
+| `Authorization: Bearer` and `authorization\"\s*:\s*\"Bearer`                                                                                                                                                                                           | No provider authorization header in either text or serialized JSON form                                  |
+| `sk-[A-Za-z0-9_-]{20,}` and `Bearer [A-Za-z0-9._-]{20,}`                                                                                                                                                                                               | No recognizable API-key or bearer-token value                                                            |
+| `rawProviderTrace`, `raw_provider_trace`, `providerRequestBody`, `provider_request_body`                                                                                                                                                               | No raw-trace or request-body field in a public surface                                                   |
 
 For a future configured-provider promotion, also record one
 distinctive, non-secret substring from the submitted provider request and one
@@ -309,15 +439,58 @@ To roll back without rewriting Git history:
 
 1. Open the Vercel project and select the previous known-good production
    deployment whose Git SHA matches the recorded revision.
-2. Use the deployment's rollback action to restore it as production.
-3. Confirm the production alias points to that immutable deployment URL.
+2. Use its **Instant Rollback** action to restore it as production. On the
+   Hobby plan only the immediately previous production deployment is eligible.
+3. Confirm the production alias points to that immutable deployment URL and
+   that the production deployment tile shows the project as rolled back.
 4. Repeat the eight-route fresh-browser smoke check, both Case Replay checks,
-   and both `/case-2026-09-03` checks: approve the scope and confirm the pinned
-   canonical result hash, then post a non-covering approval to
-   `/api/case-2026-09-03` and confirm the HTTP `422` review response.
+   and the withdrawn endpoint HTTP `404` checks.
 5. Record the restored SHA, immutable deployment URL, time, check results, and
    whether any check was skipped.
 
 If no prior known-good production deployment exists, do not claim rollback was
 tested. Disable external sharing of the failed first deployment, correct the
 problem on a new reviewed commit, and promote only after the full gate passes.
+
+### Hotfix after a rollback
+
+A rollback does not change `main`: it still points at the failed commit. It
+does stop production from following `main`. After an Instant Rollback, Vercel
+turns off automatic assignment of the production domains, so a later push to
+`main` builds a production deployment that is not served. The domains move
+again only when a deployment is promoted. The project fixes forward on `main`
+while the restored deployment keeps serving production, and promotes the fix
+only after it passes the gate
+([ADR 0072](adr/0072-fix-forward-on-main-while-the-rollback-holds-production.md)).
+From the rollback until step 5 completes, `main` is frozen to the recovery
+hotfix: no `develop`-to-`main` promotion or other pull request merges into
+`main`, so the hotfix release contains only the failed release and its fix.
+
+1. Branch the hotfix from the current `origin/main`, which still holds the
+   failed release, and open it into `main`. The change is a forward fix or a
+   revert of the failing pull request's own commits. Never revert the
+   promotion merge itself: the next `develop` promotion would then silently
+   omit the reverted changes.
+2. Merge the hotfix. Production still serves the restored deployment. The
+   merge commit's new deployment exists only at its immutable URL.
+3. Run the whole [promotion gate](#promotion-gate) on that merge commit and
+   its immutable deployment URL. The gate's check that the stable production
+   origin points at the same deployment waits until step 4.
+4. Promote exactly that gated deployment with **Undo Rollback** on the
+   production deployment tile, or with `vercel promote <immutable URL>`. Do not
+   pick the newest deployment by default; the failed deployment is also
+   eligible. Promotion moves the production domains to it and turns automatic
+   assignment back on, so production follows `main` again from here.
+5. Confirm the stable production origin points at the promoted immutable URL
+   and the tile no longer shows a rollback. Then complete every release step in
+   [versions and release tags](#versions-and-release-tags) on that commit: tag
+   it, publish its GitHub release and close its milestone. If the failed
+   release was already tagged, the commit takes the next patch version in a
+   milestone of its own; if the gate failed before any tag existed, it keeps
+   the planned version and milestone. Carry the change into `develop`, as for
+   any hotfix.
+
+After step 4, production serves the hotfix commit: the failed release plus the
+hotfix change. The next ordinary `develop` promotion may merge only after
+step 5, and it ships its own milestone through the usual gate. Neither rollback
+nor this hotfix path has been exercised.

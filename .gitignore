@@ -1,10 +1,15 @@
 node_modules/
 .next/
 dist/
-coverage/
+# Generated coverage reports; application API directories are source code.
+/coverage/
+/packages/*/coverage/
+/apps/*/coverage/
 playwright-report/
 test-results/
 .service-store/
+# Local provider envelopes and traces; never evaluation publications.
+.model-runs/raw/
 *.tsbuildinfo
 .env
 .env.local

@@ -1,4 +1,7 @@
-import type { SchemaMappingProposal } from "@weavetrail/contracts";
+import type {
+  PromptVersion,
+  SchemaMappingProposal,
+} from "@weavetrail/contracts";
 
 export type MappingInput = {
   sourceArtifactHash: string;
@@ -10,7 +13,7 @@ export type MappingInput = {
 export type ProviderTrace = {
   mode: "fixture" | "ai";
   model: string;
-  promptVersion: string;
+  promptVersion: PromptVersion;
 };
 
 export interface SchemaMappingProvider {

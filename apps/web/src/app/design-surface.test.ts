@@ -11,10 +11,10 @@ import {
 import { validateLocalPayloadPaths } from "../../../../scripts/verify-design-snapshot.mjs";
 import ArchitecturePage from "./architecture/page";
 import EvalsPage from "./evals/page";
-import ExpectationsPage from "./expectations/page";
-import { CaseReplay, type ReplayScenarioOption } from "./replay/case-replay";
-import MethodologyPage from "./methodology/page";
+import { CaseReplay } from "./replay/case-replay";
+import type { ReplayScenarioOption } from "./replay/types";
 import HomePage from "./page";
+import { shellCopy } from "./shell/copy";
 import WhyPage from "./why/page";
 
 const forbidden = [
@@ -63,34 +63,18 @@ describe("canonical product presentation", () => {
       resolve(process.cwd(), "apps/web/src/app/layout.tsx"),
       "utf8",
     );
-    const navigation = readFileSync(
-      resolve(process.cwd(), "apps/web/src/app/site-navigation.tsx"),
-      "utf8",
-    );
-    for (const href of [
-      "/",
-      "/architecture",
-      "/replay",
-      "/evals",
-      "/expectations",
-      "/methodology",
-      "/why",
-    ])
-      expect(navigation).toContain(`"${href}"`);
-    expect(navigation).toContain("Primary navigation");
-    expect(navigation).toContain('aria-current={pathname === href ? "page"');
-    expect(layout).toContain("skip-link");
+    for (const { navigation, navigationLabel } of Object.values(shellCopy)) {
+      expect(
+        navigation.flatMap(([, items]) => items.map(([, href]) => href)).sort(),
+      ).toEqual(["/", "/architecture", "/evals", "/replay", "/why"].sort());
+      expect(navigationLabel.length).toBeGreaterThan(0);
+    }
+    expect(layout).toContain("<SkipLink />");
+    expect(layout).toContain("<SiteHeader />");
   });
 
   it("keeps forbidden design fixtures out of rendered public pages", () => {
-    const markup = [
-      HomePage,
-      ArchitecturePage,
-      EvalsPage,
-      ExpectationsPage,
-      MethodologyPage,
-      WhyPage,
-    ]
+    const markup = [HomePage, ArchitecturePage, EvalsPage, WhyPage]
       .map((Page) => renderToStaticMarkup(createElement(Page)))
       .join("\n");
     for (const value of forbidden) expect(markup).not.toContain(value);
@@ -134,9 +118,10 @@ describe("canonical product presentation", () => {
   });
 
   it("keeps the three results separate from pre-replay review vocabulary", () => {
-    const markup = renderToStaticMarkup(createElement(HomePage));
+    const markup = renderToStaticMarkup(createElement(ArchitecturePage));
     for (const result of ["SUPPORTED", "NOT_SUPPORTED", "INCONCLUSIVE"])
-      expect(markup).toContain(result);
-    expect(markup).toContain("REVIEW_REQUIRED · pre-replay");
+      expect(markup).toContain(`data-result="${result}"`);
+    expect(markup).not.toContain('data-result="REVIEW_REQUIRED"');
+    expect(markup).toContain("REVIEW_REQUIRED is not a result.");
   });
 });

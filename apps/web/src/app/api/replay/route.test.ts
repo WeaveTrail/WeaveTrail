@@ -212,6 +212,40 @@ describe("POST /api/replay approved mapping boundary", () => {
   });
 
   it.each(["baseline", "shuffle", "duplicate"] as const)(
+    "replays published FIX broad participation as NOT_SUPPORTED for %s",
+    async (mutation) => {
+      const scenarioName = "published-execution-fix44-broad-participation.csv";
+      const fixture = committedReplayScenarios[scenarioName];
+      const response = await POST(
+        request({
+          scenario: scenarioName,
+          mutation,
+          rows:
+            mutation === "shuffle" ? [...fixture.rows].reverse() : fixture.rows,
+          mappingApproval: approval(fixture.mappingProposal),
+          caseManifest: fixture.manifest,
+        }),
+      );
+      const result = ReplayResultResponseSchema.parse(await response.json());
+      expect(response.status).toBe(200);
+      expect(result.workflowState).toBe("REPLAYED");
+      if (result.workflowState !== "REPLAYED")
+        throw new Error("Expected rule replay");
+      expect(result.evaluation.result).toBe("NOT_SUPPORTED");
+      expect(result.evaluation.nonComparableEventCount).toBe(0);
+      expect(
+        result.evaluation.findings
+          .filter(({ passed }) => !passed)
+          .map(({ gate }) => gate),
+      ).toEqual(["ACTOR_CONCENTRATION", "REMOVAL_SENSITIVITY"]);
+      expect(result.replay.canonicalResultHash).toBe(
+        "6eed9e96766ee2af23b9a6bad795b069d58833f5a21141c4fdffad41af00ddf5",
+      );
+      expect(result.sourceTrace.entries).toHaveLength(6);
+    },
+  );
+
+  it.each(["baseline", "shuffle", "duplicate"] as const)(
     "stops committed conflicting identity evidence before replay for %s with no result hash",
     async (mutation) => {
       const scenarioName =

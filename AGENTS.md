@@ -8,17 +8,18 @@ this file covers the judgment calls that process does not spell out.
 
 ## Repository shape
 
-| Path                      | Responsibility                                                          |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `apps/web`                | The public explanation pages and guided Case Replay                     |
-| `packages/contracts`      | Versioned runtime contracts and shared types                            |
-| `packages/replay-engine`  | Deterministic normalization, ordering, rules, and evidence hashes       |
-| `packages/ai-harness`     | Constrained provider adapters and deterministic fixtures                |
-| `packages/scenarios`      | Synthetic datasets and controlled input mutations                       |
-| `packages/published-data` | Licensed published artifacts, provenance, and declared source mappings  |
-| `packages/service-store`  | Immutable collected public-source snapshots and derived-result bindings |
-| `packages/evals`          | Versioned evaluation cases and aggregate runners                        |
-| `docs`                    | Public architecture, methodology, evaluation protocol, and limitations  |
+| Path                           | Responsibility                                                          |
+| ------------------------------ | ----------------------------------------------------------------------- |
+| `apps/web`                     | The public explanation pages and guided Case Replay                     |
+| `packages/contracts`           | Versioned runtime contracts and shared types                            |
+| `packages/canonical-kernel`    | Canonical JSON, hashing, ordering, and scaled-decimal arithmetic        |
+| `packages/instrument-resolver` | Date-aware exact name/code resolution over supplied admitted listings   |
+| `packages/replay-engine`       | Deterministic event normalization, rules, and evidence hash scopes      |
+| `packages/ai-harness`          | Constrained provider adapters and deterministic fixtures                |
+| `packages/scenarios`           | Synthetic datasets and controlled input mutations                       |
+| `packages/service-store`       | Immutable collected public-source snapshots and derived-result bindings |
+| `packages/evals`               | Versioned evaluation cases and aggregate runners                        |
+| `docs`                         | Public architecture, methodology, evaluation protocol, and limitations  |
 
 Describe only behavior that exists. Mark planned work as planned until a
 reproducible check confirms it.
@@ -35,7 +36,13 @@ reproducible check confirms it.
   `main`.
 - An explicitly authorized emergency hotfix starts from an up-to-date
   `origin/main` and targets `main`. After it merges, carry the same change into
-  `develop` so the integration branch does not regress the fix.
+  `develop` so the integration branch does not regress the fix. After a
+  production rollback, `origin/main` still holds the failed release and its
+  merge is not served; `main` takes no other merge until that hotfix is
+  promoted, released and carried into `develop` (step 5 of that procedure).
+  Promote the hotfix deployment only as
+  `docs/DEPLOYMENT.md` "Hotfix after a rollback" describes, and never revert
+  the promotion merge.
 - Existing pull requests retain their current base unless the owner requests
   a retargeting.
 - Each GitHub milestone names one version, and every promotion to `main`, a
@@ -88,9 +95,18 @@ reproducible check confirms it.
   time, reuse terms and attribution; service snapshots also require a collector
   version. Existing committed acquisition records retain their versioned shape.
 - Admit a public source to the service store only after recording reviewed
-  permission to store, modify and redistribute it. Never store credentials,
-  personal/customer/production trading data, or pasted user text by default.
-  A public URL alone is not permission evidence.
+  permission to store and modify it, and either to redistribute it or to
+  display it on screen (display-only). A dated written answer from the rights
+  holder naming the distribution and use is permission evidence; a public URL
+  alone is not. Never store credentials, personal/customer/production trading
+  data, or pasted user text by default.
+- Display-only data never leaves the server as original bytes, rows, series,
+  downloads or exports, and never enters the repository, CI artifacts or
+  browser bundles. Screens, tables and shared briefs show the values a checked
+  claim cites and values computed from them, with the source's required
+  attribution; no file export of the data. While any display-only
+  source is shown, the service carries no advertising or paid features
+  ([ADR 0055](docs/adr/0055-admit-display-only-published-data-to-the-service-tier.md)).
 - Never overwrite a stored snapshot. Deduplicate unchanged recollections;
   link changed content to the preceding snapshot for that exact origin URL.
   Derived service events, conclusions and checks carry immutable snapshot
@@ -142,10 +158,13 @@ pnpm typecheck
 pnpm test
 pnpm format:check
 pnpm build
+pnpm test:browser
 ```
 
-Add the Playwright flow and property test commands here when those suites
-exist. Do not list a planned check as though it already runs.
+`pnpm test:browser` runs the Playwright flows against the production build, so
+run it after `pnpm build`; install Chromium once with
+`pnpm exec playwright install chromium`. Add the property test command here when
+that suite exists. Do not list a planned check as though it already runs.
 
 ## Out of bounds
 

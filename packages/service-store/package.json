@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@weavetrail/contracts": "workspace:*",
-    "@weavetrail/replay-engine": "workspace:*"
+    "@weavetrail/canonical-kernel": "workspace:*",
+    "@weavetrail/contracts": "workspace:*"
   }
 }

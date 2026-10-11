@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/2",
+    "sha256": "6d8f1c2c4c6dacacd406cef351250869b01c58771e0ed0a4c07858cfe699e6e3",
+    "split": "HELD_OUT"
+  },
+  "dialectId": "HELD_OUT-parenthetic",
+  "repeat": 1,
+  "provider": "google",
+  "requestedModel": "gemini-3.1-pro-preview",
+  "reportedModel": null,
+  "adapterVersion": "openai-compatible-mapping/1",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 79,
+  "inputTokens": null,
+  "outputTokens": null,
+  "outcome": "PROVIDER_FAILED",
+  "validatorReasons": [],
+  "failureClass": "HTTP_ERROR",
+  "parsedOutput": null
+}

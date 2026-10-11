@@ -23,15 +23,26 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["docs/ARCHITECTURE.md", "docs/ARCHITECTURE.ko.md"],
   ["docs/METHODOLOGY.md", "docs/METHODOLOGY.ko.md"],
   ["docs/EVALUATION.md", "docs/EVALUATION.ko.md"],
+  ["docs/AI_FAILURE_LOG.md", "docs/AI_FAILURE_LOG.ko.md"],
   ["docs/LIMITATIONS.md", "docs/LIMITATIONS.ko.md"],
   ["docs/DAILY_QUOTES.md", "docs/DAILY_QUOTES.ko.md"],
+  ["docs/INSTRUMENT_RESOLUTION.md", "docs/INSTRUMENT_RESOLUTION.ko.md"],
+  ["docs/DATA_HANDLING.md", "docs/DATA_HANDLING.ko.md"],
+  ["docs/COVERAGE.md", "docs/COVERAGE.ko.md"],
+  ["docs/PUBLISHED_DATA_ADMISSION.md", "docs/PUBLISHED_DATA_ADMISSION.ko.md"],
 ];
 
-const KOREAN_FILES = new Set(PAIRS.map(([, korean]) => korean));
+// Deployment translates environment and budget configuration; its release and
+// rollback procedures explicitly remain in the English source of record.
+const SECTION_TRANSLATIONS: readonly (readonly [string, string])[] = [
+  ["docs/DEPLOYMENT.md", "docs/DEPLOYMENT.ko.md"],
+];
+const ALL_TRANSLATIONS = [...PAIRS, ...SECTION_TRANSLATIONS];
+const KOREAN_FILES = new Set(ALL_TRANSLATIONS.map(([, korean]) => korean));
 
 /** Each Korean document's own English original, which it always links to. */
 const ORIGINAL_OF = new Map(
-  PAIRS.map(([english, korean]) => [korean, english]),
+  ALL_TRANSLATIONS.map(([english, korean]) => [korean, english]),
 );
 
 type Link = {
@@ -114,7 +125,7 @@ describe.each([...KOREAN_FILES])("%s", (path) => {
   });
 });
 
-describe.each(PAIRS.flat())("%s", (path) => {
+describe.each(ALL_TRANSLATIONS.flat())("%s", (path) => {
   const markdown = read(path);
   const local = linksIn(markdown).filter((link) => isLocal(link.target));
 
@@ -150,4 +161,104 @@ describe.each(PAIRS.flat())("%s", (path) => {
       expect(unmarked).toEqual([]);
     });
   }
+});
+
+/** Whitespace-insensitive, because a reflow must not hide a sentence. */
+const flat = (path: string) => read(path).replace(/\s+/g, " ");
+
+/** A literal string as a pattern, so `v0.3.0` cannot match `v0x3y0`. */
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** The plan section's bullet for one version, up to the next bullet. */
+const versionBullet = (path: string, version: string) =>
+  flat(path).match(
+    new RegExp(
+      `- \\*\\*\`${escapeRegExp(version)}\` ·(.*?)(?= - \\*\\*| Case Replay is| 사례 재생은)`,
+    ),
+  )?.[1] ?? "";
+
+const PLAN = [
+  {
+    readme: "README.md",
+    architecture: "docs/ARCHITECTURE.md",
+    controlLine:
+      "AI proposes. Human approves. Code verifies. Evidence traces back.",
+    roles: ["Field mapping", "Bounded case-scope proposal"],
+    exists: "exists",
+    planned: /planned/i,
+  },
+  {
+    readme: "README.ko.md",
+    architecture: "docs/ARCHITECTURE.ko.md",
+    controlLine:
+      "AI가 제안하고, 사람이 승인하고, 코드가 검증하며, 증거는 원천으로",
+    roles: ["데이터 항목 연결", "제한된 조사 범위 제안"],
+    exists: "있는 것",
+    planned: /계획/,
+  },
+] as const;
+
+describe.each(PLAN)("$readme plan statement", (plan) => {
+  it("states the control line in the readme and the architecture", () => {
+    expect(flat(plan.readme)).toContain(plan.controlLine);
+    expect(flat(plan.architecture)).toContain(plan.controlLine);
+  });
+
+  it("names the two model roles", () => {
+    for (const role of plan.roles) expect(flat(plan.readme)).toContain(role);
+  });
+
+  it("marks each version of the plan as planned", () => {
+    const harness = versionBullet(plan.readme, "v0.2.0");
+    expect(harness).toContain(plan.exists);
+    expect(harness).toMatch(plan.planned);
+    for (const version of ["v0.3.0", "v0.4.0"]) {
+      const bullet = versionBullet(plan.readme, version);
+      expect(bullet, version).not.toBe("");
+      expect(bullet, version).toMatch(plan.planned);
+      expect(bullet, version).not.toContain(plan.exists);
+    }
+  });
+});
+
+/** A number followed by a percent sign or word, in either language. */
+const PERCENTAGE =
+  /\d\s*(?:[%％]|per\s?cent\b|percentage points?\b|퍼센트|프로(?![가-힣]))/i;
+
+describe("percentage guard", () => {
+  it("recognizes a percentage in symbol or word form", () => {
+    for (const claim of [
+      "90% accuracy",
+      "90 ％ accuracy",
+      "90 percent accuracy",
+      "90 per cent accuracy",
+      "3 percentage points",
+      "90퍼센트 정확도",
+      "90 퍼센트",
+      "90프로 정확도",
+    ])
+      expect(claim).toMatch(PERCENTAGE);
+    expect("3 프로파일").not.toMatch(PERCENTAGE);
+  });
+});
+
+// Until a model comparison is published with its definition, command and
+// environment, the entry points carry no percentage at all. The check is
+// deliberately blanket: telling a model figure from any other percentage by
+// its wording would let a rephrased claim through. A change that needs a
+// supported percentage in an entry point replaces this check together with
+// the evaluation definition behind it.
+describe.each([
+  "README.md",
+  "README.ko.md",
+  "docs/ARCHITECTURE.md",
+  "docs/ARCHITECTURE.ko.md",
+  "docs/LIMITATIONS.md",
+  "docs/LIMITATIONS.ko.md",
+])("%s", (path) => {
+  it("carries no percentage before an evaluation is published", () => {
+    const prose = read(path).replace(/\]\([^)]*\)|https?:\/\/\S+/g, "");
+    expect(prose).not.toMatch(PERCENTAGE);
+  });
 });
