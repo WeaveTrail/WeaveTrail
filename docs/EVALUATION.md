@@ -1093,7 +1093,8 @@ the requests returned HTTP 402 or 429.
 
 The retry was withdrawn before acceptance without repeating the revision 2
 run ([ADR 0075 closure](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)).
-The design fixes of F-006 to F-009 stay in the code with their tests. Under
+The design changes made for F-006 to F-009 stay in the code with their tests
+as mitigations; each failure remains `ACCEPTED_RESIDUAL`. Under
 revision 1, every candidate still mapped some null-gold columns. No run-date
 probe, pre-run amendment or v4 HELD_OUT record exists, and v4 HELD_OUT remains
 unseen. The protocol 3 held-out command still refuses to run, and the ADR 0069

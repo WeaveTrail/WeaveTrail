@@ -5,12 +5,11 @@
   accepted only by a pre-run amendment, committed before the first
   `schema-dialects/4` HELD_OUT record; none was made.
 - Date: 2026-10-09
-- Supersedes: [ADR 0069](0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
-  for subsequent selection inputs: candidates, prompt, output schema, adapter,
-  validator and corpus. The ADR 0069 session, its comparison and its
-  `NO_MODEL` decision remain committed and reproducible offline, and the site
-  keeps showing that decision until this attempt commits a new one. Because
-  this ADR was withdrawn, the ADR 0069 decision stands.
+- Supersedes: none. It proposed to supersede
+  [ADR 0069](0069-recover-mapping-transport-with-a-fresh-held-out-set.md) for
+  subsequent selection inputs: candidates, prompt, output schema, adapter,
+  validator and corpus. It was withdrawn before acceptance, so ADR 0069 and
+  its `NO_MODEL` decision stand, committed and reproducible offline.
 
 ## Context
 
@@ -401,11 +400,13 @@ remains unseen.
 ### Closure: 2026-10-11, withdrawn before acceptance
 
 The attempt was closed after the void revision 2 run, without repeating it.
-The recorded failures that trace to this repository's design are fixed and
-stay in the code with their regression tests: a header attack was also an
-allowed output value (F-006), the prompt referred to target definitions it
-never sent and did not say an uncertain column has no target (F-007, F-008),
-and the request let reasoning run past the deadline (F-009). What remained
+The design changes made for the recorded failures stay in the code with their
+regression tests: opaque column IDs, so a header attack is no longer an allowed
+output value (F-006); target definitions and the null-target rule in the prompt
+(F-007, F-008); and low reasoning effort against the deadline (F-009). They are
+mitigations, not fixes: each failure remains `ACCEPTED_RESIDUAL` in the
+[AI failure log](../AI_FAILURE_LOG.md), because a model can still follow quoted
+text, decline to abstain or time out. What remained
 under revision 1 is model behavior that the unchanged rule counts: every
 candidate still mapped some null-gold columns, 16 to 30 of 252. Revision 2 has
 no valid gate result.

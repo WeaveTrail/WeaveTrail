@@ -984,7 +984,8 @@ Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했습�
 ### 종료: 2026-10-11
 
 재시도는 개정 2판 실행을 반복하지 않고 수락 전에 철회되었습니다([ADR 0075 종료 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)(영문)).
-F-006~F-009의 설계 수정은 테스트와 함께 코드에 남습니다. 개정 1판에서도 모든 후보가
+F-006~F-009에 대응한 설계 변경은 완화책으로서 테스트와 함께 코드에 남으며, 각 실패는
+`ACCEPTED_RESIDUAL`로 남습니다. 개정 1판에서도 모든 후보가
 null 정답 열 일부에 대상을 지정했습니다. 실행일 확인, 사전 수정안, v4 HELD_OUT 기록은
 없고 v4 HELD_OUT은 어떤 모델도 보지 않았습니다. 프로토콜 3의 보관 평가 집합 명령은 계속
 실행을 거부하며, 커밋된 결정은 ADR 0069의 `NO_MODEL`로 남습니다. 평가 페이지는 이를
