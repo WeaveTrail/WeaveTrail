@@ -73,9 +73,12 @@ because none has been published.
   scene says what the visitor is looking at and why before it asks for one
   action, and an approval moves to the next scene only once it is recorded
   ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
-- Both modes share one state hook, `use-case-replay.ts`, so the walkthrough
-  makes the same explicit mapping and case approvals, and sends the same replay
-  request, as working mode. Percentages on screen are converted from the
+- One client surface, `replay-surface.tsx`, owns the `use-case-replay.ts`
+  state for both modes, so the walkthrough makes the same explicit mapping and
+  case approvals, and sends the same replay request, as working mode. Handing
+  off to working mode keeps the approved case and its result; re-entering the
+  walkthrough restores the worked case at its baseline, unapproved
+  ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)). Percentages on screen are converted from the
   engine's basis-point strings by moving the decimal point, never by
   floating-point arithmetic. The server loader strips committed case approval
   records before sending props.

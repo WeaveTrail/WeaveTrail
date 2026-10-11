@@ -14,7 +14,7 @@ import { renderResultPanel } from "./steps/result-panel";
 import { renderRunPanel } from "./steps/run-panel";
 import { renderSourcePanel } from "./steps/source-panel";
 import type { CaseReplayProps, ReplayError } from "./types";
-import { useCaseReplay } from "./use-case-replay";
+import { useCaseReplay, type ReplayView } from "./use-case-replay";
 import { WorkflowStateBadge } from "./workflow-state";
 import {
   renderSubmittedOrder,
@@ -46,8 +46,21 @@ function errorText(error: ReplayError, language: Language): string {
  * renders one part of it. The guided walkthrough is `tour/guided-tour.tsx`.
  */
 export function CaseReplay(props: CaseReplayProps) {
-  const language = props.language ?? "en";
-  const view = useCaseReplay(props);
+  return renderCaseReplay(useCaseReplay(props), props.language ?? "en");
+}
+
+/** Working mode over a replay state its caller owns. */
+export function CaseReplayView({
+  view,
+  language,
+}: {
+  view: ReplayView;
+  language: Language;
+}) {
+  return renderCaseReplay(view, language);
+}
+
+function renderCaseReplay(view: ReplayView, language: Language) {
   const { error, workflowState } = view;
 
   return (

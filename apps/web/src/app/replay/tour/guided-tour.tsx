@@ -68,35 +68,41 @@ function errorMessage(error: ReplayError, text: Text): string {
  * only the presentation is the walkthrough's own.
  */
 export function GuidedTour(props: CaseReplayProps) {
+  return <GuidedTourView view={useCaseReplay(props)} />;
+}
+
+/** The walkthrough over a replay state its caller owns. */
+export function GuidedTourView({ view }: { view: ReplayView }) {
   const { language } = useLanguage();
   const text = tourCopy[language];
-  const view = useCaseReplay(props);
   const [scene, setScene] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
+  // An approval asked for from a scene moves the walkthrough on once it is
+  // recorded, unless the visitor has moved elsewhere in the meantime; a
+  // failed one leaves the visitor where they were.
+  const advanceOnApproval = useRef<Scene | null>(null);
 
   useEffect(() => {
     if (moved.current) heading.current?.focus();
   }, [scene]);
 
   const go = (next: number) => {
+    advanceOnApproval.current = null;
     moved.current = true;
     setScene(next);
   };
 
-  // An approval asked for from a scene moves the walkthrough on once it is
-  // recorded; a failed one leaves the visitor where they were.
-  const advanceOnApproval = useRef<Scene | null>(null);
   useEffect(() => {
     const waiting = advanceOnApproval.current;
     if (
-      (waiting === "mapping" && view.approval !== null) ||
-      (waiting === "scope" && view.caseApproval !== null)
-    ) {
-      advanceOnApproval.current = null;
+      waiting !== null &&
+      SCENES[scene] === waiting &&
+      ((waiting === "mapping" && view.approval !== null) ||
+        (waiting === "scope" && view.caseApproval !== null))
+    )
       go(SCENES.indexOf(waiting) + 1);
-    }
-  }, [view.approval, view.caseApproval]);
+  }, [scene, view.approval, view.caseApproval]);
 
   const current: Scene = SCENES[scene]!;
   const reached = [

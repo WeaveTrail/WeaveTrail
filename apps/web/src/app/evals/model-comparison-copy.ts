@@ -159,7 +159,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       title: "If the AI matches a column wrongly,|the result is wrong too.",
       lines: [
         "So every candidate model takes the same test before it is used.",
-        "Only a model that clears the bar set in advance is put to work.",
+        "The rule is to put to work only a model that clears the bar set in advance.",
       ],
     },
     status: {
@@ -402,7 +402,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       title: "AI가 열을 잘못 맞추면|결과도 틀립니다.",
       lines: [
         "그래서 쓰기 전에 후보 모델들에게 같은 시험을 치르게 합니다.",
-        "미리 정해 둔 기준을 넘은 모델만 실제로 씁니다.",
+        "미리 정해 둔 기준을 넘은 모델만 쓰는 것이 원칙입니다.",
       ],
     },
     status: {

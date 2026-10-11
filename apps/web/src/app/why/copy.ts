@@ -138,7 +138,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
     limits: [
       "It does not search for abnormal trading. You use it to review a case.",
       "It does not judge guilt or cause, and it gives no investment advice.",
-      "It runs on synthetic data only, and its thresholds are examples.",
+      "It runs on prepared synthetic data only; you cannot upload your own file. Its thresholds are examples.",
       "It has no affiliation with any body or system named on this page.",
     ],
     sourcesLine: "The two facts above come from these publications.",
@@ -178,7 +178,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
     limits: [
       "이상거래를 직접 찾지 않습니다. 이미 찾아낸 사례를 검토할 때 씁니다.",
       "위법 여부나 원인을 판단하지 않으며, 투자 조언을 하지 않습니다.",
-      "지금은 합성 자료로만 동작하며, 판단 기준은 예시로 정한 값입니다.",
+      "지금은 준비된 합성 자료로만 동작하며, 파일을 직접 올릴 수는 없습니다. 판단 기준은 예시로 정한 값입니다.",
       "이 페이지에 나오는 기관이나 시스템과는 아무 관계가 없습니다.",
     ],
     sourcesLine: "위의 두 사실은 아래 자료에서 가져왔습니다.",

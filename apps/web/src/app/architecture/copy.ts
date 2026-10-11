@@ -95,7 +95,7 @@ export const architectureCopy: Bilingual<ArchitectureCopy> = {
     mistakes: [
       "A suggestion that breaks the required format is rejected at validation.",
       "An unclear suggestion is not computed; the reviewer is asked to check it.",
-      "The column-matching model is tested, and only one that clears a bar set in advance is used.",
+      "The rule is to test the column-matching model and use only one that clears a bar set in advance.",
     ],
     comparisonLink: "See the model comparison",
     repeatLine: "Nothing in the calculation depends on chance or timing.",
@@ -168,7 +168,7 @@ export const architectureCopy: Bilingual<ArchitectureCopy> = {
     mistakes: [
       "정해진 형식에 맞지 않는 제안은 검증 단계에서 걸러집니다.",
       "애매한 제안은 계산하지 않고 검토자에게 확인을 요청합니다.",
-      "열을 맞출 모델은 시험을 치러, 미리 정한 기준을 넘은 것만 씁니다.",
+      "열을 맞출 모델은 시험을 치르게 하고, 미리 정한 기준을 넘은 것만 쓰는 것이 원칙입니다.",
     ],
     comparisonLink: "모델 비교 보기",
     repeatLine: "계산 과정에는 우연이나 시점에 따라 달라지는 것이 없습니다.",

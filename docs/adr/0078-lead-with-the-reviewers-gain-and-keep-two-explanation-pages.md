@@ -52,8 +52,11 @@ why.
   optional second run; the source rows each criterion used. Each scene says
   what and why before it asks for one action, the action does the work (an
   approval moves on once it is recorded), and machine values stay out of the
-  scene. It shares the replay state hook with working mode, so it makes the
-  same approvals and the same replay request. The step rail, the step
+  scene. One client surface owns the replay state for both modes, so the
+  walkthrough makes the same approvals and the same replay request, and the
+  hand-off to working mode keeps the approved case and its result as
+  [ADR 0019](0019-share-guided-and-working-case-replay-state.md) requires;
+  re-entering the walkthrough restores the worked case unapproved. The step rail, the step
   narration and the separate review-example step are removed; the H0STCNT0
   review stop stays reachable in working mode.
 - **Two explanation pages**, in the order a reader asks: `/why` says what a

@@ -15,22 +15,16 @@ import ReplayPage, { metadata } from "./page";
 import { CaseReplay } from "./case-replay";
 import { SourceRows } from "./source-rows";
 import { prepareReplayScenarios } from "./prepare-scenarios";
-import { ReplayModeBoundary } from "./replay-mode-boundary";
-import { GuidedTour } from "./tour/guided-tour";
+import { ReplaySurface } from "./replay-surface";
 
-/** The surface the page renders, and the props it hands that surface. */
+/** The props the page hands its one replay surface. */
 function replayProps(
   node: ReactNode,
-):
-  | { guided: boolean; props: ComponentProps<typeof ReplayModeBoundary> }
-  | undefined {
+): ComponentProps<typeof ReplaySurface> | undefined {
   if (Array.isArray(node)) return node.map(replayProps).find(Boolean);
   if (!isValidElement<{ children?: ReactNode }>(node)) return;
-  if (node.type === ReplayModeBoundary || node.type === GuidedTour)
-    return {
-      guided: node.type === GuidedTour,
-      props: node.props as ComponentProps<typeof ReplayModeBoundary>,
-    };
+  if (node.type === ReplaySurface)
+    return node.props as ComponentProps<typeof ReplaySurface>;
   return replayProps(node.props.children);
 }
 
@@ -118,7 +112,7 @@ describe("Case Replay entry contract", () => {
           scenario: "concentrated-buy-dialect-b.jsonl",
         }),
       });
-      const { guided, props } = replayProps(page)!;
+      const { guided, ...props } = replayProps(page)!;
       expect(guided).toBe(mode !== "working");
       expect(props).not.toHaveProperty("approval");
       expect(props).not.toHaveProperty("result");

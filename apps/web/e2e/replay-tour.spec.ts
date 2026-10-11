@@ -120,3 +120,40 @@ test("goes back to an earlier scene from the progress bar, never ahead", async (
     text.scenes.source.title,
   );
 });
+
+test("keeps the approved case when handing off to hands-on mode, and starts over on return", async ({
+  page,
+}) => {
+  const text = tourCopy.en;
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "en");
+  const press = (name: string) =>
+    page.locator(".tour-actions").getByRole("button", { name }).click();
+  await press(text.source.action);
+  await press(text.mapping.action);
+  await expect(page.locator("#tour-title")).toHaveText(text.scenes.scope.title);
+  await press(text.scope.action);
+  await press(text.result.run);
+  await expect(page.locator(".tour-verdict")).toHaveAttribute(
+    "data-verdict",
+    "SUPPORTED",
+  );
+  await press(text.result.action);
+
+  // The hand-off keeps both approvals and the result.
+  await page.locator('.tour-finish a[href="/replay?mode=working"]').click();
+  await expect(page).toHaveURL(/mode=working/);
+  await expect(page.locator(".approval-receipt")).toHaveCount(2);
+  await expect(
+    page.locator('.result-panel [data-result="SUPPORTED"]').first(),
+  ).toBeVisible();
+
+  // Coming back to the walkthrough restores the worked case unapproved.
+  await page.locator('.mode-choice a[href="/replay?mode=guided"]').click();
+  await expect(page.locator("#tour-title")).toHaveText(
+    text.scenes.source.title,
+  );
+  await expect(
+    page.locator(".tour-progress li").nth(2).locator("button"),
+  ).toBeDisabled();
+});

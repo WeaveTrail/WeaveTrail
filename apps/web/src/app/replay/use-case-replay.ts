@@ -255,6 +255,24 @@ export function useCaseReplay({
     }
   }
 
+  /**
+   * Back to the walkthrough's start: the worked case at its baseline, with no
+   * approval, result or evidence that may belong to working-mode inputs.
+   */
+  function restoreWorkedCase() {
+    invalidateResult();
+    lastSubmittedRows.current = null;
+    setMutation("baseline");
+    setScenario(
+      scenarios.find(({ value }) => value === WORKED_CASE)?.value ??
+        scenarios[0]!.value,
+    );
+    setApproval(null);
+    setCaseApproval(null);
+    setReviewReasons({});
+    setRequestedMapping(null);
+  }
+
   /** Working mode: another committed source, so every approval starts over. */
   function chooseScenario(next: ReplayScenario) {
     invalidateResult();
@@ -312,6 +330,7 @@ export function useCaseReplay({
     runReplay,
     chooseScenario,
     chooseMutation,
+    restoreWorkedCase,
   };
 }
 

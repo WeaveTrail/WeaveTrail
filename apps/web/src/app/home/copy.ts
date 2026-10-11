@@ -49,7 +49,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       walkThrough: "Try an example",
       walkMeta: "5 steps · no sign-in",
       demoNote:
-        "The walkthrough uses synthetic data and a prepared AI suggestion.",
+        "The walkthrough uses synthetic data and a prepared AI suggestion; you cannot upload your own file.",
     },
     flowLabel: "How it goes",
     stages: {
@@ -83,7 +83,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     modelHeading: "The AI that matches columns|is chosen by test.",
     modelLines: [
       "Every candidate model takes the same test.",
-      "Only a model that clears the bar set in advance is used.",
+      "The rule is to use only a model that clears the bar set in advance.",
     ],
     comparisonLink: "See the model comparison",
     failureLogLink: (entries) => `AI failure log · ${entries} entries`,
@@ -103,7 +103,8 @@ export const homeCopy: Bilingual<HomeCopy> = {
       ],
       walkThrough: "예시로 체험하기",
       walkMeta: "5단계 · 회원가입 없음",
-      demoNote: "체험에는 합성 자료와 미리 준비한 AI 제안을 씁니다.",
+      demoNote:
+        "체험에는 합성 자료와 미리 준비한 AI 제안을 쓰며, 파일을 직접 올릴 수는 없습니다.",
     },
     flowLabel: "이렇게 진행합니다",
     stages: {
@@ -136,7 +137,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     modelHeading: "열을 맞출 AI는|시험을 거쳐 고릅니다.",
     modelLines: [
       "후보 모델마다 같은 시험 문제를 풉니다.",
-      "미리 정해 둔 기준을 넘은 모델만 씁니다.",
+      "미리 정해 둔 기준을 넘은 모델만 쓰는 것이 원칙입니다.",
     ],
     comparisonLink: "모델 비교 보기",
     failureLogLink: (entries) => `AI 실패 기록 · ${entries}건`,
