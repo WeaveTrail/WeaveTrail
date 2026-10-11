@@ -34,16 +34,17 @@ export const BOUNDARY_FIGURES = [
     id: "guided-steps",
     doc: "docs/ARCHITECTURE.md",
     title: {
-      en: "What a guided step shows and what completes the walkthrough",
-      ko: "안내 단계가 보여 주는 것과 완료 조건",
+      en: "The five scenes of the guided walkthrough and the one action each offers",
+      ko: "단계별 체험의 다섯 장면과 장면마다 하나뿐인 동작",
     },
     lines: [
-      "guided step rail    position · title · imperative · unmet condition · the one advancing control",
-      "                    then, in its own scroll region: why · authority · step list",
-      "                    below the rail breakpoint: action block fixed to the viewport bottom",
-      "completion          explicit mapping and case approvals → REPLAYED with evaluation and",
-      "                    sourceTrace → open a finding's disclosure → repeat the same approved case",
-      "                    → string equality between the baseline hash and the later hash",
+      "scene               what it shows                              its one action",
+      "1 data              the file as received · what is checked     see the AI's suggestion",
+      "2 columns           each column's match and a sample value     approve the mapping",
+      "3 scope             the scope in one sentence · five criteria  approve the case",
+      "4 result            verdict · each criterion against the data  compute (and compute again)",
+      "5 evidence          the source rows each criterion used        hands-on mode",
+      "every scene         says what and why before it asks; an approval moves on once recorded",
     ],
   },
   {
@@ -343,16 +344,16 @@ export const BOUNDARY_FIGURES = [
     id: "public-routes",
     doc: "docs/ARCHITECTURE.md",
     title: {
-      en: "The public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations and /replay in guided and working modes",
-      ko: "공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay",
+      en: "The public routes: /, /why, /architecture, /evals and /replay in guided and working modes",
+      ko: "공개 경로: /, /why, /architecture, /evals, 안내와 직접 조작의 /replay",
     },
     alt: {
-      en: "The public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations and /replay in guided and working modes",
-      ko: "공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay",
+      en: "The public routes: /, /why, /architecture, /evals and /replay in guided and working modes",
+      ko: "공개 경로: /, /why, /architecture, /evals, 안내와 직접 조작의 /replay",
     },
     lines: [
-      "public routes   / · /why · /architecture · /methodology · /data-handling",
-      "                · /evals · /expectations · /replay (guided, working)",
+      "public routes   / · /why · /architecture · /evals",
+      "                · /replay (guided, working)",
     ],
   },
   {

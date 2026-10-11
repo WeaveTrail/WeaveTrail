@@ -16,6 +16,13 @@ export type Language = "en" | "ko";
 
 export const LANGUAGES: readonly Language[] = ["en", "ko"];
 
+/**
+ * One value per language. Every user-visible string sits in a table of this
+ * type in its page's `copy.ts`, so both languages are written side by side
+ * and the type keeps their shapes equal (ADR 0076).
+ */
+export type Bilingual<T> = Readonly<Record<Language, T>>;
+
 const STORAGE_KEY = "weavetrail.language";
 
 function isLanguage(value: unknown): value is Language {
@@ -150,6 +157,6 @@ export function useLanguage(): LanguageState {
 }
 
 /** Selects one entry of a translated pair for the active language. */
-export function useCopy<T>(entries: Readonly<Record<Language, T>>): T {
+export function useCopy<T>(entries: Bilingual<T>): T {
   return entries[useLanguage().language];
 }

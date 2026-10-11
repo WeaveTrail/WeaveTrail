@@ -27,8 +27,8 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   `ACTOR_CONCENTRATION`과 `REMOVAL_SENSITIVITY`를 통과하지 못해 `NOT_SUPPORTED`,
   매수·매도 구분이 빠진 사례는 `INCONCLUSIVE`를 냅니다. FIX
   형태의 식별자 충돌 원본은 재현 전에 `INPUT_REVIEW_REQUIRED`에서 멈춥니다.
-  `/expectations`는 각 사례가 증명하는 정확한 조건, 두 용도, 사례 재현 제공 여부,
-  결과 해시 생성 여부를 밝힙니다.
+  커밋된 [시나리오 기대값](../apps/web/src/app/expectations/scenario-expectations.json)(영문)은 각 사례가 증명하는 정확한 조건, 두 용도,
+  사례 재현 제공 여부, 결과 해시 생성 여부를 밝힙니다.
 - 메타데이터는 원본별로 제공하는 변형도 선언합니다. 공개 스키마 합성 원본은
   `baseline`·`shuffle`·`duplicate`를 제공합니다. 어떤 조작도 커밋된 값을 고치거나 참여자나
   판정을 더하지 않습니다
@@ -43,35 +43,40 @@ _[English](ARCHITECTURE.md) · 영문 문서가 기준입니다._
   [출처 기록](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)은
   스키마와 시장 규칙의 근거, 합성 속성, 작성한 임계값, 실패한 기준, 재현 명령과
   캡처한 해시를 기록합니다.
-- `/why`는 기존 시장감시 흐름에 대해 게이트가 어디에 있는지 밝히고 근거로 삼은 공개
-  자료를 인용합니다. 개요는 작동 방식보다 자리를 먼저 말합니다. 시장감시가 후보를
-  올리고, WeaveTrail이 범위를 확인해 다시 계산하고 근거를 열고, 사람이 판단합니다.
-  탐지는 하지 않습니다.
+- 설명 페이지는 독자가 묻는 순서대로 두 개입니다
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)(영문)).
+  `/why`는 검토자가 얻는 것을 말하며, 출처를 단 공개 사실 두 가지에서 시작합니다.
+  AI가 시장감시 안쪽까지 들어왔고, 최종 판단과 책임은 여전히 사람에게 있다는
+  사실입니다. 탐지는 하지 않습니다. `/architecture`는 작동 원리를 말합니다. 누가 무엇을
+  맡는지, 결과 세 가지, AI가 틀렸을 때, 다시 계산해도 결과가 같은 이유, 자료를 다루는
+  방식입니다. 예전 `/methodology`, `/expectations`, `/data-handling` 주소는
+  `/architecture`로 넘어갑니다.
 
-![안내 단계가 보여 주는 것과 완료 조건](assets/boundary/guided-steps.svg)
+![단계별 체험의 다섯 장면과 장면마다 하나뿐인 동작](assets/boundary/guided-steps.svg)
 
-- 내비게이션 항목은 `사례 따라가기` 하나입니다. `안내 따라가기`와 `직접 조작`이 두
-  가지 사용 방식을 이름 붙이고 실행 중인 쪽을 표시합니다. `/replay`는 안내를 열고
+- 내비게이션 항목은 `체험하기` 하나입니다. `단계별 체험`과 `직접 조작`이 두 가지
+  사용 방식을 이름 붙이고 실행 중인 쪽을 표시합니다. `/replay`는 단계별 체험을 열고
   `mode=working`이 직접 조작을 고릅니다. 표시 모드의 기준은 주소이며, 주소는 신뢰할
-  승인이나 결과 상태를 담지 않습니다. 안내로 다시 들어오면 지지 사례 기준선이
-  복원되고 직접 조작의 입력 상태는 지워지며, 새로고침은 미승인에서 시작합니다.
-- 단계가 무언가를 확정하는 자리라면 그 조작을 단계 레일이 직접 그리고, 사례 열의
-  조작과 하나의 처리기·하나의 비활성 상태를 공유합니다. 작업이 사례 본문에서
-  일어나는 단계라면 레일의 조작이 그 자리로 스크롤해 초점을 넘깁니다. 단계 목록은
-  읽기 위해 이동할 수 있고, 방문자의 작업이 조건을 계속 만족하는 동안에만 완료로
-  셉니다
-  ([ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md)(영문),
-  [ADR 0033](adr/0033-lead-each-guided-step-with-its-action.md)(영문)).
-- 해시가 어긋나면 원래 기준선을 유지하고 완료를 막으며 다시 시도할 수 있습니다.
-  넘겨주기는 사례 표면을 다시 마운트하지 않고 직접 조작을 열어 주므로 메모리에 있는
-  승인과 결과가 그대로 유효합니다. 안내 진행 상태는 요청 단위 서버 워크플로와
-  별개입니다
+  승인이나 결과 상태를 담지 않습니다. 새로고침하면 미승인 상태에서 다시 시작합니다.
+- 단계별 체험(`replay/tour/`)은 `published-execution-fix44.csv`의 `baseline`을
+  다섯 장면으로 따라갑니다. 받은 그대로의 자료와 확인할 것, 열마다 AI가 맞춘 항목과
+  첫 행의 값, 한 문장으로 쓴 조사 범위와 다섯 기준, 결과와 기준별 값 및 해시를
+  비교하는 재계산, 기준마다 쓰인 원본 행입니다. 장면마다 무엇을 보고 있는지와 왜
+  필요한지를 먼저 말한 뒤 동작 하나를 요청하며, 승인은 기록된 뒤에만 다음 장면으로
+  넘어갑니다
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)(영문)).
+- 클라이언트 표면 하나(`replay-surface.tsx`)가 두 방식의 `use-case-replay.ts`
+  상태를 함께 가집니다. 그래서 단계별 체험도 직접 조작과 같은 항목 연결 승인과 조사
+  범위 승인을 거쳐 같은 분석 요청을 보냅니다. 직접 조작으로 넘어가면 승인한 사례와
+  결과가 그대로 남고, 단계별 체험으로 돌아오면 미승인 상태의 기본 사례로 다시
+  시작합니다
   ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)(영문)).
-- 안내 원본은 `published-execution-fix44.csv`의 `baseline`입니다. 항목 연결 장에는
-  행위자 없는 `published-execution-h0stcnt0.jsonl`을 별도 검토 예시로 넣습니다. 각
-  인스턴스는 제안별 승인과 비동기 생성 가드를 따로 가지고, 안내 진행에는 예시 완료
-  표시만 넘어가며, 예시의 승인·원본·결과는 사례 요청에 들어가지 않습니다. 서버
-  로더는 커밋된 사례 승인 기록을 props로 보내기 전에 제거합니다.
+  화면의 백분율은 엔진이 돌려준 bp 문자열에서 소수점만 옮겨 만들며, 부동소수점
+  계산을 쓰지 않습니다. 서버 로더는 커밋된 사례 승인 기록을 props로 보내기 전에
+  제거합니다.
+- 직접 조작은 검토용 원본을 모두 나열합니다. 그중 행위자 없는
+  `published-execution-h0stcnt0.jsonl`은 표시된 항목마다 확인 이유를 적기 전까지
+  `REVIEW_REQUIRED`에서 멈추고, 조사 범위 없이 자료 정리만 합니다.
 - 고급 조작은 항목 연결 전에 제출 행의 순서를 바꾸거나 연결 뒤 파생 사건 하나를
   복제합니다. 원본 좌표와 값은 그대로입니다
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)(영문)).
@@ -482,15 +487,30 @@ JSON을 해싱합니다. JCS 완전 준수는 주장하지 않습니다. 엔진 
 
 ## 표현 경계
 
-![공개 경로: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations, 안내와 직접 조작의 /replay](assets/boundary/public-routes.svg)
+![공개 경로: /, /why, /architecture, /evals, 안내와 직접 조작의 /replay](assets/boundary/public-routes.svg)
 
-- 여덟 개의 공개 경로는 제품 안에 둔 페이퍼 우선 디자인 토큰과 원본 브랜드 마크의
-  스냅숏을 쓰며, `WeaveTrail/design-reference` 리비전
-  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에 고정되어 있습니다. 디자인 저장소는
-  빌드나 런타임 의존성이 아닙니다.
+- 다섯 개의 공개 경로는 `apps/web/src/app/design/`에 둔 제품 자체의 디자인 토큰과
+  상단 메뉴 막대 하나를 씁니다
+  ([ADR 0074](adr/0074-give-the-product-its-own-design-system-and-top-navigation.md)(영문)).
+  원본 브랜드 마크와 그림에 쓰인 토큰 값은 제품 안에 둔 스냅숏에서 오며,
+  `WeaveTrail/design-reference` 리비전 `3f078da1970e8accd83fbdde73308a2a24d0d1f8`에
+  고정되어 있습니다. 이 고정은 `apps/web/src/design-reference/snapshot.json` 한 곳에
+  기록됩니다 ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)(영문)). 디자인
+  저장소는 빌드나 런타임 의존성이 아닙니다.
 - 제품 문구와 눈에 보이는 모든 근거 값은 이 저장소의 런타임 응답과 커밋된 합성
   시나리오가 소유합니다
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)(영문)).
+- `apps/web/src/app`은 페이지 단위로 나뉩니다
+  ([ADR 0076](adr/0076-organize-the-web-app-by-page-with-typed-bilingual-copy.md)(영문)).
+  경로 폴더마다 페이지, 타입이 붙은 이중 언어 `copy.ts`, 화면 컴포넌트,
+  스타일시트를 함께 둡니다. `shell/`에는 머리글, 메뉴, 언어 전환, 바닥글이 있고,
+  `explainer/`에는 두 설명 페이지가 함께 쓰는 틀이 있습니다. 첫머리에 답 하나를
+  두고, 이어지는 각 절은 제목과 한 줄로 쓰며, 자세한 내용은 펼치기나 링크 하나
+  뒤에 둡니다. 화면에 보이는 문자열을 마크업 안에 직접 쓰지 않습니다.
+- 사례 재현의 상태는 `replay/use-case-replay.ts`에 있습니다. 단계별 체험은
+  `replay/tour/`에 다섯 장면과 이중 언어 문구, 스타일시트를 함께 둡니다. 직접 조작은
+  `replay/case-replay.tsx`가 `replay/steps/`의 패널을 엮으며, 패널마다 그 문구가
+  옆에 있습니다.
 
 ## 일별 시세와 교차시장 규칙 버전의 공존
 

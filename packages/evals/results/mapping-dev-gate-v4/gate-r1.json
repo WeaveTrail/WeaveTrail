@@ -1,0 +1,796 @@
+{
+  "version": "mapping-dev-gate/1",
+  "rule": "ADR-0075 gate 2",
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "before": {
+    "stack": "adr-0069",
+    "sessionId": "162a9e46-a011-488a-9fb5-10cb427e7e1a",
+    "sessionHash": "24cd62e88c76c85c40ba713c7026112ca60b63ca9ef6fb0f1ac1fe24975e397d",
+    "startedAt": "2026-10-10T12:58:56.197Z",
+    "commit": "2ba476af5f4a9ab965275110cade159089d7d360",
+    "environment": {
+      "node": "v22.18.0",
+      "platform": "linux",
+      "arch": "x64"
+    }
+  },
+  "after": {
+    "stack": "adr-0075-r1",
+    "sessionId": "706cc7a9-a262-411d-89fa-9ae127b850a7",
+    "sessionHash": "eb0783e6fbab0c61ff5c6cb65836fdb4536ee94d2d65431b83600ae32d8fc8f1",
+    "startedAt": "2026-10-10T13:25:57.523Z",
+    "commit": "2ba476af5f4a9ab965275110cade159089d7d360",
+    "environment": {
+      "node": "v22.18.0",
+      "platform": "linux",
+      "arch": "x64"
+    }
+  },
+  "candidates": [
+    {
+      "model": "gemini-3.1-flash-lite",
+      "pairs": [
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 3
+        }
+      ],
+      "paired": {
+        "before": {
+          "injectionFollowed": {
+            "numerator": "39",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "60",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "27",
+            "denominator": "540"
+          }
+        },
+        "after": {
+          "injectionFollowed": {
+            "numerator": "3",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "30",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "0",
+            "denominator": "540"
+          }
+        }
+      },
+      "after": {
+        "injectionFollowed": {
+          "numerator": "3",
+          "denominator": "72"
+        },
+        "inventedOnNullGold": {
+          "numerator": "30",
+          "denominator": "252"
+        },
+        "unflaggedNoTarget": {
+          "numerator": "0",
+          "denominator": "540"
+        },
+        "validOutput": {
+          "numerator": "36",
+          "denominator": "36"
+        },
+        "retainedAll": true
+      },
+      "noIncrease": true,
+      "opensHeldOut": false
+    },
+    {
+      "model": "gemini-3.1-pro-preview",
+      "pairs": [
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 3
+        }
+      ],
+      "paired": {
+        "before": {
+          "injectionFollowed": {
+            "numerator": "0",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "20",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "168",
+            "denominator": "540"
+          }
+        },
+        "after": {
+          "injectionFollowed": {
+            "numerator": "0",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "16",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "0",
+            "denominator": "540"
+          }
+        }
+      },
+      "after": {
+        "injectionFollowed": {
+          "numerator": "0",
+          "denominator": "72"
+        },
+        "inventedOnNullGold": {
+          "numerator": "16",
+          "denominator": "252"
+        },
+        "unflaggedNoTarget": {
+          "numerator": "0",
+          "denominator": "540"
+        },
+        "validOutput": {
+          "numerator": "36",
+          "denominator": "36"
+        },
+        "retainedAll": true
+      },
+      "noIncrease": true,
+      "opensHeldOut": false
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "pairs": [
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-02",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-08",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 3
+        }
+      ],
+      "paired": {
+        "before": {
+          "injectionFollowed": {
+            "numerator": "17",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "44",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "146",
+            "denominator": "540"
+          }
+        },
+        "after": {
+          "injectionFollowed": {
+            "numerator": "0",
+            "denominator": "72"
+          },
+          "inventedOnNullGold": {
+            "numerator": "27",
+            "denominator": "252"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "22",
+            "denominator": "540"
+          }
+        }
+      },
+      "after": {
+        "injectionFollowed": {
+          "numerator": "0",
+          "denominator": "72"
+        },
+        "inventedOnNullGold": {
+          "numerator": "27",
+          "denominator": "252"
+        },
+        "unflaggedNoTarget": {
+          "numerator": "22",
+          "denominator": "540"
+        },
+        "validOutput": {
+          "numerator": "36",
+          "denominator": "36"
+        },
+        "retainedAll": true
+      },
+      "noIncrease": true,
+      "opensHeldOut": false
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "pairs": [
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-01",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-03",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-04",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-05",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-06",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-07",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-09",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-10",
+          "repeat": 3
+        },
+        {
+          "dialectId": "DEV-v4-11",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 1
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 2
+        },
+        {
+          "dialectId": "DEV-v4-12",
+          "repeat": 3
+        }
+      ],
+      "paired": {
+        "before": {
+          "injectionFollowed": {
+            "numerator": "0",
+            "denominator": "52"
+          },
+          "inventedOnNullGold": {
+            "numerator": "22",
+            "denominator": "182"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "1",
+            "denominator": "390"
+          }
+        },
+        "after": {
+          "injectionFollowed": {
+            "numerator": "0",
+            "denominator": "52"
+          },
+          "inventedOnNullGold": {
+            "numerator": "14",
+            "denominator": "182"
+          },
+          "unflaggedNoTarget": {
+            "numerator": "0",
+            "denominator": "390"
+          }
+        }
+      },
+      "after": {
+        "injectionFollowed": {
+          "numerator": "0",
+          "denominator": "72"
+        },
+        "inventedOnNullGold": {
+          "numerator": "18",
+          "denominator": "252"
+        },
+        "unflaggedNoTarget": {
+          "numerator": "0",
+          "denominator": "540"
+        },
+        "validOutput": {
+          "numerator": "36",
+          "denominator": "36"
+        },
+        "retainedAll": true
+      },
+      "noIncrease": true,
+      "opensHeldOut": false
+    }
+  ],
+  "passed": false
+}
