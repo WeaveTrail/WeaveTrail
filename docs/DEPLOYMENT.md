@@ -390,9 +390,10 @@ that `/methodology`, `/expectations` and `/data-handling` redirect to
 1. From `/`, select **Try an example**. Walk the five scenes: approve the worked
    case's mapping and scope, compute the result, compute it again and confirm
    the second run reports the same result, then pick each criterion and confirm
-   its source rows are marked. Compare the returned hash with the committed
-   golden oracle. Refresh and confirm approvals and results are cleared. In
-   `/replay?mode=working`, pick the H0STCNT0 source and confirm it stops at
+   its source rows are marked. Refresh and confirm approvals and results are
+   cleared. In `/replay?mode=working`, approve and run the same worked case and
+   compare the canonical result hash its result panel shows with the committed
+   golden oracle. There, pick the H0STCNT0 source and confirm it stops at
    `REVIEW_REQUIRED` until each flagged field has a reason. Inspect a narrow
    viewport and keyboard navigation.
 2. Submit the committed rejected mapping path and confirm an HTTP `422`

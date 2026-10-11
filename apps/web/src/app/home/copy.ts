@@ -55,7 +55,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     stages: {
       propose: "Check the columns the AI matched, then approve them.",
       approve:
-        "Choose which account and time window to examine, and approve it.",
+        "Check which account and time window will be examined, and approve it.",
       verify: "See whether the pattern holds, beside each threshold.",
       trace: "Open the source trades behind each finding.",
     },
@@ -108,7 +108,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
     flowLabel: "이렇게 진행합니다",
     stages: {
       propose: "AI가 맞춰 둔 열을 확인하고 승인합니다.",
-      approve: "어느 계좌의 어느 시간대 거래를 볼지 정하고 승인합니다.",
+      approve: "어느 계좌의 어느 시간대 거래를 볼지 확인하고 승인합니다.",
       verify: "의심 패턴이 있는지 기준값과 함께 확인합니다.",
       trace: "판단 근거가 된 원본 거래를 열어 봅니다.",
     },

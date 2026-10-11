@@ -41,8 +41,8 @@ why.
   comparison and the failure log. The example screen and the build board are
   removed.
 - **Stage names** on the home page describe what the visitor does:
-  `Match the columns`, `Set the scope`, `Get the result`, `Check the evidence`
-  (`항목 맞추기`, `조사 범위 정하기`, `결과 받기`, `근거 확인하기`). Internal
+  `Match the columns`, `Approve the scope`, `Get the result`, `Check the evidence`
+  (`항목 맞추기`, `조사 범위 승인하기`, `결과 받기`, `근거 확인하기`). Internal
   words (`fixture`, `커밋된`, `아티팩트`) leave the screen.
 - **The guided walkthrough is rebuilt** as `Try it` (`체험하기`), with the modes
   `Step by step` (`단계별 체험`) and `Hands-on` (`직접 조작`). It follows the

@@ -124,15 +124,15 @@ export const tourCopy: Bilingual<TourCopy> = {
         short: "Columns",
         title: "The AI has worked out each column",
         lines: [
-          "From the names and values, the AI says what each column holds.",
+          "From the column names, the AI says what each column holds.",
           "Check them and approve. Nothing is computed before you approve.",
         ],
       },
       scope: {
         short: "Scope",
-        title: "Decide what to check",
+        title: "Approve what to check",
         lines: [
-          "Choose the instrument, the account and the time to examine.",
+          "See which instrument, account and time window will be examined.",
           "Nothing outside the approved scope is computed.",
         ],
       },
@@ -271,15 +271,15 @@ export const tourCopy: Bilingual<TourCopy> = {
         short: "항목",
         title: "AI가 열마다 뜻을 찾아 두었습니다",
         lines: [
-          "열 이름과 값을 보고 AI가 각 열이 무엇인지 맞춰 두었습니다.",
+          "열 이름을 보고 AI가 각 열이 무엇인지 맞춰 두었습니다.",
           "맞는지 확인하고 승인하세요. 승인하기 전에는 아무것도 계산하지 않습니다.",
         ],
       },
       scope: {
         short: "범위",
-        title: "무엇을 확인할지 정합니다",
+        title: "확인할 범위를 승인합니다",
         lines: [
-          "어느 종목에서 어느 계좌의 거래를, 어느 시간대에 볼지 정합니다.",
+          "어느 종목에서 어느 계좌의 거래를, 어느 시간대에 볼지 확인합니다.",
           "승인한 범위 밖은 계산하지 않습니다.",
         ],
       },
