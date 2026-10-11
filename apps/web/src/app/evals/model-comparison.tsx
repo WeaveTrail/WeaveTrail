@@ -82,14 +82,18 @@ export function ModelComparison({
   const models = result
     ? result.comparison.groups.filter((g) => g.role === "MODEL")
     : [];
-  // A run without a selection is shown as what it measured; the roles appear
-  // only while pending or once a primary model is selected.
+  // A run without a selection is shown as what it attempted and observed; a
+  // candidate whose every request failed at the provider was not measured.
+  // The roles appear only while pending or once a primary model is selected.
   const primary =
     decision?.outcome === "SELECTED" ? (decision.primary ?? null) : null;
   const answer = !decision
     ? t.answer.pending
     : primary === null
-      ? t.answer.measured(models.length)
+      ? t.answer.measured(
+          models.length,
+          models.filter((g) => outputObserved(g, g.byTag.ALL!)).length,
+        )
       : decision.escalation
         ? t.answer.selected(primary, decision.escalation)
         : t.answer.primaryOnly(primary);

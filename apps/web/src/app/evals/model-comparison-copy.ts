@@ -34,8 +34,11 @@ type Copy = {
     pending: string;
     selected: (primary: string, escalation: string) => string;
     primaryOnly: (primary: string) => string;
-    /** A committed run with no selection: what was measured, not a verdict. */
-    measured: (candidates: number) => string;
+    /**
+     * A committed run with no selection: what was attempted and how many
+     * candidates returned output, not a verdict.
+     */
+    measured: (attempted: number, observed: number) => string;
   };
   roles: { primary: string; escalation: string };
   roleValue: { pending: string; noEscalation: string };
@@ -148,8 +151,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `${primary} is the primary model and ${escalation} the escalation model, under the rule declared before the held-out run.`,
       primaryOnly: (primary) =>
         `${primary} is the primary model; no other candidate qualifies for escalation under the rule declared before the held-out run.`,
-      measured: (candidates) =>
-        `${candidates} candidate models measured on a sealed synthetic held-out set, beside a non-model baseline, against the rule declared before the run.`,
+      measured: (attempted, observed) =>
+        `${attempted} candidate models run on a sealed synthetic held-out set, ${observed} of them with observed output, beside a non-model baseline, against the rule declared before the run.`,
     },
     roles: { primary: "Primary model", escalation: "Escalation model" },
     roleValue: {
@@ -373,8 +376,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}, 상위 모델은 ${escalation}입니다.`,
       primaryOnly: (primary) =>
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}이며, 상위 모델 자격을 갖춘 다른 후보는 없습니다.`,
-      measured: (candidates) =>
-        `봉인한 합성 보관 평가 집합에서 후보 모델 ${candidates}개를 비모델 기준선과 함께, 실행 전에 선언한 규칙으로 측정한 기록입니다.`,
+      measured: (attempted, observed) =>
+        `봉인한 합성 보관 평가 집합에서 후보 모델 ${attempted}개를 실행했고 그중 ${observed}개에서 출력을 관측했습니다. 비모델 기준선과 함께, 실행 전에 선언한 규칙으로 비교한 기록입니다.`,
     },
     roles: { primary: "기본 모델", escalation: "상위 모델" },
     roleValue: {

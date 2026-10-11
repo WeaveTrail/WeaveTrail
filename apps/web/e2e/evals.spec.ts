@@ -46,9 +46,10 @@ for (const viewport of VIEWPORTS) {
       await page.setViewportSize(viewport);
       await open(page, language);
 
-      // A run without a selection reads as what it measured, with no roles.
+      // A run without a selection reads as what it attempted and observed,
+      // with no roles; gemini-2.5-pro returned no output.
       await expect(page.locator("#model-comparison-answer")).toHaveText(
-        copy.answer.measured(DECLARED_MODELS.length),
+        copy.answer.measured(DECLARED_MODELS.length, 4),
       );
       await expect(page.locator(".mc-roles")).toHaveCount(0);
       const rows = page.locator(".mc-eligibility tbody tr");
