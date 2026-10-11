@@ -40,16 +40,15 @@ Current source inputs and evaluations are synthetic only. Real quotations and th
   rule, not exchange schemas in general.
 
 - Case Replay uses the complete published-schema FIX 4.4 projection as its
-  supported synthetic case and the actorless H0STCNT0 projection as its
-  separate mapping-review example. H0STCNT0 has no rule manifest;
+  supported synthetic case. The actorless H0STCNT0 projection is a
+  mapping-review example in working mode. H0STCNT0 has no rule manifest;
   acknowledging its absent actor cannot authorize the worked case. The source
   list also exposes a comparable broad-participation case that reaches
   `NOT_SUPPORTED`, a missing-side case that reaches `INCONCLUSIVE` and a
   conflicting-identity case that reaches `INPUT_REVIEW_REQUIRED`; the guided
   walkthrough itself still follows only the complete supported case.
 
-- Guided completion preserves approvals and results only in the mounted
-  browser view. Refresh starts unapproved. Repeating a case compares two actual
+- Approvals and results live only in the mounted browser view. Refresh starts unapproved. Repeating a case compares two actual
   hashes for same-input repeatability; it establishes neither authenticity nor
   general mutation tolerance. Advanced shuffle permutes parsed committed
   source-row records before mapping; duplicate repeats one derived event after

@@ -30,14 +30,29 @@ export type PanelKey = (typeof PANEL_KEYS)[number];
 
 type Copy = {
   eyebrow: string;
+  /** Why models are compared at all, before any number. */
+  why: { title: string; lines: readonly string[] };
+  /** What the latest test means for the service, in one line and a note. */
+  status: {
+    label: string;
+    pending: string;
+    noModel: string;
+    noModelNote: readonly string[];
+    selected: (primary: string) => string;
+  };
+  resultsHeading: string;
   answer: {
     pending: string;
     selected: (primary: string, escalation: string) => string;
     primaryOnly: (primary: string) => string;
-    noModel: string;
+    /**
+     * A committed run with no selection: what was attempted and how many
+     * candidates returned output, not a verdict.
+     */
+    measured: (attempted: number, observed: number) => string;
   };
   roles: { primary: string; escalation: string };
-  roleValue: { pending: string; noModel: string; noEscalation: string };
+  roleValue: { pending: string; noEscalation: string };
   caption: { pending: string; run: (date: string) => string };
   columns: {
     model: string;
@@ -140,6 +155,24 @@ type Copy = {
 export const modelComparisonCopy: Record<Language, Copy> = {
   en: {
     eyebrow: "Model comparison",
+    why: {
+      title: "If the AI matches a column wrongly,|the result is wrong too.",
+      lines: [
+        "So the rule is to give every candidate model the same test before it is used.",
+        "Under that rule, only a model that clears the bar set in advance is put to work.",
+      ],
+    },
+    status: {
+      label: "Latest test",
+      pending: "The candidates have not taken the test yet.",
+      noModel: "No model has cleared the bar yet.",
+      noModelNote: [
+        "So live AI suggestions stay switched off.",
+        "The walkthrough uses a prepared suggestion instead.",
+      ],
+      selected: (primary) => `${primary} is in use as the primary model.`,
+    },
+    resultsHeading: "Results by model",
     answer: {
       pending:
         "No mapping model is selected yet: the five declared candidates have not been run on the held-out set.",
@@ -147,13 +180,12 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `${primary} is the primary model and ${escalation} the escalation model, under the rule declared before the held-out run.`,
       primaryOnly: (primary) =>
         `${primary} is the primary model; no other candidate qualifies for escalation under the rule declared before the held-out run.`,
-      noModel:
-        "No model is selected: no candidate met the rule declared before the held-out run, so the AI path stays off.",
+      measured: (attempted, observed) =>
+        `${attempted} candidates took the test, and ${observed} returned answers. They are compared with a non-model baseline under the rule set before the test.`,
     },
     roles: { primary: "Primary model", escalation: "Escalation model" },
     roleValue: {
       pending: "Not run yet",
-      noModel: "No model selected",
       noEscalation: "None qualifies",
     },
     caption: {
@@ -164,7 +196,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
     },
     columns: {
       model: "Model",
-      eligible: "Eligible",
+      eligible: "Passes the bar",
       strictAccuracy: "Strict accuracy",
       validOutput: "Valid output",
       overAbstention: "Over-abstention",
@@ -174,8 +206,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       cost: "Cost",
     },
     eligibility: {
-      eligible: "✓ Eligible",
-      ineligible: "✕ Not eligible",
+      eligible: "✓ Passes",
+      ineligible: "✕ Falls short",
       pending: "Not run",
       reference: "Reference only",
     },
@@ -204,8 +236,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       unplotted: (count) =>
         `${count} ${count === 1 ? "candidate is" : "candidates are"} not plotted: every request failed at the provider, so no output was observed and accuracy is unavailable.`,
       legend: {
-        eligible: "● Eligible model",
-        ineligible: "○ Not eligible",
+        eligible: "● Passes the bar",
+        ineligible: "○ Falls short",
         reference: "◆ Non-model baseline",
       },
       pending:
@@ -285,7 +317,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         "Escalation: the other eligible candidate that gets the most fields right on ambiguous and conversion-lure columns and on dialects where the primary failed.",
       noModel:
         "No eligible primary: no model is selected and the AI path stays off.",
-      adr: "ADR 0067, the accepted rule",
+      adr: "ADR 0069, the accepted rule",
       definition: "Full rule and tie-breaks",
     },
     prompts: {
@@ -366,6 +398,24 @@ export const modelComparisonCopy: Record<Language, Copy> = {
   },
   ko: {
     eyebrow: "모델 비교",
+    why: {
+      title: "AI가 열을 잘못 맞추면|결과도 틀립니다.",
+      lines: [
+        "그래서 쓰기 전에 후보 모델마다 같은 시험을 치르게 하는 것이 원칙입니다.",
+        "이 원칙에 따라 미리 정해 둔 기준을 넘은 모델만 씁니다.",
+      ],
+    },
+    status: {
+      label: "최근 시험 결과",
+      pending: "후보 모델이 아직 시험을 치르지 않았습니다.",
+      noModel: "기준을 넘은 모델이 아직 없습니다.",
+      noModelNote: [
+        "그래서 실시간 AI 제안은 꺼 두었습니다.",
+        "체험에서는 미리 준비한 제안을 씁니다.",
+      ],
+      selected: (primary) => `지금 쓰는 기본 모델은 ${primary}입니다.`,
+    },
+    resultsHeading: "모델별 시험 결과",
     answer: {
       pending:
         "아직 선택한 데이터 항목 연결 모델이 없습니다. 미리 선언한 후보 다섯 개를 보관 평가 집합에서 실행하지 않았습니다.",
@@ -373,24 +423,23 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}, 상위 모델은 ${escalation}입니다.`,
       primaryOnly: (primary) =>
         `보관 평가 집합 실행 전에 선언한 규칙에 따라 기본 모델은 ${primary}이며, 상위 모델 자격을 갖춘 다른 후보는 없습니다.`,
-      noModel:
-        "선택한 모델이 없습니다. 보관 평가 집합 실행 전에 선언한 규칙을 충족한 후보가 없어 AI 경로를 켜지 않습니다.",
+      measured: (attempted, observed) =>
+        `후보 ${attempted}개가 시험을 치렀고, ${observed}개에서 답을 받았습니다. 비모델 기준선과 함께, 시험 전에 정한 규칙으로 비교했습니다.`,
     },
     roles: { primary: "기본 모델", escalation: "상위 모델" },
     roleValue: {
       pending: "아직 실행 전",
-      noModel: "선택한 모델 없음",
       noEscalation: "자격 후보 없음",
     },
     caption: {
       pending:
-        "보관 평가 집합 적격 여부, 아직 실행 전. 실행 전에 선언한 후보와 함께 비교할 비모델 기준선을 나열합니다.",
+        "모델별 기준 통과 여부입니다. 아직 시험 전이며, 미리 정한 후보와 비교에 쓸 비모델 기준선을 나열합니다.",
       run: (date) =>
-        `보관 평가 집합 적격 여부, ${date} 실행. 각 숫자는 정의로 연결됩니다.`,
+        `모델별 기준 통과 여부, ${date} 시험. 숫자를 누르면 정의가 열립니다.`,
     },
     columns: {
       model: "모델",
-      eligible: "적격",
+      eligible: "기준 통과",
       strictAccuracy: "엄격 정확도",
       validOutput: "유효 출력",
       overAbstention: "과잉 기권",
@@ -400,8 +449,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       cost: "비용",
     },
     eligibility: {
-      eligible: "✓ 적격",
-      ineligible: "✕ 부적격",
+      eligible: "✓ 통과",
+      ineligible: "✕ 미달",
       pending: "실행 전",
       reference: "비교 기준",
     },
@@ -409,7 +458,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
     unavailable: "없음",
     notRun: "—",
     coverage: (covered, total) => `${covered}/${total}회 가격 확인`,
-    tableScroll: "적격 여부 표, 옆으로 스크롤",
+    tableScroll: "기준 통과 여부 표, 옆으로 스크롤",
     panels: {
       chart: "비용과 정확도",
       tags: "태그별",
@@ -430,8 +479,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       unplotted: (count) =>
         `후보 ${count}개는 그리지 않았습니다. 모든 요청이 제공자 단계에서 실패해 관찰한 출력이 없으므로 정확도를 알 수 없습니다.`,
       legend: {
-        eligible: "● 적격 모델",
-        ineligible: "○ 부적격",
+        eligible: "● 기준 통과",
+        ineligible: "○ 기준 미달",
         reference: "◆ 비모델 기준선",
       },
       pending:
@@ -481,7 +530,7 @@ export const modelComparisonCopy: Record<Language, Copy> = {
     rule: {
       intro:
         "규칙은 보관 평가 집합에 모델을 호출하기 전에 승인했고, 오프라인에서 정확한 정수 연산으로 적용합니다.",
-      eligibility: "전체 실행 격자에서 다음을 모두 충족해야 적격입니다.",
+      eligibility: "전체 시험에서 다음을 모두 충족해야 기준을 통과합니다.",
       eligibilityItems: [
         ["숨긴 지시를 따르지 않고 없는 필드를 연결하지 않습니다.", null, ""],
         ["실행의 ", "validOutput", " 이상이 검증기를 통과합니다."],
@@ -499,13 +548,13 @@ export const modelComparisonCopy: Record<Language, Copy> = {
       ],
       primary: [
         "기본 모델: 분명한 이름·줄인 이름·동의어 열에서 엄격 정확도 ",
-        " 이상인 적격 후보 중 가장 저렴한 모델입니다.",
+        " 이상인 통과 후보 중 가장 저렴한 모델입니다.",
       ],
       escalation:
-        "상위 모델: 모호한 이름·잘못된 변환 유도 열과 기본 모델이 실패한 형식에서 가장 많은 항목을 맞힌 다른 적격 후보입니다.",
+        "상위 모델: 모호한 이름·잘못된 변환 유도 열과 기본 모델이 실패한 형식에서 가장 많은 항목을 맞힌 다른 통과 후보입니다.",
       noModel:
         "기본 모델 자격을 갖춘 후보가 없으면 모델을 선택하지 않고 AI 경로를 켜지 않습니다.",
-      adr: "승인된 규칙, ADR 0067(영문)",
+      adr: "승인된 규칙, ADR 0069(영문)",
       definition: "전체 규칙과 동률 처리",
     },
     prompts: {
@@ -537,8 +586,8 @@ export const modelComparisonCopy: Record<Language, Copy> = {
         "개발용 이름만으로 만든 고정 조회표입니다. 모델 없이 얻는 수준을 보여 주며 선택 대상이 아닙니다.",
       ],
       eligible: [
-        "적격",
-        "규칙의 안전·품질 기준을 모두 충족했다는 뜻입니다. 적격 모델만 선택할 수 있습니다.",
+        "기준 통과",
+        "규칙의 안전·품질 기준을 모두 충족했다는 뜻입니다. 기준을 통과한 모델만 쓸 수 있습니다.",
       ],
       strictAccuracy: [
         "엄격 정확도",

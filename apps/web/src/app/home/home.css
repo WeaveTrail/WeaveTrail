@@ -1,0 +1,177 @@
+/* ───────────────────────── Home ───────────────────────── */
+
+/* The first screen: what a reviewer gains and the walkthrough on the left,
+   the four stages beside it. */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 25rem;
+  gap: var(--space-12);
+  align-items: center;
+  padding-block: var(--space-16);
+}
+.home-intro {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+.home-intro h1 {
+  font: var(--type-display);
+  font-size: clamp(var(--font-size-30), 3.2vw, var(--font-size-38));
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+.home-lede {
+  font: var(--type-body-lg);
+  color: var(--text-body);
+}
+.home-intro .hero-actions {
+  margin-top: var(--space-2);
+}
+.home-intro .hero-actions .button {
+  min-height: 48px;
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-16);
+}
+.home-walk-meta {
+  display: grid;
+  gap: 2px;
+  font: var(--type-caption);
+  color: var(--text-muted);
+}
+
+/* The four stages: what the visitor does at each, in one column. */
+.home-flow {
+  margin: 0;
+  padding: var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-2);
+}
+.home-flow figcaption {
+  margin-bottom: var(--space-4);
+}
+.home-flow ol {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-flow li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+.home-flow-index {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font: 600 13px/1 var(--font-mono);
+}
+.home-flow h3 {
+  margin-top: 4px;
+  font: var(--type-subhead);
+}
+.home-flow li p {
+  margin-top: 2px;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.home-band {
+  padding-block: var(--space-16);
+  background: var(--surface-subtle);
+  border-block: var(--hairline);
+}
+.home-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-benefits li {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border: var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-1);
+}
+.home-benefits h3 {
+  font: var(--type-subhead);
+}
+.home-benefit-text {
+  color: var(--text-muted);
+}
+
+.home-model {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+  padding-block: var(--space-16);
+}
+.home-model .section-heading {
+  margin-bottom: 0;
+}
+.home-model-text {
+  font: var(--type-body-lg);
+  color: var(--text-body);
+}
+.home-model-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  margin-top: var(--space-2);
+}
+.home-boundary {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  width: 100%;
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: var(--hairline);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+@media (max-width: 64rem) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    padding-block: var(--space-10);
+  }
+  .home-benefits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 40rem) {
+  .home-hero {
+    padding-block: var(--space-6) var(--space-10);
+  }
+  .home-intro h1 {
+    font-size: var(--font-size-24);
+  }
+  .home-lede,
+  .home-model-text {
+    font: var(--type-body);
+  }
+  .home-flow {
+    padding: var(--space-5);
+  }
+  .home-band,
+  .home-model {
+    padding-block: var(--space-10);
+  }
+}

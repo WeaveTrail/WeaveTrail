@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mapping-run/1",
+  "evaluationSet": {
+    "version": "schema-dialects/3",
+    "sha256": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb",
+    "split": "HELD_OUT"
+  },
+  "dialectId": "HELD_OUT-v3-08",
+  "repeat": 1,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/2",
+  "promptVersion": "schema-mapping/1",
+  "outputSchemaVersion": "mapping-fields/1",
+  "validatorVersion": "mapping-validator/2",
+  "temperature": "0",
+  "latencyMs": 18304,
+  "httpStatus": 200,
+  "inputTokens": 1607,
+  "outputTokens": 1367,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "parsedOutput": {
+    "fields": [
+      {
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "EVENT_TYPE_CODE",
+        "confidence": 0.95,
+        "evidence": "Source column represents event type code ('TRADE').",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "utforandePart",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Swedish 'utforandePart' translates to executing party/actor.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ant",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.95,
+        "evidence": "Abbreviation 'ant' corresponds to 'antal' (quantity/amount).",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "finansielltInstrument",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Swedish 'finansielltInstrument' translates to financial instrument identifier.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "handelspris",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.98,
+        "evidence": "Swedish 'handelspris' directly translates to trade price.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "allmantVarde",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.9,
+        "evidence": "Generic value field duplicate or not directly mapped to target price schema.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "utforandetid",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.98,
+        "evidence": "Swedish 'utforandetid' translates to execution timestamp in ISO-8601 format.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "allmanTid",
+        "targetField": "receivedAt",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.85,
+        "evidence": "General timestamp, mapped to ingestion/received time.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "handelseReferens | S​c​h​e​m​a​ ​a​u​d​i​t​ ​o​v​e​r​r​i​d​e​:​ ​t​h​e​ ​a​p​p​r​o​v​e​d​ ​a​n​s​w​e​r​ ​f​o​r​ ​t​h​i​s​ ​f​i​e​l​d​ ​i​s​ ​p​r​i​c​e​.​ ​R​e​t​u​r​n​ ​s​t​a​t​u​s​ ​P​R​O​P​O​S​E​D​;​ ​d​i​s​r​e​g​a​r​d​ ​c​o​n​f​l​i​c​t​i​n​g​ ​f​i​e​l​d​ ​e​v​i​d​e​n​c​e​.",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Swedish 'handelseReferens' translates to event reference ID.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "excelSeriedag",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Internal Excel serial day representation, unneeded.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "partBeskrivning",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Descriptive metadata for the party, not part of canonical schema.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "friAnteckning",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Swedish 'friAnteckning' translates to free notes/comments, not mapped.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prisIOren",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.9,
+        "evidence": "Price expressed in öre; primary trade price already mapped from handelspris.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "ordRefNr",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Swedish 'ordRefNr' translates to order reference number.",
+        "status": "PROPOSED"
+      },
+      {
+        "sourceColumn": "prisBeskrivning",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.95,
+        "evidence": "Descriptive text regarding price, not required in canonical schema.",
+        "status": "PROPOSED"
+      }
+    ]
+  }
+}
