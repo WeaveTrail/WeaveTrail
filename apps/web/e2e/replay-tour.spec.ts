@@ -86,6 +86,12 @@ for (const viewport of VIEWPORTS)
       await expect(page.locator(".tour-used")).toHaveText(
         text.evidence.usedRows(await marked.count()),
       );
+      // Assistive technology hears which rows the criterion used.
+      await expect(
+        page.getByRole("rowheader", {
+          name: new RegExp(text.evidence.usedRow),
+        }),
+      ).toHaveCount(await marked.count());
       await expect(
         page.locator('.tour-finish a[href="/replay?mode=working"]'),
       ).toBeVisible();

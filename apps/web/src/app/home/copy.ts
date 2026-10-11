@@ -72,7 +72,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       ],
       [
         "Anyone who reruns it gets the same result",
-        "The same data and the same approval always give the same result. Another reviewer can check it as it stands.",
+        "The same data, approval and engine version always give the same result. Another reviewer can check it as it stands.",
       ],
       [
         "The evidence is ready to show",
@@ -126,7 +126,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       ],
       [
         "누가 다시 계산해도 결과가 같습니다",
-        "자료와 승인 내용이 같으면 결과도 늘 같습니다. 다른 검토자가 그대로 확인할 수 있습니다.",
+        "같은 엔진 버전에서는 자료와 승인 내용이 같으면 결과도 늘 같습니다. 다른 검토자가 그대로 확인할 수 있습니다.",
       ],
       [
         "근거를 바로 보여 줄 수 있습니다",

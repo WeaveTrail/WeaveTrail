@@ -105,18 +105,21 @@ export function GuidedTourView({ view }: { view: ReplayView }) {
   }, [scene, view.approval, view.caseApproval]);
 
   const current: Scene = SCENES[scene]!;
+  // A repeat that returned a different hash holds the visitor on the result.
+  const resultHolds =
+    view.completeResult && (view.previousHash === null || view.repeatMatches);
   const reached = [
     true,
     true,
     view.approval !== null,
     view.caseApproval !== null,
-    view.completeResult,
+    resultHolds,
   ];
   const canContinue = [
     true,
     view.approval !== null,
     view.caseApproval !== null,
-    view.completeResult,
+    resultHolds,
     false,
   ][scene]!;
 
@@ -310,19 +313,26 @@ function SourceTable({
           </tr>
         </thead>
         <tbody>
-          {view.selectedScenario.rows.map((row) => (
-            <tr
-              data-marked={marked?.has(row.coordinate.rowNumber) ?? false}
-              key={row.coordinate.rowNumber}
-            >
-              <th scope="row">{row.coordinate.rowNumber}</th>
-              {columns.map((column) => (
-                <td key={column}>
-                  <code>{row.values[column]}</code>
-                </td>
-              ))}
-            </tr>
-          ))}
+          {view.selectedScenario.rows.map((row) => {
+            const used = marked?.has(row.coordinate.rowNumber) ?? false;
+            return (
+              <tr data-marked={used} key={row.coordinate.rowNumber}>
+                <th scope="row">
+                  {row.coordinate.rowNumber}
+                  {used ? (
+                    <span className="tour-visually-hidden">
+                      {`, ${text.evidence.usedRow}`}
+                    </span>
+                  ) : null}
+                </th>
+                {columns.map((column) => (
+                  <td key={column}>
+                    <code>{row.values[column]}</code>
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

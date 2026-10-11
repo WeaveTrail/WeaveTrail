@@ -88,6 +88,7 @@ interface TourCopy {
     readonly pickLabel: string;
     readonly usedRows: (rows: number) => string;
     readonly rowHeader: string;
+    readonly usedRow: string;
     readonly none: string;
     readonly finishTitle: string;
     readonly finishLines: readonly string[];
@@ -238,6 +239,7 @@ export const tourCopy: Bilingual<TourCopy> = {
           ? "1 trade used by this criterion"
           : `${rows} trades used by this criterion`,
       rowHeader: "Row",
+      usedRow: "used by this criterion",
       none: "This result has no criterion evidence to show.",
       finishTitle: "You have finished the walkthrough",
       finishLines: [
@@ -383,6 +385,7 @@ export const tourCopy: Bilingual<TourCopy> = {
       pickLabel: "기준 고르기",
       usedRows: (rows) => `이 기준에 쓰인 거래 ${rows}건`,
       rowHeader: "행",
+      usedRow: "이 기준에 쓰임",
       none: "이 결과에는 보여 줄 근거가 없습니다.",
       finishTitle: "체험을 마쳤습니다",
       finishLines: [

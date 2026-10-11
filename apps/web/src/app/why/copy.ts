@@ -127,7 +127,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
       ],
       [
         "Rerunning gives the same result",
-        "The same data approved the same way always gives the same result. Another reviewer, or you later, can get that result again.",
+        "On the same engine version, the same data approved the same way always gives the same result. Another reviewer, or you later, can get that result again.",
       ],
       [
         "Evidence goes back to the source trades",
@@ -167,7 +167,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
       ],
       [
         "다시 계산해도 결과가 같습니다",
-        "자료와 승인 내용이 같으면 결과도 늘 같습니다. 다른 검토자도, 나중의 나도 같은 결과를 다시 얻을 수 있습니다.",
+        "같은 엔진 버전에서는 자료와 승인 내용이 같으면 결과도 늘 같습니다. 다른 검토자도, 나중의 나도 같은 결과를 다시 얻을 수 있습니다.",
       ],
       [
         "근거를 원본 거래까지 보여 줍니다",
