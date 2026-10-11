@@ -6,8 +6,6 @@
 
 No route accepts pasted text for checking. Published coverage and case endpoints have been withdrawn and return 404. `/api/mapping` accepts a registered synthetic scenario name; `/api/replay` accepts its unchanged rows, approvals and optional case manifest.
 
-The `/data-handling` page links evidence at the deployment revision, or `develop` when no revision is supplied.
-
 ## Reviewer text
 
 Case Replay sends a reviewer reference and nonblank override reasons to `/api/replay`. Approval records are validated to bind the exact proposal; responses do not return the reference or reasons. Fixture-mode approval requests are neither persisted, logged nor sent to a model. Type no personal or confidential text there.
@@ -87,7 +85,7 @@ logging or retain counter backups beyond the KST day. See
 ## Verification
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
+pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
 ```
 
 ## Limits

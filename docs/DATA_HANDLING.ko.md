@@ -6,8 +6,6 @@
 
 붙여넣은 글을 확인하는 경로는 없습니다. 공개 범위와 실제 사례 API는 철회되어 404를 반환합니다. `/api/mapping`은 등록된 합성 시나리오 이름을 받고 `/api/replay`는 그 원본 행, 승인과 선택적인 조사 범위를 받습니다.
 
-`/data-handling` 화면은 배포된 커밋의 검증 파일을 연결하며 커밋 정보가 없으면 `develop`을 연결합니다.
-
 ## 검토자 입력
 
 사례 재현은 검토자 참조와 빈칸이 아닌 확인 사유를 `/api/replay`로 보냅니다. 승인 기록은 정확한 제안에 묶기 위해 검증하고 응답에는 참조나 사유를 반환하지 않습니다. 픽스처 모드에서 승인 요청을 저장하거나 로그로 남기거나 모델에 보내지 않습니다. 개인정보나 기밀을 입력하지 마세요.
@@ -86,7 +84,7 @@ HMAC-SHA-256 처리한 일일 방문자 키, 방문자 요청 횟수, 전체 예
 ## 검증
 
 ```bash
-pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/app/data-handling/source-revision.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
+pnpm exec vitest run apps/web/src/app/api/reviewer-text-retention.test.ts apps/web/src/app/browser-data-boundary.test.ts apps/web/src/app/provider-client-boundary.test.ts apps/web/src/lib/public-model-budget.test.ts apps/web/src/app/api/mapping/route.test.ts
 ```
 
 ## 한계

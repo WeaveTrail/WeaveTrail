@@ -64,7 +64,7 @@ against the production build: run `pnpm build` first and install Chromium once
 with `pnpm exec playwright install chromium`. CI runs it after the build.
 
 `pnpm dev` serves the workbench at <http://localhost:3000> with Node 22.13 or newer
-and pnpm 10.33.2; `/replay` opens the guided walkthrough, also addressable as
+and pnpm 10.33.2; `/replay` opens the guided walkthrough (Try it), also addressable as
 `/replay?mode=guided`, and `/replay?mode=working` opens working mode.
 
 Prefer synthetic data. If a synthetic fixture resembles a real system, replace

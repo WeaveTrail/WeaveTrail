@@ -301,27 +301,27 @@ approval, and keeps replay blocked.
 ### Worked-case interpretation
 
 The entry action opens `/replay?mode=guided`, and `/replay` itself opens the
-same walkthrough; working mode is the named alternative beside it. Each step
-states what it demonstrates, what the visitor must do to
-advance it, and whether a model proposed, a person approved or versioned code
-decided the work it shows. The steps sit under four stages in the order of the
-control line: AI proposes, a person approves, code verifies, evidence traces
-back. A visitor may open any step to read it; completion is
-recorded only for a step the visitor satisfied, and it is withdrawn when a later
-change stops satisfying it. The supported case and the
-Dialect B review example are distinct committed sources, with independent
-proposal hashes and approvals. The example's unmapped field is retained with
-a justified reason; this does not invent a transform or provide a rule manifest.
-The worked case needs its own explicit mapping and case approvals, and reaches
-its run without the example's approval; the example is its own step after the
-main flow and does not authorize the case.
+same walkthrough; working mode is the named alternative beside it. The
+walkthrough follows the supported case in five scenes: the source as received,
+the proposed column mapping with a sample value per column, the authored case
+scope with each rule threshold written as a criterion, the result with each
+gate's observed value beside its threshold, and the source rows each gate
+referenced. Each scene says what it shows and why before it asks for one
+action, and the next scene opens only once that scene's approval or result is
+recorded
+([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
 
-The guide displays actual source strings and coordinates, fixture proposal
-fields, approval records, authored case scope and thresholds, and API-returned
-gates and source trace. Only `REPLAYED` with evaluation and source trace counts
-as a completed case. A foundation response is not a rule result. Repeating the
-unchanged approved case compares two returned hashes as strings, without
-calculating metrics or remapping evidence in the browser.
+The walkthrough makes the same explicit mapping and case approvals, and sends
+the same replay request, as working mode. It displays actual source strings,
+fixture proposal fields, authored case scope and thresholds, and API-returned
+gates and source trace; thresholds and rates are shown as percentages by moving
+the decimal point of the returned basis-point strings, truncated to two places.
+Only `REPLAYED` with evaluation and source trace counts as a result. Computing
+the unchanged approved case again compares two returned hashes as strings,
+without calculating metrics or remapping evidence in the browser. The actorless
+H0STCNT0 review example is offered in working mode, where it stops at
+`REVIEW_REQUIRED` until each flagged field has a justified reason; it has no
+rule manifest and cannot authorize the worked case.
 
 ## `RAPID_PRICE_LIFT` version `1.1`
 

@@ -83,12 +83,13 @@ See [Limitations](docs/LIMITATIONS.md) for what a result is allowed to mean.
 
 ## A synthetic case
 
-The walkthrough uses synthetic executions with published FIX 4.4 field names.
-Approve the mapping and case scope, run the rule, and open each finding onto its
-source rows and hashes. Repeat the same inputs to compare result hashes.
+The guided walkthrough uses synthetic executions with published FIX 4.4 field
+names. In five steps you see the AI's column matches, approve them and the case
+scope, compute the result, compute it again to compare, and mark the source
+rows each criterion used.
 Real quotation sources and the pages built on them have been withdrawn.
 
-[Walk the case](https://weave-trail-web-flax.vercel.app/replay)
+[Try it](https://weave-trail-web-flax.vercel.app/replay)
 &middot; [Withdrawal decision](docs/adr/0056-withdraw-the-committed-real-data-tier.md)
 
 ## Layer separation
@@ -201,13 +202,13 @@ no result until its evaluation is published.
   output. The fresh recovery run observed model output but no candidate passed
   the pre-declared thresholds; its comparison and `NO_MODEL` decision are
   committed and documented in the evaluation protocol. The evaluation page shows
-  the recovery session as a measured comparison. The home page leads with the
-  guided walkthrough and an example of its end screen from committed data,
-  draws the four control-line stages and lists what runs today apart from what
-  is planned. Any changed configuration needs another fresh held-out set and a
-  decision record before the run. Each finding's evidence traces back through
-  the approved mapping, line by line, to the committed source value. Planned:
-  the guided replay grouped under propose, approve, verify and trace.
+  the recovery session as a measured comparison. The home page leads with what
+  a reviewer gains and the guided walkthrough, which follows the worked case in
+  five scenes, each saying what and why before it asks for one action. Any
+  changed configuration needs another fresh held-out set and a decision record
+  before the run. Each finding's evidence traces back through the approved
+  mapping, line by line, to the committed source value. Planned: live AI
+  suggestions on the site, once a model clears the selection rule.
 - **`v0.3.0` · Measured routing ·** planned. A primary model proposes and the
   validator checks it. A valid, clear proposal goes to review; an ambiguous or
   rejected one goes once to an escalation model that never sees the primary
@@ -263,7 +264,7 @@ and the deployed configuration carries no model credential.
 - [Instrument and index resolution](docs/INSTRUMENT_RESOLUTION.md) — dated name/code matching, ambiguity, quotation links and snapshot references ([한국어](docs/INSTRUMENT_RESOLUTION.ko.md))
 - [Daily quote contracts](docs/DAILY_QUOTES.md) — retained versions, synthetic checks and the withdrawn source boundary
   ([한국어](docs/DAILY_QUOTES.ko.md))
-- [Expected scenario results](https://weave-trail-web-flax.vercel.app/expectations)
+- [Expected scenario results](apps/web/src/app/expectations/scenario-expectations.json)
   — what every committed case returns, taken from the engine itself
 - [Deployment](docs/DEPLOYMENT.md) — public URL, settings, checks and rollback
 - [Decision records](docs/adr) — why each design choice was made
