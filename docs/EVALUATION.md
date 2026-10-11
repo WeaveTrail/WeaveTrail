@@ -966,13 +966,14 @@ the first ADR 0067 capture remains a reproducible offline record.
 ### Retry protocol: column IDs and fresh v4
 
 [ADR 0075](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md)
-fixes one more selection attempt after the ADR 0069 `NO_MODEL`. Every change is
-derived from failure modes classified in the committed v3 records and gold, never
-from a v3 score, and v3 is not reused for selection. Thresholds, definitions and
-tie-breaks are unchanged except that eligibility adds one zero condition. The
-site keeps showing the ADR 0069 decision until this attempt commits a new one.
-The attempt was withdrawn before acceptance on 2026-10-11 (see
-[closure](#closure-2026-10-11)), so that decision stands.
+proposed one more selection attempt after the ADR 0069 `NO_MODEL`. Every change
+was derived from failure modes classified in the committed v3 records and gold,
+never from a v3 score, and v3 was not reused for selection. Thresholds,
+definitions and tie-breaks were unchanged except that eligibility added one zero
+condition. The attempt was withdrawn before acceptance on 2026-10-11 (see
+[closure](#closure-2026-10-11)), so it commits no decision, the ADR 0069
+decision stands and no further run follows under it. This section records the
+withdrawn protocol.
 The table shows protocol 3's stack, `adr-0075-r2`, after revisions 1 and 2 of
 the [gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log).
 
@@ -1069,10 +1070,11 @@ result, and it ranks no model.
 
 The gate **did not pass**. Invented fields on null-gold columns rose for three
 candidates, and no candidate reached all-zero counts with 95/100 VALID records;
-`gemini-3.8-flash` also timed out 14 times under the after stack. ADR 0075 stays
-Proposed and must be revised before acceptance. No run-date probe, pre-run
-amendment, dated price table or v4 HELD_OUT record exists, and v4 HELD_OUT is
-unseen. The page keeps the ADR 0069 decision. Reproduce offline, without keys:
+`gemini-3.8-flash` also timed out 14 times under the after stack. ADR 0075 then
+stayed Proposed for revision; it was later withdrawn (see
+[closure](#closure-2026-10-11)). No run-date probe, pre-run amendment, dated
+price table or v4 HELD_OUT record exists, and v4 HELD_OUT is unseen. The page
+keeps the ADR 0069 decision. Reproduce offline, without keys:
 
 ```bash
 pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/sessions/fa32db2a-3f6a-4f7e-842c-aaa9a531addf --after packages/evals/results/mapping-dev-gate-v4/sessions/82d1d299-4060-444c-ba92-70ced8fe62fa --expected packages/evals/results/mapping-dev-gate-v4/gate.json
