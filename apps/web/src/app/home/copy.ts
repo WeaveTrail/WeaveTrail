@@ -57,7 +57,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       approve:
         "Choose which account and time window to examine, and approve it.",
       verify: "See whether the pattern holds, beside each threshold.",
-      trace: "Open the source trades behind every result.",
+      trace: "Open the source trades behind each finding.",
     },
     benefitsKicker: "What changes",
     benefitsHeading: "Less preparation,|clearer evidence.",
@@ -76,7 +76,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       ],
       [
         "The evidence is ready to show",
-        "Every result opens to the source trades behind it. Explaining why is easier.",
+        "Each finding opens to the source trades behind it. Explaining why is easier.",
       ],
     ],
     modelKicker: "Choosing the AI",
@@ -110,7 +110,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       propose: "AI가 맞춰 둔 열을 확인하고 승인합니다.",
       approve: "어느 계좌의 어느 시간대 거래를 볼지 정하고 승인합니다.",
       verify: "의심 패턴이 있는지 기준값과 함께 확인합니다.",
-      trace: "결과의 근거가 된 원본 거래를 열어 봅니다.",
+      trace: "판단 근거가 된 원본 거래를 열어 봅니다.",
     },
     benefitsKicker: "달라지는 점",
     benefitsHeading: "검토 준비는 줄고,|근거는 분명해집니다.",
@@ -129,7 +129,7 @@ export const homeCopy: Bilingual<HomeCopy> = {
       ],
       [
         "근거를 바로 보여 줄 수 있습니다",
-        "결과마다 근거가 된 원본 거래를 바로 열어 볼 수 있습니다. 왜 그런 결과인지 설명하기 쉽습니다.",
+        "판단 근거마다 원본 거래를 바로 열어 볼 수 있습니다. 왜 그런 결과인지 설명하기 쉽습니다.",
       ],
     ],
     modelKicker: "AI 모델 선택",

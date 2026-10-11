@@ -90,7 +90,8 @@ export const architectureCopy: Bilingual<ArchitectureCopy> = {
     ],
     reviewRequired:
       "REVIEW_REQUIRED is not a result. It means something needs checking before any calculation.",
-    mistakesLine: "A wrong suggestion stops before the calculation.",
+    mistakesLine:
+      "A malformed or unclear suggestion stops before the calculation.",
     mistakes: [
       "A suggestion that breaks the required format is rejected at validation.",
       "An unclear suggestion is not computed; the reviewer is asked to check it.",
@@ -163,7 +164,7 @@ export const architectureCopy: Bilingual<ArchitectureCopy> = {
     ],
     reviewRequired:
       "REVIEW_REQUIRED는 결과가 아닙니다. 계산 전에 확인할 것이 있어 멈춘 상태입니다.",
-    mistakesLine: "잘못된 제안은 계산 전에 멈춥니다.",
+    mistakesLine: "형식이 틀리거나 애매한 제안은 계산 전에 멈춥니다.",
     mistakes: [
       "정해진 형식에 맞지 않는 제안은 검증 단계에서 걸러집니다.",
       "애매한 제안은 계산하지 않고 검토자에게 확인을 요청합니다.",

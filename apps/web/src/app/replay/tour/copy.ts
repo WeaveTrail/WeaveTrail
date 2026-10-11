@@ -156,7 +156,7 @@ export const tourCopy: Bilingual<TourCopy> = {
     source: {
       rowsLabel: (rows) => `${rows} trades, as received`,
       goalLabel: "What this walkthrough checks",
-      goal: "Whether one account pushed the price up within a few seconds.",
+      goal: "Whether the data shows a rapid price rise concentrated in one account's buying.",
       action: "See the AI's suggestion",
     },
     mapping: {
@@ -185,7 +185,7 @@ export const tourCopy: Bilingual<TourCopy> = {
     },
     scope: {
       sentence: (instrument, account, start, seconds) =>
-        `For ${instrument}, from ${start} for ${seconds} seconds: did account ${account} push the price up quickly?`,
+        `For ${instrument}, in the ${seconds} seconds from ${start}: does the data show a rapid price rise concentrated in account ${account}'s buying?`,
       criteriaLabel:
         "The data supports the pattern when all five of these hold.",
       criteria: {
@@ -303,7 +303,7 @@ export const tourCopy: Bilingual<TourCopy> = {
     source: {
       rowsLabel: (rows) => `받은 그대로의 체결 기록 ${rows}건`,
       goalLabel: "이번 체험에서 확인할 것",
-      goal: "계좌 하나가 몇 초 사이에 가격을 끌어올렸는지 확인합니다.",
+      goal: "몇 초 사이에 한 계좌의 매수가 몰리며 가격이 빠르게 오른 패턴이 있는지 확인합니다.",
       action: "AI 제안 보기",
     },
     mapping: {
@@ -332,7 +332,7 @@ export const tourCopy: Bilingual<TourCopy> = {
     },
     scope: {
       sentence: (instrument, account, start, seconds) =>
-        `${instrument} 종목에서 ${start}부터 ${seconds}초 동안, ${account} 계좌가 가격을 빠르게 끌어올렸는지 봅니다.`,
+        `${instrument} 종목의 ${start}부터 ${seconds}초 동안의 거래에서, ${account} 계좌의 매수가 몰리며 가격이 빠르게 오른 패턴이 나타나는지 봅니다.`,
       criteriaLabel:
         "아래 다섯 가지를 모두 충족하면 패턴을 뒷받침한다고 봅니다.",
       criteria: {

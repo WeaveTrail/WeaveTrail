@@ -131,7 +131,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
       ],
       [
         "Evidence goes back to the source trades",
-        "Every result links to the source trades behind it. When you explain a decision, you can show those trades directly.",
+        "Each finding links to the source trades behind it. When you explain a decision, you can show those trades directly.",
       ],
     ],
     limitsLine: "It helps a reviewer decide. It does not decide for them.",
@@ -171,7 +171,7 @@ export const whyCopy: Bilingual<WhyCopy> = {
       ],
       [
         "근거를 원본 거래까지 보여 줍니다",
-        "결과마다 근거가 된 원본 거래를 바로 열어 볼 수 있습니다. 판단을 설명할 때 그 거래를 그대로 보여 주면 됩니다.",
+        "판단 근거마다 원본 거래를 바로 열어 볼 수 있습니다. 판단을 설명할 때 그 거래를 그대로 보여 주면 됩니다.",
       ],
     ],
     limitsLine: "판단을 돕되, 대신 판단하지는 않습니다.",

@@ -116,7 +116,7 @@ export const replayCopy: Bilingual<ReplayCopy> = {
       guidedTitle: "Try it with an example case",
       workingTitle: "Hands-on",
       workingLede:
-        "Pick a source, approve it and compute the result, in any order you like.",
+        "Pick a source, approve its mapping and then its scope, and compute the result.",
       guidedMeta:
         "Synthetic data · 5 steps · no sign-in · a refresh starts over",
       modesLabel: "How to try it",
@@ -310,7 +310,7 @@ export const replayCopy: Bilingual<ReplayCopy> = {
       guidedTitle: "예시 사례로 체험해 보세요",
       workingTitle: "직접 조작",
       workingLede:
-        "자료를 고르고, 승인하고, 결과를 계산하는 과정을 자유롭게 해 봅니다.",
+        "자료를 고르고, 항목 연결과 조사 범위를 차례로 승인한 뒤 결과를 계산해 봅니다.",
       guidedMeta: "합성 자료 · 5단계 · 회원가입 없음 · 새로고침하면 처음부터",
       modesLabel: "체험 방식",
       guidedMode: "단계별 체험",
