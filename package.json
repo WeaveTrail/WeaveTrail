@@ -34,9 +34,14 @@
     "eval:schemas:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/generate-schema-dialects.mjs",
     "eval:mappings:score": "node --import tsx packages/evals/src/score-mapping-runs.ts",
     "eval:mappings:compare": "node --import tsx packages/evals/src/compare-mapping-runs.ts",
+    "eval:schemas:generate:v3": "node --import tsx scripts/generate-schema-dialects-v3.mts",
+    "eval:models:diagnose": "node --import tsx packages/evals/src/diagnose-mapping-models.ts",
     "eval:schemas:generate:v2": "node --import tsx scripts/generate-schema-dialects-v2.mts",
+    "eval:schemas:generate:v4": "node --import tsx scripts/generate-schema-dialects-v4.mts",
     "eval:models:held-out": "node --import tsx packages/evals/src/run-held-out-models.ts",
-    "eval:mappings:select": "node --import tsx packages/evals/src/select-mapping-models.ts"
+    "eval:mappings:select": "node --import tsx packages/evals/src/select-mapping-models.ts",
+    "eval:models:dev-gate": "node --import tsx packages/evals/src/run-dev-gate.ts",
+    "eval:mappings:dev-gate": "node --import tsx packages/evals/src/evaluate-dev-gate.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -44,7 +49,7 @@
     "@types/node": "^26.6.3",
     "commonmark": "^0.31.2",
     "eslint": "^9.36.0",
-    "eslint-config-next": "16.3.5",
+    "eslint-config-next": "16.3.8",
     "prettier": "^3.9.9",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",

@@ -19,5 +19,5 @@ FSC의 `basDt`, `srtnCd`, `isinCd`, `idxNm`, `clpr`, `trqu` 같은 필드 이름
 ## 검증
 
 ```bash
-pnpm exec vitest run packages/replay-engine/src/daily-quote.test.ts packages/replay-engine/src/evidence-hash-scopes.test.ts apps/web/src/app/replay/daily-quote-surface.test.ts
+pnpm exec vitest run packages/replay-engine/src/daily-quote.test.ts packages/replay-engine/src/evidence-hash-scopes.test.ts apps/web/src/app/api/replay/daily-quote-route.test.ts
 ```

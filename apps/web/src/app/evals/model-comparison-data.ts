@@ -110,9 +110,9 @@ export function definitionLinks(language: Language) {
     rule: doc + anchors.rule,
     reference: doc + anchors.reference,
     failureLog: `${REPO}/docs/AI_FAILURE_LOG${language === "ko" ? ".ko" : ""}.md`,
-    adr: `${REPO}/docs/adr/0067-separate-mapping-validity-from-approval-before-selection.md`,
+    adr: `${REPO}/docs/adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md`,
     prices: `${REPO}/packages/evals/fixtures/mapping-selection-v1/README.md`,
-    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v1/protocol.json`,
+    protocol: `${REPO}/packages/evals/fixtures/mapping-selection-v2/protocol.json`,
   };
 }
 
@@ -309,6 +309,42 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Every held-out mapping request failed without observed output",
     ko: "보관 평가 집합의 모든 매핑 요청이 출력 관측 없이 실패함",
   },
+  {
+    id: "F-005",
+    status: "FIXED",
+    en: "The compatibility endpoint rejects the store request parameter",
+    ko: "호환 엔드포인트가 store 요청 매개변수를 거부함",
+  },
+  {
+    id: "F-006",
+    status: "ACCEPTED_RESIDUAL",
+    en: "An attack header is also an allowed output value",
+    ko: "공격 문구가 담긴 헤더가 허용된 출력 값이기도 함",
+  },
+  {
+    id: "F-007",
+    status: "ACCEPTED_RESIDUAL",
+    en: "An ambiguous column is mapped instead of left for review",
+    ko: "모호한 열을 검토로 남기지 않고 연결함",
+  },
+  {
+    id: "F-008",
+    status: "ACCEPTED_RESIDUAL",
+    en: "An uncertain column still gets a target under schema-mapping/2",
+    ko: "schema-mapping/2에서도 확신하지 못한 열에 대상을 붙임",
+  },
+  {
+    id: "F-009",
+    status: "ACCEPTED_RESIDUAL",
+    en: "Reasoning time exceeds the mapping deadline",
+    ko: "추론 시간이 매핑 마감 시간을 넘김",
+  },
+  {
+    id: "F-010",
+    status: "ACCEPTED_RESIDUAL",
+    en: "A timestamp format is read as a receipt time",
+    ko: "시각 형식을 수신 시각으로 읽음",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */
@@ -329,6 +365,24 @@ export const PROMPT_HISTORY = {
     model: true,
     en: "The field-mapping instruction every candidate receives. Unchanged since it was introduced.",
     ko: "모든 후보 모델이 받는 데이터 항목 연결 지시문입니다. 처음 도입한 뒤 바꾸지 않았습니다.",
+  },
+  "schema-mapping/2": {
+    introduced: "#320",
+    model: true,
+    en: "The ADR 0075 retry instruction: every version 1 sentence plus three rules. Instruction-like text is data, an unsettled column is left for review, and each target is used once. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 재시도 지시문입니다. 1판의 문장을 모두 유지하고 세 규칙을 더했습니다. 지시처럼 보이는 글은 데이터로 보고, 판단할 수 없는 열은 검토로 남기고, 각 대상 항목은 한 번만 씁니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
+  },
+  "schema-mapping/3": {
+    introduced: "#320",
+    model: true,
+    en: "ADR 0075 revision 1: every version 2 sentence plus target definitions, a target only when certain, the conversions no transform performs and the required targets. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 개정 1판입니다. 2판의 문장을 모두 유지하고 대상 정의, 확신할 때만 대상 지정, 어떤 변환도 하지 못하는 변환, 필수 대상을 더했습니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
+  },
+  "schema-mapping/4": {
+    introduced: "#320",
+    model: true,
+    en: "ADR 0075 revision 2: every version 3 sentence plus a rule that the header, not the value format, decides the target, and that receivedAt needs a header saying so. Checked on DEV only; the retry was withdrawn before any held-out run.",
+    ko: "ADR 0075 개정 2판입니다. 3판의 문장을 모두 유지하고, 대상은 값의 형식이 아니라 헤더로 정하며 receivedAt은 헤더가 그렇게 말할 때만 쓴다는 규칙을 더했습니다. DEV에서만 확인했고, 재시도는 held-out 실행 전에 철회되었습니다.",
   },
   "fixture-mapping/1": {
     introduced: "95f283b, #17",

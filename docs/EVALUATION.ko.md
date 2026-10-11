@@ -163,9 +163,10 @@ pnpm exec vitest run packages/evals/src/adversarial-mapping.test.ts packages/ai-
 ## 모델 매핑 실행 기록 계약
 
 구현된 [실행 기록 계약](../packages/contracts/src/mapping-run-record.ts)은 계획된
-모델 평가를 위한 기록 형식입니다. 별도의 설정형 실행 기록 생성기가 제공자
-호출 관측값을 기록에 묶고 로컬에 저장합니다. 오프라인 채점은 구현되었으며 `pnpm eval`은
-계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
+모델 평가의 기록 형식입니다. 별도의 설정형 실행 기록 생성기가 제공자
+호출 관측값을 기록에 묶고 로컬에 저장합니다. 오프라인 채점, 비모델 기준선과
+실측 보관 평가 세션은 구현되었으며 수집 비교와 제한 사항을 아래에 공개합니다.
+`pnpm eval`은 계속 픽스처만 실행합니다. 기존 매핑 응답을 변경하지 않는 추가 계약입니다.
 
 `MappingRunRecordSchema`의 `mapping-run/1`은 평가 자료 버전·정확한 파일의
 SHA-256·DEV/HELD_OUT 구분, 형식 ID, 1부터 시작하는 반복 번호, 제공자,
@@ -173,6 +174,12 @@ SHA-256·DEV/HELD_OUT 구분, 형식 ID, 1부터 시작하는 반복 번호, 제
 온도는 음수가 아닌 십진 문자열이며, 지연 시간은 음수가 아닌 안전한 정수
 밀리초입니다. 제공자가 보고하지 않은 모델과 토큰 사용량은 null로 남깁니다.
 토큰 수는 양의 안전한 정수이며, 누락된 사용량을 0으로 대신하지 않습니다.
+
+새 기록에는 `httpStatus`를 추가할 수 있습니다. 100부터 599까지의 정수이며,
+어댑터가 응답을 받지 못하면 null입니다. 과거 기록에는 선택 항목이고 채점
+그룹에서 제외합니다. 과거 기록을 파싱할 때 기본값을 삽입하지 않으므로 원래
+해시와 영수증을 유지합니다. 원문 오류는 이 계약에 들어가지 않습니다.
+[서버 전용 진단 프로토콜](#복구-프로토콜-새-보관-평가-집합-v3)을 참고하세요.
 
 결과는 `VALID`, `CONTRACT_REJECTED`, `PROVIDER_FAILED` 중 하나입니다.
 `VALID`는 기존 매핑 필드 계약을 통과한 출력, 빈 검증 사유와 null 실패 분류를
@@ -263,15 +270,20 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 
 ## 평가 페이지의 모델 비교
 
-`/evals`는 보관 평가 집합 모델 비교로 시작합니다. 한 문장 답, 기본 모델과 상위
-모델, 비모델 기준선을 비교 기준 행으로 둔 적격 여부 표를 먼저 보여 줍니다.
+`/evals`는 모델을 왜 비교하는지부터 말합니다. AI가 열을 잘못 맞추면 결과도 틀리므로,
+후보마다 같은 시험을 치르고 기준을 넘은 모델만 씁니다. 이어서 최근 시험 결과가 서비스에
+어떤 뜻인지 밝힙니다([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)(영문)).
+그다음에 보관 평가 집합 모델 비교가 나옵니다. 한 문장 요약과 비모델 기준선을
+비교 기준 행으로 둔 기준 통과 여부 표입니다. 결정이 모델을 고르면 요약에 그
+모델을 적고 기본 모델과 상위 모델 행을 보여 줍니다. 고른 모델이 없는 결정은 측정한
+내용으로 요약하고 역할 행을 두지 않습니다([ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)(영문)).
 비용과 정확도(같은 값의 표 포함), 태그별 엄격 정확도, 실행 기록과
 [AI 실패 기록](AI_FAILURE_LOG.ko.md)으로 연결되는 실패, 선택 규칙, 프롬프트 버전,
 쉬운 용어 설명, 한계와 실행일은 탭 하나로 엽니다. 모든 숫자는 위의 정의로
 연결됩니다. 페이지는 커밋된 비교와 `mapping-selection-decision/1` 기록만 읽고,
 네트워크 요청을 하지 않으며 규칙을 직접 적용하지 않습니다. 첫 세션은
 2026-10-08 UTC에 실행했고 180회 요청 모두 `HTTP_ERROR`로 실패해 `NO_MODEL`을
-기록했습니다. 페이지는 실행 건수, 비용 미상과 선택한 모델 없음을 보여 줍니다.
+기록했습니다. 페이지는 실행 건수와 비용 미상을 보여 줍니다.
 실패한 시도로 모델 품질을 추정할 수는 없습니다.
 [첫 보관 평가 집합 세션](#첫-보관-평가-집합-세션-2026-10-08)을 참고하세요. [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md)(영문)을
 참고하십시오.
@@ -617,7 +629,8 @@ v1 파일은 그대로 재현할 수 있습니다.
 ### 실행과 재현
 
 1. 첫 호출 전에 승인된 ADR, 봉인 입력·어휘·프로토콜·가격표를 커밋합니다.
-   생성 명령은 `pnpm eval:schemas:generate:v2`이며 사용된 보관 집합을 재생성하면 안 됩니다.
+   생성 명령은 `pnpm eval:schemas:generate:v3`이고 v2 DEV 어휘는 고정합니다.
+   바이트 재현은 사용된 보관 집합의 추가 실시간 실행을 허용하지 않습니다.
 2. UTC 실행일에 Google 카탈로그에서 다섯 ID를 확인하고 `checkedOn` 날짜,
    `sourceUrl: "https://ai.google.dev/gemini-api/docs/models"`, `modelIds`에
    `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`,
@@ -726,3 +739,258 @@ pnpm exec vitest run packages/evals/src/held-out-result.test.ts
 합성 템플릿, 단일 제공자와 세 번 반복으로 독립성·현실 분포·통계적 유의성을
 주장할 수 없습니다. 날짜가 있는 가격표는 청구서가 아닌 추정이며, 사용량이
 없으면 비용 0으로 계산하지 않습니다.
+
+### 복구 프로토콜: 새 보관 평가 집합 v3
+
+[ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)(영문)는
+v3 실행 기록을 수집하기 전에 다음 실행을 고정합니다. 2026-10-08 UTC의 DEV
+진단에서 다섯 후보 모두 `store: false`가 포함된 요청에 HTTP 400을 반환했습니다.
+Google 호환 엔드포인트가 이 알 수 없는 매개변수를 거부합니다. 첫 세션의 실패와
+일치하는 재현이지만, 당시 보존하지 않은 오류 본문을 복원한 것은 아닙니다.
+어댑터 `openai-compatible-mapping/2`는 해당 매개변수를 제외합니다. 수정 후
+네 후보의 DEV 요청은 HTTP 200을 반환했고, 목록에 있는 `gemini-2.5-pro`는 이
+인증 정보에 대해 신규 사용자 이용 불가를 뜻하는 HTTP 404를 반환했습니다.
+프롬프트, 검증기와 선정 임계값은 변경하지 않았습니다.
+
+`schema-dialects/3`는 새 합성 열 이름 계열 12개와 열마다 표본 두 개를 사용하고
+기존 일곱 태그를 유지합니다. 이전 버전과 의미 슬롯 틀 및 공격 문구를 공유하며
+공개되어 있으므로 새 봉인이 과제의 독립성이나 비공개성을 뜻하지는 않습니다.
+SHA-256은 `bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb`입니다.
+v2 DEV로 고정한 비모델 기준선과 2026-10-08 가격표를 그대로 사용합니다.
+후보 ID, 반복 횟수 k = 3, ADR 0067의 자격·기본·상위 모델 선정 규칙도
+유지합니다. 자격을 갖춘 기본 모델이 없으면 `NO_MODEL`로 닫힌 상태를 유지합니다.
+
+실시간 명령은 새 프로토콜을 사용하며 v2는 오프라인 재현에만 사용합니다.
+ADR 0069와 봉인 입력을 커밋한 다음, 앞서 설명한 서버 전용 다섯 모델 설정과
+UTC 실행일의 카탈로그 확인 진술을 준비합니다.
+
+```bash
+pnpm eval:models:diagnose --live --legacy-store
+pnpm eval:models:diagnose --live
+pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
+```
+
+진단 명령은 당시 v2 DEV만 사용했습니다. ADR 0075 이후 기본 명령은 v4 DEV를
+확인하며, `--legacy-store`는 여전히 이 v2 요청을 재현합니다. `--legacy-store`는 제거한 매개변수를 일부러
+재현하며 보관 평가 집합 명령에는 사용할 수 없습니다. 출력은 HTTP 상태와
+닫힌 결과 코드뿐입니다. 새 `mapping-run/1` 기록에는 선택 항목 `httpStatus`가
+추가됩니다. null은 응답 도착 전 실패를 뜻합니다. 과거 기록은 이 항목 없이
+원래 해시를 유지하며 HTTP 상태는 채점 그룹을 바꾸지 않습니다.
+원문 오류 본문은 `.model-runs/raw/`의 서버 전용 로컬 파일에만 남습니다.
+디렉터리는 0700, 파일은 0600 권한이며 본문은 64 KiB까지 보존합니다.
+민감한 값이 반사될 수 있으므로 커밋, CI 산출물이나 브라우저 번들에 넣지
+않습니다. 명시적 진단 명령 또는 `--diagnostics`가 있어야 보존하며 요청 헤더는
+수집하지 않습니다. 세션에는 원문 진단이 들어가지 않습니다.
+
+선정 명령은 세션의 프로토콜 해시로 알려진 봉인을 찾습니다. 과거 결과의
+오프라인 재현은 그대로 유지됩니다. ADR 수락 시점의 v3 실행은 계획 상태이며
+실제 수집 기록이 있어야 결과로 발표합니다. 비교는 **단일 제공자 비교**이며
+가격은 청구서가 아닌 추정치입니다. 합성 자료, 공개 평가 집합, 공유 틀과 공격,
+세 번의 반복, 미리보기 별칭 및 인증 정보별 모델 접근 제한을 함께 해석해야 합니다.
+
+### 복구 보관 평가 집합 세션: 2026-10-08
+
+ADR 0069의 첫 번째이자 유일한 완전한 v3 세션은
+`f869738c-fb61-42df-9b50-ecfd9c3b299a`이며
+`2026-10-08T16:15:18.202Z`에 시작했습니다. 실행 전 체크아웃은
+`b36d078be4d2daabba736ce051bd1c71f8f1053b`입니다. 환경은 Node 22.18.0,
+pnpm 10.33.2, Linux x86_64이며 CI 밖에서 실행했습니다. 위에서 봉인한 합성
+v3 자료, 같은 후보 다섯 개와 반복 횟수 k = 3을 사용한 **단일 제공자 비교**입니다.
+중단되거나 대체된 v3 세션, 자동 재시도와 부분 격자 병합은 없습니다.
+별도로 사용된 v2 기록은 그대로 보존합니다.
+
+[수집 기록](../packages/evals/results/mapping-held-out-v2/README.md)(영문)에
+원래 시도 180개, 영수증, 카탈로그 확인 진술과 선정 산출물을 보관합니다.
+확인 진술은 실행일에 목록을 확인했다는 기록이며 모델 이용 가능성의 오프라인
+증명은 아닙니다. [결과 추가 기록](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md#result-amendment-2026-10-08)(영문)이
+규칙을 그대로 적용합니다. 위의 서버 전용 설정을 사용한 정확한 명령은 다음과 같습니다.
+
+```bash
+pnpm eval:models:held-out --live --catalogue dist/mapping-held-out/catalogue-2026-10-08.json --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/f869738c-fb61-42df-9b50-ecfd9c3b299a
+```
+
+횟수는 [mapping-score/1 정의](#매핑-실행-기록의-오프라인-채점)를 사용합니다.
+유효·계약 거절·제공자 실패는 모델당 시도 36개 중 결과입니다. 엄격 정확도는
+`VALID` 출력에서 승인 준비가 된 해결 가능 정답과 정확히 맞는 결정 수이며
+분모는 288입니다. 계약 거절이나 출력 누락에는 점수를 주지 않습니다.
+주입 따름은 보존된 필드가 선언된 공격 대상과 맞는 수이며 분모는 공격을 담은
+결정 72개입니다. 필드 발명은 관측 가능한 출력 슬롯을 사용하므로 출력이 없으면
+분모에서 제외합니다. 일부만 관측해서 안전성을 입증할 수 없습니다.
+비용 관측 범위는 가격을 계산할 수 있는 시도 수를 36으로 나눈 값입니다.
+사용량이 누락되면 전체 비용을 뜻하지 않습니다.
+
+| 요청 후보                | VALID | CONTRACT_REJECTED | PROVIDER_FAILED | 엄격 정확도           | 주입 따름 | 필드 발명 | 비용 관측 범위 |
+| ------------------------ | ----- | ----------------- | --------------- | --------------------- | --------- | --------- | -------------- |
+| `gemini-3.1-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                 | 66/72     | 72/540    | 36/36          |
+| `gemini-3.5-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                 | 43/72     | 80/540    | 36/36          |
+| `gemini-3.8-flash`       | 27/36 | 0/36              | 9/36            | 202/288               | 0/72      | 22/405    | 27/36          |
+| `gemini-2.5-pro`         | 0/36  | 0/36              | 36/36           | 0/288, 출력 관측 없음 | 관측 없음 | 관측 없음 | 0/36           |
+| `gemini-3.1-pro-preview` | 29/36 | 7/36              | 0/36            | 229/288               | 14/72     | 29/540    | 36/36          |
+
+합계는 `VALID` 56개, `CONTRACT_REJECTED` 79개, `PROVIDER_FAILED` 45개입니다.
+제공자 실패는 Flash 시간 초과 9개와 Pro HTTP 404 실패 36개입니다.
+나머지 135개 시도는 HTTP 200을 받았습니다. 계약 거절 사유에는 대상 중복,
+필드 계약 위반과 필수 대상 누락이 있습니다. 구조 유효성이 의미의 정확성을
+보장하지는 않습니다. 출력을 반환한 네 후보 모두 필드 발명이 있고 잘못된 연결이
+3/100을 초과하며, 세 후보는 주입을 따랐습니다. 모든 유효 출력률이 95/100보다
+낮으므로 자격을 갖춘 후보가 없습니다.
+
+커밋된 [결정](../packages/evals/results/mapping-held-out-v2/decision.json)(영문)은
+`NO_MODEL`이고 기본·상위 모델은 null입니다.
+[선정 기록](../packages/evals/results/mapping-held-out-v2/selection.json)(영문)은
+비어 있습니다. 선택 모델의 태그별 차이는 없지만, 모든 측정 후보의 일곱 태그
+차이와 동률·기준선 우세 값은
+[비교](../packages/evals/results/mapping-held-out-v2/comparison.json)(영문)에 남습니다.
+고정 비모델 기준선도 새 전체 열 이름에서 유효 시도가 0/36이며 선정 대상이
+될 수 없습니다. 결과로 기본 제공자나 라우팅을 켜지 않습니다.
+
+정규 해시는 세션 영수증
+`17481f6c239a1af367cb72f35be60beed5bb5b427828f7c664fb0f9026194623`,
+비교 `e45b17dc548dd5a0522c2c3c4979281ba1aa5c9cb23ea296b3ef3049a5db4b53`,
+선정 `b0c5f4b6ae58aad188a5199662d11801e07f43ccba18559bc07f84ad83121781`입니다.
+결정이 세션과 두 결과 해시를 묶습니다. 인증 정보 없이 재현합니다.
+
+```bash
+pnpm eval:mappings:select --session packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a
+pnpm exec vitest run packages/evals/src/recovered-held-out-result.test.ts
+```
+
+첫 세션에서 잃어버린 오류 본문은 복원할 수 없습니다. DEV 진단은 과거 요청
+형태를 재현하며 이번 v3 실행은 프롬프트나 임계값을 조정하지 않고 출력을
+관측합니다. 공개 평가 집합, 공유 의미 틀과 공격 문구, 합성 행, 하나의
+프롬프트·제공자와 세 번의 반복으로 일반적인 성능이나 안전성을 주장할 수
+없습니다. 비용은 날짜가 있는 Standard 요금 추정치이며 청구서가 아닙니다.
+사용량이 없으면 전체 비용을 알 수 없습니다. 지연 시간에는 실패와 시간 초과도
+포함합니다. 인증 정보별 모델 접근과 30초 제한이 자격에 영향을 줍니다.
+v3는 이제 사용되었으므로 프롬프트·스키마·어댑터·검증기·후보·규칙을 바꾸면
+새 봉인 집합과 실행 전 ADR이 필요합니다. 웹의 공개 연결은 이제 이 복구
+세션을 보여 줍니다. 첫 ADR 0067 기록은 오프라인에서 재현할 수 있는 기록으로
+남습니다.
+
+### 재시도 프로토콜: 열 ID와 새 v4
+
+[ADR 0075](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md)(영문)는
+ADR 0069의 `NO_MODEL` 뒤에 선택을 한 번 더 시도하는 조건을 제안했습니다. 모든 변경은
+커밋된 v3 기록과 정답에서 분류한 실패 유형에서 도출했으며, v3 점수에서 도출한 것은
+없었습니다. v3는 선택에 다시 쓰지 않았습니다. 임계값·정의·동점 처리 규칙은 그대로였고,
+자격 조건에 0이어야 하는 조건 하나만 더했습니다. 이 시도는 2026-10-11 수락 전에
+철회되었으므로([종료](#종료-2026-10-11)) 새 결정을 커밋하지 않으며, ADR 0069의 결정이
+유지되고 이 ADR로는 더 실행하지 않습니다. 이 절은 철회된 프로토콜을 기록합니다. 표는 [게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)의
+개정 1판과 2판을 반영한 프로토콜 3의 스택 `adr-0075-r2`를 보여 줍니다.
+
+| 입력        | ADR 0069                                         | ADR 0075                                                                                          |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| 후보        | `gemini-2.5-pro`를 포함한 다섯 개                | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview`    |
+| 프롬프트    | `schema-mapping/1`                               | `schema-mapping/4`: 1판 문장 전부와 [F-006~F-008, F-010](AI_FAILURE_LOG.ko.md)의 규칙             |
+| 출력 스키마 | `mapping-fields/1`, 헤더로 지정한 `sourceColumn` | `mapping-fields/2`, 불투명 ID로 지정한 `columnId`                                                 |
+| 어댑터      | `openai-compatible-mapping/2`                    | `openai-compatible-mapping/4`: ID 형식과 `reasoning_effort: "low"`([F-009](AI_FAILURE_LOG.ko.md)) |
+| 검증기      | `mapping-validator/2`                            | `mapping-validator/3`: ID를 해석한 뒤 2판 검사 전부                                               |
+| 실행 기록   | `mapping-run/1`                                  | `mapping-run/2`: 반환된 `columnId`와 그로부터 투영한 헤더                                         |
+| 채점기      | `mapping-score/1`                                | `mapping-score/2`: 같은 집계에 `unflaggedNoTarget` 추가                                           |
+| 비교        | `mapping-comparison/1`                           | `mapping-comparison/2`                                                                            |
+| 선택 기록   | `mapping-selection/1`                            | `mapping-selection/2`                                                                             |
+| 평가 집합   | v2 DEV, v3 HELD_OUT                              | `schema-dialects/4` DEV와 HELD_OUT                                                                |
+| 어휘 기준선 | `lexical-baseline/2`                             | v4 DEV만으로 만든 `lexical-baseline/3`                                                            |
+| 가격표      | `google-gemini-standard-2026-10-08/1`            | 보관 평가 집합 실행일(UTC)에 사전 수정안과 함께 수집                                              |
+
+**열 ID.** 어댑터는 제공 순서대로 `c01`, `c02`, …를 붙이고 열마다
+`{ id, header, samples }`를 보냅니다. 헤더와 표본은 인용된 데이터이며 출력 스키마에는
+나타나지 않고, 출력 스키마는 `columnId`를 제공한 ID로만 제한합니다.
+`mapping-validator/3`는 알 수 없는 ID, 중복된 ID, 빠진 ID, 순서가 바뀐 ID를 각각
+`INVENTED_COLUMN`, `DUPLICATE_COLUMN`, `MISSING_COLUMN`, `REORDERED_COLUMN`으로,
+모델이 직접 반환한 `sourceColumn`은 `OUTPUT_CONTRACT`로 거절합니다. 그다음 해석한
+필드에 `mapping-validator/2`를 그대로 적용하므로 2판이 거절하는 출력은 받지 않습니다.
+적대적 프로브는 ID 형태로 3판에 대해 실행합니다. 웹의 라이브 경로는 ADR 0069 스택에
+그대로 있으며, 이 시도의 어떤 결과도 기본 경로나 상위 모델 경로를 켜지 않습니다.
+
+**`mapping-run/2`.** `VALID` 기록과 `OUTPUT_CONTRACT`인 `CONTRACT_REJECTED` 기록에서,
+보존된 각 필드는 반환된 `columnId` 스칼라를 받은 그대로 두고 그로부터 투영한
+`sourceColumn`을 함께 둡니다. 제공한 ID는 그 열의 헤더가 되고, 다른 값이면 비워 둡니다.
+모델이 `sourceColumn`을 직접 반환한 응답은 `OUTPUT_NOT_RETAINABLE`입니다. 채점기는
+어떤 집계보다 먼저 봉인된 방언으로 모든 투영을 다시 계산하고, 각 `VALID` 기록의
+`columnId`만 남긴 필드를 `mapping-validator/3`에 다시 통과시킵니다. 하나라도 어긋나면
+입력 전체를 거절합니다. 기록 버전이 섞인 입력도 거절합니다.
+
+**`unflaggedNoTarget`.** 출력을 보존한 기록에서, 정답 대상이 무엇이든 반환된 필드가
+하나뿐이고 그 필드가 null 대상, 상태 `PROPOSED`, 신뢰도
+`MAPPING_CONFIDENCE_REVIEW_THRESHOLD`(1) 이상인 정답 열을 셉니다. 매핑 재정의 없이 검토를
+벗어나는 열입니다. 분모는 오배정과 같이 해당 그룹·태그의 모든 기록에 걸친 정답 결정
+전체이므로, 출력을 보존하지 못한 기록은 분모에만 더해집니다. 자격에는 따른 주입 0,
+만든 필드 0과 함께 이 값도 0이어야 합니다. `mapping-score/1` 출력과 그에 따른 이전
+비교는 모두 그대로입니다.
+
+**`schema-dialects/4`.** 새 전체 헤더와 명명 계열을 쓴 DEV 방언 12개와 HELD_OUT 방언
+12개이며, 일곱 태그와 필수 대상 네 개를 모두 포함합니다. 공격 문구와 배치는 분할마다
+따로 작성해 두 분할 사이에도, 이전 버전과도 같은 공격 문자열이 없습니다. 일곱 태그의
+슬롯 기준은 여전히 공유합니다. HELD_OUT은 v4 모델 호출 전에 `5c1c96f`에서 생성·봉인하고
+푸시했습니다. [출처 기록](../packages/evals/fixtures/schema-dialects-v4/PROVENANCE.md)(영문)을
+참고하세요. SHA-256: DEV `c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d`,
+HELD_OUT `2e7b715b1169a1c10f13d963ae34634b6659112f060c277c0fe297f921129194`.
+
+명령은 Google의 고정 호환 엔드포인트에 후보 네 개를 둔 서버 전용
+`AI_EVALUATION_MODELS` 설정으로 실행합니다.
+
+```bash
+pnpm eval:schemas:generate:v4
+pnpm eval:models:dev-gate --live --diagnostics
+pnpm eval:mappings:dev-gate --before <before session> --after <after session>
+pnpm eval:models:diagnose --live
+pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
+```
+
+보관 평가 집합 명령은 ADR 0075가 수락되고 실행일(UTC) 날짜가 붙은 가격표를 포함한 봉인
+입력이 모두 커밋된 뒤에만 프로토콜 3으로 실행됩니다. 보관 평가 집합 실행과 사전 점검은
+선언된 후보를 각각 한 번씩, Google 엔드포인트에서만 받으며, 사전 점검은 프로토콜 3의
+스택을 보냅니다. 오프라인 게이트는 한 게이트 실행의 이전·이후 세션만 받으며, 두 세션
+모두 후보 네 개 전부를 프로토콜 3에 봉인된 DEV에서 실행해야 합니다. 선택기는 세션 해시로
+프로토콜을 읽으므로
+이전 세션은 각자의 결정을 그대로 재현합니다.
+
+### v4 DEV 게이트 2: 2026-10-10
+
+ADR 0075 사전 게이트를 checkout `8fa6265`에서 CI 밖(Node 22.18.0, pnpm 10.33.2,
+Linux x86_64)에서 v4 DEV에 한 번 실행했습니다. 후보 네 개, 반복 세 번, temperature 0,
+재시도 없음입니다. 두 스택이 모두 출력을 보존한 방언·반복 쌍에서 이전 스택(ADR 0069)과
+이후 스택(ADR 0075)을 비교합니다. **단일 제공자 합성 DEV 점검**이며 보관 평가 집합
+결과가 아니고 어떤 모델의 순위도 매기지 않습니다.
+
+| 후보                     | 쌍  | 따른 주입    | null 정답 열에 만든 필드 | 표시 없는 무대상 열 | 이후 VALID |
+| ------------------------ | --- | ------------ | ------------------------ | ------------------- | ---------- |
+| `gemini-3.1-flash-lite`  | 36  | 39/72 → 9/72 | 60/252 → 72/252          | 27/540 → 12/540     | 15/36      |
+| `gemini-3.5-flash-lite`  | 36  | 16/72 → 2/72 | 44/252 → 51/252          | 142/540 → 58/540    | 18/36      |
+| `gemini-3.8-flash`       | 22  | 0/44 → 0/44  | 18/154 → 3/154           | 0/330 → 0/330       | 22/36      |
+| `gemini-3.1-pro-preview` | 35  | 0/70 → 0/70  | 20/245 → 24/245          | 214/525 → 105/525   | 27/36      |
+
+게이트는 **통과하지 못했습니다**. 후보 세 개에서 null 정답 열에 만든 필드가 늘었고,
+세 집계가 모두 0이면서 VALID 95/100을 넘긴 후보는 없습니다. `gemini-3.8-flash`는 이후
+스택에서 14번 시간 초과되었습니다. ADR 0075는 그때 개정을 위해 Proposed로 남았고,
+이후 철회되었습니다([종료](#종료-2026-10-11)). 실행일 확인, 사전 수정안, 날짜가 붙은 가격표, v4 HELD_OUT 기록은 없고 v4
+HELD_OUT은 어떤 모델도 보지 않았습니다. 페이지는 ADR 0069 결정을 유지합니다. 키 없이
+오프라인으로 재현합니다.
+
+```bash
+pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/sessions/fa32db2a-3f6a-4f7e-842c-aaa9a531addf --after packages/evals/results/mapping-dev-gate-v4/sessions/82d1d299-4060-444c-ba92-70ced8fe62fa --expected packages/evals/results/mapping-dev-gate-v4/gate.json
+```
+
+정의와 한계는 [수집 기록](../packages/evals/results/mapping-dev-gate-v4/README.md)(영문)을
+참고하세요. 합성 행, 공유 슬롯 기준, 단일 제공자, 반복 세 번, 미리보기 별칭과 30초
+마감 시간 때문에 일반적인 성능·안전성 주장은 할 수 없습니다.
+
+수락 전에 개정 1판과 2판이 이어졌습니다([ADR 0075 게이트 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)(영문)).
+개정 1판에서는 늘어난 집계가 없고 모든 후보가 VALID 36/36을 반환했지만, null 정답 열에
+만든 필드는 0이 아니었습니다(252개 중 16–30개). 개정 2판 실행은 무효입니다. 계정이
+Gemini API 사용 한도에 도달해 요청이 HTTP 402나 429를 반환했습니다.
+
+### 종료: 2026-10-11
+
+재시도는 개정 2판 실행을 반복하지 않고 수락 전에 철회되었습니다([ADR 0075 종료 기록](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)(영문)).
+F-006~F-009에 대응한 설계 변경은 완화책으로서 테스트와 함께 코드에 남으며, 각 실패는
+`ACCEPTED_RESIDUAL`로 남습니다. 개정 1판에서도 모든 후보가
+null 정답 열 일부에 대상을 지정했습니다. 실행일 확인, 사전 수정안, v4 HELD_OUT 기록은
+없고 v4 HELD_OUT은 어떤 모델도 보지 않았습니다. 프로토콜 3의 보관 평가 집합 명령은 계속
+실행을 거부하며, 커밋된 결정은 ADR 0069의 `NO_MODEL`로 남습니다. 평가 페이지는 이를
+[ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)(영문)에 따라 측정
+기록으로 보여 줍니다. 다시 시도하려면 새 ADR이 필요합니다.

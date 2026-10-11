@@ -18,3 +18,9 @@ apps/web/src/design-reference/tokens
 
 # Captured held-out selector output; reproduced byte for byte by its regression.
 /packages/evals/results/mapping-held-out-v1/comparison.json
+
+# Original recovery runner/selector bytes; receipts and offline regression verify them.
+/packages/evals/results/mapping-held-out-v2/**/*.json
+
+# Original ADR 0075 gate 2 runner bytes; receipts and offline regression verify them.
+/packages/evals/results/mapping-dev-gate-v4/**/*.json

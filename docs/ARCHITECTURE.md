@@ -28,7 +28,8 @@ because none has been published.
   passes every gate for `SUPPORTED`; comparable broad participation fails
   `ACTOR_CONCENTRATION` and `REMOVAL_SENSITIVITY` for `NOT_SUPPORTED`; missing
   side evidence yields `INCONCLUSIVE`. A FIX-shaped identity-conflict source stops at
-  `INPUT_REVIEW_REQUIRED` before replay. `/expectations` states each case's
+  `INPUT_REVIEW_REQUIRED` before replay. The committed
+  [scenario expectations](../apps/web/src/app/expectations/scenario-expectations.json) state each case's
   exact condition, both purposes, its Case Replay availability and whether a
   result hash is produced.
 - Metadata also declares the mutations offered per source: published-schema
@@ -47,38 +48,44 @@ because none has been published.
   [provenance](../packages/scenarios/src/sources/published-execution-fix44-broad-participation.provenance.json)
   records the schema and market-rule basis, synthetic attributes, authored
   thresholds, failed gates, reproduction command and captured hashes.
-- `/why` states where the gate sits against an existing surveillance pipeline
-  and cites its published sources. The overview states position before
-  mechanism: surveillance raises a candidate, WeaveTrail confirms the scope,
-  re-verifies and opens the evidence, a person decides. It detects nothing.
+- Two explanation pages follow the reader's order
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+  `/why` says what a reviewer gains, opening from two cited published facts:
+  AI now reaches into surveillance, and the decision and its responsibility stay
+  with people. It detects nothing. `/architecture` says how it runs: who does
+  what, the three results, what happens when the AI is wrong, why a rerun
+  repeats and how data is handled. The former `/methodology`, `/expectations`
+  and `/data-handling` addresses redirect to `/architecture`.
 
-![What a guided step shows and what completes the walkthrough](assets/boundary/guided-steps.svg)
+![The five scenes of the guided walkthrough and the one action each offers](assets/boundary/guided-steps.svg)
 
-- One navigation entry, `Walk through a case`. `Guided walkthrough` and
-  `Working mode` name the two ways to use it and mark the running one. `/replay`
-  opens guided; `mode=working` selects working mode; the query is the
+- One navigation entry, `Try it`. `Step by step` and `Hands-on` name the two
+  ways to use it and mark the running one. `/replay` opens the guided
+  walkthrough; `mode=working` selects hands-on (working) mode; the query is the
   presentation-mode source of truth and carries no trusted approval or result
-  state. Re-entering guided mode restores its supported-case baseline and clears
-  working input state; refresh starts unapproved.
-- A step's control lives in the rail where the step commits something, sharing
-  one handler and one disabled state with the case column; where the work
-  happens in the case content the rail's control scrolls there and takes focus.
-  The step list is navigable for reading, and a step counts as completed only
-  while the visitor's own work still satisfies it
-  ([ADR 0026](adr/0026-open-guided-steps-with-intent-and-read-ahead.md),
-  [ADR 0033](adr/0033-lead-each-guided-step-with-its-action.md)).
-- A hash mismatch keeps the original baseline, blocks completion and stays
-  retryable. The hand-off exposes working controls without remounting the case
-  surface, so in-memory approvals and the result stay valid. Guide progress is
-  distinct from the request-local server workflow
-  ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)).
-- The guided source is `published-execution-fix44.csv` at `baseline`. Its
-  mapping chapter embeds the actorless `published-execution-h0stcnt0.jsonl` as a
-  separate review example: each instance owns its proposal-specific approval and
-  async generation guard, only an example-completion flag crosses into guide
-  progress, and the example's approval, source and result never enter the case
-  request. The server loader strips committed case approval records before
-  sending props.
+  state. A refresh starts unapproved.
+- The guided walkthrough (`replay/tour/`) follows the worked case,
+  `published-execution-fix44.csv` at `baseline`, in five scenes: the file as
+  received and what the walkthrough checks; the AI's column matches with a
+  sample value each; the scope in one sentence with its five criteria; the
+  result, each criterion against this data, and an optional second run that
+  compares the returned hashes; and the source rows each criterion used. Every
+  scene says what the visitor is looking at and why before it asks for one
+  action, and an approval moves to the next scene only once it is recorded
+  ([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+- One client surface, `replay-surface.tsx`, owns the `use-case-replay.ts`
+  state for both modes, so the walkthrough makes the same explicit mapping and
+  case approvals, and sends the same replay request, as working mode. Handing
+  off to working mode keeps the approved case and its result; re-entering the
+  walkthrough restores the worked case at its baseline, unapproved
+  ([ADR 0019](adr/0019-share-guided-and-working-case-replay-state.md)). Percentages on screen are converted from the
+  engine's basis-point strings by moving the decimal point, never by
+  floating-point arithmetic. The server loader strips committed case approval
+  records before sending props.
+- Working mode lists every reviewer-facing source. The actorless
+  `published-execution-h0stcnt0.jsonl` there stops at `REVIEW_REQUIRED` until
+  each flagged field carries a reviewer reason, and it normalizes without a
+  case.
 - Advanced controls permute submitted rows before mapping or duplicate one
   derived event after mapping; original coordinates and values stay unchanged
   ([ADR 0020](adr/0020-prepare-source-order-at-the-caller.md)).
@@ -530,15 +537,31 @@ See [ADR 0046](adr/0046-retain-public-sources-in-two-provenance-tiers.md) and
 
 ## Presentation boundary
 
-![The public routes: /, /why, /architecture, /methodology, /data-handling, /evals, /expectations and /replay in guided and working modes](assets/boundary/public-routes.svg)
+![The public routes: /, /why, /architecture, /evals and /replay in guided and working modes](assets/boundary/public-routes.svg)
 
-- The eight public routes use a product-local snapshot of the paper-first design
-  tokens and the original brand mark, pinned to `WeaveTrail/design-reference`
-  revision `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. The design repository is
-  neither a build nor a runtime dependency.
+- The five public routes use the product's own design tokens in
+  `apps/web/src/app/design/` under one top navigation bar
+  ([ADR 0074](adr/0074-give-the-product-its-own-design-system-and-top-navigation.md)).
+  The original brand mark and the token values drawn into the figures come from
+  a product-local snapshot pinned to `WeaveTrail/design-reference` revision
+  `3f078da1970e8accd83fbdde73308a2a24d0d1f8`. That pin is recorded once in
+  `apps/web/src/design-reference/snapshot.json`
+  ([ADR 0071](adr/0071-keep-one-design-reference-pin.md)). The design repository
+  is neither a build nor a runtime dependency.
 - Product copy and every visible evidence value stay owned by this repository's
   runtime responses and committed synthetic scenarios
   ([ADR 0015](adr/0015-apply-the-canonical-design-reference.md)).
+- `apps/web/src/app` is organized by page
+  ([ADR 0076](adr/0076-organize-the-web-app-by-page-with-typed-bilingual-copy.md)).
+  Each route folder holds its page, its typed bilingual `copy.ts`, its view and
+  its stylesheet; `shell/` holds the header, navigation, language switch and
+  footer, and `explainer/` the layout the two explanatory pages share: one
+  opening answer, then sections of a title and one line with detail one
+  disclosure or link away. No user-visible string is written inline in markup.
+- Case Replay keeps its state in `replay/use-case-replay.ts`. The guided
+  walkthrough is `replay/tour/`: its five scenes, their bilingual copy and its
+  stylesheet. Working mode is `replay/case-replay.tsx`, which composes the
+  panels under `replay/steps/`, each beside its own panel copy.
 
 ## Daily quote and cross-market rule version coexistence
 

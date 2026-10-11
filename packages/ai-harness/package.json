@@ -6,7 +6,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/configured-provider.ts"
+    "./server": "./src/configured-provider.ts",
+    "./validator": "./src/mapping-output-validator.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -1,0 +1,9 @@
+{
+  "version": "mapping-selection-protocol/2",
+  "files": {
+    "packages/evals/fixtures/schema-dialects-v2/DEV.json": "9260c8bcfe565d4bcffd1f53cfbc09dd4b874afcc750f6b76a80f97b8cda0d0b",
+    "packages/evals/fixtures/lexical-baseline-v2/vocabulary.json": "3bdb1a2739a7992fb403c6d7a77865bfc385b962e5e9527d3d3a0859c04bb10b",
+    "packages/evals/fixtures/mapping-selection-v1/prices.json": "d24dcce6cb6b48bebe396df378034ceb2bb43a45e0532537a070f60ee6fe1371",
+    "packages/evals/fixtures/schema-dialects-v3/HELD_OUT.json": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb"
+  }
+}

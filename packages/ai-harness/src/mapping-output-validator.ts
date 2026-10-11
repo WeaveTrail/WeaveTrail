@@ -16,6 +16,8 @@ import {
 import type { MappingInput } from "./provider";
 
 export const MAPPING_VALIDATOR_VERSION = "mapping-validator/2";
+/** ADR 0075: resolves opaque column IDs, then applies version 2 unchanged. */
+export const MAPPING_COLUMN_ID_VALIDATOR_VERSION = "mapping-validator/3";
 
 export const MAPPING_VALIDATOR_REASON_CODES = [
   "BODY_TOO_LARGE",
@@ -56,6 +58,9 @@ export type MappingOutput =
   | { kind: "envelope"; body: Uint8Array }
   | { kind: "fields"; value: unknown }
   | { kind: "proposal"; value: unknown };
+/** Model output that names columns only by the IDs `mappingColumnIds` assigns. */
+export type ColumnIdMappingOutput =
+  { kind: "envelope"; body: Uint8Array } | { kind: "fields"; value: unknown };
 
 function reject(
   code: MappingValidatorReasonCode,
@@ -97,6 +102,54 @@ function compatible(target: MappedTargetField, transform: AllowedTransform) {
   }
 }
 
+/** The shared envelope stage: one assistant choice whose content parses as JSON. */
+function envelopeContent(
+  body: Uint8Array,
+): { value: unknown } | { rejected: MappingValidationResult } {
+  if (body.byteLength > MAPPING_RUN_OUTPUT_MAX_BYTES)
+    return { rejected: reject("BODY_TOO_LARGE") };
+  let envelope: unknown;
+  try {
+    envelope = JSON.parse(
+      new TextDecoder("utf-8", { fatal: true }).decode(body),
+    );
+  } catch {
+    return { rejected: reject("ENVELOPE_INVALID_JSON") };
+  }
+  if (
+    !object(envelope) ||
+    !Array.isArray(envelope.choices) ||
+    envelope.choices.length !== 1
+  )
+    return { rejected: reject("ENVELOPE_INVALID", ["choices"]) };
+  const choice: unknown = envelope.choices[0];
+  if (
+    !object(choice) ||
+    !object(choice.message) ||
+    choice.message.role !== "assistant"
+  )
+    return { rejected: reject("ENVELOPE_INVALID", ["choices", 0]) };
+  const message = choice.message;
+  if (
+    Object.hasOwn(message, "tool_calls") ||
+    Object.hasOwn(message, "function_call")
+  )
+    return { rejected: reject("TOOL_CALL", ["choices", 0, "message"]) };
+  if (message.refusal)
+    return {
+      rejected: reject("REFUSAL", ["choices", 0, "message", "refusal"]),
+    };
+  if (choice.finish_reason === "length")
+    return { rejected: reject("LENGTH_STOP", ["choices", 0, "finish_reason"]) };
+  if (choice.finish_reason !== "stop" || typeof message.content !== "string")
+    return { rejected: reject("ENVELOPE_INVALID", ["choices", 0]) };
+  try {
+    return { value: JSON.parse(message.content) };
+  } catch {
+    return { rejected: reject("OUTPUT_INVALID_JSON", ["fields"]) };
+  }
+}
+
 /**
  * Structural model-output gate, shared by adapter attempts and offline probes.
  * First failure wins: envelope -> contract -> columns -> targets -> transforms
@@ -109,46 +162,9 @@ export function validateMappingStructure(
 ): MappingValidationResult {
   let value: unknown;
   if (output.kind === "envelope") {
-    if (output.body.byteLength > MAPPING_RUN_OUTPUT_MAX_BYTES)
-      return reject("BODY_TOO_LARGE");
-    let envelope: unknown;
-    try {
-      envelope = JSON.parse(
-        new TextDecoder("utf-8", { fatal: true }).decode(output.body),
-      );
-    } catch {
-      return reject("ENVELOPE_INVALID_JSON");
-    }
-    if (
-      !object(envelope) ||
-      !Array.isArray(envelope.choices) ||
-      envelope.choices.length !== 1
-    )
-      return reject("ENVELOPE_INVALID", ["choices"]);
-    const choice: unknown = envelope.choices[0];
-    if (
-      !object(choice) ||
-      !object(choice.message) ||
-      choice.message.role !== "assistant"
-    )
-      return reject("ENVELOPE_INVALID", ["choices", 0]);
-    const message = choice.message;
-    if (
-      Object.hasOwn(message, "tool_calls") ||
-      Object.hasOwn(message, "function_call")
-    )
-      return reject("TOOL_CALL", ["choices", 0, "message"]);
-    if (message.refusal)
-      return reject("REFUSAL", ["choices", 0, "message", "refusal"]);
-    if (choice.finish_reason === "length")
-      return reject("LENGTH_STOP", ["choices", 0, "finish_reason"]);
-    if (choice.finish_reason !== "stop" || typeof message.content !== "string")
-      return reject("ENVELOPE_INVALID", ["choices", 0]);
-    try {
-      value = JSON.parse(message.content);
-    } catch {
-      return reject("OUTPUT_INVALID_JSON", ["fields"]);
-    }
+    const content = envelopeContent(output.body);
+    if ("rejected" in content) return content.rejected;
+    value = content.value;
   } else {
     value = output.value;
   }
@@ -291,12 +307,9 @@ export function validateMappingStructure(
   return { status: "VALID", proposal, reasons: [] };
 }
 
-/** Approval-readiness gate: preserves the historical live fail-closed behavior. */
-export function validateMappingOutput(
-  output: MappingOutput,
-  input: MappingInput,
+function approvalReady(
+  result: MappingValidationResult,
 ): MappingValidationResult {
-  const result = validateMappingStructure(output, input);
   if (result.status !== "VALID") return result;
   const { proposal } = result;
   for (const [index, field] of proposal.fields.entries()) {
@@ -304,4 +317,85 @@ export function validateMappingOutput(
       return reject("REVIEW_STATUS", ["fields", index]);
   }
   return { status: "VALID", proposal, reasons: [] };
+}
+
+/** Approval-readiness gate: preserves the historical live fail-closed behavior. */
+export function validateMappingOutput(
+  output: MappingOutput,
+  input: MappingInput,
+): MappingValidationResult {
+  return approvalReady(validateMappingStructure(output, input));
+}
+
+/** Opaque IDs `c01`, `c02`, … in supplied order; never derived from a header. */
+export function mappingColumnIds(input: Pick<MappingInput, "columns">) {
+  return input.columns.map(
+    (_, index) => `c${String(index + 1).padStart(2, "0")}`,
+  );
+}
+
+/**
+ * `mapping-validator/3`: resolve each returned `columnId` to its supplied
+ * column, then apply every `mapping-validator/2` check unchanged to the
+ * resolved fields. An unknown, duplicated, missing or reordered ID is rejected
+ * under the existing column reason codes. Nothing version 2 rejects passes.
+ */
+export function validateColumnIdStructure(
+  output: ColumnIdMappingOutput,
+  input: MappingInput,
+): MappingValidationResult {
+  let value: unknown;
+  if (output.kind === "envelope") {
+    const content = envelopeContent(output.body);
+    if ("rejected" in content) return content.rejected;
+    value = content.value;
+  } else {
+    value = output.value;
+  }
+  if (
+    !object(value) ||
+    Object.keys(value).length !== 1 ||
+    !Object.hasOwn(value, "fields")
+  )
+    return reject("OUTPUT_CONTRACT");
+  if (!Array.isArray(value.fields))
+    return reject("OUTPUT_CONTRACT", ["fields"]);
+  const ids = mappingColumnIds(input);
+  const returned: string[] = [];
+  for (const [index, field] of value.fields.entries()) {
+    // A header is never output under this contract, so a returned
+    // `sourceColumn` is an undeclared key, not a second way to name a column.
+    if (
+      !object(field) ||
+      !Object.hasOwn(field, "columnId") ||
+      Object.hasOwn(field, "sourceColumn")
+    )
+      return reject("OUTPUT_CONTRACT", ["fields", index]);
+    const id = field.columnId;
+    if (typeof id !== "string" || !ids.includes(id))
+      return reject("INVENTED_COLUMN", ["fields", index, "columnId"]);
+    if (returned.includes(id))
+      return reject("DUPLICATE_COLUMN", ["fields", index, "columnId"]);
+    returned.push(id);
+  }
+  if (returned.length !== ids.length)
+    return reject("MISSING_COLUMN", ["fields"]);
+  const reordered = returned.findIndex((id, index) => id !== ids[index]);
+  if (reordered >= 0)
+    return reject("REORDERED_COLUMN", ["fields", reordered, "columnId"]);
+  const fields = (value.fields as Record<string, unknown>[]).map(
+    ({ columnId, ...field }) => ({
+      sourceColumn: input.columns[ids.indexOf(columnId as string)],
+      ...field,
+    }),
+  );
+  return validateMappingStructure({ kind: "fields", value: { fields } }, input);
+}
+
+/** Version 3 approval readiness: the same review gate after ID resolution. */
+export function validateColumnIdOutput(
+  output: ColumnIdMappingOutput,
+  input: MappingInput,
+): MappingValidationResult {
+  return approvalReady(validateColumnIdStructure(output, input));
 }

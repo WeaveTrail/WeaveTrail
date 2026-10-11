@@ -4,6 +4,7 @@ import { PROMPT_VERSIONS } from "@weavetrail/contracts";
 import React, { useRef, useSyncExternalStore } from "react";
 
 import { useLanguage } from "../i18n/language";
+import { Phrased } from "../shell/sentence-lines";
 import {
   PANEL_KEYS,
   TERM_KEYS,
@@ -79,25 +80,29 @@ export function ModelComparison({
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const decision = result?.decision;
-  const answer = !decision
-    ? t.answer.pending
-    : decision.outcome === "NO_MODEL" || !decision.primary
-      ? t.answer.noModel
-      : decision.escalation
-        ? t.answer.selected(decision.primary, decision.escalation)
-        : t.answer.primaryOnly(decision.primary);
-  const primaryValue = !decision
-    ? t.roleValue.pending
-    : (decision.primary ?? t.roleValue.noModel);
-  const escalationValue = !decision
-    ? t.roleValue.pending
-    : decision.primary
-      ? (decision.escalation ?? t.roleValue.noEscalation)
-      : t.roleValue.noModel;
-
   const models = result
     ? result.comparison.groups.filter((g) => g.role === "MODEL")
     : [];
+  // A run without a selection is shown as what it attempted and observed; a
+  // candidate whose every request failed at the provider was not measured.
+  // The roles appear only while pending or once a primary model is selected.
+  const primary =
+    decision?.outcome === "SELECTED" ? (decision.primary ?? null) : null;
+  const answer = !decision
+    ? t.answer.pending
+    : primary === null
+      ? t.answer.measured(
+          models.length,
+          models.filter((g) => outputObserved(g, g.byTag.ALL!)).length,
+        )
+      : decision.escalation
+        ? t.answer.selected(primary, decision.escalation)
+        : t.answer.primaryOnly(primary);
+  const showRoles = !decision || primary !== null;
+  const primaryValue = primary ?? t.roleValue.pending;
+  const escalationValue = !decision
+    ? t.roleValue.pending
+    : (decision.escalation ?? t.roleValue.noEscalation);
   const reference = result?.comparison.groups.find(
     (g) => g.role === "REFERENCE",
   );
@@ -238,32 +243,64 @@ export function ModelComparison({
 
   return (
     <section
-      aria-labelledby="model-comparison-answer"
+      aria-labelledby="model-comparison-title"
       className="model-comparison"
     >
-      <div className="mc-answer">
+      <div className="mc-why">
         <span className="eyebrow">{t.eyebrow}</span>
-        <h1 id="model-comparison-answer">{answer}</h1>
-        <dl className="mc-roles">
-          <div>
-            <dt>{term("primary", t.roles.primary)}</dt>
-            <dd
-              className={decision?.primary ? "mc-model" : undefined}
-              data-role="primary"
-            >
-              {primaryValue}
-            </dd>
-          </div>
-          <div>
-            <dt>{term("escalation", t.roles.escalation)}</dt>
-            <dd
-              className={decision?.escalation ? "mc-model" : undefined}
-              data-role="escalation"
-            >
-              {escalationValue}
-            </dd>
-          </div>
-        </dl>
+        <h1 id="model-comparison-title">
+          <Phrased text={t.why.title} />
+        </h1>
+        <p className="sentence-lines">
+          {t.why.lines.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </p>
+      </div>
+
+      <div className="mc-status" data-outcome={decision?.outcome ?? "PENDING"}>
+        <span className="mc-status-label">{t.status.label}</span>
+        <strong>
+          {!decision
+            ? t.status.pending
+            : primary === null
+              ? t.status.noModel
+              : t.status.selected(primary)}
+        </strong>
+        {decision && primary === null ? (
+          <p className="sentence-lines">
+            {t.status.noModelNote.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mc-answer">
+        <h2>{t.resultsHeading}</h2>
+        <p id="model-comparison-answer">{answer}</p>
+        {showRoles ? (
+          <dl className="mc-roles">
+            <div>
+              <dt>{term("primary", t.roles.primary)}</dt>
+              <dd
+                className={decision?.primary ? "mc-model" : undefined}
+                data-role="primary"
+              >
+                {primaryValue}
+              </dd>
+            </div>
+            <div>
+              <dt>{term("escalation", t.roles.escalation)}</dt>
+              <dd
+                className={decision?.escalation ? "mc-model" : undefined}
+                data-role="escalation"
+              >
+                {escalationValue}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
       </div>
 
       <p className="mc-caption" id="mc-eligibility-caption">
