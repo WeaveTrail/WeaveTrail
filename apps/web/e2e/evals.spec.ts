@@ -6,6 +6,7 @@ import { DECLARED_MODELS } from "../src/app/evals/model-comparison-data";
 import { percent } from "../src/app/evals/model-comparison-data";
 import { committedHeldOutResult } from "../src/app/evals/held-out-result";
 import type { Language } from "../src/app/i18n/language";
+import { plainText } from "../src/app/shell/sentence-lines";
 
 const VIEWPORTS = [
   { width: 1280, height: 720 },
@@ -39,22 +40,19 @@ async function expectInFirstViewport(page: Page, selector: string) {
 
 for (const viewport of VIEWPORTS) {
   for (const language of LANGUAGES) {
-    test(`answers the selection question in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
+    test(`shows the measured comparison in the first ${viewport.width}x${viewport.height} viewport in ${language}`, async ({
       page,
     }) => {
       const copy = modelComparisonCopy[language];
       await page.setViewportSize(viewport);
       await open(page, language);
 
+      // A run without a selection reads as what it attempted and observed,
+      // with no roles; gemini-2.5-pro returned no output.
       await expect(page.locator("#model-comparison-answer")).toHaveText(
-        copy.answer.noModel,
+        copy.answer.measured(DECLARED_MODELS.length, 4),
       );
-      await expect(page.locator('[data-role="primary"]')).toHaveText(
-        copy.roleValue.noModel,
-      );
-      await expect(page.locator('[data-role="escalation"]')).toHaveText(
-        copy.roleValue.noModel,
-      );
+      await expect(page.locator(".mc-roles")).toHaveCount(0);
       const rows = page.locator(".mc-eligibility tbody tr");
       await expect(rows).toHaveCount(DECLARED_MODELS.length + 1);
       const models = committedHeldOutResult.comparison.groups.filter(
@@ -75,11 +73,16 @@ for (const viewport of VIEWPORTS) {
         copy.referenceName,
       );
 
-      await expectInFirstViewport(page, "#model-comparison-answer");
-      await expectInFirstViewport(page, ".mc-roles");
-      await expectInFirstViewport(page, "#mc-eligibility-caption");
-      await expectInFirstViewport(page, ".mc-eligibility thead tr");
-      await expectInFirstViewport(page, ".mc-eligibility tbody tr");
+      // Why models are compared, and what the latest test means, come
+      // first; the numbers are the next step.
+      await expect(page.locator("#model-comparison-title")).toHaveText(
+        plainText(copy.why.title),
+      );
+      await expect(page.locator(".mc-status strong")).toHaveText(
+        copy.status.noModel,
+      );
+      await expectInFirstViewport(page, "#model-comparison-title");
+      await expectInFirstViewport(page, ".mc-status");
       const overflow = await page.evaluate(
         () =>
           document.documentElement.scrollWidth >
@@ -183,4 +186,43 @@ test("loads nothing from outside the site", async ({ page, baseURL }) => {
     await expect(page.locator(`#mc-panel-${key}`)).toBeVisible();
   }
   expect(foreign).toEqual([]);
+});
+
+test("folds the engine checks under one summary that opens by keyboard", async ({
+  page,
+}) => {
+  await open(page, "en");
+  const rows = page.locator(".ledger .eval-row");
+  await expect(rows.first()).toBeHidden();
+  const summary = page.locator(".ledger > summary");
+  await expect(summary).toContainText(/\d+ implemented · \d+ planned/);
+  await summary.focus();
+  await page.keyboard.press("Enter");
+  await expect(rows.first()).toBeVisible();
+});
+
+test("opens every closed disclosure for printing and closes it after", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const closed = page.locator("details:not([open])");
+  const count = await closed.count();
+  expect(count).toBeGreaterThan(0);
+  // The listener attaches on hydration, so the print is retried until it has.
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
+    expect(await closed.count()).toBe(0);
+  }).toPass();
+  await page.evaluate(() => window.dispatchEvent(new Event("afterprint")));
+  await expect(closed).toHaveCount(count);
+});
+
+test("gives every model-comparison tab the 40px control height", async ({
+  page,
+}) => {
+  await page.goto("/evals");
+  const tabs = page.locator(".mc-tabs button");
+  expect(await tabs.count()).toBeGreaterThan(0);
+  for (const tab of await tabs.all())
+    expect((await tab.boundingBox())!.height).toBeGreaterThanOrEqual(40);
 });

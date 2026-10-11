@@ -2,7 +2,7 @@
   <title id="problemTitle">An alert is not yet evidence</title>
   <desc id="problemDesc">An alert names a candidate whose executions arrive in two dialects with different field names and time notations. A constrained model can propose how they line up, but one field stays flagged for review, and an alert alone never records which rows, which mapping, or which rule version produced its number.</desc>
   <!--
-    WeaveTrail design system, pinned at design-reference@d780236766c1e0fddcc1976c252aba35b3898fe4
+    WeaveTrail design system, pinned at design-reference@3f078da1970e8accd83fbdde73308a2a24d0d1f8
     Literal hex, because CSS custom properties do not resolve inside a standalone SVG.
     #f7faf9 paper-1 | #ffffff paper-0 | #f0f5f4 surface-sunken | #ebf3f3 ledger-head
     #0c1513 ink-900 | #263230 ink-700 | #566461 ink-500 | #7d8b88 ink-400

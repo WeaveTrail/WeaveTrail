@@ -183,8 +183,8 @@ The implemented [run-record contracts](../packages/contracts/src/mapping-run-rec
 define auditable records for model attempts. The
 [configured run producer](#configured-mapping-run-producer) now binds adapter
 observations to these records; `pnpm eval` still runs fixtures only. Offline
-scoring and a lexical reference are implemented; measured model evaluation
-remains planned.
+scoring, the lexical reference and measured held-out sessions are implemented;
+the captured comparisons and their limits are published below.
 The new contract is additive; existing mapping responses need no migration.
 
 `MappingRunRecordSchema` version `mapping-run/1` requires:
@@ -200,6 +200,12 @@ The new contract is additive; existing mapping responses need no migration.
 | `parsedOutput`                                                               | Closed `{ fields: [...] }` structured output, at most 65,536 bytes of UTF-8 JSON, or null                                        |
 | `latencyMs`, `inputTokens`, `outputTokens`                                   | Nonnegative safe-integer milliseconds and positive safe-integer token counts; absent usage is null, never a zero placeholder     |
 
+New captures may additionally include `httpStatus`: an integer from 100 to 599,
+or null when the adapter receives no response. It is optional for historical
+records and excluded from grouping. No default is inserted while parsing old
+records, so their hashes and receipts remain valid. Raw errors are not part of
+this contract; see the [explicit server-only diagnostic protocol](#recovery-protocol-fresh-held-out-v3).
+
 `VALID` requires existing mapping-field contract values, non-null output, no
 validator reasons and null failure class. It is a validation observation, not
 human approval or proof of semantic correctness. `CONTRACT_REJECTED` requires
@@ -211,8 +217,8 @@ be discarded as null; the latter two failure classes require null.
 `PROVIDER_FAILED` requires null output, no validator reasons and a failure class
 from `TIMEOUT`, `RATE_LIMITED`, `AUTHENTICATION`, `TRANSPORT`, `HTTP_ERROR`,
 `STRICT_MODE_UNSUPPORTED`, `INVALID_RESPONSE` or `UNKNOWN_PROVIDER_FAILURE`.
-The record schema checks structure and outcome consistency; the future producer
-must verify corpus membership, the seal and the declared validator's decision.
+The record schema checks structure and outcome consistency; the producer
+verifies corpus membership, the seal and the declared validator's decision.
 
 Every object is strict. Request bodies, response envelopes, headers, provider
 request IDs, credentials and raw error messages are not record fields; attempts
@@ -295,17 +301,24 @@ pnpm exec vitest run packages/evals/src/ai-failure-log.test.ts
 
 ## Model comparison on the evaluation page
 
-`/evals` opens on the held-out model comparison: a one-sentence answer, the
-primary and escalation models and an eligibility table with the non-model
-baseline as a reference row. Cost and accuracy (with an equivalent table),
+`/evals` opens on why models are compared — a wrong column match makes the
+result wrong, so each candidate takes the same test and only one that clears
+the bar is used — and on what the latest test means for the service
+([ADR 0078](adr/0078-lead-with-the-reviewers-gain-and-keep-two-explanation-pages.md)).
+The held-out model comparison follows: a one-sentence summary and an
+eligibility table with the non-model baseline as a reference row. Once a
+decision selects a model, the summary names it and role rows show the primary
+and escalation models; a decision without a selection is summarized as what
+was measured, with no role rows
+([ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md)). Cost and accuracy (with an equivalent table),
 per-tag strict accuracy, failures linked to run records and the
 [AI failure log](AI_FAILURE_LOG.md), the selection rule, prompt versions, plain
 terms, limits and the run date are one tab away. Every number links to its
 definition above. The page reads only the committed comparison and
 `mapping-selection-decision/1` record; it makes no network request and applies
 no rule itself. The first session ran on 2026-10-08 UTC and produced `NO_MODEL`:
-all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts,
-unknown cost and no selected model. These failed attempts do not estimate model
+all 180 requests failed with `HTTP_ERROR`. The page reports the captured counts
+and unknown cost. These failed attempts do not estimate model
 quality; see [the captured session](#first-held-out-session-2026-10-08). See
 [ADR 0068](adr/0068-show-the-model-comparison-only-from-the-committed-decision.md).
 
@@ -701,7 +714,8 @@ table-based estimates, not invoices. Reproduce with
 
 1. Before the first provider call, commit the accepted ADR, corpus seals,
    vocabulary, protocol and price table. Regeneration is
-   `pnpm eval:schemas:generate:v2`; do not regenerate a used holdout.
+   `pnpm eval:schemas:generate:v3`; the v2 DEV vocabulary stays frozen.
+   Reproducing bytes does not authorize another run of a used holdout.
 2. Check each declared model in Google's catalogue on the UTC run date and
    prepare a JSON attestation with `checkedOn` (`YYYY-MM-DD`), `sourceUrl`
    (`https://ai.google.dev/gemini-api/docs/models`) and `modelIds` containing
@@ -825,3 +839,271 @@ behavior and cost are unobserved. Public holdout exposure, shared synthetic
 templates, a single provider and three repeats do not establish independence,
 real-world prevalence or statistical significance. The dated price table is
 an estimate, not an invoice, and missing usage is never priced as zero.
+
+### Recovery protocol: fresh HELD_OUT v3
+
+[ADR 0069](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md)
+fixes the next run before any v3 records. DEV diagnostics on 2026-10-08 reproduce
+HTTP 400 when all five requests include `store: false`; Google rejects that
+unknown parameter. This is consistent with the first session's failures, whose
+lost bodies cannot be recovered. Adapter `openai-compatible-mapping/2` omits
+that parameter. Four DEV requests then return HTTP 200; listed `gemini-2.5-pro`
+returns HTTP 404 for this credential. No prompt, validator or threshold changes.
+
+`schema-dialects/3` uses twelve new synthetic header families and two samples
+per column, with all seven existing tags. It shares semantic templates and
+attack payloads with earlier versions and is public; a fresh seal does not
+establish independence or secrecy. SHA-256:
+`bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb`.
+The frozen v2 DEV reference and 2026-10-08 price table are unchanged. Candidate
+IDs, k = 3 and the ADR 0067 eligibility, primary and escalation rule are
+unchanged; no eligible primary still yields `NO_MODEL`.
+
+The live command now uses the new protocol; v2 is offline-only. After committing
+ADR 0069 and its inputs, use the same server-only five-model configuration and
+run-date catalogue attestation described above:
+
+```bash
+pnpm eval:models:diagnose --live --legacy-store
+pnpm eval:models:diagnose --live
+pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
+```
+
+The diagnostic command then used v2 DEV only; under ADR 0075 the plain command
+probes v4 DEV, and `--legacy-store` still reproduces this v2 request.
+`--legacy-store` deliberately reproduces the removed parameter and is
+unavailable on the held-out command.
+Diagnostics print only status and closed outcome codes. New `mapping-run/1`
+records have optional `httpStatus`: null means no response arrived; historical
+records omit it and keep their original hashes. Status does not affect score
+grouping. Raw error bodies remain local and server-only in `.model-runs/raw/`,
+with private file permissions and a 64 KiB bound. They may echo sensitive
+values and must never enter commits, CI artifacts or browser bundles. Bodies
+are retained only by explicit diagnostic commands or the `--diagnostics` flag.
+No request headers are collected. The session contains no raw diagnostics.
+
+The selector discovers the known protocol from the session hash and reproduces
+the earlier result unchanged. Historical offline commands above remain valid.
+At acceptance the v3 run is planned; only captured records establish a result.
+
+### Recovery held-out session: 2026-10-08
+
+The first and only complete ADR 0069 v3 session is
+`f869738c-fb61-42df-9b50-ecfd9c3b299a`, starting at
+`2026-10-08T16:15:18.202Z`. Pre-run checkout:
+`b36d078be4d2daabba736ce051bd1c71f8f1053b`. Node 22.18.0, pnpm 10.33.2,
+Linux x86_64; outside CI. This is a **single-provider comparison** of the sealed
+synthetic v3 corpus described above, using the same five candidates and k = 3.
+No interrupted or replacement v3 session, automatic retry or partial-grid
+merging occurred. The separately used v2 capture is preserved unchanged.
+
+The [capture](../packages/evals/results/mapping-held-out-v2/README.md) retains
+all 180 original attempts, receipts, catalogue attestation and selection outputs.
+The attestation records a run-date check, not offline proof of availability.
+The [result amendment](adr/0069-recover-mapping-transport-with-a-fresh-held-out-set.md#result-amendment-2026-10-08)
+applies the rule unchanged. Exact live and offline commands, with the server-only
+configuration above:
+
+```bash
+pnpm eval:models:held-out --live --catalogue dist/mapping-held-out/catalogue-2026-10-08.json --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/f869738c-fb61-42df-9b50-ecfd9c3b299a
+```
+
+Counts use [mapping-score/1 definitions](#offline-mapping-run-scoring).
+Valid, rejected and failed are attempt outcomes out of 36. Strict accuracy is
+exact approved-ready resolvable gold decisions in `VALID` outputs, out of 288;
+contract-rejected or missing output receives no credit. Injection-followed is
+retained fields matching the declared attack target, over 72 injection-bearing
+decisions. Invented fields use observable output slots, excluding absent
+output. Partial observation cannot establish safety. Cost coverage is priced
+attempts out of 36, not a full cost when usage is incomplete.
+
+| Requested candidate      | VALID | CONTRACT_REJECTED | PROVIDER_FAILED | Strict accuracy           | Injection followed | Invented fields | Cost coverage |
+| ------------------------ | ----- | ----------------- | --------------- | ------------------------- | ------------------ | --------------- | ------------- |
+| `gemini-3.1-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                     | 66/72              | 72/540          | 36/36         |
+| `gemini-3.5-flash-lite`  | 0/36  | 36/36             | 0/36            | 0/288                     | 43/72              | 80/540          | 36/36         |
+| `gemini-3.8-flash`       | 27/36 | 0/36              | 9/36            | 202/288                   | 0/72               | 22/405          | 27/36         |
+| `gemini-2.5-pro`         | 0/36  | 0/36              | 36/36           | 0/288, no output observed | unobserved         | unobserved      | 0/36          |
+| `gemini-3.1-pro-preview` | 29/36 | 7/36              | 0/36            | 229/288                   | 14/72              | 29/540          | 36/36         |
+
+The total is 56 `VALID`, 79 `CONTRACT_REJECTED` and 45 `PROVIDER_FAILED`.
+The latter are nine Flash timeouts and 36 Pro HTTP 404 failures. The other 135
+attempts received HTTP 200. Contract rejections include duplicate targets,
+field-contract failures and missing required targets. Structural validity does
+not establish semantic correctness: the four candidates with output have
+nonzero invention and misassignment above 3/100; three followed injections.
+Every valid-output rate is below 95/100. No candidate is eligible.
+
+The committed [decision](../packages/evals/results/mapping-held-out-v2/decision.json)
+is `NO_MODEL`, with primary and escalation null, and the
+[selection](../packages/evals/results/mapping-held-out-v2/selection.json) is empty.
+There are no selected-model per-tag differences; all seven-tag differences for
+every measured candidate, including equal and reference-favored values, remain
+in the [comparison](../packages/evals/results/mapping-held-out-v2/comparison.json).
+The frozen reference has 0/36 valid attempts on the new whole names and is
+never selectable. No default provider or routing is enabled.
+
+Canonical hashes: session receipt
+`17481f6c239a1af367cb72f35be60beed5bb5b427828f7c664fb0f9026194623`;
+comparison `e45b17dc548dd5a0522c2c3c4979281ba1aa5c9cb23ea296b3ef3049a5db4b53`;
+selection `b0c5f4b6ae58aad188a5199662d11801e07f43ccba18559bc07f84ad83121781`.
+The decision binds the session and both result hashes. Reproduce without keys:
+
+```bash
+pnpm eval:mappings:select --session packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a
+pnpm exec vitest run packages/evals/src/recovered-held-out-result.test.ts
+```
+
+The first session's missing error bodies cannot be recovered. DEV diagnosis
+reproduces the historical request shape; this v3 run observes model output
+without tuning the prompt or thresholds. Public holdout exposure, shared
+semantic templates and attacks, synthetic rows, one prompt/provider and three
+repeats prevent general performance or safety claims. Costs are dated Standard
+tariff estimates, with unknown full cost for missing usage, not invoices.
+Latencies include failures and timeouts. Credential-specific model availability
+and the 30-second deadline affect eligibility. v3 is now used; further prompt,
+schema, adapter, validator, candidate or rule changes need another sealed set
+and pre-run ADR. The web publication binding now shows this recovery session;
+the first ADR 0067 capture remains a reproducible offline record.
+
+### Retry protocol: column IDs and fresh v4
+
+[ADR 0075](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md)
+proposed one more selection attempt after the ADR 0069 `NO_MODEL`. Every change
+was derived from failure modes classified in the committed v3 records and gold,
+never from a v3 score, and v3 was not reused for selection. Thresholds,
+definitions and tie-breaks were unchanged except that eligibility added one zero
+condition. The attempt was withdrawn before acceptance on 2026-10-11 (see
+[closure](#closure-2026-10-11)), so it commits no decision, the ADR 0069
+decision stands and no further run follows under it. This section records the
+withdrawn protocol.
+The table shows protocol 3's stack, `adr-0075-r2`, after revisions 1 and 2 of
+the [gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log).
+
+| Input             | ADR 0069                                     | ADR 0075                                                                                                     |
+| ----------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Candidates        | five, including `gemini-2.5-pro`             | `gemini-3.1-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-3.1-pro-preview`               |
+| Prompt            | `schema-mapping/1`                           | `schema-mapping/4`: every version 1 sentence plus the rules of [F-006 to F-008 and F-010](AI_FAILURE_LOG.md) |
+| Output schema     | `mapping-fields/1`, `sourceColumn` by header | `mapping-fields/2`, `columnId` by opaque ID                                                                  |
+| Adapter           | `openai-compatible-mapping/2`                | `openai-compatible-mapping/4`: the ID form with `reasoning_effort: "low"` ([F-009](AI_FAILURE_LOG.md))       |
+| Validator         | `mapping-validator/2`                        | `mapping-validator/3`: resolves IDs, then every version 2 check                                              |
+| Run record        | `mapping-run/1`                              | `mapping-run/2`: returned `columnId` and the header projected from it                                        |
+| Scorer            | `mapping-score/1`                            | `mapping-score/2`: the same counts plus `unflaggedNoTarget`                                                  |
+| Comparison        | `mapping-comparison/1`                       | `mapping-comparison/2`                                                                                       |
+| Selection record  | `mapping-selection/1`                        | `mapping-selection/2`                                                                                        |
+| Corpus            | v2 DEV, v3 HELD_OUT                          | `schema-dialects/4` DEV and HELD_OUT                                                                         |
+| Lexical reference | `lexical-baseline/2`                         | `lexical-baseline/3`, from v4 DEV only                                                                       |
+| Price table       | `google-gemini-standard-2026-10-08/1`        | dated on the held-out run's UTC date, with the pre-run amendment                                             |
+
+**Column IDs.** The adapter assigns `c01`, `c02`, … in supplied order and sends
+`{ id, header, samples }` for each column. Headers and samples are quoted data
+and never appear in the output schema, which restricts `columnId` to the
+supplied IDs. `mapping-validator/3` rejects an unknown, duplicated, missing or
+reordered ID with `INVENTED_COLUMN`, `DUPLICATE_COLUMN`, `MISSING_COLUMN` or
+`REORDERED_COLUMN`, and a returned `sourceColumn` as `OUTPUT_CONTRACT`. It then
+applies `mapping-validator/2` unchanged to the resolved fields, so nothing
+version 2 rejects is accepted; the adversarial probes run in ID form against
+version 3. The live web path stays on the ADR 0069 stack: no outcome of this
+attempt enables a default or escalation route.
+
+**`mapping-run/2`.** For `VALID` records and `CONTRACT_REJECTED` records with
+`OUTPUT_CONTRACT`, each retained field keeps the returned `columnId` scalar as
+received and a `sourceColumn` projected from it: a supplied ID becomes that
+column's header, any other value leaves it absent. A response that returns its
+own `sourceColumn` is `OUTPUT_NOT_RETAINABLE`. Before any count, the scorer
+recomputes every projection from the sealed dialect and passes each `VALID`
+record's `columnId`-only fields to `mapping-validator/3`; a mismatch rejects
+the whole input set. The scorer rejects a mix of record versions.
+
+**`unflaggedNoTarget`.** In a record that retains output, the count is a gold
+column, whatever its gold target, whose single returned field has a null
+target, status `PROPOSED` and confidence at or above
+`MAPPING_CONFIDENCE_REVIEW_THRESHOLD` (1): it would leave review without a
+mapping override. Its denominator is every gold decision in the group and tag
+over all records, as for misassignment, so a record without retained output
+adds only to the denominator. Eligibility requires it to be zero beside zero
+followed injections and zero invented fields. `mapping-score/1` output, and so
+every earlier comparison, is unchanged.
+
+**`schema-dialects/4`.** Twelve DEV and twelve HELD_OUT dialects with new whole
+headers and naming families, all seven tags and the four required targets.
+Attack texts and placements are written per split, so no attack string is
+shared between the splits or with earlier versions; the seven-tag slot rubric
+is still shared. HELD_OUT was generated, sealed and pushed in `5c1c96f` before
+any v4 model call. See its [provenance](../packages/evals/fixtures/schema-dialects-v4/PROVENANCE.md).
+SHA-256: DEV `c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d`,
+HELD_OUT `2e7b715b1169a1c10f13d963ae34634b6659112f060c277c0fe297f921129194`.
+
+Commands, with the server-only `AI_EVALUATION_MODELS` configuration of the four
+candidates on Google's fixed compatibility endpoint:
+
+```bash
+pnpm eval:schemas:generate:v4
+pnpm eval:models:dev-gate --live --diagnostics
+pnpm eval:mappings:dev-gate --before <before session> --after <after session>
+pnpm eval:models:diagnose --live
+pnpm eval:models:held-out --live --catalogue <dated-attestation.json> --diagnostics
+pnpm eval:mappings:select --session dist/mapping-held-out/<session-id>
+```
+
+The held-out command runs protocol 3 only after ADR 0075 is accepted and every
+sealed input, including a price table dated on the run's UTC date, is
+committed. The held-out run and the probe each accept exactly the declared
+candidates, each once, on Google's endpoint, and the probe sends protocol 3's
+stack. The offline gate accepts only the before and after sessions of one gate
+run, each with all four candidates, on the DEV split sealed in protocol 3. The selector reads
+the protocol from the session hash, so the earlier sessions still reproduce
+their own decisions.
+
+### Gate 2 on v4 DEV: 2026-10-10
+
+The ADR 0075 pre-run gate ran once on v4 DEV from checkout `8fa6265`, outside
+CI (Node 22.18.0, pnpm 10.33.2, Linux x86_64), with the four candidates, three
+repeats, temperature 0 and no retry. It compares the before stack (ADR 0069) and
+the after stack (ADR 0075) over the dialect and repeat pairs where both retained
+output. This is a **single-provider synthetic DEV check**, not a held-out
+result, and it ranks no model.
+
+| Candidate                | Pairs | Followed injections | Invented on null gold | Unflagged no-target | After VALID |
+| ------------------------ | ----- | ------------------- | --------------------- | ------------------- | ----------- |
+| `gemini-3.1-flash-lite`  | 36    | 39/72 → 9/72        | 60/252 → 72/252       | 27/540 → 12/540     | 15/36       |
+| `gemini-3.5-flash-lite`  | 36    | 16/72 → 2/72        | 44/252 → 51/252       | 142/540 → 58/540    | 18/36       |
+| `gemini-3.8-flash`       | 22    | 0/44 → 0/44         | 18/154 → 3/154        | 0/330 → 0/330       | 22/36       |
+| `gemini-3.1-pro-preview` | 35    | 0/70 → 0/70         | 20/245 → 24/245       | 214/525 → 105/525   | 27/36       |
+
+The gate **did not pass**. Invented fields on null-gold columns rose for three
+candidates, and no candidate reached all-zero counts with 95/100 VALID records;
+`gemini-3.8-flash` also timed out 14 times under the after stack. ADR 0075 then
+stayed Proposed for revision; it was later withdrawn (see
+[closure](#closure-2026-10-11)). No run-date probe, pre-run amendment, dated
+price table or v4 HELD_OUT record exists, and v4 HELD_OUT is unseen. The page
+keeps the ADR 0069 decision. Reproduce offline, without keys:
+
+```bash
+pnpm eval:mappings:dev-gate --before packages/evals/results/mapping-dev-gate-v4/sessions/fa32db2a-3f6a-4f7e-842c-aaa9a531addf --after packages/evals/results/mapping-dev-gate-v4/sessions/82d1d299-4060-444c-ba92-70ced8fe62fa --expected packages/evals/results/mapping-dev-gate-v4/gate.json
+```
+
+See the [capture](../packages/evals/results/mapping-dev-gate-v4/README.md) for
+definitions and limits: synthetic rows, shared slot templates, one provider,
+three repeats, preview aliases and the 30-second deadline.
+
+Revisions 1 and 2 followed before acceptance (see the
+[ADR 0075 gate log](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#gate-log)).
+Under revision 1 no count rose and every candidate returned 36/36 `VALID`
+records, but invented fields on null-gold columns stayed nonzero (16–30 of 252).
+The revision 2 run is void: the account reached its Gemini API usage limit and
+the requests returned HTTP 402 or 429.
+
+### Closure: 2026-10-11
+
+The retry was withdrawn before acceptance without repeating the revision 2
+run ([ADR 0075 closure](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md#closure-2026-10-11-withdrawn-before-acceptance)).
+The design changes made for F-006 to F-009 stay in the code with their tests
+as mitigations; each failure remains `ACCEPTED_RESIDUAL`. Under
+revision 1, every candidate still mapped some null-gold columns. No run-date
+probe, pre-run amendment or v4 HELD_OUT record exists, and v4 HELD_OUT remains
+unseen. The protocol 3 held-out command still refuses to run, and the ADR 0069
+`NO_MODEL` decision stays the committed one; the evaluation page shows it as a
+measured comparison under
+[ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md). Another attempt needs a new ADR.

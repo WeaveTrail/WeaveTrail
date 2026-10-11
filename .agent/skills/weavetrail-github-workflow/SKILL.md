@@ -17,7 +17,11 @@ acting.
 - Reserve `main` for an explicitly requested release pull request from
   `develop`, or for an explicitly authorized emergency hotfix. Create a hotfix
   branch from an up-to-date `origin/main`, target `main`, and then carry the
-  merged change back into `develop`.
+  merged change back into `develop`. After a production rollback, follow
+  `docs/DEPLOYMENT.md` "Hotfix after a rollback": the merge is not served
+  until its gated deployment is promoted, `main` takes no other merge until
+  that procedure's step 5 completes, and the promotion merge is never
+  reverted.
 - Do not retarget an existing pull request unless the user explicitly requests
   it.
 - Give a new issue the milestone of the version that plans it, or none when no

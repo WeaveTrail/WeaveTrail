@@ -9,17 +9,10 @@ import {
   bpsToPercent,
   readableCompactDate,
   readableInstant,
-  EVENT_FIELD_NOTES,
-  EVENT_FIELD_NOTES_KO,
-  GATE_READINGS,
-  GATE_READINGS_KO,
-  HASH_SCOPES,
-  HASH_SCOPES_KO,
   HashValue,
   Instant,
-  REPORTED_VALUE_NOTE,
-  REPORTED_VALUE_NOTE_KO,
 } from "./machine-values";
+import { replayCopy } from "./copy";
 import { ReplayLanguageContext } from "./replay-language";
 
 describe("machine value rendering", () => {
@@ -47,7 +40,7 @@ describe("machine value rendering", () => {
   });
 
   it("states what every declared hash covers and what a comparison proves", () => {
-    for (const scope of Object.values(HASH_SCOPES)) {
+    for (const scope of Object.values(replayCopy.en.machine.hashScopes)) {
       expect(scope.label.length).toBeGreaterThan(0);
       expect(scope.covers.length).toBeGreaterThan(0);
       expect(scope.proves).toMatch(/A match/);
@@ -95,8 +88,9 @@ describe("machine value rendering", () => {
 
 describe("displayed hashes on the core surface", () => {
   it("gives every hash the workbench prints an abbreviation and a scope statement", async () => {
-    const { ApprovalReceipt, SourceRows, RapidPriceLiftEvaluation } =
-      await import("./case-replay");
+    const { ApprovalReceipt } = await import("./approval-receipt");
+    const { SourceRows } = await import("./source-rows");
+    const { RapidPriceLiftEvaluation } = await import("./findings");
     const { RapidPriceLiftResultSchema } =
       await import("@weavetrail/contracts");
     const { buildFindingSourceTrace, replayApproved, sha256Canonical } =
@@ -164,7 +158,7 @@ describe("displayed hashes on the core surface", () => {
 
 describe("hash scope statements against what the code hashes", () => {
   it("keeps the approved artifact hash independent of the override reasons beside it", async () => {
-    const { attemptApproval } = await import("./case-replay");
+    const { attemptApproval } = await import("./approval");
     const { rapidPriceLiftScenarios } = await import("@weavetrail/scenarios");
     const proposal =
       rapidPriceLiftScenarios["rapid-price-lift-supported.csv"].mappingProposal;
@@ -179,19 +173,25 @@ describe("hash scope statements against what the code hashes", () => {
     );
     expect(withOverrides.approval?.overrides).toHaveLength(1);
     // The statement shown beside this hash must not claim the overrides.
-    expect(HASH_SCOPES.approvedArtifact.covers).toContain("the proposal alone");
-    expect(HASH_SCOPES.approvedArtifact.covers).toMatch(/not inside it/);
+    expect(replayCopy.en.machine.hashScopes.approvedArtifact.covers).toContain(
+      "the proposal alone",
+    );
+    expect(replayCopy.en.machine.hashScopes.approvedArtifact.covers).toMatch(
+      /not inside it/,
+    );
   });
 
   it("does not claim a matching result hash proves identical approvals", () => {
-    expect(HASH_SCOPES.canonicalResult.proves).toContain(
+    expect(replayCopy.en.machine.hashScopes.canonicalResult.proves).toContain(
       "does not prove the two requests carried the same approval records",
     );
   });
 
   it("describes the raw row hash as a canonical projection rather than bytes", () => {
-    expect(HASH_SCOPES.rawRow.covers).toContain("parsed column values");
-    expect(HASH_SCOPES.rawRow.covers).toContain(
+    expect(replayCopy.en.machine.hashScopes.rawRow.covers).toContain(
+      "parsed column values",
+    );
+    expect(replayCopy.en.machine.hashScopes.rawRow.covers).toContain(
       "not the artifact's original bytes",
     );
   });
@@ -199,12 +199,16 @@ describe("hash scope statements against what the code hashes", () => {
 
 describe("reported values against the exact comparison", () => {
   it("says a reported rate is truncated and that the verdict uses the exact value", () => {
-    expect(REPORTED_VALUE_NOTE).toMatch(/truncated to four decimals/);
-    expect(REPORTED_VALUE_NOTE).toMatch(/computed on the exact value/);
+    expect(replayCopy.en.machine.reportedValueNote).toMatch(
+      /truncated to four decimals/,
+    );
+    expect(replayCopy.en.machine.reportedValueNote).toMatch(
+      /computed on the exact value/,
+    );
   });
 
   it("shows that note wherever a reported rate sits beside a threshold or a difference", async () => {
-    const { RapidPriceLiftEvaluation } = await import("./case-replay");
+    const { RapidPriceLiftEvaluation } = await import("./findings");
     const { RapidPriceLiftResultSchema } =
       await import("@weavetrail/contracts");
     const { buildFindingSourceTrace, replayApproved, sha256Canonical } =
@@ -273,8 +277,10 @@ describe("field notes against what the engine does", () => {
     ]);
 
     expect(events.map(({ sequence }) => sequence)).toEqual(["1", "9"]);
-    expect(EVENT_FIELD_NOTES.sequence).toMatch(/secondary sort key/);
-    expect(EVENT_FIELD_NOTES.sequence).toMatch(/share a time/);
+    expect(replayCopy.en.machine.eventFields.sequence).toMatch(
+      /secondary sort key/,
+    );
+    expect(replayCopy.en.machine.eventFields.sequence).toMatch(/share a time/);
   });
 });
 
@@ -301,27 +307,33 @@ describe("the machine readings carry the same statements in both languages", () 
     // A reading present in one language and missing in the other would leave a
     // Korean reader with an English sentence, or no sentence at all, exactly
     // where the surface has to say what a value means.
-    expect(Object.keys(HASH_SCOPES_KO).sort()).toEqual(
-      Object.keys(HASH_SCOPES).sort(),
+    expect(Object.keys(replayCopy.ko.machine.hashScopes).sort()).toEqual(
+      Object.keys(replayCopy.en.machine.hashScopes).sort(),
     );
-    for (const [scope, korean] of Object.entries(HASH_SCOPES_KO)) {
+    for (const [scope, korean] of Object.entries(
+      replayCopy.ko.machine.hashScopes,
+    )) {
       expect(/[가-힣]/.test(korean.label), scope).toBe(true);
       expect(/[가-힣]/.test(korean.covers), scope).toBe(true);
       expect(/[가-힣]/.test(korean.proves), scope).toBe(true);
     }
-    expect(Object.keys(GATE_READINGS_KO).sort()).toEqual(
-      Object.keys(GATE_READINGS).sort(),
+    expect(Object.keys(replayCopy.ko.machine.gates).sort()).toEqual(
+      Object.keys(replayCopy.en.machine.gates).sort(),
     );
-    for (const [gate, korean] of Object.entries(GATE_READINGS_KO)) {
+    for (const [gate, korean] of Object.entries(replayCopy.ko.machine.gates)) {
       expect(/[가-힣]/.test(korean.label), gate).toBe(true);
       expect(/[가-힣]/.test(korean.tests), gate).toBe(true);
     }
-    expect(Object.keys(EVENT_FIELD_NOTES_KO).sort()).toEqual(
-      Object.keys(EVENT_FIELD_NOTES).sort(),
+    expect(Object.keys(replayCopy.ko.machine.eventFields).sort()).toEqual(
+      Object.keys(replayCopy.en.machine.eventFields).sort(),
     );
-    for (const [field, korean] of Object.entries(EVENT_FIELD_NOTES_KO))
+    for (const [field, korean] of Object.entries(
+      replayCopy.ko.machine.eventFields,
+    ))
       expect(/[가-힣]/.test(korean), field).toBe(true);
-    expect(/[가-힣]/.test(REPORTED_VALUE_NOTE_KO)).toBe(true);
-    expect(REPORTED_VALUE_NOTE_KO).not.toBe(REPORTED_VALUE_NOTE);
+    expect(/[가-힣]/.test(replayCopy.ko.machine.reportedValueNote)).toBe(true);
+    expect(replayCopy.ko.machine.reportedValueNote).not.toBe(
+      replayCopy.en.machine.reportedValueNote,
+    );
   });
 });

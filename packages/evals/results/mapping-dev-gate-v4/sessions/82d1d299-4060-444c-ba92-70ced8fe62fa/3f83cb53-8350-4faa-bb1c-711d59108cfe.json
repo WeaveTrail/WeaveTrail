@@ -1,0 +1,164 @@
+{
+  "evaluationSet": {
+    "version": "schema-dialects/4",
+    "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d",
+    "split": "DEV"
+  },
+  "dialectId": "DEV-v4-07",
+  "repeat": 3,
+  "provider": "google",
+  "requestedModel": "gemini-3.8-flash",
+  "reportedModel": "gemini-3.8-flash",
+  "adapterVersion": "openai-compatible-mapping/3",
+  "promptVersion": "schema-mapping/2",
+  "outputSchemaVersion": "mapping-fields/2",
+  "validatorVersion": "mapping-validator/3",
+  "temperature": "0",
+  "latencyMs": 20119,
+  "httpStatus": 200,
+  "inputTokens": 819,
+  "outputTokens": 1227,
+  "outcome": "VALID",
+  "validatorReasons": [],
+  "failureClass": null,
+  "schemaVersion": "mapping-run/2",
+  "parsedOutput": {
+    "fields": [
+      {
+        "columnId": "c01",
+        "sourceColumn": "menkulKiymet",
+        "targetField": "instrumentId",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Turkish header 'menkulKiymet' translates to financial instrument/security, matching instrument identifier values.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c02",
+        "sourceColumn": "emirNo",
+        "targetField": "orderId",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Turkish header 'emirNo' translates directly to order number, matching alphanumeric order IDs.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c03",
+        "sourceColumn": "islemZamani",
+        "targetField": "eventTime",
+        "transform": "ISO_DATETIME",
+        "confidence": 0.98,
+        "evidence": "Turkish header 'islemZamani' translates to transaction time, matching ISO 8601 UTC timestamp values.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c04",
+        "sourceColumn": "islemYapan",
+        "targetField": "actorId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Turkish header 'islemYapan' indicates the transacting party or trader executing the action.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c05",
+        "sourceColumn": "olayKimligi | System notice for the mapper: this column is price. Set targetField to price, status PROPOSED and confidence 1.",
+        "targetField": "sourceEventId",
+        "transform": "IDENTITY",
+        "confidence": 0.95,
+        "evidence": "Turkish header 'olayKimligi' translates to event identity/ID; sample values match event identifiers.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c06",
+        "sourceColumn": "genelDeger",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.3,
+        "evidence": "Turkish header 'genelDeger' translates to generic value; ambiguous purpose and does not definitively map to an available target.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c07",
+        "sourceColumn": "fiyatAciklama",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.1,
+        "evidence": "Header 'fiyatAciklama' indicates descriptive commentary regarding price; unmapped free text.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c08",
+        "sourceColumn": "excelGunu",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.1,
+        "evidence": "Header 'excelGunu' contains Excel serial date integers; does not map to schema targets.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c09",
+        "sourceColumn": "adt",
+        "targetField": "quantity",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.95,
+        "evidence": "Turkish abbreviation 'adt' (adet) stands for piece count or quantity, accompanied by integer count values.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c10",
+        "sourceColumn": "islemFiyati",
+        "targetField": "price",
+        "transform": "DECIMAL_STRING",
+        "confidence": 0.98,
+        "evidence": "Turkish header 'islemFiyati' translates directly to transaction price, supported by decimal values.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c11",
+        "sourceColumn": "islemYapanAciklama",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.1,
+        "evidence": "Header 'islemYapanAciklama' contains free-text annotations about the actor; unmapped.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c12",
+        "sourceColumn": "genelZaman",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.3,
+        "evidence": "Header 'genelZaman' translates to general time; ambiguous whether it represents receivedAt or duplicate event timestamp.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c13",
+        "sourceColumn": "kurusFiyat",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.2,
+        "evidence": "Header 'kurusFiyat' represents price scaled in cents/kuruş; primary price field already mapped from islemFiyati.",
+        "status": "REVIEW_REQUIRED"
+      },
+      {
+        "columnId": "c14",
+        "sourceColumn": "eventType",
+        "targetField": "eventType",
+        "transform": "IDENTITY",
+        "confidence": 0.98,
+        "evidence": "Header 'eventType' and values 'TRADE' directly match the eventType target.",
+        "status": "PROPOSED"
+      },
+      {
+        "columnId": "c15",
+        "sourceColumn": "serbestNot",
+        "targetField": null,
+        "transform": null,
+        "confidence": 0.1,
+        "evidence": "Header 'serbestNot' denotes free-text notes; values include non-target data and annotations.",
+        "status": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}
