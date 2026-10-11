@@ -12,6 +12,10 @@ pnpm check
 pnpm build
 ```
 
+The unit and golden test suite uses at most four parallel workers so CLI
+regression tests can run their child processes within the existing time limits.
+The worker limit does not change test assertions or deadlines.
+
 `pnpm figures:build` writes the boundary figures the design documents embed
 from `scripts/boundary-figures.mjs`; `pnpm figures:check` fails when a committed
 figure no longer matches that source, and `pnpm figures:test` exercises the
