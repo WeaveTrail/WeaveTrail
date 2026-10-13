@@ -4,12 +4,17 @@ import {
   validateMappingOutput,
   validateMappingStructure,
 } from "@weavetrail/ai-harness/server";
-import { validateReplayApprovals } from "@weavetrail/replay-engine";
+import {
+  validateReplayApprovals,
+  applyApprovedMapping,
+  approvedSourceMapping,
+} from "@weavetrail/replay-engine";
 import {
   cells,
   CORPUS_VERSION,
   GENERATION_SEED,
   GENERATOR_VERSION,
+  GoldRecordSchema,
   tags,
 } from "./mapping-corpus-contract";
 import {
@@ -349,6 +354,7 @@ export function preflight(study: MappingStudy) {
           ),
         `${input.dialectId} ordered gold coverage`,
       );
+      GoldRecordSchema.parse(gold);
       const output = {
         kind: "fields" as const,
         value: { fields: goldFields(gold) },
@@ -360,6 +366,80 @@ export function preflight(study: MappingStudy) {
         outcome === gold.expectedValidator,
         `${input.dialectId} expected ${gold.expectedValidator}, received ${outcome}`,
       );
+      const rows = input.projection.sampleRows.map((row, i) => ({
+        coordinate: {
+          sourceArtifactHash: input.inputHash,
+          rowNumber: String(i + 1),
+        },
+        values: Object.fromEntries(
+          input.projection.columns.map((c, index) => [c.name, row[index]!]),
+        ),
+      }));
+      const canonicalNormalized =
+        gold.expectedDisposition === "PROPOSAL_OFFERABLE"
+          ? JSON.stringify(
+              applyApprovedMapping(
+                rows,
+                approvedSourceMapping(goldProposal(input, gold)),
+              ),
+            )
+          : undefined;
+      for (const [
+        assignmentIndex,
+        assignment,
+      ] of gold.acceptedAlternativeAssignments.entries()) {
+        const alternateGold = {
+          ...gold,
+          columns: assignment.map((tuple, i) => ({
+            ...gold.columns[i]!,
+            transform: tuple[2],
+          })),
+        };
+        const alternateResult = validateMappingStructure(
+          { kind: "fields", value: { fields: goldFields(alternateGold) } },
+          mappingInput(input),
+        );
+        requireInvariant(
+          (alternateResult.status === "VALID"
+            ? "VALID"
+            : alternateResult.reasons[0].code) === outcome,
+          `${input.dialectId} alternative ${assignmentIndex} shared-validator witness`,
+        );
+        for (const [i, tuple] of assignment.entries()) {
+          const canonical = gold.columns[i]!;
+          if (tuple[2] === canonical.transform) continue;
+          const values = input.projection.sampleRows.map((row) => row[i]!);
+          if (canonical.targetField === "eventType")
+            requireInvariant(
+              values.every((v) =>
+                ["TRADE", "ORDER_NEW", "ORDER_CANCEL"].includes(v),
+              ),
+              `${input.dialectId} alternative event-type domain witness`,
+            );
+          if (canonical.targetField === "side")
+            requireInvariant(
+              values.every((v) =>
+                (canonical.transform === "BUY_SELL_CODE"
+                  ? ["buy", "sell"]
+                  : ["BUY", "SELL"]
+                ).includes(v),
+              ),
+              `${input.dialectId} alternative side domain witness`,
+            );
+        }
+        if (gold.expectedDisposition === "PROPOSAL_OFFERABLE") {
+          requireInvariant(
+            canonicalNormalized ===
+              JSON.stringify(
+                applyApprovedMapping(
+                  rows,
+                  approvedSourceMapping(goldProposal(input, alternateGold)),
+                ),
+              ),
+            `${input.dialectId} alternative ${assignmentIndex} normalized-event equivalence`,
+          );
+        }
+      }
       validatorCounts[gold.expectedValidator]++;
       const ready = validateMappingOutput(output, mappingInput(input));
       requireInvariant(

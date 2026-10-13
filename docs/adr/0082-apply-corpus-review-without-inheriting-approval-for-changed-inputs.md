@@ -23,11 +23,23 @@ implementation corrections.
 
 Capture a separate, checksummed review baseline bound to the original review
 record, original source commit, exact artifact hashes, per-record input and gold
-hashes, and canonical assignments. Original bytes remain recoverable at that
+hashes, canonical assignments and a versioned lineage-content fingerprint.
+The fingerprint binds family identities, split/cell/stratum, source convention,
+parent lineage, event kinds, semantic problem, independence account, author and
+ordered column names/samples/targets/transforms/tags/attacks. It excludes only
+column rationale/alternative prose changed under N4 and the pending authoring
+review placeholder. Those exclusions preserve the recorded explanation correction;
+they do not exempt source roles, values or lineage from review. The original full
+family hash is still retained. Original bytes remain recoverable at that
 immutable commit. Apply the recorded decisions to a regenerated review ledger;
 retain rejected lineage as unresolved, and bind replaced inputs to their prior
 hashes in the exclusion ledger. Changed provider projections, canonical tuples,
 validator expectations or disposition require another independent review.
+Changed lineage fingerprints add their own review blocker, even with unchanged
+provider bytes and gold. Each replacement record binds the current input hash
+and SHA-256 of UTF-8 `JSON.stringify` of the complete ordered gold record.
+The lineage fingerprint is derived from original families at the reviewed source
+commit; it is not an approval of a corrected family.
 Authoring briefs retain their pending status; the applied ledger is the record
 of what was actually reviewed, rather than a new reviewer signoff.
 
@@ -35,7 +47,12 @@ Record every complete combination of the reviewed equivalent transforms as an
 ordered array of `(columnId, targetField, transform, status)` tuples. Column names
 are fixed by the canonical columns and input hash. Strict accuracy and eligibility
 still use the canonical assignment. These alternatives are diagnostic evidence;
-new-corpus scoring integration remains planned.
+new-corpus scoring integration remains planned. Both tuple compatibility and the
+closed reviewed equivalence rules are enforced in the offline gold contract.
+Preflight checks all alternatives through the existing shared validator, verifies
+sample domains for event/side normalization, and compares normalized events on
+complete offerable inputs. Validator refusal on a missing required target does
+not waive the per-column domain checks.
 
 Use seeded slots for changed DRIFT names, retaining the relative base order of
 unchanged names. Keep HARD_RESOLVABLE as a construction label, with its glosses

@@ -16,6 +16,7 @@ import {
 import {
   ArtifactSchema,
   AssignmentTupleSchema,
+  reviewedEquivalentTransforms,
   CORPUS_VERSION,
   DriftRelationSchema,
   FamilyBriefSchema,
@@ -167,31 +168,14 @@ function dialect(
     acceptedAlternativeAssignments: [],
   });
   gold.acceptedAlternativeAssignments = reviewedTransformAlternatives(gold);
-  return { input, gold };
+  return { input, gold: GoldRecordSchema.parse(gold) };
 }
 
 /** B3 of the independent v1 review; strict gold is never replaced. */
 export function reviewedTransformAlternatives(gold: GoldRecord) {
-  const choices = gold.columns.map((column) => {
-    const canonical = column.transform;
-    if (
-      (column.targetField === "eventTime" ||
-        column.targetField === "receivedAt") &&
-      canonical === "ISO_DATETIME"
-    )
-      return [canonical, "IDENTITY"] as const;
-    if (column.targetField === "eventType" && canonical === "IDENTITY")
-      return [canonical, "UPPERCASE"] as const;
-    if (column.targetField === "side" && canonical === "IDENTITY")
-      return [canonical, "UPPERCASE", "BUY_SELL_CODE"] as const;
-    if (
-      gold.dialectId === "d-047" &&
-      column.targetField === "side" &&
-      canonical === "BUY_SELL_CODE"
-    )
-      return [canonical, "UPPERCASE"] as const;
-    return [canonical];
-  });
+  const choices = gold.columns.map((column) =>
+    reviewedEquivalentTransforms(column, gold.dialectId),
+  );
   let assignments: GoldRecord["acceptedAlternativeAssignments"] = [[]];
   for (const [i, transforms] of choices.entries())
     assignments = assignments.flatMap((assignment) =>

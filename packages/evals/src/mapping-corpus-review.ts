@@ -1,5 +1,9 @@
 import { readFileSync } from "node:fs";
 import { z } from "zod";
+import {
+  familyLineageSha256,
+  LINEAGE_PROJECTION_VERSION,
+} from "./mapping-corpus-lineage";
 import { ColumnAssignmentSchema, cells } from "./mapping-corpus-contract";
 import { sha256, type MappingStudy } from "./mapping-corpus-generator";
 
@@ -10,7 +14,8 @@ export const reviewBaselineDirectory = new URL(
 const HashSchema = z.string().regex(/^[a-f0-9]{64}$/u);
 export const ReviewBaselineSchema = z
   .object({
-    version: z.literal("mapping-study-review-baseline/1"),
+    version: z.literal("mapping-study-review-baseline/2"),
+    lineageProjectionVersion: z.literal(LINEAGE_PROJECTION_VERSION),
     sourceCommit: z.string().regex(/^[a-f0-9]{40}$/u),
     reviewDocument: z.literal("docs/MAPPING_STUDY_V1_GOLD_REVIEW.md"),
     reviewDocumentSha256: HashSchema,
@@ -28,6 +33,7 @@ export const ReviewBaselineSchema = z
           inputHash: HashSchema,
           goldSha256: HashSchema,
           familySha256: HashSchema,
+          familyLineageSha256: HashSchema,
           stratum: z.enum(["RESOLVABLE", "HARD_RESOLVABLE", "MUST_REVIEW"]),
           cell: z.enum(cells),
           canonicalAssignments: z.array(ColumnAssignmentSchema),
@@ -102,6 +108,10 @@ export function corpusReview(study: MappingStudy) {
       throw new Error(
         `Independent review family binding mismatch: ${family.id}`,
       );
+    const lineageHash = familyLineageSha256(family);
+    const lineageChanged = original.some(
+      (r) => r.familyLineageSha256 !== lineageHash,
+    );
     const changed = original.filter((r) => {
       const gold = current.find((g) => g.dialectId === r.dialectId);
       if (!gold)
@@ -154,15 +164,19 @@ export function corpusReview(study: MappingStudy) {
           inputHash: r.inputHash,
           goldSha256: r.goldSha256,
           familySha256: r.familySha256,
+          familyLineageSha256: r.familyLineageSha256,
         })),
       },
       currentInputReview: changed.length
         ? "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW"
         : "MATCHES_REVIEWED_PROJECTION",
       changedDialectIds: changed.map((r) => r.dialectId),
+      lineageChanged,
+      currentFamilyLineageSha256: lineageHash,
+      currentFamilySha256: sha256(JSON.stringify(family)),
       currentLineage: rejected
         ? "UNRESOLVED"
-        : changed.length
+        : changed.length || lineageChanged
           ? "PENDING_REVIEW"
           : "ACCEPTED",
       disagreements: rejected
@@ -187,15 +201,22 @@ export function corpusReview(study: MappingStudy) {
     replacedRecords: record.originalReview.originalRecords.filter((r) =>
       record.changedDialectIds.includes(r.dialectId),
     ),
-    replacementInputHashes: record.changedDialectIds.map((dialectId) => ({
+    replacementRecords: record.changedDialectIds.map((dialectId) => ({
       dialectId,
       inputHash: inputs.find((i) => i.dialectId === dialectId)!.inputHash,
+      goldSha256: sha256(
+        JSON.stringify(
+          study.splits
+            .flatMap((s) => s.gold.records)
+            .find((g) => g.dialectId === dialectId)!,
+        ),
+      ),
     })),
     originalBytes:
       "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history.",
   }));
   return {
-    version: "mapping-study-review/1",
+    version: "mapping-study-review/2",
     status: "APPLIED_WITH_UNRESOLVED_FINDINGS",
     baselineSha256,
     reviewDocumentSha256: baseline.reviewDocumentSha256,
@@ -268,7 +289,13 @@ export function corpusReview(study: MappingStudy) {
           code: "CHANGED_INPUT_OR_GOLD_REQUIRES_INDEPENDENT_REVIEW",
           familyIds: changed.map((r) => r.familyId),
         },
-      ],
+        {
+          code: "CHANGED_FAMILY_REQUIRES_INDEPENDENT_LINEAGE_REVIEW",
+          familyIds: records
+            .filter((r) => r.lineageChanged)
+            .map((r) => r.familyId),
+        },
+      ].filter((blocker) => blocker.familyIds.length),
       note: "The existing design requires independent SELECT/AUDIT families. B1 redesign also needs reviewed coverage floors: two cell-specific SELECT families cannot satisfy the current five-family null-tag floor. No threshold is relaxed here. Audited pre-registration remains planned.",
     },
   };

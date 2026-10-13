@@ -11,23 +11,27 @@
     },
     {
       "path": "packages/evals/src/mapping-corpus-contract.ts",
-      "sha256": "4ca2a2227f5802fb91ef96477b1edbe566c89edd9060bc9c55172c6e4e26efe8"
+      "sha256": "91434542042a045a7d87be3eb48cb882a8bf30d5625d4b5cad7fbf457fa39269"
     },
     {
       "path": "packages/evals/src/mapping-corpus-generator.ts",
-      "sha256": "8123456a4a6e5a2096c17e0c1836824ae80b74e6bbc4eb25715ecf2370ca6fc9"
+      "sha256": "d55884e88c0e01dbfedfd4e64f5afebe123d07a022ae0126b528e7319667179c"
     },
     {
       "path": "packages/evals/src/mapping-corpus-preflight.ts",
-      "sha256": "b3e006953d5f97ab444927e7ab3715b3bad85f7b95f47cc0eb2f98cf002ddfca"
+      "sha256": "6c0ae0f4964bfa80edf219713dbb6656cc4ce43905fb91b88d59f4a1487e7288"
     },
     {
       "path": "packages/evals/src/mapping-corpus-artifacts.ts",
-      "sha256": "fb6e0c3b4eedfa68acfdb83a53ab571e9f9a8d12a77fd2e1e3e5f700a03b442c"
+      "sha256": "0ab05164ab7cf36a4b6b9126e1a829e6957a4c562e8bf4bcb641917cd1a58f82"
     },
     {
       "path": "packages/evals/src/mapping-corpus-review.ts",
-      "sha256": "50a43e0cb4964b74ed282567d37cfe9d9652d456b82e7e3cac292119cf95c0f1"
+      "sha256": "4904e6498ab10f10a2a1bd2b329f44435ff02e014e60a840d825d81706c7b359"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-lineage.ts",
+      "sha256": "b1a22f7dd5077a4d23a86215e785e9ecb7e46097ffdc7896dcd69b229fa6a164"
     }
   ],
   "commandSource": {
@@ -50,19 +54,19 @@
     },
     {
       "path": "review-ledger.json",
-      "sha256": "24936e012e520943eaf963866b6f584730fa458bc393771e273262dfac1b1f57"
+      "sha256": "6e37eda5e535dcd98cab2f2fe8e4604f2e02b19193c3004549373f26a08f2e78"
     },
     {
       "path": "exclusions.json",
-      "sha256": "91004b510b78dd23c6c946a4786caa0b470a7f7a7cb2325e4f6b605f63387c4f"
+      "sha256": "f4b858e36beee24f9d51736a1238b8433cf91dc18f3d8c6be8ebc52d7e7a4352"
     },
     {
       "path": "seal-readiness.json",
-      "sha256": "5d668f6e086147667e0faf478e52bc56ca9218aa97297150008158343cdefbd2"
+      "sha256": "b4460d635c235b9957445bec61c81931c7a248815096b2ea185b80fb231354ff"
     },
     {
       "path": "exposure-ledger.json",
-      "sha256": "4f95e360b1aa544d8bc936b5a907564049e72b91c8ca79571014e2fae3cc5864"
+      "sha256": "312c7d46c98baffd63baee724b00c97476cd196927d275ea2a05d5c5ffad096c"
     },
     {
       "path": "overlap-report.json",
@@ -100,7 +104,7 @@
   "independentGoldReview": "APPLIED_WITH_UNRESOLVED_FINDINGS",
   "reviewBaseline": {
     "path": "packages/evals/fixtures/mapping-study-review-v1/baseline.json",
-    "sha256": "6e3ff087e619268aed745661fc7d2f28befc669db9d5045d2a58e2f28fe2c6b3",
+    "sha256": "7874f4aee9ecaf48de3b1c7261f142b28dcdb5bac5900b79ccf2fb5f969e64f6",
     "reviewDocumentSha256": "edbe74708f5749d15c7cde823c3f769b587a6ea33787251960c23c5cb49f0389",
     "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790"
   },

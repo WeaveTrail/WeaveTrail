@@ -42,6 +42,7 @@ describe("applied independent corpus review", () => {
       ["B1_SHARED_NULL_SLOT_TEMPLATE", 28],
       ["B2_SHARED_MUTATION_TEMPLATE", 12],
       ["CHANGED_INPUT_OR_GOLD_REQUIRES_INDEPENDENT_REVIEW", 15],
+      ["CHANGED_FAMILY_REQUIRES_INDEPENDENT_LINEAGE_REVIEW", 4],
     ]);
     expect(report.sealReadiness.acceptedUnchangedFamilies).toBe(54);
     expect(report.exclusions).toHaveLength(15);
@@ -77,6 +78,63 @@ describe("applied independent corpus review", () => {
       )!;
       expect(record.currentLineage).toBe("PENDING_REVIEW");
       expect(record.changedDialectIds).toContain(gold.dialectId);
+    },
+  );
+
+  it.each([
+    "lineageId",
+    "parents",
+    "eventKinds",
+    "problem",
+    "namingConvention",
+    "independence",
+    "author",
+  ] as const)(
+    "does not inherit lineage acceptance after changing %s",
+    (field) => {
+      const changed = structuredClone(study);
+      const family = changed.families.find((f) => f.id === "f-001")!;
+      if (field === "parents") family.parents = ["f-002"];
+      else if (field === "eventKinds") family.eventKinds = ["ORDER_NEW"];
+      else if (field === "lineageId") family.lineageId = "f-002";
+      else family[field] += " redesigned";
+      const record = corpusReview(changed).records.find(
+        (r) => r.familyId === family.id,
+      )!;
+      expect(record.currentLineage).toBe("PENDING_REVIEW");
+      expect(record.changedDialectIds).toEqual([]);
+      expect(corpusReview(changed).sealReadiness.blockers).toContainEqual(
+        expect.objectContaining({
+          code: "CHANGED_FAMILY_REQUIRES_INDEPENDENT_LINEAGE_REVIEW",
+          familyIds: expect.arrayContaining([family.id]),
+        }),
+      );
+    },
+  );
+
+  it.each(["TARGET", "DISPOSITION", "VALIDATOR"] as const)(
+    "binds replacement gold after a gold-only %s change",
+    (kind) => {
+      const changed = structuredClone(study);
+      const gold = changed.splits[0]!.gold.records[0]!;
+      const input = changed.splits[0]!.input.inputs[0]!;
+      if (kind === "TARGET") gold.columns[0]!.targetField = "actorId";
+      else if (kind === "DISPOSITION")
+        gold.expectedDisposition = "REVIEW_REQUIRED";
+      else gold.expectedValidator = "TRANSFORM_FAILED";
+      const exclusion = corpusReview(changed).exclusions.find(
+        (e) => e.familyId === gold.familyId,
+      )!;
+      expect(exclusion).toMatchObject({
+        replacementRecords: [
+          {
+            dialectId: gold.dialectId,
+            inputHash: input.inputHash,
+            goldSha256: sha256(JSON.stringify(gold)),
+          },
+        ],
+      });
+      expect(input.inputHash).toBe(exclusion.replacedRecords[0]!.inputHash);
     },
   );
 

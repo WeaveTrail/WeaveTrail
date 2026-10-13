@@ -20,6 +20,7 @@ import {
   ArtifactSchema,
   ProviderProjectionSchema,
   GoldRecordSchema,
+  GoldArtifactSchema,
 } from "./mapping-corpus-contract";
 import {
   generateMappingStudy,
@@ -360,6 +361,89 @@ describe("unsealed mapping study inputs", () => {
         );
       expect(GoldRecordSchema.safeParse(altered).success).toBe(false);
     }
+  });
+
+  it.each(["UPPERCASE", "EPOCH_MS_TO_ISO"] as const)(
+    "rejects unreviewed event-time alternative %s in both the artifact contract and preflight",
+    (transform) => {
+      const changed = structuredClone(study);
+      const split = changed.splits[0]!;
+      const gold = split.gold.records[0]!;
+      const clock = gold.columns.findIndex(
+        (c) => c.targetField === "eventTime",
+      );
+      const assignment = gold.columns.map(
+        (c) =>
+          [c.columnId, c.targetField, c.transform, c.status] as [
+            string,
+            typeof c.targetField,
+            typeof c.transform,
+            typeof c.status,
+          ],
+      );
+      assignment[clock]![2] = transform;
+      gold.acceptedAlternativeAssignments = [assignment];
+      expect(GoldArtifactSchema.safeParse(split.gold).success).toBe(false);
+      expect(() => preflight(changed)).toThrow();
+    },
+  );
+
+  it.each(["instrumentId", "quantity"] as const)(
+    "rejects a structurally compatible but unreviewed %s normalization",
+    (target) => {
+      const changed = structuredClone(study);
+      const split = changed.splits[0]!;
+      const gold = split.gold.records[0]!;
+      const field = gold.columns.findIndex((c) => c.targetField === target);
+      const assignment = gold.columns.map(
+        (c) =>
+          [c.columnId, c.targetField, c.transform, c.status] as [
+            string,
+            typeof c.targetField,
+            typeof c.transform,
+            typeof c.status,
+          ],
+      );
+      assignment[field]![2] = target === "quantity" ? "IDENTITY" : "UPPERCASE";
+      gold.acceptedAlternativeAssignments = [assignment];
+      expect(GoldArtifactSchema.safeParse(split.gold).success).toBe(false);
+      expect(() => preflight(changed)).toThrow(
+        "no independently reviewed equivalence",
+      );
+    },
+  );
+
+  it("does not extrapolate a reviewed lowercase side equivalence to single-letter codes", () => {
+    const changed = structuredClone(study);
+    const split = changed.splits.find((s) =>
+      s.gold.records.some((g) => g.dialectId === "d-047"),
+    )!;
+    const gold = split.gold.records.find((g) => g.dialectId === "d-047")!;
+    const input = split.input.inputs.find(
+      (i) => i.dialectId === gold.dialectId,
+    )!;
+    const side = gold.columns.findIndex((c) => c.targetField === "side");
+    input.projection.sampleRows[0]![side] = "B";
+    input.projection.sampleRows[1]![side] = "S";
+    input.inputHash = sha256(JSON.stringify(input.projection));
+    gold.inputHash = input.inputHash;
+    expect(() => preflight(changed)).toThrow("shared-validator witness");
+  });
+
+  it("checks equivalence domains even when a missing required target prevents a full dry run", () => {
+    const changed = structuredClone(study);
+    const split = changed.splits.find((s) => s.input.split === "DRIFT")!;
+    const gold = split.gold.records.find((g) => g.dialectId === "d-089.3")!;
+    const input = split.input.inputs.find(
+      (i) => i.dialectId === gold.dialectId,
+    )!;
+    const side = gold.columns.findIndex((c) => c.targetField === "side");
+    expect(gold.expectedValidator).toBe("MISSING_REQUIRED_TARGET");
+    input.projection.sampleRows[0]![side] = "buy";
+    input.projection.sampleRows[1]![side] = "sell";
+    input.inputHash = sha256(JSON.stringify(input.projection));
+    gold.inputHash = input.inputHash;
+    expect(() => preflight(changed)).toThrow("alternative side domain witness");
   });
 
   it("labels required target absence before complete visible assignments", () => {

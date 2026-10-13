@@ -68,6 +68,62 @@ const transforms = [
 ] as const;
 const TargetSchema = z.enum(targets);
 const TransformSchema = z.enum(transforms);
+/** The same seven-transform structural boundary as mapping-validator/2. */
+function compatibleStudyTransform(
+  target: z.infer<typeof TargetSchema>,
+  transform: z.infer<typeof TransformSchema>,
+) {
+  switch (transform) {
+    case "IDENTITY":
+      return true;
+    case "ISO_DATETIME":
+    case "EPOCH_MS_TO_ISO":
+      return target === "eventTime" || target === "receivedAt";
+    case "DECIMAL_STRING":
+      return target === "price" || target === "quantity";
+    case "BUY_SELL_CODE":
+      return target === "side";
+    case "EVENT_TYPE_CODE":
+      return target === "eventType";
+    case "UPPERCASE":
+      return ![
+        "eventTime",
+        "receivedAt",
+        "sequence",
+        "price",
+        "quantity",
+      ].includes(target);
+  }
+}
+
+/** Closed B3 equivalences from the original independent review, not a sample heuristic. */
+export function reviewedEquivalentTransforms(
+  column: {
+    targetField: z.infer<typeof TargetSchema> | null;
+    transform: z.infer<typeof TransformSchema> | null;
+  },
+  dialectId: string,
+): (z.infer<typeof TransformSchema> | null)[] {
+  const canonical = column.transform;
+  if (
+    (column.targetField === "eventTime" ||
+      column.targetField === "receivedAt") &&
+    canonical === "ISO_DATETIME"
+  )
+    return [canonical, "IDENTITY"];
+  if (column.targetField === "eventType" && canonical === "IDENTITY")
+    return [canonical, "UPPERCASE"];
+  if (column.targetField === "side" && canonical === "IDENTITY")
+    return [canonical, "UPPERCASE", "BUY_SELL_CODE"];
+  if (
+    dialectId === "d-047" &&
+    column.targetField === "side" &&
+    canonical === "BUY_SELL_CODE"
+  )
+    return [canonical, "UPPERCASE"];
+  return [canonical];
+}
+
 const IdSchema = z.string().regex(/^[fd]-\d{3}$/u);
 export const AttackSchema = z
   .object({
@@ -253,6 +309,13 @@ export const AssignmentTupleSchema = z
         ? g[2] === null && g[3] === "REVIEW_REQUIRED"
         : g[2] !== null && g[3] === "PROPOSED",
     "Assignment tuple nulls/status must agree",
+  )
+  .refine(
+    (tuple) =>
+      tuple[1] === null ||
+      tuple[2] === null ||
+      compatibleStudyTransform(tuple[1], tuple[2]),
+    "Alternative target/transform mismatch",
   );
 export const InputRecordSchema = z
   .object({
@@ -304,6 +367,21 @@ export const GoldRecordSchema = z
           message:
             "Alternative must cover the same ordered columns, targets and statuses",
         });
+      for (const [i, tuple] of assignment.entries()) {
+        const canonical = gold.columns[i];
+        if (
+          canonical &&
+          !reviewedEquivalentTransforms(canonical, gold.dialectId).includes(
+            tuple[2],
+          )
+        )
+          ctx.addIssue({
+            code: "custom",
+            path: ["acceptedAlternativeAssignments", index, i, 2],
+            message:
+              "Alternative transform has no independently reviewed equivalence",
+          });
+      }
       if (
         assignment.every((tuple, i) => tuple[2] === gold.columns[i]?.transform)
       )

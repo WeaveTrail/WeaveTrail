@@ -1,5 +1,5 @@
 {
-  "version": "mapping-study-review-baseline/1",
+  "version": "mapping-study-review-baseline/2",
   "sourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
   "reviewDocument": "docs/MAPPING_STUDY_V1_GOLD_REVIEW.md",
   "reviewDocumentSha256": "edbe74708f5749d15c7cde823c3f769b587a6ea33787251960c23c5cb49f0389",
@@ -127,7 +127,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "e98a55981595b9abc50d2ee4de34363b1b8fb5a3b16853ea4703010df750ce3b"
     },
     {
       "dialectId": "d-002",
@@ -184,7 +185,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "a87a61db57ffe9e1dde72c8f99ca74caddf416686843b108a8292d5ea79979a1"
     },
     {
       "dialectId": "d-008",
@@ -241,7 +243,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "f655301979e45fa8c20993171bc7a3759ac05552996b9b74457b1f28060530e9"
     },
     {
       "dialectId": "d-009",
@@ -298,7 +301,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "91b6eeb86fd7676f83ba99733f7715c0d2acc65e59da7fa6228d6f1ac581ed1c"
     },
     {
       "dialectId": "d-015",
@@ -362,7 +366,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "56834d3bae0d035ca3850d47363b963a97da583e636ffe0de856f3eae3cae5f9"
     },
     {
       "dialectId": "d-016",
@@ -419,7 +424,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "ed69f42d0179b99117584d27e88851e3b157279a15a9e79ce30bdb8a8bd5b523"
     },
     {
       "dialectId": "d-022",
@@ -483,7 +489,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "190ca85a924e8be86fba9b92224ec028d22fb10f0e5382e9dcdef7effbc17d2f"
     },
     {
       "dialectId": "d-023",
@@ -547,7 +554,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "1c1ff35900143e97efdb915244d89d1affb53baf5370e5a236c2145a277daad8"
     },
     {
       "dialectId": "d-029",
@@ -611,7 +619,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6aa7b94842b72d7c0d55f1ebd8d99abcbd76c6728f57a0ee78a922bc3ec1ef6a"
     },
     {
       "dialectId": "d-030",
@@ -668,7 +677,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "d47aa956d4ce6b908139583322bcbdc794701768a40c1c63a0f486ca59918365"
     },
     {
       "dialectId": "d-036",
@@ -725,7 +735,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c80c8c444d5e498341d9e25de609ba3cb1d091a354fc738b9fa4821800726263"
     },
     {
       "dialectId": "d-037",
@@ -782,7 +793,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "fde0a70fbba9cfa90a4175997872e08fd6bbdb4b8031e380faa67aaf2ab133d7"
     },
     {
       "dialectId": "d-043",
@@ -839,7 +851,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "9dfb64db7d5f8b880cb1a8a866f553a5624fd58180fc720b9282c706caabc493"
     },
     {
       "dialectId": "d-044",
@@ -896,7 +909,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6c535dabdf627a7191bc63bf2fdbcd695321bec3cbb3b9863eef9e19a65a9972"
     },
     {
       "dialectId": "d-050",
@@ -953,7 +967,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8ede13c6d8cc5f6bc9e22d120863f9ad69a2e28944d180cdafb2917d71f282f3"
     },
     {
       "dialectId": "d-051",
@@ -1010,7 +1025,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "18772023e3952e15d65f3f8543d04f6a6bae91b58369e36f69ce8ca9a95f6a27"
     },
     {
       "dialectId": "d-057",
@@ -1074,7 +1090,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "ca3d45695295be4ae8f0a0ab28a06d5baaae66d2c8cf1256837287ab4150662b"
     },
     {
       "dialectId": "d-058",
@@ -1138,7 +1155,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "90827c3cac81fd7aa58a3ddb0715f9648b14c9ae38e6544f2d2e5a00c682af58"
     },
     {
       "dialectId": "d-064",
@@ -1202,7 +1220,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "d4d7e68e5c3620d0d6d6c6f2c8b99b06d2f3bff593220ddfc47c1f06bf4ddad0"
     },
     {
       "dialectId": "d-065",
@@ -1266,7 +1285,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c31c3cd70ab9ba0d585cbbbabb9097a847269ede1322dd2e36ffeb963a19c8c6"
     },
     {
       "dialectId": "d-071",
@@ -1330,7 +1350,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "5b5d422ac74ae72a3a30196f531e566eaf4068ec520a182d91d03ebf074a7cb5"
     },
     {
       "dialectId": "d-072",
@@ -1394,7 +1415,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "91cc1c356134814fc00f0ed0ad3d7d7673076a30cd2798b64135f0b9b9ab2ca1"
     },
     {
       "dialectId": "d-078",
@@ -1458,7 +1480,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "a7acbaf8a3cae6bbad711cf15585872b03dfdd61709ea2889631b8f031fedff7"
     },
     {
       "dialectId": "d-079",
@@ -1522,7 +1545,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "36734c3bf9924ed87ebfd8d2e520129c2e1b582b0f5aed3f754d29f0e870f9ee"
     },
     {
       "dialectId": "d-003",
@@ -1579,7 +1603,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "32b1f5efa4386bce94a03ac07c68643c008040939e9cdddc295bcdc7d84bbc0f"
     },
     {
       "dialectId": "d-004",
@@ -1636,7 +1661,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "fd642805e1767b91b8bc0d3a96536a0b243c16781eae87f7ae99f6854246f66f"
     },
     {
       "dialectId": "d-005",
@@ -1693,7 +1719,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "a00c5ac1dce781ee332b4b3c773ebaa8f97fddb3c1a296d6a89f2e3dccd026e8"
     },
     {
       "dialectId": "d-006",
@@ -1750,7 +1777,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "fad8b7deebc8ef7702b6bd1e47fca65ebf80a8d4b2a31b8e578e64849d9450e6"
     },
     {
       "dialectId": "d-007",
@@ -1807,7 +1835,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "0c6fc693d77ac76aa7798e588ec05edfd328e0f0ed1358fbf0890a1a70d58af1"
     },
     {
       "dialectId": "d-010",
@@ -1857,7 +1886,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "d1e771eb81777b5d5e23f8dedd62dcd92b3a92b05e888ad0ae122bb02f7357f1"
     },
     {
       "dialectId": "d-011",
@@ -1914,7 +1944,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "10175f3230954ea3ef90f1e76e67d720dae39530930340378a3de2652f5e71cb"
     },
     {
       "dialectId": "d-012",
@@ -1971,7 +2002,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c705f1465ad592801b1c94a592adaa66e573199bd875f206990184e4f0a6961d"
     },
     {
       "dialectId": "d-013",
@@ -2028,7 +2060,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "b4b6434d6fe30790f0582f01e1d9425d6253d09a2ee676f4cbafa691d154d557"
     },
     {
       "dialectId": "d-014",
@@ -2085,7 +2118,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "9141bcc9f37ba7565f91b242295f1a6c7e183328c52921e73f08f27b17e9dcca"
     },
     {
       "dialectId": "d-017",
@@ -2142,7 +2176,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "eabbc2a716947942c05fd9082be494fc9a4f19baf07e6e6fbdbba55e68187864"
     },
     {
       "dialectId": "d-018",
@@ -2206,7 +2241,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "835ba8310ad5eea54a09b31b5e8660e0c825536e443cc879fca17cd1d7225be6"
     },
     {
       "dialectId": "d-019",
@@ -2263,7 +2299,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "47bd1f4f128d1726dd7bc00a4c838494f376e2830b68bda976f655efd800ccd3"
     },
     {
       "dialectId": "d-020",
@@ -2327,7 +2364,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "3f9d4cdf138c06d3bd365438e3ba5025602786d5f1e326930657f537eee5d9ae"
     },
     {
       "dialectId": "d-021",
@@ -2391,7 +2429,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "51d224c1d8ac259732b002e8288a00c2d6ee1b760b22230eef3bb69f4e4ea8ea"
     },
     {
       "dialectId": "d-024",
@@ -2455,7 +2494,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "44f9ed2be65a90ad0a95de4db288f57967643873397cbde09f8289ac59be1eb2"
     },
     {
       "dialectId": "d-025",
@@ -2512,7 +2552,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "481514e14e4b23c760016388e6b20f798882737b744e524ff5d03c916cbe3539"
     },
     {
       "dialectId": "d-026",
@@ -2576,7 +2617,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "96c16705638611ae2aaf5c16255598fcdaf3ecab1b7ab36df341284dc1386344"
     },
     {
       "dialectId": "d-027",
@@ -2640,7 +2682,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c8d2b819633dce8eed786f8c86f491c1faf06ce0dd91c9b39a1755644e37661a"
     },
     {
       "dialectId": "d-028",
@@ -2704,7 +2747,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e7701e61c5a2d2bfb7cd9c27dacbdd9c53d7d87ae0b05f9ed916bfee4c1fef6"
     },
     {
       "dialectId": "d-031",
@@ -2761,7 +2805,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "45ea165839bf718bdcde6893c62e99784cc4806d29c41829f6c2df40b4f4121a"
     },
     {
       "dialectId": "d-032",
@@ -2818,7 +2863,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "96407271f8e57afd4b250fa52d4b4b43fed8b60b379e3b4d89ebfead495eb0f7"
     },
     {
       "dialectId": "d-033",
@@ -2882,7 +2928,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb0c886c6d3836bd94e38cb2d2ef031f9ea6d1830502f8336382f5ee7959e84d"
     },
     {
       "dialectId": "d-034",
@@ -2939,7 +2986,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "dff17f4c8490df7c12d9e8ababa0b441e3d587e86a4d8b9877b01990c4fa4b37"
     },
     {
       "dialectId": "d-035",
@@ -3003,7 +3051,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8db6b91bfa5fdb2e4868a047d7c7b347124af3811f4b88f3992b29adc7123b0d"
     },
     {
       "dialectId": "d-038",
@@ -3060,7 +3109,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "7304716daa50d4a4f7234a2bdf86f2d771d7dcf9f8ad2f06192eb482ec3d09b0"
     },
     {
       "dialectId": "d-039",
@@ -3117,7 +3167,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "b0227912ef4751939f904b66ff7968dc75278cd994f05ed22054a335915f9626"
     },
     {
       "dialectId": "d-040",
@@ -3174,7 +3225,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "ec7882709163f86ce265fa8ee4dda8b0979f203b42265f9294447a17b95e9b32"
     },
     {
       "dialectId": "d-041",
@@ -3231,7 +3283,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6b3b1a58b65146d6601d7b5116e8c707b26428ec1af65a2527dd5a13f0e1c8fc"
     },
     {
       "dialectId": "d-042",
@@ -3288,7 +3341,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c973f303f0f3b74f3bd490147be57fcf0169e1eca2f7304a4211b42b5cecb56d"
     },
     {
       "dialectId": "d-045",
@@ -3345,7 +3399,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "869e05fc88c875ad134594812921e7bfea6bd29130c5f94dc9a4373c639c06a0"
     },
     {
       "dialectId": "d-046",
@@ -3402,7 +3457,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "e127654b0a9ff7bf76219185804210d727ad32d9f9fdc365dae4bc8f9790632d"
     },
     {
       "dialectId": "d-047",
@@ -3459,7 +3515,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4cd8704183209171072e70087c77e5d6959520170c0e8d26abd0e3a4b4aa31cb"
     },
     {
       "dialectId": "d-048",
@@ -3516,7 +3573,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "3a1a0c205fa745b56387855a7cadd5f5255abfddd56c33fd4cd44bc7969c776f"
     },
     {
       "dialectId": "d-049",
@@ -3580,7 +3638,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "9854d963b394f4d14bbce65fdf0ec3a464942b8172a95cfb75a2543215bbbfcb"
     },
     {
       "dialectId": "d-052",
@@ -3637,7 +3696,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6dd0db3ff0c01b367df0b4769520feca228fed3754811e4518640cb76977b3cf"
     },
     {
       "dialectId": "d-053",
@@ -3694,7 +3754,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "45f4c4cbd9b433b5189a30a9e3927b69e34bd429de2f0461c507ba954205889f"
     },
     {
       "dialectId": "d-054",
@@ -3751,7 +3812,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "29bd246ccc4ed47766bb7ec54fdc0814ab5c7ffea8f1205f98449d58fe5cba8c"
     },
     {
       "dialectId": "d-055",
@@ -3808,7 +3870,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "e0116c83b047e3e3b7027ae65504e08de0458c7f36c5b985e53d9a6589d390e6"
     },
     {
       "dialectId": "d-056",
@@ -3865,7 +3928,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "ef6b9f83d22dffbc5dc0b0755d0f93db2ed8315887cb48f55a4aa34989d9e5e4"
     },
     {
       "dialectId": "d-059",
@@ -3936,7 +4000,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "0db6ebeb96fc5b944d371fba8af02439d82e990d2784cf85b6e5d1dd4b5af649"
     },
     {
       "dialectId": "d-060",
@@ -4000,7 +4065,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "ad096105f7bf178add692ac1db8d7a43816ae26151cd47fe548c47d4c36e6210"
     },
     {
       "dialectId": "d-061",
@@ -4064,7 +4130,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "9bc9a16f270619792b7d817892443dd21b7ae69d4102ae77cb6f535157e20cad"
     },
     {
       "dialectId": "d-062",
@@ -4128,7 +4195,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c2ae60bdff3aeaed6e5ccef68c7ef1d61ba4672799888e535a7ec60c0341aa5f"
     },
     {
       "dialectId": "d-063",
@@ -4192,7 +4260,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "dd53d175b5d56d7800c1ee80cac936fff43870f196006f23d771466d8a397429"
     },
     {
       "dialectId": "d-066",
@@ -4256,7 +4325,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "e284ead038595fec91d5ab10ff978555c3393c4f75b167c6d610ecc1026a8592"
     },
     {
       "dialectId": "d-067",
@@ -4320,7 +4390,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "5139fd795a5b83b392228487fc8bebeb9dd3fe57c77733563ecfb4a682046d0a"
     },
     {
       "dialectId": "d-068",
@@ -4384,7 +4455,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "df81e394fd16927c5a95acb1a7843d5f6f12ec38b3d25c21168ebea86cdb0d3f"
     },
     {
       "dialectId": "d-069",
@@ -4448,7 +4520,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "2732b5f37c436a2361f4c74e1db985582044e9182f8d57cf013bda340b4a1dbc"
     },
     {
       "dialectId": "d-070",
@@ -4512,7 +4585,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "bbed69d7bcd267af0ae7906a8a31b45215c7651d17584b10415bc453a98dc350"
     },
     {
       "dialectId": "d-073",
@@ -4583,7 +4657,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "72ce5d27297e39662feb4f0f2176ccf440a42546980f3fd00d944113434b19ee"
     },
     {
       "dialectId": "d-074",
@@ -4647,7 +4722,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "369df13163de475cece394652c69af4724e5ae5adf93f288b6f2e39f16c706de"
     },
     {
       "dialectId": "d-075",
@@ -4711,7 +4787,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "7d8c48d492f606196184f32f7aa1387e596879f59506d57e707b5d1e40791e5c"
     },
     {
       "dialectId": "d-076",
@@ -4775,7 +4852,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4e582ea3c7f9c31f7dc4d0b9e2c91954a4a8503af754493a82c7e88d7b9f6bfa"
     },
     {
       "dialectId": "d-077",
@@ -4839,7 +4917,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "f52247a6e0f01eea6e6728179ed72fe76b0379bf2b762184f7bba44fc36900fe"
     },
     {
       "dialectId": "d-080",
@@ -4903,7 +4982,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "169900693866e19a3c77d010fc141bd886e3574139ea7703260b2d2c059d81ee"
     },
     {
       "dialectId": "d-081",
@@ -4967,7 +5047,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "a73e12881605de54fe0cafe10792ac73a574f8661dcc49ec960fae3b6120a6d7"
     },
     {
       "dialectId": "d-082",
@@ -5031,7 +5112,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "a564ea6036f0cae7e8837224ebb10f22913b785d66dba02b273fdd46997ce63f"
     },
     {
       "dialectId": "d-083",
@@ -5095,7 +5177,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8a7034986312b13d2c25cb447cb4d1f8401c9cc7ec4054a921a64453ad251bfa"
     },
     {
       "dialectId": "d-084",
@@ -5159,7 +5242,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "dccc9db71daa44bf94f829dcfacf5e0e5ee40167566b578d067b27eb4670b3d7"
     },
     {
       "dialectId": "d-085",
@@ -5223,7 +5307,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.1",
@@ -5287,7 +5372,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.2",
@@ -5351,7 +5437,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.3",
@@ -5422,7 +5509,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.4",
@@ -5479,7 +5567,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.5",
@@ -5543,7 +5632,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-085.6",
@@ -5607,7 +5697,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
     },
     {
       "dialectId": "d-086",
@@ -5671,7 +5762,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.1",
@@ -5735,7 +5827,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.2",
@@ -5799,7 +5892,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.3",
@@ -5870,7 +5964,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.4",
@@ -5927,7 +6022,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.5",
@@ -5991,7 +6087,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-086.6",
@@ -6055,7 +6152,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
     },
     {
       "dialectId": "d-087",
@@ -6119,7 +6217,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.1",
@@ -6183,7 +6282,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.2",
@@ -6247,7 +6347,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.3",
@@ -6318,7 +6419,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.4",
@@ -6375,7 +6477,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.5",
@@ -6439,7 +6542,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-087.6",
@@ -6503,7 +6607,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
     },
     {
       "dialectId": "d-088",
@@ -6567,7 +6672,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.1",
@@ -6631,7 +6737,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.2",
@@ -6695,7 +6802,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.3",
@@ -6766,7 +6874,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.4",
@@ -6823,7 +6932,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.5",
@@ -6887,7 +6997,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-088.6",
@@ -6951,7 +7062,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
     },
     {
       "dialectId": "d-089",
@@ -7015,7 +7127,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.1",
@@ -7079,7 +7192,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.2",
@@ -7143,7 +7257,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.3",
@@ -7214,7 +7329,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.4",
@@ -7271,7 +7387,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.5",
@@ -7335,7 +7452,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-089.6",
@@ -7399,7 +7517,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
     },
     {
       "dialectId": "d-090",
@@ -7463,7 +7582,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.1",
@@ -7527,7 +7647,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.2",
@@ -7591,7 +7712,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.3",
@@ -7662,7 +7784,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.4",
@@ -7719,7 +7842,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.5",
@@ -7783,7 +7907,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-090.6",
@@ -7847,7 +7972,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c09368f0e3b6f206b0a006a8003bebbe48042477b053e4d6ef0ea9dff2a4e345"
     },
     {
       "dialectId": "d-091",
@@ -7911,7 +8037,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.1",
@@ -7975,7 +8102,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.2",
@@ -8039,7 +8167,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.3",
@@ -8110,7 +8239,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.4",
@@ -8167,7 +8297,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.5",
@@ -8231,7 +8362,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-091.6",
@@ -8295,7 +8427,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
     },
     {
       "dialectId": "d-092",
@@ -8359,7 +8492,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.1",
@@ -8423,7 +8557,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.2",
@@ -8487,7 +8622,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.3",
@@ -8558,7 +8694,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.4",
@@ -8615,7 +8752,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.5",
@@ -8679,7 +8817,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-092.6",
@@ -8743,7 +8882,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
     },
     {
       "dialectId": "d-093",
@@ -8807,7 +8947,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.1",
@@ -8871,7 +9012,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.2",
@@ -8935,7 +9077,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.3",
@@ -9006,7 +9149,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.4",
@@ -9063,7 +9207,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.5",
@@ -9127,7 +9272,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-093.6",
@@ -9191,7 +9337,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
     },
     {
       "dialectId": "d-094",
@@ -9255,7 +9402,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.1",
@@ -9319,7 +9467,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.2",
@@ -9383,7 +9532,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.3",
@@ -9454,7 +9604,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.4",
@@ -9511,7 +9662,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.5",
@@ -9575,7 +9727,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-094.6",
@@ -9639,7 +9792,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
     },
     {
       "dialectId": "d-095",
@@ -9703,7 +9857,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.1",
@@ -9767,7 +9922,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.2",
@@ -9831,7 +9987,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.3",
@@ -9902,7 +10059,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.4",
@@ -9959,7 +10117,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["sourceEventId"]
+      "absentRequiredTargets": ["sourceEventId"],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.5",
@@ -10023,7 +10182,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-095.6",
@@ -10087,7 +10247,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
     },
     {
       "dialectId": "d-096",
@@ -10151,7 +10312,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.1",
@@ -10215,7 +10377,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.2",
@@ -10279,7 +10442,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.3",
@@ -10350,7 +10514,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.4",
@@ -10407,7 +10572,8 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.5",
@@ -10471,7 +10637,8 @@
       ],
       "expectedValidator": "MISSING_REQUIRED_TARGET",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "absentRequiredTargets": ["eventTime"]
+      "absentRequiredTargets": ["eventTime"],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     },
     {
       "dialectId": "d-096.6",
@@ -10535,7 +10702,9 @@
       ],
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
-      "absentRequiredTargets": []
+      "absentRequiredTargets": [],
+      "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
     }
-  ]
+  ],
+  "lineageProjectionVersion": "mapping-study-family-lineage/1"
 }

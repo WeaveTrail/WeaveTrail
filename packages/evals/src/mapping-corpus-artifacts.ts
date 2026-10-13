@@ -59,6 +59,7 @@ export async function renderMappingStudy() {
     "review-ledger.json": {
       version: CORPUS_VERSION,
       status: review.status,
+      reviewVersion: review.version,
       baselineSha256: review.baselineSha256,
       reviewDocumentSha256: review.reviewDocumentSha256,
       records: review.records,
@@ -66,6 +67,7 @@ export async function renderMappingStudy() {
     },
     "exclusions.json": {
       version: CORPUS_VERSION,
+      reviewVersion: review.version,
       status: "UNSEALED",
       records: review.exclusions,
     },
@@ -108,6 +110,7 @@ export async function renderMappingStudy() {
     "mapping-corpus-preflight.ts",
     "mapping-corpus-artifacts.ts",
     "mapping-corpus-review.ts",
+    "mapping-corpus-lineage.ts",
   ];
   const manifest = {
     version: CORPUS_VERSION,

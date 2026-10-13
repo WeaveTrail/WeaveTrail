@@ -345,6 +345,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "A timestamp format is read as a receipt time",
     ko: "시각 형식을 수신 시각으로 읽음",
   },
+  {
+    id: "F-011",
+    status: "FIXED",
+    en: "Diagnostic gold accepts an unreviewed alternative transform",
+    ko: "진단 정답이 검토되지 않은 대체 변환을 수용함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

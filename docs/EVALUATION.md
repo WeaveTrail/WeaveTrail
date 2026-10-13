@@ -108,7 +108,12 @@ the reviewed source commit. Old review does not approve changed projections or
 canonical gold. Preflight, manifest and review ledger report the same
 `APPLIED_WITH_UNRESOLVED_FINDINGS` state; preflight separately records
 `replacementGoldReview` with the pending replacement family IDs.
-The lineage findings remain unresolved, and
+Original-family lineage fingerprints now prevent changes to conventions,
+semantic problems, parents or column evidence from inheriting acceptance.
+Replacement records bind each new input and complete gold record by hash,
+including gold-only changes. The gold contract rejects incompatible or unreviewed
+alternative transformations; preflight validates every alternative and its domain
+witnesses, including cases that lack a required target. The lineage findings remain unresolved, and
 `pnpm eval:corpus:seal:check` fails without creating a seal. HARD_RESOLVABLE is a
 construction stratum, not measured difficulty. No coverage floor is lowered;
 a recommended cell-specific redesign needs a reviewed coverage decision. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)

@@ -59,7 +59,7 @@ quantity values remain strings throughout generation and validation.
 | `drift-relations.json`                  | Base-relative local detector labels, global mapping witnesses and separate visible/hidden semantic truth; follow-ups are not independent families                                  |
 | `base-approvals.json`                   | Generated correct-base proposal/approval fixtures; never observed humans or model-created approvals                                                                                |
 | `overlap-report.json`                   | Prior byte hashes, header/slot/grammar/lineage/decoded-attack diagnostics and explicit within-family duplicate exemptions                                                          |
-| `review-ledger.json`, `exclusions.json` | Applied original decisions, unresolved lineage, and old/new hash bindings for replaced inputs; no replacement reviewer signoff                                                     |
+| `review-ledger.json`, `exclusions.json` | Applied original decisions, unresolved lineage, and old/new input and per-record gold hash bindings for replacements, plus lineage fingerprints; no replacement reviewer signoff   |
 | `exposure-ledger.json`                  | Honest public/authoring exposure boundary; no secrecy claim or model-performance evidence                                                                                          |
 | `seal-readiness.json`                   | Unresolved lineage and changed-input/gold review blockers; no measured family-count claim                                                                                          |
 | `preflight.json`                        | Author consistency checks with the existing validators, applied original-review status, separate pending replacement-review status/family IDs, and remaining implementation limits |
@@ -105,3 +105,15 @@ new input bindings. `seal-readiness.json` records the blockers;
 `pnpm eval:corpus:seal:check` fails without writing a seal. A MUST_REVIEW redesign
 also needs reviewed coverage floors; none are lowered here. Sealing, new-run scoring
 integration, full reuse assembly and audited pre-registration remain planned. No calls, latency, cost savings, model quality or human time are measured.
+
+Review binding migration: baseline `/2` adds original-family lineage fingerprints;
+review payload `/2` adds current family hashes and changed-lineage blockers.
+`exclusions.json` uses `replacementRecords` in place of `replacementInputHashes`,
+with both `inputHash` and `goldSha256` per dialect. Gold hashes cover UTF-8
+`JSON.stringify` of the complete contract-ordered gold record, including whole-input
+expectations and diagnostic alternatives. The aggregate artifact hashes still bind
+original formatted file bytes. Source inputs and canonical gold are unchanged.
+Alternative assignments must use compatible transforms and only the closed B3
+equivalences; preflight validates their sample domains, shared-validator outcomes
+and normalized-event equivalence for complete offerable inputs. See
+[F-011](../../../../docs/AI_FAILURE_LOG.md#f-011-diagnostic-gold-accepts-an-unreviewed-alternative-transform).
