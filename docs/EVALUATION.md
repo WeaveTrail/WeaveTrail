@@ -97,9 +97,12 @@ The `mapping-study-inputs/1` contract separates provider projections
 from gold, family briefs and parent-relative DRIFT relations. The committed
 inventory has 24 SELECT inputs, 60 AUDIT inputs and 12 DRIFT bases with six
 follow-ups each (84 DRIFT inputs). These are **96 proposed families**, not an
-independently established family count or measured model performance. All gold
-reviews are pending; shared slot/grammar signatures require independent review
-before sealing. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)
+independently established family count or measured model performance. An
+[independent gold and lineage review](MAPPING_STUDY_V1_GOLD_REVIEW.md) agrees
+with every proposed column answer, but finds that the 28 MUST_REVIEW and 12
+DRIFT families each share one template and that equivalent transforms are not
+yet recorded. Its decisions are not applied yet, so the review ledger stays
+pending and nothing is sealed. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)
 for the draft contract and checksum boundary. No new model is selected or enabled.
 
 The [version 1 offline corpus](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)
