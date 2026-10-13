@@ -105,7 +105,10 @@ equivalent transforms, required-removal reasons, named competing roles, wording
 corrections and seeded changed-column positions. An original checksummed review
 baseline and an exclusion ledger bind replaced inputs to their previous bytes at
 the reviewed source commit. Old review does not approve changed projections or
-canonical gold. The lineage findings remain unresolved, and
+canonical gold. Preflight, manifest and review ledger report the same
+`APPLIED_WITH_UNRESOLVED_FINDINGS` state; preflight separately records
+`replacementGoldReview` with the pending replacement family IDs.
+The lineage findings remain unresolved, and
 `pnpm eval:corpus:seal:check` fails without creating a seal. HARD_RESOLVABLE is a
 construction stratum, not measured difficulty. No coverage floor is lowered;
 a recommended cell-specific redesign needs a reviewed coverage decision. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)

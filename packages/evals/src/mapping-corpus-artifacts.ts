@@ -141,7 +141,7 @@ export async function renderMappingStudy() {
       path,
       sha256: sha256(content),
     })),
-    independentGoldReview: "APPLIED_WITH_UNRESOLVED_FINDINGS",
+    independentGoldReview: review.status,
     reviewBaseline: {
       path: "packages/evals/fixtures/mapping-study-review-v1/baseline.json",
       sha256: review.baselineSha256,

@@ -84,6 +84,22 @@ describe("unsealed mapping study inputs", () => {
   it("reproduces every committed draft byte twice, with shared-validator witnesses and allocation checks", async () => {
     const files = await verifyMappingStudy();
     expect(files["manifest.json"]).toContain('"liveRunnerEligible": false');
+    const preflightArtifact = JSON.parse(files["preflight.json"]!);
+    const manifest = JSON.parse(files["manifest.json"]!);
+    const ledger = JSON.parse(files["review-ledger.json"]!);
+    expect(preflightArtifact.independentGoldReview).toBe(ledger.status);
+    expect(manifest.independentGoldReview).toBe(ledger.status);
+    expect(preflightArtifact.replacementGoldReview).toEqual({
+      status: "PENDING_INDEPENDENT_REVIEW",
+      familyIds: study.families
+        .filter((family) =>
+          ledger.records.some(
+            (record: { familyId: string; changedDialectIds: string[] }) =>
+              record.familyId === family.id && record.changedDialectIds.length,
+          ),
+        )
+        .map((family) => family.id),
+    });
     expect(study.families).toHaveLength(96);
     expect(
       study.splits.map((s) => [s.input.split, s.input.inputs.length]),

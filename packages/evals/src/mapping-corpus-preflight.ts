@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { corpusReview } from "./mapping-corpus-review";
 import {
   validateMappingOutput,
   validateMappingStructure,
@@ -494,6 +495,10 @@ export function preflight(study: MappingStudy) {
       overlap.lineage.length === 0,
     "no duplicate inputs/header tuples/decoded attacks/declared lineage across families or prior material",
   );
+  const review = corpusReview(study);
+  const replacementFamilyIds = review.records
+    .filter((record) => record.changedDialectIds.length)
+    .map((record) => record.familyId);
   return {
     version: "mapping-study-preflight/1",
     corpusVersion: CORPUS_VERSION,
@@ -502,7 +507,13 @@ export function preflight(study: MappingStudy) {
     seed: GENERATION_SEED,
     inventory,
     relations: study.relations.length,
-    independentGoldReview: "PENDING",
+    independentGoldReview: review.status,
+    replacementGoldReview: {
+      status: replacementFamilyIds.length
+        ? "PENDING_INDEPENDENT_REVIEW"
+        : "NOT_REQUIRED",
+      familyIds: replacementFamilyIds,
+    },
     independentFamilyCount: "NOT_ESTABLISHED",
     limitations: [
       "Automated witnesses verify consistency with authored gold, not independent correctness.",

@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
+import { preflight } from "./mapping-corpus-preflight";
 import { generateMappingStudy, sha256 } from "./mapping-corpus-generator";
 import {
   corpusReview,
@@ -19,6 +20,20 @@ import {
 
 const study = generateMappingStudy();
 describe("applied independent corpus review", () => {
+  it("reports the applied original review and pending replacement review in preflight", () => {
+    const review = corpusReview(study);
+    const report = preflight(study);
+    expect(report.independentGoldReview).toBe(review.status);
+    expect(report).toMatchObject({
+      replacementGoldReview: {
+        status: "PENDING_INDEPENDENT_REVIEW",
+        familyIds: review.records
+          .filter((r) => r.changedDialectIds.length)
+          .map((r) => r.familyId),
+      },
+    });
+  });
+
   it("retains rejected lineage and requires review of replacement projections", () => {
     const report = corpusReview(study);
     expect(

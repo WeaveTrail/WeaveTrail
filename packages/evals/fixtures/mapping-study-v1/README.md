@@ -51,19 +51,19 @@ The input hash is SHA-256 of UTF-8 `JSON.stringify(projection)` in contract key
 order; original artifact hashes bind the exact formatted file bytes. Money and
 quantity values remain strings throughout generation and validation.
 
-| Artifact                                | Contents and boundary                                                                                                                                                  |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `*.inputs.json`                         | Offline IDs/hash bindings and a strict `projection` of opaque column IDs, headers and bounded sample rows; only `projection` is task-specific provider input           |
-| `*.gold.json`                           | Ordered canonical tuples, exact visible coordinates, alternatives, attacks, absent required targets and expected validator/disposition witnesses; never provider input |
-| `families.json`                         | Source conventions, event kinds, problems, lineage declarations, evidence/alternatives and pending authoring records; the applied review lives in the separate ledger  |
-| `drift-relations.json`                  | Base-relative local detector labels, global mapping witnesses and separate visible/hidden semantic truth; follow-ups are not independent families                      |
-| `base-approvals.json`                   | Generated correct-base proposal/approval fixtures; never observed humans or model-created approvals                                                                    |
-| `overlap-report.json`                   | Prior byte hashes, header/slot/grammar/lineage/decoded-attack diagnostics and explicit within-family duplicate exemptions                                              |
-| `review-ledger.json`, `exclusions.json` | Applied original decisions, unresolved lineage, and old/new hash bindings for replaced inputs; no replacement reviewer signoff                                         |
-| `exposure-ledger.json`                  | Honest public/authoring exposure boundary; no secrecy claim or model-performance evidence                                                                              |
-| `seal-readiness.json`                   | Unresolved lineage and changed-input/gold review blockers; no measured family-count claim                                                                              |
-| `preflight.json`                        | Author consistency checks with the existing validators and explicit remaining implementation limits                                                                    |
-| `manifest.json`                         | Draft-byte/source/specification/lockfile and original review-baseline hashes; `UNSEALED`, never a measurement seal                                                     |
+| Artifact                                | Contents and boundary                                                                                                                                                              |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `*.inputs.json`                         | Offline IDs/hash bindings and a strict `projection` of opaque column IDs, headers and bounded sample rows; only `projection` is task-specific provider input                       |
+| `*.gold.json`                           | Ordered canonical tuples, exact visible coordinates, alternatives, attacks, absent required targets and expected validator/disposition witnesses; never provider input             |
+| `families.json`                         | Source conventions, event kinds, problems, lineage declarations, evidence/alternatives and pending authoring records; the applied review lives in the separate ledger              |
+| `drift-relations.json`                  | Base-relative local detector labels, global mapping witnesses and separate visible/hidden semantic truth; follow-ups are not independent families                                  |
+| `base-approvals.json`                   | Generated correct-base proposal/approval fixtures; never observed humans or model-created approvals                                                                                |
+| `overlap-report.json`                   | Prior byte hashes, header/slot/grammar/lineage/decoded-attack diagnostics and explicit within-family duplicate exemptions                                                          |
+| `review-ledger.json`, `exclusions.json` | Applied original decisions, unresolved lineage, and old/new hash bindings for replaced inputs; no replacement reviewer signoff                                                     |
+| `exposure-ledger.json`                  | Honest public/authoring exposure boundary; no secrecy claim or model-performance evidence                                                                                          |
+| `seal-readiness.json`                   | Unresolved lineage and changed-input/gold review blockers; no measured family-count claim                                                                                          |
+| `preflight.json`                        | Author consistency checks with the existing validators, applied original-review status, separate pending replacement-review status/family IDs, and remaining implementation limits |
+| `manifest.json`                         | Draft-byte/source/specification/lockfile and original review-baseline hashes; `UNSEALED`, never a measurement seal                                                                 |
 
 Correct SELECT/AUDIT answers all pass the structural validator, including review
 families whose optional null fields require human review. Resolvable families
