@@ -40,6 +40,12 @@ pre-registration, not an accepted experimental run protocol.
   gold; hidden truth belongs to a separate limitation probe.
 - Project the same bounded inputs to every arm. Keep gold and study labels
   offline. Review without model outputs, then seal inputs and gold together.
+- Define B0, B1, primary-only, escalation-only and routed comparison roles.
+  Require the baselines' DEV sources, code/rule/vocabulary hashes and the
+  routing trigger, whole-output selection, versions and limits to be frozen in
+  the audited pre-registration before the first paid call. Only P/E identities
+  are later filled by the pre-declared SELECT rule; no SELECT-driven tuning of
+  those comparison definitions is permitted.
 
 No eligibility threshold, prompt, runtime validator, route, approval contract or
 published score changes here. Generation and runner work must add explicit new

@@ -41,6 +41,49 @@ The third requires review for at least one declared reason. Difficulty never
 changes a known answer into `AMBIGUOUS`. Conversely, a hidden generator fact is
 not evidence that a model or a non-model baseline can use.
 
+### AUDIT comparison arms and pre-registration inputs
+
+The proposed comparison has five arms. These names define their roles; they do
+not imply that new baseline or routing implementations are already available.
+
+| Arm  | Definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `B0` | The existing [lexical reference algorithm](../packages/evals/src/lexical-mapping-baseline.ts): exact normalized whole-header matching against a DEV-derived vocabulary, sample-format checks, and abstention when no unique compatible match exists or columns compete for a target. Pin the algorithm/normalization versions, DEV source hashes and vocabulary hash; no similarity matching or model call.                                                                                                      |
+| `B1` | A planned stronger non-model reference built from DEV only: whole-header names and explicit aliases, a closed set of token-combination rules, and sample-format checks. Ambiguity requires abstention. Its exact rules, supported transforms, code version, DEV sources and vocabulary/configuration hashes are required pre-registration inputs, not choices left to the AUDIT implementer.                                                                                                                     |
+| `P`  | One call to the eligible primary model selected by the pre-declared SELECT rule, followed by the shared validator; no escalation or automatic approval.                                                                                                                                                                                                                                                                                                                                                          |
+| `E`  | One call to the eligible escalation model selected by that rule, on the same original input and prompt as P, followed by the same validator; it does not receive P's output.                                                                                                                                                                                                                                                                                                                                     |
+| `R`  | The planned `mapping-routing/1` policy of [issue #276](https://github.com/WeaveTrail/WeaveTrail/issues/276): call P first; a provider failure, validator rejection or any field requiring review triggers at most one E call. Offer P's whole proposal if it passes validation with no review/override needed, otherwise offer E's whole proposal only if it meets the same condition. If no eligible E is available or E fails or still requires review, return `REVIEW_REQUIRED` with reasons and no proposal. |
+
+For a validated proposal, a field needs review when
+[`requiresMappingOverride`](../packages/contracts/src/schema-mapping.ts) is true:
+its status is `REVIEW_REQUIRED` or its confidence is below the existing
+`MAPPING_CONFIDENCE_REVIEW_THRESHOLD`. Routing does not redefine that predicate.
+
+R never combines fields from P and E. E receives the same original input and
+prompt, not P's output or validator feedback. There are at most two model calls,
+no same-model retry and one total deadline. Each actual call reserves one unit
+under the daily limiter; exhausted time or limits fail closed. None of these arms
+creates an approval. A single eligible model is a single-model comparison, not
+routing; `NO_MODEL` leaves model arms unavailable rather than substituting an
+ineligible model or recorded responses for a measured model arm.
+
+Before the first paid call, and therefore before SELECT outputs are observed,
+the independently audited pre-registration must bind both baselines' code,
+normalization, rules, DEV inputs and vocabulary/configuration hashes, plus the
+routing policy's version, trigger predicate, output-selection rule, validator,
+prompt/adapter versions, deadline and limiter settings. B1 remains a required
+comparison arm even if it matches or underperforms B0. All arms receive the same
+provider-visible input projection and use the same validation and scoring rules.
+Their concrete versions and configuration are still planned inputs to that
+pre-registration; this document supplies no frozen implementation manifest.
+
+Only the P/E identities may subsequently be filled from the committed SELECT
+decision under the already frozen selection rule. Bind that decision's hash
+before AUDIT. SELECT results do not authorize changing baseline rules,
+vocabularies, routing triggers or output combination. If a definition changes,
+retain the prior evidence and pre-register a new study before further paid runs;
+do not present a comparison under the changed definition as the original study.
+
 ## Family construction brief
 
 Before generating rows, author one offline record per family. The following are
@@ -355,8 +398,10 @@ Before any model run, the generation/review work must produce:
    not checks implemented by this document.
 5. **Seal and exposure ledger.** Bind input, gold, family, review and exclusion
    hashes in one manifest. Record publication and human/model exposure honestly:
-   a public checksum proves immutability, not secrecy. Freeze B1 from DEV only
-   before selection. After gold or prompts change in response to evaluation
+   a public checksum proves immutability, not secrecy. Freeze both DEV-only
+   baselines and the routing definition as required by the
+   [comparison-arm pre-registration inputs](#audit-comparison-arms-and-pre-registration-inputs).
+   After gold or prompts change in response to evaluation
    output, retain the old session as exploratory and require a new independent
    audit set; never repair a borderline result by adding families.
 
