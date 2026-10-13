@@ -305,7 +305,7 @@ family(
   ],
   [
     mapped("Collector receipt UTC", "receivedAt"),
-    mapped("Executed unit price", "price", "SYNONYM"),
+    mapped("Execution consideration per unit", "price", "SYNONYM"),
   ],
 );
 // Replace this authored occurrence representation; never infer it from magnitude.
@@ -547,7 +547,7 @@ family(
   "ORDER_CANCEL",
   "Cancellation reports removed units and original limit price; sequence is a separate integer.",
   [
-    "Removed order event ID",
+    "Removal event ID",
     "Removal occurred UTC",
     "Removed order contract",
     "Removal record kind",
@@ -1391,7 +1391,7 @@ family(
     ),
     ambiguous("Supplementary figure", decimals, "quantity", "price"),
     unsupported(
-      "Actor number padded to width 6",
+      "Actor number; output zero-padded to width 6",
       ["71", "72"],
       "zero-padding actor identifier",
     ),
@@ -1437,7 +1437,7 @@ family(
       ["receipt clock missing", "ingest delayed"],
       "receivedAt",
     ),
-    ambiguous("Entry amount", decimals, "quantity", "price"),
+    ambiguous("Admission unqualified amount", decimals, "quantity", "price"),
     unsupported(
       "Order reference base64 encoded",
       ["U1lOLTcx", "U1lOLTcy"],
@@ -1923,7 +1923,47 @@ family(
   ],
 );
 
-export const selectionAndAuditBriefs = briefs;
+function specifyAlternatives(brief: FamilyBrief): FamilyBrief {
+  const competingRole: Partial<
+    Record<
+      NonNullable<ColumnBrief["target"]>,
+      NonNullable<ColumnBrief["target"]>
+    >
+  > = {
+    sourceEventId: "orderId",
+    orderId: "sourceEventId",
+    eventTime: "receivedAt",
+    receivedAt: "eventTime",
+    actorId: "counterpartyId",
+    counterpartyId: "actorId",
+    instrumentId: "actorId",
+    price: "quantity",
+    quantity: "price",
+    sequence: "quantity",
+    eventType: "side",
+    side: "eventType",
+  };
+  return {
+    ...brief,
+    columns: brief.columns.map((column) => {
+      const alternative = column.target && competingRole[column.target];
+      if (!alternative) return column;
+      const partner = brief.columns.find((c) => c.target === alternative);
+      return {
+        ...column,
+        alternatives: [
+          {
+            interpretation: partner
+              ? `Swap ${column.name} with ${partner.name}: assign ${column.name} to ${alternative}.`
+              : `Assign ${column.name} to ${alternative} instead of ${column.target}.`,
+            ruledOutBy: `The transmitted header ${column.name} explicitly qualifies ${column.target}; ${partner ? `the competing header ${partner.name} qualifies ${alternative}` : `no ${alternative} role is declared for this column`}. The supplied representation is ${column.transform}.`,
+          },
+        ],
+      };
+    }),
+  };
+}
+export const selectionAndAuditBriefs = briefs.map(specifyAlternatives);
 
 // DRIFT role conventions deliberately declare both prefix interpretations in
 // the transmitted header. A prefix change is visible but outside dry-run shape.
@@ -2073,8 +2113,8 @@ const driftProblems: [Kind, string, Core, string, string][] = [
     "Withdrawal ledger ordinal",
   ],
 ];
-export const driftBriefs: FamilyBrief[] = driftProblems.map(
-  ([kind, problem, core, measure, link], i) => {
+export const driftBriefs: FamilyBrief[] = driftProblems
+  .map<FamilyBrief>(([kind, problem, core, measure, link], i) => {
     const id = `f-${String(85 + i).padStart(3, "0")}`;
     const target = /side|buy\/sell/u.test(measure)
       ? "side"
@@ -2112,5 +2152,5 @@ export const driftBriefs: FamilyBrief[] = driftProblems.map(
       author: "repository-author",
       review: { status: "PENDING", reviewer: null, reviewedAt: null },
     };
-  },
-);
+  })
+  .map(specifyAlternatives);

@@ -82,8 +82,8 @@ The next, separate selection/policy/reuse studies have an
 [authoring specification for SELECT, AUDIT and DRIFT](MAPPING_CORPUS_SPEC.md).
 It defines family independence, coverage, visible-input gold and reuse change
 oracles. [Unsealed draft generation and offline preflight](../packages/evals/fixtures/mapping-study-v1/README.md)
-are implemented; independent gold review, sealing and pre-registration remain
-planned. Existing model/scoring commands do not run these splits. This specification reports
+are implemented; the original independent review is applied, while replacement
+review, sealing and pre-registration remain planned. Existing model/scoring commands do not run these splits. This specification reports
 no new result and leaves the current `NO_MODEL` decision unchanged.
 
 `pnpm eval:corpus:generate` renders the synthetic drafts under
@@ -100,10 +100,33 @@ follow-ups each (84 DRIFT inputs). These are **96 proposed families**, not an
 independently established family count or measured model performance. An
 [independent gold and lineage review](MAPPING_STUDY_V1_GOLD_REVIEW.md) agrees
 with every proposed column answer, but finds that the 28 MUST_REVIEW and 12
-DRIFT families each share one template and that equivalent transforms are not
-yet recorded. Its decisions are not applied yet, so the review ledger stays
-pending and nothing is sealed. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)
-for the draft contract and checksum boundary. No new model is selected or enabled.
+DRIFT families each share a template. The corrected drafts now record its accepted
+equivalent transforms, required-removal reasons, named competing roles, wording
+corrections and seeded changed-column positions. An original checksummed review
+baseline and an exclusion ledger bind replaced inputs to their previous bytes at
+the reviewed source commit. Old review does not approve changed projections or
+canonical gold. Preflight, manifest and review ledger report the same
+`APPLIED_WITH_UNRESOLVED_FINDINGS` state; preflight separately records
+`replacementGoldReview` with the pending replacement family IDs.
+Original-family lineage fingerprints now prevent changes to conventions,
+semantic problems, parents or column evidence from inheriting acceptance.
+Replacement records bind each new input and complete gold record by hash,
+including gold-only changes. The gold contract rejects incompatible or unreviewed
+alternative transformations; preflight validates every alternative and its domain
+witnesses, including cases that lack a required target. It also requires the
+complete reviewed Cartesian alternative set, excluding canonical transforms.
+Preflight and review application bind each containing input/gold artifact split
+to the reviewed partition and family; an unchanged pair cannot move between
+SELECT and AUDIT. Nonempty `absentRequiredTargets` requires
+`REQUIRED_TARGET_ABSENT` before N1 is reported as applied. These offline validator
+regressions are recorded in [F-012](AI_FAILURE_LOG.md#f-012-applied-review-claims-survive-missing-evidence-and-split-changes).
+The lineage findings remain unresolved, and
+`pnpm eval:corpus:seal:check` fails without creating a seal. HARD_RESOLVABLE is a
+construction stratum, not measured difficulty. No coverage floor is lowered;
+a recommended cell-specific redesign needs a reviewed coverage decision. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)
+for the draft contract and checksum boundary, and
+[ADR 0082](adr/0082-apply-corpus-review-without-inheriting-approval-for-changed-inputs.md)
+for applied-review bindings and the readiness gate. No new model is selected or enabled.
 
 The [version 1 offline corpus](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)
 is implemented input for a **planned** field-mapping model evaluation. It is not

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CORPUS_VERSION = "mapping-study-inputs/1";
-export const GENERATOR_VERSION = "mapping-study-generator/1";
+export const GENERATOR_VERSION = "mapping-study-generator/2";
 export const GENERATION_SEED = "weavetrail-study-2036-a";
 export const GenerationReceiptSchema = z
   .object({
@@ -68,6 +68,62 @@ const transforms = [
 ] as const;
 const TargetSchema = z.enum(targets);
 const TransformSchema = z.enum(transforms);
+/** The same seven-transform structural boundary as mapping-validator/2. */
+function compatibleStudyTransform(
+  target: z.infer<typeof TargetSchema>,
+  transform: z.infer<typeof TransformSchema>,
+) {
+  switch (transform) {
+    case "IDENTITY":
+      return true;
+    case "ISO_DATETIME":
+    case "EPOCH_MS_TO_ISO":
+      return target === "eventTime" || target === "receivedAt";
+    case "DECIMAL_STRING":
+      return target === "price" || target === "quantity";
+    case "BUY_SELL_CODE":
+      return target === "side";
+    case "EVENT_TYPE_CODE":
+      return target === "eventType";
+    case "UPPERCASE":
+      return ![
+        "eventTime",
+        "receivedAt",
+        "sequence",
+        "price",
+        "quantity",
+      ].includes(target);
+  }
+}
+
+/** Closed B3 equivalences from the original independent review, not a sample heuristic. */
+export function reviewedEquivalentTransforms(
+  column: {
+    targetField: z.infer<typeof TargetSchema> | null;
+    transform: z.infer<typeof TransformSchema> | null;
+  },
+  dialectId: string,
+): (z.infer<typeof TransformSchema> | null)[] {
+  const canonical = column.transform;
+  if (
+    (column.targetField === "eventTime" ||
+      column.targetField === "receivedAt") &&
+    canonical === "ISO_DATETIME"
+  )
+    return [canonical, "IDENTITY"];
+  if (column.targetField === "eventType" && canonical === "IDENTITY")
+    return [canonical, "UPPERCASE"];
+  if (column.targetField === "side" && canonical === "IDENTITY")
+    return [canonical, "UPPERCASE", "BUY_SELL_CODE"];
+  if (
+    dialectId === "d-047" &&
+    column.targetField === "side" &&
+    canonical === "BUY_SELL_CODE"
+  )
+    return [canonical, "UPPERCASE"];
+  return [canonical];
+}
+
 const IdSchema = z.string().regex(/^[fd]-\d{3}$/u);
 export const AttackSchema = z
   .object({
@@ -222,6 +278,45 @@ export const ColumnGoldSchema = z
         : g.transform !== null && g.status === "PROPOSED",
     "Gold target/transform/status must agree",
   );
+export const ColumnAssignmentSchema = z
+  .object({
+    columnId: ColumnGoldSchema.shape.columnId,
+    sourceColumn: ColumnGoldSchema.shape.sourceColumn,
+    targetField: ColumnGoldSchema.shape.targetField,
+    transform: ColumnGoldSchema.shape.transform,
+    status: ColumnGoldSchema.shape.status,
+  })
+  .strict()
+  .refine(
+    (g) =>
+      g.targetField === null
+        ? g.transform === null && g.status === "REVIEW_REQUIRED"
+        : g.transform !== null && g.status === "PROPOSED",
+    "Assignment target/transform/status must agree",
+  );
+// Headers and supplied order are fixed by canonical columns/inputHash. Each
+// complete diagnostic assignment carries (columnId, target, transform, status).
+export const AssignmentTupleSchema = z
+  .tuple([
+    ColumnGoldSchema.shape.columnId,
+    ColumnGoldSchema.shape.targetField,
+    ColumnGoldSchema.shape.transform,
+    ColumnGoldSchema.shape.status,
+  ])
+  .refine(
+    (g) =>
+      g[1] === null
+        ? g[2] === null && g[3] === "REVIEW_REQUIRED"
+        : g[2] !== null && g[3] === "PROPOSED",
+    "Assignment tuple nulls/status must agree",
+  )
+  .refine(
+    (tuple) =>
+      tuple[1] === null ||
+      tuple[2] === null ||
+      compatibleStudyTransform(tuple[1], tuple[2]),
+    "Alternative target/transform mismatch",
+  );
 export const InputRecordSchema = z
   .object({
     dialectId: z.string(),
@@ -229,6 +324,28 @@ export const InputRecordSchema = z
     projection: ProviderProjectionSchema,
   })
   .strict();
+
+/** Every reviewed Cartesian combination except the canonical assignment. */
+export function reviewedTransformAlternatives(gold: {
+  columns: z.infer<typeof ColumnGoldSchema>[];
+  dialectId: string;
+}): z.infer<typeof AssignmentTupleSchema>[][] {
+  let assignments: z.infer<typeof AssignmentTupleSchema>[][] = [[]];
+  for (const column of gold.columns)
+    assignments = assignments.flatMap((assignment) =>
+      reviewedEquivalentTransforms(column, gold.dialectId).map((transform) => [
+        ...assignment,
+        [
+          column.columnId,
+          column.targetField,
+          transform,
+          column.status,
+        ] as z.infer<typeof AssignmentTupleSchema>,
+      ]),
+    );
+  return assignments.slice(1);
+}
+
 export const GoldRecordSchema = z
   .object({
     dialectId: z.string(),
@@ -243,10 +360,86 @@ export const GoldRecordSchema = z
     ]),
     expectedDisposition: z.enum(["PROPOSAL_OFFERABLE", "REVIEW_REQUIRED"]),
     reasonCategory: z.string(),
-    // Canonical strict tuples are authoritative. No unreviewed equivalences.
-    acceptedAlternativeAssignments: z.array(z.array(ColumnGoldSchema)).max(0),
+    // Strict scoring keeps the canonical tuple; independently reviewed
+    // equivalent complete assignments are a separate diagnostic.
+    acceptedAlternativeAssignments: z.array(z.array(AssignmentTupleSchema)),
   })
-  .strict();
+  .strict()
+  .superRefine((gold, ctx) => {
+    if (
+      gold.absentRequiredTargets.length &&
+      gold.reasonCategory !== "REQUIRED_TARGET_ABSENT"
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["reasonCategory"],
+        message: "Missing required targets must carry REQUIRED_TARGET_ABSENT",
+      });
+    const seen = new Set<string>();
+    for (const [
+      index,
+      assignment,
+    ] of gold.acceptedAlternativeAssignments.entries()) {
+      if (
+        assignment.length !== gold.columns.length ||
+        assignment.some((tuple, i) => {
+          const canonical = gold.columns[i];
+          return (
+            !canonical ||
+            tuple[0] !== canonical.columnId ||
+            tuple[1] !== canonical.targetField ||
+            tuple[3] !== canonical.status
+          );
+        })
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message:
+            "Alternative must cover the same ordered columns, targets and statuses",
+        });
+      for (const [i, tuple] of assignment.entries()) {
+        const canonical = gold.columns[i];
+        if (
+          canonical &&
+          !reviewedEquivalentTransforms(canonical, gold.dialectId).includes(
+            tuple[2],
+          )
+        )
+          ctx.addIssue({
+            code: "custom",
+            path: ["acceptedAlternativeAssignments", index, i, 2],
+            message:
+              "Alternative transform has no independently reviewed equivalence",
+          });
+      }
+      if (
+        assignment.every((tuple, i) => tuple[2] === gold.columns[i]?.transform)
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message: "Alternative must differ from canonical transforms",
+        });
+      const key = JSON.stringify(assignment);
+      if (seen.has(key))
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message: "Duplicate alternative assignment",
+        });
+      seen.add(key);
+    }
+    const expected = reviewedTransformAlternatives(gold).map((a) =>
+      JSON.stringify(a),
+    );
+    if (seen.size !== expected.length || expected.some((key) => !seen.has(key)))
+      ctx.addIssue({
+        code: "custom",
+        path: ["acceptedAlternativeAssignments"],
+        message: "Gold must record the complete reviewed alternative set",
+      });
+  });
 export type ProviderProjection = z.infer<typeof ProviderProjectionSchema>;
 export type InputRecord = z.infer<typeof InputRecordSchema>;
 export type GoldRecord = z.infer<typeof GoldRecordSchema>;

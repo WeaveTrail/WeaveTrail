@@ -25,8 +25,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution record kind."
+              "interpretation": "Assign Execution record kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Execution record kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -47,8 +47,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Filled units."
+              "interpretation": "Assign Filled units to price instead of quantity.",
+              "ruledOutBy": "The transmitted header Filled units explicitly qualifies quantity; no price role is declared for this column. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -69,8 +69,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution record reference."
+              "interpretation": "Swap Execution record reference with Parent order reference: assign Execution record reference to orderId.",
+              "ruledOutBy": "The transmitted header Execution record reference explicitly qualifies sourceEventId; the competing header Parent order reference qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -91,8 +91,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fill occurrence UTC."
+              "interpretation": "Assign Fill occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Fill occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -113,8 +113,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Executed contract identifier."
+              "interpretation": "Assign Executed contract identifier to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Executed contract identifier explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -135,8 +135,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Parent order reference."
+              "interpretation": "Swap Parent order reference with Execution record reference: assign Parent order reference to sourceEventId.",
+              "ruledOutBy": "The transmitted header Parent order reference explicitly qualifies orderId; the competing header Execution record reference qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ],
           "attack": {
@@ -155,7 +155,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-002",
@@ -179,8 +204,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation event kind."
+              "interpretation": "Assign Cancellation event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Cancellation event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -201,8 +226,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation source ordinal."
+              "interpretation": "Assign Cancellation source ordinal to quantity instead of sequence.",
+              "ruledOutBy": "The transmitted header Cancellation source ordinal explicitly qualifies sequence; no quantity role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -223,8 +248,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation happened UTC."
+              "interpretation": "Assign Cancellation happened UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Cancellation happened UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -245,8 +270,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancelled order no.."
+              "interpretation": "Swap Cancelled order no. with Cancellation acknowledgement ID: assign Cancelled order no. to sourceEventId.",
+              "ruledOutBy": "The transmitted header Cancelled order no. explicitly qualifies orderId; the competing header Cancellation acknowledgement ID qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -267,8 +292,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation acknowledgement ID."
+              "interpretation": "Swap Cancellation acknowledgement ID with Cancelled order no.: assign Cancellation acknowledgement ID to orderId.",
+              "ruledOutBy": "The transmitted header Cancellation acknowledgement ID explicitly qualifies sourceEventId; the competing header Cancelled order no. qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -289,8 +314,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancelled instrument ID."
+              "interpretation": "Assign Cancelled instrument ID to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Cancelled instrument ID explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -299,7 +324,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "sequence", "IDENTITY", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sequence", "IDENTITY", "PROPOSED"],
+          ["c03", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sequence", "IDENTITY", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-008",
@@ -323,8 +373,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admission message ID."
+              "interpretation": "Assign Admission message ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Admission message ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -345,8 +395,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Gateway received UTC."
+              "interpretation": "Swap Gateway received UTC with Order admitted UTC: assign Gateway received UTC to eventTime.",
+              "ruledOutBy": "The transmitted header Gateway received UTC explicitly qualifies receivedAt; the competing header Order admitted UTC qualifies eventTime. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -367,8 +417,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Order security reference."
+              "interpretation": "Assign Order security reference to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Order security reference explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -389,8 +439,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admission ordinal."
+              "interpretation": "Assign Admission ordinal to quantity instead of sequence.",
+              "ruledOutBy": "The transmitted header Admission ordinal explicitly qualifies sequence; no quantity role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -411,8 +461,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admitted event type."
+              "interpretation": "Assign Admitted event type to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Admitted event type explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -433,8 +483,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Order admitted UTC."
+              "interpretation": "Swap Order admitted UTC with Gateway received UTC: assign Order admitted UTC to receivedAt.",
+              "ruledOutBy": "The transmitted header Order admitted UTC explicitly qualifies eventTime; the competing header Gateway received UTC qualifies receivedAt. The supplied representation is ISO_DATETIME."
             }
           ]
         }
@@ -443,37 +493,72 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "ISO_DATETIME", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "ISO_DATETIME", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "ISO_DATETIME", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-009",
       "familyId": "f-009",
-      "inputHash": "45f6c9a3df05982913cf3db85e3ad582817b39a6e0d5afd2c565601b0419bb01",
+      "inputHash": "a2f00cd1a12e9f810d7fbac5f4a89f3d00227bfb4f64530afbdbcf3a410687d2",
       "columns": [
         {
           "columnId": "c01",
-          "sourceColumn": "Executed unit price",
-          "targetField": "price",
-          "transform": "DECIMAL_STRING",
-          "status": "PROPOSED",
-          "tag": "SYNONYM",
-          "rationale": "The visible role qualifier in Executed unit price and its DECIMAL_STRING representation identify price.",
-          "evidence": {
-            "header": "Executed unit price",
-            "sampleCoordinates": [
-              [0, "c01"],
-              [1, "c01"]
-            ]
-          },
-          "alternatives": [
-            {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Executed unit price."
-            }
-          ]
-        },
-        {
-          "columnId": "c02",
           "sourceColumn": "Execution occurred epoch milliseconds",
           "targetField": "eventTime",
           "transform": "EPOCH_MS_TO_ISO",
@@ -483,19 +568,19 @@
           "evidence": {
             "header": "Execution occurred epoch milliseconds",
             "sampleCoordinates": [
-              [0, "c02"],
-              [1, "c02"]
+              [0, "c01"],
+              [1, "c01"]
             ]
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution occurred epoch milliseconds."
+              "interpretation": "Swap Execution occurred epoch milliseconds with Collector receipt UTC: assign Execution occurred epoch milliseconds to receivedAt.",
+              "ruledOutBy": "The transmitted header Execution occurred epoch milliseconds explicitly qualifies eventTime; the competing header Collector receipt UTC qualifies receivedAt. The supplied representation is EPOCH_MS_TO_ISO."
             }
           ]
         },
         {
-          "columnId": "c03",
+          "columnId": "c02",
           "sourceColumn": "Execution security code",
           "targetField": "instrumentId",
           "transform": "IDENTITY",
@@ -505,14 +590,36 @@
           "evidence": {
             "header": "Execution security code",
             "sampleCoordinates": [
+              [0, "c02"],
+              [1, "c02"]
+            ]
+          },
+          "alternatives": [
+            {
+              "interpretation": "Assign Execution security code to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Execution security code explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
+            }
+          ]
+        },
+        {
+          "columnId": "c03",
+          "sourceColumn": "Execution consideration per unit",
+          "targetField": "price",
+          "transform": "DECIMAL_STRING",
+          "status": "PROPOSED",
+          "tag": "SYNONYM",
+          "rationale": "The visible role qualifier in Execution consideration per unit and its DECIMAL_STRING representation identify price.",
+          "evidence": {
+            "header": "Execution consideration per unit",
+            "sampleCoordinates": [
               [0, "c03"],
               [1, "c03"]
             ]
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution security code."
+              "interpretation": "Assign Execution consideration per unit to quantity instead of price.",
+              "ruledOutBy": "The transmitted header Execution consideration per unit explicitly qualifies price; no quantity role is declared for this column. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -533,8 +640,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Notice event type."
+              "interpretation": "Assign Notice event type to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Notice event type explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -555,8 +662,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution notice ID."
+              "interpretation": "Assign Execution notice ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Execution notice ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -577,8 +684,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Collector receipt UTC."
+              "interpretation": "Swap Collector receipt UTC with Execution occurred epoch milliseconds: assign Collector receipt UTC to eventTime.",
+              "ruledOutBy": "The transmitted header Collector receipt UTC explicitly qualifies receivedAt; the competing header Execution occurred epoch milliseconds qualifies eventTime. The supplied representation is ISO_DATETIME."
             }
           ]
         }
@@ -587,7 +694,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventTime", "EPOCH_MS_TO_ISO", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "eventType", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "receivedAt", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventTime", "EPOCH_MS_TO_ISO", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "receivedAt", "ISO_DATETIME", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventTime", "EPOCH_MS_TO_ISO", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "receivedAt", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-015",
@@ -611,8 +743,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Bilateral event kind."
+              "interpretation": "Swap Bilateral event kind with Aggressor buy/sell: assign Bilateral event kind to side.",
+              "ruledOutBy": "The transmitted header Bilateral event kind explicitly qualifies eventType; the competing header Aggressor buy/sell qualifies side. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -633,8 +765,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Aggressor buy/sell."
+              "interpretation": "Swap Aggressor buy/sell with Bilateral event kind: assign Aggressor buy/sell to eventType.",
+              "ruledOutBy": "The transmitted header Aggressor buy/sell explicitly qualifies side; the competing header Bilateral event kind qualifies eventType. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -655,8 +787,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Contra participant code."
+              "interpretation": "Swap Contra participant code with Executing participant code: assign Contra participant code to actorId.",
+              "ruledOutBy": "The transmitted header Contra participant code explicitly qualifies counterpartyId; the competing header Executing participant code qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -677,8 +809,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Bilateral occurrence UTC."
+              "interpretation": "Assign Bilateral occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Bilateral occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -699,8 +831,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Bilateral execution ID."
+              "interpretation": "Assign Bilateral execution ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Bilateral execution ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -721,8 +853,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Executing participant code."
+              "interpretation": "Swap Executing participant code with Contra participant code: assign Executing participant code to counterpartyId.",
+              "ruledOutBy": "The transmitted header Executing participant code explicitly qualifies actorId; the competing header Contra participant code qualifies counterpartyId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -743,8 +875,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Bilateral instrument reference."
+              "interpretation": "Swap Bilateral instrument reference with Executing participant code: assign Bilateral instrument reference to actorId.",
+              "ruledOutBy": "The transmitted header Bilateral instrument reference explicitly qualifies instrumentId; the competing header Executing participant code qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -753,7 +885,107 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "side", "IDENTITY", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "side", "UPPERCASE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "side", "UPPERCASE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "IDENTITY", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "IDENTITY", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "UPPERCASE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "UPPERCASE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c03", "counterpartyId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "instrumentId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-016",
@@ -777,8 +1009,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submitter ID."
+              "interpretation": "Assign Submitter ID to counterpartyId instead of actorId.",
+              "ruledOutBy": "The transmitted header Submitter ID explicitly qualifies actorId; no counterpartyId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -799,8 +1031,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submission event ID."
+              "interpretation": "Swap Submission event ID with Submitted order ref.: assign Submission event ID to orderId.",
+              "ruledOutBy": "The transmitted header Submission event ID explicitly qualifies sourceEventId; the competing header Submitted order ref. qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -821,8 +1053,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submission category."
+              "interpretation": "Assign Submission category to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Submission category explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -843,8 +1075,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submitted order ref.."
+              "interpretation": "Swap Submitted order ref. with Submission event ID: assign Submitted order ref. to sourceEventId.",
+              "ruledOutBy": "The transmitted header Submitted order ref. explicitly qualifies orderId; the competing header Submission event ID qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -865,8 +1097,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submission event UTC."
+              "interpretation": "Assign Submission event UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Submission event UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -887,8 +1119,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Traded instrument code."
+              "interpretation": "Swap Traded instrument code with Submitter ID: assign Traded instrument code to actorId.",
+              "ruledOutBy": "The transmitted header Traded instrument code explicitly qualifies instrumentId; the competing header Submitter ID qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -897,7 +1129,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "actorId", "IDENTITY", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "actorId", "IDENTITY", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "actorId", "IDENTITY", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-022",
@@ -921,8 +1178,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fractional event kind."
+              "interpretation": "Assign Fractional event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Fractional event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -943,8 +1200,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution unit price major currency."
+              "interpretation": "Swap Execution unit price major currency with Executed quantity in units: assign Execution unit price major currency to quantity.",
+              "ruledOutBy": "The transmitted header Execution unit price major currency explicitly qualifies price; the competing header Executed quantity in units qualifies quantity. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -965,8 +1222,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fractional execution UTC."
+              "interpretation": "Assign Fractional execution UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Fractional execution UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -987,8 +1244,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution seq.."
+              "interpretation": "Swap Execution seq. with Executed quantity in units: assign Execution seq. to quantity.",
+              "ruledOutBy": "The transmitted header Execution seq. explicitly qualifies sequence; the competing header Executed quantity in units qualifies quantity. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1009,8 +1266,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fractional execution key."
+              "interpretation": "Assign Fractional execution key to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Fractional execution key explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1031,8 +1288,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fractional contract reference."
+              "interpretation": "Assign Fractional contract reference to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Fractional contract reference explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1053,8 +1310,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Executed quantity in units."
+              "interpretation": "Swap Executed quantity in units with Execution unit price major currency: assign Executed quantity in units to price.",
+              "ruledOutBy": "The transmitted header Executed quantity in units explicitly qualifies quantity; the competing header Execution unit price major currency qualifies price. The supplied representation is DECIMAL_STRING."
             }
           ]
         }
@@ -1063,7 +1320,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "sequence", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-023",
@@ -1087,8 +1372,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Entered order identifier."
+              "interpretation": "Swap Entered order identifier with Limit entry record key: assign Entered order identifier to sourceEventId.",
+              "ruledOutBy": "The transmitted header Entered order identifier explicitly qualifies orderId; the competing header Limit entry record key qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1109,8 +1394,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Requested order qty.."
+              "interpretation": "Swap Requested order qty. with Limit unit price major currency: assign Requested order qty. to price.",
+              "ruledOutBy": "The transmitted header Requested order qty. explicitly qualifies quantity; the competing header Limit unit price major currency qualifies price. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1131,8 +1416,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Limit entry event kind."
+              "interpretation": "Assign Limit entry event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Limit entry event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1153,8 +1438,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Limit entry security."
+              "interpretation": "Assign Limit entry security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Limit entry security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1175,8 +1460,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Limit entry record key."
+              "interpretation": "Swap Limit entry record key with Entered order identifier: assign Limit entry record key to orderId.",
+              "ruledOutBy": "The transmitted header Limit entry record key explicitly qualifies sourceEventId; the competing header Entered order identifier qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1197,8 +1482,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Limit entry event UTC."
+              "interpretation": "Assign Limit entry event UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Limit entry event UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -1219,8 +1504,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Limit unit price major currency."
+              "interpretation": "Swap Limit unit price major currency with Requested order qty.: assign Limit unit price major currency to quantity.",
+              "ruledOutBy": "The transmitted header Limit unit price major currency explicitly qualifies price; the competing header Requested order qty. qualifies quantity. The supplied representation is DECIMAL_STRING."
             }
           ]
         }
@@ -1229,7 +1514,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "orderId", "IDENTITY", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c07", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "orderId", "IDENTITY", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c07", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "orderId", "IDENTITY", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c07", "price", "DECIMAL_STRING", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-029",
@@ -1253,8 +1566,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admitted listed product."
+              "interpretation": "Swap Admitted listed product with Submitting dealer (actor): assign Admitted listed product to actorId.",
+              "ruledOutBy": "The transmitted header Admitted listed product explicitly qualifies instrumentId; the competing header Submitting dealer (actor) qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1275,8 +1588,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Entry lmt px (major currency per unit)."
+              "interpretation": "Swap Entry lmt px (major currency per unit) with Entry req sz (units): assign Entry lmt px (major currency per unit) to quantity.",
+              "ruledOutBy": "The transmitted header Entry lmt px (major currency per unit) explicitly qualifies price; the competing header Entry req sz (units) qualifies quantity. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1297,8 +1610,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Entry req sz (units)."
+              "interpretation": "Swap Entry req sz (units) with Entry lmt px (major currency per unit): assign Entry req sz (units) to price.",
+              "ruledOutBy": "The transmitted header Entry req sz (units) explicitly qualifies quantity; the competing header Entry lmt px (major currency per unit) qualifies price. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1319,8 +1632,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admission evt ref (event record)."
+              "interpretation": "Assign Admission evt ref (event record) to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Admission evt ref (event record) explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1341,8 +1654,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admission canonical kind."
+              "interpretation": "Assign Admission canonical kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Admission canonical kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1363,8 +1676,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submitting dealer (actor)."
+              "interpretation": "Assign Submitting dealer (actor) to counterpartyId instead of actorId.",
+              "ruledOutBy": "The transmitted header Submitting dealer (actor) explicitly qualifies actorId; no counterpartyId role is declared for this column. The supplied representation is IDENTITY."
             }
           ],
           "attack": {
@@ -1395,8 +1708,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admission occurrence UTC ISO."
+              "interpretation": "Assign Admission occurrence UTC ISO to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Admission occurrence UTC ISO explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         }
@@ -1405,7 +1718,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventTime", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventTime", "ISO_DATETIME", "PROPOSED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventTime", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-030",
@@ -1429,8 +1770,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Executed listed product."
+              "interpretation": "Assign Executed listed product to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Executed listed product explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1451,8 +1792,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fill report occurrence UTC."
+              "interpretation": "Assign Fill report occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Fill report occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -1473,8 +1814,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fill report canonical kind."
+              "interpretation": "Assign Fill report canonical kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Fill report canonical kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1495,8 +1836,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fill sz (executed units)."
+              "interpretation": "Swap Fill sz (executed units) with Consideration per filled unit (major currency): assign Fill sz (executed units) to price.",
+              "ruledOutBy": "The transmitted header Fill sz (executed units) explicitly qualifies quantity; the competing header Consideration per filled unit (major currency) qualifies price. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1517,8 +1858,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Fill report source key."
+              "interpretation": "Assign Fill report source key to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Fill report source key explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1539,8 +1880,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Consideration per filled unit (major currency)."
+              "interpretation": "Swap Consideration per filled unit (major currency) with Fill sz (executed units): assign Consideration per filled unit (major currency) to quantity.",
+              "ruledOutBy": "The transmitted header Consideration per filled unit (major currency) explicitly qualifies price; the competing header Fill sz (executed units) qualifies quantity. The supplied representation is DECIMAL_STRING."
             }
           ]
         }
@@ -1549,7 +1890,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-036",
@@ -1573,8 +1939,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Paired execution UTC."
+              "interpretation": "Assign Paired execution UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Paired execution UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -1595,8 +1961,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Paired execution security."
+              "interpretation": "Assign Paired execution security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Paired execution security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1617,8 +1983,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Paired execution event type."
+              "interpretation": "Assign Paired execution event type to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Paired execution event type explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1639,8 +2005,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Paired measure execution ID."
+              "interpretation": "Assign Paired measure execution ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Paired measure execution ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1661,8 +2027,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Amount of units (qty)."
+              "interpretation": "Swap Amount of units (qty) with Amount per unit (major currency price): assign Amount of units (qty) to price.",
+              "ruledOutBy": "The transmitted header Amount of units (qty) explicitly qualifies quantity; the competing header Amount per unit (major currency price) qualifies price. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1683,8 +2049,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Amount per unit (major currency price)."
+              "interpretation": "Swap Amount per unit (major currency price) with Amount of units (qty): assign Amount per unit (major currency price) to quantity.",
+              "ruledOutBy": "The transmitted header Amount per unit (major currency price) explicitly qualifies price; the competing header Amount of units (qty) qualifies quantity. The supplied representation is DECIMAL_STRING."
             }
           ]
         }
@@ -1693,7 +2059,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c06", "price", "DECIMAL_STRING", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-037",
@@ -1717,8 +2108,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Dual reference cancel event."
+              "interpretation": "Swap Dual reference cancel event with Cancellation subject ref (order): assign Dual reference cancel event to orderId.",
+              "ruledOutBy": "The transmitted header Dual reference cancel event explicitly qualifies sourceEventId; the competing header Cancellation subject ref (order) qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1739,8 +2130,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Dual reference event type."
+              "interpretation": "Assign Dual reference event type to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Dual reference event type explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1761,8 +2152,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Dual reference cancel UTC."
+              "interpretation": "Assign Dual reference cancel UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Dual reference cancel UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -1783,8 +2174,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation submitter ref (actor)."
+              "interpretation": "Assign Cancellation submitter ref (actor) to counterpartyId instead of actorId.",
+              "ruledOutBy": "The transmitted header Cancellation submitter ref (actor) explicitly qualifies actorId; no counterpartyId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1805,8 +2196,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Dual reference contract."
+              "interpretation": "Swap Dual reference contract with Cancellation submitter ref (actor): assign Dual reference contract to actorId.",
+              "ruledOutBy": "The transmitted header Dual reference contract explicitly qualifies instrumentId; the competing header Cancellation submitter ref (actor) qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1827,8 +2218,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation subject ref (order)."
+              "interpretation": "Swap Cancellation subject ref (order) with Dual reference cancel event: assign Cancellation subject ref (order) to sourceEventId.",
+              "ruledOutBy": "The transmitted header Cancellation subject ref (order) explicitly qualifies orderId; the competing header Dual reference cancel event qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -1837,7 +2228,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventType", "IDENTITY", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "actorId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c03", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c04", "actorId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c03", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c04", "actorId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "orderId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-043",
@@ -1861,8 +2277,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Normalized fill canonical kind."
+              "interpretation": "Swap Normalized fill canonical kind with Aggressor bs (B/S buy/sell): assign Normalized fill canonical kind to side.",
+              "ruledOutBy": "The transmitted header Normalized fill canonical kind explicitly qualifies eventType; the competing header Aggressor bs (B/S buy/sell) qualifies side. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1883,8 +2299,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Normalized fill source record."
+              "interpretation": "Assign Normalized fill source record to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Normalized fill source record explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -1905,8 +2321,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Aggressor bs (B/S buy/sell)."
+              "interpretation": "Swap Aggressor bs (B/S buy/sell) with Normalized fill canonical kind: assign Aggressor bs (B/S buy/sell) to eventType.",
+              "ruledOutBy": "The transmitted header Aggressor bs (B/S buy/sell) explicitly qualifies side; the competing header Normalized fill canonical kind qualifies eventType. The supplied representation is BUY_SELL_CODE."
             }
           ]
         },
@@ -1927,8 +2343,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Consideration per unit major currency."
+              "interpretation": "Assign Consideration per unit major currency to quantity instead of price.",
+              "ruledOutBy": "The transmitted header Consideration per unit major currency explicitly qualifies price; no quantity role is declared for this column. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -1949,8 +2365,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Normalized fill occurrence UTC."
+              "interpretation": "Assign Normalized fill occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Normalized fill occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -1971,8 +2387,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Normalized fill contract."
+              "interpretation": "Assign Normalized fill contract to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Normalized fill contract explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -1981,7 +2397,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c04", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c04", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "side", "BUY_SELL_CODE", "PROPOSED"],
+          ["c04", "price", "DECIMAL_STRING", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-044",
@@ -2005,8 +2446,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Entry event code (N=ORDER_NEW)."
+              "interpretation": "Assign Entry event code (N=ORDER_NEW) to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Entry event code (N=ORDER_NEW) explicitly qualifies eventType; no side role is declared for this column. The supplied representation is EVENT_TYPE_CODE."
             }
           ]
         },
@@ -2027,8 +2468,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Admitted sz (units)."
+              "interpretation": "Assign Admitted sz (units) to price instead of quantity.",
+              "ruledOutBy": "The transmitted header Admitted sz (units) explicitly qualifies quantity; no price role is declared for this column. The supplied representation is DECIMAL_STRING."
             }
           ]
         },
@@ -2049,8 +2490,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Instrument code (normalize to uppercase)."
+              "interpretation": "Swap Instrument code (normalize to uppercase) with Submitting party ID: assign Instrument code (normalize to uppercase) to actorId.",
+              "ruledOutBy": "The transmitted header Instrument code (normalize to uppercase) explicitly qualifies instrumentId; the competing header Submitting party ID qualifies actorId. The supplied representation is UPPERCASE."
             }
           ]
         },
@@ -2071,8 +2512,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Casefold entry occurred UTC."
+              "interpretation": "Assign Casefold entry occurred UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Casefold entry occurred UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -2093,8 +2534,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Submitting party ID."
+              "interpretation": "Assign Submitting party ID to counterpartyId instead of actorId.",
+              "ruledOutBy": "The transmitted header Submitting party ID explicitly qualifies actorId; no counterpartyId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2115,8 +2556,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Casefold entry event reference."
+              "interpretation": "Assign Casefold entry event reference to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Casefold entry event reference explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -2125,7 +2566,16 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "EVENT_TYPE_CODE", "PROPOSED"],
+          ["c02", "quantity", "DECIMAL_STRING", "PROPOSED"],
+          ["c03", "instrumentId", "UPPERCASE", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", "actorId", "IDENTITY", "PROPOSED"],
+          ["c06", "sourceEventId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-050",
@@ -2149,8 +2599,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-order execution record."
+              "interpretation": "Swap Hostile-order execution record with Execution order association: assign Hostile-order execution record to orderId.",
+              "ruledOutBy": "The transmitted header Hostile-order execution record explicitly qualifies sourceEventId; the competing header Execution order association qualifies orderId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2171,8 +2621,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-order execution UTC."
+              "interpretation": "Assign Hostile-order execution UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Hostile-order execution UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -2193,8 +2643,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-order event kind."
+              "interpretation": "Assign Hostile-order event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Hostile-order event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2215,8 +2665,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution order association."
+              "interpretation": "Swap Execution order association with Hostile-order execution record: assign Execution order association to sourceEventId.",
+              "ruledOutBy": "The transmitted header Execution order association explicitly qualifies orderId; the competing header Hostile-order execution record qualifies sourceEventId. The supplied representation is IDENTITY."
             }
           ],
           "attack": {
@@ -2247,8 +2697,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-order contract."
+              "interpretation": "Assign Hostile-order contract to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Hostile-order contract explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2269,8 +2719,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Execution quantity units."
+              "interpretation": "Assign Execution quantity units to price instead of quantity.",
+              "ruledOutBy": "The transmitted header Execution quantity units explicitly qualifies quantity; no price role is declared for this column. The supplied representation is DECIMAL_STRING."
             }
           ]
         }
@@ -2279,7 +2729,32 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "orderId", "IDENTITY", "PROPOSED"],
+          ["c05", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c06", "quantity", "DECIMAL_STRING", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-051",
@@ -2303,8 +2778,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancellation receipt UTC."
+              "interpretation": "Swap Cancellation receipt UTC with Hostile-clock cancellation UTC: assign Cancellation receipt UTC to eventTime.",
+              "ruledOutBy": "The transmitted header Cancellation receipt UTC explicitly qualifies receivedAt; the competing header Hostile-clock cancellation UTC qualifies eventTime. The supplied representation is ISO_DATETIME."
             }
           ],
           "attack": {
@@ -2335,8 +2810,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-clock contract."
+              "interpretation": "Swap Hostile-clock contract with Cancelling party: assign Hostile-clock contract to actorId.",
+              "ruledOutBy": "The transmitted header Hostile-clock contract explicitly qualifies instrumentId; the competing header Cancelling party qualifies actorId. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2357,8 +2832,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-clock event kind."
+              "interpretation": "Assign Hostile-clock event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Hostile-clock event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2379,8 +2854,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-clock cancellation record."
+              "interpretation": "Assign Hostile-clock cancellation record to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Hostile-clock cancellation record explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2401,8 +2876,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Hostile-clock cancellation UTC."
+              "interpretation": "Swap Hostile-clock cancellation UTC with Cancellation receipt UTC: assign Hostile-clock cancellation UTC to receivedAt.",
+              "ruledOutBy": "The transmitted header Hostile-clock cancellation UTC explicitly qualifies eventTime; the competing header Cancellation receipt UTC qualifies receivedAt. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -2423,8 +2898,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Cancelling party."
+              "interpretation": "Assign Cancelling party to counterpartyId instead of actorId.",
+              "ruledOutBy": "The transmitted header Cancelling party explicitly qualifies actorId; no counterpartyId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -2433,7 +2908,64 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "PROPOSAL_OFFERABLE",
       "reasonCategory": "COMPLETE_VISIBLE_ASSIGNMENT",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "ISO_DATETIME", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "receivedAt", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "actorId", "IDENTITY", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-057",
@@ -2457,8 +2989,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Measure report security."
+              "interpretation": "Assign Measure report security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Measure report security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2479,8 +3011,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Measure report occurred UTC."
+              "interpretation": "Assign Measure report occurred UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Measure report occurred UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -2501,8 +3033,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Unqualified measure report ID."
+              "interpretation": "Assign Unqualified measure report ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Unqualified measure report ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2523,8 +3055,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Measure report event type."
+              "interpretation": "Assign Measure report event type to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Measure report event type explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2597,7 +3129,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "ABSENT_LURE+AMBIGUOUS+TRANSFORM_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "IDENTITY", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-058",
@@ -2621,8 +3181,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Unqualified clock entry event."
+              "interpretation": "Assign Unqualified clock entry event to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Unqualified clock entry event explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2665,8 +3225,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Unqualified clock contract."
+              "interpretation": "Assign Unqualified clock contract to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Unqualified clock contract explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2707,8 +3267,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Qualified entry occurrence UTC."
+              "interpretation": "Assign Qualified entry occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Qualified entry occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -2729,8 +3289,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Unqualified clock event kind."
+              "interpretation": "Assign Unqualified clock event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Unqualified clock event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2761,12 +3321,40 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "ABSENT_LURE+AMBIGUOUS+TRANSFORM_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "eventType", "IDENTITY", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-064",
       "familyId": "f-064",
-      "inputHash": "0489c752babb9ba4397d1d750528273e08e192741976ed9e36ff0a851cc2971d",
+      "inputHash": "876d6dbaa3171187e6c4535f8289301ca9298907bb3b3502570342ebca5af056",
       "columns": [
         {
           "columnId": "c01",
@@ -2785,8 +3373,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Commentary cancel kind."
+              "interpretation": "Assign Commentary cancel kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Commentary cancel kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2807,8 +3395,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Commentary cancel product."
+              "interpretation": "Assign Commentary cancel product to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Commentary cancel product explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2829,8 +3417,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Commentary cancel event ID."
+              "interpretation": "Assign Commentary cancel event ID to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Commentary cancel event ID explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -2851,35 +3439,13 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Commentary cancel occurrence UTC."
+              "interpretation": "Assign Commentary cancel occurrence UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Commentary cancel occurrence UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
         {
           "columnId": "c05",
-          "sourceColumn": "Actor number padded to width 6",
-          "targetField": null,
-          "transform": null,
-          "status": "REVIEW_REQUIRED",
-          "tag": "TRANSFORM_LURE",
-          "rationale": "zero-padding actor identifier is outside the seven legacy transforms.",
-          "evidence": {
-            "header": "Actor number padded to width 6",
-            "sampleCoordinates": [
-              [0, "c05"],
-              [1, "c05"]
-            ]
-          },
-          "alternatives": [
-            {
-              "interpretation": "Use IDENTITY or a legacy normalizer",
-              "ruledOutBy": "The declared units/encoding require zero-padding actor identifier."
-            }
-          ]
-        },
-        {
-          "columnId": "c06",
           "sourceColumn": "Supplementary figure",
           "targetField": null,
           "transform": null,
@@ -2889,13 +3455,35 @@
           "evidence": {
             "header": "Supplementary figure",
             "sampleCoordinates": [
-              [0, "c06"],
-              [1, "c06"]
+              [0, "c05"],
+              [1, "c05"]
             ]
           },
           "alternatives": [
             { "interpretation": "quantity", "ruledOutBy": null },
             { "interpretation": "price", "ruledOutBy": null }
+          ]
+        },
+        {
+          "columnId": "c06",
+          "sourceColumn": "Actor number; output zero-padded to width 6",
+          "targetField": null,
+          "transform": null,
+          "status": "REVIEW_REQUIRED",
+          "tag": "TRANSFORM_LURE",
+          "rationale": "zero-padding actor identifier is outside the seven legacy transforms.",
+          "evidence": {
+            "header": "Actor number; output zero-padded to width 6",
+            "sampleCoordinates": [
+              [0, "c06"],
+              [1, "c06"]
+            ]
+          },
+          "alternatives": [
+            {
+              "interpretation": "Use IDENTITY or a legacy normalizer",
+              "ruledOutBy": "The declared units/encoding require zero-padding actor identifier."
+            }
           ]
         },
         {
@@ -2924,8 +3512,36 @@
       "absentRequiredTargets": [],
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
-      "reasonCategory": "TRANSFORM_LURE+AMBIGUOUS+ABSENT_LURE",
-      "acceptedAlternativeAssignments": []
+      "reasonCategory": "AMBIGUOUS+TRANSFORM_LURE+ABSENT_LURE",
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-065",
@@ -2991,8 +3607,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Units-note execution record."
+              "interpretation": "Assign Units-note execution record to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Units-note execution record explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3013,8 +3629,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Units-note security."
+              "interpretation": "Assign Units-note security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Units-note security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3035,8 +3651,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Units-note kind."
+              "interpretation": "Assign Units-note kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Units-note kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3057,8 +3673,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Units-note execution UTC."
+              "interpretation": "Assign Units-note execution UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Units-note execution UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -3089,7 +3705,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "AMBIGUOUS+ABSENT_LURE+TRANSFORM_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "IDENTITY", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", null, null, "REVIEW_REQUIRED"],
+          ["c03", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c04", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c05", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c06", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-071",
@@ -3113,8 +3757,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Scaled execution source record."
+              "interpretation": "Assign Scaled execution source record to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Scaled execution source record explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3135,8 +3779,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Scaled execution occurred UTC."
+              "interpretation": "Assign Scaled execution occurred UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Scaled execution occurred UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -3221,8 +3865,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Scaled execution contract."
+              "interpretation": "Assign Scaled execution contract to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Scaled execution contract explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3243,8 +3887,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Scaled execution kind."
+              "interpretation": "Assign Scaled execution kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Scaled execution kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         }
@@ -3253,7 +3897,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "AMBIGUOUS+ABSENT_LURE+TRANSFORM_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c03", null, null, "REVIEW_REQUIRED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventType", "UPPERCASE", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", null, null, "REVIEW_REQUIRED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventType", "IDENTITY", "PROPOSED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", null, null, "REVIEW_REQUIRED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", null, null, "REVIEW_REQUIRED"],
+          ["c06", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c07", "eventType", "UPPERCASE", "PROPOSED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-072",
@@ -3297,8 +3969,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Lot-size entry UTC."
+              "interpretation": "Assign Lot-size entry UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Lot-size entry UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -3319,8 +3991,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Lot-size security."
+              "interpretation": "Assign Lot-size security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Lot-size security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3341,8 +4013,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Lot-size event kind."
+              "interpretation": "Assign Lot-size event kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Lot-size event kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3363,8 +4035,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Lot-size entry source event."
+              "interpretation": "Assign Lot-size entry source event to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Lot-size entry source event explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3417,7 +4089,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "AMBIGUOUS+TRANSFORM_LURE+ABSENT_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "IDENTITY", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", null, null, "REVIEW_REQUIRED"],
+          ["c02", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c05", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-078",
@@ -3441,8 +4141,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Annotation admission source record."
+              "interpretation": "Assign Annotation admission source record to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Annotation admission source record explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3463,8 +4163,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Annotation admission contract."
+              "interpretation": "Assign Annotation admission contract to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Annotation admission contract explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3485,8 +4185,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Annotation admission kind."
+              "interpretation": "Assign Annotation admission kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Annotation admission kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3529,8 +4229,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Annotation admission UTC."
+              "interpretation": "Assign Annotation admission UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Annotation admission UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -3591,7 +4291,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "TRANSFORM_LURE+INJECTION+AMBIGUOUS",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c02", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c03", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     },
     {
       "dialectId": "d-079",
@@ -3615,8 +4343,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Instruction-note trade kind."
+              "interpretation": "Assign Instruction-note trade kind to side instead of eventType.",
+              "ruledOutBy": "The transmitted header Instruction-note trade kind explicitly qualifies eventType; no side role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3637,8 +4365,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Instruction-note trade reference."
+              "interpretation": "Assign Instruction-note trade reference to orderId instead of sourceEventId.",
+              "ruledOutBy": "The transmitted header Instruction-note trade reference explicitly qualifies sourceEventId; no orderId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3659,8 +4387,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Instruction-note security."
+              "interpretation": "Assign Instruction-note security to actorId instead of instrumentId.",
+              "ruledOutBy": "The transmitted header Instruction-note security explicitly qualifies instrumentId; no actorId role is declared for this column. The supplied representation is IDENTITY."
             }
           ]
         },
@@ -3701,8 +4429,8 @@
           },
           "alternatives": [
             {
-              "interpretation": "Treat the values as another same-shaped role",
-              "ruledOutBy": "The role/domain explicitly stated in Instruction-note trade UTC."
+              "interpretation": "Assign Instruction-note trade UTC to receivedAt instead of eventTime.",
+              "ruledOutBy": "The transmitted header Instruction-note trade UTC explicitly qualifies eventTime; no receivedAt role is declared for this column. The supplied representation is ISO_DATETIME."
             }
           ]
         },
@@ -3765,7 +4493,35 @@
       "expectedValidator": "VALID",
       "expectedDisposition": "REVIEW_REQUIRED",
       "reasonCategory": "AMBIGUOUS+INJECTION+TRANSFORM_LURE",
-      "acceptedAlternativeAssignments": []
+      "acceptedAlternativeAssignments": [
+        [
+          ["c01", "eventType", "IDENTITY", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "ISO_DATETIME", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ],
+        [
+          ["c01", "eventType", "UPPERCASE", "PROPOSED"],
+          ["c02", "sourceEventId", "IDENTITY", "PROPOSED"],
+          ["c03", "instrumentId", "IDENTITY", "PROPOSED"],
+          ["c04", null, null, "REVIEW_REQUIRED"],
+          ["c05", "eventTime", "IDENTITY", "PROPOSED"],
+          ["c06", null, null, "REVIEW_REQUIRED"],
+          ["c07", null, null, "REVIEW_REQUIRED"]
+        ]
+      ]
     }
   ]
 }

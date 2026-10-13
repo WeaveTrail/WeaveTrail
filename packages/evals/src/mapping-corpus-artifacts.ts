@@ -15,6 +15,23 @@ import {
   requireInvariant,
 } from "./mapping-corpus-preflight";
 
+import { corpusReview } from "./mapping-corpus-review";
+
+// Formatting is a pure byte transformation. Cache exact serialized values,
+// while regenerating and preflighting the study on every invocation. Different
+// generated content always formats again and still fails byte verification.
+const formattedJson = new Map<string, string>();
+async function jsonBytes(value: unknown) {
+  const serialized = JSON.stringify(value);
+  const cached = formattedJson.get(serialized);
+  if (cached !== undefined) return cached;
+  const bytes = await format(serialized, { parser: "json" });
+  if (formattedJson.size >= 32)
+    formattedJson.delete(formattedJson.keys().next().value!);
+  formattedJson.set(serialized, bytes);
+  return bytes;
+}
+
 export const corpusDirectory = new URL(
   "../fixtures/mapping-study-v1/",
   import.meta.url,
@@ -22,6 +39,7 @@ export const corpusDirectory = new URL(
 export async function renderMappingStudy() {
   const study = generateMappingStudy();
   const report = preflight(study);
+  const review = corpusReview(study);
   const artifacts: Record<string, unknown> = {
     "families.json": {
       version: CORPUS_VERSION,
@@ -40,21 +58,20 @@ export async function renderMappingStudy() {
     },
     "review-ledger.json": {
       version: CORPUS_VERSION,
-      status: "PENDING_INDEPENDENT_REVIEW",
-      records: study.families.map((f) => ({
-        familyId: f.id,
-        author: f.author,
-        authoringDate: "2026-10-13",
-        ...f.review,
-        disagreements: [],
-        resolutions: [],
-      })),
+      status: review.status,
+      reviewVersion: review.version,
+      baselineSha256: review.baselineSha256,
+      reviewDocumentSha256: review.reviewDocumentSha256,
+      records: review.records,
+      corrections: review.corrections,
     },
     "exclusions.json": {
       version: CORPUS_VERSION,
+      reviewVersion: review.version,
       status: "UNSEALED",
-      records: [],
+      records: review.exclusions,
     },
+    "seal-readiness.json": review.sealReadiness,
     "exposure-ledger.json": {
       version: CORPUS_VERSION,
       status: "UNSEALED",
@@ -64,9 +81,11 @@ export async function renderMappingStudy() {
           scope: "All generated inputs, proposed gold, briefs and relations",
           secret: false,
           providerCalls: "NONE_BY_THIS_GENERATOR",
-          independentReviewerExposure: "NOT_RECORDED_YET",
+          independentReviewerExposure:
+            "Recorded in docs/MAPPING_STUDY_V1_GOLD_REVIEW.md; current replacements not independently reviewed",
+          originalReviewBaselineSha256: review.baselineSha256,
           limitation:
-            "Public synthetic inputs cannot establish absence of training exposure; no independent review or experiment is represented as complete.",
+            "Public synthetic inputs cannot establish absence of training exposure; review is applied with unresolved lineage findings and no experiment is represented as complete.",
         },
       ],
     },
@@ -80,11 +99,7 @@ export async function renderMappingStudy() {
   const bytes: Record<string, string> = Object.fromEntries(
     await Promise.all(
       Object.entries(artifacts).map(
-        async ([name, value]) =>
-          [
-            name,
-            await format(JSON.stringify(value), { parser: "json" }),
-          ] as const,
+        async ([name, value]) => [name, await jsonBytes(value)] as const,
       ),
     ),
   );
@@ -94,6 +109,8 @@ export async function renderMappingStudy() {
     "mapping-corpus-generator.ts",
     "mapping-corpus-preflight.ts",
     "mapping-corpus-artifacts.ts",
+    "mapping-corpus-review.ts",
+    "mapping-corpus-lineage.ts",
   ];
   const manifest = {
     version: CORPUS_VERSION,
@@ -127,14 +144,19 @@ export async function renderMappingStudy() {
       path,
       sha256: sha256(content),
     })),
-    independentGoldReview: "PENDING",
+    independentGoldReview: review.status,
+    reviewBaseline: {
+      path: "packages/evals/fixtures/mapping-study-review-v1/baseline.json",
+      sha256: review.baselineSha256,
+      reviewDocumentSha256: review.reviewDocumentSha256,
+      originalSourceCommit: review.sourceCommit,
+    },
+    sealReadiness: "BLOCKED",
     experimentPreRegistration: "PLANNED",
     liveRunnerEligible: false,
-    note: "Checksums identify draft bytes, not an evaluation seal. Review/exclusion hashes are draft placeholders pending independent decisions. Existing runners reject these split/version contracts.",
+    note: "Checksums bind corrected drafts, applied independent decisions and replacements, not an evaluation seal. Unresolved lineage and changed-input review block sealing. Existing runners reject these split/version contracts.",
   };
-  bytes["manifest.json"] = await format(JSON.stringify(manifest), {
-    parser: "json",
-  });
+  bytes["manifest.json"] = await jsonBytes(manifest);
   return bytes;
 }
 

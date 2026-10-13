@@ -60,5 +60,5 @@ writeFileSync(
   `${sha256(receiptBytes)}  generation-receipt.json\n`,
 );
 process.stdout.write(
-  `${check ? "PASS: committed bytes verified; two generations match" : "Generated draft inputs"}; UNSEALED; independent review PENDING; ${output}\n`,
+  `${check ? "PASS: committed bytes verified; two generations match" : "Generated draft inputs"}; UNSEALED; review applied; sealing BLOCKED; ${output}\n`,
 );

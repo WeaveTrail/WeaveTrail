@@ -491,13 +491,13 @@
     },
     {
       "dialectId": "d-024",
-      "inputHash": "2eb0a273bb3c12c8b51bea3390dc2af7ab9475ca909d0cd5129e7405347caa3c",
+      "inputHash": "2f7908ac5540949c1135eb1d4d93ebc3070068978dac8598e039e102372dcaf4",
       "projection": {
         "columns": [
           { "columnId": "c01", "name": "Original limit unit price" },
           { "columnId": "c02", "name": "Removed order contract" },
           { "columnId": "c03", "name": "Removal record kind" },
-          { "columnId": "c04", "name": "Removed order event ID" },
+          { "columnId": "c04", "name": "Removal event ID" },
           { "columnId": "c05", "name": "Removal sequence" },
           { "columnId": "c06", "name": "Removal occurred UTC" },
           { "columnId": "c07", "name": "Removed quantity units" }
@@ -1480,34 +1480,34 @@
     },
     {
       "dialectId": "d-066",
-      "inputHash": "2c9c13a7fa2eb038c4350db8ed7e1576db4799751707c2dde5d6416b37590a81",
+      "inputHash": "3f6b020cbc094b0272cbd853b1da8c0960eac32020c6cbaf30cad7f13e09e9ff",
       "projection": {
         "columns": [
           { "columnId": "c01", "name": "Receipt-note entry source record" },
-          { "columnId": "c02", "name": "Entry amount" },
-          { "columnId": "c03", "name": "Receipt-note category" },
-          { "columnId": "c04", "name": "Receipt explanation" },
-          { "columnId": "c05", "name": "Order reference base64 encoded" },
-          { "columnId": "c06", "name": "Receipt-note entry UTC" },
+          { "columnId": "c02", "name": "Receipt-note category" },
+          { "columnId": "c03", "name": "Receipt explanation" },
+          { "columnId": "c04", "name": "Order reference base64 encoded" },
+          { "columnId": "c05", "name": "Receipt-note entry UTC" },
+          { "columnId": "c06", "name": "Admission unqualified amount" },
           { "columnId": "c07", "name": "Receipt-note contract" }
         ],
         "sampleRows": [
           [
             "SYN-71",
-            "4",
             "ORDER_NEW",
             "receipt clock missing",
             "U1lOLTcx",
             "2036-02-03T10:11:12Z",
+            "4",
             "SYN-71"
           ],
           [
             "SYN-72",
-            "6",
             "ORDER_NEW",
             "ingest delayed",
             "U1lOLTcy",
             "2036-02-03T10:11:13Z",
+            "6",
             "SYN-72"
           ]
         ]

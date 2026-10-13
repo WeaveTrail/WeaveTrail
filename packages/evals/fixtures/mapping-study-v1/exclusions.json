@@ -1,1 +1,507 @@
-{ "version": "mapping-study-inputs/1", "status": "UNSEALED", "records": [] }
+{
+  "version": "mapping-study-inputs/1",
+  "reviewVersion": "mapping-study-review/2",
+  "status": "UNSEALED",
+  "records": [
+    {
+      "familyId": "f-009",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-009",
+          "familyId": "f-009",
+          "split": "SELECT",
+          "inputHash": "45f6c9a3df05982913cf3db85e3ad582817b39a6e0d5afd2c565601b0419bb01",
+          "goldSha256": "e9404642fd273ce34ae0663168e24399e4077012a6040bfc7aee3c08f4754b18",
+          "familySha256": "800a8433e5a5db08a173b2b56c017abb6676e160ea4cb4117aad4d9c779c202f",
+          "familyLineageSha256": "91b6eeb86fd7676f83ba99733f7715c0d2acc65e59da7fa6228d6f1ac581ed1c"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-009",
+          "inputHash": "a2f00cd1a12e9f810d7fbac5f4a89f3d00227bfb4f64530afbdbcf3a410687d2",
+          "goldSha256": "eb0873181aaff80a852aafcd8d5c1f1a45bf9c731c05f0504b8f5db410e0d089"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-024",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-024",
+          "familyId": "f-024",
+          "split": "AUDIT",
+          "inputHash": "2eb0a273bb3c12c8b51bea3390dc2af7ab9475ca909d0cd5129e7405347caa3c",
+          "goldSha256": "c1111a5cee750d305f57528b5f2dd6b6eb36e5c33584f4514ccd08e3dbe82b1a",
+          "familySha256": "c8f6ae08164c0aea2eb98743e249158ad5818743392702b40ab64701bec390c3",
+          "familyLineageSha256": "44f9ed2be65a90ad0a95de4db288f57967643873397cbde09f8289ac59be1eb2"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-024",
+          "inputHash": "2f7908ac5540949c1135eb1d4d93ebc3070068978dac8598e039e102372dcaf4",
+          "goldSha256": "3b3385c5beb9876c0f1f2e545f1beaebc63619950cfcd2b687dc3fda47406830"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-064",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-064",
+          "familyId": "f-064",
+          "split": "SELECT",
+          "inputHash": "0489c752babb9ba4397d1d750528273e08e192741976ed9e36ff0a851cc2971d",
+          "goldSha256": "3c439dd8255222ad0d7399fb39f73e4b325a28109e8d1910e284c30e3fa45a47",
+          "familySha256": "0957e4ac611214b248a860a65c175276db1624288fdcb09baf883d651c957055",
+          "familyLineageSha256": "d4d7e68e5c3620d0d6d6c6f2c8b99b06d2f3bff593220ddfc47c1f06bf4ddad0"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-064",
+          "inputHash": "876d6dbaa3171187e6c4535f8289301ca9298907bb3b3502570342ebca5af056",
+          "goldSha256": "5ae9c9e79872d814e7877249ba8a9672b7cd5e73057840a3c44f6638a3265b22"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-066",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-066",
+          "familyId": "f-066",
+          "split": "AUDIT",
+          "inputHash": "2c9c13a7fa2eb038c4350db8ed7e1576db4799751707c2dde5d6416b37590a81",
+          "goldSha256": "56e68f60042eecd15065c4b3708ed60bba5325a8eebe5c157e237ffef482777c",
+          "familySha256": "23a4aaaf6206bea90639d08fe7bbcab92d72dc1a4488a2efccb4d6b3d09a8f26",
+          "familyLineageSha256": "e284ead038595fec91d5ab10ff978555c3393c4f75b167c6d610ecc1026a8592"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-066",
+          "inputHash": "3f6b020cbc094b0272cbd853b1da8c0960eac32020c6cbaf30cad7f13e09e9ff",
+          "goldSha256": "40207bf0b9a56f5cd3038d32c413840270c43a5096b73b6a779004167015022a"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-085",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-085.2",
+          "familyId": "f-085",
+          "split": "DRIFT",
+          "inputHash": "1b1fe754d5a12a23cd14a30ba5d18f5d8cd360506d4e2acf8a4486fe1d488e3d",
+          "goldSha256": "68ecfc0872c4b80523fd32673bb570db89d4eaa9737af2e5d96d587dc002f651",
+          "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4",
+          "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
+        },
+        {
+          "dialectId": "d-085.3",
+          "familyId": "f-085",
+          "split": "DRIFT",
+          "inputHash": "f41b451fa18f8c65b348c5f574e3f3135a687c988e9ea4d0b79a54e0bc880318",
+          "goldSha256": "f650d68267322e8e850748a71407144f3cf077c3ba1d11f4953a92c4b48146a5",
+          "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4",
+          "familyLineageSha256": "cb6271fe74c9f0f61f03d0704692bc3937875d4843704e4dec493accaff5db87"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-085.2",
+          "inputHash": "136e884b1f5b6044ce2500da0015fceb55edecc230a1167b455dd3947650933c",
+          "goldSha256": "42b86a201cb56edf3c3ca16e4044fb0c015216a685cc77798f436fd8edef6655"
+        },
+        {
+          "dialectId": "d-085.3",
+          "inputHash": "08f51ce6c60e033a2bca05a40a5733e1635101eacb9733f3740553a12f5acdd6",
+          "goldSha256": "00260ccb410e971993334a021551e9f415d25f0f2a9c18f80f36741b586f2bd5"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-086",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-086.2",
+          "familyId": "f-086",
+          "split": "DRIFT",
+          "inputHash": "5f39efd960e81a5b51c3f806c6fe865708f0811a8b914141c7a0730add4c6526",
+          "goldSha256": "e3d8d00058a3f66ffcb1843905e66da8723c5ae286bb6af4aa896186f6e79c3f",
+          "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932",
+          "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
+        },
+        {
+          "dialectId": "d-086.3",
+          "familyId": "f-086",
+          "split": "DRIFT",
+          "inputHash": "c95c2de24fc5143e6025c405a089f95a0a774111b951b0f1b6d7498afc3fd5d9",
+          "goldSha256": "28abf19fe20814f3e307b7396e3ab5f08d04ae58043042d2a5d92b5d1c4606c8",
+          "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932",
+          "familyLineageSha256": "8e61448cef52ed551eb6ad32b7eeb0be8bd5ece7a0baef43f02c1cc1826ecf34"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-086.2",
+          "inputHash": "e2bcbd70370663e1b70172897e7206edf926dac22db8d71a90f1e9864382c961",
+          "goldSha256": "bdf1105efe16952829a66bb6d2feac1680f31ee2ec880fb02412f4d7a76b1029"
+        },
+        {
+          "dialectId": "d-086.3",
+          "inputHash": "0a8382e1b015aee95772e3cd200b7117850eaeff5542213b2ac30ef857734918",
+          "goldSha256": "4e32398e73455663bfad418c5e32a2ce8042c693a1b0916fa67e3701fcb0dab8"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-087",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-087.2",
+          "familyId": "f-087",
+          "split": "DRIFT",
+          "inputHash": "a7e710cc850302118d010855d247864336bb7174b062387f28e60b65e50e054a",
+          "goldSha256": "db99bae92d0598f5abb879b26d59a095db399f4d911c008cc4f4e7bacd92ee5a",
+          "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d",
+          "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
+        },
+        {
+          "dialectId": "d-087.3",
+          "familyId": "f-087",
+          "split": "DRIFT",
+          "inputHash": "b73ebff0f704e2fb1f68b3eaca157a8e851edea1452c28664aa29e01392cc2a4",
+          "goldSha256": "b83fc0b10e4b97acb7a636bc63e89a88c885c248c732bf18fe86be9accfd2e95",
+          "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d",
+          "familyLineageSha256": "6a66527e2c18a283e514e23bda08902c4af61959b9ffee14aada7b0b8ecb4864"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-087.2",
+          "inputHash": "0f579092808e387fe184f03fa4a3cbcf7f445bab9751285ab948387f78e2ff14",
+          "goldSha256": "1aac77da513d072189ddcff17921a5039bac6acd20a95007759baa21fd816f14"
+        },
+        {
+          "dialectId": "d-087.3",
+          "inputHash": "be33e68e3de23d2fef2d44aa5b3139f855a5e540da7e4f57f12e83abb92bff97",
+          "goldSha256": "10b80661613b59d0e3e3d73ede7dc59442012e920affbb21b63ec539c9a4b589"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-088",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-088.2",
+          "familyId": "f-088",
+          "split": "DRIFT",
+          "inputHash": "2cc5f30047ebf87ea95ca0bae3ec1a7c47127137f8f5ee9456776e986a662cdd",
+          "goldSha256": "4a981e016cbfd6370affa6fa0d7b7adce994d9c603950906885de0e1d3a56084",
+          "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314",
+          "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
+        },
+        {
+          "dialectId": "d-088.3",
+          "familyId": "f-088",
+          "split": "DRIFT",
+          "inputHash": "3f8168712c543ddf783e40b4e0aaec208b7ee23d4aea4a1ec43a23a882815bff",
+          "goldSha256": "ee100456ad53f5b34865918f41ef6cb8d4929a48916cf4bff6ac93515c0b95da",
+          "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314",
+          "familyLineageSha256": "de4f0f956319967574028e673a2a2a2b288d668f01b29f061706b8fa1e5b1244"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-088.2",
+          "inputHash": "73428712c05a14d7ca806f2272ed625a73938e135e914b54cb747da48ea44c01",
+          "goldSha256": "aba474bc97e8a8b72baab397b3d548a9776caa7792d48f4c828f4fd0fae3e121"
+        },
+        {
+          "dialectId": "d-088.3",
+          "inputHash": "37cc349cbe6a22ed241d5e57c41e76dabfcc8f2a59e4816ac4c72d6fd9e3fba3",
+          "goldSha256": "545613da7ce462803599ed8e489886a6dabebc9c8021e9efb8988aed86837711"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-089",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-089.2",
+          "familyId": "f-089",
+          "split": "DRIFT",
+          "inputHash": "6a4918fb0f7a17dbf572d3224df172b61a89d3106f3068b75d385f70d9c4380f",
+          "goldSha256": "f9711b0dc5cf866b5426506a5e4fb79562fe64479517f36f08ca494c3b96d014",
+          "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c",
+          "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
+        },
+        {
+          "dialectId": "d-089.3",
+          "familyId": "f-089",
+          "split": "DRIFT",
+          "inputHash": "44066b3128853af26f2bd2b4c29fd6db44c4fd0a70357fde5160223e626969cb",
+          "goldSha256": "2e6cfd3544972f5993b0c0fcedb4550b50b76d74678798603fcf30f50e0b7379",
+          "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c",
+          "familyLineageSha256": "4850f21832449a8b65f418d78e4d1240195479c8c23444b1acfcde06a2fcde6b"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-089.2",
+          "inputHash": "761b18f92c87793abf8806ea89e48e533be3909ba46ca2c844120000022f8e12",
+          "goldSha256": "5eeaaddc3a42a6f973572e80888786733e93a7f2b49b8da633c1cc2c695f2b3a"
+        },
+        {
+          "dialectId": "d-089.3",
+          "inputHash": "9e1720992edd2e7c91dd336210bc1886461d637c32e67b9c8a853c1e49b04a9b",
+          "goldSha256": "9149be2a2599a33d7c9126ac8f8991d601280b021bd280e8a0827202bd0883eb"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-091",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-091.2",
+          "familyId": "f-091",
+          "split": "DRIFT",
+          "inputHash": "165a523b9076ee9da9b506ba8657de72bb9a30210ff7ba4014abcbaab7dc48e9",
+          "goldSha256": "f6dc63c5f2f1b6f4fcaeafe32d5e9a02b4e9a200c838f2f2cb4cb7a846b8b990",
+          "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d",
+          "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
+        },
+        {
+          "dialectId": "d-091.3",
+          "familyId": "f-091",
+          "split": "DRIFT",
+          "inputHash": "8124c8a9a33b427c4debd3ad040f8d2045fbb7f85dc5b667c5b276f9a2588f27",
+          "goldSha256": "4857ecaea99c3918e689234695a15f5397f5b13209934cf160ad5fa6d417c388",
+          "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d",
+          "familyLineageSha256": "34042ed2ac552812c2ffe0c26088c878cc1e484699689e1bf6815748b2f5f135"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-091.2",
+          "inputHash": "d009e1d342a6ae98335dd4e3651800fbda9c1e09173ea9575aa20dc4815ff0a1",
+          "goldSha256": "e105d3cedf14ad5607a0193e448221fd342cd5d3e072cccfae840e8b9cf310e1"
+        },
+        {
+          "dialectId": "d-091.3",
+          "inputHash": "a84adbde36e7fd5231c8549e4a61d5a002360c9409b4e601426b01c17fb6914e",
+          "goldSha256": "4258b17820c26b26eee4587ec3a49b00aa1733f4a8b12062ca131ffb3d5459d2"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-092",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-092.2",
+          "familyId": "f-092",
+          "split": "DRIFT",
+          "inputHash": "871e38e434271701dd08072c83f8b6df5779f8da52d129957d148b694ad4a1bf",
+          "goldSha256": "cf87e0b10af28b2a0e6b8fab4242c80a96d0a98af3557ab5859706b60c2df757",
+          "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf",
+          "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
+        },
+        {
+          "dialectId": "d-092.3",
+          "familyId": "f-092",
+          "split": "DRIFT",
+          "inputHash": "d1eaa32cd62623743b2085f0be0faa4e5a7576b656fd3069177c372aa4385669",
+          "goldSha256": "9648b9f2541933242a0421462c717f727866f0a6f42a0b832befde8f4abfbe4c",
+          "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf",
+          "familyLineageSha256": "c0bc637294d3666f57981c6e16c2d9b0dfbe3f5c7e9d5b235626dce0726b26f3"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-092.2",
+          "inputHash": "f30d08d137c860258dd5da1a28864d797dbc61161697c8124f7923ef82f6faa4",
+          "goldSha256": "c1a9a1dd43d2c0b0a909f48c1f96379ef147ec391ad1bb239df929424f4d46c1"
+        },
+        {
+          "dialectId": "d-092.3",
+          "inputHash": "4c4ccfd183d44162efbd6c037789715d648a3f9ff17ad60d47effdbd2664b766",
+          "goldSha256": "2eef75db1f21ef30e1d4982f8a775a54b2525858122e16892f2a430554dc423b"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-093",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-093.2",
+          "familyId": "f-093",
+          "split": "DRIFT",
+          "inputHash": "669b1984c39bf4c5455e36f2a599245dceab5a204bb0c9be780fe6a9d57012f0",
+          "goldSha256": "e8f7ae744223d1eae851598a2d28250f25d662a171321fcef1dd49429416264d",
+          "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8",
+          "familyLineageSha256": "c8b0c5e0f55b1438fc6d4e81fca30962220cefc525e1f814661b187adcd5f826"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-093.2",
+          "inputHash": "fcf8fa1632be3fdb3283abe69a6698236b62cd8e42702d2587c2803a7e38c035",
+          "goldSha256": "5249f57acc03f0fcb8cffde8181c915e4f194569f0419f40f94125b691ce26de"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-094",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-094.2",
+          "familyId": "f-094",
+          "split": "DRIFT",
+          "inputHash": "df30f14ec7e994276ce361866f9807731f7d32da8f6a656d2c19d0349cdc9f6c",
+          "goldSha256": "1d9cad875c1c3fbceb456be9428e4f442d286277692ce74ae6f0abfacd7d5b95",
+          "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9",
+          "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
+        },
+        {
+          "dialectId": "d-094.3",
+          "familyId": "f-094",
+          "split": "DRIFT",
+          "inputHash": "f7e58f29d5512161797a576a213e30fda0c16f30cb94ebee2268808a1df0fae0",
+          "goldSha256": "683294507999105dedfa8cee435084baf5a9247b0c54c13af0b2e5f9a0cc45dc",
+          "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9",
+          "familyLineageSha256": "70a27cfe0c014402b37139f47ec9ca4651021d2e8356d190bace3c3deb008762"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-094.2",
+          "inputHash": "1c5dd1a9dd54f41d65fb6f71f4b15781c4e58ee774c4884fcc7c363ed69f4791",
+          "goldSha256": "4f758b7d682fdf2883353fa6bff6f7764815199ce1cc26709e32dff8ffc76491"
+        },
+        {
+          "dialectId": "d-094.3",
+          "inputHash": "d6f3542f35bc88277f26366c4a673811d9954dda18bf80b04a474baefa143647",
+          "goldSha256": "ddc56e5b66a564626a2e11de874aa96860ccba5fac3c4f80fc167ea977c51b2c"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-095",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-095.2",
+          "familyId": "f-095",
+          "split": "DRIFT",
+          "inputHash": "9ea86111c4bcaed848545f3cee9a00af629450fa1360c2c68f69b06ef9da0464",
+          "goldSha256": "29ebc9497f8a63455262084b31c29c6f2474116cf49eff8fef21b5f0bd3aa5de",
+          "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888",
+          "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
+        },
+        {
+          "dialectId": "d-095.3",
+          "familyId": "f-095",
+          "split": "DRIFT",
+          "inputHash": "3d89a289f989a386756c0d47c2566ae22a1bfeac6ee959fa368ce8d36c32de6c",
+          "goldSha256": "30e1e47b3534bd619b58c322628bc6d4468e52fee48e8820d42c2e7e95db8795",
+          "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888",
+          "familyLineageSha256": "244ba7feb79a2a506d484e605ea502a7b61a67bb6e65d385ade156a00a289b4e"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-095.2",
+          "inputHash": "28224aa848d6ff9552370761c6fa2ff63697ecfd2c036d25d843cf8d0af3828b",
+          "goldSha256": "fee89429262ecc7dd757df9c9f0cb1ebd54690582ccd9f078953b6e0448a1156"
+        },
+        {
+          "dialectId": "d-095.3",
+          "inputHash": "911f1c66b74e1f7460c4e986ee342504da02a32434d3d360bcdd7eb2c19139d7",
+          "goldSha256": "ebfb32d9cdbfda45b660ac306bafe90b4547e25cb217cb6d1cde7645992e3df5"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    },
+    {
+      "familyId": "f-096",
+      "reason": "Input or canonical gold changed before any model run; old review does not approve the replacement.",
+      "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790",
+      "replacedRecords": [
+        {
+          "dialectId": "d-096.2",
+          "familyId": "f-096",
+          "split": "DRIFT",
+          "inputHash": "f055f7fdc22faafbdda5240f8e2a6b2a59807aa9e65ee54d0bdf6f5a1e221ac4",
+          "goldSha256": "9f1c15d4ac56659cfe6f60e102f410e702bc44582634fdaa0c5255082f266218",
+          "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674",
+          "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
+        },
+        {
+          "dialectId": "d-096.3",
+          "familyId": "f-096",
+          "split": "DRIFT",
+          "inputHash": "61e8b4ef2239fe1449571404175f7c486a65a3c46fe1872f08bee3018050e3c3",
+          "goldSha256": "37583df2bd3734d183d30510e3165595c947bfde035fc3c186a58defe560ed8b",
+          "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674",
+          "familyLineageSha256": "929c5ab18b88df1356cf954d0ac4921a0bd6a687a2e097fa5f05593b35d3c2a5"
+        }
+      ],
+      "replacementRecords": [
+        {
+          "dialectId": "d-096.2",
+          "inputHash": "0073ad6048c73d00c40cbdd466dd1e5ea7a4d07f55a22793fcba5c2f16013230",
+          "goldSha256": "cf98d21a66fcd551409ae41802db62bd69b257a7c268d48b604acab6a01c053d"
+        },
+        {
+          "dialectId": "d-096.3",
+          "inputHash": "55f9aaae255d15cde40f110a1b47b3b0aa325bb8daceae19737e04be11bf3c7a",
+          "goldSha256": "0aefabe2b8c15bc158046c8e0cf77d0998d25453fa3b2e39db84f8980410edec"
+        }
+      ],
+      "originalBytes": "Retained at the immutable source commit and paths in the review baseline; not silently overwritten in history."
+    }
+  ]
+}

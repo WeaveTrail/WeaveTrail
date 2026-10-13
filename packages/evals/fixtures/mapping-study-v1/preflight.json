@@ -2,7 +2,7 @@
   "version": "mapping-study-preflight/1",
   "corpusVersion": "mapping-study-inputs/1",
   "status": "PASS_AUTHOR_PREFLIGHT_UNSEALED",
-  "generatorVersion": "mapping-study-generator/1",
+  "generatorVersion": "mapping-study-generator/2",
   "seed": "weavetrail-study-2036-a",
   "inventory": [
     {
@@ -100,7 +100,27 @@
     }
   ],
   "relations": 72,
-  "independentGoldReview": "PENDING",
+  "independentGoldReview": "APPLIED_WITH_UNRESOLVED_FINDINGS",
+  "replacementGoldReview": {
+    "status": "PENDING_INDEPENDENT_REVIEW",
+    "familyIds": [
+      "f-009",
+      "f-024",
+      "f-064",
+      "f-066",
+      "f-085",
+      "f-086",
+      "f-087",
+      "f-088",
+      "f-089",
+      "f-091",
+      "f-092",
+      "f-093",
+      "f-094",
+      "f-095",
+      "f-096"
+    ]
+  },
   "independentFamilyCount": "NOT_ESTABLISHED",
   "limitations": [
     "Automated witnesses verify consistency with authored gold, not independent correctness.",

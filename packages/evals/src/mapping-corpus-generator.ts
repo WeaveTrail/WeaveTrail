@@ -15,6 +15,8 @@ import {
 } from "./mapping-corpus-authoring";
 import {
   ArtifactSchema,
+  ColumnGoldSchema,
+  reviewedTransformAlternatives,
   CORPUS_VERSION,
   DriftRelationSchema,
   FamilyBriefSchema,
@@ -80,16 +82,24 @@ function dialect(
   baseOrder?: string[],
 ) {
   const rendered = columns.map(render);
+  const seeded = rendered.sort((a, b) => {
+    // Name/seed/family only: gold target labels never determine position.
+    const x = sha256(`${GENERATION_SEED}:${brief.id}:${a.name}`),
+      y = sha256(`${GENERATION_SEED}:${brief.id}:${b.name}`);
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  // Seed the new names into the available slots, then retain the relative base
+  // order of unchanged headers. No new column is assigned a fixed first slot.
+  const unchanged = baseOrder
+    ? rendered
+        .filter((c) => baseOrder.includes(c.name))
+        .sort((a, b) => baseOrder.indexOf(a.name) - baseOrder.indexOf(b.name))
+    : [];
   const ordered = baseOrder
-    ? rendered.sort(
-        (a, b) => baseOrder.indexOf(a.name) - baseOrder.indexOf(b.name),
+    ? seeded.map((column) =>
+        baseOrder.includes(column.name) ? unchanged.shift()! : column,
       )
-    : rendered.sort((a, b) => {
-        // Name/seed/family only: gold target labels never determine position.
-        const x = sha256(`${GENERATION_SEED}:${brief.id}:${a.name}`),
-          y = sha256(`${GENERATION_SEED}:${brief.id}:${b.name}`);
-        return x < y ? -1 : x > y ? 1 : 0;
-      });
+    : seeded;
   const projection = ProviderProjectionSchema.parse({
     columns: ordered.map((column, i) => ({
       columnId: `c${String(i + 1).padStart(2, "0")}`,
@@ -101,34 +111,33 @@ function dialect(
   });
   const inputHash = sha256(JSON.stringify(projection));
   const input: InputRecord = { dialectId, inputHash, projection };
-  const gold = GoldRecordSchema.parse({
+  const gold: GoldRecord = {
     dialectId,
     familyId: brief.id,
     inputHash,
-    columns: ordered.map((column, i) => ({
-      columnId: projection.columns[i]!.columnId,
-      sourceColumn: column.name,
-      targetField: column.target,
-      transform: column.transform,
-      status: column.target === null ? "REVIEW_REQUIRED" : "PROPOSED",
-      tag: column.tag,
-      rationale: column.reason,
-      evidence: {
-        header: column.name,
-        sampleCoordinates: column.samples.map((_, row) => [
-          row,
-          projection.columns[i]!.columnId,
-        ]),
-      },
-      alternatives: column.alternatives,
-      ...(column.attack ? { attack: column.attack } : {}),
-    })),
-    absentRequiredTargets: [
-      "sourceEventId",
-      "eventTime",
-      "instrumentId",
-      "eventType",
-    ].filter((t) => !ordered.some((c) => c.target === t)),
+    columns: ordered.map((column, i) =>
+      ColumnGoldSchema.parse({
+        columnId: projection.columns[i]!.columnId,
+        sourceColumn: column.name,
+        targetField: column.target,
+        transform: column.transform,
+        status: column.target === null ? "REVIEW_REQUIRED" : "PROPOSED",
+        tag: column.tag,
+        rationale: column.reason,
+        evidence: {
+          header: column.name,
+          sampleCoordinates: column.samples.map((_, row) => [
+            row,
+            projection.columns[i]!.columnId,
+          ]),
+        },
+        alternatives: column.alternatives,
+        ...(column.attack ? { attack: column.attack } : {}),
+      }),
+    ),
+    absentRequiredTargets: (
+      ["sourceEventId", "eventTime", "instrumentId", "eventType"] as const
+    ).filter((t) => !ordered.some((c) => c.target === t)),
     expectedValidator: [
       "sourceEventId",
       "eventTime",
@@ -144,14 +153,21 @@ function dialect(
       )
         ? "REVIEW_REQUIRED"
         : "PROPOSAL_OFFERABLE",
-    reasonCategory:
-      ordered
-        .filter((c) => c.target === null)
-        .map((c) => c.tag)
-        .join("+") || "COMPLETE_VISIBLE_ASSIGNMENT",
+    reasonCategory: [
+      "sourceEventId",
+      "eventTime",
+      "instrumentId",
+      "eventType",
+    ].some((t) => !ordered.some((c) => c.target === t))
+      ? "REQUIRED_TARGET_ABSENT"
+      : ordered
+          .filter((c) => c.target === null)
+          .map((c) => c.tag)
+          .join("+") || "COMPLETE_VISIBLE_ASSIGNMENT",
     acceptedAlternativeAssignments: [],
-  });
-  return { input, gold };
+  };
+  gold.acceptedAlternativeAssignments = reviewedTransformAlternatives(gold);
+  return { input, gold: GoldRecordSchema.parse(gold) };
 }
 
 /** Adapts the exact projection to the unchanged offline shared validator. */

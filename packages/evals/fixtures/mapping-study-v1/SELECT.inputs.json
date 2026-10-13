@@ -104,32 +104,32 @@
     },
     {
       "dialectId": "d-009",
-      "inputHash": "45f6c9a3df05982913cf3db85e3ad582817b39a6e0d5afd2c565601b0419bb01",
+      "inputHash": "a2f00cd1a12e9f810d7fbac5f4a89f3d00227bfb4f64530afbdbcf3a410687d2",
       "projection": {
         "columns": [
-          { "columnId": "c01", "name": "Executed unit price" },
           {
-            "columnId": "c02",
+            "columnId": "c01",
             "name": "Execution occurred epoch milliseconds"
           },
-          { "columnId": "c03", "name": "Execution security code" },
+          { "columnId": "c02", "name": "Execution security code" },
+          { "columnId": "c03", "name": "Execution consideration per unit" },
           { "columnId": "c04", "name": "Notice event type" },
           { "columnId": "c05", "name": "Execution notice ID" },
           { "columnId": "c06", "name": "Collector receipt UTC" }
         ],
         "sampleRows": [
           [
-            "4",
             "2085646272000",
             "SYN-71",
+            "4",
             "TRADE",
             "SYN-71",
             "2036-02-03T10:11:12Z"
           ],
           [
-            "6",
             "2085646273000",
             "SYN-72",
+            "6",
             "TRADE",
             "SYN-72",
             "2036-02-03T10:11:13Z"
@@ -573,15 +573,18 @@
     },
     {
       "dialectId": "d-064",
-      "inputHash": "0489c752babb9ba4397d1d750528273e08e192741976ed9e36ff0a851cc2971d",
+      "inputHash": "876d6dbaa3171187e6c4535f8289301ca9298907bb3b3502570342ebca5af056",
       "projection": {
         "columns": [
           { "columnId": "c01", "name": "Commentary cancel kind" },
           { "columnId": "c02", "name": "Commentary cancel product" },
           { "columnId": "c03", "name": "Commentary cancel event ID" },
           { "columnId": "c04", "name": "Commentary cancel occurrence UTC" },
-          { "columnId": "c05", "name": "Actor number padded to width 6" },
-          { "columnId": "c06", "name": "Supplementary figure" },
+          { "columnId": "c05", "name": "Supplementary figure" },
+          {
+            "columnId": "c06",
+            "name": "Actor number; output zero-padded to width 6"
+          },
           { "columnId": "c07", "name": "Cancelled price commentary" }
         ],
         "sampleRows": [
@@ -590,8 +593,8 @@
             "SYN-71",
             "SYN-71",
             "2036-02-03T10:11:12Z",
-            "71",
             "4",
+            "71",
             "no original limit price"
           ],
           [
@@ -599,8 +602,8 @@
             "SYN-72",
             "SYN-72",
             "2036-02-03T10:11:13Z",
-            "72",
             "6",
+            "72",
             "market order had no limit"
           ]
         ]
