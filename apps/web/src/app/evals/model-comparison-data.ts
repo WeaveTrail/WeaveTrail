@@ -357,6 +357,18 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Applied review claims survive missing evidence and split changes",
     ko: "근거 누락과 분할 변경에도 검토 적용 주장이 유지됨",
   },
+  {
+    id: "F-013",
+    status: "FIXED",
+    en: "A live route silently drops an unstopped offerable primary",
+    ko: "중단 없는 정상 primary 제안을 라이브 경로가 누락함",
+  },
+  {
+    id: "F-014",
+    status: "FIXED",
+    en: "A hash-bound family names an unrelated dialect",
+    ko: "해시로 연결된 family가 무관한 dialect를 선언함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

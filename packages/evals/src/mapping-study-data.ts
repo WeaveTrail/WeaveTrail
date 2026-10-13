@@ -63,6 +63,7 @@ export function bindStudySource(
       !truth ||
       !family ||
       family.split !== inputs.split ||
+      family.dialectId !== input.dialectId ||
       input.inputHash !== truth.inputHash ||
       input.inputHash !== sha256(JSON.stringify(input.projection))
     )

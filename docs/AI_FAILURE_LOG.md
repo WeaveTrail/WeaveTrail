@@ -322,3 +322,35 @@ set remains valid; original-byte gold hashes still preserve that order.
 Canonical input/gold bytes and unresolved review blockers remain unchanged.
 No model behavior or performance was measured, no held-out model set was consumed
 and no prompt changed.
+
+### F-013: A live route silently drops an unstopped offerable primary
+
+| Field             | Value                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study route validation                                                                                                                              |
+| Model and version | No model or provider call; synthetic mutation of `mapping-study-route/1`                                                                                            |
+| Run record        | None. Authored AUDIT control converted to a declared `LIVE_ROUTE` attempt for an offline validation probe                                                           |
+| Assumption        | Checking a selected run only when its hash is present suffices to validate an offerable primary                                                                     |
+| Counterexample    | A `LIVE_SAMPLE` route with `PRIMARY_OFFERABLE`, `stop: NONE`, `selectedRunHash: null` and `REVIEW_REQUIRED` passes scoring and counts a safe primary as routed harm |
+| Fix               | Require the primary run hash to be selected whenever an offerable primary has no stop. Deadline withholding remains valid. #337                                     |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                                    |
+| Status            | `FIXED`                                                                                                                                                             |
+
+### F-014: A hash-bound family names an unrelated dialect
+
+| Field             | Value                                                                                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study source binding                                                                                                         |
+| Model and version | No model or provider call; synthetic mutation of `mapping-study-inputs/1` family metadata                                                    |
+| Run record        | None. Offline authored mutations of the committed AUDIT control families, with recomputed artifact and protocol hashes                       |
+| Assumption        | Matching family ID and split suffices to bind a family to an input/gold pair                                                                 |
+| Counterexample    | A family retains its expected ID and split but declares another family's dialect or nonexistent `d-999`; scoring accepts both contradictions |
+| Fix               | Require the family's declared dialect ID to equal the bound input/gold dialect ID before scoring or family analysis. #337                    |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                             |
+| Status            | `FIXED`                                                                                                                                      |
+
+These are offline validator regressions, not observed model failures or live
+operating samples. The regressions cover valid live primary selection, rejection
+of silent dropping, permitted deadline withholding and rejection of hash-bound
+unrelated or nonexistent family dialects. Original control byte checks remain
+valid. No model call, held-out model run or prompt change occurred.

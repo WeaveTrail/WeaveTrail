@@ -63,6 +63,8 @@ The protocol shape is defined by `MappingStudyProtocolSchema` in
   relabeling a historical capture. Original input projection hashes, stored
   header projections, validator outcomes and retained rejection reasons are
   rechecked offline. Unknown root fields, including raw envelopes, are refused.
+  Each input/gold pair must agree with its family's declared dialect ID and
+  split, even when the supplied artifact hashes match the protocol.
 - Completed sessions require every declared candidate/dialect/repeat GRID run.
   Stopped sessions report their stop reason and missing coordinates and cannot
   select. Sessions cannot be spliced; duplicate coordinates, changed stacks,
@@ -73,6 +75,8 @@ The protocol shape is defined by `MappingStudyProtocolSchema` in
   primary/escalation pair and selection-decision hash, and the live-sample dialect
   list. References must resolve to runs with the correct phase and pair. Live
   sample records are distinct attempts, not copies relabeled as observed timing.
+  An offerable primary with no stop must select its own run hash directly;
+  a deadline may withhold it with no selected run and `REVIEW_REQUIRED`.
 
 The route reconstruction helper reads only input and primary validation state to
 decide escalation. Primary provider failure, structural rejection or a field

@@ -16,6 +16,7 @@ import {
 import { compareCounts } from "./mapping-scorer";
 import { readStudyProtocol } from "./mapping-study-protocol";
 import { bindStudySource } from "./mapping-study-data";
+import { sha256 } from "./mapping-corpus-generator";
 import { synthesizeStudyRoute, studyRecordHash } from "./mapping-study-runs";
 
 const path = (split: string, name: string) =>
@@ -246,6 +247,24 @@ describe("offline mapping study tools", () => {
       expect(() => scoreMappingStudy(input)).toThrow();
     }
   });
+  it.each(["unrelated", "nonexistent"])(
+    "rejects a hash-bound family declaring a dialect that is %s",
+    (mutation) => {
+      const input = load();
+      const families = JSON.parse(input.source.families.bytes);
+      families.records[0].dialectId =
+        mutation === "unrelated" ? families.records[1].dialectId : "d-999";
+      input.source.families.bytes = `${canonicalJson(families)}\n`;
+      input.source.families.sha256 = sha256(input.source.families.bytes);
+      rebindProtocol(input, (p) => {
+        p.sources.find((s) => s.split === "AUDIT")!.familiesHash =
+          input.source.families.sha256;
+      });
+      expect(() => scoreMappingStudy(input)).toThrow(
+        "Study family/input/gold mismatch",
+      );
+    },
+  );
   it("keeps canonical strict scoring separate from reviewed equivalent-assignment diagnostics", () => {
     const input = load("SELECT");
     const rs = records(input);
@@ -391,6 +410,60 @@ describe("offline mapping study tools", () => {
     expect(actual.fullGrid).toBe(true);
     input.routes = [];
     expect(() => scoreMappingStudy(input)).toThrow("Unreferenced live");
+  });
+  it("requires an unstopped offerable live primary to be selected while allowing deadline withholding", () => {
+    const input = load();
+    const coordinate = routes(input).find(
+      (r) => r.reason === "PRIMARY_OFFERABLE" && r.stop === "NONE",
+    )!;
+    rebindProtocol(input, (p) => {
+      p.liveSampleDialectIds = [coordinate.dialectId];
+    });
+    const { protocol } = readStudyProtocol(input.protocol),
+      source = bindStudySource(protocol, input.source),
+      rs = records(input);
+    const dialect = source.dialects.find(
+      (d) => d.input.dialectId === coordinate.dialectId,
+    )!;
+    const primary = rs.find(
+      (r) =>
+        r.candidateId === "control-p" &&
+        r.dialectId === coordinate.dialectId &&
+        r.repeat === coordinate.repeat,
+    )!;
+    const escalation = rs.find(
+      (r) =>
+        r.candidateId === "control-e" &&
+        r.dialectId === primary.dialectId &&
+        r.repeat === primary.repeat,
+    )!;
+    const actualPrimary = MappingStudyRunRecordSchema.parse({
+      ...primary,
+      phase: "LIVE_ROUTE",
+    });
+    const route = MappingStudyRouteRecordSchema.parse({
+      ...synthesizeStudyRoute(protocol, primary, escalation, dialect),
+      mode: "LIVE_SAMPLE",
+      primaryRunHash: studyRecordHash(actualPrimary),
+      selectedRunHash: studyRecordHash(actualPrimary),
+    });
+    input.records = [...rs, actualPrimary];
+    input.routes = [route];
+    expect(scoreMappingStudy(input).routes[0]!.safeCompletion).toEqual({
+      numerator: "1",
+      denominator: "1",
+    });
+    route.selectedRunHash = null;
+    route.finalStatus = "REVIEW_REQUIRED";
+    expect(() => scoreMappingStudy(input)).toThrow(
+      "Offerable primary must be returned directly",
+    );
+    route.stop = "DEADLINE";
+    route.latencyMs = protocol.routeTimeoutMs + 1;
+    expect(scoreMappingStudy(input).routes[0]!.reviewRequired).toEqual({
+      numerator: "1",
+      denominator: "1",
+    });
   });
   it("does not start a synthetic E attempt when P consumes the whole deadline", () => {
     const input = load();

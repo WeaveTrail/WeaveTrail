@@ -415,7 +415,9 @@ export function scoreMappingStudy(input: StudyScoreInput) {
       route.reason === "PRIMARY_OFFERABLE" &&
       (e ||
         route.attemptedCalls !== 1 ||
-        (route.stop !== "NONE" && route.stop !== "DEADLINE"))
+        (route.stop !== "NONE" && route.stop !== "DEADLINE") ||
+        (route.stop === "NONE" &&
+          route.selectedRunHash !== route.primaryRunHash))
     )
       throw new Error("Offerable primary must be returned directly");
     if (route.attemptedCalls === 1 && e)
