@@ -1,4 +1,13 @@
-import { readFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { validateMappingStructure } from "@weavetrail/ai-harness/server";
 import {
@@ -81,6 +90,89 @@ describe("unsealed mapping study inputs", () => {
       ["DRIFT", 84],
     ]);
     expect(study.relations).toHaveLength(72);
+  });
+
+  it.each(["obsolete.json", "retired/obsolete.json"])(
+    "rejects unexpected corpus artifact %s without changing the fixture",
+    async (name) => {
+      const directory = mkdtempSync(
+        join(tmpdir(), "weavetrail-corpus-inventory-"),
+      );
+      try {
+        cpSync(corpusDirectory, directory, { recursive: true });
+        const path = join(directory, name);
+        mkdirSync(dirname(path), { recursive: true });
+        writeFileSync(path, '{"obsolete":true}\n');
+        await expect(verifyMappingStudy(directory)).rejects.toThrow(
+          `unexpected corpus artifact: ${name}`,
+        );
+        expect(readFileSync(path, "utf8")).toBe('{"obsolete":true}\n');
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it.each([
+    "BYTES_CHANGED",
+    "WRONG_MANIFEST",
+    "INVALID_SHAPE",
+    "MISSING_RECEIPT",
+  ] as const)("rejects invalid captured receipt: %s", async (kind) => {
+    const directory = mkdtempSync(join(tmpdir(), "weavetrail-corpus-receipt-"));
+    try {
+      cpSync(corpusDirectory, directory, { recursive: true });
+      const path = join(directory, "generation-receipt.json");
+      const receipt = JSON.parse(readFileSync(path, "utf8"));
+      if (kind === "MISSING_RECEIPT") rmSync(path);
+      else {
+        if (kind === "WRONG_MANIFEST") receipt.manifestSha256 = "0".repeat(64);
+        else if (kind === "INVALID_SHAPE")
+          receipt.executedAt = "not a timestamp";
+        else receipt.executedAt = "2037-01-02T00:00:00Z";
+        const bytes = JSON.stringify(receipt);
+        writeFileSync(path, bytes);
+        // Independently exercising schema/binding requires a valid byte checksum.
+        if (kind !== "BYTES_CHANGED")
+          writeFileSync(
+            join(directory, "generation-receipt.sha256"),
+            `${sha256(bytes)}  generation-receipt.json\n`,
+          );
+      }
+      await expect(verifyMappingStudy(directory)).rejects.toThrow(
+        kind === "WRONG_MANIFEST"
+          ? "generation receipt manifest binding mismatch"
+          : kind === "BYTES_CHANGED"
+            ? "generation receipt checksum mismatch"
+            : kind === "MISSING_RECEIPT"
+              ? "ENOENT"
+              : "Invalid ISO datetime",
+      );
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("validates a recaptured receipt without requiring volatile metadata to regenerate identically", async () => {
+    const directory = mkdtempSync(
+      join(tmpdir(), "weavetrail-corpus-recapture-"),
+    );
+    try {
+      cpSync(corpusDirectory, directory, { recursive: true });
+      const path = join(directory, "generation-receipt.json");
+      const receipt = JSON.parse(readFileSync(path, "utf8"));
+      receipt.executedAt = "2037-01-02T00:00:00Z";
+      const bytes = JSON.stringify(receipt);
+      writeFileSync(path, bytes);
+      writeFileSync(
+        join(directory, "generation-receipt.sha256"),
+        `${sha256(bytes)}  generation-receipt.json\n`,
+      );
+      await verifyMappingStudy(directory);
+      expect(readFileSync(path, "utf8")).toBe(bytes);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("fails on lost coverage, duplicate identities and changed input/gold bindings", () => {

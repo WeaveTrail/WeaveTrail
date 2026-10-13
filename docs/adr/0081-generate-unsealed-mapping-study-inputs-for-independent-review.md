@@ -37,10 +37,15 @@ an independent gold-review decision. Record all reviewers as pending and retain
 an explicit empty exclusion ledger, ready to record excluded versions and hashes.
 Keep actual checkout/environment/time in a separate receipt. A working-tree
 generator's source hashes are authoritative when its checkout receipt predates
-the authoring commit.
+the authoring commit. Verify the captured receipt's strict shape, original-byte
+SHA-256 checksum and manifest binding separately from deterministic regeneration.
+The receipt and checksum are explicit exceptions to the generated JSON set;
+checksums do not attest to the authenticity of environment metadata.
 
 `eval:corpus:check` reconstructs all draft bytes, runs shared-validator witnesses
 and allocation checks, and fails on changes without rewriting expectations.
+Enumerate the fixture directory, including nested files, and reject unexpected
+artifacts so removed or renamed outputs cannot silently remain in the draft set.
 Existing model/scoring contracts reject the new split/version shape. No new
 selection, routing implementation, automatic approval or paid call follows from
 generation. Evaluation inputs/gold remain outside production imports and assets.

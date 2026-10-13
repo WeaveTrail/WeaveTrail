@@ -57,8 +57,10 @@ capture in `pnpm test`; see the [development reference protocol](docs/EVALUATION
 
 `pnpm eval:corpus:generate` renders the unsealed synthetic SELECT/AUDIT/DRIFT
 drafts into `dist/mapping-study-unsealed/`. `pnpm eval:corpus:check` runs author
-preflight, generates twice and verifies every committed artifact byte without
-updating expectations. It writes a separate actual environment receipt. Independent
+preflight, generates twice and verifies deterministic artifact bytes without
+updating expectations. It rejects unexpected fixture files and separately checks
+the committed receipt's strict shape, original-byte checksum and manifest binding.
+It writes a separate actual environment receipt and checksum. Independent
 gold/lineage review, sealing and model-run integration remain planned; see the
 [draft inventory](packages/evals/fixtures/mapping-study-v1/README.md).
 

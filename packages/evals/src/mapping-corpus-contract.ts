@@ -3,6 +3,22 @@ import { z } from "zod";
 export const CORPUS_VERSION = "mapping-study-inputs/1";
 export const GENERATOR_VERSION = "mapping-study-generator/1";
 export const GENERATION_SEED = "weavetrail-study-2036-a";
+export const GenerationReceiptSchema = z
+  .object({
+    generatorVersion: z.literal(GENERATOR_VERSION),
+    status: z.literal("UNSEALED"),
+    executedAt: z.iso.datetime(),
+    checkout: z.string().regex(/^[a-f0-9]{40}$/u),
+    dirtyTrackedFiles: z.array(z.string().min(1)),
+    node: z.string().min(1),
+    pnpm: z.string().min(1),
+    platform: z.string().min(1),
+    arch: z.string().min(1),
+    command: z.string().min(1),
+    manifestSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+    note: z.string().min(1),
+  })
+  .strict();
 export const cells = [
   "R_IDENTITY",
   "R_CLOCKS",

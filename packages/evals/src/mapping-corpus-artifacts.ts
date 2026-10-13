@@ -1,9 +1,12 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { format } from "prettier";
 import {
   CORPUS_VERSION,
   GENERATION_SEED,
   GENERATOR_VERSION,
+  GenerationReceiptSchema,
 } from "./mapping-corpus-contract";
 import { generateMappingStudy, sha256 } from "./mapping-corpus-generator";
 import {
@@ -135,18 +138,55 @@ export async function renderMappingStudy() {
   return bytes;
 }
 
-export async function verifyMappingStudy() {
+export async function verifyMappingStudy(
+  directory: string | URL = corpusDirectory,
+) {
   const first = await renderMappingStudy(),
     second = await renderMappingStudy();
   requireInvariant(
     JSON.stringify(first) === JSON.stringify(second),
     "two generations must give identical bytes",
   );
+  const root =
+    typeof directory === "string"
+      ? resolve(directory)
+      : fileURLToPath(directory);
+  const expectedFiles = new Set([
+    ...Object.keys(first),
+    "README.md", // Authored documentation, outside generated JSON byte checks.
+    "generation-receipt.json", // Volatile capture, validated separately below.
+    "generation-receipt.sha256",
+  ]);
+  for (const entry of readdirSync(root, {
+    recursive: true,
+    withFileTypes: true,
+  })) {
+    if (entry.isDirectory()) continue;
+    const name = relative(root, join(entry.parentPath, entry.name));
+    requireInvariant(
+      entry.isFile() && expectedFiles.has(name),
+      `unexpected corpus artifact: ${name}`,
+    );
+  }
   for (const [name, bytes] of Object.entries(first)) {
     requireInvariant(
-      readFileSync(new URL(name, corpusDirectory), "utf8") === bytes,
+      readFileSync(join(root, name), "utf8") === bytes,
       `${name} differs from committed authoring; verification never updates expectations`,
     );
   }
+  const receiptBytes = readFileSync(
+    join(root, "generation-receipt.json"),
+    "utf8",
+  );
+  const receipt = GenerationReceiptSchema.parse(JSON.parse(receiptBytes));
+  requireInvariant(
+    readFileSync(join(root, "generation-receipt.sha256"), "utf8") ===
+      `${sha256(receiptBytes)}  generation-receipt.json\n`,
+    "generation receipt checksum mismatch",
+  );
+  requireInvariant(
+    receipt.manifestSha256 === sha256(first["manifest.json"]!),
+    "generation receipt manifest binding mismatch",
+  );
   return first;
 }

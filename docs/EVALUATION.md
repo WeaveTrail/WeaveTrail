@@ -90,7 +90,10 @@ no new result and leaves the current `NO_MODEL` decision unchanged.
 `dist/mapping-study-unsealed/`; `pnpm eval:corpus:check` verifies all committed
 draft bytes without updating expectations, generates twice to check determinism,
 and writes verified copies plus an actual environment receipt there. Both commands
-are offline. The `mapping-study-inputs/1` contract separates provider projections
+are offline. Verification rejects files outside the expected inventory; the
+committed volatile receipt is excluded from regeneration but checked for strict
+shape, its original-byte SHA-256 checksum and binding to the manifest hash.
+The `mapping-study-inputs/1` contract separates provider projections
 from gold, family briefs and parent-relative DRIFT relations. The committed
 inventory has 24 SELECT inputs, 60 AUDIT inputs and 12 DRIFT bases with six
 follow-ups each (84 DRIFT inputs). These are **96 proposed families**, not an

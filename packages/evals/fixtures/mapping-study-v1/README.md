@@ -28,11 +28,16 @@ pnpm exec vitest run packages/evals/src/mapping-corpus.test.ts
 ```
 
 Generation writes `dist/mapping-study-unsealed/`. Verification generates twice,
-checks every committed JSON byte, and fails without updating expectations. Both
+checks every deterministic JSON byte, rejects unexpected files (including stale
+JSON in subdirectories), and fails without updating expectations. Both
 write a separate actual `generation-receipt.json` with time, checkout, tracked
 dirty paths, Node/pnpm/platform/architecture and the manifest hash. The initial
 capture receipt is retained here; deterministic reproduction excludes its
-volatile environment metadata. After a deliberate authoring correction, explicitly
+volatile environment metadata but validates its strict shape, original bytes
+against `generation-receipt.sha256`, and binding to the current manifest hash.
+The receipt and its checksum are explicit exceptions to deterministic regeneration;
+the authored README is outside generated JSON checks. Checksums establish byte
+integrity and binding, not authenticity of environment metadata. After a deliberate authoring correction, explicitly
 use `pnpm eval:corpus:generate --output packages/evals/fixtures/mapping-study-v1`
 and review the changed inputs, gold, manifest and receipt together.
 
