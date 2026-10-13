@@ -55,6 +55,13 @@ and actual B0/B1 records against the committed common-scorer summary. It never
 updates expectations or reads another split. Regression tests also reproduce the
 capture in `pnpm test`; see the [development reference protocol](docs/EVALUATION.md#stronger-non-model-development-reference).
 
+`pnpm eval:study:score --bundle <bundle.json>` re-scores hash-bound study
+records offline with B0/B1 beside them. `pnpm eval:study:select --bundle
+<bundle.json>` applies selection to a completed SELECT grid. Authored controls
+and exact family analysis are covered by `pnpm test`; see the
+[tool guide](docs/MAPPING_STUDY_TOOLS.md) for byte checks and exploratory limits.
+These commands do not call models, seal a corpus or activate a live path.
+
 `pnpm eval:corpus:generate` renders the unsealed synthetic SELECT/AUDIT/DRIFT
 drafts into `dist/mapping-study-unsealed/`. `pnpm eval:corpus:check` runs author
 preflight, generates twice and verifies deterministic artifact bytes without

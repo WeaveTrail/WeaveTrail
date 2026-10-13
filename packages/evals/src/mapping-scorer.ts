@@ -7,6 +7,7 @@ import {
   MappedTargetFieldSchema,
   MappingRunRecordSchema,
   type AnyMappingRunRecord,
+  type MappingStudyRunRecord,
 } from "@weavetrail/contracts";
 import {
   mappingColumnIds,
@@ -96,7 +97,8 @@ export const MappingPriceTableSchema = z
 type Prices = z.infer<typeof MappingPriceTableSchema>;
 type Dialect = z.infer<typeof CorpusSchema>["dialects"][number];
 type Field = NonNullable<AnyMappingRunRecord["parsedOutput"]>["fields"][number];
-type BoundRun = { record: AnyMappingRunRecord; dialect: Dialect };
+export type BoundRun<R = AnyMappingRunRecord> = { record: R; dialect: Dialect };
+type MetricRecord = AnyMappingRunRecord | MappingStudyRunRecord;
 export type Count = { numerator: string; denominator: string };
 const count = (n: bigint | number, d: bigint | number): Count => ({
   numerator: String(n),
@@ -147,7 +149,7 @@ export const unflaggedNoTarget = (f: Field) =>
   typeof f.confidence === "number" &&
   f.confidence >= MAPPING_CONFIDENCE_REVIEW_THRESHOLD;
 /** Whether a record carries output that any count may read. */
-export const retainsOutput = (r: AnyMappingRunRecord) =>
+export const retainsOutput = (r: MetricRecord) =>
   r.parsedOutput !== null &&
   (r.outcome === "VALID" || r.failureClass === "OUTPUT_CONTRACT");
 
@@ -256,7 +258,7 @@ export function rankBeyondRepeatSpread(
   return BigInt(delta.numerator) > 0n ? "LEFT" : "RIGHT";
 }
 
-function semanticOutput(r: AnyMappingRunRecord, dialect: Dialect, tag: string) {
+function semanticOutput(r: MetricRecord, dialect: Dialect, tag: string) {
   const names = new Set(
     dialect.gold
       .filter((g) => tag === "ALL" || g.tags.some((t) => t === tag))
@@ -285,8 +287,8 @@ function semanticOutput(r: AnyMappingRunRecord, dialect: Dialect, tag: string) {
     ),
   });
 }
-function metrics(
-  runs: BoundRun[],
+export function mappingMetrics(
+  runs: BoundRun<MetricRecord>[],
   tag: string,
   prices: Prices,
   scorer: ScorerVersion,
@@ -580,10 +582,10 @@ export function scoreMappingRuns(
             return [
               tag,
               {
-                ...metrics(subset, tag, prices, scorer),
+                ...mappingMetrics(subset, tag, prices, scorer),
                 accuracyByRepeat: repeats.map((repeat) => ({
                   repeat,
-                  ...metrics(
+                  ...mappingMetrics(
                     subset.filter((r) => r.record.repeat === repeat),
                     tag,
                     prices,
