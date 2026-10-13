@@ -24,3 +24,7 @@ apps/web/src/design-reference/tokens
 
 # Original ADR 0075 gate 2 runner bytes; receipts and offline regression verify them.
 /packages/evals/results/mapping-dev-gate-v4/**/*.json
+
+# Compact B0/B1 DEV capture; verified by eval:baselines:dev and regression tests.
+/packages/evals/fixtures/strong-baseline-v1/records.json
+/packages/evals/results/strong-baseline-dev-v1.json

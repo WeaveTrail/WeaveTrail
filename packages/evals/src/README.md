@@ -21,6 +21,14 @@ Only workspace dependencies were added, to exercise the existing implementation.
 The fixture publication never calls configured providers. No third-party
 evaluation runtime is used.
 
+The [stronger non-model reference](strong-mapping-baseline.ts) uses a frozen
+DEV-only whole-name vocabulary and five ordered token rules. Run
+`pnpm eval:baselines:dev` to reconstruct its configuration and reproduce actual
+B0/B1 DEV records and the common-scorer summary. Regression tests do the same
+offline. This development reference selects no model and creates no approval;
+new-corpus comparison integration and experiment pre-registration remain planned.
+See the [protocol and limitations](../../../docs/EVALUATION.md#stronger-non-model-development-reference).
+
 Evaluation v3 retains the synthetic inputs with unchanged oracles and removes
 all real-source baselines. Previous financial replay v1/v2 and claim coverage v1
 outputs remain [historical captures with withdrawn sources](../results/README.md).
