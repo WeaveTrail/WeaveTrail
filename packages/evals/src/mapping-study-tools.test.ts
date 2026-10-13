@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
@@ -6,6 +8,7 @@ import {
   MappingStudyRouteRecordSchema,
 } from "@weavetrail/contracts";
 import { canonicalJson, sha256Canonical } from "@weavetrail/replay-engine";
+import { validateColumnIdStructure } from "@weavetrail/ai-harness/validator";
 import { readStudyBundle, runStudyScoreCommand } from "./score-mapping-study";
 import { scoreMappingStudy } from "./mapping-study-scorer";
 import { selectStudyModels } from "./mapping-study-selection";
@@ -15,7 +18,11 @@ import {
 } from "./mapping-study-analysis";
 import { compareCounts } from "./mapping-scorer";
 import { readStudyProtocol } from "./mapping-study-protocol";
-import { bindStudySource } from "./mapping-study-data";
+import {
+  bindStudySource,
+  studyMappingInput,
+  type StudySource,
+} from "./mapping-study-data";
 import { sha256 } from "./mapping-corpus-generator";
 import { synthesizeStudyRoute, studyRecordHash } from "./mapping-study-runs";
 
@@ -27,6 +34,98 @@ const path = (split: string, name: string) =>
     ),
   );
 const load = (split = "AUDIT") => readStudyBundle(path(split, "bundle.json"));
+const draftBytes = (name: string) => {
+  const bytes = readFileSync(
+    new URL(`../fixtures/mapping-study-v1/${name}`, import.meta.url),
+    "utf8",
+  );
+  return { bytes, sha256: sha256(bytes) };
+};
+const loadDrift = () => {
+  const input = load("SELECT");
+  const source: StudySource = {
+    inputs: draftBytes("DRIFT.inputs.json"),
+    gold: draftBytes("DRIFT.gold.json"),
+    families: draftBytes("families.json"),
+    driftRelations: draftBytes("drift-relations.json"),
+  };
+  const { protocol } = readStudyProtocol(input.protocol);
+  protocol.sources = [
+    {
+      split: "DRIFT",
+      inputsHash: source.inputs.sha256,
+      goldHash: source.gold.sha256,
+      familiesHash: source.families.sha256,
+      driftRelationsHash: source.driftRelations!.sha256,
+      seal: { status: "UNSEALED", independentReviewHash: null },
+    },
+  ];
+  return {
+    ...input,
+    protocol,
+    source,
+    records: [] as unknown[],
+    routes: [] as unknown[],
+  };
+};
+const driftRecords = (input: ReturnType<typeof loadDrift>) => {
+  const { protocol, hash } = readStudyProtocol(input.protocol);
+  const source = bindStudySource(protocol, input.source);
+  const template = MappingStudyRunRecordSchema.parse(
+    (load("SELECT").records as unknown[])[0],
+  );
+  return source.dialects.flatMap((d) =>
+    protocol.candidates.flatMap((candidate) =>
+      Array.from({ length: protocol.repeats }, (_, i) => {
+        const fields = d.gold.columns.map((g) => ({
+          columnId: g.columnId,
+          sourceColumn: g.sourceColumn,
+          targetField: g.targetField,
+          transform: g.transform,
+          status: g.status,
+          confidence: g.targetField === null ? 0 : 1,
+          evidence:
+            "Authored DRIFT regression fixture; not a provider observation.",
+        }));
+        const validation = validateColumnIdStructure(
+          {
+            kind: "fields",
+            value: {
+              fields: fields.map(({ sourceColumn, ...field }) => {
+                void sourceColumn;
+                return field;
+              }),
+            },
+          },
+          studyMappingInput(d),
+        );
+        return MappingStudyRunRecordSchema.parse({
+          ...template,
+          protocolHash: hash,
+          candidateId: candidate.id,
+          requestedModel: candidate.requestedModel,
+          reportedModel: candidate.requestedModel,
+          ...candidate.stack,
+          familyId: d.family.id,
+          inputHash: d.input.inputHash,
+          dialectId: d.input.dialectId,
+          repeat: i + 1,
+          evaluationSet: {
+            version: "mapping-study-inputs/1",
+            split: "DRIFT",
+            sha256: source.hash,
+          },
+          outcome:
+            validation.status === "VALID" ? "VALID" : "CONTRACT_REJECTED",
+          failureClass:
+            validation.status === "VALID" ? null : "OUTPUT_CONTRACT",
+          validatorReasons: validation.reasons,
+          parsedOutput: { fields },
+        });
+      }),
+    ),
+  );
+};
 const records = (input: ReturnType<typeof load>) =>
   (input.records as unknown[]).map((r) => MappingStudyRunRecordSchema.parse(r));
 const routes = (input: ReturnType<typeof load>) =>
@@ -235,6 +334,142 @@ describe("offline mapping study tools", () => {
     });
     expect(() => selectStudyModels(input)).toThrow("complete SELECT");
   });
+  it.each(["partial", "empty"])(
+    "withholds reference comparisons for a stopped %s grid",
+    (coverage) => {
+      const input = load("SELECT");
+      input.records = coverage === "partial" ? records(input).slice(0, -1) : [];
+      input.session = {
+        id: "authored-controls-select",
+        status: "STOPPED",
+        stopReason: "OPERATOR",
+      };
+      const summary = scoreMappingStudy(input);
+      expect(summary.grid.complete).toBe(false);
+      expect(summary.referenceComparisons).toEqual([]);
+      expect(summary.arms.slice(0, 2).map((a) => a.id)).toEqual(["B0", "B1"]);
+    },
+  );
+  it("binds every committed DRIFT base and follow-up to its declared family", () => {
+    const input = loadDrift();
+    const source = bindStudySource(input.protocol, input.source);
+    expect(source.dialects).toHaveLength(84);
+    expect(new Set(source.dialects.map((d) => d.family.id)).size).toBe(12);
+    expect(
+      source.dialects.find((d) => d.input.dialectId === "d-085.1")!.family
+        .dialectId,
+    ).toBe("d-085");
+  });
+  it("scores the full DRIFT grid through the offline bundle CLI with twelve dependent families", () => {
+    const input = loadDrift();
+    input.records = driftRecords(input);
+    const directory = mkdtempSync(join(tmpdir(), "mapping-study-drift-"));
+    const bundle: Record<string, string> = {
+      version: "mapping-study-bundle/1",
+    };
+    try {
+      for (const [name, bytes] of Object.entries(input.source)) {
+        bundle[name] = `${name}.json`;
+        writeFileSync(join(directory, bundle[name]), bytes.bytes);
+      }
+      for (const [name, json] of Object.entries({
+        protocol: input.protocol,
+        records: input.records,
+        session: input.session,
+        prices: JSON.parse(input.prices.bytes),
+        b0: input.references.b0,
+        b1: input.references.b1,
+      })) {
+        bundle[name] = `${name}.json`;
+        writeFileSync(
+          join(directory, bundle[name]),
+          `${canonicalJson(json)}\n`,
+        );
+      }
+      const bundlePath = join(directory, "bundle.json");
+      writeFileSync(bundlePath, `${canonicalJson(bundle)}\n`);
+      const summary = runStudyScoreCommand([
+        "--bundle",
+        bundlePath,
+        "--out",
+        directory,
+      ]);
+      expect(summary).toMatchObject({ split: "DRIFT" });
+      const score = scoreMappingStudy(readStudyBundle(bundlePath));
+      expect(score.grid).toMatchObject({ complete: true, recordedRuns: "504" });
+      expect(score.arms.every((a) => a.families.length === 12)).toBe(true);
+      expect(score.bindings.driftRelationsHash).toBe(
+        input.source.driftRelations!.sha256,
+      );
+      expect(readFileSync(join(directory, "summary.json"), "utf8")).toBe(
+        `${canonicalJson(score)}\n`,
+      );
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+  it.each([
+    "missing",
+    "duplicate",
+    "family",
+    "base",
+    "base-hash",
+    "followup-hash",
+    "unknown-followup",
+    "status",
+  ])("rejects a hash-bound DRIFT relation mutation: %s", (mutation) => {
+    const input = loadDrift();
+    const relations = JSON.parse(input.source.driftRelations!.bytes);
+    const first = relations.records[0];
+    if (mutation === "missing") relations.records.shift();
+    if (mutation === "duplicate") relations.records.push(first);
+    if (mutation === "family") first.familyId = "f-086";
+    if (mutation === "base") first.baseDialectId = "d-086";
+    if (mutation === "base-hash") first.baseInputHash = "0".repeat(64);
+    if (mutation === "followup-hash") first.inputHash = "0".repeat(64);
+    if (mutation === "unknown-followup") first.dialectId = "d-999.1";
+    if (mutation === "status") relations.status = "SEALED";
+    const bytes = `${canonicalJson(relations)}\n`;
+    input.source.driftRelations = { bytes, sha256: sha256(bytes) };
+    input.protocol.sources[0]!.driftRelationsHash =
+      input.source.driftRelations.sha256;
+    expect(() => bindStudySource(input.protocol, input.source)).toThrow();
+  });
+  it.each(["missing-file", "unbound-hash", "changed-bytes"])(
+    "rejects DRIFT relations without their original-byte protocol binding: %s",
+    (mutation) => {
+      const input = loadDrift();
+      if (mutation === "missing-file") delete input.source.driftRelations;
+      if (mutation === "unbound-hash")
+        delete input.protocol.sources[0]!.driftRelationsHash;
+      if (mutation === "changed-bytes")
+        input.source.driftRelations!.bytes += " ";
+      expect(() => bindStudySource(input.protocol, input.source)).toThrow();
+    },
+  );
+  it.each(["PROPOSAL_OFFERABLE", "REVIEW_REQUIRED"])(
+    "rejects gold whose declared %s disposition contradicts its canonical proposal",
+    (original) => {
+      const input = load();
+      const gold = JSON.parse(input.source.gold.bytes);
+      const truth = gold.records.find(
+        (g: { expectedDisposition: string }) =>
+          g.expectedDisposition === original,
+      );
+      truth.expectedDisposition =
+        original === "PROPOSAL_OFFERABLE"
+          ? "REVIEW_REQUIRED"
+          : "PROPOSAL_OFFERABLE";
+      input.source.gold.bytes = `${canonicalJson(gold)}\n`;
+      input.source.gold.sha256 = sha256(input.source.gold.bytes);
+      rebindProtocol(input, (p) => {
+        p.sources[0]!.goldHash = input.source.gold.sha256;
+      });
+      expect(() => scoreMappingStudy(input)).toThrow(
+        "Study gold disposition mismatch",
+      );
+    },
+  );
   it("rejects changed original bytes, price bindings and reference configurations", () => {
     for (const kind of ["input", "price", "b1"] as const) {
       const input = load();
@@ -408,6 +643,18 @@ describe("offline mapping study tools", () => {
     expect(actual.comparisons).toEqual([]);
     expect(actual.zeroWrongExposureFamilyBound?.families).toBe("1");
     expect(actual.fullGrid).toBe(true);
+    const liveRoutes = routes(input);
+    liveRoutes[0]!.selectedRunHash = null;
+    liveRoutes[0]!.finalStatus = "REVIEW_REQUIRED";
+    liveRoutes[0]!.stop = "DEADLINE";
+    input.routes = liveRoutes;
+    expect(() => scoreMappingStudy(input)).toThrow(
+      "Premature study route deadline",
+    );
+    liveRoutes[0]!.latencyMs = protocol.routeTimeoutMs;
+    expect(scoreMappingStudy(input).routes[0]!.reviewRequired.numerator).toBe(
+      "1",
+    );
     input.routes = [];
     expect(() => scoreMappingStudy(input)).toThrow("Unreferenced live");
   });
@@ -459,6 +706,13 @@ describe("offline mapping study tools", () => {
       "Offerable primary must be returned directly",
     );
     route.stop = "DEADLINE";
+    expect(() => scoreMappingStudy(input)).toThrow(
+      "Premature study route deadline",
+    );
+    route.latencyMs = protocol.routeTimeoutMs;
+    expect(scoreMappingStudy(input).routes[0]!.reviewRequired.numerator).toBe(
+      "1",
+    );
     route.latencyMs = protocol.routeTimeoutMs + 1;
     expect(scoreMappingStudy(input).routes[0]!.reviewRequired).toEqual({
       numerator: "1",

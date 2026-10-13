@@ -411,6 +411,8 @@ export function scoreMappingStudy(input: StudyScoreInput) {
       throw new Error("Unpaired route escalation");
     if (route.escalationRunHash && !e)
       throw new Error("Unknown escalation run hash");
+    if (route.stop === "DEADLINE" && route.latencyMs < protocol.routeTimeoutMs)
+      throw new Error("Premature study route deadline");
     if (
       route.reason === "PRIMARY_OFFERABLE" &&
       (e ||
@@ -704,25 +706,27 @@ export function scoreMappingStudy(input: StudyScoreInput) {
       };
     });
   const allArms = [...referenceArms, ...arms];
-  const referenceComparisons = referenceArms.flatMap((reference) =>
-    arms.map((arm) => ({
-      reference: reference.id,
-      candidate: arm.id,
-      strictAccuracyOrder: compareCounts(
-        reference.byTag.ALL!.strictAccuracy,
-        arm.byTag.ALL!.strictAccuracy,
-      ),
-      byTag: Object.fromEntries(
-        tags.map((tag) => [
-          tag,
-          compareCounts(
-            reference.byTag[tag]!.strictAccuracy,
-            arm.byTag[tag]!.strictAccuracy,
+  const referenceComparisons = missing.length
+    ? []
+    : referenceArms.flatMap((reference) =>
+        arms.map((arm) => ({
+          reference: reference.id,
+          candidate: arm.id,
+          strictAccuracyOrder: compareCounts(
+            reference.byTag.ALL!.strictAccuracy,
+            arm.byTag.ALL!.strictAccuracy,
           ),
-        ]),
-      ),
-    })),
-  );
+          byTag: Object.fromEntries(
+            tags.map((tag) => [
+              tag,
+              compareCounts(
+                reference.byTag[tag]!.strictAccuracy,
+                arm.byTag[tag]!.strictAccuracy,
+              ),
+            ]),
+          ),
+        })),
+      );
   return {
     version: "mapping-study-score/1",
     protocolHash,
@@ -736,6 +740,9 @@ export function scoreMappingStudy(input: StudyScoreInput) {
       inputsHash: input.source.inputs.sha256,
       goldHash: input.source.gold.sha256,
       familiesHash: input.source.families.sha256,
+      ...(input.source.driftRelations
+        ? { driftRelationsHash: input.source.driftRelations.sha256 }
+        : {}),
       pricesHash: input.prices.sha256,
       ...protocol.references,
     },

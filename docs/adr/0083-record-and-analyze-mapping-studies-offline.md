@@ -22,6 +22,13 @@ operating sample is never pooled into the grid's quality estimate.
 
 Protocols supply candidate identities, stacks, original-byte hashes, frozen
 DEV reference configurations, tariffs, repeats and analysis configuration.
+DRIFT follow-ups retain their base family through a separately hash-bound
+relation artifact. Each relation must agree with the supplied family's base
+dialect, both input hashes and both gold family IDs; naming alone never creates
+lineage. Bundles with follow-ups declare the relation path and protocol source
+hash, while existing SELECT/AUDIT protocol bytes remain valid. Canonical gold
+dispositions are checked with the shared approval-readiness validator before
+termination scoring uses them.
 B0 and B1 run automatically beside every model comparison and cannot be
 selected. The new selector retains the strengthened eligibility conditions
 and historical primary and escalation ordering; across providers its final
@@ -36,6 +43,8 @@ from paired elapsed times; actual route latency belongs to a separate sample.
 Conditional route resources and all recorded research resources are reported
 separately. No synthetic record invents a provider failure to represent a withheld
 proposal.
+Any recorded deadline stop must reach the configured timeout, including live
+samples; a premature stop cannot silently drop an offerable proposal.
 
 Family analysis uses exact rational macro differences, stratified paired cluster
 resampling, a SHA-256 counter stream with rejection sampling and inverse empirical
@@ -45,6 +54,9 @@ and returns a conservative rational bracket, separately from the bootstrap.
 
 Completed sessions require the entire declared grid. Stopped sessions retain
 observed failures and explicit missing coordinates; they cannot select a model.
+Reference comparisons require a complete model grid. An incomplete session keeps
+its observations and the full reference summaries separately, without ordering
+metrics computed over different samples.
 Unsealed or unaudited input bindings produce exploratory output. Even a decision
 with registered input attestations has activation disabled. This tooling does not
 create approvals, call providers, admit a corpus seal, authorize paid work or

@@ -60,6 +60,7 @@ export const MappingStudyProtocolSchema = z
             inputsHash: StudyHashSchema,
             goldHash: StudyHashSchema,
             familiesHash: StudyHashSchema,
+            driftRelationsHash: StudyHashSchema.optional(),
             seal: z
               .object({
                 status: z.enum(["UNSEALED", "SEALED"]),
@@ -144,7 +145,13 @@ export const MappingStudyProtocolSchema = z
         path: ["auditHash"],
         message: "Audited protocol requires an audit binding",
       });
-    for (const [i, source] of p.sources.entries())
+    for (const [i, source] of p.sources.entries()) {
+      if (source.driftRelationsHash && source.split !== "DRIFT")
+        ctx.addIssue({
+          code: "custom",
+          path: ["sources", i, "driftRelationsHash"],
+          message: "Drift relations require a DRIFT source",
+        });
       if (
         source.seal.status === "SEALED" &&
         source.seal.independentReviewHash === null
@@ -154,6 +161,7 @@ export const MappingStudyProtocolSchema = z
           path: ["sources", i, "seal"],
           message: "Seal requires independent review binding",
         });
+    }
   });
 export type MappingStudyProtocol = z.infer<typeof MappingStudyProtocolSchema>;
 export function readStudyProtocol(input: unknown) {

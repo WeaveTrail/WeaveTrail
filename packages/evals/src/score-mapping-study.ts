@@ -15,6 +15,7 @@ const BundleSchema = z
     inputs: Path,
     gold: Path,
     families: Path,
+    driftRelations: Path.optional(),
     prices: Path,
     b0: Path,
     b1: Path,
@@ -37,6 +38,9 @@ export function readStudyBundle(path: string) {
       inputs: bytes(bundle.inputs),
       gold: bytes(bundle.gold),
       families: bytes(bundle.families),
+      ...(bundle.driftRelations
+        ? { driftRelations: bytes(bundle.driftRelations) }
+        : {}),
     },
     prices: bytes(bundle.prices),
     references: { b0: json(bundle.b0), b1: json(bundle.b1) },

@@ -41,7 +41,8 @@ summary bytes.
 ## Contracts and bindings
 
 A `mapping-study-bundle/1` names JSON files for `protocol`, `inputs`, `gold`,
-`families`, `prices`, `b0`, `b1`, `session`, `records` and optionally `routes`.
+`families`, `prices`, `b0`, `b1`, `session`, `records` and optionally `routes`
+and `driftRelations`.
 The protocol shape is defined by `MappingStudyProtocolSchema` in
 `packages/evals/src/mapping-study-protocol.ts`:
 
@@ -63,11 +64,21 @@ The protocol shape is defined by `MappingStudyProtocolSchema` in
   relabeling a historical capture. Original input projection hashes, stored
   header projections, validator outcomes and retained rejection reasons are
   rechecked offline. Unknown root fields, including raw envelopes, are refused.
-  Each input/gold pair must agree with its family's declared dialect ID and
-  split, even when the supplied artifact hashes match the protocol.
+  Each base input/gold pair must agree with its family's declared dialect ID and
+  split, even when the supplied artifact hashes match the protocol. DRIFT
+  follow-ups share the base family only through a declared `driftRelations`
+  artifact (`mapping-study-inputs/1`, status and `DriftRelationSchema` records).
+  Its original bytes must match the DRIFT source's `driftRelationsHash` in the
+  protocol. Every relation binds the family, base/follow-up dialect IDs and both
+  input hashes; missing, duplicate, unrelated or unused relations fail closed.
+  Gold's declared disposition must match the shared approval-readiness validator
+  applied to its canonical fields and exact input projection before termination
+  scoring uses it.
 - Completed sessions require every declared candidate/dialect/repeat GRID run.
   Stopped sessions report their stop reason and missing coordinates and cannot
-  select. Sessions cannot be spliced; duplicate coordinates, changed stacks,
+  select. Incomplete grids retain model observations and full B0/B1 reference
+  summaries but emit no `referenceComparisons`, because their samples differ.
+  Sessions cannot be spliced; duplicate coordinates, changed stacks,
   mixed record versions and mismatched source or tariff hashes fail closed.
 - `mapping-study-route/1` stores protocol/session/input/family coordinates,
   primary/escalation/selected run hashes, reason, stop, attempts, reservations,
@@ -76,7 +87,16 @@ The protocol shape is defined by `MappingStudyProtocolSchema` in
   list. References must resolve to runs with the correct phase and pair. Live
   sample records are distinct attempts, not copies relabeled as observed timing.
   An offerable primary with no stop must select its own run hash directly;
-  a deadline may withhold it with no selected run and `REVIEW_REQUIRED`.
+  a deadline may withhold it with no selected run and `REVIEW_REQUIRED` only
+  when recorded route latency reaches the configured timeout. This check also
+  applies to escalated routes; premature deadline stops fail closed.
+
+Existing SELECT/AUDIT bundles and their protocol/summary bytes need no migration.
+For a DRIFT bundle containing follow-ups, add the `driftRelations` file path and
+its original-byte `driftRelationsHash` to the protocol's DRIFT source, then bind
+new run records to that protocol hash. DRIFT scoring retains each base and its
+follow-ups in one family; these relations do not establish independent review,
+approval or corpus sealing.
 
 The route reconstruction helper reads only input and primary validation state to
 decide escalation. Primary provider failure, structural rejection or a field

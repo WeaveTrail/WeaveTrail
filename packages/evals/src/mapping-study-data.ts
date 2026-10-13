@@ -1,10 +1,12 @@
 import { z } from "zod";
 import type { MappingInput } from "@weavetrail/ai-harness";
-import { mappingInput, sha256 } from "./mapping-corpus-generator";
+import { validateMappingOutput } from "@weavetrail/ai-harness/validator";
+import { mappingInput, goldFields, sha256 } from "./mapping-corpus-generator";
 import {
   ArtifactSchema,
   GoldArtifactSchema,
   FamilyBriefSchema,
+  DriftRelationSchema,
 } from "./mapping-corpus-contract";
 import {
   checkedStudyJson,
@@ -22,10 +24,18 @@ const Families = z
     records: z.array(FamilyBriefSchema).min(1),
   })
   .strict();
+const DriftRelations = z
+  .object({
+    version: z.literal("mapping-study-inputs/1"),
+    status: Status,
+    records: z.array(DriftRelationSchema),
+  })
+  .strict();
 export type StudySource = {
   inputs: StudyBytes;
   gold: StudyBytes;
   families: StudyBytes;
+  driftRelations?: StudyBytes;
 };
 export function bindStudySource(
   protocol: MappingStudyProtocol,
@@ -46,6 +56,21 @@ export function bindStudySource(
     )
   )
     throw new Error("Undeclared study source binding");
+  if (
+    source.driftRelations?.sha256 !== declared.driftRelationsHash ||
+    (source.driftRelations && inputs.split !== "DRIFT")
+  )
+    throw new Error("Undeclared study drift relation binding");
+  const relations = source.driftRelations
+    ? DriftRelations.parse(checkedStudyJson(source.driftRelations))
+    : undefined;
+  if (relations && relations.status !== declared.seal.status)
+    throw new Error("Study drift relation status mismatch");
+  const relationByDialect = new Map(
+    relations?.records.map((r) => [r.dialectId, r]),
+  );
+  if (relationByDialect.size !== (relations?.records.length ?? 0))
+    throw new Error("Duplicate study drift relation");
   for (const [label, ids] of [
     ["input", inputs.inputs.map((i) => i.dialectId)],
     ["gold", gold.records.map((g) => g.dialectId)],
@@ -56,6 +81,34 @@ export function bindStudySource(
   if (inputs.inputs.length !== gold.records.length)
     throw new Error("Study input/gold coverage mismatch");
   if (!inputs.inputs.length) throw new Error("Study requires nonempty inputs");
+  for (const relation of relationByDialect.values()) {
+    const family = families.records.find((f) => f.id === relation.familyId);
+    const base = inputs.inputs.find(
+      (i) => i.dialectId === relation.baseDialectId,
+    );
+    const followup = inputs.inputs.find(
+      (i) => i.dialectId === relation.dialectId,
+    );
+    const baseGold = gold.records.find(
+      (g) => g.dialectId === relation.baseDialectId,
+    );
+    const followupGold = gold.records.find(
+      (g) => g.dialectId === relation.dialectId,
+    );
+    if (
+      !family ||
+      !base ||
+      !followup ||
+      family.split !== "DRIFT" ||
+      family.dialectId !== relation.baseDialectId ||
+      relation.dialectId === relation.baseDialectId ||
+      baseGold?.familyId !== family.id ||
+      followupGold?.familyId !== family.id ||
+      relation.baseInputHash !== base.inputHash ||
+      relation.inputHash !== followup.inputHash
+    )
+      throw new Error("Study drift relation mismatch");
+  }
   const dialects = inputs.inputs.map((input) => {
     const truth = gold.records.find((g) => g.dialectId === input.dialectId);
     const family = families.records.find((f) => f.id === truth?.familyId);
@@ -63,7 +116,9 @@ export function bindStudySource(
       !truth ||
       !family ||
       family.split !== inputs.split ||
-      family.dialectId !== input.dialectId ||
+      (family.dialectId !== input.dialectId &&
+        (inputs.split !== "DRIFT" ||
+          relationByDialect.get(input.dialectId)?.familyId !== family.id)) ||
       input.inputHash !== truth.inputHash ||
       input.inputHash !== sha256(JSON.stringify(input.projection))
     )
@@ -77,6 +132,15 @@ export function bindStudySource(
       )
     )
       throw new Error("Study gold column projection mismatch");
+    const ready = validateMappingOutput(
+      { kind: "fields", value: { fields: goldFields(truth) } },
+      mappingInput(input),
+    );
+    if (
+      (ready.status === "VALID") !==
+      (truth.expectedDisposition === "PROPOSAL_OFFERABLE")
+    )
+      throw new Error("Study gold disposition mismatch");
     return { input, gold: truth, family };
   });
   const scopedFamilies = families.records.filter(
