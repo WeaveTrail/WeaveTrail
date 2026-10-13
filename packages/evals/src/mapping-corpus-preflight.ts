@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
-import { corpusReview } from "./mapping-corpus-review";
+import {
+  corpusReview,
+  requireReviewedSplitBindings,
+} from "./mapping-corpus-review";
 import {
   validateMappingOutput,
   validateMappingStructure,
@@ -255,6 +258,7 @@ export function preflight(study: MappingStudy) {
     new Set(dialects.map((d) => d.dialectId)).size === 168,
     "168 unique scenario IDs required",
   );
+  requireReviewedSplitBindings(study);
   const inventory = study.splits.map((split) => {
     const families = study.families.filter(
       (f) => f.split === split.input.split,

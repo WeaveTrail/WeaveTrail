@@ -4,7 +4,11 @@ import {
   familyLineageSha256,
   LINEAGE_PROJECTION_VERSION,
 } from "./mapping-corpus-lineage";
-import { ColumnAssignmentSchema, cells } from "./mapping-corpus-contract";
+import {
+  ColumnAssignmentSchema,
+  GoldRecordSchema,
+  cells,
+} from "./mapping-corpus-contract";
 import { sha256, type MappingStudy } from "./mapping-corpus-generator";
 
 export const reviewBaselineDirectory = new URL(
@@ -75,9 +79,62 @@ export function readReviewBaseline(directory: URL = reviewBaselineDirectory) {
   return { baseline, sha256: sha256(bytes) };
 }
 
+/** Keep containing artifact labels bound to the original reviewed partition. */
+export function requireReviewedSplitBindings(
+  study: MappingStudy,
+  baseline = readReviewBaseline().baseline,
+) {
+  const labels = study.splits.map((s) => s.input.split);
+  if (labels.length !== 3 || new Set(labels).size !== 3)
+    throw new Error(
+      "Independent review split binding mismatch: artifact inventory",
+    );
+  for (const split of study.splits) {
+    if (split.input.split !== split.gold.split)
+      throw new Error(
+        "Independent review split binding mismatch: input/gold labels",
+      );
+    const inputIds = new Set(split.input.inputs.map((i) => i.dialectId));
+    const goldIds = new Set(split.gold.records.map((g) => g.dialectId));
+    if (
+      inputIds.size !== split.input.inputs.length ||
+      goldIds.size !== split.gold.records.length ||
+      inputIds.size !== goldIds.size ||
+      [...inputIds].some((id) => !goldIds.has(id))
+    )
+      throw new Error(
+        `Independent review split binding mismatch: ${split.input.split} record coverage`,
+      );
+    for (const input of split.input.inputs) {
+      const reviewed = baseline.records.find(
+        (r) => r.dialectId === input.dialectId,
+      );
+      if (!reviewed || reviewed.split !== split.input.split)
+        throw new Error(
+          `Independent review split binding mismatch: ${input.dialectId} input`,
+        );
+    }
+    for (const gold of split.gold.records) {
+      const reviewed = baseline.records.find(
+        (r) => r.dialectId === gold.dialectId,
+      );
+      const family = study.families.find((f) => f.id === gold.familyId);
+      if (
+        !reviewed ||
+        reviewed.split !== split.gold.split ||
+        family?.split !== split.gold.split
+      )
+        throw new Error(
+          `Independent review split binding mismatch: ${gold.dialectId} gold/family`,
+        );
+    }
+  }
+}
+
 /** Apply only the recorded decisions. Changed provider bytes need a new review. */
 export function corpusReview(study: MappingStudy) {
   const { baseline, sha256: baselineSha256 } = readReviewBaseline();
+  requireReviewedSplitBindings(study, baseline);
   const inputs = study.splits.flatMap((s) => s.input.inputs);
   if (
     new Set(baseline.records.map((r) => r.dialectId)).size !==
@@ -109,6 +166,8 @@ export function corpusReview(study: MappingStudy) {
         `Independent review family binding mismatch: ${family.id}`,
       );
     const lineageHash = familyLineageSha256(family);
+    // Never claim B3/N1 corrections were applied to incomplete or invalid gold.
+    for (const gold of current) GoldRecordSchema.parse(gold);
     const lineageChanged = original.some(
       (r) => r.familyLineageSha256 !== lineageHash,
     );

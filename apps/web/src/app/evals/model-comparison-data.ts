@@ -351,6 +351,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Diagnostic gold accepts an unreviewed alternative transform",
     ko: "진단 정답이 검토되지 않은 대체 변환을 수용함",
   },
+  {
+    id: "F-012",
+    status: "FIXED",
+    en: "Applied review claims survive missing evidence and split changes",
+    ko: "근거 누락과 분할 변경에도 검토 적용 주장이 유지됨",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

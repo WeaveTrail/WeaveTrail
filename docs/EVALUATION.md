@@ -113,7 +113,14 @@ semantic problems, parents or column evidence from inheriting acceptance.
 Replacement records bind each new input and complete gold record by hash,
 including gold-only changes. The gold contract rejects incompatible or unreviewed
 alternative transformations; preflight validates every alternative and its domain
-witnesses, including cases that lack a required target. The lineage findings remain unresolved, and
+witnesses, including cases that lack a required target. It also requires the
+complete reviewed Cartesian alternative set, excluding canonical transforms.
+Preflight and review application bind each containing input/gold artifact split
+to the reviewed partition and family; an unchanged pair cannot move between
+SELECT and AUDIT. Nonempty `absentRequiredTargets` requires
+`REQUIRED_TARGET_ABSENT` before N1 is reported as applied. These offline validator
+regressions are recorded in [F-012](AI_FAILURE_LOG.md#f-012-applied-review-claims-survive-missing-evidence-and-split-changes).
+The lineage findings remain unresolved, and
 `pnpm eval:corpus:seal:check` fails without creating a seal. HARD_RESOLVABLE is a
 construction stratum, not measured difficulty. No coverage floor is lowered;
 a recommended cell-specific redesign needs a reviewed coverage decision. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)

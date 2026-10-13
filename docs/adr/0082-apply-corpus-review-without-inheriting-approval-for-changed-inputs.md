@@ -49,10 +49,22 @@ are fixed by the canonical columns and input hash. Strict accuracy and eligibili
 still use the canonical assignment. These alternatives are diagnostic evidence;
 new-corpus scoring integration remains planned. Both tuple compatibility and the
 closed reviewed equivalence rules are enforced in the offline gold contract.
+The recorded alternatives must equal the complete Cartesian set derived from
+those rules, excluding the canonical assignment. Alternative array order may
+vary, but omissions, additions and duplicates are rejected. Generation uses the
+same derivation; the review ledger validates gold before claiming B3 is applied.
 Preflight checks all alternatives through the existing shared validator, verifies
 sample domains for event/side normalization, and compares normalized events on
 complete offerable inputs. Validator refusal on a missing required target does
 not waive the per-column domain checks.
+
+Preflight and review application bind each input and gold record's containing
+artifact split to its original reviewed split and current family split. The
+input/gold labels must agree, each split occurs once, and paired dialect IDs
+cover each other exactly. Moving an unchanged pair across SELECT/AUDIT is a
+binding failure even when hashes and family allocation counts still match.
+Gold with nonempty `absentRequiredTargets` must use `REQUIRED_TARGET_ABSENT`;
+review application validates that correction before reporting N1 as applied.
 
 Use seeded slots for changed DRIFT names, retaining the relative base order of
 unchanged names. Keep HARD_RESOLVABLE as a construction label, with its glosses

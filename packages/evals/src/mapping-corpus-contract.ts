@@ -324,6 +324,28 @@ export const InputRecordSchema = z
     projection: ProviderProjectionSchema,
   })
   .strict();
+
+/** Every reviewed Cartesian combination except the canonical assignment. */
+export function reviewedTransformAlternatives(gold: {
+  columns: z.infer<typeof ColumnGoldSchema>[];
+  dialectId: string;
+}): z.infer<typeof AssignmentTupleSchema>[][] {
+  let assignments: z.infer<typeof AssignmentTupleSchema>[][] = [[]];
+  for (const column of gold.columns)
+    assignments = assignments.flatMap((assignment) =>
+      reviewedEquivalentTransforms(column, gold.dialectId).map((transform) => [
+        ...assignment,
+        [
+          column.columnId,
+          column.targetField,
+          transform,
+          column.status,
+        ] as z.infer<typeof AssignmentTupleSchema>,
+      ]),
+    );
+  return assignments.slice(1);
+}
+
 export const GoldRecordSchema = z
   .object({
     dialectId: z.string(),
@@ -344,6 +366,15 @@ export const GoldRecordSchema = z
   })
   .strict()
   .superRefine((gold, ctx) => {
+    if (
+      gold.absentRequiredTargets.length &&
+      gold.reasonCategory !== "REQUIRED_TARGET_ABSENT"
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["reasonCategory"],
+        message: "Missing required targets must carry REQUIRED_TARGET_ABSENT",
+      });
     const seen = new Set<string>();
     for (const [
       index,
@@ -399,6 +430,15 @@ export const GoldRecordSchema = z
         });
       seen.add(key);
     }
+    const expected = reviewedTransformAlternatives(gold).map((a) =>
+      JSON.stringify(a),
+    );
+    if (seen.size !== expected.length || expected.some((key) => !seen.has(key)))
+      ctx.addIssue({
+        code: "custom",
+        path: ["acceptedAlternativeAssignments"],
+        message: "Gold must record the complete reviewed alternative set",
+      });
   });
 export type ProviderProjection = z.infer<typeof ProviderProjectionSchema>;
 export type InputRecord = z.infer<typeof InputRecordSchema>;

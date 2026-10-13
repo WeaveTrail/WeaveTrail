@@ -10,6 +10,10 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 import { preflight } from "./mapping-corpus-preflight";
+import {
+  GoldArtifactSchema,
+  reviewedTransformAlternatives,
+} from "./mapping-corpus-contract";
 import { generateMappingStudy, sha256 } from "./mapping-corpus-generator";
 import {
   corpusReview,
@@ -20,6 +24,98 @@ import {
 
 const study = generateMappingStudy();
 describe("applied independent corpus review", () => {
+  it.each(["ONE", "ALL"] as const)(
+    "rejects dropping %s reviewed alternative assignments before claiming B3 was applied",
+    (kind) => {
+      const changed = structuredClone(study);
+      const split = changed.splits[0]!;
+      const gold = split.gold.records.find(
+        (g) => g.acceptedAlternativeAssignments.length > 1,
+      )!;
+      if (kind === "ONE") gold.acceptedAlternativeAssignments.pop();
+      else gold.acceptedAlternativeAssignments = [];
+      expect(GoldArtifactSchema.safeParse(split.gold).success).toBe(false);
+      expect(() => preflight(changed)).toThrow(
+        "complete reviewed alternative set",
+      );
+      expect(() => corpusReview(changed)).toThrow(
+        "complete reviewed alternative set",
+      );
+      expect(() => requireCorpusSealReady(changed)).toThrow(
+        "complete reviewed alternative set",
+      );
+    },
+  );
+
+  it("accepts the complete reviewed alternative set in a different array order", () => {
+    const changed = structuredClone(study);
+    for (const split of changed.splits) {
+      for (const gold of split.gold.records)
+        gold.acceptedAlternativeAssignments.reverse();
+      expect(GoldArtifactSchema.safeParse(split.gold).success).toBe(true);
+    }
+    expect(preflight(changed).independentGoldReview).toBe(
+      corpusReview(study).status,
+    );
+    expect(corpusReview(changed).records).toEqual(corpusReview(study).records);
+    expect(corpusReview(changed).sealReadiness).toEqual(
+      corpusReview(study).sealReadiness,
+    );
+  });
+
+  it.each(["PAIR", "INPUT", "GOLD"] as const)(
+    "rejects exchanging SELECT and AUDIT %s records despite unchanged hashes and family allocation",
+    (kind) => {
+      const changed = structuredClone(study);
+      const select = changed.splits[0]!;
+      const audit = changed.splits[1]!;
+      if (kind !== "GOLD")
+        [select.input.inputs[0], audit.input.inputs[0]] = [
+          audit.input.inputs[0]!,
+          select.input.inputs[0]!,
+        ];
+      if (kind !== "INPUT")
+        [select.gold.records[0], audit.gold.records[0]] = [
+          audit.gold.records[0]!,
+          select.gold.records[0]!,
+        ];
+      expect(() => preflight(changed)).toThrow("split binding mismatch");
+      expect(() => corpusReview(changed)).toThrow("split binding mismatch");
+      expect(() => requireCorpusSealReady(changed)).toThrow(
+        "split binding mismatch",
+      );
+    },
+  );
+
+  it.each(["INPUT", "GOLD"] as const)(
+    "rejects a changed %s artifact split label",
+    (kind) => {
+      const changed = structuredClone(study);
+      if (kind === "INPUT") changed.splits[0]!.input.split = "AUDIT";
+      else changed.splits[0]!.gold.split = "AUDIT";
+      expect(() => preflight(changed)).toThrow("split binding mismatch");
+      expect(() => corpusReview(changed)).toThrow("split binding mismatch");
+    },
+  );
+
+  it.each(["COMPLETE_VISIBLE_ASSIGNMENT", "OTHER", ""])(
+    "rejects missing-required-target reason %j before claiming N1 was applied",
+    (reason) => {
+      const changed = structuredClone(study);
+      const split = changed.splits[2]!;
+      const gold = split.gold.records.find(
+        (g) => g.absentRequiredTargets.length,
+      )!;
+      gold.reasonCategory = reason;
+      expect(GoldArtifactSchema.safeParse(split.gold).success).toBe(false);
+      expect(() => preflight(changed)).toThrow("REQUIRED_TARGET_ABSENT");
+      expect(() => corpusReview(changed)).toThrow("REQUIRED_TARGET_ABSENT");
+      expect(() => requireCorpusSealReady(changed)).toThrow(
+        "REQUIRED_TARGET_ABSENT",
+      );
+    },
+  );
+
   it("reports the applied original review and pending replacement review in preflight", () => {
     const review = corpusReview(study);
     const report = preflight(study);
@@ -67,8 +163,11 @@ describe("applied independent corpus review", () => {
     (kind) => {
       const changed = structuredClone(study);
       const gold = changed.splits[0]!.gold.records[0]!;
-      if (kind === "TARGET") gold.columns[0]!.targetField = "actorId";
-      else if (kind === "DISPOSITION")
+      if (kind === "TARGET") {
+        gold.columns[0]!.targetField = "actorId";
+        gold.acceptedAlternativeAssignments =
+          reviewedTransformAlternatives(gold);
+      } else if (kind === "DISPOSITION")
         gold.expectedDisposition = "REVIEW_REQUIRED";
       else if (kind === "VALIDATOR")
         gold.expectedValidator = "TRANSFORM_FAILED";
@@ -118,8 +217,11 @@ describe("applied independent corpus review", () => {
       const changed = structuredClone(study);
       const gold = changed.splits[0]!.gold.records[0]!;
       const input = changed.splits[0]!.input.inputs[0]!;
-      if (kind === "TARGET") gold.columns[0]!.targetField = "actorId";
-      else if (kind === "DISPOSITION")
+      if (kind === "TARGET") {
+        gold.columns[0]!.targetField = "actorId";
+        gold.acceptedAlternativeAssignments =
+          reviewedTransformAlternatives(gold);
+      } else if (kind === "DISPOSITION")
         gold.expectedDisposition = "REVIEW_REQUIRED";
       else gold.expectedValidator = "TRANSFORM_FAILED";
       const exclusion = corpusReview(changed).exclusions.find(

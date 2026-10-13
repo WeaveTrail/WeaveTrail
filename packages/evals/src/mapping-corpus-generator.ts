@@ -15,8 +15,8 @@ import {
 } from "./mapping-corpus-authoring";
 import {
   ArtifactSchema,
-  AssignmentTupleSchema,
-  reviewedEquivalentTransforms,
+  ColumnGoldSchema,
+  reviewedTransformAlternatives,
   CORPUS_VERSION,
   DriftRelationSchema,
   FamilyBriefSchema,
@@ -111,34 +111,33 @@ function dialect(
   });
   const inputHash = sha256(JSON.stringify(projection));
   const input: InputRecord = { dialectId, inputHash, projection };
-  const gold = GoldRecordSchema.parse({
+  const gold: GoldRecord = {
     dialectId,
     familyId: brief.id,
     inputHash,
-    columns: ordered.map((column, i) => ({
-      columnId: projection.columns[i]!.columnId,
-      sourceColumn: column.name,
-      targetField: column.target,
-      transform: column.transform,
-      status: column.target === null ? "REVIEW_REQUIRED" : "PROPOSED",
-      tag: column.tag,
-      rationale: column.reason,
-      evidence: {
-        header: column.name,
-        sampleCoordinates: column.samples.map((_, row) => [
-          row,
-          projection.columns[i]!.columnId,
-        ]),
-      },
-      alternatives: column.alternatives,
-      ...(column.attack ? { attack: column.attack } : {}),
-    })),
-    absentRequiredTargets: [
-      "sourceEventId",
-      "eventTime",
-      "instrumentId",
-      "eventType",
-    ].filter((t) => !ordered.some((c) => c.target === t)),
+    columns: ordered.map((column, i) =>
+      ColumnGoldSchema.parse({
+        columnId: projection.columns[i]!.columnId,
+        sourceColumn: column.name,
+        targetField: column.target,
+        transform: column.transform,
+        status: column.target === null ? "REVIEW_REQUIRED" : "PROPOSED",
+        tag: column.tag,
+        rationale: column.reason,
+        evidence: {
+          header: column.name,
+          sampleCoordinates: column.samples.map((_, row) => [
+            row,
+            projection.columns[i]!.columnId,
+          ]),
+        },
+        alternatives: column.alternatives,
+        ...(column.attack ? { attack: column.attack } : {}),
+      }),
+    ),
+    absentRequiredTargets: (
+      ["sourceEventId", "eventTime", "instrumentId", "eventType"] as const
+    ).filter((t) => !ordered.some((c) => c.target === t)),
     expectedValidator: [
       "sourceEventId",
       "eventTime",
@@ -166,30 +165,9 @@ function dialect(
           .map((c) => c.tag)
           .join("+") || "COMPLETE_VISIBLE_ASSIGNMENT",
     acceptedAlternativeAssignments: [],
-  });
+  };
   gold.acceptedAlternativeAssignments = reviewedTransformAlternatives(gold);
   return { input, gold: GoldRecordSchema.parse(gold) };
-}
-
-/** B3 of the independent v1 review; strict gold is never replaced. */
-export function reviewedTransformAlternatives(gold: GoldRecord) {
-  const choices = gold.columns.map((column) =>
-    reviewedEquivalentTransforms(column, gold.dialectId),
-  );
-  let assignments: GoldRecord["acceptedAlternativeAssignments"] = [[]];
-  for (const [i, transforms] of choices.entries())
-    assignments = assignments.flatMap((assignment) =>
-      transforms.map((transform) => [
-        ...assignment,
-        AssignmentTupleSchema.parse([
-          gold.columns[i]!.columnId,
-          gold.columns[i]!.targetField,
-          transform,
-          gold.columns[i]!.status,
-        ]),
-      ]),
-    );
-  return assignments.slice(1);
 }
 
 /** Adapts the exact projection to the unchanged offline shared validator. */

@@ -117,3 +117,13 @@ Alternative assignments must use compatible transforms and only the closed B3
 equivalences; preflight validates their sample domains, shared-validator outcomes
 and normalized-event equivalence for complete offerable inputs. See
 [F-011](../../../../docs/AI_FAILURE_LOG.md#f-011-diagnostic-gold-accepts-an-unreviewed-alternative-transform).
+
+The contract also requires the exact complete reviewed alternative set, excluding
+canonical transforms; array order is immaterial, but missing or duplicate
+assignments fail. Preflight and review application reject records outside their
+original reviewed partition, mismatched input/gold split labels or dialect
+coverage, and family split mismatches. A nonempty `absentRequiredTargets` list
+requires `REQUIRED_TARGET_ABSENT`. The review ledger validates gold before
+reporting B3/N1 as applied. These checks preserve input and gold artifact bytes;
+the manifest source hashes and capture receipt bind the updated validation code.
+See [F-012](../../../../docs/AI_FAILURE_LOG.md#f-012-applied-review-claims-survive-missing-evidence-and-split-changes).
