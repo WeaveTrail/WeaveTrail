@@ -78,6 +78,13 @@ it; routine evaluation never updates targets. Financial replay v1/v2 and claim c
 
 ## Planned schema-dialect model evaluation input
 
+The next, separate selection/policy/reuse studies have an
+[authoring specification for SELECT, AUDIT and DRIFT](MAPPING_CORPUS_SPEC.md).
+It defines family independence, coverage, visible-input gold and reuse change
+oracles. Generation, independent gold review, sealing and pre-registration are
+planned; existing commands do not run these splits. This specification reports
+no new result and leaves the current `NO_MODEL` decision unchanged.
+
 The [version 1 offline corpus](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)
 is implemented input for a **planned** field-mapping model evaluation. It is not
 part of `pnpm eval` and has no model results. Its deterministic

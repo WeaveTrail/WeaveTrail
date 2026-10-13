@@ -13,6 +13,9 @@ updates the expected publication.
   records the capture environment and input fingerprint.
 - [Public protocol](../../../docs/EVALUATION.md) explains reproduction, sample
   definitions, provenance admission and limitations.
+- [Planned family and gold specification](../../../docs/MAPPING_CORPUS_SPEC.md)
+  defines separate SELECT, AUDIT and DRIFT authoring requirements. Their
+  generation, contracts, independent review and sealing are not implemented.
 
 Only workspace dependencies were added, to exercise the existing implementation.
 The fixture publication never calls configured providers. No third-party
