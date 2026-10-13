@@ -1,21 +1,21 @@
 {
   "version": "mapping-study-inputs/1",
   "status": "UNSEALED",
-  "generatorVersion": "mapping-study-generator/1",
+  "generatorVersion": "mapping-study-generator/2",
   "seed": "weavetrail-study-2036-a",
-  "specificationSha256": "82b2ca79ddd5ca2b9b8bddb587340fed3d435aaacf8573301e22d1a0d000ad4c",
+  "specificationSha256": "e016148fee289d1425122a9c915d4032ac1c4d35c90f7822f34bf5106a033320",
   "sourceFiles": [
     {
       "path": "packages/evals/src/mapping-corpus-authoring.ts",
-      "sha256": "9e548998c5ce9601ad98ae005345cba95d8d2b83f6d2d485ff4c3002fb8d31e9"
+      "sha256": "03893c42da17da65566344e3e1efb08400151c5c6ab1f6934bd5d2dc03aec876"
     },
     {
       "path": "packages/evals/src/mapping-corpus-contract.ts",
-      "sha256": "45c456de7d97365d612911e9750cba65fbc1c1dbfa58320615ac8191a8e566b5"
+      "sha256": "4ca2a2227f5802fb91ef96477b1edbe566c89edd9060bc9c55172c6e4e26efe8"
     },
     {
       "path": "packages/evals/src/mapping-corpus-generator.ts",
-      "sha256": "d7913a106a12b99fa5b528024f3f1cfe69c88417ca4f96ea2206729fea728c27"
+      "sha256": "8123456a4a6e5a2096c17e0c1836824ae80b74e6bbc4eb25715ecf2370ca6fc9"
     },
     {
       "path": "packages/evals/src/mapping-corpus-preflight.ts",
@@ -23,22 +23,26 @@
     },
     {
       "path": "packages/evals/src/mapping-corpus-artifacts.ts",
-      "sha256": "15c7345873f16b048baebe948a00b669f386c4f48899bdcef267906d399a7b88"
+      "sha256": "cf7d011489289e49be24def3babc6a877dffaccae1dc2bb89a4422756208e785"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-review.ts",
+      "sha256": "50a43e0cb4964b74ed282567d37cfe9d9652d456b82e7e3cac292119cf95c0f1"
     }
   ],
   "commandSource": {
     "path": "scripts/generate-mapping-study.mts",
-    "sha256": "2a7dbb99cbe823f8196cce8fcf960c6707c10ed5aea1d2d369c861c8f17242e7"
+    "sha256": "f230cf72d4b241cf032970b21e8d970809f521183df5d25150e4b259e427e3ba"
   },
   "lockfileSha256": "649ee1e18d6adc527e9863f2fed113f617085aab2d1dc35fa51a48e59b00f283",
   "files": [
     {
       "path": "families.json",
-      "sha256": "df7cfdb044adb3d6a658c4f7d228f668288cc4aad0ef8af41576be115a0eaeed"
+      "sha256": "e266c9d58e1671bfad96c2a69f8fe14c9f282f09f67982a512041078e93f155b"
     },
     {
       "path": "drift-relations.json",
-      "sha256": "ca9973fbe8f38ba87c7e09922d8d1c98dad266b9d3e369cc8268f0b3675e93d5"
+      "sha256": "ac1b7416510602e62ac9a2480745333d1e7a17beb036ce26579bcb0e6ff5ee94"
     },
     {
       "path": "base-approvals.json",
@@ -46,51 +50,62 @@
     },
     {
       "path": "review-ledger.json",
-      "sha256": "abbfac0307e93d2dee52f1eda91a32764f40791dab003842ee787ab360b5e80f"
+      "sha256": "24936e012e520943eaf963866b6f584730fa458bc393771e273262dfac1b1f57"
     },
     {
       "path": "exclusions.json",
-      "sha256": "9447fc79d3ca6ddcb8b5ffdedea3ab7529455579ac8b992db33749214df05638"
+      "sha256": "91004b510b78dd23c6c946a4786caa0b470a7f7a7cb2325e4f6b605f63387c4f"
+    },
+    {
+      "path": "seal-readiness.json",
+      "sha256": "5d668f6e086147667e0faf478e52bc56ca9218aa97297150008158343cdefbd2"
     },
     {
       "path": "exposure-ledger.json",
-      "sha256": "22866f3068fb1449ee1f9da3e8af66f07773975af3d71e708f1448c85c51afd8"
+      "sha256": "4f95e360b1aa544d8bc936b5a907564049e72b91c8ca79571014e2fae3cc5864"
     },
     {
       "path": "overlap-report.json",
-      "sha256": "56dc7c78d7b04681d7d31c2d141088963abd538f1e110cfe20c6b1a41ab2588f"
+      "sha256": "eaac93aaaf3adbccd9c4b69220f0ce21c00ef38f2fe48038381ece059db81d25"
     },
     {
       "path": "preflight.json",
-      "sha256": "ad498ad3d1e23a5b35ff1cf6f4b61debecc46c163eed9876c73202a64bd2abe0"
+      "sha256": "01b066a2cbd64a4136896941ee8a90621fc2f6406c4b27ed779a16f4eadce492"
     },
     {
       "path": "SELECT.inputs.json",
-      "sha256": "c1509d30edcd28cd43f92f9875866d1713c0dbd809e40ef6df6cb0e8e7b377f7"
+      "sha256": "ef7b1596241f43215d30bfb8d3d31176cccb91a8b5ee2493fbdae5f9b3389fb7"
     },
     {
       "path": "SELECT.gold.json",
-      "sha256": "8c6910f74db99ff2d097412f43ec3ec74f2dbf3551bc9dd2f097e6bc2501edfe"
+      "sha256": "6b74eb6814279c63ee274a1bdd100fe3ab1d27ead516e08faacaf30501e9835b"
     },
     {
       "path": "AUDIT.inputs.json",
-      "sha256": "f8cf2a0d72c1f6d015282e7646cfa5ac24dc0a2b23dca0a8d90530b957964c24"
+      "sha256": "d3c10ff24cdce471c6fd7622d85da6733127d71fb222448b33fb5ba47a68d73b"
     },
     {
       "path": "AUDIT.gold.json",
-      "sha256": "06f89a3c438aaaaa93a832dba3a949c65fd5d977fcceee963871b95999ff604d"
+      "sha256": "ee4135f0df569fb2ba7dc1b8ccb6ec301645f2158c0fc437684288005765426a"
     },
     {
       "path": "DRIFT.inputs.json",
-      "sha256": "985f01aaa1e6b9eec48dd4f5ea9de02076886ee38b8f1e0eb481fb6f84f5e865"
+      "sha256": "605ea7aa969c6b3efc661944d75722fc212f59cada5580f913919bfcfe4f23e7"
     },
     {
       "path": "DRIFT.gold.json",
-      "sha256": "bf80fffc3e2b679d3671e2c3cee3c4e6ddee4b722a040f8e1e73085afa0a2c0c"
+      "sha256": "d8baf0519b5dfcc91fd62da0ec2bc03a8a4fab3a477ee6a498b5c9f14d3d250f"
     }
   ],
-  "independentGoldReview": "PENDING",
+  "independentGoldReview": "APPLIED_WITH_UNRESOLVED_FINDINGS",
+  "reviewBaseline": {
+    "path": "packages/evals/fixtures/mapping-study-review-v1/baseline.json",
+    "sha256": "6e3ff087e619268aed745661fc7d2f28befc669db9d5045d2a58e2f28fe2c6b3",
+    "reviewDocumentSha256": "edbe74708f5749d15c7cde823c3f769b587a6ea33787251960c23c5cb49f0389",
+    "originalSourceCommit": "35a023581d0d5e90b77b651b9f4c09fed2cce790"
+  },
+  "sealReadiness": "BLOCKED",
   "experimentPreRegistration": "PLANNED",
   "liveRunnerEligible": false,
-  "note": "Checksums identify draft bytes, not an evaluation seal. Review/exclusion hashes are draft placeholders pending independent decisions. Existing runners reject these split/version contracts."
+  "note": "Checksums bind corrected drafts, applied independent decisions and replacements, not an evaluation seal. Unresolved lineage and changed-input review block sealing. Existing runners reject these split/version contracts."
 }

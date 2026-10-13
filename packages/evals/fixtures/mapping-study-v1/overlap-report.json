@@ -289,24 +289,7 @@
   "crossFamilyExactInputs": [],
   "normalizedHeaderTuples": [],
   "sharedNormalizedHeaders": [
-    {
-      "signature": "executed unit price",
-      "members": [
-        "f-009",
-        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-01",
-        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-04"
-      ]
-    },
-    { "signature": "executed qty units", "members": ["f-046", "f-048"] },
-    {
-      "signature": "entry amount",
-      "members": [
-        "f-066",
-        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-01",
-        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-04",
-        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-05"
-      ]
-    }
+    { "signature": "executed qty units", "members": ["f-046", "f-048"] }
   ],
   "decodedAttackText": [],
   "lineage": [],

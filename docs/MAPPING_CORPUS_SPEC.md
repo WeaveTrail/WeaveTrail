@@ -2,7 +2,7 @@
 
 Status: **authoring specification; generated drafts remain unsealed**. The
 [draft corpus](../packages/evals/fixtures/mapping-study-v1/README.md) implements
-generation and author preflight; independent gold and lineage review, sealing,
+generation, author preflight and application of the original independent review; unresolved lineage and replacement reviews, sealing,
 new model runners and experiment pre-registration remain planned. No
 selection, routing or reuse result is reported here. The current decision stays
 `NO_MODEL`; [ADR 0075](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md)
@@ -417,8 +417,12 @@ Before any model run, the generation/review work must produce:
 
 The draft generator has separate versioned offline contracts for these splits,
 family lineage, dialect-level refusals and DRIFT truth. Its canonical transform
-assignments declare no accepted alternatives yet; any equivalences need independent
-review before sealing. New scorer and runner integration remain planned.
+assignments now include the equivalent complete diagnostic tuples accepted in the
+[original independent review](MAPPING_STUDY_V1_GOLD_REVIEW.md). Canonical strict
+scoring stays unchanged. The [applied review boundary](adr/0082-apply-corpus-review-without-inheriting-approval-for-changed-inputs.md)
+retains unresolved lineage and marks changed projections or canonical gold for
+new independent review. The read-only `pnpm eval:corpus:seal:check` fails while
+those blockers remain; it does not create a seal. New scorer and runner integration remain planned.
 Do not relabel SELECT or AUDIT as the historical `HELD_OUT` to bypass existing
 checks. The later public protocol must supply actual generation, verification,
 run and rescore commands once implemented. CI must remain offline. No acceptance

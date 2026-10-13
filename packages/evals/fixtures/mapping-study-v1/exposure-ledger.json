@@ -7,8 +7,9 @@
       "scope": "All generated inputs, proposed gold, briefs and relations",
       "secret": false,
       "providerCalls": "NONE_BY_THIS_GENERATOR",
-      "independentReviewerExposure": "NOT_RECORDED_YET",
-      "limitation": "Public synthetic inputs cannot establish absence of training exposure; no independent review or experiment is represented as complete."
+      "independentReviewerExposure": "Recorded in docs/MAPPING_STUDY_V1_GOLD_REVIEW.md; current replacements not independently reviewed",
+      "originalReviewBaselineSha256": "6e3ff087e619268aed745661fc7d2f28befc669db9d5045d2a58e2f28fe2c6b3",
+      "limitation": "Public synthetic inputs cannot establish absence of training exposure; review is applied with unresolved lineage findings and no experiment is represented as complete."
     }
   ]
 }

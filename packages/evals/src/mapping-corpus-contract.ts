@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CORPUS_VERSION = "mapping-study-inputs/1";
-export const GENERATOR_VERSION = "mapping-study-generator/1";
+export const GENERATOR_VERSION = "mapping-study-generator/2";
 export const GENERATION_SEED = "weavetrail-study-2036-a";
 export const GenerationReceiptSchema = z
   .object({
@@ -222,6 +222,38 @@ export const ColumnGoldSchema = z
         : g.transform !== null && g.status === "PROPOSED",
     "Gold target/transform/status must agree",
   );
+export const ColumnAssignmentSchema = z
+  .object({
+    columnId: ColumnGoldSchema.shape.columnId,
+    sourceColumn: ColumnGoldSchema.shape.sourceColumn,
+    targetField: ColumnGoldSchema.shape.targetField,
+    transform: ColumnGoldSchema.shape.transform,
+    status: ColumnGoldSchema.shape.status,
+  })
+  .strict()
+  .refine(
+    (g) =>
+      g.targetField === null
+        ? g.transform === null && g.status === "REVIEW_REQUIRED"
+        : g.transform !== null && g.status === "PROPOSED",
+    "Assignment target/transform/status must agree",
+  );
+// Headers and supplied order are fixed by canonical columns/inputHash. Each
+// complete diagnostic assignment carries (columnId, target, transform, status).
+export const AssignmentTupleSchema = z
+  .tuple([
+    ColumnGoldSchema.shape.columnId,
+    ColumnGoldSchema.shape.targetField,
+    ColumnGoldSchema.shape.transform,
+    ColumnGoldSchema.shape.status,
+  ])
+  .refine(
+    (g) =>
+      g[1] === null
+        ? g[2] === null && g[3] === "REVIEW_REQUIRED"
+        : g[2] !== null && g[3] === "PROPOSED",
+    "Assignment tuple nulls/status must agree",
+  );
 export const InputRecordSchema = z
   .object({
     dialectId: z.string(),
@@ -243,10 +275,53 @@ export const GoldRecordSchema = z
     ]),
     expectedDisposition: z.enum(["PROPOSAL_OFFERABLE", "REVIEW_REQUIRED"]),
     reasonCategory: z.string(),
-    // Canonical strict tuples are authoritative. No unreviewed equivalences.
-    acceptedAlternativeAssignments: z.array(z.array(ColumnGoldSchema)).max(0),
+    // Strict scoring keeps the canonical tuple; independently reviewed
+    // equivalent complete assignments are a separate diagnostic.
+    acceptedAlternativeAssignments: z.array(z.array(AssignmentTupleSchema)),
   })
-  .strict();
+  .strict()
+  .superRefine((gold, ctx) => {
+    const seen = new Set<string>();
+    for (const [
+      index,
+      assignment,
+    ] of gold.acceptedAlternativeAssignments.entries()) {
+      if (
+        assignment.length !== gold.columns.length ||
+        assignment.some((tuple, i) => {
+          const canonical = gold.columns[i];
+          return (
+            !canonical ||
+            tuple[0] !== canonical.columnId ||
+            tuple[1] !== canonical.targetField ||
+            tuple[3] !== canonical.status
+          );
+        })
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message:
+            "Alternative must cover the same ordered columns, targets and statuses",
+        });
+      if (
+        assignment.every((tuple, i) => tuple[2] === gold.columns[i]?.transform)
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message: "Alternative must differ from canonical transforms",
+        });
+      const key = JSON.stringify(assignment);
+      if (seen.has(key))
+        ctx.addIssue({
+          code: "custom",
+          path: ["acceptedAlternativeAssignments", index],
+          message: "Duplicate alternative assignment",
+        });
+      seen.add(key);
+    }
+  });
 export type ProviderProjection = z.infer<typeof ProviderProjectionSchema>;
 export type InputRecord = z.infer<typeof InputRecordSchema>;
 export type GoldRecord = z.infer<typeof GoldRecordSchema>;

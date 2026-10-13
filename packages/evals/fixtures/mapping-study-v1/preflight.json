@@ -2,7 +2,7 @@
   "version": "mapping-study-preflight/1",
   "corpusVersion": "mapping-study-inputs/1",
   "status": "PASS_AUTHOR_PREFLIGHT_UNSEALED",
-  "generatorVersion": "mapping-study-generator/1",
+  "generatorVersion": "mapping-study-generator/2",
   "seed": "weavetrail-study-2036-a",
   "inventory": [
     {

@@ -1,966 +1,3410 @@
 {
   "version": "mapping-study-inputs/1",
-  "status": "PENDING_INDEPENDENT_REVIEW",
+  "status": "APPLIED_WITH_UNRESOLVED_FINDINGS",
+  "baselineSha256": "6e3ff087e619268aed745661fc7d2f28befc669db9d5045d2a58e2f28fe2c6b3",
+  "reviewDocumentSha256": "edbe74708f5749d15c7cde823c3f769b587a6ea33787251960c23c5cb49f0389",
   "records": [
     {
       "familyId": "f-001",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-001",
+            "familyId": "f-001",
+            "split": "SELECT",
+            "inputHash": "ae40de639b0c49ccfc9325eeebd4e9294a7120772b4d0fcdf7ccb6bdadfae782",
+            "goldSha256": "f41b62bd7b0d1437a9b5e81d2fff5cf4436c02c051a45b0d4ce8369c07fdb8b0",
+            "familySha256": "3f274674c737b92279d002cd6e2495c7926f7125706391417612b237cd996180"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-002",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-002",
+            "familyId": "f-002",
+            "split": "SELECT",
+            "inputHash": "bb59307f87c3f7e3b34cd04464def691f8d3ec639aa4b9b7ee229c4c6605ac13",
+            "goldSha256": "d3c318d6d28a3c4f07516679d52d3167527b0a027ed7eb995f880b821f7b9fcb",
+            "familySha256": "cfa67733610d12bdc378a4ed940f0ddb4f9f3bfa8c1b590a177c57e9c0873f25"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-003",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-003",
+            "familyId": "f-003",
+            "split": "AUDIT",
+            "inputHash": "44a30d6d377138cddc628876c88b9a5e86ff10fa3475038074e0214abc7ff6d2",
+            "goldSha256": "1acf3f386f657e2a834c0257a453f8d6344748897654d50e64c8d3f0be396ac9",
+            "familySha256": "f15371ba08a5dcc0807069e93276d3375b95a4123046383db7ff47f83e312890"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-004",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-004",
+            "familyId": "f-004",
+            "split": "AUDIT",
+            "inputHash": "054d4c72892049c8e8da87a86f2e441359a5e1fd07b0dd4431901431a142e9d5",
+            "goldSha256": "9a1674ab65d020bd565912bfedef60a4da72e52ecae8da649212dbc1c264a523",
+            "familySha256": "5dec380974c0e83772092ec0807093414d506939b770d1530a2cececedd00027"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-005",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-005",
+            "familyId": "f-005",
+            "split": "AUDIT",
+            "inputHash": "37041f9b2a55c3a117963dcb2e19990a9bec02e6ddde0db8617a5e9d1c7dc53d",
+            "goldSha256": "47be41c36da3828139f51964e2aa10fc5f9a71059d89f00413ab505a23f2f0da",
+            "familySha256": "072b0fa8a1974a7a11ba6574b1c1df53058edc333d3f74f0b7f3ad35617f3560"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-006",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-006",
+            "familyId": "f-006",
+            "split": "AUDIT",
+            "inputHash": "eb4108a9b309042be037a42bd1b6c57ae7252cd808e6be2e651c3977352937b4",
+            "goldSha256": "1869c2dfc242b6ab4173e55895ff5f7e9b49ab8795e6bed328cf426d496b7ebb",
+            "familySha256": "c7e0a03ff5df5beda874e248c632da5272a81b8c2697170104d9bf38273f66ce"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-007",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-007",
+            "familyId": "f-007",
+            "split": "AUDIT",
+            "inputHash": "b03f370f10e0f2c2c46d960455eadfabd2def89942499c212034056c437cae7c",
+            "goldSha256": "78e532e93718b26a258b7f0f0c6177120fdac02f6dff914d19c9695532629f2d",
+            "familySha256": "bf1e4c804bbc5669c4e8b57aa7b399ccdc670b10636590dc68d16d1294c4b0e7"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-008",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-008",
+            "familyId": "f-008",
+            "split": "SELECT",
+            "inputHash": "b4cad6753a1e1f11cb8e5fbc341331250c8565d330a65b8657cdfab7c76bd841",
+            "goldSha256": "b59d931e6f0d24c1b06e4edc4c2ce2c65929e5a65b9f6d1aa8ee34c6109f1723",
+            "familySha256": "0c4f34339045f68a95c7bb93d089fd18edab438d75ea6cacd022db8adfa3a2ce"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-009",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-009",
+            "familyId": "f-009",
+            "split": "SELECT",
+            "inputHash": "45f6c9a3df05982913cf3db85e3ad582817b39a6e0d5afd2c565601b0419bb01",
+            "goldSha256": "e9404642fd273ce34ae0663168e24399e4077012a6040bfc7aee3c08f4754b18",
+            "familySha256": "800a8433e5a5db08a173b2b56c017abb6676e160ea4cb4117aad4d9c779c202f"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-009"],
+      "currentLineage": "PENDING_REVIEW",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-010",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-010",
+            "familyId": "f-010",
+            "split": "AUDIT",
+            "inputHash": "e93a0e909db7e5a922cf20e1db7cd44d6545ad97bb769861f9cb532bf6845a66",
+            "goldSha256": "4dcb932d4e01be305d5e3db0df5fad3788b8506f999338958d63d6419ffb6d7d",
+            "familySha256": "15932102fb4fa8705088da4f1d1f2b3a03c1c322c1a125a59ef7b6665b011ae3"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-011",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-011",
+            "familyId": "f-011",
+            "split": "AUDIT",
+            "inputHash": "96325e9dee81cf5fa148eaf427600ca78028cc64b1544ccb4aec3aa075d5b627",
+            "goldSha256": "2f2a43585a03f8c025bcaaab3cb159ed4cb60acf7c5b2200230a7703dd17070c",
+            "familySha256": "05ef2f7b1910c8782722d6ae79063d964a87c94cdbf458373559a27ef2f12eae"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-012",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-012",
+            "familyId": "f-012",
+            "split": "AUDIT",
+            "inputHash": "8dbdf33bb99fe35bb8a93af5ebd0b9116edfd829335dcb5ce44429efd378eaec",
+            "goldSha256": "9826da92ad1292cee72300e48b8bcb24d3d43608a4d23007df746bc194c71d5f",
+            "familySha256": "9d7384fbbe38203915a6879501b3ba92edc004521592fb7039c800dda3b5124e"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-013",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-013",
+            "familyId": "f-013",
+            "split": "AUDIT",
+            "inputHash": "7507b844d0045fd92d26cc21c30ec05dce008082d03e210b8569e18406ef154f",
+            "goldSha256": "e1ec3ad285e6749804eae71c1021474389aed3136427a63d5ec4b97dd859db9a",
+            "familySha256": "6dddceaef977a8b725a2f4c4de9a9f025e787b91c2a08736d58dc832a3fc3de0"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-014",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-014",
+            "familyId": "f-014",
+            "split": "AUDIT",
+            "inputHash": "6249375e7a81e667894ffb7804f879016ad18356c16fcae2644582cc4ba103e1",
+            "goldSha256": "0c5cb780a7f9638e1d0c283265e12abcefa14a78ed652347c714d38563b528ff",
+            "familySha256": "01e2c3ce2ac43ae62cfbc41e62f0aca906651cc4e2fbb954267ab3057bae63c1"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-015",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-015",
+            "familyId": "f-015",
+            "split": "SELECT",
+            "inputHash": "1776d26d3ecfc0983f637d5fd5a19ee3a9761d7b7e9ad1f328d4592d93a37a7c",
+            "goldSha256": "20d7f88d9335f1fbeb760e23f66859aa75e7a76a94cdfd8cf42a3b78e488ab86",
+            "familySha256": "a679a7e9cc0a23f05e328a6ee4bb534269fdf27b7a79aa74cfe4228ff11e7a54"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-016",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-016",
+            "familyId": "f-016",
+            "split": "SELECT",
+            "inputHash": "c01492637d8bcadc78a31a82c62dae350192afdd134fa0e7c9795e18a4668400",
+            "goldSha256": "c3a4aa7494426e4822f201d53b4ef86f530087a562bab2c1e9c346ad5559514c",
+            "familySha256": "67f1653aed79bd180c4dba352460b150ab05c8bfc1c0d19a48a96aeee4d944c9"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-017",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-017",
+            "familyId": "f-017",
+            "split": "AUDIT",
+            "inputHash": "4ae9b1708535b379e8bb890653baa18dc48f7ff5d1f2eae63743634a7da18827",
+            "goldSha256": "b006b59043ada9715f8f43ec253a73ab5290bc1709c313412ab0ffc4de88f812",
+            "familySha256": "a3152a1beb84db8624cd4bc5ac8bb10cc046d6e81201d29cc98e8e36ff0d49eb"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-018",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-018",
+            "familyId": "f-018",
+            "split": "AUDIT",
+            "inputHash": "63b364d85f34c2f049d01924daa0a0e188080f3fd83c6d01c9ac387e9c626fdb",
+            "goldSha256": "02f81a0b4d1057fee218aa7018d0e19c9a747024bec12681fca1909e4cae7ba2",
+            "familySha256": "a65f7257b9aff783c1c44d384b4315016ab61f62907e88d996b67dbbb9fd8ace"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-019",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-019",
+            "familyId": "f-019",
+            "split": "AUDIT",
+            "inputHash": "68b68ca27abbdef9ab8a2d57ce134f8df929df56357f6d1eeda4a29fa064c7ec",
+            "goldSha256": "6d2d410cbf4b5c91b499ed04d52f063a5a6085ad367abea1a1a33a7b79348311",
+            "familySha256": "e14ce847691fcac8640af1a2287f73c2c46125343b71218cfb37dfcfbaedacac"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-020",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-020",
+            "familyId": "f-020",
+            "split": "AUDIT",
+            "inputHash": "705f554ba38d608c39ab4c6b18bc395378a15b070355dab35d41535292ccd643",
+            "goldSha256": "0ee71e8e3b6ddd73dd75b6377441b8da78a7eeaa85bc3d804c7bc405f9b5e9f6",
+            "familySha256": "bd1109a99959f0759942d52a220b261ebc4fd2cbd7dd744903380efbf62e5e1f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-021",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-021",
+            "familyId": "f-021",
+            "split": "AUDIT",
+            "inputHash": "bb4445d934703ef31516360e666b418c200e127826c4029d8a68f5742618057f",
+            "goldSha256": "319e971d780134a81ed7ef57a5455c40c1f56335981b24c41ff7408223104914",
+            "familySha256": "e86ab4ac8d0452155f5c1ab48cbc0cadf80574fc0365b778893230d36c651956"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-022",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-022",
+            "familyId": "f-022",
+            "split": "SELECT",
+            "inputHash": "53cbf135228696d59ea6318727216b48f479e45d35f9afb7b23cfd469dbb1c4a",
+            "goldSha256": "ad3d7fbe9cad864fcc6f0e5147fbe33dcd961517a48968a712b9461aa5e44b7a",
+            "familySha256": "1115c00057b87f5f26fa6ddd6f128c93f9fa2f3647e1d530467157595be5a4b5"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-023",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-023",
+            "familyId": "f-023",
+            "split": "SELECT",
+            "inputHash": "14c12b6a3be32aabd423ee81d20e1f37c1e54c8ec165ecf18d6fd47183b26f9e",
+            "goldSha256": "caf9cb39bb95b16fa31c2513403a30857083fe80699fbd37b23ffdba8783c8f2",
+            "familySha256": "5cc9a9b751039599b827d0f2cae99822ecc66f60542f2e9de4b7b83663b2aeac"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-024",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-024",
+            "familyId": "f-024",
+            "split": "AUDIT",
+            "inputHash": "2eb0a273bb3c12c8b51bea3390dc2af7ab9475ca909d0cd5129e7405347caa3c",
+            "goldSha256": "c1111a5cee750d305f57528b5f2dd6b6eb36e5c33584f4514ccd08e3dbe82b1a",
+            "familySha256": "c8f6ae08164c0aea2eb98743e249158ad5818743392702b40ab64701bec390c3"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-024"],
+      "currentLineage": "PENDING_REVIEW",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-025",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-025",
+            "familyId": "f-025",
+            "split": "AUDIT",
+            "inputHash": "66cd2d8bff379cdd4ed2cc02c9654268a707ad42374cad58b5a40cc135e70e0c",
+            "goldSha256": "6ac84b78703fab4664fbbfdbc51a4437e7790b776a3cdebfeac7567bf4ae1e20",
+            "familySha256": "de4125bbbc6491df300f0df6867940e56663ba55c11df82c45e88a42446a232f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-026",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-026",
+            "familyId": "f-026",
+            "split": "AUDIT",
+            "inputHash": "7d6cc195f527fb4a402fa3eaa78129b0573876bd5707dc72c11dce8c1986a525",
+            "goldSha256": "b4e1caf7ce10463a0cffda4c240736666cd133af9064f935bcc7695f17cb7598",
+            "familySha256": "353318d6606fbc6dd6924d7a1e390904b7b986510bdff78600ab685c3a62f31c"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-027",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-027",
+            "familyId": "f-027",
+            "split": "AUDIT",
+            "inputHash": "188b6394757fa43202c917808a4b6f5a012b69046cd43052360f7a7284d3c49f",
+            "goldSha256": "6f86290a0706f2cb8de2207d5c1e3dbee0f46d03e926a69bdac0be9b8f3e8d03",
+            "familySha256": "ec2519972d08ff39d61451e985ce8e2656a183e48965918c298a89634d28bc6c"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-028",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-028",
+            "familyId": "f-028",
+            "split": "AUDIT",
+            "inputHash": "5d4f5ce64df585be68512d97a923da47d857eade9e086223ad9ad1b2c0730cf6",
+            "goldSha256": "82eb21c3d6e281b41c2ae21d0db2bee5b63f8af9172facae3e0dec0fa566ce1d",
+            "familySha256": "c3a910e6079ba799ed44887184415b8b4c3525ed99b751cd189c4f9fe4d44f26"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-029",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-029",
+            "familyId": "f-029",
+            "split": "SELECT",
+            "inputHash": "235972b1391ab67c614f8bfd046edab8993c0cdd3cd12358b9282ec6d3dbad58",
+            "goldSha256": "4009b0ce2ee03a0d8230ae7faf3aa33d701f26073e33215b7212a2b100be0f64",
+            "familySha256": "f06e93b4986611b12b6b5af1bacb6dc2c7f2721f1b5c430b60bf83ed90cfa310"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-030",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-030",
+            "familyId": "f-030",
+            "split": "SELECT",
+            "inputHash": "b0ff64866f490e7ab46a412084b50d9d9c41271f8fcde1f42b4718e9b4d3d710",
+            "goldSha256": "61c0c910143b78b1d0530f8846fcef3758e3e3d57e5343392fce54f891f395d6",
+            "familySha256": "418e96e83b9a154c32849d2378926f05eeea4f75e04527ffc4034cc849e9f7d9"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-031",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-031",
+            "familyId": "f-031",
+            "split": "AUDIT",
+            "inputHash": "bc2b2e2b99b913425a432bd4eb7139a7757c7384ada1245139ba055c90fc8aa3",
+            "goldSha256": "eb9d09bd02e1b2e001b18de0ccf9cec14605a6ffb68651582935747a6229a562",
+            "familySha256": "7ee097ff05c58697d194650f1456808cf12a44d153af761e0beaacb0ea3b1b70"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-032",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-032",
+            "familyId": "f-032",
+            "split": "AUDIT",
+            "inputHash": "53552c1c39ba1d24393c67eff566c114fc53b6771182c358ea354f12a72f0849",
+            "goldSha256": "84633f39f81bcd27d9d46927d58fcc20d30ae695df794663b572141998d99dfd",
+            "familySha256": "04a22d9bacc29c3f9ee96b38d9237c1feaa6457736f38dc995fb4d0e3ba4092e"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-033",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-033",
+            "familyId": "f-033",
+            "split": "AUDIT",
+            "inputHash": "a6640615e2803139b70dc2d692a7c91a81fa05b6df9a28925f2bc04ea65db4ff",
+            "goldSha256": "f714469e7e17eed330518db5de9dfbe3f2301a5de5f7180c83c04d36c34d9c2f",
+            "familySha256": "7e3291a3b0061df4b1bedbbcb9618aa095142ec45b3b931f362c09a0dbfdaa88"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-034",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-034",
+            "familyId": "f-034",
+            "split": "AUDIT",
+            "inputHash": "08c6ba1acaad664b8bcdafc8d96223bec1eca6d7e757f3bfe86d8cf92541c05f",
+            "goldSha256": "e66303329acd665d519526d3945ef6202ba5e3336605b1f39d266bb15f043c40",
+            "familySha256": "dda6f794f6533d270b1781638e103f72e9882e1811c9addfeb7a80a29419123d"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-035",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-035",
+            "familyId": "f-035",
+            "split": "AUDIT",
+            "inputHash": "52ad0a88bfd86fd511f920db9f6f4abc97a1b05f1ccf1bf88665fbd4d9dd9a7d",
+            "goldSha256": "5db6680bc54ad3f0351372e07bab49b350abf6212ce68307b08f6dae165b792c",
+            "familySha256": "109edcec2d992ad968d79a92e9b3bf397dcb02846d9e215cd3b5bb5e7b7ef347"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-036",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-036",
+            "familyId": "f-036",
+            "split": "SELECT",
+            "inputHash": "ecfd118fd3e04aa7bccb20e68667d47eac4ed4575c005980d720074327a159cf",
+            "goldSha256": "02182e55b23d695ddc6a93b9532358943f6af017e73ddf91b79ac9b562168389",
+            "familySha256": "5b52c2d1a17f9ccea2faa562c1e5c3ba2ec9edb5e1199ff55a127135edfe4475"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-037",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-037",
+            "familyId": "f-037",
+            "split": "SELECT",
+            "inputHash": "d6e4d4f125d6b8f61c330348d5d8efa0303c73e01571a8da629c6fa867e80166",
+            "goldSha256": "d527d1145dd0e3e092a19a629bae93e0517ac62ee2e3e39f79ca1f35e1170efc",
+            "familySha256": "1ab34c610ac510dc209476df0a54d985b7afc4782c9a16cc7397a88f2afffab5"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-038",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-038",
+            "familyId": "f-038",
+            "split": "AUDIT",
+            "inputHash": "cfb2bb506edba36fb6641dd27d4999c005805a43ff5f7682dc021c49e0b0131d",
+            "goldSha256": "68ae7a834052e1ad64681fe13e6ba793382d719f3923a4610ca12891618b2ba5",
+            "familySha256": "a6cfeacee4fb641800b5788ce3055c220a553c55a9ae78523ea2c09eb050e8b4"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-039",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-039",
+            "familyId": "f-039",
+            "split": "AUDIT",
+            "inputHash": "79db93a9a2446599763b797ec35f99a5d57cc48f462420fbcf1702c6057ea6c8",
+            "goldSha256": "6cf624a0c76fabc0d0f1d3571ae9dac6cbe78b66ea92ae0af497c3a8a1e5a0f9",
+            "familySha256": "73f4d7841700106963d175a8f93af4fa195a22eb010d2ef006396d6d2e214aa0"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-040",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-040",
+            "familyId": "f-040",
+            "split": "AUDIT",
+            "inputHash": "4451446e9236339f8d8c647268bddfc798e6603593768675b279e2ac4c24472a",
+            "goldSha256": "3ec3f1ce7e3ffb4e50e350e4517ee931a82f9c2c3168af0cc389e1985727c335",
+            "familySha256": "b112d10972b5dbdefb7dfed586b0ae81790350c6021919cf24980a838383a84f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-041",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-041",
+            "familyId": "f-041",
+            "split": "AUDIT",
+            "inputHash": "84dca3959064652f618cd84ecca39b6c3fbbb1dbefce248cf5972afbe3bb4d50",
+            "goldSha256": "77bd2a506fa69ea9c7c3fb5b3981c866d06f9942585afd09eaa63dd52d863550",
+            "familySha256": "700e7d429a68aabedb9a7281cbf58eb5e0e39e40dd4ac5a603d200662780de6b"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-042",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-042",
+            "familyId": "f-042",
+            "split": "AUDIT",
+            "inputHash": "4bb1b5e2baf977b3a8a4b098bc750b0e4ff22053d99a18c57e38e187cf8ccd1e",
+            "goldSha256": "93b1ea0e3b11ada84bca9874bbfed60ae3a19f7f821627ee3223f849b1b5a635",
+            "familySha256": "ede46304ac7fe1ca53bcf7d64e6c03c2f58688758f31d399237046595be39359"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-043",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-043",
+            "familyId": "f-043",
+            "split": "SELECT",
+            "inputHash": "be95f2f21504b67cade3c20d135fad01631d04cc6e60a0f59635f231509ec618",
+            "goldSha256": "7f0c33768abc56aa765e750a31ce3d5476e904e15fb30ff6c2bc8054f250fe70",
+            "familySha256": "2c7dd837766f9208f4da1139a857ee8fb27b08479ff6625a2c1e2aee3226f004"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-044",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-044",
+            "familyId": "f-044",
+            "split": "SELECT",
+            "inputHash": "5dd9f76dddb0f4daf7f0cb9fc3ea9ab656b07490ae866ff7ac51d8479ba79f52",
+            "goldSha256": "7c05a68a0a5557dff88464613c1ff14b7b02e6d9945fad0a2112e1805fe93d37",
+            "familySha256": "363e74c0464092986ff43039d6412097eb21f0432deae7018bdc52c1829491b8"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-045",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-045",
+            "familyId": "f-045",
+            "split": "AUDIT",
+            "inputHash": "41d0a3fea2ab5be5a0a026ff45c35c8cb2726af1a45b52ce5e92e34479ef7ab8",
+            "goldSha256": "6bb590181a56016e0e968302708e575ab81c445032b25ccd1596a519fc96d52f",
+            "familySha256": "5b440e460f93f99729248f95b81915e048f73aa5863ac0cf55eae1103094a2ba"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-046",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-046",
+            "familyId": "f-046",
+            "split": "AUDIT",
+            "inputHash": "77f7e4373de27ab5cd1699584cc5f9fa28c3609d43d104e95c5cba64d7f35fbf",
+            "goldSha256": "a186f364c0cb4cf57d61ade027442f88a9324ab3c50ec3a8129b99e9ac23f1d8",
+            "familySha256": "991cef1bde421c533dff4f55c220e6b85cdc50d0434ead0b542cb9b64a7bdf27"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-047",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-047",
+            "familyId": "f-047",
+            "split": "AUDIT",
+            "inputHash": "b9431a3aeb582591bf9e402307ec9ec3e4fb65970d5ad8751d9cb4f69fd4748c",
+            "goldSha256": "20a315806141b6c49888fdc431aa3d1cdb722c9467fe4da6f0ff7d758b1a3c1e",
+            "familySha256": "2842e35d346a6c63c4e9c2d594a763aa8fa13d3b3c313a6b6944c48fd38b532a"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-048",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-048",
+            "familyId": "f-048",
+            "split": "AUDIT",
+            "inputHash": "c1b94f5bde13df46df9fb04c6cab54f15e0858479c7800d419b28a078c21706e",
+            "goldSha256": "ed21566d84a361a37cdbedaa296c067219f276e337905e47df7ba2d3e405714c",
+            "familySha256": "9a0a86e37e99ec3f4719d5c4bd57f356fcaf46b881c2db4d1ce91fe9dcb6a618"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-049",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-049",
+            "familyId": "f-049",
+            "split": "AUDIT",
+            "inputHash": "a0b1556c11ace2e386dfb00711b8d21e1e0e7776a1236e331aca76fb351c4802",
+            "goldSha256": "a96c850574d7a47c1546f4dcc56e2e5676d10d5bed3e57fcabcd9a022379b753",
+            "familySha256": "3b151eae1c2ef2b3a0838e1c35ab0c1e19de26417b3fafb5b5a4d84472168e09"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-050",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-050",
+            "familyId": "f-050",
+            "split": "SELECT",
+            "inputHash": "009d8ef0de1492362d1a718420c0787937728464b67ff0fc6fda6d2e9ea47116",
+            "goldSha256": "640d6e60fc3e83478c1e1b0c31a6f728bdf11aed49618d266f4b6f5b8f12ed47",
+            "familySha256": "4a6d64e0ee2ffc1f0860b81ce9ce1f11e580d6321ed50fc705ea482e5824080f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-051",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-051",
+            "familyId": "f-051",
+            "split": "SELECT",
+            "inputHash": "e37201e57c68e9eab3458057898716b530747936b1808004a027984631d3e2b0",
+            "goldSha256": "e06758ab8d0c3ba2caa21ff163fa9d0a1998159b9d333b578a81d199ff1bcf0d",
+            "familySha256": "332c415715d9b72dff2fb2857f25bf5ecca18f51fb04f06cde9aae9ace05c5a1"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-052",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-052",
+            "familyId": "f-052",
+            "split": "AUDIT",
+            "inputHash": "7665584787f3e4b4402262420bd17c8fd79253386a08c5615f0b87c7a63866c1",
+            "goldSha256": "f6d16b5bbf711d27bcef921ce05c38e6bcbb657a7b8598cb537163a36c76bf04",
+            "familySha256": "754788b433671f14f8ea67460866c56b72b202c5f0226e4e1ec7daa7b506c35e"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-053",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-053",
+            "familyId": "f-053",
+            "split": "AUDIT",
+            "inputHash": "66cd9b97b8737d475534760ab5bddf31856c8a49defa84d67255f885b1c8b113",
+            "goldSha256": "e551a6242e26cffa8901966c558bd93373ae70998899f67151dc5bc0d80cd962",
+            "familySha256": "39950c49a5314b26ee58b2cfd8acd4965173a3b79b68c8570c66ec92f188179f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-054",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-054",
+            "familyId": "f-054",
+            "split": "AUDIT",
+            "inputHash": "e5070b0222b42206ebd0c6154f44c2bfcd083bf273c89fc48f2ce28a756484e2",
+            "goldSha256": "aaf5e109d51545e8b1210c5b84ab4d7eeace36a937d40a7b801328a596e04834",
+            "familySha256": "dcb4183cb33489a5369bff4a1cffa44e28c24c84376e220e7b5c633094a5bf5f"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-055",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-055",
+            "familyId": "f-055",
+            "split": "AUDIT",
+            "inputHash": "0a43a68604a9be961b0f18f839e7595cd565ca7766a515b0996a5d5d75f91699",
+            "goldSha256": "56c8fa78a8059974900ad95187f084f4389078df73110da1f597330a66f60274",
+            "familySha256": "5c14c48bf2209fa17cea2cf18104c412b3dd8e4a80cafb8723dc430d471c4c52"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-056",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "ACCEPTED",
+        "finding": null,
+        "originalRecords": [
+          {
+            "dialectId": "d-056",
+            "familyId": "f-056",
+            "split": "AUDIT",
+            "inputHash": "9bad2d7db4b964b30f7bc18e2ec35e9e4e4de86e9dd94b4548ae2b5d003ca24b",
+            "goldSha256": "08dc5f39fd2451c1a4787458e39e0cc9b278b502007b06c0608e893e9acfad51",
+            "familySha256": "a89aabb6e03078a4cf3b96a4864aa49485fc2d6f3acc2563c274b731bc745380"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "ACCEPTED",
       "disagreements": [],
-      "resolutions": []
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-057",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-057",
+            "familyId": "f-057",
+            "split": "SELECT",
+            "inputHash": "8cffab38f27abe5034d9c06423d0c867b55f64af71bf4bf1e07600ed07807c3d",
+            "goldSha256": "b819f91274067b7e342f2aeaec12dd7006cf2007e981b64a24b33321290ed4c4",
+            "familySha256": "cdad2656de2c6a85b8153812f3690246f1095535afb2f72278e45e39a6588fc5"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-058",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-058",
+            "familyId": "f-058",
+            "split": "SELECT",
+            "inputHash": "1f21eeafc70eecdcd335f64d83e07ae35a8c0a0ff6c7f1e0ae136cbb450626c6",
+            "goldSha256": "d2111afaec49957d301792ae3c8df4cfcfda340254e9ed160b365e8a9dc6f3e1",
+            "familySha256": "2f0d01630d0028070bc2345ed109b480e6745aad4a492b4bc8250cf027de5e03"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-059",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-059",
+            "familyId": "f-059",
+            "split": "AUDIT",
+            "inputHash": "88448c1e0d93cfdd99d6d6adf7b3828dc9c5241b49fa1248761a2659fde82117",
+            "goldSha256": "e9d25912c918093bc4644345dedeba4ec59ea65823dfec8d1f9b85bac6fd5366",
+            "familySha256": "016745e01760296bf0f0016fa4f81b17074d1e9db4066ee8e166770aea1134c2"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-060",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-060",
+            "familyId": "f-060",
+            "split": "AUDIT",
+            "inputHash": "b3f1730e33144d9dc2a56d1295b586256cf78dd90034b29506ac0320bdcfe0b8",
+            "goldSha256": "380db0a65494dca2794a7e1913b0cacca3128d342e008f071af3711f786c0288",
+            "familySha256": "d7842c7146714c9d816f79c7fdd3817d19cf5a1b7ee7e7b879b330b552988ee5"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-061",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-061",
+            "familyId": "f-061",
+            "split": "AUDIT",
+            "inputHash": "1f9461753faa69e520a5f5b843a925da3fe5f82482ecf5493394dba1ecfc575e",
+            "goldSha256": "b8c8f1f2c2f67b53182c29d520293dfe21cbad2fe11a87dd235ba2ee3f1b726e",
+            "familySha256": "1af14aebe43b216738985c99d36c7815fff0d8fa09902d02f2429901d4027126"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-062",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-062",
+            "familyId": "f-062",
+            "split": "AUDIT",
+            "inputHash": "dc36af0bd2dd73965036381e8929c5006546e17e0a00e85eff12cc01afdb03fa",
+            "goldSha256": "66dec97914a45c29db49b8e9ebe608bbbed12737d193b0df89d42862d8e64161",
+            "familySha256": "609329e0771100fe9a241a44bb6370c21c185fb649ba7796624aa13a469b099a"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-063",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-063",
+            "familyId": "f-063",
+            "split": "AUDIT",
+            "inputHash": "b5bdb4fb04d2a91c41bb3476d95d6a2ba94af3f1a3c941cd6a19f3c03a9937c8",
+            "goldSha256": "b6d02fe25c418c074fad468ca3ff4d5a6869851a8f4390655da964f7564d0923",
+            "familySha256": "2e0f75ad76d70323cddf3cc3c280f0a069c2740b6e9003dfcc264805eefbca3b"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-064",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-064",
+            "familyId": "f-064",
+            "split": "SELECT",
+            "inputHash": "0489c752babb9ba4397d1d750528273e08e192741976ed9e36ff0a851cc2971d",
+            "goldSha256": "3c439dd8255222ad0d7399fb39f73e4b325a28109e8d1910e284c30e3fa45a47",
+            "familySha256": "0957e4ac611214b248a860a65c175276db1624288fdcb09baf883d651c957055"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-064"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-065",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-065",
+            "familyId": "f-065",
+            "split": "SELECT",
+            "inputHash": "b9dac5f7af35d14bc3a4bafe6e6d350e986cc96ac1efd26f2818a67ac7c19f14",
+            "goldSha256": "5f53a82e1fe7566b78bfcdddebfc4460fa6137b40cfcbbcdd33c5fcac61ffe17",
+            "familySha256": "0b032df168f959697b0cba0b55da9336a988a35d79001a6ebcd09f569dfe3ddc"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-066",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-066",
+            "familyId": "f-066",
+            "split": "AUDIT",
+            "inputHash": "2c9c13a7fa2eb038c4350db8ed7e1576db4799751707c2dde5d6416b37590a81",
+            "goldSha256": "56e68f60042eecd15065c4b3708ed60bba5325a8eebe5c157e237ffef482777c",
+            "familySha256": "23a4aaaf6206bea90639d08fe7bbcab92d72dc1a4488a2efccb4d6b3d09a8f26"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-066"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-067",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-067",
+            "familyId": "f-067",
+            "split": "AUDIT",
+            "inputHash": "19bd7b33592e122c7d48a34992415b551f92212c034bbdb9645672a487a461ff",
+            "goldSha256": "439c810d5972616de916684a23229d893950debbc7ba1e0f17423f9c4d61ca89",
+            "familySha256": "bcdda8b6f34351d9844bca12fa5d35c8aa64aa3b8ee969cc2342130ed6195776"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-068",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-068",
+            "familyId": "f-068",
+            "split": "AUDIT",
+            "inputHash": "ca1f25ae2cdfa31df2949ab054eeedd75fb99ec345800ee534386479d784648e",
+            "goldSha256": "ef600cf78713917e32fe252ebc7089738568e36912b8e1a4da3e41f6b122957d",
+            "familySha256": "b94531bf8e1c571c34b928c9f45838c3cc7c197b06e37049acf97e742dcdd5e2"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-069",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-069",
+            "familyId": "f-069",
+            "split": "AUDIT",
+            "inputHash": "6beb256de62131b7c68da0a854b897aa34a35c8726e4ef105f78c3b4699fc1f6",
+            "goldSha256": "c2e4a496e5df36602fa253205cc4c398dd1aab16975954b001d691e7b8b8d471",
+            "familySha256": "4cfe39e392b58490ed830e559ff5323d937d1c78a9b9af55ae0a7140c5976d47"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-070",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-070",
+            "familyId": "f-070",
+            "split": "AUDIT",
+            "inputHash": "56b2c007318a72b8aa9f610d2fc178b9a1dd09f555e6e4759136cc60ca74eb51",
+            "goldSha256": "a58e066239edf0506fc142dc4b6d089c0d033641e25c0ea536271b894482895a",
+            "familySha256": "3c4647154b3e99e102226ea34767b3f3c445400c3815d870ea31a1d51774a431"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-071",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-071",
+            "familyId": "f-071",
+            "split": "SELECT",
+            "inputHash": "72312227a262e84aab52373c16ebe29a5f1eebd8c3cec90922a50491e518cef9",
+            "goldSha256": "4cae416ab90b70aaae603adaf238572ce71c2749b1dff51a2c73df38aa5924f5",
+            "familySha256": "a744825c2fa9b3663a9b3084feb85145e79373f6e01355971d773fac35176360"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-072",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-072",
+            "familyId": "f-072",
+            "split": "SELECT",
+            "inputHash": "9720e373b4ba8ee6e0f80abcd34a817b2a19afa7621a6ff9c2de1ebb50e9d913",
+            "goldSha256": "4fe4e1616fc48eb3850a354b63543e4500ffa379bb7e098648ed092534a9ac1d",
+            "familySha256": "4a301e9f8016fda6029fa125447776e9eda27eac0bd03dfe33f20ebb372c1d83"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-073",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-073",
+            "familyId": "f-073",
+            "split": "AUDIT",
+            "inputHash": "f2d14906943574c70df3745a7a0139a40e1abc27ce52ba36fa48055d7ef2742f",
+            "goldSha256": "57ebf98d2837c6fe5c024f85b3fe581d6fa175760d0daa8c871b6a3f2416f2ec",
+            "familySha256": "9abb270206502af3ec0d1110e9567fb18d55d37628b1bacfa0c9c89a183c48a5"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-074",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-074",
+            "familyId": "f-074",
+            "split": "AUDIT",
+            "inputHash": "7dd34e690589ee1904dfbc7dede51cba401558fd7fad23061214e3f78b1afde0",
+            "goldSha256": "ded2be2e82f35250d1ac4f1555936d9d9c018af11be5afa09925955b83cb5c22",
+            "familySha256": "624977ba36e103ecbff3cce26f40a069f8985f061d50f54a76caa54801e1646a"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-075",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-075",
+            "familyId": "f-075",
+            "split": "AUDIT",
+            "inputHash": "dc13d470c104500a42619ff07d0b4fc282db06c5d56708a748798c9a62236eea",
+            "goldSha256": "0892fe1088977a5777d4adbcd970d307d00801ac01f12833b747e7432a4f1184",
+            "familySha256": "59bd8374ee4027d028c8e68ef486840a5bab0220f47b2d849208836a46bc1864"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-076",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-076",
+            "familyId": "f-076",
+            "split": "AUDIT",
+            "inputHash": "1523b16e0305850a5688d378c0f4c639aa7b819474ae1979610f35105542f559",
+            "goldSha256": "ddb3138527ca9ffae567cc31a1a11b85e848f223c17ca0c5db3f720932fba7dd",
+            "familySha256": "4d3793ed86df8a312b9a2cf255a834c9f028843556815cabcceb7304025f3229"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-077",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-077",
+            "familyId": "f-077",
+            "split": "AUDIT",
+            "inputHash": "b9188510f977be753f44675f6633934bd4e860bd62c6915864b5d22292b82c77",
+            "goldSha256": "2f9db3b7b57029b657676c70af7ae666d6b5febef92dcfaf1b69b1e44f442afa",
+            "familySha256": "fc81c00191475d152acee390edd13a6acd48a5fa497ee999c57a79bca94f1c01"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-078",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-078",
+            "familyId": "f-078",
+            "split": "SELECT",
+            "inputHash": "894a7486385e4d81d80ebaa397767589b2a02b1f21567eebdec1bc3c2bb8353e",
+            "goldSha256": "9171a42588d470541267c1371258eb307b963803c0bd87b3bc145f2fabd03867",
+            "familySha256": "a379e26f6d8694002a447e9d13940edf82d62a622cb308e5d1f7c07f30e983a4"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-079",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-079",
+            "familyId": "f-079",
+            "split": "SELECT",
+            "inputHash": "af64fb732bf9ffa4c0f25e226fa9ce0cb1b11ba71e532ebe2d8edb6a26b1bf95",
+            "goldSha256": "461556beaff2d512e50a615488b2345976d69ff726de05b6f19d96a74cfdbd6a",
+            "familySha256": "1752425bc453884e2ea8bfb995feb336175a746ca738890345b67466fb331625"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-080",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-080",
+            "familyId": "f-080",
+            "split": "AUDIT",
+            "inputHash": "f7699f807318604c3eca78befb5344edf3d1caefaa4420c2d5e4cc82f6144e9e",
+            "goldSha256": "4fd4e4b6fec527c9aeb1d68877b179115957bdd71a09a56f8c9d6746f7b2ef1f",
+            "familySha256": "78ad49b7fe54a3bf6281948012f7d76f4b797c2b9566ed69e1e42aabb8e90a80"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-081",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-081",
+            "familyId": "f-081",
+            "split": "AUDIT",
+            "inputHash": "d1ab4bf0d0c86bc391bbc3eb19a55861141790549fb6a5d876f6fda67b4edd5b",
+            "goldSha256": "6fed534552158bb2f6a49f05b185de98c37ca05083334de1df38f20b13932730",
+            "familySha256": "290e141341ef33c3e33c1884cc139e6edeaadd8e3ab0c4e934892867d6e7313d"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-082",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-082",
+            "familyId": "f-082",
+            "split": "AUDIT",
+            "inputHash": "d6ab8688d03cedb64fcce456e74f831b615a4a0cd45843ecb4a57aead0bfa63d",
+            "goldSha256": "23345cdc7dbbf9c7a6779ad168f1042f2ca402149518ffe342af582ea0f9ecc1",
+            "familySha256": "7c8c6138ea6b3197d6c952222de3db202fe78c021ba31ec05d635557da3f7028"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-083",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-083",
+            "familyId": "f-083",
+            "split": "AUDIT",
+            "inputHash": "0199452400d143f7dd71037eeef2cda8e563346eb1f95174c5d3cfe1f37443d6",
+            "goldSha256": "c61d03e37afd895c445bbf8cb5fd33bbe1201fc789861af14c6053a907cd3930",
+            "familySha256": "d3336910b5b5d5e06231367d13325896c39ea88b501114be58ecba8db988a1fe"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-084",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B1",
+        "originalRecords": [
+          {
+            "dialectId": "d-084",
+            "familyId": "f-084",
+            "split": "AUDIT",
+            "inputHash": "cc58ead84f56d427e7bd65f4ab5ba7f5677d936a953a29e8dbbcb87ea1440d1f",
+            "goldSha256": "ecba6cdadc0368a322623d860cdf49a187fc5a2c3e5bc2404b02f2d398d51b31",
+            "familySha256": "3063d059d786d86569edc9fc025bb84c53bd9b7337a6284a893be80f914754ba"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B1_SHARED_NULL_SLOT_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-085",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-085",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "41756c238c6d50c1bf0f0aca890f97371dfb8e0a248e2756880de145334a5eb2",
+            "goldSha256": "27d5563f228010eec9182ad0ea0073b51880902759849f93448b512873a84081",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.1",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "41756c238c6d50c1bf0f0aca890f97371dfb8e0a248e2756880de145334a5eb2",
+            "goldSha256": "8951251fb7e85ef9cab896b9a2af23ed327feeac8edaac76fb14a08adf8f099b",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.2",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "1b1fe754d5a12a23cd14a30ba5d18f5d8cd360506d4e2acf8a4486fe1d488e3d",
+            "goldSha256": "68ecfc0872c4b80523fd32673bb570db89d4eaa9737af2e5d96d587dc002f651",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.3",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "f41b451fa18f8c65b348c5f574e3f3135a687c988e9ea4d0b79a54e0bc880318",
+            "goldSha256": "f650d68267322e8e850748a71407144f3cf077c3ba1d11f4953a92c4b48146a5",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.4",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "95b3f2fed7dce7e74bc473f9b3d2a82a3810d8316d64a910e1202f6ee8aa35bb",
+            "goldSha256": "4783a68f9b25a3513a01b42f935c3f316e62837bcbfd5dcf41b23f6db6e2a753",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.5",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "a02768db6c15a86c26616ad1324fea26b7fd774ebd392791d7a15ec7b4646c10",
+            "goldSha256": "98925da43bd8bfeeed3278eae7158786961ca7df18e7c9edd4ad9d12ffae1cd1",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          },
+          {
+            "dialectId": "d-085.6",
+            "familyId": "f-085",
+            "split": "DRIFT",
+            "inputHash": "709afda801466485144dfe3c03b840c6b779a246e9585ca9a6c52f704c8f8a7c",
+            "goldSha256": "69492df30c531eb23c2a1f9275ce422372e439830ad2b0b782acc7f46193bf7e",
+            "familySha256": "e2f664ec089f3f339f636996fbfd063cf696e6ac0d9971a0dc8dd1e8cf7ecdc4"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-085.2", "d-085.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-086",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-086",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "1187da0eba66b77fc39179ae052bf78571e0780be56ae41c8e28b4300bdd5b90",
+            "goldSha256": "5eb048a26e18c825182149cf0efef9bbb8ea5939b71639438c51efd40398ac0c",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.1",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "1187da0eba66b77fc39179ae052bf78571e0780be56ae41c8e28b4300bdd5b90",
+            "goldSha256": "aedb98268d923b501289c2f8862ecc339c9f25b9b3617ff34911b51a0974864d",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.2",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "5f39efd960e81a5b51c3f806c6fe865708f0811a8b914141c7a0730add4c6526",
+            "goldSha256": "e3d8d00058a3f66ffcb1843905e66da8723c5ae286bb6af4aa896186f6e79c3f",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.3",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "c95c2de24fc5143e6025c405a089f95a0a774111b951b0f1b6d7498afc3fd5d9",
+            "goldSha256": "28abf19fe20814f3e307b7396e3ab5f08d04ae58043042d2a5d92b5d1c4606c8",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.4",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "73449825dc9626a21d14cec9cd70113e1bc6bef6657b6d55965dd9e9bfb08b0f",
+            "goldSha256": "c03b9df17969acd98f73f5bacb5a85a0733e8d6a9c82ff336e920f01786cee6f",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.5",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "f0739228825d6a2e1b400258f8a3408523a6a1263dcbe990a8ce321bc4fe968b",
+            "goldSha256": "3235c562cf65861d4dfc123df4bd2596f9e616cdc15e77c15786d2e3cfa98522",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          },
+          {
+            "dialectId": "d-086.6",
+            "familyId": "f-086",
+            "split": "DRIFT",
+            "inputHash": "7ae8cb92bf1b51b73ee47fa599924546c8dae3ce808c26cec3a468ddf28a08c5",
+            "goldSha256": "b4c55af734815114ec8076b871ae963eef59700b14726eeddf73f3879ba4724c",
+            "familySha256": "c661317e95c0cf2fa127f48c96fbd9993223ba6908d4804e3c1c5709eb01e932"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-086.2", "d-086.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-087",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-087",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "f5f95088a790ab332b74221c67e6d38707bfc229b088d99fcf2309470bfc1fe5",
+            "goldSha256": "c5d870e51ce0d98e830ac11d09f7a598286a077536e1e128cc5e8b8bdace19ac",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.1",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "f5f95088a790ab332b74221c67e6d38707bfc229b088d99fcf2309470bfc1fe5",
+            "goldSha256": "1db709cc3a3caf3ffaee8e1b14c1edcdc2cc106964e3817420b415416bed8f37",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.2",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "a7e710cc850302118d010855d247864336bb7174b062387f28e60b65e50e054a",
+            "goldSha256": "db99bae92d0598f5abb879b26d59a095db399f4d911c008cc4f4e7bacd92ee5a",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.3",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "b73ebff0f704e2fb1f68b3eaca157a8e851edea1452c28664aa29e01392cc2a4",
+            "goldSha256": "b83fc0b10e4b97acb7a636bc63e89a88c885c248c732bf18fe86be9accfd2e95",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.4",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "6217740d6a4aac23ba01fa2d2e96c7acbcd994fc5d501ab339ba89be5f4fec4c",
+            "goldSha256": "220cddef9baecdb4f8364019e493b5cf779d27db32dd821408c20677f7a98249",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.5",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "21327cf784aacdb48c52440c90acf1f22ef848dd4020e23f26be8139d5db0e0a",
+            "goldSha256": "403333b9ef8ade7f10c9d5a56fd4322323e1978882555577ceb215ba2fc3b984",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          },
+          {
+            "dialectId": "d-087.6",
+            "familyId": "f-087",
+            "split": "DRIFT",
+            "inputHash": "cf4070eac8f7c0824dde17895bb273b4690cd95b851be366a3ceab44bd79f7d2",
+            "goldSha256": "9cf2c8c6afa492052e119b06742ddb5d7939f65b095dfdb2a15e3a1b21342c36",
+            "familySha256": "0a416b53e9131dddb2a397b3b966ef0549e49ca96b095ed830cf04713933983d"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-087.2", "d-087.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-088",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-088",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "9ec3c282ba9eb88729c615ce99d512a1ca2324b8013535ada86a78fce18ce2e4",
+            "goldSha256": "c023b1ec49456cee3b920994f23791b12fcdeecaadb7e31eb0946fb7b32a9657",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.1",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "9ec3c282ba9eb88729c615ce99d512a1ca2324b8013535ada86a78fce18ce2e4",
+            "goldSha256": "9a53172b015f6b2a40532a47e42b7259cdc2f82d263ad159794b5547c2a36b87",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.2",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "2cc5f30047ebf87ea95ca0bae3ec1a7c47127137f8f5ee9456776e986a662cdd",
+            "goldSha256": "4a981e016cbfd6370affa6fa0d7b7adce994d9c603950906885de0e1d3a56084",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.3",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "3f8168712c543ddf783e40b4e0aaec208b7ee23d4aea4a1ec43a23a882815bff",
+            "goldSha256": "ee100456ad53f5b34865918f41ef6cb8d4929a48916cf4bff6ac93515c0b95da",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.4",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "8f35217453a771aecf7b327eb871bae644c36a2ef1c8aaaefeffe63e2f6e3505",
+            "goldSha256": "29b8f0b3b8f4d25f3f7ba6d63abc2daddde73d54808dd7a3d4a2718e0635edd7",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.5",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "4f11605403d2fbc8aeab006d064d4fe657e7194c0c0f4abfd4d6afbb9c0fe4f8",
+            "goldSha256": "2775ee33590ee5e197ebec1447e940c509d16fc12656e3001159b09a1dfbd1a7",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          },
+          {
+            "dialectId": "d-088.6",
+            "familyId": "f-088",
+            "split": "DRIFT",
+            "inputHash": "6a8f903fddd0c725574a825fcbbdf66f866725bedc32bad34a1093f055bde822",
+            "goldSha256": "f87ac487a25729d775fdb03782f0b243829932aba90902dd39631bbbce86846c",
+            "familySha256": "d799601009a434786a1f515d34e7656648475e4f954a13eede82090aef2b5314"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-088.2", "d-088.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-089",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-089",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "13d697db27916edb9760904379034de509d241c15700871fd9f1d2a4188c2e0c",
+            "goldSha256": "434bed1fb762b9af0b348084d45989203ae3b587273df75657f6f018c6dc8b19",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.1",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "13d697db27916edb9760904379034de509d241c15700871fd9f1d2a4188c2e0c",
+            "goldSha256": "2efac3127856fb34b2e65f3c9001adfe87b1a8b5d49d16311103108c450de0d6",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.2",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "6a4918fb0f7a17dbf572d3224df172b61a89d3106f3068b75d385f70d9c4380f",
+            "goldSha256": "f9711b0dc5cf866b5426506a5e4fb79562fe64479517f36f08ca494c3b96d014",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.3",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "44066b3128853af26f2bd2b4c29fd6db44c4fd0a70357fde5160223e626969cb",
+            "goldSha256": "2e6cfd3544972f5993b0c0fcedb4550b50b76d74678798603fcf30f50e0b7379",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.4",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "77fd3db944a204fef20e279365ee0d2c10d21c92d46b800e0c2ba9b3f51b1208",
+            "goldSha256": "142c9f9453068b05c62330ad58e6c4671a8ccd01e2b34e621865f5dbdf4502d6",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.5",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "a9d5d39bbfce3d68ff0af2e6bf934b7c69b713f18e55c2e950a6d3ecdcaae336",
+            "goldSha256": "234bd07cc9a664e8528c0271b0307b4c7fccfc85f5354ba4ae56dd8e426501c3",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          },
+          {
+            "dialectId": "d-089.6",
+            "familyId": "f-089",
+            "split": "DRIFT",
+            "inputHash": "a9014c69215ae56b78c469c92b7c54e6f5ef2c5cf9045847f54c2b4a04b9d5d6",
+            "goldSha256": "3ba7efe58519d586a2c400a17b995f1a1e4ec1b0bfe8348487cf72fdcd56a5a4",
+            "familySha256": "348db5e17e997055c5619e273a689a09a4f42f906bc9ff3bfe5ab83fffe5a85c"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-089.2", "d-089.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-090",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-090",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "9cd4e83b3d58de74fb31169854f0207de81d1d2c56ec873acd7bc3aa8292f757",
+            "goldSha256": "77a0ce5630fd002cc3b325660bdfa55db0fcafc92072e713a32f93c22814c280",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.1",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "9cd4e83b3d58de74fb31169854f0207de81d1d2c56ec873acd7bc3aa8292f757",
+            "goldSha256": "90f558c346520b8f11cf15c05eb498dc0c12793ef688a948496ac8fd0d470d78",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.2",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "07e9d3f62e62501aacc81d1934ea4f5a9a2ffcf69e2af22be072a6a9ee1d2da5",
+            "goldSha256": "693f715aad67b5e0b6d40b718f1a73f78d0082446930c1a2c5ec2dd8a6c34e88",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.3",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "db6de0084ce49b7ff489ef3c726530c27f55c59b9b9a35cb3db4efbc1d5ce5ea",
+            "goldSha256": "e3ce970e65d28fc10bb64fb6c674b1a163299dd86e1febc9ce644d24a122d912",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.4",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "b54a66b6af0df33e3222f13d023a88cbf30f76286a4b246a14519772f18cf249",
+            "goldSha256": "cf6ae1cfce23029fc4c96f6e4951dbb7cc5993f07b8935864b77182b3c44461e",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.5",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "5d2918c0f79a99825c6bf5f786811804345b1f13ae4c5f7a9f5016fd5ece5e38",
+            "goldSha256": "f744304cc27e3ec32d11c5f89860b8ddf2f8b829ed99192104b3156fdbbe1693",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          },
+          {
+            "dialectId": "d-090.6",
+            "familyId": "f-090",
+            "split": "DRIFT",
+            "inputHash": "f725e4f76b64c3fa124b5216d2d76ca82645d88c450a0839091f9a185d2286c0",
+            "goldSha256": "5f5187d383d369b27f4d42739496b2a74dd1a1e7a890ed581075ea4ff65eeff0",
+            "familySha256": "6c90561f9c22b3bcf87c0c7e4911457ffe87a8ac7ca0f5dab7948ea193bb19dc"
+          }
+        ]
+      },
+      "currentInputReview": "MATCHES_REVIEWED_PROJECTION",
+      "changedDialectIds": [],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-091",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-091",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+            "goldSha256": "c4d0079ce0acd2d8bbb104d263acea3726a9e75fadb9ece2157cb5ece4899feb",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.1",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+            "goldSha256": "dd0108f73aa0bced31f5ff63bd45bb6d16afe2fcc65be48b2f54e612fa60bfae",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.2",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "165a523b9076ee9da9b506ba8657de72bb9a30210ff7ba4014abcbaab7dc48e9",
+            "goldSha256": "f6dc63c5f2f1b6f4fcaeafe32d5e9a02b4e9a200c838f2f2cb4cb7a846b8b990",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.3",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "8124c8a9a33b427c4debd3ad040f8d2045fbb7f85dc5b667c5b276f9a2588f27",
+            "goldSha256": "4857ecaea99c3918e689234695a15f5397f5b13209934cf160ad5fa6d417c388",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.4",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "9418886da3539d7d65f7e26186192ac651b4b306af6ad51ecac7928747e85151",
+            "goldSha256": "61a4ae9f4858ac1216e37df774eb709133afc56cbce1675a05f9cf76f57a430b",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.5",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "c1015e8a40c27c6ccb5f37997e20e9ce7738d512fecab1e169dd3715386d53a9",
+            "goldSha256": "6b330076b1e76edd8e1afdcc44f2e5cad440356bc129e0f7733a9d3ae8cbba27",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          },
+          {
+            "dialectId": "d-091.6",
+            "familyId": "f-091",
+            "split": "DRIFT",
+            "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+            "goldSha256": "33d14f4a63615aebd96cba296faf8d5615e68ece50a021668e37a1527aad8ca3",
+            "familySha256": "8977499dabc7b5898125c94a23eb94fc1e6d05b5a58a2c74d533f656b24ef87d"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-091.2", "d-091.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-092",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-092",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+            "goldSha256": "d6283d4edbfacbaff1385b4c5406af1091c532d1c2aaa21dd7e9148e752f29dd",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.1",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+            "goldSha256": "db4118e24415b8da02a204a20963ed9a3a515b372f6a2ed583734ae00a817805",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.2",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "871e38e434271701dd08072c83f8b6df5779f8da52d129957d148b694ad4a1bf",
+            "goldSha256": "cf87e0b10af28b2a0e6b8fab4242c80a96d0a98af3557ab5859706b60c2df757",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.3",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "d1eaa32cd62623743b2085f0be0faa4e5a7576b656fd3069177c372aa4385669",
+            "goldSha256": "9648b9f2541933242a0421462c717f727866f0a6f42a0b832befde8f4abfbe4c",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.4",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "75245f62e0ed58e557f15205beaaf75394b52cad8dd5528662a20f8b0e8646ac",
+            "goldSha256": "e49c92222814282492b85ad25bc59a3c9c3dc3253d27ce859ef27c987007cd40",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.5",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "6d4f5f828b916e9d069f43c578fd37d23d3bdb6c5b6ebd41dc2fbd23a9d11870",
+            "goldSha256": "c2a075cab34c77af76d39eeb9bc8a15a526ae5672511c9a77f826401577b52c8",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          },
+          {
+            "dialectId": "d-092.6",
+            "familyId": "f-092",
+            "split": "DRIFT",
+            "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+            "goldSha256": "6784708a51beada8c979a3d610918792310b81cd90bb90f86424c2b24b29b2f1",
+            "familySha256": "cc02a0d10fb5c46cdbfbce7224375fdf80c761ca0d03c1de2d853690e46a42bf"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-092.2", "d-092.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-093",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-093",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+            "goldSha256": "452b8ac9b306db54f471f00ee8dd5ce2070ce301b6835d8577e75a7a78cbfa6d",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.1",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+            "goldSha256": "a56181a46f67710b1e1b3a608c92791f2e43410c1dc8c9701441ed320cf3c92c",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.2",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "669b1984c39bf4c5455e36f2a599245dceab5a204bb0c9be780fe6a9d57012f0",
+            "goldSha256": "e8f7ae744223d1eae851598a2d28250f25d662a171321fcef1dd49429416264d",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.3",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "816c5d027ccb8c70610c32939c0d55da7a5eb71ac548f5ae07537034306f2fa9",
+            "goldSha256": "9763995317afcc5e92da36eabba512b933fcb2b9969642d757990075e7f91964",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.4",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "9a54a26c6537cc6f8103319e41b3626f41a80c0f788371eec86e29d83b191557",
+            "goldSha256": "f9066d557c5d13c13c25add4b2fa4de0328900e2a1f6582bcb6f15add5c352ff",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.5",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "58385e56b94389df09114474176af5d33f7373b38ae3f6db5706f509b30dd421",
+            "goldSha256": "b993ba1c529f63e73a66e09ae705cc60b528e8d7f901d8fad2879f595fd94ee1",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          },
+          {
+            "dialectId": "d-093.6",
+            "familyId": "f-093",
+            "split": "DRIFT",
+            "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+            "goldSha256": "b7397e130d123bae56cdb61ad839b6785f9338226b4ab931d77b5556aee71e79",
+            "familySha256": "35ec9174d88afb371e28b0caa2b7f4f45709c6e6d0d35f28e5d5b2872c2a57d8"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-093.2"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-094",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-094",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+            "goldSha256": "3a75dd2ae512a4a0f577446fdb4a4f90bd17e3d94fb2b7ccaf10df25d41860a7",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.1",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+            "goldSha256": "7887248b4e674fb90c7b38b34367e060bcac369464c4245a844714107e13164f",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.2",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "df30f14ec7e994276ce361866f9807731f7d32da8f6a656d2c19d0349cdc9f6c",
+            "goldSha256": "1d9cad875c1c3fbceb456be9428e4f442d286277692ce74ae6f0abfacd7d5b95",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.3",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "f7e58f29d5512161797a576a213e30fda0c16f30cb94ebee2268808a1df0fae0",
+            "goldSha256": "683294507999105dedfa8cee435084baf5a9247b0c54c13af0b2e5f9a0cc45dc",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.4",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "622f76c9ac4da8a919707d89112dd85cc34c986edc49775a52ff59f5c7d4512d",
+            "goldSha256": "39849a67ccb0684fe66e5a73a6dcb4184cb945fce0659ab4492d2079bbb75173",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.5",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "9563ab051e17d80945af9a2e9361298770c76b0edd4774bdfdb7d85b556b6520",
+            "goldSha256": "30e802dec0ee57f12040b0d710d29df0f1e6969a133a70798ab1180e6449cb98",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          },
+          {
+            "dialectId": "d-094.6",
+            "familyId": "f-094",
+            "split": "DRIFT",
+            "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+            "goldSha256": "a38db7a573d20d605c312382e5086df76b4a07b695386ad281619f9562c29e0e",
+            "familySha256": "9a3ba263f4a7fdae799c92b49bc52eeda4adbbe38a95a1c71f8ec0adc8d7b6f9"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-094.2", "d-094.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-095",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-095",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+            "goldSha256": "21d37b3f2fada8e8108d37538166577d36868be24e63df4b80e06d35d1f9ab97",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.1",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+            "goldSha256": "45a93aa1ab72e0d61892cef15c0c1fc247842ca1fc925717fb3216f6dd61fa02",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.2",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "9ea86111c4bcaed848545f3cee9a00af629450fa1360c2c68f69b06ef9da0464",
+            "goldSha256": "29ebc9497f8a63455262084b31c29c6f2474116cf49eff8fef21b5f0bd3aa5de",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.3",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "3d89a289f989a386756c0d47c2566ae22a1bfeac6ee959fa368ce8d36c32de6c",
+            "goldSha256": "30e1e47b3534bd619b58c322628bc6d4468e52fee48e8820d42c2e7e95db8795",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.4",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "bdb734954607ceb6a8cc72159def2d06ef5b189bdb0347e4e35f82c46aba1e14",
+            "goldSha256": "25c49a4f2aa4d8b9e595792ceb7a5569d0bd04838b626d8e726f764339609520",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.5",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "67983ea9ba909bfb4a843c10d370669de9fbb48e46033e732bb4d967cf948704",
+            "goldSha256": "f27f9b2b86df1f3577c2745bfa25f183d36e9a8d4036c8ce1d32c5ddc71fc7cc",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          },
+          {
+            "dialectId": "d-095.6",
+            "familyId": "f-095",
+            "split": "DRIFT",
+            "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+            "goldSha256": "80c6e57e358d3d49b7ef689f43172bb79ec17a46fa47af7f3d464a9e609a670d",
+            "familySha256": "ab54d02e106e2ad81d9ecaaa165a7c9a04b284bf6ea2233d8890280a3e635888"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-095.2", "d-095.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
     },
     {
       "familyId": "f-096",
       "author": "repository-author",
-      "authoringDate": "2026-10-13",
-      "status": "PENDING",
-      "reviewer": null,
-      "reviewedAt": null,
-      "disagreements": [],
-      "resolutions": []
+      "originalReview": {
+        "reviewer": "Claude Opus 5.5 (independent reviewing assistant)",
+        "reviewedAt": "2026-10-13",
+        "gold": "AGREED",
+        "lineage": "REJECTED_AS_AUTHORED",
+        "finding": "B2",
+        "originalRecords": [
+          {
+            "dialectId": "d-096",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+            "goldSha256": "ca66f14a6bf24b497619e3179a20815b7fc6f5d64a1fbf848b2c67b3bec2e735",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.1",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+            "goldSha256": "8e8f7a10652030a755361a069a7077a53797ee37f7ebeb56248d3316232023ac",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.2",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "f055f7fdc22faafbdda5240f8e2a6b2a59807aa9e65ee54d0bdf6f5a1e221ac4",
+            "goldSha256": "9f1c15d4ac56659cfe6f60e102f410e702bc44582634fdaa0c5255082f266218",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.3",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "61e8b4ef2239fe1449571404175f7c486a65a3c46fe1872f08bee3018050e3c3",
+            "goldSha256": "37583df2bd3734d183d30510e3165595c947bfde035fc3c186a58defe560ed8b",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.4",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "2d3067be45888e48a53239bf892140d9253744fc8e80432d2c28c29e6aad1732",
+            "goldSha256": "f12dcf24e731e351d1dd7d71680c1f64903c334fcbb3204c66f1cd52e175de69",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.5",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "36f41f2be366d73c279c4d692b35609bb5e5a75c1915433432a92ba89aaca164",
+            "goldSha256": "75a4a6dd467449ed941ca65a00edca13129d644170503c1f0fea44d2f974cb66",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          },
+          {
+            "dialectId": "d-096.6",
+            "familyId": "f-096",
+            "split": "DRIFT",
+            "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+            "goldSha256": "0e7f17e59ca40c1560e4c5975975740d3c49938eeddc2e9cf24e0cef8aa26aba",
+            "familySha256": "52e5429070f9b9b6a41d45e7fcc9a06600c9fd70211a51cb4f6b26567ddf2674"
+          }
+        ]
+      },
+      "currentInputReview": "PENDING_CHANGED_INPUT_OR_GOLD_REVIEW",
+      "changedDialectIds": ["d-096.2", "d-096.3"],
+      "currentLineage": "UNRESOLVED",
+      "disagreements": ["B2_SHARED_MUTATION_TEMPLATE"],
+      "resolutions": [
+        "B3_REVIEWED_TRANSFORM_EQUIVALENTS_RECORDED",
+        "N4_COMPETING_ROLES_NAMED"
+      ]
+    }
+  ],
+  "corrections": [
+    {
+      "finding": "B3",
+      "status": "APPLIED",
+      "note": "Complete equivalent assignments are diagnostic; strict canonical gold is unchanged."
+    },
+    {
+      "finding": "N1",
+      "status": "APPLIED",
+      "note": "Required removals carry REQUIRED_TARGET_ABSENT."
+    },
+    {
+      "finding": "N2",
+      "status": "APPLIED_PENDING_REVIEW",
+      "note": "Used-corpus headers replaced; new provider bytes need review."
+    },
+    {
+      "finding": "N3",
+      "status": "LABEL_LIMITATION_RECORDED",
+      "note": "HARD_RESOLVABLE is a construction stratum, not measured difficulty; glosses remain."
+    },
+    {
+      "finding": "N4",
+      "status": "APPLIED",
+      "note": "Mapped alternatives name competing roles and supplied partner columns."
+    },
+    {
+      "finding": "N5",
+      "status": "APPLIED_PENDING_REVIEW",
+      "note": "Actor padding explicitly states the requested output."
+    },
+    {
+      "finding": "N6",
+      "status": "APPLIED_PENDING_REVIEW",
+      "note": "Removal event ID distinguishes the cancellation event from its order."
+    },
+    {
+      "finding": "N7",
+      "status": "APPLIED_PENDING_REVIEW",
+      "note": "New names use seeded positions while unchanged names retain relative base order."
     }
   ]
 }

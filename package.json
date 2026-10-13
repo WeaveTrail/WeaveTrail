@@ -44,7 +44,8 @@
     "eval:models:held-out": "node --import tsx packages/evals/src/run-held-out-models.ts",
     "eval:mappings:select": "node --import tsx packages/evals/src/select-mapping-models.ts",
     "eval:models:dev-gate": "node --import tsx packages/evals/src/run-dev-gate.ts",
-    "eval:mappings:dev-gate": "node --import tsx packages/evals/src/evaluate-dev-gate.ts"
+    "eval:mappings:dev-gate": "node --import tsx packages/evals/src/evaluate-dev-gate.ts",
+    "eval:corpus:seal:check": "node --import tsx scripts/check-mapping-study-seal.mts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

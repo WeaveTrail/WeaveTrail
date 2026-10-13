@@ -13,10 +13,13 @@ import { validateMappingStructure } from "@weavetrail/ai-harness/server";
 import {
   replayApproved,
   validateReplayApprovals,
+  applyApprovedMapping,
+  approvedSourceMapping,
 } from "@weavetrail/replay-engine";
 import {
   ArtifactSchema,
   ProviderProjectionSchema,
+  GoldRecordSchema,
 } from "./mapping-corpus-contract";
 import {
   generateMappingStudy,
@@ -243,6 +246,119 @@ describe("unsealed mapping study inputs", () => {
       );
       expect(new Set(positions).size).toBeGreaterThan(2);
     }
+  });
+
+  it("records complete reviewed transform equivalents without relaxing canonical tuples", () => {
+    for (const split of study.splits)
+      for (const gold of split.gold.records) {
+        const input = split.input.inputs.find(
+          (i) => i.dialectId === gold.dialectId,
+        )!;
+        expect(GoldRecordSchema.safeParse(gold).success).toBe(true);
+        const rows = input.projection.sampleRows.map((row, i) => ({
+          coordinate: {
+            sourceArtifactHash: input.inputHash,
+            rowNumber: String(i + 1),
+          },
+          values: Object.fromEntries(
+            input.projection.columns.map((c, index) => [c.name, row[index]!]),
+          ),
+        }));
+        const canonicalApplication =
+          gold.expectedDisposition === "PROPOSAL_OFFERABLE"
+            ? applyApprovedMapping(
+                rows,
+                approvedSourceMapping(goldProposal(input, gold)),
+              )
+            : undefined;
+        const canonical = gold.columns.map((c) => [
+          c.columnId,
+          c.targetField,
+          c.transform,
+          c.status,
+        ]);
+        for (const assignment of gold.acceptedAlternativeAssignments) {
+          expect(assignment).toHaveLength(gold.columns.length);
+          expect(assignment.map((c) => [c[0], c[1], c[3]])).toEqual(
+            gold.columns.map((c) => [c.columnId, c.targetField, c.status]),
+          );
+          expect(assignment).not.toEqual(canonical);
+          const columns = assignment.map((tuple, i) => ({
+            ...gold.columns[i]!,
+            transform: tuple[2],
+          }));
+          expect(
+            validateMappingStructure(
+              {
+                kind: "fields",
+                value: { fields: goldFields({ ...gold, columns }) },
+              },
+              mappingInput(input),
+            ).status,
+          ).toBe(
+            gold.expectedValidator === "VALID" ? "VALID" : "REVIEW_REQUIRED",
+          );
+          if (canonicalApplication)
+            expect(
+              applyApprovedMapping(
+                rows,
+                approvedSourceMapping(
+                  goldProposal(input, { ...gold, columns }),
+                ),
+              ),
+            ).toEqual(canonicalApplication);
+          for (const [i, column] of columns.entries())
+            if (
+              [
+                "actorId",
+                "orderId",
+                "instrumentId",
+                "sourceEventId",
+                "price",
+                "quantity",
+              ].includes(column.targetField ?? "")
+            )
+              expect(column.transform).toBe(gold.columns[i]!.transform);
+        }
+      }
+    const lowerSide = study.splits
+      .flatMap((s) => s.gold.records)
+      .find((g) => g.dialectId === "d-047")!;
+    expect(
+      lowerSide.acceptedAlternativeAssignments.some((a) =>
+        a.some((c) => c[1] === "side" && c[2] === "UPPERCASE"),
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects incomplete, rebound and duplicate diagnostic alternatives", () => {
+    const original = study.splits[0]!.gold.records[0]!;
+    for (const change of ["DROP", "TARGET", "DUPLICATE"] as const) {
+      const altered = structuredClone(original);
+      const assignment = altered.acceptedAlternativeAssignments[0]!;
+      if (change === "DROP") assignment.pop();
+      else if (change === "TARGET") assignment[0]![1] = "actorId";
+      else
+        altered.acceptedAlternativeAssignments.push(
+          structuredClone(assignment),
+        );
+      expect(GoldRecordSchema.safeParse(altered).success).toBe(false);
+    }
+  });
+
+  it("labels required target absence before complete visible assignments", () => {
+    const removed = study.relations.filter(
+      (r) => r.change === "REMOVE" && r.allocation.remove === "REQUIRED",
+    );
+    expect(removed).toHaveLength(6);
+    for (const relation of removed)
+      expect(
+        drift.gold.records.find((g) => g.dialectId === relation.dialectId),
+      ).toMatchObject({
+        reasonCategory: "REQUIRED_TARGET_ABSENT",
+        expectedValidator: "MISSING_REQUIRED_TARGET",
+        expectedDisposition: "REVIEW_REQUIRED",
+      });
   });
 
   it("keeps review inputs structurally valid and resolvable inputs free of any-review decoys", () => {

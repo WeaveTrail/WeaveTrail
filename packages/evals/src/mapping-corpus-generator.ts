@@ -15,6 +15,7 @@ import {
 } from "./mapping-corpus-authoring";
 import {
   ArtifactSchema,
+  AssignmentTupleSchema,
   CORPUS_VERSION,
   DriftRelationSchema,
   FamilyBriefSchema,
@@ -80,16 +81,24 @@ function dialect(
   baseOrder?: string[],
 ) {
   const rendered = columns.map(render);
+  const seeded = rendered.sort((a, b) => {
+    // Name/seed/family only: gold target labels never determine position.
+    const x = sha256(`${GENERATION_SEED}:${brief.id}:${a.name}`),
+      y = sha256(`${GENERATION_SEED}:${brief.id}:${b.name}`);
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  // Seed the new names into the available slots, then retain the relative base
+  // order of unchanged headers. No new column is assigned a fixed first slot.
+  const unchanged = baseOrder
+    ? rendered
+        .filter((c) => baseOrder.includes(c.name))
+        .sort((a, b) => baseOrder.indexOf(a.name) - baseOrder.indexOf(b.name))
+    : [];
   const ordered = baseOrder
-    ? rendered.sort(
-        (a, b) => baseOrder.indexOf(a.name) - baseOrder.indexOf(b.name),
+    ? seeded.map((column) =>
+        baseOrder.includes(column.name) ? unchanged.shift()! : column,
       )
-    : rendered.sort((a, b) => {
-        // Name/seed/family only: gold target labels never determine position.
-        const x = sha256(`${GENERATION_SEED}:${brief.id}:${a.name}`),
-          y = sha256(`${GENERATION_SEED}:${brief.id}:${b.name}`);
-        return x < y ? -1 : x > y ? 1 : 0;
-      });
+    : seeded;
   const projection = ProviderProjectionSchema.parse({
     columns: ordered.map((column, i) => ({
       columnId: `c${String(i + 1).padStart(2, "0")}`,
@@ -144,14 +153,59 @@ function dialect(
       )
         ? "REVIEW_REQUIRED"
         : "PROPOSAL_OFFERABLE",
-    reasonCategory:
-      ordered
-        .filter((c) => c.target === null)
-        .map((c) => c.tag)
-        .join("+") || "COMPLETE_VISIBLE_ASSIGNMENT",
+    reasonCategory: [
+      "sourceEventId",
+      "eventTime",
+      "instrumentId",
+      "eventType",
+    ].some((t) => !ordered.some((c) => c.target === t))
+      ? "REQUIRED_TARGET_ABSENT"
+      : ordered
+          .filter((c) => c.target === null)
+          .map((c) => c.tag)
+          .join("+") || "COMPLETE_VISIBLE_ASSIGNMENT",
     acceptedAlternativeAssignments: [],
   });
+  gold.acceptedAlternativeAssignments = reviewedTransformAlternatives(gold);
   return { input, gold };
+}
+
+/** B3 of the independent v1 review; strict gold is never replaced. */
+export function reviewedTransformAlternatives(gold: GoldRecord) {
+  const choices = gold.columns.map((column) => {
+    const canonical = column.transform;
+    if (
+      (column.targetField === "eventTime" ||
+        column.targetField === "receivedAt") &&
+      canonical === "ISO_DATETIME"
+    )
+      return [canonical, "IDENTITY"] as const;
+    if (column.targetField === "eventType" && canonical === "IDENTITY")
+      return [canonical, "UPPERCASE"] as const;
+    if (column.targetField === "side" && canonical === "IDENTITY")
+      return [canonical, "UPPERCASE", "BUY_SELL_CODE"] as const;
+    if (
+      gold.dialectId === "d-047" &&
+      column.targetField === "side" &&
+      canonical === "BUY_SELL_CODE"
+    )
+      return [canonical, "UPPERCASE"] as const;
+    return [canonical];
+  });
+  let assignments: GoldRecord["acceptedAlternativeAssignments"] = [[]];
+  for (const [i, transforms] of choices.entries())
+    assignments = assignments.flatMap((assignment) =>
+      transforms.map((transform) => [
+        ...assignment,
+        AssignmentTupleSchema.parse([
+          gold.columns[i]!.columnId,
+          gold.columns[i]!.targetField,
+          transform,
+          gold.columns[i]!.status,
+        ]),
+      ]),
+    );
+  return assignments.slice(1);
 }
 
 /** Adapts the exact projection to the unchanged offline shared validator. */

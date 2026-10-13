@@ -60,8 +60,11 @@ drafts into `dist/mapping-study-unsealed/`. `pnpm eval:corpus:check` runs author
 preflight, generates twice and verifies deterministic artifact bytes without
 updating expectations. It rejects unexpected fixture files and separately checks
 the committed receipt's strict shape, original-byte checksum and manifest binding.
-It writes a separate actual environment receipt and checksum. Independent
-gold/lineage review, sealing and model-run integration remain planned; see the
+It writes a separate actual environment receipt and checksum. The original independent
+review is applied with old/new hash bindings and diagnostic equivalent assignments.
+`pnpm eval:corpus:seal:check` is a read-only readiness gate and currently fails
+because lineage and replacement reviews remain unresolved. No seal is created;
+sealing and model-run integration remain planned. See the
 [draft inventory](packages/evals/fixtures/mapping-study-v1/README.md).
 
 `pnpm eval:schemas:generate:v2` reproduces the new sealed corpus and DEV-only

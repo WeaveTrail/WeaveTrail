@@ -1,6 +1,7 @@
 # Unsealed synthetic mapping study drafts
 
-Status: **UNSEALED; independent gold and lineage review PENDING**.
+Status: **UNSEALED; original independent review applied with unresolved lineage
+findings; replacement inputs require independent review**.
 These inputs implement the authoring allocation of
 [the family/gold specification](../../../../docs/MAPPING_CORPUS_SPEC.md) and
 [ADR 0081](../../../../docs/adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md).
@@ -24,6 +25,7 @@ Reproduce with Node 22.13 or newer and pnpm 10.33.2, using the repository lockfi
 ```bash
 pnpm eval:corpus:generate
 pnpm eval:corpus:check
+pnpm eval:corpus:seal:check # expected failure until independent review blockers are resolved
 pnpm exec vitest run packages/evals/src/mapping-corpus.test.ts
 ```
 
@@ -31,8 +33,8 @@ Generation writes `dist/mapping-study-unsealed/`. Verification generates twice,
 checks every deterministic JSON byte, rejects unexpected files (including stale
 JSON in subdirectories), and fails without updating expectations. Both
 write a separate actual `generation-receipt.json` with time, checkout, tracked
-dirty paths, Node/pnpm/platform/architecture and the manifest hash. The initial
-capture receipt is retained here; deterministic reproduction excludes its
+dirty paths, Node/pnpm/platform/architecture and the manifest hash. The current
+capture receipt is retained here; the original capture is hash-bound at its immutable source commit in the separate [review baseline](../mapping-study-review-v1/README.md); deterministic reproduction excludes its
 volatile environment metadata but validates its strict shape, original bytes
 against `generation-receipt.sha256`, and binding to the current manifest hash.
 The receipt and its checksum are explicit exceptions to deterministic regeneration;
@@ -41,7 +43,7 @@ integrity and binding, not authenticity of environment metadata. After a deliber
 use `pnpm eval:corpus:generate --output packages/evals/fixtures/mapping-study-v1`
 and review the changed inputs, gold, manifest and receipt together.
 
-The generator (`mapping-study-generator/1`, seed `weavetrail-study-2036-a`) renders
+The generator (`mapping-study-generator/2`, seed `weavetrail-study-2036-a`) renders
 [separately authored briefs](../../src/mapping-corpus-authoring.ts). Seeds shuffle
 headers independently of gold targets. Two fictional sample rows carry every
 discriminating clue; no fact depends on an untransmitted ninth row or constant.
@@ -53,19 +55,25 @@ quantity values remain strings throughout generation and validation.
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `*.inputs.json`                         | Offline IDs/hash bindings and a strict `projection` of opaque column IDs, headers and bounded sample rows; only `projection` is task-specific provider input           |
 | `*.gold.json`                           | Ordered canonical tuples, exact visible coordinates, alternatives, attacks, absent required targets and expected validator/disposition witnesses; never provider input |
-| `families.json`                         | Source conventions, event kinds, problems, lineage declarations, evidence/alternatives and pending author/reviewer records                                             |
+| `families.json`                         | Source conventions, event kinds, problems, lineage declarations, evidence/alternatives and pending authoring records; the applied review lives in the separate ledger  |
 | `drift-relations.json`                  | Base-relative local detector labels, global mapping witnesses and separate visible/hidden semantic truth; follow-ups are not independent families                      |
 | `base-approvals.json`                   | Generated correct-base proposal/approval fixtures; never observed humans or model-created approvals                                                                    |
 | `overlap-report.json`                   | Prior byte hashes, header/slot/grammar/lineage/decoded-attack diagnostics and explicit within-family duplicate exemptions                                              |
-| `review-ledger.json`, `exclusions.json` | Pending independent decisions and an empty exclusion ledger; no fabricated reviewer signoff                                                                            |
+| `review-ledger.json`, `exclusions.json` | Applied original decisions, unresolved lineage, and old/new hash bindings for replaced inputs; no replacement reviewer signoff                                         |
 | `exposure-ledger.json`                  | Honest public/authoring exposure boundary; no secrecy claim or model-performance evidence                                                                              |
+| `seal-readiness.json`                   | Unresolved lineage and changed-input/gold review blockers; no measured family-count claim                                                                              |
 | `preflight.json`                        | Author consistency checks with the existing validators and explicit remaining implementation limits                                                                    |
-| `manifest.json`                         | Draft-byte/source/specification/lockfile hashes; `UNSEALED`, never a measurement seal                                                                                  |
+| `manifest.json`                         | Draft-byte/source/specification/lockfile and original review-baseline hashes; `UNSEALED`, never a measurement seal                                                     |
 
 Correct SELECT/AUDIT answers all pass the structural validator, including review
 families whose optional null fields require human review. Resolvable families
 have no irrelevant null decoy. Canonical transform tuples are fixed before runs;
-accepted equivalent assignments are empty pending independent review. Validator
+the equivalent transforms accepted in the original review are complete diagnostic
+assignments of `(columnId, targetField, transform, status)` tuples, in canonical
+column order. They include all combinations; headers are fixed by input/canonical
+gold. They do not relax strict scoring or eligibility. Names and plausible
+competing roles now appear in mapped-column alternatives. HARD_RESOLVABLE is a
+construction label; glosses remain and no difficulty is measured. Validator
 acceptance does not establish semantic correctness or create an approval.
 
 DRIFT follows the required/optional add/remove allocation, with six supported
@@ -88,6 +96,12 @@ family was never seen in training.
 All values and payloads are fully synthetic, authored for this repository under
 its Apache-2.0 contribution terms, with no real data or third-party source.
 Payloads are inert data; rendering/validation never decodes them as instructions
-or executes them. Independent review, exclusions/resolutions, sealing, new-run
-scoring integration, full reuse assembly and audited pre-registration remain
-planned. No calls, latency, cost savings, model quality or human time are measured.
+or executes them. The [original independent review](../../../../docs/MAPPING_STUDY_V1_GOLD_REVIEW.md)
+is applied, including diagnostic equivalents, required-removal reasons, replacement
+headers and seeded changed-column positions. Its 28 MUST_REVIEW and 12 DRIFT
+lineage rejections remain unresolved. Changed provider bytes are not approved by
+that old review: `exclusions.json` records the replaced hashes, source commit and
+new input bindings. `seal-readiness.json` records the blockers;
+`pnpm eval:corpus:seal:check` fails without writing a seal. A MUST_REVIEW redesign
+also needs reviewed coverage floors; none are lowered here. Sealing, new-run scoring
+integration, full reuse assembly and audited pre-registration remain planned. No calls, latency, cost savings, model quality or human time are measured.
