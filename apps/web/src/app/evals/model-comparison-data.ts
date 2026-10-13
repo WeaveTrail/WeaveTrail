@@ -393,6 +393,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "An incomplete grid compares against full reference samples",
     ko: "불완전한 격자를 전체 기준선 표본과 비교함",
   },
+  {
+    id: "F-019",
+    status: "FIXED",
+    en: "An AUDIT protocol declares a nonexistent live-sample dialect",
+    ko: "AUDIT 프로토콜이 존재하지 않는 라이브 표본 dialect를 선언함",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

@@ -148,6 +148,13 @@ export function bindStudySource(
   );
   if (scopedFamilies.some((f) => !dialects.some((d) => d.family.id === f.id)))
     throw new Error("Missing study family");
+  if (
+    inputs.split === "AUDIT" &&
+    protocol.liveSampleDialectIds.some(
+      (id) => !dialects.some((d) => d.input.dialectId === id),
+    )
+  )
+    throw new Error("Unknown study live sample dialect");
   return {
     split: inputs.split,
     status: inputs.status,

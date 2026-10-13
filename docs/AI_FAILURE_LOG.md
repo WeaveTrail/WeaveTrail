@@ -410,3 +410,20 @@ valid. No model call, held-out model run or prompt change occurred.
 These are offline validation and scoring probes. The full DRIFT CLI regression
 keeps 84 inputs in 12 dependent families and uses authored outputs, not observed
 model responses. No prompt, source artifact, corpus seal or live model run changed.
+
+### F-019: An AUDIT protocol declares a nonexistent live-sample dialect
+
+| Field             | Value                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Role              | Offline mapping-study source binding                                                                                                                   |
+| Model and version | No model or provider call; synthetic mutation of mapping-study-protocol/1                                                                              |
+| Run record        | None. Authored AUDIT protocol with a recomputed canonical hash and no live attempts                                                                    |
+| Assumption        | Live run validation can catch an unknown sample dialect after source binding                                                                           |
+| Counterexample    | A protocol lists d-003 and nonexistent d-999 in liveSampleDialectIds; source binding accepts it although no run for d-999 can bind                     |
+| Fix               | Check every declared sample ID against the bound AUDIT source before attempts. SELECT/DRIFT binding remains independent of the AUDIT sample list. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                       |
+| Status            | `FIXED`                                                                                                                                                |
+
+The negative regression fails before the fix. A declared AUDIT subset and
+SELECT/DRIFT sources in the same protocol remain valid. This is an offline
+validator probe; no model call, prompt change or held-out model run occurred.

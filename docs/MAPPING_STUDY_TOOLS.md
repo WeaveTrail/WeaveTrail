@@ -84,7 +84,10 @@ The protocol shape is defined by `MappingStudyProtocolSchema` in
   primary/escalation/selected run hashes, reason, stop, attempts, reservations,
   elapsed time and final disposition. An AUDIT protocol fixes the distinct
   primary/escalation pair and selection-decision hash, and the live-sample dialect
-  list. References must resolve to runs with the correct phase and pair. Live
+  list. Binding an AUDIT source requires every declared live-sample dialect ID
+  to exist in that source, before any attempt; SELECT/DRIFT bindings do not
+  check the AUDIT sample list against their own dialects.
+  References must resolve to runs with the correct phase and pair. Live
   sample records are distinct attempts, not copies relabeled as observed timing.
   An offerable primary with no stop must select its own run hash directly;
   a deadline may withhold it with no selected run and `REVIEW_REQUIRED` only

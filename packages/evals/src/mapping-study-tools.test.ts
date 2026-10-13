@@ -145,6 +145,35 @@ const rebindProtocol = (
 };
 
 describe("offline mapping study tools", () => {
+  it("rejects live-sample IDs absent from the bound AUDIT source before any attempt", () => {
+    const input = load();
+    rebindProtocol(input, (p) => {
+      p.liveSampleDialectIds = ["d-003", "d-999"];
+    });
+    const { protocol } = readStudyProtocol(input.protocol);
+    expect(() => bindStudySource(protocol, input.source)).toThrow(
+      "Unknown study live sample dialect",
+    );
+    expect(() => scoreMappingStudy(input)).toThrow(
+      "Unknown study live sample dialect",
+    );
+  });
+  it("accepts declared AUDIT sample subsets while binding other splits independently", () => {
+    const audit = load();
+    rebindProtocol(audit, (p) => {
+      p.liveSampleDialectIds = ["d-003"];
+    });
+    const { protocol } = readStudyProtocol(audit.protocol);
+    expect(bindStudySource(protocol, audit.source).split).toBe("AUDIT");
+    expect(scoreMappingStudy(audit).grid.complete).toBe(true);
+    const select = load("SELECT");
+    const selectProtocol = readStudyProtocol(select.protocol).protocol;
+    protocol.sources.push(...selectProtocol.sources);
+    expect(bindStudySource(protocol, select.source).split).toBe("SELECT");
+    const drift = loadDrift();
+    protocol.sources.push(...drift.protocol.sources);
+    expect(bindStudySource(protocol, drift.source).split).toBe("DRIFT");
+  });
   it.each(["SELECT", "AUDIT"])(
     "reproduces captured %s control bytes and CLI checks without credentials",
     (split) => {
