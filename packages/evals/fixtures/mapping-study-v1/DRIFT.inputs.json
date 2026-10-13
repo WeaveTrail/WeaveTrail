@@ -1,0 +1,3502 @@
+{
+  "version": "mapping-study-inputs/1",
+  "status": "UNSEALED",
+  "split": "DRIFT",
+  "inputs": [
+    {
+      "dialectId": "d-085",
+      "inputHash": "41756c238c6d50c1bf0f0aca890f97371dfb8e0a248e2756880de145334a5eb2",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Fill parent order ID" },
+          { "columnId": "c02", "name": "Fill major-currency unit price" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "4",
+            "TRADE",
+            "SYN-71",
+            "ACT-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71"
+          ],
+          [
+            "SYN-72",
+            "6",
+            "TRADE",
+            "SYN-72",
+            "ACT-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.1",
+      "inputHash": "41756c238c6d50c1bf0f0aca890f97371dfb8e0a248e2756880de145334a5eb2",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Fill parent order ID" },
+          { "columnId": "c02", "name": "Fill major-currency unit price" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "4",
+            "TRADE",
+            "SYN-71",
+            "ACT-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71"
+          ],
+          [
+            "SYN-72",
+            "6",
+            "TRADE",
+            "SYN-72",
+            "ACT-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.2",
+      "inputHash": "1b1fe754d5a12a23cd14a30ba5d18f5d8cd360506d4e2acf8a4486fe1d488e3d",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Fill major-currency unit price (same units and role)"
+          },
+          { "columnId": "c02", "name": "Fill parent order ID" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "4",
+            "SYN-71",
+            "TRADE",
+            "SYN-71",
+            "ACT-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71"
+          ],
+          [
+            "6",
+            "SYN-72",
+            "TRADE",
+            "SYN-72",
+            "ACT-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.3",
+      "inputHash": "f41b451fa18f8c65b348c5f574e3f3135a687c988e9ea4d0b79a54e0bc880318",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reused fill event reference (equally authoritative event reference)"
+          },
+          { "columnId": "c02", "name": "Fill parent order ID" },
+          { "columnId": "c03", "name": "Fill major-currency unit price" },
+          { "columnId": "c04", "name": "Reused fill kind" },
+          { "columnId": "c05", "name": "Reused fill contract" },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c08", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "SYN-71",
+            "4",
+            "TRADE",
+            "SYN-71",
+            "ACT-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71"
+          ],
+          [
+            "SYN-72",
+            "SYN-72",
+            "6",
+            "TRADE",
+            "SYN-72",
+            "ACT-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.4",
+      "inputHash": "95b3f2fed7dce7e74bc473f9b3d2a82a3810d8316d64a910e1202f6ee8aa35bb",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Fill parent order ID" },
+          { "columnId": "c02", "name": "Fill major-currency unit price" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          ["SYN-71", "4", "TRADE", "SYN-71", "ACT-71", "2036-02-03T10:11:12Z"],
+          ["SYN-72", "6", "TRADE", "SYN-72", "ACT-72", "2036-02-03T10:11:13Z"]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.5",
+      "inputHash": "a02768db6c15a86c26616ad1324fea26b7fd774ebd392791d7a15ec7b4646c10",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Fill parent order ID" },
+          { "columnId": "c02", "name": "Fill major-currency unit price" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "4",
+            "TRADE",
+            "SYN-71",
+            "ACT-71",
+            "2085646272000",
+            "SYN-71"
+          ],
+          [
+            "SYN-72",
+            "6",
+            "TRADE",
+            "SYN-72",
+            "ACT-72",
+            "2085646273000",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-085.6",
+      "inputHash": "709afda801466485144dfe3c03b840c6b779a246e9585ca9a6c52f704c8f8a7c",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Fill parent order ID" },
+          { "columnId": "c02", "name": "Fill major-currency unit price" },
+          { "columnId": "c03", "name": "Reused fill kind" },
+          { "columnId": "c04", "name": "Reused fill contract" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reused fill event reference" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "4",
+            "TRADE",
+            "SYN-71",
+            "CP-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71"
+          ],
+          [
+            "SYN-72",
+            "6",
+            "TRADE",
+            "SYN-72",
+            "CP-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086",
+      "inputHash": "1187da0eba66b77fc39179ae052bf78571e0780be56ae41c8e28b4300bdd5b90",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Print source sequence" },
+          { "columnId": "c03", "name": "Reused print category" },
+          { "columnId": "c04", "name": "Reused print product" },
+          { "columnId": "c05", "name": "Reused print source event" },
+          { "columnId": "c06", "name": "Printed quantity units" },
+          {
+            "columnId": "c07",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.1",
+      "inputHash": "1187da0eba66b77fc39179ae052bf78571e0780be56ae41c8e28b4300bdd5b90",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Print source sequence" },
+          { "columnId": "c03", "name": "Reused print category" },
+          { "columnId": "c04", "name": "Reused print product" },
+          { "columnId": "c05", "name": "Reused print source event" },
+          { "columnId": "c06", "name": "Printed quantity units" },
+          {
+            "columnId": "c07",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.2",
+      "inputHash": "5f39efd960e81a5b51c3f806c6fe865708f0811a8b914141c7a0730add4c6526",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Printed quantity units (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Print source sequence" },
+          { "columnId": "c04", "name": "Reused print category" },
+          { "columnId": "c05", "name": "Reused print product" },
+          { "columnId": "c06", "name": "Reused print source event" },
+          {
+            "columnId": "c07",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "ACT-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "17.50",
+            "ACT-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.3",
+      "inputHash": "c95c2de24fc5143e6025c405a089f95a0a774111b951b0f1b6d7498afc3fd5d9",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reused print source event (equally authoritative event reference)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Print source sequence" },
+          { "columnId": "c04", "name": "Reused print category" },
+          { "columnId": "c05", "name": "Reused print product" },
+          { "columnId": "c06", "name": "Reused print source event" },
+          { "columnId": "c07", "name": "Printed quantity units" },
+          {
+            "columnId": "c08",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "ACT-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "SYN-72",
+            "ACT-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.4",
+      "inputHash": "73449825dc9626a21d14cec9cd70113e1bc6bef6657b6d55965dd9e9bfb08b0f",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Print source sequence" },
+          { "columnId": "c03", "name": "Reused print category" },
+          { "columnId": "c04", "name": "Reused print product" },
+          { "columnId": "c05", "name": "Printed quantity units" },
+          {
+            "columnId": "c06",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          ["ACT-71", "31", "TRADE", "SYN-71", "17.25", "2036-02-03T10:11:12Z"],
+          ["ACT-72", "32", "TRADE", "SYN-72", "17.50", "2036-02-03T10:11:13Z"]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.5",
+      "inputHash": "f0739228825d6a2e1b400258f8a3408523a6a1263dcbe990a8ce321bc4fe968b",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Print source sequence" },
+          { "columnId": "c03", "name": "Reused print category" },
+          { "columnId": "c04", "name": "Reused print product" },
+          { "columnId": "c05", "name": "Reused print source event" },
+          { "columnId": "c06", "name": "Printed quantity units" },
+          {
+            "columnId": "c07",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "2085646272000"
+          ],
+          [
+            "ACT-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "2085646273000"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-086.6",
+      "inputHash": "7ae8cb92bf1b51b73ee47fa599924546c8dae3ce808c26cec3a468ddf28a08c5",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Print source sequence" },
+          { "columnId": "c03", "name": "Reused print category" },
+          { "columnId": "c04", "name": "Reused print product" },
+          { "columnId": "c05", "name": "Reused print source event" },
+          { "columnId": "c06", "name": "Printed quantity units" },
+          {
+            "columnId": "c07",
+            "name": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "CP-71",
+            "31",
+            "TRADE",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "CP-72",
+            "32",
+            "TRADE",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087",
+      "inputHash": "f5f95088a790ab332b74221c67e6d38707bfc229b088d99fcf2309470bfc1fe5",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable bilateral event key" },
+          { "columnId": "c02", "name": "Bilateral aggressor side" },
+          { "columnId": "c03", "name": "Reusable bilateral security" },
+          { "columnId": "c04", "name": "Bilateral order ref" },
+          { "columnId": "c05", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "SYN-72",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.1",
+      "inputHash": "f5f95088a790ab332b74221c67e6d38707bfc229b088d99fcf2309470bfc1fe5",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable bilateral event key" },
+          { "columnId": "c02", "name": "Bilateral aggressor side" },
+          { "columnId": "c03", "name": "Reusable bilateral security" },
+          { "columnId": "c04", "name": "Bilateral order ref" },
+          { "columnId": "c05", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "SYN-72",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.2",
+      "inputHash": "a7e710cc850302118d010855d247864336bb7174b062387f28e60b65e50e054a",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Bilateral aggressor side (same units and role)"
+          },
+          { "columnId": "c02", "name": "Reusable bilateral event key" },
+          { "columnId": "c03", "name": "Reusable bilateral security" },
+          { "columnId": "c04", "name": "Bilateral order ref" },
+          { "columnId": "c05", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.3",
+      "inputHash": "b73ebff0f704e2fb1f68b3eaca157a8e851edea1452c28664aa29e01392cc2a4",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable bilateral event key"
+          },
+          { "columnId": "c02", "name": "Reusable bilateral event key" },
+          { "columnId": "c03", "name": "Bilateral aggressor side" },
+          { "columnId": "c04", "name": "Reusable bilateral security" },
+          { "columnId": "c05", "name": "Bilateral order ref" },
+          { "columnId": "c06", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c07",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c08",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.4",
+      "inputHash": "6217740d6a4aac23ba01fa2d2e96c7acbcd994fc5d501ab339ba89be5f4fec4c",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable bilateral event key" },
+          { "columnId": "c02", "name": "Reusable bilateral security" },
+          { "columnId": "c03", "name": "Bilateral order ref" },
+          { "columnId": "c04", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "SYN-72",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.5",
+      "inputHash": "21327cf784aacdb48c52440c90acf1f22ef848dd4020e23f26be8139d5db0e0a",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable bilateral event key" },
+          { "columnId": "c02", "name": "Bilateral aggressor side" },
+          { "columnId": "c03", "name": "Reusable bilateral security" },
+          { "columnId": "c04", "name": "Bilateral order ref" },
+          { "columnId": "c05", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2085646272000",
+            "ACT-71"
+          ],
+          [
+            "SYN-72",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2085646273000",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-087.6",
+      "inputHash": "cf4070eac8f7c0824dde17895bb273b4690cd95b851be366a3ceab44bd79f7d2",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable bilateral event key" },
+          { "columnId": "c02", "name": "Bilateral aggressor side" },
+          { "columnId": "c03", "name": "Reusable bilateral security" },
+          { "columnId": "c04", "name": "Bilateral order ref" },
+          { "columnId": "c05", "name": "Reusable bilateral kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "TRADE",
+            "2036-02-03T10:11:12Z",
+            "CP-71"
+          ],
+          [
+            "SYN-72",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "TRADE",
+            "2036-02-03T10:11:13Z",
+            "CP-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088",
+      "inputHash": "9ec3c282ba9eb88729c615ce99d512a1ca2324b8013535ada86a78fce18ce2e4",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable fractional product" },
+          { "columnId": "c03", "name": "Fractional units filled" },
+          { "columnId": "c04", "name": "Reusable fractional event" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable fractional kind" },
+          { "columnId": "c07", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "ACT-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "ACT-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.1",
+      "inputHash": "9ec3c282ba9eb88729c615ce99d512a1ca2324b8013535ada86a78fce18ce2e4",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable fractional product" },
+          { "columnId": "c03", "name": "Fractional units filled" },
+          { "columnId": "c04", "name": "Reusable fractional event" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable fractional kind" },
+          { "columnId": "c07", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "ACT-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "ACT-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.2",
+      "inputHash": "2cc5f30047ebf87ea95ca0bae3ec1a7c47127137f8f5ee9456776e986a662cdd",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Fractional units filled (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable fractional product" },
+          { "columnId": "c04", "name": "Reusable fractional event" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable fractional kind" },
+          { "columnId": "c07", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "SYN-71",
+            "ACT-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SYN-72",
+            "ACT-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.3",
+      "inputHash": "3f8168712c543ddf783e40b4e0aaec208b7ee23d4aea4a1ec43a23a882815bff",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable fractional event"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable fractional product" },
+          { "columnId": "c04", "name": "Fractional units filled" },
+          { "columnId": "c05", "name": "Reusable fractional event" },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c07", "name": "Reusable fractional kind" },
+          { "columnId": "c08", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "ACT-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "ACT-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.4",
+      "inputHash": "8f35217453a771aecf7b327eb871bae644c36a2ef1c8aaaefeffe63e2f6e3505",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable fractional product" },
+          { "columnId": "c03", "name": "Reusable fractional event" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable fractional kind" },
+          { "columnId": "c06", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          ["2036-02-03T10:11:12Z", "SYN-71", "SYN-71", "ACT-71", "TRADE", "31"],
+          ["2036-02-03T10:11:13Z", "SYN-72", "SYN-72", "ACT-72", "TRADE", "32"]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.5",
+      "inputHash": "4f11605403d2fbc8aeab006d064d4fe657e7194c0c0f4abfd4d6afbb9c0fe4f8",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable fractional product" },
+          { "columnId": "c03", "name": "Fractional units filled" },
+          { "columnId": "c04", "name": "Reusable fractional event" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable fractional kind" },
+          { "columnId": "c07", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "2085646272000",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "ACT-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "2085646273000",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "ACT-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-088.6",
+      "inputHash": "6a8f903fddd0c725574a825fcbbdf66f866725bedc32bad34a1093f055bde822",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable fractional product" },
+          { "columnId": "c03", "name": "Fractional units filled" },
+          { "columnId": "c04", "name": "Reusable fractional event" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable fractional kind" },
+          { "columnId": "c07", "name": "Fractional source sequence" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "CP-71",
+            "TRADE",
+            "31"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "CP-72",
+            "TRADE",
+            "32"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089",
+      "inputHash": "13d697db27916edb9760904379034de509d241c15700871fd9f1d2a4188c2e0c",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable limit entry contract" },
+          { "columnId": "c03", "name": "Limit entry order side" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable limit entry record" },
+          { "columnId": "c06", "name": "Limit entry order ID" },
+          { "columnId": "c07", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "BUY",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SELL",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.1",
+      "inputHash": "13d697db27916edb9760904379034de509d241c15700871fd9f1d2a4188c2e0c",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable limit entry contract" },
+          { "columnId": "c03", "name": "Limit entry order side" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable limit entry record" },
+          { "columnId": "c06", "name": "Limit entry order ID" },
+          { "columnId": "c07", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "BUY",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SELL",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.2",
+      "inputHash": "6a4918fb0f7a17dbf572d3224df172b61a89d3106f3068b75d385f70d9c4380f",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Limit entry order side (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable limit entry contract" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable limit entry record" },
+          { "columnId": "c06", "name": "Limit entry order ID" },
+          { "columnId": "c07", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.3",
+      "inputHash": "44066b3128853af26f2bd2b4c29fd6db44c4fd0a70357fde5160223e626969cb",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry record (equally authoritative event reference)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable limit entry contract" },
+          { "columnId": "c04", "name": "Limit entry order side" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable limit entry record" },
+          { "columnId": "c07", "name": "Limit entry order ID" },
+          { "columnId": "c08", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "BUY",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SELL",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.4",
+      "inputHash": "77fd3db944a204fef20e279365ee0d2c10d21c92d46b800e0c2ba9b3f51b1208",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable limit entry contract" },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable limit entry record" },
+          { "columnId": "c05", "name": "Limit entry order ID" },
+          { "columnId": "c06", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.5",
+      "inputHash": "a9d5d39bbfce3d68ff0af2e6bf934b7c69b713f18e55c2e950a6d3ecdcaae336",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable limit entry contract" },
+          { "columnId": "c03", "name": "Limit entry order side" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable limit entry record" },
+          { "columnId": "c06", "name": "Limit entry order ID" },
+          { "columnId": "c07", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "2085646272000",
+            "SYN-71",
+            "BUY",
+            "ACT-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "2085646273000",
+            "SYN-72",
+            "SELL",
+            "ACT-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-089.6",
+      "inputHash": "a9014c69215ae56b78c469c92b7c54e6f5ef2c5cf9045847f54c2b4a04b9d5d6",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable limit entry contract" },
+          { "columnId": "c03", "name": "Limit entry order side" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable limit entry record" },
+          { "columnId": "c06", "name": "Limit entry order ID" },
+          { "columnId": "c07", "name": "Reusable limit entry kind" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "BUY",
+            "CP-71",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_NEW"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "SELL",
+            "CP-72",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_NEW"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090",
+      "inputHash": "9cd4e83b3d58de74fb31169854f0207de81d1d2c56ec873acd7bc3aa8292f757",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable cap entry kind" },
+          { "columnId": "c03", "name": "Cap major-currency price" },
+          { "columnId": "c04", "name": "Reusable cap entry event" },
+          { "columnId": "c05", "name": "Reusable cap entry security" },
+          { "columnId": "c06", "name": "Cap source sequence" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "4",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "6",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.1",
+      "inputHash": "9cd4e83b3d58de74fb31169854f0207de81d1d2c56ec873acd7bc3aa8292f757",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable cap entry kind" },
+          { "columnId": "c03", "name": "Cap major-currency price" },
+          { "columnId": "c04", "name": "Reusable cap entry event" },
+          { "columnId": "c05", "name": "Reusable cap entry security" },
+          { "columnId": "c06", "name": "Cap source sequence" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "4",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "6",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.2",
+      "inputHash": "07e9d3f62e62501aacc81d1934ea4f5a9a2ffcf69e2af22be072a6a9ee1d2da5",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Cap major-currency price (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable cap entry kind" },
+          { "columnId": "c04", "name": "Reusable cap entry event" },
+          { "columnId": "c05", "name": "Reusable cap entry security" },
+          { "columnId": "c06", "name": "Cap source sequence" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "4",
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "6",
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.3",
+      "inputHash": "db6de0084ce49b7ff489ef3c726530c27f55c59b9b9a35cb3db4efbc1d5ce5ea",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry event (equally authoritative event reference)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Reusable cap entry kind" },
+          { "columnId": "c04", "name": "Cap major-currency price" },
+          { "columnId": "c05", "name": "Reusable cap entry event" },
+          { "columnId": "c06", "name": "Reusable cap entry security" },
+          { "columnId": "c07", "name": "Cap source sequence" },
+          {
+            "columnId": "c08",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "4",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "6",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.4",
+      "inputHash": "b54a66b6af0df33e3222f13d023a88cbf30f76286a4b246a14519772f18cf249",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable cap entry kind" },
+          { "columnId": "c03", "name": "Reusable cap entry event" },
+          { "columnId": "c04", "name": "Reusable cap entry security" },
+          { "columnId": "c05", "name": "Cap source sequence" },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.5",
+      "inputHash": "5d2918c0f79a99825c6bf5f786811804345b1f13ae4c5f7a9f5016fd5ece5e38",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable cap entry kind" },
+          { "columnId": "c03", "name": "Cap major-currency price" },
+          { "columnId": "c04", "name": "Reusable cap entry event" },
+          { "columnId": "c05", "name": "Reusable cap entry security" },
+          { "columnId": "c06", "name": "Cap source sequence" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2085646272000",
+            "ORDER_NEW",
+            "4",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "ACT-71"
+          ],
+          [
+            "2085646273000",
+            "ORDER_NEW",
+            "6",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-090.6",
+      "inputHash": "f725e4f76b64c3fa124b5216d2d76ca82645d88c450a0839091f9a185d2286c0",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)"
+          },
+          { "columnId": "c02", "name": "Reusable cap entry kind" },
+          { "columnId": "c03", "name": "Cap major-currency price" },
+          { "columnId": "c04", "name": "Reusable cap entry event" },
+          { "columnId": "c05", "name": "Reusable cap entry security" },
+          { "columnId": "c06", "name": "Cap source sequence" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "4",
+            "SYN-71",
+            "SYN-71",
+            "31",
+            "CP-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "6",
+            "SYN-72",
+            "SYN-72",
+            "32",
+            "CP-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091",
+      "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Routed requested units" },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Reusable routed entry event" },
+          { "columnId": "c06", "name": "Routed order reference" },
+          { "columnId": "c07", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.1",
+      "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Routed requested units" },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Reusable routed entry event" },
+          { "columnId": "c06", "name": "Routed order reference" },
+          { "columnId": "c07", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.2",
+      "inputHash": "165a523b9076ee9da9b506ba8657de72bb9a30210ff7ba4014abcbaab7dc48e9",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Routed requested units (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Reusable routed entry event" },
+          { "columnId": "c06", "name": "Routed order reference" },
+          { "columnId": "c07", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.3",
+      "inputHash": "8124c8a9a33b427c4debd3ad040f8d2045fbb7f85dc5b667c5b276f9a2588f27",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable routed entry event"
+          },
+          { "columnId": "c02", "name": "Routed requested units" },
+          {
+            "columnId": "c03",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable routed entry kind" },
+          { "columnId": "c06", "name": "Reusable routed entry event" },
+          { "columnId": "c07", "name": "Routed order reference" },
+          { "columnId": "c08", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.4",
+      "inputHash": "9418886da3539d7d65f7e26186192ac651b4b306af6ad51ecac7928747e85151",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Routed requested units" },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Routed order reference" },
+          { "columnId": "c06", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.5",
+      "inputHash": "c1015e8a40c27c6ccb5f37997e20e9ce7738d512fecab1e169dd3715386d53a9",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Routed requested units" },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Reusable routed entry event" },
+          { "columnId": "c06", "name": "Routed order reference" },
+          { "columnId": "c07", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "s:2085646272",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "s:2085646273",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-091.6",
+      "inputHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Routed requested units" },
+          {
+            "columnId": "c02",
+            "name": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Reusable routed entry kind" },
+          { "columnId": "c05", "name": "Reusable routed entry event" },
+          { "columnId": "c06", "name": "Routed order reference" },
+          { "columnId": "c07", "name": "Reusable routed entry instrument" }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "2036-02-03T10:11:12Z",
+            "ACT-71",
+            "ORDER_NEW",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71"
+          ],
+          [
+            "17.50",
+            "2036-02-03T10:11:13Z",
+            "ACT-72",
+            "ORDER_NEW",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092",
+      "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable buy entry kind" },
+          { "columnId": "c02", "name": "Buy entry ordinal" },
+          { "columnId": "c03", "name": "Reusable buy entry record" },
+          { "columnId": "c04", "name": "Buy entry side" },
+          {
+            "columnId": "c05",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.1",
+      "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable buy entry kind" },
+          { "columnId": "c02", "name": "Buy entry ordinal" },
+          { "columnId": "c03", "name": "Reusable buy entry record" },
+          { "columnId": "c04", "name": "Buy entry side" },
+          {
+            "columnId": "c05",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.2",
+      "inputHash": "871e38e434271701dd08072c83f8b6df5779f8da52d129957d148b694ad4a1bf",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Buy entry side (same units and role)"
+          },
+          { "columnId": "c02", "name": "Reusable buy entry kind" },
+          { "columnId": "c03", "name": "Buy entry ordinal" },
+          { "columnId": "c04", "name": "Reusable buy entry record" },
+          {
+            "columnId": "c05",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.3",
+      "inputHash": "d1eaa32cd62623743b2085f0be0faa4e5a7576b656fd3069177c372aa4385669",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable buy entry record"
+          },
+          { "columnId": "c02", "name": "Reusable buy entry kind" },
+          { "columnId": "c03", "name": "Buy entry ordinal" },
+          { "columnId": "c04", "name": "Reusable buy entry record" },
+          { "columnId": "c05", "name": "Buy entry side" },
+          {
+            "columnId": "c06",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c08",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.4",
+      "inputHash": "75245f62e0ed58e557f15205beaaf75394b52cad8dd5528662a20f8b0e8646ac",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable buy entry kind" },
+          { "columnId": "c02", "name": "Buy entry ordinal" },
+          { "columnId": "c03", "name": "Buy entry side" },
+          {
+            "columnId": "c04",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c05", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_NEW",
+            "31",
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "ORDER_NEW",
+            "32",
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.5",
+      "inputHash": "6d4f5f828b916e9d069f43c578fd37d23d3bdb6c5b6ebd41dc2fbd23a9d11870",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable buy entry kind" },
+          { "columnId": "c02", "name": "Buy entry ordinal" },
+          { "columnId": "c03", "name": "Reusable buy entry record" },
+          { "columnId": "c04", "name": "Buy entry side" },
+          {
+            "columnId": "c05",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "BUY",
+            "s:2085646272",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "SELL",
+            "s:2085646273",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-092.6",
+      "inputHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable buy entry kind" },
+          { "columnId": "c02", "name": "Buy entry ordinal" },
+          { "columnId": "c03", "name": "Reusable buy entry record" },
+          { "columnId": "c04", "name": "Buy entry side" },
+          {
+            "columnId": "c05",
+            "name": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable buy entry contract" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_NEW",
+            "31",
+            "SYN-71",
+            "BUY",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "ORDER_NEW",
+            "32",
+            "SYN-72",
+            "SELL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093",
+      "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Reusable partial cancel kind" },
+          { "columnId": "c03", "name": "Reusable partial cancel security" },
+          { "columnId": "c04", "name": "Reusable partial cancel event" },
+          { "columnId": "c05", "name": "Removed units total" },
+          { "columnId": "c06", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c07",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.1",
+      "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Reusable partial cancel kind" },
+          { "columnId": "c03", "name": "Reusable partial cancel security" },
+          { "columnId": "c04", "name": "Reusable partial cancel event" },
+          { "columnId": "c05", "name": "Removed units total" },
+          { "columnId": "c06", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c07",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.2",
+      "inputHash": "669b1984c39bf4c5455e36f2a599245dceab5a204bb0c9be780fe6a9d57012f0",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Removed units total (same units and role)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Reusable partial cancel kind" },
+          { "columnId": "c04", "name": "Reusable partial cancel security" },
+          { "columnId": "c05", "name": "Reusable partial cancel event" },
+          { "columnId": "c06", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c07",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "17.50",
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.3",
+      "inputHash": "816c5d027ccb8c70610c32939c0d55da7a5eb71ac548f5ae07537034306f2fa9",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable partial cancel event (equally authoritative event reference)"
+          },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Reusable partial cancel kind" },
+          { "columnId": "c04", "name": "Reusable partial cancel security" },
+          { "columnId": "c05", "name": "Reusable partial cancel event" },
+          { "columnId": "c06", "name": "Removed units total" },
+          { "columnId": "c07", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c08",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "SYN-72",
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.4",
+      "inputHash": "9a54a26c6537cc6f8103319e41b3626f41a80c0f788371eec86e29d83b191557",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Reusable partial cancel kind" },
+          { "columnId": "c03", "name": "Reusable partial cancel security" },
+          { "columnId": "c04", "name": "Removed units total" },
+          { "columnId": "c05", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c06",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.5",
+      "inputHash": "58385e56b94389df09114474176af5d33f7373b38ae3f6db5706f509b30dd421",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Reusable partial cancel kind" },
+          { "columnId": "c03", "name": "Reusable partial cancel security" },
+          { "columnId": "c04", "name": "Reusable partial cancel event" },
+          { "columnId": "c05", "name": "Removed units total" },
+          { "columnId": "c06", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c07",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "s:2085646272"
+          ],
+          [
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "s:2085646273"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-093.6",
+      "inputHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c02", "name": "Reusable partial cancel kind" },
+          { "columnId": "c03", "name": "Reusable partial cancel security" },
+          { "columnId": "c04", "name": "Reusable partial cancel event" },
+          { "columnId": "c05", "name": "Removed units total" },
+          { "columnId": "c06", "name": "Partial cancel order reference" },
+          {
+            "columnId": "c07",
+            "name": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ACT-71",
+            "ORDER_CANCEL",
+            "SYN-71",
+            "SYN-71",
+            "17.25",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ACT-72",
+            "ORDER_CANCEL",
+            "SYN-72",
+            "SYN-72",
+            "17.50",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094",
+      "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable recall source event" },
+          {
+            "columnId": "c02",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Recall sequence number" },
+          { "columnId": "c04", "name": "Recalled major-currency limit price" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable recall contract" },
+          { "columnId": "c07", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "4",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "6",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.1",
+      "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable recall source event" },
+          {
+            "columnId": "c02",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Recall sequence number" },
+          { "columnId": "c04", "name": "Recalled major-currency limit price" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable recall contract" },
+          { "columnId": "c07", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "4",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "6",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.2",
+      "inputHash": "df30f14ec7e994276ce361866f9807731f7d32da8f6a656d2c19d0349cdc9f6c",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Recalled major-currency limit price (same units and role)"
+          },
+          { "columnId": "c02", "name": "Reusable recall source event" },
+          {
+            "columnId": "c03",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c04", "name": "Recall sequence number" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable recall contract" },
+          { "columnId": "c07", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "4",
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "6",
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.3",
+      "inputHash": "f7e58f29d5512161797a576a213e30fda0c16f30cb94ebee2268808a1df0fae0",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Reusable recall source event (equally authoritative event reference)"
+          },
+          { "columnId": "c02", "name": "Reusable recall source event" },
+          {
+            "columnId": "c03",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c04", "name": "Recall sequence number" },
+          { "columnId": "c05", "name": "Recalled major-currency limit price" },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c07", "name": "Reusable recall contract" },
+          { "columnId": "c08", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "4",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "6",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.4",
+      "inputHash": "622f76c9ac4da8a919707d89112dd85cc34c986edc49775a52ff59f5c7d4512d",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable recall source event" },
+          {
+            "columnId": "c02",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Recall sequence number" },
+          {
+            "columnId": "c04",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c05", "name": "Reusable recall contract" },
+          { "columnId": "c06", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.5",
+      "inputHash": "9563ab051e17d80945af9a2e9361298770c76b0edd4774bdfdb7d85b556b6520",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable recall source event" },
+          {
+            "columnId": "c02",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Recall sequence number" },
+          { "columnId": "c04", "name": "Recalled major-currency limit price" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable recall contract" },
+          { "columnId": "c07", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "s:2085646272",
+            "31",
+            "4",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "s:2085646273",
+            "32",
+            "6",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-094.6",
+      "inputHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable recall source event" },
+          {
+            "columnId": "c02",
+            "name": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c03", "name": "Recall sequence number" },
+          { "columnId": "c04", "name": "Recalled major-currency limit price" },
+          {
+            "columnId": "c05",
+            "name": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c06", "name": "Reusable recall contract" },
+          { "columnId": "c07", "name": "Reusable recall kind" }
+        ],
+        "sampleRows": [
+          [
+            "SYN-71",
+            "2036-02-03T10:11:12Z",
+            "31",
+            "4",
+            "ACT-71",
+            "SYN-71",
+            "ORDER_CANCEL"
+          ],
+          [
+            "SYN-72",
+            "2036-02-03T10:11:13Z",
+            "32",
+            "6",
+            "ACT-72",
+            "SYN-72",
+            "ORDER_CANCEL"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095",
+      "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Cancelled order buy/sell" },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.1",
+      "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Cancelled order buy/sell" },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.2",
+      "inputHash": "9ea86111c4bcaed848545f3cee9a00af629450fa1360c2c68f69b06ef9da0464",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Cancelled order buy/sell (same units and role)"
+          },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.3",
+      "inputHash": "3d89a289f989a386756c0d47c2566ae22a1bfeac6ee959fa368ce8d36c32de6c",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable side cancel event"
+          },
+          { "columnId": "c02", "name": "Cancelled order buy/sell" },
+          { "columnId": "c03", "name": "Reusable side cancel instrument" },
+          { "columnId": "c04", "name": "Side cancel order reference" },
+          { "columnId": "c05", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c06",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c07", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c08",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.4",
+      "inputHash": "bdb734954607ceb6a8cc72159def2d06ef5b189bdb0347e4e35f82c46aba1e14",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Cancelled order buy/sell" },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          {
+            "columnId": "c06",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.5",
+      "inputHash": "67983ea9ba909bfb4a843c10d370669de9fbb48e46033e732bb4d967cf948704",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Cancelled order buy/sell" },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "s:2085646272",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "s:2085646273",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-095.6",
+      "inputHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Cancelled order buy/sell" },
+          { "columnId": "c02", "name": "Reusable side cancel instrument" },
+          { "columnId": "c03", "name": "Side cancel order reference" },
+          { "columnId": "c04", "name": "Reusable side cancel kind" },
+          {
+            "columnId": "c05",
+            "name": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          },
+          { "columnId": "c06", "name": "Reusable side cancel event" },
+          {
+            "columnId": "c07",
+            "name": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "BUY",
+            "SYN-71",
+            "SYN-71",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:12Z",
+            "SYN-71",
+            "ACT-71"
+          ],
+          [
+            "SELL",
+            "SYN-72",
+            "SYN-72",
+            "ORDER_CANCEL",
+            "2036-02-03T10:11:13Z",
+            "SYN-72",
+            "ACT-72"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096",
+      "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Withdrawn units count" },
+          {
+            "columnId": "c04",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c05", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c06", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c07",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_CANCEL",
+            "ACT-71",
+            "17.25",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ORDER_CANCEL",
+            "ACT-72",
+            "17.50",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.1",
+      "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Withdrawn units count" },
+          {
+            "columnId": "c04",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c05", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c06", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c07",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_CANCEL",
+            "ACT-71",
+            "17.25",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ORDER_CANCEL",
+            "ACT-72",
+            "17.50",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.2",
+      "inputHash": "f055f7fdc22faafbdda5240f8e2a6b2a59807aa9e65ee54d0bdf6f5a1e221ac4",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Re-labelled Withdrawn units count (same units and role)"
+          },
+          { "columnId": "c02", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c04",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c05", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c06", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c07",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "17.25",
+            "ORDER_CANCEL",
+            "ACT-71",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "17.50",
+            "ORDER_CANCEL",
+            "ACT-72",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.3",
+      "inputHash": "61e8b4ef2239fe1449571404175f7c486a65a3c46fe1872f08bee3018050e3c3",
+      "projection": {
+        "columns": [
+          {
+            "columnId": "c01",
+            "name": "Added receipt UTC for Reusable ledger withdrawal event"
+          },
+          { "columnId": "c02", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c03",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c04", "name": "Withdrawn units count" },
+          {
+            "columnId": "c05",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c06", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c07", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c08",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "2036-02-03T10:11:12Z",
+            "ORDER_CANCEL",
+            "ACT-71",
+            "17.25",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "2036-02-03T10:11:13Z",
+            "ORDER_CANCEL",
+            "ACT-72",
+            "17.50",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.4",
+      "inputHash": "2d3067be45888e48a53239bf892140d9253744fc8e80432d2c28c29e6aad1732",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          {
+            "columnId": "c03",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c04", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c05", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c06",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_CANCEL",
+            "ACT-71",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ORDER_CANCEL",
+            "ACT-72",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.5",
+      "inputHash": "36f41f2be366d73c279c4d692b35609bb5e5a75c1915433432a92ba89aaca164",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Withdrawn units count" },
+          {
+            "columnId": "c04",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c05", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c06", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c07",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_CANCEL",
+            "ACT-71",
+            "17.25",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "s:2085646272"
+          ],
+          [
+            "ORDER_CANCEL",
+            "ACT-72",
+            "17.50",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "s:2085646273"
+          ]
+        ]
+      }
+    },
+    {
+      "dialectId": "d-096.6",
+      "inputHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+      "projection": {
+        "columns": [
+          { "columnId": "c01", "name": "Reusable ledger withdrawal kind" },
+          {
+            "columnId": "c02",
+            "name": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)"
+          },
+          { "columnId": "c03", "name": "Withdrawn units count" },
+          {
+            "columnId": "c04",
+            "name": "Reusable ledger withdrawal instrument"
+          },
+          { "columnId": "c05", "name": "Withdrawal ledger ordinal" },
+          { "columnId": "c06", "name": "Reusable ledger withdrawal event" },
+          {
+            "columnId": "c07",
+            "name": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)"
+          }
+        ],
+        "sampleRows": [
+          [
+            "ORDER_CANCEL",
+            "ACT-71",
+            "17.25",
+            "SYN-71",
+            "31",
+            "SYN-71",
+            "2036-02-03T10:11:12Z"
+          ],
+          [
+            "ORDER_CANCEL",
+            "ACT-72",
+            "17.50",
+            "SYN-72",
+            "32",
+            "SYN-72",
+            "2036-02-03T10:11:13Z"
+          ]
+        ]
+      }
+    }
+  ]
+}

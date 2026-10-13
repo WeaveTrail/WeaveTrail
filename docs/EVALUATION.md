@@ -81,9 +81,26 @@ it; routine evaluation never updates targets. Financial replay v1/v2 and claim c
 The next, separate selection/policy/reuse studies have an
 [authoring specification for SELECT, AUDIT and DRIFT](MAPPING_CORPUS_SPEC.md).
 It defines family independence, coverage, visible-input gold and reuse change
-oracles. Generation, independent gold review, sealing and pre-registration are
-planned; existing commands do not run these splits. This specification reports
+oracles. [Unsealed draft generation and offline preflight](../packages/evals/fixtures/mapping-study-v1/README.md)
+are implemented; independent gold review, sealing and pre-registration remain
+planned. Existing model/scoring commands do not run these splits. This specification reports
 no new result and leaves the current `NO_MODEL` decision unchanged.
+
+`pnpm eval:corpus:generate` renders the synthetic drafts under
+`dist/mapping-study-unsealed/`; `pnpm eval:corpus:check` verifies all committed
+draft bytes without updating expectations, generates twice to check determinism,
+and writes verified copies plus an actual environment receipt there. Both commands
+are offline. Verification rejects files outside the expected inventory; the
+committed volatile receipt is excluded from regeneration but checked for strict
+shape, its original-byte SHA-256 checksum and binding to the manifest hash.
+The `mapping-study-inputs/1` contract separates provider projections
+from gold, family briefs and parent-relative DRIFT relations. The committed
+inventory has 24 SELECT inputs, 60 AUDIT inputs and 12 DRIFT bases with six
+follow-ups each (84 DRIFT inputs). These are **96 proposed families**, not an
+independently established family count or measured model performance. All gold
+reviews are pending; shared slot/grammar signatures require independent review
+before sealing. See [ADR 0081](adr/0081-generate-unsealed-mapping-study-inputs-for-independent-review.md)
+for the draft contract and checksum boundary. No new model is selected or enabled.
 
 The [version 1 offline corpus](../packages/evals/fixtures/schema-dialects-v1/PROVENANCE.md)
 is implemented input for a **planned** field-mapping model evaluation. It is not

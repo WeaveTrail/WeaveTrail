@@ -1,12 +1,15 @@
 # Planned mapping evaluation families and gold
 
-Status: **authoring specification, not a generated or sealed corpus**. No
+Status: **authoring specification; generated drafts remain unsealed**. The
+[draft corpus](../packages/evals/fixtures/mapping-study-v1/README.md) implements
+generation and author preflight; independent gold and lineage review, sealing,
+new model runners and experiment pre-registration remain planned. No
 selection, routing or reuse result is reported here. The current decision stays
 `NO_MODEL`; [ADR 0075](adr/0075-retry-mapping-selection-with-column-ids-and-a-fresh-corpus.md)
 remains withdrawn. Existing commands do not accept these new splits.
 
 This specification defines the inputs and answer rules for separate selection,
-policy evaluation and mapping-reuse studies. Generation, independent gold review,
+policy evaluation and mapping-reuse studies. Independent gold review,
 sealing, runner support and an independently audited pre-registration are still
 required before a paid run. Sample sizes below are design targets, not measured
 counts or evidence of statistical power. The pre-registration must fix the final
@@ -87,7 +90,10 @@ do not present a comparison under the changed definition as the original study.
 ## Family construction brief
 
 Before generating rows, author one offline record per family. The following are
-requirements for a future versioned contract, **not existing JSON schema fields**:
+authoring requirements. The [draft offline contract](../packages/evals/src/mapping-corpus-contract.ts)
+now records these parts; independent review and a measurement-ready contract are
+still required. These labels describe record responsibilities rather than literal
+JSON field names:
 
 | Record part       | Required content                                                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -394,8 +400,12 @@ Before any model run, the generation/review work must produce:
    ambiguous alternatives remain indistinguishable; expected refusals have
    declared reasons; DRIFT labels, global conflicts and old-approval rejection
    are exercised. Production imports/browser assets exclude all evaluation
-   splits and gold. Payload text stays data. These are required future checks,
-   not checks implemented by this document.
+   splits and gold. Payload text stays data. The draft generator checks
+   allocations, shared-validator witnesses, parent-relative change oracles,
+   observable-versus-hidden truth and stale approvals on changed artifacts.
+   Full reuse assembly, wrong-base propagation and a new task's approval for
+   byte-identical inputs remain planned reuse checks. Author preflight does not
+   replace independent gold or lineage review.
 5. **Seal and exposure ledger.** Bind input, gold, family, review and exclusion
    hashes in one manifest. Record publication and human/model exposure honestly:
    a public checksum proves immutability, not secrecy. Freeze both DEV-only
@@ -405,8 +415,10 @@ Before any model run, the generation/review work must produce:
    output, retain the old session as exploratory and require a new independent
    audit set; never repair a borderline result by adding families.
 
-The generator and scorer need new versioned contracts for these splits, family
-lineage, dialect-level refusals, accepted transform alternatives and DRIFT truth.
+The draft generator has separate versioned offline contracts for these splits,
+family lineage, dialect-level refusals and DRIFT truth. Its canonical transform
+assignments declare no accepted alternatives yet; any equivalences need independent
+review before sealing. New scorer and runner integration remain planned.
 Do not relabel SELECT or AUDIT as the historical `HELD_OUT` to bypass existing
 checks. The later public protocol must supply actual generation, verification,
 run and rescore commands once implemented. CI must remain offline. No acceptance

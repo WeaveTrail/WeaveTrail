@@ -1,0 +1,966 @@
+{
+  "version": "mapping-study-inputs/1",
+  "status": "PENDING_INDEPENDENT_REVIEW",
+  "records": [
+    {
+      "familyId": "f-001",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-002",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-003",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-004",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-005",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-006",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-007",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-008",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-009",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-010",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-011",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-012",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-013",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-014",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-015",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-016",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-017",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-018",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-019",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-020",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-021",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-022",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-023",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-024",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-025",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-026",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-027",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-028",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-029",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-030",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-031",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-032",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-033",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-034",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-035",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-036",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-037",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-038",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-039",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-040",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-041",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-042",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-043",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-044",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-045",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-046",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-047",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-048",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-049",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-050",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-051",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-052",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-053",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-054",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-055",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-056",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-057",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-058",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-059",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-060",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-061",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-062",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-063",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-064",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-065",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-066",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-067",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-068",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-069",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-070",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-071",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-072",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-073",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-074",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-075",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-076",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-077",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-078",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-079",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-080",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-081",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-082",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-083",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-084",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-085",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-086",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-087",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-088",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-089",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-090",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-091",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-092",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-093",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-094",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-095",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    },
+    {
+      "familyId": "f-096",
+      "author": "repository-author",
+      "authoringDate": "2026-10-13",
+      "status": "PENDING",
+      "reviewer": null,
+      "reviewedAt": null,
+      "disagreements": [],
+      "resolutions": []
+    }
+  ]
+}

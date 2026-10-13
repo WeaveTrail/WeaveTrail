@@ -1,0 +1,954 @@
+{
+  "version": "mapping-study-inputs/1",
+  "status": "UNSEALED",
+  "records": [
+    {
+      "familyId": "f-085",
+      "dialectId": "d-085",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "41756c238c6d50c1bf0f0aca890f97371dfb8e0a248e2756880de145334a5eb2",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Fill parent order ID",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Fill parent order ID and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Fill major-currency unit price",
+            "targetField": "price",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Fill major-currency unit price and its DECIMAL_STRING representation identify price.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused fill kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused fill kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused fill contract",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused fill contract and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reused fill event reference (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused fill occurrence UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused fill occurrence UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused fill event reference",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused fill event reference and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "ef87c4e507c04cda6d2ae736c9b659e0a57cc607b19053c2b0bbfdff2343856a",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-086",
+      "dialectId": "d-086",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "1187da0eba66b77fc39179ae052bf78571e0780be56ae41c8e28b4300bdd5b90",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reused print source event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Print source sequence",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Print source sequence and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused print category",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused print category and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused print product",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused print product and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused print source event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused print source event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Printed quantity units",
+            "targetField": "quantity",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Printed quantity units and its DECIMAL_STRING representation identify quantity.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reused print occurred UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reused print occurred UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "c873cc7f495c1da0233e0a39eef237ed58e6bcab93ed06ab34fff32b013be3f2",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-087",
+      "dialectId": "d-087",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "f5f95088a790ab332b74221c67e6d38707bfc229b088d99fcf2309470bfc1fe5",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable bilateral event key",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable bilateral event key and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Bilateral aggressor side",
+            "targetField": "side",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Bilateral aggressor side and its IDENTITY representation identify side.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable bilateral security",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable bilateral security and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Bilateral order ref",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Bilateral order ref and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable bilateral kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable bilateral kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable bilateral UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable bilateral UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable bilateral event key (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "182579059400a4e858de8fa0021cbcb5dd5563b61934486d0a5d2557d0876bd9",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-088",
+      "dialectId": "d-088",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "9ec3c282ba9eb88729c615ce99d512a1ca2324b8013535ada86a78fce18ce2e4",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable fractional UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable fractional UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable fractional product",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable fractional product and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Fractional units filled",
+            "targetField": "quantity",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Fractional units filled and its DECIMAL_STRING representation identify quantity.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable fractional event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable fractional event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable fractional event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable fractional kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable fractional kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Fractional source sequence",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Fractional source sequence and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "3939cf72aecc4ec3ee680f5bdd6323ba2761f1591ce8182aa39aa1b86d4e638d",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-089",
+      "dialectId": "d-089",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "13d697db27916edb9760904379034de509d241c15700871fd9f1d2a4188c2e0c",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable limit entry UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable limit entry UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable limit entry contract",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable limit entry contract and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Limit entry order side",
+            "targetField": "side",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Limit entry order side and its IDENTITY representation identify side.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable limit entry record (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable limit entry record",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable limit entry record and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Limit entry order ID",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Limit entry order ID and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable limit entry kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable limit entry kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "39c69cd3310b72a3df8a1044ebc9dcf8c91ec27ff93987b01ea7d780637de3bc",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-090",
+      "dialectId": "d-090",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "9cd4e83b3d58de74fb31169854f0207de81d1d2c56ec873acd7bc3aa8292f757",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable cap entry UTC (ISO UTC or Unix epoch milliseconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable cap entry UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable cap entry kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable cap entry kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Cap major-currency price",
+            "targetField": "price",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Cap major-currency price and its DECIMAL_STRING representation identify price.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable cap entry event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable cap entry event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable cap entry security",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable cap entry security and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Cap source sequence",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Cap source sequence and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable cap entry event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "8110ca8bd48053dad147cc63a9471f87017593af9ee27531a18e50d3d1f543f0",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-091",
+      "dialectId": "d-091",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "13ecf6dde60c4d80e0fe56d70b7df388643750ae292fbe6e132ff7f263665745",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Routed requested units",
+            "targetField": "quantity",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Routed requested units and its DECIMAL_STRING representation identify quantity.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable routed entry UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable routed entry UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable routed entry event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable routed entry kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable routed entry kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable routed entry event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable routed entry event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Routed order reference",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Routed order reference and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable routed entry instrument",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable routed entry instrument and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "f2b0e32657bca92cf181b600f91c56be03f06c63fd1e243e1b15df0f4c5ca565",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-092",
+      "dialectId": "d-092",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "6f5c8921edddaad88b6cc0c61d1f4f353a910d21379360e6eb10d95dcd350e9e",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable buy entry kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable buy entry kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Buy entry ordinal",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Buy entry ordinal and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable buy entry record",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable buy entry record and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Buy entry side",
+            "targetField": "side",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Buy entry side and its IDENTITY representation identify side.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable buy entry UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable buy entry UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable buy entry contract",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable buy entry contract and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable buy entry record (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "cd994f95f24dcc3f682e068716a72dd126542260247cbda7f48e9473729f8244",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-093",
+      "dialectId": "d-093",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "5f32b7fc8007636efd04aedc919cf0e1c5c211b95fb07202a5a57939738414ac",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable partial cancel event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable partial cancel kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable partial cancel kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable partial cancel security",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable partial cancel security and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable partial cancel event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable partial cancel event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Removed units total",
+            "targetField": "quantity",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Removed units total and its DECIMAL_STRING representation identify quantity.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Partial cancel order reference",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Partial cancel order reference and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable partial cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable partial cancel UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "bced2e32d3ad33ccdaedfc23b71ac16b941386dd51fe61938a1ea64ce8e69b6d",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-094",
+      "dialectId": "d-094",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "bf74f9a782dd3b59c3ddce662aaabaf3cee728e779a0d2a12dc042325f1994f0",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable recall source event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable recall source event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable recall UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable recall UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Recall sequence number",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Recall sequence number and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Recalled major-currency limit price",
+            "targetField": "price",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Recalled major-currency limit price and its DECIMAL_STRING representation identify price.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable recall source event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable recall contract",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable recall contract and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable recall kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable recall kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "f0c33659c88b3fecea0560a24146faa4403373a2d023385e2b296bd699e95592",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-095",
+      "dialectId": "d-095",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "f25acab75fdc4c00daf381fc6ad1a7b4dd285aae6b54425eb6e9a3372a755c23",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Cancelled order buy/sell",
+            "targetField": "side",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Cancelled order buy/sell and its IDENTITY representation identify side.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable side cancel instrument",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable side cancel instrument and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Side cancel order reference",
+            "targetField": "orderId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Side cancel order reference and its IDENTITY representation identify orderId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable side cancel kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable side cancel kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable side cancel UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable side cancel UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable side cancel event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable side cancel event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable side cancel event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "5814e7c0d1a8f3080d4984e74d099c7ab48f26bd433e0c8b2131669225967e50",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    },
+    {
+      "familyId": "f-096",
+      "dialectId": "d-096",
+      "assumption": "GENERATED_CORRECT_BASE_NOT_OBSERVED_HUMAN_APPROVAL",
+      "proposal": {
+        "mappingVersion": "1.4",
+        "sourceArtifactHash": "5546c6654ddac9cc7ad538ea89aa0dc03f1938d9a75bf6db36fc5a6fd460d620",
+        "constants": {
+          "schemaVersion": "1.1",
+          "datasetId": "SYNTHETIC-STUDY",
+          "venueId": "SYNTHETIC-STUDY"
+        },
+        "fields": [
+          {
+            "sourceColumn": "Reusable ledger withdrawal kind",
+            "targetField": "eventType",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable ledger withdrawal kind and its IDENTITY representation identify eventType.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty)",
+            "targetField": "actorId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Party reference for Reusable ledger withdrawal event (ACT-* = actor, CP-* = counterparty) and its IDENTITY representation identify actorId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Withdrawn units count",
+            "targetField": "quantity",
+            "transform": "DECIMAL_STRING",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Withdrawn units count and its DECIMAL_STRING representation identify quantity.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable ledger withdrawal instrument",
+            "targetField": "instrumentId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable ledger withdrawal instrument and its IDENTITY representation identify instrumentId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Withdrawal ledger ordinal",
+            "targetField": "sequence",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Withdrawal ledger ordinal and its IDENTITY representation identify sequence.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable ledger withdrawal event",
+            "targetField": "sourceEventId",
+            "transform": "IDENTITY",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable ledger withdrawal event and its IDENTITY representation identify sourceEventId.",
+            "status": "PROPOSED"
+          },
+          {
+            "sourceColumn": "Reusable ledger withdrawal UTC (ISO UTC or s:Unix epoch seconds, as shown)",
+            "targetField": "eventTime",
+            "transform": "ISO_DATETIME",
+            "confidence": 1,
+            "evidence": "The visible role qualifier in Reusable ledger withdrawal UTC and its ISO_DATETIME representation identify eventTime. ISO UTC samples select ISO_DATETIME from the explicitly declared representation domains.",
+            "status": "PROPOSED"
+          }
+        ]
+      },
+      "approval": {
+        "approvedArtifactHash": "98b5d1d2a821b3f65ac86f02ddb94d6e463706db9669bed330459e38de34e47d",
+        "reviewerRef": "synthetic-experiment-fixture",
+        "decision": "APPROVED",
+        "overrides": [],
+        "approvedAt": "2036-02-03T00:00:00Z"
+      }
+    }
+  ]
+}

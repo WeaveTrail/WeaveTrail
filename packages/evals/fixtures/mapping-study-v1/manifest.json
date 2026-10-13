@@ -1,0 +1,96 @@
+{
+  "version": "mapping-study-inputs/1",
+  "status": "UNSEALED",
+  "generatorVersion": "mapping-study-generator/1",
+  "seed": "weavetrail-study-2036-a",
+  "specificationSha256": "82b2ca79ddd5ca2b9b8bddb587340fed3d435aaacf8573301e22d1a0d000ad4c",
+  "sourceFiles": [
+    {
+      "path": "packages/evals/src/mapping-corpus-authoring.ts",
+      "sha256": "9e548998c5ce9601ad98ae005345cba95d8d2b83f6d2d485ff4c3002fb8d31e9"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-contract.ts",
+      "sha256": "45c456de7d97365d612911e9750cba65fbc1c1dbfa58320615ac8191a8e566b5"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-generator.ts",
+      "sha256": "d7913a106a12b99fa5b528024f3f1cfe69c88417ca4f96ea2206729fea728c27"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-preflight.ts",
+      "sha256": "02e1aa9b6271e1de6cf58b4b3298da48531f0ee8b5f0b10ac3c11f0194b2549e"
+    },
+    {
+      "path": "packages/evals/src/mapping-corpus-artifacts.ts",
+      "sha256": "15c7345873f16b048baebe948a00b669f386c4f48899bdcef267906d399a7b88"
+    }
+  ],
+  "commandSource": {
+    "path": "scripts/generate-mapping-study.mts",
+    "sha256": "2a7dbb99cbe823f8196cce8fcf960c6707c10ed5aea1d2d369c861c8f17242e7"
+  },
+  "lockfileSha256": "649ee1e18d6adc527e9863f2fed113f617085aab2d1dc35fa51a48e59b00f283",
+  "files": [
+    {
+      "path": "families.json",
+      "sha256": "df7cfdb044adb3d6a658c4f7d228f668288cc4aad0ef8af41576be115a0eaeed"
+    },
+    {
+      "path": "drift-relations.json",
+      "sha256": "ca9973fbe8f38ba87c7e09922d8d1c98dad266b9d3e369cc8268f0b3675e93d5"
+    },
+    {
+      "path": "base-approvals.json",
+      "sha256": "21a604ec24a6150c8ae6bd1fd0930dfe1b55fd133a8b061b042a34802a66e92d"
+    },
+    {
+      "path": "review-ledger.json",
+      "sha256": "abbfac0307e93d2dee52f1eda91a32764f40791dab003842ee787ab360b5e80f"
+    },
+    {
+      "path": "exclusions.json",
+      "sha256": "9447fc79d3ca6ddcb8b5ffdedea3ab7529455579ac8b992db33749214df05638"
+    },
+    {
+      "path": "exposure-ledger.json",
+      "sha256": "22866f3068fb1449ee1f9da3e8af66f07773975af3d71e708f1448c85c51afd8"
+    },
+    {
+      "path": "overlap-report.json",
+      "sha256": "56dc7c78d7b04681d7d31c2d141088963abd538f1e110cfe20c6b1a41ab2588f"
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "ad498ad3d1e23a5b35ff1cf6f4b61debecc46c163eed9876c73202a64bd2abe0"
+    },
+    {
+      "path": "SELECT.inputs.json",
+      "sha256": "c1509d30edcd28cd43f92f9875866d1713c0dbd809e40ef6df6cb0e8e7b377f7"
+    },
+    {
+      "path": "SELECT.gold.json",
+      "sha256": "8c6910f74db99ff2d097412f43ec3ec74f2dbf3551bc9dd2f097e6bc2501edfe"
+    },
+    {
+      "path": "AUDIT.inputs.json",
+      "sha256": "f8cf2a0d72c1f6d015282e7646cfa5ac24dc0a2b23dca0a8d90530b957964c24"
+    },
+    {
+      "path": "AUDIT.gold.json",
+      "sha256": "06f89a3c438aaaaa93a832dba3a949c65fd5d977fcceee963871b95999ff604d"
+    },
+    {
+      "path": "DRIFT.inputs.json",
+      "sha256": "985f01aaa1e6b9eec48dd4f5ea9de02076886ee38b8f1e0eb481fb6f84f5e865"
+    },
+    {
+      "path": "DRIFT.gold.json",
+      "sha256": "bf80fffc3e2b679d3671e2c3cee3c4e6ddee4b722a040f8e1e73085afa0a2c0c"
+    }
+  ],
+  "independentGoldReview": "PENDING",
+  "experimentPreRegistration": "PLANNED",
+  "liveRunnerEligible": false,
+  "note": "Checksums identify draft bytes, not an evaluation seal. Review/exclusion hashes are draft placeholders pending independent decisions. Existing runners reject these split/version contracts."
+}
