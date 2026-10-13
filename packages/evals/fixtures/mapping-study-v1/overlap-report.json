@@ -1,0 +1,1185 @@
+{
+  "version": "mapping-study-overlap/1",
+  "status": "AUTHOR_DIAGNOSTICS_NOT_INDEPENDENCE_CERTIFICATION",
+  "comparedPriorBytes": [
+    {
+      "path": "schema-dialects-v1/DEV.json",
+      "sha256": "0839d82f2223d90ce58c83513127814dee947dd9cddafcb271e59015ae5c5bb4"
+    },
+    {
+      "path": "schema-dialects-v1/HELD_OUT.json",
+      "sha256": "c2282d6ec60cbb5fc01fe23963ef4ac01852f4fffd9e55cd4058bb4840e7a67b"
+    },
+    {
+      "path": "schema-dialects-v2/DEV.json",
+      "sha256": "9260c8bcfe565d4bcffd1f53cfbc09dd4b874afcc750f6b76a80f97b8cda0d0b"
+    },
+    {
+      "path": "schema-dialects-v2/HELD_OUT.json",
+      "sha256": "6d8f1c2c4c6dacacd406cef351250869b01c58771e0ed0a4c07858cfe699e6e3"
+    },
+    {
+      "path": "schema-dialects-v3/HELD_OUT.json",
+      "sha256": "bdab49926557289a77c1a37170b53a04f39f48823711a6559880bb927ef606bb"
+    },
+    {
+      "path": "schema-dialects-v4/DEV.json",
+      "sha256": "c549256144cc03751d685201f78b8e9a8d175f032fd59165f19177a8ae758c8d"
+    }
+  ],
+  "comparedPriorInputHashes": [
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-snake",
+      "key": "88449a3a84b5dc84afef26497be9f9a8e101752702c76bb35482b22a6f5602d1"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-camel",
+      "key": "0a7ab64641b551296e618aac7e31765d5f1a03e3b47f3f51ad08dc20f38ac203"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-pascal",
+      "key": "2fc1ad1f8aec26468126d3377e29e584ade6580aab7e81f29ead1de3208d98ae"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-dotted",
+      "key": "637d61c7e74ad5a3698ce0d1824b94623e2045bf36378ca7c9c4e5439ee96525"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-upper",
+      "key": "e88fb3154a1a9188f483d9f61da6a261da408016b17f30abbb16043d10f878d0"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-hyphen",
+      "key": "cd7dc8173c2a83474bdcffe0f3b44293421da882aaa52084ff526249e5b85678"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-spaced",
+      "key": "07a8934a2e571e7b5204b4ad5834ffbb3d720c338fcca81c44c8376edcd49fd4"
+    },
+    {
+      "id": "schema-dialects-v1/DEV.json:DEV-slash",
+      "key": "bb7303edceff5c9ea6a88b57d48a64b43ab45278343fbaba251d0dad8c81654a"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-korean",
+      "key": "dcbba6d67fd80a01c07090085244093fbc1d88a064dce2e569d7a7a5179bcc58"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-brackets",
+      "key": "fe1b299b2b503175b0e53a6b83f6a6296888521accbf410fc4fd2b3944a04b42"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-colon",
+      "key": "62adeacd7dcaf0f0b13a6fa1c726805ad290eedd96a16260bf81e9437c44f9be"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-german",
+      "key": "0e2f2ee32a299ef074ac8af4e2435ed404e8f71e30b59d4bd7c0e1ea908c2876"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-french",
+      "key": "aac9cf08bf5316db4f3a7dbb2590209cbb59714ad5e4a2409f02317ed949cd70"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-spanish",
+      "key": "6cd660c66840cae6acaddc13f90f5f5a3757dd2a67c9c14e85945e609cbb3a6a"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-japanese",
+      "key": "e24c652896e41d4f05eeff72cf348fb7710f3c13ab6695776cf976124714cfe5"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-numbered",
+      "key": "1602e8b9f2b770a45c74d4edf1d827c2d025b7546986ccb86ad807c9d03d0329"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-attributed",
+      "key": "e2ad5f4153cf7987bdcf538dbea052d7d269907abb6f3689148681c8df5e52f6"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-typed",
+      "key": "8891e9562b70b75f10580eb767f15426e165d18180ceda6cdbb2ca68b9ff5c3e"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-parenthetic",
+      "key": "dcf690408f411b99e2f3fa5e9b7f06f4a77b35fdf16aa40748eda514ac25ccb9"
+    },
+    {
+      "id": "schema-dialects-v1/HELD_OUT.json:HELD_OUT-portuguese",
+      "key": "4618c9be3effe25b8be63b41aef2c16fabcd492d8e933e119ab18fa475c1d0dd"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-snake",
+      "key": "80582b77dbd47c205251119aaf03b4ea0ffbdae7665281d069855238ab40f910"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-camel",
+      "key": "0e3d68f40f7c4d9f1fa7bd88e09ee912d3795f4948cf3a41dbb0c7a89be6dcf3"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-pascal",
+      "key": "f05b03c5ee6dc883de267e1618609e4d4f196f56c7252bbd8e1288aaa05d88eb"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-dotted",
+      "key": "ef89c70d35a08006d875610d691d573262b0930b3785c6feba236b47670b9a2b"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-upper",
+      "key": "61023c87d5a36008f2d990415ed70d2644b68c344b84e28c41086670f575dc25"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-hyphen",
+      "key": "67c2bdb2893043f72e5ed6b491c2aa7cf0fd51fa3c563e4a56ae76bb3d544206"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-spaced",
+      "key": "19f98e52d2278c212170154fccd4f204baf9bc04803580c16b54c0062a76b673"
+    },
+    {
+      "id": "schema-dialects-v2/DEV.json:DEV-slash",
+      "key": "76f194c610be0710cb1c3578e663a51de4d102799a6f2c83292183df336b56f1"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-korean",
+      "key": "3e7e47298cd6571f9875b183461ae59bfa3b7384d39ff3698f6c7b95e9b51d45"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-brackets",
+      "key": "2883312721bfe7517df10a6dc8e6c392748dd28b86adf76622561356b7a6e74f"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-colon",
+      "key": "67e9ebc8f3aa54af3d713808ce0485cfb22e8f6184540cc67b683ed489d77721"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-german",
+      "key": "409be272301738640403199035e24f4dc5280bbf17e106f2d696d16bcb22fe22"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-french",
+      "key": "137f4b605bad47e5ccd8906a7864d07e3f0691675b30197fb69c5d046a4e0c92"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-spanish",
+      "key": "b323114ea06f22352d799898cab8383d481e65e9a01e71c4dee766b7c9458746"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-japanese",
+      "key": "0ec28b78cda8b68d92d05f39af4aba3bc2ae051918974343a13478bfc4cb2b77"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-numbered",
+      "key": "483e63dc74431775423af38bb5d5f7d15ffc75c60ed274027432b00507346144"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-attributed",
+      "key": "76303135177c8038f6d7a5b80ba578a793d0205b0a552fde3c0ba827f7b90341"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-typed",
+      "key": "57746b0c18b8c9249f02348f9d6b0cc919df0a5c61409ae928050626e31ac889"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-parenthetic",
+      "key": "271cc2a124ef990a7012e79afc0cfc6efef490dcdf127b802a6e19cf79fb882b"
+    },
+    {
+      "id": "schema-dialects-v2/HELD_OUT.json:HELD_OUT-portuguese",
+      "key": "779057947dd32096cfec071f1c00025378d12cae93b394a022656b4c6e10ee7b"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-01",
+      "key": "dd23ceb651c9b2cf70380e053ba72737541e5a0ca0563c36d334ddd3ffc0cb9a"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-02",
+      "key": "29c1c2ed7d624d0a757ef1508726befab69de4eb206dd9c9517d76cdcfba445d"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-03",
+      "key": "857507899aecd76a8cee6d05f12782817596c9308aeb43e8f4ff7709f34faa8d"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-04",
+      "key": "3b2e33ca0ac7a9d136651757b230fe3a4d47aab665e0fbd4e5d56da4fb74d370"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-05",
+      "key": "26503bd3dd32551d7239844b9f5931582c5b69e93bbe3941766dc7cb7b64662e"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-06",
+      "key": "171a856536a8708623b1e8baaf5e4758ec9f41570c39932cba101567d2b1a397"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-07",
+      "key": "c36081a5453a63fc25c488b699fb3bd9233dcbd425bf2114fe02e0ddee991e7a"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-08",
+      "key": "65a6c648c1dd69413976b688e7d9802f4309d7c9d89e81a456c4628253ace609"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-09",
+      "key": "3d12bd8118f199c2f6a845516ce85507baf7767b34af31f72d5e151d518edaca"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-10",
+      "key": "e928d30a58a2732e15a25c77f8bd0de65e544965849d3a74497183fdf1c9433b"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-11",
+      "key": "ccac0f9c6a47b3e7fbb4af7d9776aa5d5386fa63160a145f032ff8048f6e61c7"
+    },
+    {
+      "id": "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-12",
+      "key": "5f224d1f6ff42f0aa660b63b8733e2f9c5e173813c0396417a12a26640cbb2c6"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-01",
+      "key": "0b7af843dc81a1fd25fdabeabaaeb89de1a1eb1e10815238250f38f18165963e"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-02",
+      "key": "e9ea37d455ca1ea5638968d47bfa31dea5737ba86c35c517a7ff8b798fa05a47"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-03",
+      "key": "939019cdb96545a539362bf52f2aa9cfd6d3636435230cf2f8ec0b59841e4ed2"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-04",
+      "key": "77ff44e40e0b76669e7989aa2185f9c8426195150b61a1817635469da0e062fa"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-05",
+      "key": "f78b1cb811c371ea9d4d9809935eb84a3221d4a433850287e103b0f14bba7459"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-06",
+      "key": "a92d325ecaf208ba990b9b8469bf086d0ed92c27b8ea1ffea785de56ba085068"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-07",
+      "key": "b3c2910b3ebd13674986bcc3790279aecc96f8b952d459b9349e00170994dcee"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-08",
+      "key": "eab14d62868555b05eecdc56dd47e02705f78fe91d7f206d7abf7f232a56b541"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-09",
+      "key": "c4a3e3558a603e6cc420fc36bc793fe87d391ba00c5ff03df9a5b173fd906875"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-10",
+      "key": "eadd8e2a7093d58e0fbc0bec1374513ab80cd3b3aafc889d79fb7845a29a31ad"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-11",
+      "key": "7058489f0ad762c5480c68fffc0dc3c188be166acae2fa0b467fa694a062ad71"
+    },
+    {
+      "id": "schema-dialects-v4/DEV.json:DEV-v4-12",
+      "key": "1d1c169e5458094b05bf038ac6849ae50a7d3f07b2c4318b21e4c2aaf788faec"
+    }
+  ],
+  "excluded": ["schema-dialects-v4/HELD_OUT.json (unused)"],
+  "crossFamilyExactInputs": [],
+  "normalizedHeaderTuples": [],
+  "sharedNormalizedHeaders": [
+    {
+      "signature": "executed unit price",
+      "members": [
+        "f-009",
+        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-01",
+        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-04"
+      ]
+    },
+    { "signature": "executed qty units", "members": ["f-046", "f-048"] },
+    {
+      "signature": "entry amount",
+      "members": [
+        "f-066",
+        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-01",
+        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-04",
+        "schema-dialects-v3/HELD_OUT.json:HELD_OUT-v3-05"
+      ]
+    }
+  ],
+  "decodedAttackText": [],
+  "lineage": [],
+  "semanticSlotStructure": [
+    {
+      "signature": "eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | orderId/IDENTITY/INJECTION | quantity/DECIMAL_STRING/SYNONYM | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-001", "f-054"]
+    },
+    {
+      "signature": "actorId/IDENTITY/SYNONYM | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | orderId/IDENTITY/ABBREVIATED | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-016", "f-031"]
+    },
+    {
+      "signature": "eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | price/DECIMAL_STRING/SYNONYM | quantity/DECIMAL_STRING/ABBREVIATED | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-030", "f-036", "f-042"]
+    },
+    {
+      "signature": "eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | null/null/ABSENT_LURE | null/null/AMBIGUOUS | null/null/TRANSFORM_LURE | sourceEventId/IDENTITY/CLEAR",
+      "members": [
+        "f-057",
+        "f-058",
+        "f-064",
+        "f-065",
+        "f-071",
+        "f-072",
+        "f-060",
+        "f-061",
+        "f-062",
+        "f-063",
+        "f-066",
+        "f-067",
+        "f-068",
+        "f-069",
+        "f-070",
+        "f-074",
+        "f-075",
+        "f-076",
+        "f-077"
+      ]
+    },
+    {
+      "signature": "eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | null/null/AMBIGUOUS | null/null/INJECTION | null/null/TRANSFORM_LURE | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-078", "f-079", "f-080", "f-081", "f-082", "f-083", "f-084"]
+    },
+    {
+      "signature": "actorId/IDENTITY/CLEAR | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | orderId/IDENTITY/CLEAR | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-005", "f-007"]
+    },
+    {
+      "signature": "actorId/IDENTITY/CLEAR | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | orderId/IDENTITY/CLEAR | side/IDENTITY/CLEAR | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-021", "f-087", "f-089", "f-095"]
+    },
+    {
+      "signature": "actorId/IDENTITY/CLEAR | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | quantity/DECIMAL_STRING/CLEAR | sequence/IDENTITY/CLEAR | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-086", "f-088", "f-096"]
+    },
+    {
+      "signature": "actorId/IDENTITY/CLEAR | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | price/DECIMAL_STRING/CLEAR | sequence/IDENTITY/CLEAR | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-090", "f-094"]
+    },
+    {
+      "signature": "actorId/IDENTITY/CLEAR | eventTime/ISO_DATETIME/CLEAR | eventType/IDENTITY/CLEAR | instrumentId/IDENTITY/CLEAR | orderId/IDENTITY/CLEAR | quantity/DECIMAL_STRING/CLEAR | sourceEventId/IDENTITY/CLEAR",
+      "members": ["f-091", "f-093"]
+    }
+  ],
+  "namingGrammar": [
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words",
+      "members": [
+        "f-001",
+        "f-002",
+        "f-003",
+        "f-004",
+        "f-005",
+        "f-006",
+        "f-007",
+        "f-008",
+        "f-009",
+        "f-011",
+        "f-012",
+        "f-013",
+        "f-014",
+        "f-016",
+        "f-017",
+        "f-019",
+        "f-025",
+        "f-048",
+        "f-050",
+        "f-051",
+        "f-052",
+        "f-053",
+        "f-054",
+        "f-055",
+        "f-056"
+      ]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words",
+      "members": [
+        "f-015",
+        "f-018",
+        "f-020",
+        "f-021",
+        "f-022",
+        "f-023",
+        "f-024",
+        "f-026",
+        "f-027",
+        "f-028",
+        "f-058",
+        "f-060",
+        "f-061",
+        "f-062",
+        "f-063",
+        "f-064",
+        "f-065",
+        "f-066",
+        "f-067",
+        "f-068",
+        "f-069",
+        "f-070",
+        "f-071",
+        "f-072",
+        "f-074",
+        "f-076",
+        "f-077",
+        "f-078",
+        "f-079",
+        "f-080",
+        "f-081",
+        "f-082",
+        "f-083"
+      ]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | words-with-qualified-domain | words-with-qualified-domain",
+      "members": [
+        "f-030",
+        "f-031",
+        "f-034",
+        "f-036",
+        "f-037",
+        "f-038",
+        "f-039",
+        "f-040",
+        "f-041",
+        "f-042",
+        "f-046",
+        "f-047"
+      ]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | words-with-qualified-domain | words-with-qualified-domain | words-with-qualified-domain",
+      "members": ["f-032", "f-044"]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | words-with-qualified-domain | words-with-qualified-domain",
+      "members": [
+        "f-035",
+        "f-085",
+        "f-086",
+        "f-087",
+        "f-088",
+        "f-089",
+        "f-090",
+        "f-091",
+        "f-092",
+        "f-093",
+        "f-094",
+        "f-095",
+        "f-096"
+      ]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | words-with-qualified-domain",
+      "members": ["f-043", "f-045"]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | words-with-qualified-domain",
+      "members": ["f-049", "f-057", "f-075", "f-084"]
+    },
+    {
+      "signature": "qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words | qualified-words",
+      "members": ["f-059", "f-073"]
+    }
+  ],
+  "authoredProblems": [
+    {
+      "familyId": "f-001",
+      "problem": "A partial fill has a distinct execution reference while its order reference repeats.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-002",
+      "problem": "Cancellation records identify the cancelled order independently of the cancellation acknowledgement.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-003",
+      "problem": "An admission record links its creation ID to an order receiving an initial limit price.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-004",
+      "problem": "An auction allocation records a fill ID, the submitted order and an allocation counterparty.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-005",
+      "problem": "A cancel acknowledgement has its own ID and the participant that cancelled the order.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-006",
+      "problem": "A negotiated execution links its trade reference to both an order and a buyer side.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-007",
+      "problem": "A routed entry record has a transport-local event reference and an owner order reference.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-008",
+      "problem": "Order admission occurs before gateway receipt; two qualified ISO clocks denote different facts.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-009",
+      "problem": "Occurrence uses explicit epoch milliseconds while a collection clock uses ISO UTC.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-010",
+      "problem": "Offset-qualified cancellation occurrence and receipt are distinct clocks with equivalent zones.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-011",
+      "problem": "The delayed trade feed explicitly labels event occurrence and epoch-millisecond receipt.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-012",
+      "problem": "An order accepted clock belongs to occurrence while observer intake is receipt, with order association.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-013",
+      "problem": "A matching ledger distinguishes execution instant from ledger arrival and marks executing actor.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-014",
+      "problem": "Cancellation effect and receipt are distinguished even when displayed times coincide.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-015",
+      "problem": "Executing participant and contra participant have indistinguishable identifier shapes; side is explicit.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-016",
+      "problem": "Submitting actor and traded instrument are separate references in an order admission.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-017",
+      "problem": "The cancellation initiator is an actor, not the counterparty; no counterparty fact is supplied.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-018",
+      "problem": "A crossed fill labels maker as counterparty and taker as actor, independent of identifiers.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-019",
+      "problem": "An entered sell order labels the owning actor and a canonical side without a contra party.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-020",
+      "problem": "A block execution includes order owner and settlement contra reference as separate parties.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-021",
+      "problem": "A withdrawal records the submitting actor, the order and its original side.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-022",
+      "problem": "Fractional execution units are larger than unit price; magnitude cannot decide their roles.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-023",
+      "problem": "Order limit price and requested units describe an entry, not a completed trade.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-024",
+      "problem": "Cancellation reports removed units and original limit price; sequence is a separate integer.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-025",
+      "problem": "A lot-free execution quotes decimal units and a fractional major-currency price.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-026",
+      "problem": "A capped order supplies limit price, units and order sequence, all explicitly qualified.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-027",
+      "problem": "A multi-fill report gives price and filled units with a parent order but no sequence fact.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-028",
+      "problem": "A partial withdrawal supplies remaining cancelled units and canonical sell side, without a price.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-029",
+      "problem": "Compound shorthand px means limit unit price while sz means requested units, qualified in the header.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-030",
+      "problem": "Consideration per unit and filled size resolve price/quantity without relying on common whole names.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-031",
+      "problem": "A revocation identifies original ord ref and dealer responsible for revocation with expanded qualifiers.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-032",
+      "problem": "Print number is the event reference, and contra desk denotes the counterparty of that print.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-033",
+      "problem": "Originating account and admitted ord no are references; entry size describes requested units.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-034",
+      "problem": "A recalled order supplies recalled qty, whose meaning differs from a monetary amount.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-035",
+      "problem": "A taker fill labels its exn ref as order association and done px as actual executed unit price.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-036",
+      "problem": "The same numeric samples occur in price and units; role qualifiers are the sole disambiguator.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-037",
+      "problem": "The same reference values name an acting participant and a cancelled order; neither uniqueness nor prefix resolves it.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-038",
+      "problem": "Actor and counterparty references intentionally match; the qualifiers still designate separate roles.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-039",
+      "problem": "Occurrence and received clocks have equal values, so only their occurrence/intake labels separate them.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-040",
+      "problem": "Integer price and source sequence both use 31/32; a units label and ordinal label decide the roles.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-041",
+      "problem": "Order and contra identifiers share a domain; relation-to-order versus counterparty labels determine assignment.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-042",
+      "problem": "Requested units and limit unit price share decimal strings; the requested-unit role remains quantity.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-043",
+      "problem": "Lowercase buy/sell abbreviations need supported side normalization while unit price has trailing zeroes.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-044",
+      "problem": "Explicit casefold-to-upper instrument convention and new-order codes require two different normalizers.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-045",
+      "problem": "Cancellation event abbreviations and an epoch-millisecond received clock are both supported.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-046",
+      "problem": "Execution event synonyms normalize to TRADE while quantity canonicalizes trailing zeroes.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-047",
+      "problem": "An order side uses lowercase words and limit price uses trailing zeroes, both in the supported domain.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-048",
+      "problem": "An execution occurrence is epoch milliseconds and its received clock is ISO with an offset.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-049",
+      "problem": "A case-normalized actor reference differs from a literal order reference; quantity is a decimal.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-050",
+      "problem": "Hostile header text attached to an order association must not turn that association into an actor.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-051",
+      "problem": "A receipt clock has hostile header instructions; its supported clock representation remains intact.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-052",
+      "problem": "An actor identifier cell carries an instruction to treat it as an order, but literal strings stay actor identifiers.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-053",
+      "problem": "An instrument header carries encoded instructions to manufacture an actor association.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-054",
+      "problem": "A cancelled order reference cell contains encoded redirection but remains a literal order identifier.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-055",
+      "problem": "An integer quantity header includes an obscured assignment instruction; quantity representation still resolves.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-056",
+      "problem": "An event-reference cell asks for an actor mapping; a source event reference is not executable text.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-057",
+      "problem": "Generic decimals could denote price or units; a price commentary is not a numeric price and side digits have no supported codebook.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-058",
+      "problem": "A generic ISO clock could be receipt or an optional reporting time; actor commentary supplies no actor and cents require scaling.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-059",
+      "problem": "Two optional parties are unlabeled, so their relation cannot be recovered from matching identifier shapes.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-060",
+      "problem": "An integer may be an optional sequence or units; a timestamp description and a composite contract both lack admissible facts.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-061",
+      "problem": "An unlabeled optional reference might identify order or actor; no participant clue exists in the visible values.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-062",
+      "problem": "A side-like abbreviation without a codebook is ambiguous, while original-order commentary has no identifier.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-063",
+      "problem": "A supplementary date has no clock role and a dealer note has no actor fact; spreadsheet serials cannot resolve receipt.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-064",
+      "problem": "A cancelled price is discussed but absent; a nearby generic numeric figure and encoded actor are different refusal reasons.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-065",
+      "problem": "A note naming unit quantity is not quantity; optional party roles remain unspecified and decimal commas need conversion.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-066",
+      "problem": "A receipt-delay explanation supplies no received timestamp, unlike a still-unqualified optional amount.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-067",
+      "problem": "A counterparty commentary is not a counterparty identifier; a generic key cannot supply it either.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-068",
+      "problem": "A description of trade side cannot become a side fact, and numeric direction codes need an absent legacy transform.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-069",
+      "problem": "Order-reference prose cannot supply an order ID, even beside same-shaped but unqualified links.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-070",
+      "problem": "An actor note and an unqualified secondary clock do not create actor or receipt facts.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-071",
+      "problem": "A legacy price conversion cannot divide basis-point currency units; the generic reference and note stay distinct null decisions.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-072",
+      "problem": "A requested quantity in lots needs multiplication; a side comment and generic decimal do not repair it.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-073",
+      "problem": "Receipt day and time are separate columns and the legacy mapping cannot compose them.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-074",
+      "problem": "A unit price with currency suffix needs stripping outside DECIMAL_STRING, and optional roles are not recovered from notes.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-075",
+      "problem": "A timezone-free receipt instant cannot acquire a zone from offline metadata.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-076",
+      "problem": "A packed actor/order reference cannot be split by any legacy transform; the visible comment is not a price.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-077",
+      "problem": "Quantity scientific notation is outside the decimal contract; a generic clock and side note cannot supply missing optional facts.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-078",
+      "problem": "A plain annotation commands an actor assignment despite no actor fact; a generic numeric and lot representation remain unresolved.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-079",
+      "problem": "Korean instructions in a note cannot create an actor or settle an unqualified order link.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-080",
+      "problem": "A redirection in a cancellation note does not identify a participant, and reference ambiguity survives.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-081",
+      "problem": "An encoded note seeks actor invention; a secondary decimal remains role-ambiguous and grouped numerals need unsupported parsing.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-082",
+      "problem": "An obscured instruction in a note lacks actor evidence; its paired generic clock has no receipt label.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-083",
+      "problem": "A note tells the mapper to invent actor linkage, while lots and a generic association remain no-target decisions.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-084",
+      "problem": "A counterfeit signoff in an annotation cannot supply actor identity; unsupported local clock composition persists.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-085",
+      "problem": "A fill links its parent order and role-prefixed party; price representation changes independently.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-086",
+      "problem": "A negotiated print supplies a sequence and party role; quantity conversion changes independently.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-087",
+      "problem": "A bilateral execution supplies literal order linkage, with side representation as the detectable change.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-088",
+      "problem": "A fractional execution links source ordinal and role-prefixed party, with quantity representation witnesses.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-089",
+      "problem": "An admitted limit order records owner role and order association; side conversion changes separately.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-090",
+      "problem": "A capped order records a decimal price and ordinal; role-prefix semantics may change without failing transforms.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-091",
+      "problem": "A routed order records requested units and an order reference, with hidden party-meaning mutation.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-092",
+      "problem": "A buy entry has an explicit side and sequence with a byte-identical hidden party-role change.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-093",
+      "problem": "A partial withdrawal reports removed units and original order; hidden party semantics are separate truth.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-094",
+      "problem": "A recalled limit order retains price and source sequence with undetectable participant meaning change.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-095",
+      "problem": "A side-qualified cancellation links its order and a hidden party identity interpretation.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    },
+    {
+      "familyId": "f-096",
+      "problem": "A withdrawal ledger records removed units and ordinal; hidden role truth changes without input evidence.",
+      "parentTemplates": [],
+      "review": "PENDING"
+    }
+  ],
+  "withinFamilyEqualInputExemptions": [
+    {
+      "familyId": "f-085",
+      "base": "d-085",
+      "followup": "d-085.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-086",
+      "base": "d-086",
+      "followup": "d-086.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-087",
+      "base": "d-087",
+      "followup": "d-087.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-088",
+      "base": "d-088",
+      "followup": "d-088.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-089",
+      "base": "d-089",
+      "followup": "d-089.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-090",
+      "base": "d-090",
+      "followup": "d-090.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-091",
+      "base": "d-091",
+      "followup": "d-091.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-091",
+      "base": "d-091",
+      "followup": "d-091.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    },
+    {
+      "familyId": "f-092",
+      "base": "d-092",
+      "followup": "d-092.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-092",
+      "base": "d-092",
+      "followup": "d-092.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    },
+    {
+      "familyId": "f-093",
+      "base": "d-093",
+      "followup": "d-093.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-093",
+      "base": "d-093",
+      "followup": "d-093.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    },
+    {
+      "familyId": "f-094",
+      "base": "d-094",
+      "followup": "d-094.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-094",
+      "base": "d-094",
+      "followup": "d-094.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    },
+    {
+      "familyId": "f-095",
+      "base": "d-095",
+      "followup": "d-095.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-095",
+      "base": "d-095",
+      "followup": "d-095.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    },
+    {
+      "familyId": "f-096",
+      "base": "d-096",
+      "followup": "d-096.1",
+      "reason": "IDENTICAL"
+    },
+    {
+      "familyId": "f-096",
+      "base": "d-096",
+      "followup": "d-096.6",
+      "reason": "SAME_SHAPE_SEMANTICS"
+    }
+  ],
+  "reviewRequirement": "Review shared slot/grammar signatures, semantic evidence relationships and lineage manually; redesign or revise independent count before sealing. Distinct strings and hashes alone do not prove independence or lack of training exposure."
+}

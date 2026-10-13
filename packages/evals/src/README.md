@@ -15,7 +15,11 @@ updates the expected publication.
   definitions, provenance admission and limitations.
 - [Planned family and gold specification](../../../docs/MAPPING_CORPUS_SPEC.md)
   defines separate SELECT, AUDIT and DRIFT authoring requirements. Their
-  generation, contracts, independent review and sealing are not implemented.
+  draft generation and offline contracts are implemented; independent review,
+  sealing and model-run integration remain planned. `pnpm eval:corpus:generate`
+  renders unsealed synthetic inputs, gold and relations; `pnpm eval:corpus:check`
+  verifies committed bytes and author preflight without updating expectations.
+  See [the draft inventory and limits](../fixtures/mapping-study-v1/README.md).
 
 Only workspace dependencies were added, to exercise the existing implementation.
 The fixture publication never calls configured providers. No third-party

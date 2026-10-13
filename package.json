@@ -35,6 +35,8 @@
     "eval:mappings:score": "node --import tsx packages/evals/src/score-mapping-runs.ts",
     "eval:mappings:compare": "node --import tsx packages/evals/src/compare-mapping-runs.ts",
     "eval:baselines:dev": "node --import tsx packages/evals/src/verify-strong-baseline.ts",
+    "eval:corpus:generate": "node --import tsx scripts/generate-mapping-study.mts",
+    "eval:corpus:check": "node --import tsx scripts/generate-mapping-study.mts --check",
     "eval:schemas:generate:v3": "node --import tsx scripts/generate-schema-dialects-v3.mts",
     "eval:models:diagnose": "node --import tsx packages/evals/src/diagnose-mapping-models.ts",
     "eval:schemas:generate:v2": "node --import tsx scripts/generate-schema-dialects-v2.mts",

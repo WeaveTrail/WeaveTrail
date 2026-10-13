@@ -1,0 +1,112 @@
+{
+  "version": "mapping-study-preflight/1",
+  "corpusVersion": "mapping-study-inputs/1",
+  "status": "PASS_AUTHOR_PREFLIGHT_UNSEALED",
+  "generatorVersion": "mapping-study-generator/1",
+  "seed": "weavetrail-study-2036-a",
+  "inventory": [
+    {
+      "split": "SELECT",
+      "families": 24,
+      "inputs": 24,
+      "inputColumnDecisions": 156,
+      "tagCoverageScope": "AUTHORED_FAMILY_BRIEFS; DRIFT base coverage only, follow-up decisions remain in DRIFT.gold.json",
+      "strata": { "RESOLVABLE": 8, "HARD_RESOLVABLE": 8, "MUST_REVIEW": 8 },
+      "tags": {
+        "CLEAR": { "families": 24, "columns": 106 },
+        "ABBREVIATED": { "families": 11, "columns": 12 },
+        "SYNONYM": { "families": 10, "columns": 10 },
+        "AMBIGUOUS": { "families": 8, "columns": 8 },
+        "ABSENT_LURE": { "families": 6, "columns": 6 },
+        "TRANSFORM_LURE": { "families": 8, "columns": 8 },
+        "INJECTION": { "families": 6, "columns": 6 }
+      },
+      "attacks": {
+        "EN": { "families": 3, "columns": 3 },
+        "KO": { "families": 3, "columns": 3 },
+        "PLAIN": { "families": 2, "columns": 2 },
+        "BASE64": { "families": 2, "columns": 2 },
+        "ZERO_WIDTH": { "families": 2, "columns": 2 },
+        "HEADER": { "families": 4, "columns": 4 },
+        "CELL": { "families": 2, "columns": 2 }
+      },
+      "validatorCounts": {
+        "VALID": 24,
+        "MISSING_REQUIRED_TARGET": 0,
+        "TRANSFORM_FAILED": 0
+      }
+    },
+    {
+      "split": "AUDIT",
+      "families": 60,
+      "inputs": 60,
+      "inputColumnDecisions": 391,
+      "tagCoverageScope": "AUTHORED_FAMILY_BRIEFS; DRIFT base coverage only, follow-up decisions remain in DRIFT.gold.json",
+      "strata": { "RESOLVABLE": 20, "HARD_RESOLVABLE": 20, "MUST_REVIEW": 20 },
+      "tags": {
+        "CLEAR": { "families": 60, "columns": 278 },
+        "ABBREVIATED": { "families": 18, "columns": 20 },
+        "SYNONYM": { "families": 24, "columns": 26 },
+        "AMBIGUOUS": { "families": 20, "columns": 21 },
+        "ABSENT_LURE": { "families": 15, "columns": 15 },
+        "TRANSFORM_LURE": { "families": 20, "columns": 21 },
+        "INJECTION": { "families": 10, "columns": 10 }
+      },
+      "attacks": {
+        "EN": { "families": 6, "columns": 6 },
+        "KO": { "families": 4, "columns": 4 },
+        "PLAIN": { "families": 3, "columns": 3 },
+        "BASE64": { "families": 4, "columns": 4 },
+        "ZERO_WIDTH": { "families": 3, "columns": 3 },
+        "HEADER": { "families": 5, "columns": 5 },
+        "CELL": { "families": 5, "columns": 5 }
+      },
+      "validatorCounts": {
+        "VALID": 60,
+        "MISSING_REQUIRED_TARGET": 0,
+        "TRANSFORM_FAILED": 0
+      }
+    },
+    {
+      "split": "DRIFT",
+      "families": 12,
+      "inputs": 84,
+      "inputColumnDecisions": 588,
+      "tagCoverageScope": "AUTHORED_FAMILY_BRIEFS; DRIFT base coverage only, follow-up decisions remain in DRIFT.gold.json",
+      "strata": { "RESOLVABLE": 12, "HARD_RESOLVABLE": 0, "MUST_REVIEW": 0 },
+      "tags": {
+        "CLEAR": { "families": 12, "columns": 84 },
+        "ABBREVIATED": { "families": 0, "columns": 0 },
+        "SYNONYM": { "families": 0, "columns": 0 },
+        "AMBIGUOUS": { "families": 0, "columns": 0 },
+        "ABSENT_LURE": { "families": 0, "columns": 0 },
+        "TRANSFORM_LURE": { "families": 0, "columns": 0 },
+        "INJECTION": { "families": 0, "columns": 0 }
+      },
+      "attacks": {
+        "EN": { "families": 0, "columns": 0 },
+        "KO": { "families": 0, "columns": 0 },
+        "PLAIN": { "families": 0, "columns": 0 },
+        "BASE64": { "families": 0, "columns": 0 },
+        "ZERO_WIDTH": { "families": 0, "columns": 0 },
+        "HEADER": { "families": 0, "columns": 0 },
+        "CELL": { "families": 0, "columns": 0 }
+      },
+      "validatorCounts": {
+        "VALID": 66,
+        "MISSING_REQUIRED_TARGET": 18,
+        "TRANSFORM_FAILED": 0
+      }
+    }
+  ],
+  "relations": 72,
+  "independentGoldReview": "PENDING",
+  "independentFamilyCount": "NOT_ESTABLISHED",
+  "limitations": [
+    "Automated witnesses verify consistency with authored gold, not independent correctness.",
+    "Slot/grammar overlap requires independent semantic and lineage review before sealing.",
+    "Opaque IDs and shuffled positions remove an authored fixed target slot, not every possible positional correlation.",
+    "Reused/new-field assembly, wrong-base propagation and new-task approval for byte-identical input remain separate reuse implementation probes; generated base approvals are favorable synthetic fixtures.",
+    "No models, routing, reuse performance, human time or statistical power were measured."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "mapping-study-inputs/1",
+  "status": "UNSEALED",
+  "records": [
+    {
+      "audience": "REPOSITORY_READERS_AND_AUTHORING_ASSISTANT",
+      "scope": "All generated inputs, proposed gold, briefs and relations",
+      "secret": false,
+      "providerCalls": "NONE_BY_THIS_GENERATOR",
+      "independentReviewerExposure": "NOT_RECORDED_YET",
+      "limitation": "Public synthetic inputs cannot establish absence of training exposure; no independent review or experiment is represented as complete."
+    }
+  ]
+}

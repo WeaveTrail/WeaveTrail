@@ -1,0 +1,21 @@
+{
+  "generatorVersion": "mapping-study-generator/1",
+  "status": "UNSEALED",
+  "executedAt": "2026-10-13T04:28:57.929Z",
+  "checkout": "0551a39efa6b4cb309bfbe2d7f5ace72e901ac79",
+  "dirtyTrackedFiles": [
+    "CONTRIBUTING.md",
+    "docs/EVALUATION.md",
+    "docs/MAPPING_CORPUS_SPEC.md",
+    "package.json",
+    "packages/evals/src/README.md",
+    "packages/evals/src/schema-dialects.test.ts"
+  ],
+  "node": "v22.18.0",
+  "pnpm": "10.33.2",
+  "platform": "linux",
+  "arch": "x64",
+  "command": "pnpm eval:corpus:generate --output packages/evals/fixtures/mapping-study-v1",
+  "manifestSha256": "6da944519ee7d8e228443e24a33990d3d0be18ea4473a386c218f4ce657e4e92",
+  "note": "Source file hashes in manifest identify the generator working tree; checkout alone is not a claim that uncommitted authoring already exists in that commit."
+}

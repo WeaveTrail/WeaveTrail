@@ -62,6 +62,8 @@ function assertOfflineBoundary(
     if (content === undefined) throw new Error(`Cannot read ${path}`);
     expect(path).not.toContain("schema-dialects");
     expect(content, path).not.toContain("schema-dialects");
+    expect(content, path).not.toContain("mapping-corpus");
+    expect(content, path).not.toContain("mapping-study-v1");
     for (const imported of ts.preProcessFile(content).importedFiles) {
       if (!imported.fileName.startsWith(".")) continue;
       const resolved = ts.resolveModuleName(
@@ -311,6 +313,8 @@ describe("offline schema dialect evaluation input", () => {
         if (!/\.(ts|tsx|js|mjs|json|html)$/.test(name)) continue;
         const content = readFileSync(path, "utf8");
         expect(content, name).not.toContain("schema-dialects");
+        expect(content, name).not.toContain("mapping-corpus");
+        expect(content, name).not.toContain("mapping-study-v1");
         for (const imported of ts.preProcessFile(content).importedFiles)
           assertEvaluationImport(name, imported.fileName, root);
       }
@@ -323,6 +327,9 @@ describe("offline schema dialect evaluation input", () => {
     for (const imported of [
       "../../../../../packages/evals/fixtures/schema-dialects-v2/HELD_OUT.json",
       "../../../../../packages/evals/fixtures/schema-dialects-v2/DEV.json",
+      "../../../../../packages/evals/fixtures/mapping-study-v1/SELECT.inputs.json",
+      "../../../../../packages/evals/fixtures/mapping-study-v1/AUDIT.gold.json",
+      "../../../../../packages/evals/src/mapping-corpus-generator",
       "../../../../../packages/evals/results/mapping-held-out-v1/sessions/365e2daf-a833-427d-8921-718890100b59/records.json",
       "../../../../../packages/evals/results/mapping-held-out-v2/sessions/f869738c-fb61-42df-9b50-ecfd9c3b299a/records.json",
       // The superseded first capture is no longer published.

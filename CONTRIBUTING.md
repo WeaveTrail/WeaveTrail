@@ -55,6 +55,13 @@ and actual B0/B1 records against the committed common-scorer summary. It never
 updates expectations or reads another split. Regression tests also reproduce the
 capture in `pnpm test`; see the [development reference protocol](docs/EVALUATION.md#stronger-non-model-development-reference).
 
+`pnpm eval:corpus:generate` renders the unsealed synthetic SELECT/AUDIT/DRIFT
+drafts into `dist/mapping-study-unsealed/`. `pnpm eval:corpus:check` runs author
+preflight, generates twice and verifies every committed artifact byte without
+updating expectations. It writes a separate actual environment receipt. Independent
+gold/lineage review, sealing and model-run integration remain planned; see the
+[draft inventory](packages/evals/fixtures/mapping-study-v1/README.md).
+
 `pnpm eval:schemas:generate:v2` reproduces the new sealed corpus and DEV-only
 vocabulary. `pnpm eval:models:held-out --live --catalogue <attestation.json>`
 checks committed pre-run inputs and records three attempts per model and dialect.
