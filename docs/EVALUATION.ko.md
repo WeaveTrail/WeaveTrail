@@ -588,6 +588,84 @@ pnpm eval:mappings:compare --records path/to/records.json --prices path/to/price
 [ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md)(영문)를
 참고하세요.
 
+## 강화 비모델 개발 기준선
+
+`strong-baseline/1`은 B0(`lexical-baseline/3`) 옆에 두는 오프라인 개발 기준선으로
+구현됐다. 모델을 선택하거나 실시간 경로를 켜거나 승인을 만들지 않는다. 새
+SELECT/AUDIT/DRIFT 비교 도구와 독립 감사를 거친 실험 동결은 계획 단계다.
+[구현 결정](adr/0080-build-a-dev-only-ordered-token-mapping-reference.md)(영문)과
+[고정 설정](../packages/evals/fixtures/strong-baseline-v1/configuration.json)이 정확한
+범위를 정의한다.
+
+커밋된 [개발 실행 정의](../packages/evals/src/strong-baseline-dev.ts)는 두 기준선에
+같은 `schema-dialects/4` DEV 입력 12개를 한 번씩 준다. 열 이름·상수·표본 행만
+매퍼에 전달한다. 정답은 B1의 오프라인 작성과 채점에 쓰고 실행 중 매핑에는 쓰지
+않는다. 명령은 HELD_OUT·SELECT·AUDIT·DRIFT 파일을 읽지 않는다.
+
+```bash
+pnpm eval:baselines:dev
+```
+
+명령은 DEV 원본 바이트의 봉인을 검증하고 DEV에서 B1 설정을 재구성한다. 실제
+기록과 공통 채점기 요약이 커밋 바이트와 일치하는지 확인한 뒤 검증한 사본을
+`dist/strong-baseline-dev/`에 쓴다. 기대값을 갱신하지 않는다. `pnpm test`에서도
+같은 재현을 확인한다.
+
+B1은 유니코드 문자와 허용된 ASCII 구분자로 이루어진 전체 이름을 소문자로
+바꾸고 구분자를 제거한다. 호환 문자 정규화·부분 문자열 매칭·지시문 해독·위치
+추론은 하지 않는다. ASCII 단어 규칙은 camel case와 구분자를 나누고 순서를
+보존하며 전체 이름을 소비한다. 닫힌 조합은 다음 다섯 개다.
+
+| 대상         | 첫 단어 선택지   | 둘째 단어 선택지 | 변환           |
+| ------------ | ---------------- | ---------------- | -------------- |
+| eventTime    | trade, fill      | ts, time         | ISO_DATETIME   |
+| price        | deal, fill, unit | price, px        | DECIMAL_STRING |
+| quantity     | dl, fill         | qty, q           | DECIMAL_STRING |
+| instrumentId | product          | code, symbol     | IDENTITY       |
+| actorId      | dealer           | id, code         | IDENTITY       |
+
+모든 선택지는 같은 대상·같은 위치의 DEV 근거를 설정에 기록한다. 추가 단어·뒤집힌
+순서·등록하지 않은 단위는 유보한다. 전체 이름과 단어 규칙의 답을 함께 검토하고,
+답이 충돌하거나 DEV 정답이 충돌·검토 상태인 이름은 값을 보기 전에 유보한다.
+유일한 답도 모든 표본에 맞아야 한다. 값으로 의미의 동률을 깨지 않는다. 같은
+대상을 두고 경쟁하는 열은 모두 유보한다. 지원 변환은 위 세 가지뿐이고 소수는
+문자열로 유지한다. 최종 기록은 엔진의 전체 시험 적용을 포함하는 기존
+`mapping-validator/3`을 통과한다. `VALID`는 구조가 유효하다는 뜻으로, 검토할
+필드가 남을 수 있다. 사람의 승인은 여전히 필요하다.
+
+실제 [실행 기록](../packages/evals/fixtures/strong-baseline-v1/records.json),
+[요약](../packages/evals/results/strong-baseline-dev-v1.json),
+[실행 영수증](../packages/evals/results/strong-baseline-dev-v1.run.json)은
+2026-10-13에 Node v22.18.0·pnpm 10.33.2·Linux x64에서 캡처했다. 영수증에는
+기준 체크아웃과 작성·공유 코드 모듈 해시가 있다. 고정 요약은 그 해시·두 기준선의
+설정·DEV 원본 바이트에 묶인다. 이 개발 실행은 `mapping-score/2`의 기존 정확 일치
+채점을 사용하며, 계획된 새 수용 답 집합 채점기를 사용하지 않는다.
+
+| 수와 분모                                         | B0    | B1    |
+| ------------------------------------------------- | ----- | ----- |
+| 구조가 유효한 출력 / 입력                         | 3/12  | 4/12  |
+| 계약 거절 / 입력                                  | 9/12  | 8/12  |
+| 엄격히 맞은 해결 가능 필드 / 해결 가능 필드       | 24/96 | 32/96 |
+| 유효한 출력에서 올바른 유보 / 검토 필요 정답 필드 | 21/84 | 28/84 |
+| 과도한 유보 / 해결 가능 필드                      | 15/96 | 8/96  |
+| 잘못 배정한 필드 / 전체 정답 필드                 | 0/180 | 0/180 |
+| 만들어 낸 필드 / 반환한 필드                      | 0/180 | 0/180 |
+| 주입 지시를 따름 / 주입을 담은 필드               | 0/24  | 0/24  |
+
+모든 계약 거절은 `MISSING_REQUIRED_TARGET`이다. 헤더에서 지시문을 제거해 원천
+식별자를 복구하지 않으므로 일부 필수 식별자는 검토 상태에 남는다. 공통 채점기는
+전체 출력의 구조가 유효해야 엄격 정확도와 올바른 유보에 점수를 준다. 거절된
+기록에 올바른 개별 필드가 남아 있어도 정확도 점수를 주지 않는다. 전체 요약은
+동률과 실패를 포함한 모든 태그의 수를 보존한다.
+
+공유 템플릿으로 만든 작은 DEV 집합을 B1 작성에 사용했으므로 일반화·독립 family
+불확실성·모델 우위·실서비스 빈도·드문 오류의 안전성을 증명하지 못한다. 전체 이름
+별칭은 DEV를 외울 수 있다. 회귀 탐침은 유한한 조합 동작을 보여 주며 새 코퍼스의
+정확도 주장은 하지 않는다. 모델 호출은 없었다. 지연 시간 0은 비모델 센티널이고
+토큰·비용 관측 범위는 0이다. 속도나 비용 절감을 측정하지 않았다. 작성 시간을
+계측하지 않아 노동·튜닝 시간 주장은 없다. 두 기준선 모두 선택 후보가 아니다.
+기존 비교 출력과 `NO_MODEL` 결정은 그대로다.
+
 ## 미리 선언한 매핑 모델 선택 규칙
 
 [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)(영문)은

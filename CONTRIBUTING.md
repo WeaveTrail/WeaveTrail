@@ -50,6 +50,11 @@ Publish mapping comparisons through this command or `eval:mappings:score
 --records`; both include the reference automatically. The reference is never a
 selection candidate. See [the baseline protocol](docs/EVALUATION.md#non-model-lexical-reference).
 
+`pnpm eval:baselines:dev` verifies the DEV-only `strong-baseline/1` configuration
+and actual B0/B1 records against the committed common-scorer summary. It never
+updates expectations or reads another split. Regression tests also reproduce the
+capture in `pnpm test`; see the [development reference protocol](docs/EVALUATION.md#stronger-non-model-development-reference).
+
 `pnpm eval:schemas:generate:v2` reproduces the new sealed corpus and DEV-only
 vocabulary. `pnpm eval:models:held-out --live --catalogue <attestation.json>`
 checks committed pre-run inputs and records three attempts per model and dialect.

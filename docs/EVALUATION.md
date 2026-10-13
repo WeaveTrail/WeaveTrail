@@ -670,6 +670,94 @@ need no migration. The ADR 0067 offline command below applies a selection rule. 
 routing and escalation routing remain unimplemented. See
 [ADR 0065](adr/0065-freeze-a-dev-only-lexical-reference-for-mapping-comparisons.md).
 
+## Stronger non-model development reference
+
+`strong-baseline/1` is implemented as an offline development reference beside
+B0 (`lexical-baseline/3`). It does not select a model, enable the live path or
+create an approval. New SELECT/AUDIT/DRIFT comparison integration and the
+independently audited experiment freeze remain planned. The
+[construction decision](adr/0080-build-a-dev-only-ordered-token-mapping-reference.md)
+and [frozen configuration](../packages/evals/fixtures/strong-baseline-v1/configuration.json)
+define its exact scope.
+
+The definition is committed in
+[the development replay](../packages/evals/src/strong-baseline-dev.ts): both
+references receive the same twelve `schema-dialects/4` DEV inputs and one repeat
+each. Only column names, constants and sample rows reach either mapper. Gold is
+used for offline B1 authoring and scoring, never for runtime mapping. The command
+reads no HELD_OUT, SELECT, AUDIT or DRIFT artifacts.
+
+```bash
+pnpm eval:baselines:dev
+```
+
+This command verifies the original-byte DEV seal, reconstructs B1's configuration
+from DEV, compares the actual records and common-scorer summary byte for byte,
+and writes verified copies to `dist/strong-baseline-dev/`. It never updates
+expectations. The same reproduction runs in `pnpm test`.
+
+B1 lowercases whole names containing Unicode letters and permitted ASCII
+separators, retaining their full meaning; it performs no compatibility folding,
+substring matching, instruction decoding or positional inference. Its ordered
+ASCII token rules split camel case and separators and consume the entire name.
+The five closed products are:
+
+| Target       | First token alternatives | Second token alternatives | Transform      |
+| ------------ | ------------------------ | ------------------------- | -------------- |
+| eventTime    | trade, fill              | ts, time                  | ISO_DATETIME   |
+| price        | deal, fill, unit         | price, px                 | DECIMAL_STRING |
+| quantity     | dl, fill                 | qty, q                    | DECIMAL_STRING |
+| instrumentId | product                  | code, symbol              | IDENTITY       |
+| actorId      | dealer                   | id, code                  | IDENTITY       |
+
+Every alternative has a same-target, same-position DEV witness in the
+configuration. Additional words, reversed order and unregistered units abstain.
+All whole-name and token-rule answers are considered together; conflicting
+answers and names whose DEV labels conflict or require review abstain before
+values are considered. A unique answer must fit every supplied sample; samples
+never break a semantic tie. Columns competing for a target all abstain. Supported
+transforms are limited to the three above; decimals stay strings. The final
+record passes the existing `mapping-validator/3`, including the engine's full
+dry-run checks. `VALID` is structural validity and may include fields in review;
+human approval is still required.
+
+The actual [records](../packages/evals/fixtures/strong-baseline-v1/records.json),
+[summary](../packages/evals/results/strong-baseline-dev-v1.json) and
+[capture receipt](../packages/evals/results/strong-baseline-dev-v1.run.json) were
+captured on 2026-10-13 with Node v22.18.0, pnpm 10.33.2, Linux x64. The receipt
+records the base checkout and hashes of the authored and shared code modules;
+the stable summary binds those hashes, both reference configurations and the
+original DEV bytes. This is a development replay with `mapping-score/2`'s
+historical exact-answer semantics, not the planned new acceptable-answer scorer.
+
+| Count and denominator                                              | B0    | B1    |
+| ------------------------------------------------------------------ | ----- | ----- |
+| Structurally valid outputs / dialects                              | 3/12  | 4/12  |
+| Contract rejections / dialects                                     | 9/12  | 8/12  |
+| Strict correct resolvable fields / resolvable fields               | 24/96 | 32/96 |
+| Correct abstentions in valid outputs / review-required gold fields | 21/84 | 28/84 |
+| Over-abstentions / resolvable fields                               | 15/96 | 8/96  |
+| Misassignments / all gold fields                                   | 0/180 | 0/180 |
+| Invented fields / returned fields                                  | 0/180 | 0/180 |
+| Injection followed / injection-bearing fields                      | 0/24  | 0/24  |
+
+All rejections report `MISSING_REQUIRED_TARGET`. Header instructions are not
+stripped to recover a source identity, so some required identities stay in
+review. The common scorer credits strict accuracy and correct abstention only
+for a whole structurally valid output; retaining a correct individual field in a
+rejected record earns no correctness credit. The complete summary retains every
+tag's counts, including equal results and failures.
+
+These small, shared-template DEV inputs were used to author B1 and cannot
+establish generalization, independent-family uncertainty, model superiority,
+service prevalence or rare-error safety. Whole-name aliases can memorize DEV;
+the regression probes demonstrate finite compositional behavior without making
+an accuracy claim on a new corpus. No model was called. Zero latency is a
+non-model sentinel, and token and cost coverage is zero; no speed or money saving
+is measured. Authoring time was not instrumented, so no labor or tuning time
+claim is made. Neither reference is a selection candidate. The historical
+comparison outputs and `NO_MODEL` decision remain unchanged.
+
 ## Declared mapping model selection rule
 
 [ADR 0067](adr/0067-separate-mapping-validity-from-approval-before-selection.md)

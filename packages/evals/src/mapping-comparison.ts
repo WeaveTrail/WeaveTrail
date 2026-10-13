@@ -16,6 +16,10 @@ import { LEXICAL_BASELINE_VERSION } from "./lexical-baseline-vocabulary";
 import vocabularyV2Json from "../fixtures/lexical-baseline-v2/vocabulary.json";
 import vocabularyV3Json from "../fixtures/lexical-baseline-v3/vocabulary.json";
 import { tags, type Corpus } from "./schema-dialects-generator";
+import {
+  STRONG_BASELINE_PROVIDER,
+  STRONG_BASELINE_VERSION,
+} from "./strong-mapping-baseline";
 
 type Sources = { bytes: string; sha256: string }[];
 type Group = ReturnType<typeof scoreMappingRuns>["groups"][number];
@@ -35,6 +39,8 @@ export function baselineRecordsForComparison(
     records.some(
       (r) =>
         r.provider === LEXICAL_BASELINE_PROVIDER ||
+        r.provider === STRONG_BASELINE_PROVIDER ||
+        r.requestedModel === STRONG_BASELINE_VERSION ||
         r.requestedModel === LEXICAL_BASELINE_VERSION ||
         r.requestedModel === "lexical-baseline/2" ||
         r.requestedModel === "lexical-baseline/3",
