@@ -672,7 +672,7 @@ export function scoreMappingStudy(input: StudyScoreInput) {
           transitions.filter((t) => t.escalated).length,
         ),
         harmAmongEscalations: count(
-          transitions.filter((t) => t.harm).length,
+          transitions.filter((t) => t.escalated && t.harm).length,
           transitions.filter((t) => t.escalated).length,
         ),
         escalation: count(

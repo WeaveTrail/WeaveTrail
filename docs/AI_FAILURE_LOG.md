@@ -427,3 +427,22 @@ model responses. No prompt, source artifact, corpus seal or live model run chang
 The negative regression fails before the fix. A declared AUDIT subset and
 SELECT/DRIFT sources in the same protocol remain valid. This is an offline
 validator probe; no model call, prompt change or held-out model run occurred.
+
+### F-020: Escalation harm includes a non-escalated deadline route
+
+| Field             | Value                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study route scoring                                                                                                 |
+| Model and version | No model or provider call; authored SYNTHETIC and LIVE_SAMPLE route controls                                                        |
+| Run record        | None. Synthetic AUDIT records with a safe primary withheld after the route timeout                                                  |
+| Assumption        | Every harm transition belongs to the escalated-route population                                                                     |
+| Counterexample    | A non-escalated safe primary withheld at the deadline produces harmAmongEscalations 1/0, despite requesting no escalation           |
+| Fix               | Restrict the harmAmongEscalations numerator to transitions that are both escalated and harmful. Keep all-route harm unchanged. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                    |
+| Status            | `FIXED`                                                                                                                             |
+
+Both route modes fail the new regression before the fix. Primary-only deadline
+routes now report escalation harm as explicit 0/0; adding a rescued escalation
+reports 0/1 while preserving overall harm as 1/2. Existing SELECT/AUDIT control
+bytes remain unchanged. These are authored offline scoring probes, not measured
+model outcomes; no prompt change or held-out model run occurred.

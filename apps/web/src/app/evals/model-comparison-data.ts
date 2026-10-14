@@ -399,6 +399,12 @@ export const FAILURE_LOG_ENTRIES = [
     en: "An AUDIT protocol declares a nonexistent live-sample dialect",
     ko: "AUDIT 프로토콜이 존재하지 않는 라이브 표본 dialect를 선언함",
   },
+  {
+    id: "F-020",
+    status: "FIXED",
+    en: "Escalation harm includes a non-escalated deadline route",
+    ko: "상승 경로 손실에 비상승 deadline 경로가 포함됨",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

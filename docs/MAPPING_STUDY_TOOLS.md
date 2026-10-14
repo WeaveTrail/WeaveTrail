@@ -119,17 +119,18 @@ gold; independently reviewed alternatives have a separate whole-assignment diagn
 
 Additional counts use these denominators:
 
-| Count                   | Numerator / denominator                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------------------- |
-| Safe completion         | Entire canonical assignment correct and offerable / observed dialect-runs                   |
-| Correct termination     | Safe completion when gold expects a proposal, otherwise no proposal / observed dialect-runs |
-| Review required         | No offerable proposal / observed dialect-runs                                               |
-| Wrong exposure          | Offerable proposal with a wrong canonical assignment / observed dialect-runs                |
-| Requested escalation    | Primary not offerable / routed dialect-runs                                                 |
-| Rescue, harm            | P unsafe and R safe, or P safe and R unsafe / routed dialect-runs; also / escalated runs    |
-| Unproductive escalation | Escalated without adding safe completion / escalated runs                                   |
-| Missed silent error     | Wrong offerable P with no escalation / non-escalated proposals                              |
-| Blocked escalation      | Escalation requested but no E attempt / routed dialect-runs                                 |
+| Count                          | Numerator / denominator                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
+| Safe completion                | Entire canonical assignment correct and offerable / observed dialect-runs                   |
+| Correct termination            | Safe completion when gold expects a proposal, otherwise no proposal / observed dialect-runs |
+| Review required                | No offerable proposal / observed dialect-runs                                               |
+| Wrong exposure                 | Offerable proposal with a wrong canonical assignment / observed dialect-runs                |
+| Requested escalation           | Primary not offerable / routed dialect-runs                                                 |
+| Rescue, harm                   | P unsafe and R safe, or P safe and R unsafe / routed dialect-runs                           |
+| Rescue, harm among escalations | Same transitions restricted to escalated routes / escalated runs                            |
+| Unproductive escalation        | Escalated without adding safe completion / escalated runs                                   |
+| Missed silent error            | Wrong offerable P with no escalation / non-escalated proposals                              |
+| Blocked escalation             | Escalation requested but no E attempt / routed dialect-runs                                 |
 
 Zero denominators remain explicit `0/0`, never a zero rate. Stopped sessions report
 observed-run metrics with a separate missing-run grid, not an inferred full-grid
@@ -137,6 +138,12 @@ performance. All rates and money use integer or rational arithmetic. Tariffs mat
 provider/requested/reported identity; absent usage or a missing tariff stays unknown.
 Cost rounds upward once per billing identity to micro-USD, as the shared scorer
 already does. Per-dialect-run cost is null without complete coverage.
+
+Withholding a safe, offerable primary at the deadline counts as overall harm.
+It contributes to neither the numerator nor denominator of
+`harmAmongEscalations`, because that route requested no escalation. This
+scoring correction changes that count in summaries containing such routes;
+re-score retained bundles to reproduce the corrected summary bytes.
 
 Route quality uses the actual final attempted output, with its offerable disposition
 censored on a stop. Conditional resources sum P plus the E attempts referenced by

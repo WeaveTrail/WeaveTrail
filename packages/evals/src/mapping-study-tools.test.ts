@@ -748,6 +748,110 @@ describe("offline mapping study tools", () => {
       denominator: "1",
     });
   });
+  it.each(["SYNTHETIC", "LIVE_SAMPLE"] as const)(
+    "restricts escalation harm to escalated %s routes while retaining overall deadline harm",
+    (mode) => {
+      const input = load();
+      const originalRoutes = routes(input);
+      const primaryCoordinate = originalRoutes.find(
+        (r) => r.reason === "PRIMARY_OFFERABLE" && r.stop === "NONE",
+      )!;
+      const escalationCoordinate = originalRoutes.find(
+        (r) => r.dialectId === "d-003" && r.repeat === 1,
+      )!;
+      rebindProtocol(input, (p) => {
+        p.liveSampleDialectIds = [
+          primaryCoordinate.dialectId,
+          escalationCoordinate.dialectId,
+        ];
+      });
+      const { protocol } = readStudyProtocol(input.protocol);
+      const source = bindStudySource(protocol, input.source);
+      const rs = records(input);
+      const attemptedRecords: typeof rs = [];
+      const makeRoute = (coordinate: (typeof originalRoutes)[number]) => {
+        const dialect = source.dialects.find(
+          (d) => d.input.dialectId === coordinate.dialectId,
+        )!;
+        const primary = rs.find(
+          (r) =>
+            r.candidateId === "control-p" &&
+            r.dialectId === coordinate.dialectId &&
+            r.repeat === coordinate.repeat,
+        )!;
+        const escalation = rs.find(
+          (r) =>
+            r.candidateId === "control-e" &&
+            r.dialectId === coordinate.dialectId &&
+            r.repeat === coordinate.repeat,
+        )!;
+        if (coordinate === primaryCoordinate)
+          primary.latencyMs = protocol.routeTimeoutMs + 1;
+        const route = synthesizeStudyRoute(
+          protocol,
+          primary,
+          escalation,
+          dialect,
+        );
+        if (mode === "SYNTHETIC") return route;
+        const actualPrimary = MappingStudyRunRecordSchema.parse({
+          ...primary,
+          phase: "LIVE_ROUTE",
+        });
+        attemptedRecords.push(actualPrimary);
+        const actualEscalation = route.escalationRunHash
+          ? MappingStudyRunRecordSchema.parse({
+              ...escalation,
+              phase: "LIVE_ROUTE",
+            })
+          : null;
+        if (actualEscalation) attemptedRecords.push(actualEscalation);
+        return MappingStudyRouteRecordSchema.parse({
+          ...route,
+          mode,
+          primaryRunHash: studyRecordHash(actualPrimary),
+          escalationRunHash: actualEscalation
+            ? studyRecordHash(actualEscalation)
+            : null,
+          selectedRunHash: actualEscalation
+            ? studyRecordHash(actualEscalation)
+            : null,
+        });
+      };
+      const deadlineRoute = makeRoute(primaryCoordinate);
+      expect(deadlineRoute).toMatchObject({
+        reason: "PRIMARY_OFFERABLE",
+        stop: "DEADLINE",
+        selectedRunHash: null,
+      });
+      input.records = [...rs, ...attemptedRecords];
+      input.routes = [deadlineRoute];
+      const primaryOnly = scoreMappingStudy(input).routes[0]!;
+      expect(primaryOnly.harm).toEqual({ numerator: "1", denominator: "1" });
+      expect(primaryOnly.escalation).toEqual({
+        numerator: "0",
+        denominator: "1",
+      });
+      expect(primaryOnly.harmAmongEscalations).toEqual({
+        numerator: "0",
+        denominator: "0",
+      });
+      const rescuedRoute = makeRoute(escalationCoordinate);
+      input.records = [...rs, ...attemptedRecords];
+      input.routes = [deadlineRoute, rescuedRoute];
+      const mixed = scoreMappingStudy(input).routes[0]!;
+      expect(mixed.harm).toEqual({ numerator: "1", denominator: "2" });
+      expect(mixed.escalation).toEqual({ numerator: "1", denominator: "2" });
+      expect(mixed.harmAmongEscalations).toEqual({
+        numerator: "0",
+        denominator: "1",
+      });
+      expect(mixed.rescueAmongEscalations).toEqual({
+        numerator: "1",
+        denominator: "1",
+      });
+    },
+  );
   it("does not start a synthetic E attempt when P consumes the whole deadline", () => {
     const input = load();
     rebindProtocol(input, (p) => {
