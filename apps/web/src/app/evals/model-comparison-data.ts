@@ -357,6 +357,54 @@ export const FAILURE_LOG_ENTRIES = [
     en: "Applied review claims survive missing evidence and split changes",
     ko: "근거 누락과 분할 변경에도 검토 적용 주장이 유지됨",
   },
+  {
+    id: "F-013",
+    status: "FIXED",
+    en: "A live route silently drops an unstopped offerable primary",
+    ko: "중단 없는 정상 primary 제안을 라이브 경로가 누락함",
+  },
+  {
+    id: "F-014",
+    status: "FIXED",
+    en: "A hash-bound family names an unrelated dialect",
+    ko: "해시로 연결된 family가 무관한 dialect를 선언함",
+  },
+  {
+    id: "F-015",
+    status: "FIXED",
+    en: "A live route claims a deadline before its timeout",
+    ko: "라이브 경로가 제한 시간 전에 deadline을 선언함",
+  },
+  {
+    id: "F-016",
+    status: "FIXED",
+    en: "A family binding rejects declared DRIFT follow-ups",
+    ko: "family 연결 검증이 선언된 DRIFT 후속 입력을 거부함",
+  },
+  {
+    id: "F-017",
+    status: "FIXED",
+    en: "Gold disposition contradicts the canonical proposal",
+    ko: "정답의 종료 상태가 정본 제안과 모순됨",
+  },
+  {
+    id: "F-018",
+    status: "FIXED",
+    en: "An incomplete grid compares against full reference samples",
+    ko: "불완전한 격자를 전체 기준선 표본과 비교함",
+  },
+  {
+    id: "F-019",
+    status: "FIXED",
+    en: "An AUDIT protocol declares a nonexistent live-sample dialect",
+    ko: "AUDIT 프로토콜이 존재하지 않는 라이브 표본 dialect를 선언함",
+  },
+  {
+    id: "F-020",
+    status: "FIXED",
+    en: "Escalation harm includes a non-escalated deadline route",
+    ko: "상승 경로 손실에 비상승 deadline 경로가 포함됨",
+  },
 ] as const;
 
 /** GitHub's heading anchor for one failure-log entry. */

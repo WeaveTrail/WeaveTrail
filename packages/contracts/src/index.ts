@@ -20,3 +20,4 @@ export * from "./source-provenance";
 export * from "./service-snapshot";
 export * from "./instrument-resolution";
 export * from "./coverage";
+export * from "./mapping-study-record";

@@ -322,3 +322,127 @@ set remains valid; original-byte gold hashes still preserve that order.
 Canonical input/gold bytes and unresolved review blockers remain unchanged.
 No model behavior or performance was measured, no held-out model set was consumed
 and no prompt changed.
+
+### F-013: A live route silently drops an unstopped offerable primary
+
+| Field             | Value                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study route validation                                                                                                                              |
+| Model and version | No model or provider call; synthetic mutation of `mapping-study-route/1`                                                                                            |
+| Run record        | None. Authored AUDIT control converted to a declared `LIVE_ROUTE` attempt for an offline validation probe                                                           |
+| Assumption        | Checking a selected run only when its hash is present suffices to validate an offerable primary                                                                     |
+| Counterexample    | A `LIVE_SAMPLE` route with `PRIMARY_OFFERABLE`, `stop: NONE`, `selectedRunHash: null` and `REVIEW_REQUIRED` passes scoring and counts a safe primary as routed harm |
+| Fix               | Require the primary run hash to be selected whenever an offerable primary has no stop. Deadline withholding remains valid. #337                                     |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                                    |
+| Status            | `FIXED`                                                                                                                                                             |
+
+### F-014: A hash-bound family names an unrelated dialect
+
+| Field             | Value                                                                                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study source binding                                                                                                         |
+| Model and version | No model or provider call; synthetic mutation of `mapping-study-inputs/1` family metadata                                                    |
+| Run record        | None. Offline authored mutations of the committed AUDIT control families, with recomputed artifact and protocol hashes                       |
+| Assumption        | Matching family ID and split suffices to bind a family to an input/gold pair                                                                 |
+| Counterexample    | A family retains its expected ID and split but declares another family's dialect or nonexistent `d-999`; scoring accepts both contradictions |
+| Fix               | Require the family's declared dialect ID to equal the bound input/gold dialect ID before scoring or family analysis. #337                    |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                             |
+| Status            | `FIXED`                                                                                                                                      |
+
+These are offline validator regressions, not observed model failures or live
+operating samples. The regressions cover valid live primary selection, rejection
+of silent dropping, permitted deadline withholding and rejection of hash-bound
+unrelated or nonexistent family dialects. Original control byte checks remain
+valid. No model call, held-out model run or prompt change occurred.
+
+### F-015: A live route claims a deadline before its timeout
+
+| Field             | Value                                                                                                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study route validation                                                                                                                   |
+| Model and version | No model or provider call; synthetic mutation of mapping-study-route/1                                                                                   |
+| Run record        | None. Offline authored LIVE_SAMPLE route mutations                                                                                                       |
+| Assumption        | Recorded attempt durations suffice to validate a deadline stop                                                                                           |
+| Counterexample    | An offerable primary is withheld with DEADLINE at 10 ms under a 60,000 ms timeout, and scoring accepts the resulting routed harm                         |
+| Fix               | Reject deadline stops whose route latency is below the protocol timeout, for primary and escalated routes. Preserve stops at and after the timeout. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                         |
+| Status            | `FIXED`                                                                                                                                                  |
+
+### F-016: A family binding rejects declared DRIFT follow-ups
+
+| Field             | Value                                                                                                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study source binding                                                                                                                                                     |
+| Model and version | No model or provider call; committed unsealed mapping-study-inputs/1 DRIFT artifacts                                                                                                     |
+| Run record        | None. Source binding and authored canonical-output regression over the committed DRIFT draft                                                                                             |
+| Assumption        | Every concrete input must equal the family's base dialect ID                                                                                                                             |
+| Counterexample    | The F-014 equality rejects d-085.1 through d-085.6, which correctly retain f-085 and declared base d-085; the 84-input DRIFT source cannot bind                                          |
+| Fix               | Bind DRIFT follow-ups through an original-byte protocol-bound relation artifact, checking family, base/follow-up IDs and both input hashes. Retain direct equality for base inputs. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                                                         |
+| Status            | `FIXED`                                                                                                                                                                                  |
+
+### F-017: Gold disposition contradicts the canonical proposal
+
+| Field             | Value                                                                                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study gold validation                                                                                                                      |
+| Model and version | No model or provider call; synthetic disposition mutations                                                                                                 |
+| Run record        | None. Offline authored AUDIT gold mutations with recomputed hashes                                                                                         |
+| Assumption        | A schema-valid expectedDisposition can be trusted for correct termination                                                                                  |
+| Counterexample    | Flipping REVIEW_REQUIRED to PROPOSAL_OFFERABLE or the inverse passes source binding and changes termination scoring without changing the canonical columns |
+| Fix               | Validate declared disposition with the shared approval-readiness validator on canonical gold fields and the exact input before scoring. #337               |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                           |
+| Status            | `FIXED`                                                                                                                                                    |
+
+### F-018: An incomplete grid compares against full reference samples
+
+| Field             | Value                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study reference comparison                                                                                                              |
+| Model and version | No model or provider call; authored stopped SELECT controls                                                                                             |
+| Run record        | None. Offline partial and empty model-grid regressions                                                                                                  |
+| Assumption        | Observed candidate subsets can be ordered against references over the complete grid                                                                     |
+| Counterexample    | A stopped session missing model coordinates still emits B0/B1 accuracy ordering against candidates evaluated on fewer coordinates                       |
+| Fix               | Emit referenceComparisons only when the model grid is complete. Keep partial model observations, missing coordinates and full reference summaries. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                        |
+| Status            | `FIXED`                                                                                                                                                 |
+
+These are offline validation and scoring probes. The full DRIFT CLI regression
+keeps 84 inputs in 12 dependent families and uses authored outputs, not observed
+model responses. No prompt, source artifact, corpus seal or live model run changed.
+
+### F-019: An AUDIT protocol declares a nonexistent live-sample dialect
+
+| Field             | Value                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Role              | Offline mapping-study source binding                                                                                                                   |
+| Model and version | No model or provider call; synthetic mutation of mapping-study-protocol/1                                                                              |
+| Run record        | None. Authored AUDIT protocol with a recomputed canonical hash and no live attempts                                                                    |
+| Assumption        | Live run validation can catch an unknown sample dialect after source binding                                                                           |
+| Counterexample    | A protocol lists d-003 and nonexistent d-999 in liveSampleDialectIds; source binding accepts it although no run for d-999 can bind                     |
+| Fix               | Check every declared sample ID against the bound AUDIT source before attempts. SELECT/DRIFT binding remains independent of the AUDIT sample list. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                                       |
+| Status            | `FIXED`                                                                                                                                                |
+
+The negative regression fails before the fix. A declared AUDIT subset and
+SELECT/DRIFT sources in the same protocol remain valid. This is an offline
+validator probe; no model call, prompt change or held-out model run occurred.
+
+### F-020: Escalation harm includes a non-escalated deadline route
+
+| Field             | Value                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Role              | Offline mapping-study route scoring                                                                                                 |
+| Model and version | No model or provider call; authored SYNTHETIC and LIVE_SAMPLE route controls                                                        |
+| Run record        | None. Synthetic AUDIT records with a safe primary withheld after the route timeout                                                  |
+| Assumption        | Every harm transition belongs to the escalated-route population                                                                     |
+| Counterexample    | A non-escalated safe primary withheld at the deadline produces harmAmongEscalations 1/0, despite requesting no escalation           |
+| Fix               | Restrict the harmAmongEscalations numerator to transitions that are both escalated and harmful. Keep all-route harm unchanged. #337 |
+| Regression test   | `packages/evals/src/mapping-study-tools.test.ts`                                                                                    |
+| Status            | `FIXED`                                                                                                                             |
+
+Both route modes fail the new regression before the fix. Primary-only deadline
+routes now report escalation harm as explicit 0/0; adding a rescued escalation
+reports 0/1 while preserving overall harm as 1/2. Existing SELECT/AUDIT control
+bytes remain unchanged. These are authored offline scoring probes, not measured
+model outcomes; no prompt change or held-out model run occurred.

@@ -28,3 +28,6 @@ apps/web/src/design-reference/tokens
 # Compact B0/B1 DEV capture; verified by eval:baselines:dev and regression tests.
 /packages/evals/fixtures/strong-baseline-v1/records.json
 /packages/evals/results/strong-baseline-dev-v1.json
+
+# Canonical authored study controls; reproduced byte for byte by offline tool tests.
+/packages/evals/fixtures/mapping-study-tools-v1/**/*.json

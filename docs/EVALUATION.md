@@ -1245,3 +1245,13 @@ unseen. The protocol 3 held-out command still refuses to run, and the ADR 0069
 `NO_MODEL` decision stays the committed one; the evaluation page shows it as a
 measured comparison under
 [ADR 0077](adr/0077-lead-with-the-walkthrough-and-its-example-screen.md). Another attempt needs a new ADR.
+
+## Offline mapping-study tooling
+
+The new [study scorer and selector](MAPPING_STUDY_TOOLS.md) accept declared
+SELECT/AUDIT/DRIFT bindings, automatically include frozen B0/B1 references and
+retain stopped grids and hash-bound route records. They also provide exact
+family analysis. Shipped controls are authored synthetic tests, not new model
+measurements or a new selection. The corpus remains unsealed and paid experiments
+and runtime routing remain planned. Existing decisions and live-command gates
+are unchanged. See [ADR 0083](adr/0083-record-and-analyze-mapping-studies-offline.md).
