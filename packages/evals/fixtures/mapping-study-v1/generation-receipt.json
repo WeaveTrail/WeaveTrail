@@ -1,8 +1,8 @@
 {
   "generatorVersion": "mapping-study-generator/2",
   "status": "UNSEALED",
-  "executedAt": "2026-10-28T14:07:44.596Z",
-  "checkout": "a37e84a4cb41aa565bc21380b5c35bc48693edcf",
+  "executedAt": "2026-10-28T14:08:07.820Z",
+  "checkout": "00912f21a06a305480ae6506cbe6d6d90c5ede68",
   "dirtyTrackedFiles": [
     "packages/evals/fixtures/mapping-study-v1/manifest.json"
   ],
@@ -11,6 +11,6 @@
   "platform": "linux",
   "arch": "x64",
   "command": "pnpm eval:corpus:generate --output packages/evals/fixtures/mapping-study-v1",
-  "manifestSha256": "2d6228dd87ba6e1c408781cd5fde2897d3ce099ad3a067d309cbe578bce8f318",
+  "manifestSha256": "0e029af53108b3f9899fa74913deb30860f2984e5ecdf03c2e7c52bf6e41683c",
   "note": "Source file hashes in manifest identify the generator working tree; checkout alone is not a claim that uncommitted authoring already exists in that commit."
 }
