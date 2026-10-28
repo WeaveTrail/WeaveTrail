@@ -38,7 +38,7 @@
     "path": "scripts/generate-mapping-study.mts",
     "sha256": "f230cf72d4b241cf032970b21e8d970809f521183df5d25150e4b259e427e3ba"
   },
-  "lockfileSha256": "649ee1e18d6adc527e9863f2fed113f617085aab2d1dc35fa51a48e59b00f283",
+  "lockfileSha256": "84214cc1415616e30dc09e9a93bf7b4bb767a4cacfe0f6b3a200158a554269cb",
   "files": [
     {
       "path": "families.json",
